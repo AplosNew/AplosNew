@@ -621,6 +621,10 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 					}
 				}
 			}
+			if (baseService.isUndefinedOrNull($scope.detailModel.TransactionUoMId)) {
+						ShowResult('Please select UOM', 'failure', 'detailPopUp');
+						return false;
+			}
 			$scope.detailModel.TransactionQty = baseService.isUndefinedOrNull($scope.detailModel.TransactionQty) === true ? 0 : parseFloat($scope.detailModel.TransactionQty);
 			if ($scope.detailModel.TransactionQty === 0)
 				throw 'Please insert issue qty.';
@@ -631,7 +635,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 					$scope.detailModel.BaseQty = $scope.detailModel.TransactionQty;
 				}
 				else {
-					var tQty = parseFloat($scope.detailModel.TransactionQty) * parseFloat($.grep($scope.uoMList, function (item) { return item.Value === $scope.detailModel.TransactionUoMId; })[0].BaseUoMFactor);
+					var tQty = Math.round(parseFloat($scope.detailModel.TransactionQty) * parseFloat($.grep($scope.uoMList, function (item) { return item.Value === $scope.detailModel.TransactionUoMId; })[0].BaseUoMFactor) * 10000 + Number.EPSILON) / 10000;
 					if (tQty > parseFloat($scope.detailModel.PostingQuantity))
 						throw 'Issue qty must be less than or equal Ready for Issue Qty.';
 					$scope.detailModel.BaseQty = tQty;

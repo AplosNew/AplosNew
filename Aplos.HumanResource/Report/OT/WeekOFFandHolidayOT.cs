@@ -499,8 +499,8 @@ namespace Library.HumanResource.Report.OT
                 }
 
 
-                string FirstDayOfTheMonth = "01-" + Month + "-" + Year;
-                string LastDayOfTheMonth = Convert.ToDateTime(FirstDayOfTheMonth).AddMonths(1).AddDays(-1).ToString("dd-MMM-yyyy");
+                string FirstDayOfTheMonth = new DateTime((int)clsStaticInfo.dbl(Year), (int)clsStaticInfo.dbl(Month), 1).ToString("dd-MMM-yyyy");// "01 - " + Month + " - " + Year;
+                string LastDayOfTheMonth = new DateTime((int)clsStaticInfo.dbl(Year), (int)clsStaticInfo.dbl(Month),DateTime.DaysInMonth((int)clsStaticInfo.dbl(Year), (int)clsStaticInfo.dbl(Month))).ToString("dd-MMM-yyyy"); //Convert.ToDateTime(FirstDayOfTheMonth).AddMonths(1).AddDays(-1).ToString("dd-MMM-yyyy");
 
                 DataSet dsCurrency = null;
 
@@ -693,6 +693,12 @@ namespace Library.HumanResource.Report.OT
                     DataRow dtrOTH = item.Value;
                     OTConsiderOn = dtrOTH["OTConsiderOn"].ToString();
 
+                    if (EmpSystemid == "21791")
+                    {
+
+
+                    }
+
                     if (FOT == 0.00 && clsStaticInfo.dbl(dtrOTH["Duration"].ToString()) == 0.00)
                     {
                         continue;
@@ -753,15 +759,23 @@ namespace Library.HumanResource.Report.OT
                     //{
                     //    FOT = (FOT / 60) * dicW[EmpSystemid];
                     //}
+                    double TotalOT = FOT;
                     if (dicH.ContainsKey(EmpSystemid))
                     {
-                        sheet1.Range[xlsRow, iAmount].Number = clsStaticInfo.dbl(dicH[EmpSystemid]) * (clsStaticInfo.dbl(dtrOTH["DurationH"].ToString())) + FOT;
-
-                        sheet1.Range[xlsRow, iAmount].NumberFormat = NumberFormatTwoDecimal;
+                        TotalOT = clsStaticInfo.dbl(dicH[EmpSystemid]) * (clsStaticInfo.dbl(dtrOTH["DurationH"].ToString())) + FOT;
                         totalAmount += clsStaticInfo.dbl(dicH[EmpSystemid]) * (clsStaticInfo.dbl(dtrOTH["DurationH"].ToString()) + (FOT / 60));
 
                     }
+                    else
+                    {
+                        if (FOT > 0)
+                        {
 
+                        }
+
+                    }
+                    sheet1.Range[xlsRow, iAmount].Number = TotalOT;
+                    sheet1.Range[xlsRow, iAmount].NumberFormat = NumberFormatTwoDecimal;
                     xlsRow++;
                     SLNo++;
                 }
@@ -790,7 +804,7 @@ namespace Library.HumanResource.Report.OT
                 xlsRow = 1;
                 xlsCol = 1;
 
-                string reportTitle = "Week day ExtraOt and WeekOff OT For " + bplib.clsWebLib.GetMonthName(Month) + @", " + Year + @"";
+                string reportTitle = "Holiday OT For " + bplib.clsWebLib.GetMonthName(Month) + @", " + Year + @"";
                 ReporHeader(CompanyId, PlantId, xlsRow, xlsCol, endXlsCol, reportTitle, sheet1);
 
                 #endregion ******************Report Header******************
@@ -1006,7 +1020,7 @@ namespace Library.HumanResource.Report.OT
                 #region Column Variables
                 int ColSr = 0, ColIDNo = 0, ColName = 0, ColDOJ = 0, ColDOS = 0, ColPlantName = 0, cDept = 0, cSec = 0, cSubSec = 0, cLine = 0, cPayrollGroup = 0, cJobLocation = 0, cGender = 0,
                     cGrade = 0, ColGVDG = 0, ColGrs = 0, colPayDays = 0, ColPdDy = 0, ColLate = 0, ColAbDy = 0, ColHlDy = 0, ColWkOf = 0, ColLv = 0, ColMLv = 0, colBank = 0, colBankAccountNo = 0
-                   , ColLWP = 0, cDMP = 0,  colEmpCurrentStat = 0, colEmpStatus = 0, cPaymentMode = 0, cUnit = 0, ColTotalOTHR = 0, colDirectManpowerCost = 0, colBasic = 0, colGross = 0, colCTC = 0, ColTotalWorkingDay = 0, ColActualWorkingDay = 0, ColLatePresent = 0;
+                   , ColLWP = 0, cDMP = 0, colEmpCurrentStat = 0, colEmpStatus = 0, cPaymentMode = 0, cUnit = 0, ColTotalOTHR = 0, colDirectManpowerCost = 0, colBasic = 0, colGross = 0, colCTC = 0, ColTotalWorkingDay = 0, ColActualWorkingDay = 0, ColLatePresent = 0;
                 int npstruct = 0;
 
                 #endregion
@@ -1476,7 +1490,7 @@ namespace Library.HumanResource.Report.OT
 
                         SetCellTextAttdn(sheet1, xlsRow, ColTotalOTHR, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalOTHr"].ToString()) / 60);
 
-                      
+
                         //ExtraOT = ExtraOTH + ExtraOTW;
                         SetCellTextAttdn(sheet1, xlsRow, colExtraOT, ExtraOTH);
                         SetCellTextAttdn(sheet1, xlsRow, colWeekOff, ExtraOTW);
@@ -2858,10 +2872,10 @@ namespace Library.HumanResource.Report.OT
                 {
 
                     string _empid = item.Key;//dtemp.Rows[i]["EmpInfoSystemID"].ToString();
-                    if (_empid == "209432")
-                    { 
-                    
-                    
+                    if (_empid == "21791")
+                    {
+
+
                     }
 
                     GetFormula(dsPolicy, dsSalaryStruc, _currencyId, _empid, out nwRate, out wRate, out hRate);
@@ -4800,8 +4814,9 @@ namespace Library.HumanResource.Report.OT
 
 
 
-                string FirstDayOfTheMonth = "01-" + bplib.clsWebLib.GetMonthName(Month) + "-" + Year;
-                string LastDayOfTheMonth = Convert.ToDateTime(FirstDayOfTheMonth).AddMonths(1).AddDays(-1).ToString("dd-MMM-yyyy");
+                string FirstDayOfTheMonth = new DateTime((int)clsStaticInfo.dbl(Year), (int)clsStaticInfo.dbl(Month), 1).ToString("dd-MMM-yyyy");// "01 - " + Month + " - " + Year;
+                string LastDayOfTheMonth = new DateTime((int)clsStaticInfo.dbl(Year), (int)clsStaticInfo.dbl(Month), DateTime.DaysInMonth((int)clsStaticInfo.dbl(Year), (int)clsStaticInfo.dbl(Month))).ToString("dd-MMM-yyyy"); //Convert.ToDateTime(FirstDayOfTheMonth).AddMonths(1).AddDays(-1).ToString("dd-MMM-yyyy");
+
 
                 DataSet dsCurrency = null;
 
@@ -5514,14 +5529,15 @@ namespace Library.HumanResource.Report.OT
                             select systemid,EntryAmount,DefineAmount,SalaryID,SalaryHeadID,EntryCurrencyID from SalaryInfoBack
                             )
                             d on d.SalaryID=m.SystemID
+                            left join EmployeeInformation e on e.SystemId =m.EmpInfoSystemID
                             left join SalaryHead h on h.SalaryHeadID=d.SalaryHeadID
                             LEFT JOIN IncrementHistory IH on IH.ToSalaryId=d.SalaryID
                             
                             LEFT JOIN Hkp.LegalDesignation LD ON LD.Id = ih. FromLegalDesignationId
-                            LEFT JOIN MST.LegalSalaryGradeDesignation LGD ON LGD.LegalDesignationId = ih.FromLegalDesignationId AND LGD.PlantId in (" + sPlantID + @")
+                            LEFT JOIN MST.LegalSalaryGradeDesignation LGD ON LGD.LegalDesignationId = ih.FromLegalDesignationId AND lgd.plantid=e.PlantId---LGD.PlantId in (" + sPlantID + @")
                             
                             LEFT JOIN scs.LegalSalaryGrade LG ON LG.Id = LGD.LegalSalaryGradeId
-left join EmployeeInformation e on e.SystemId =m.EmpInfoSystemID
+
                                 where (e.DOJ<='" + sToDate + @"') and (e.DOS is null or e.DOS>='" + sFromDate + @"') and e.PlantId in (" + sPlantID + @")
                             ORDER BY m.EmpInfoSystemID";
 

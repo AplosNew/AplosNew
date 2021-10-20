@@ -158,7 +158,7 @@
         </div>
         <script type="text/template" id="ShowActionButtonsBOM">
             @*<button style="color: #f3f3ec;background-color: #1c1f32;" ng-disabled="data.IsConsumptionDetail==false" title="Consumption" class="btn"><i class="glyphicon glyphicon-list" ng-click="$parent.GetConsumption(this);" style="margin: -6px;"></i></button>*@
-            <button style="color: #f3f3ec;background-color: #1c1f32; " title="FGGRN PoPUp" class="btn"><i class="glyphicon glyphicon-list"" ng-click="$parent.GetRawMaterialDetail(this);" @*style="width: 50px;"*@></i></button>
+            <button style="color: #f3f3ec;background-color: #1c1f32; " title="FGGRN PoPUp" class="btn"><i class="glyphicon glyphicon-list" ng-click="$parent.GetRawMaterialDetail(this);" @*style="width: 50px;"*@></i></button>
             @*<li><a class="btn btn-action" href="Accounts/Advance/ReportCustomerAdvance?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>*@
 
             @*<button style="color: #f3f3ec;background-color: #1c1f32;" title="Detail" class="btn"><i class="glyphicon glyphicon-eye-open" ng-click="$parent.GetMatrixDetail(this);" style="margin: -6px;"></i></button>
@@ -320,111 +320,22 @@
                 <div class="modal-header">FG GRN<button type="button" class="close" data-dismiss="modal">&times;</button></div>
                 <div class="modal-body text-center">
                     <div style="color:black;" id="GridGRNID6" ej-grid e-datasource="FGInventoryRegisterPoPUpList" e-allowscrolling="true" e-allowResizing="true"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" @*e-recorddoubleclick="SelectPOItem"*@
-                         e-allowselection="true" e-filtersettings-filterType="excel">
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowselection="true" e-filtersettings-filterType="excel">
                         <div e-columns>
                             <div e-column e-headertext="Actions" e-width="70">
                                 <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridGRNID6');" style="margin: -6px;"></i></button>
                             </div>
-
                             <div e-column e-field="Id" e-headertext="GRN No." e-width="100" textAlign='Left'></div>
                             <div e-column e-field="GRNDate" e-headertext="GRN Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
                             <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="100"></div>
-                            @*<div e-column e-field="GateName" e-headertext="Gate Name" e-width="100"></div>*@
-
                             <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="100"></div>
                             <div e-column e-field="DocDate" e-headertext="Doc Ref Date" e-width="100"></div>
                             <div e-column e-field="EntryDate" e-headertext="Entry Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
-
                             <div e-column e-field="FixedAssetOrInventory" e-headertext="FixedAssetOrInventory" e-width="100"></div>
                             <div e-column e-field="Status" e-headertext="Status" e-width="50"></div>
                             <div e-column e-field="GRNType" e-headertext="GRN Type" e-width="50"></div>
-
-                            @*<div e-column e-field="ArticleName" e-headertext="Article" e-width="180"></div>
-        <div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="80"></div>
-        <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="80"></div>
-        <div e-column e-field="ThirdCharacteristicsValue" e-headertext="SKU3" e-width="80"></div>
-        <div e-column e-field="HSNCode" e-headertext="HSNCode" e-width="80"></div>
-        <div e-column e-field="TransactionQty" e-headertext="Transaction Qty" e-width="130" textAlign='Right'></div>
-        <div e-column e-field="UOM" e-headertext="UoM" e-width="100"></div>
-        <div e-column e-field="BaseQty" e-headertext="Base Qty" e-width="130" textAlign='Right'></div>
-        <div e-column e-field="BaseUoM" e-headertext="BaseUoM" e-width="100"></div>
-
-        <div e-column e-field="MaterialTranRate" e-headertext="Transaction Rate" e-width="130" textAlign='Right'></div>
-        <div e-column e-field="CredtibleStatus" e-headertext="Credtible Status" e-width="130"></div>
-        <div e-column e-field="MaterialTranAmount" e-headertext="Taxable Amount" e-width="180" textAlign='Right'></div>
-
-        <div e-column e-field="TotalMaterialTranAmount" e-headertext="TotalMaterialTranAmount" e-width="180" textAlign='Right'></div>
-        <div e-column e-field="TotalMaterialBaseAmount" e-headertext="TotalMaterialBooksCurrencyAmount" e-width="180" textAlign='Right'></div>
-
-
-
-        <div e-column e-field="TrnCurrencyBaseRate" e-headertext="Trn Currency Base Rate" e-width="130" textAlign='Right'></div>
-        <div e-column e-field="BooksCurrencyBaseRate" e-headertext="Books Currency Base Rate" e-width="130" textAlign='Right'></div>
-        <div e-column e-field="IsAsset" e-headertext="MM-IsAsset" e-width="80"></div>
-        <div e-column e-field="GRNAsset" e-headertext="GRN-IsAsset" e-width="80"></div>
-        <div e-column e-field="StorageLocation" e-headertext="Storage Location" e-width="180"></div>
-        <div e-column e-field="ShortageQty" e-headertext="ShortageQty" e-width="130" textAlign='Right'></div>
-        <div e-column e-field="ShortageRatePercent" e-headertext="ShortageRatePercent" e-width="130" textAlign='Right'></div>
-        <div e-column e-field="ShortageValue" e-headertext="ShortageValue" e-width="130" textAlign='Right'></div>
-        <div e-column e-field="RejectionQty" e-headertext="RejectionQty" e-width="130" textAlign='Right'></div>
-        <div e-column e-field="RejectRatePercent" e-headertext="RejectRatePer" e-width="130" textAlign='Right'></div>
-        <div e-column e-field="RejectValue" e-headertext="RejectionValue" e-width="130" textAlign='Right'></div>
-        <div e-column e-field="RejectClamPercent" e-headertext="RejectionClam" e-width="130" textAlign='Right'></div>
-        <div e-column e-field="ApprovedQty" e-headertext="ApprovedQty" e-width="130" textAlign='Right'></div>
-        <div e-column e-field="GrnDetailId" e-headertext="GRN Row ID" e-width="130"></div>
-        <div e-column e-field="AddedBy" e-headertext="Prepared By" e-width="130"></div>
-        <div e-column e-field="GRNCheckStatus" e-headertext="Status" e-width="130"></div>
-        <div e-column e-field="CheckedBY" e-headertext="Checking Name" e-width="130"></div>
-        <div e-column e-field="AuthorizedBy" e-headertext="Approving Name" e-width="130"></div>
-        <div e-column e-field="Posted" e-headertext="Posted" e-width="130"></div>
-        <div e-column e-field="PostedBy" e-headertext="Posted By" e-width="130"></div>
-        <div e-column e-field="VoucherNo" e-headertext="VoucherNo" e-width="130"></div>
-        <div e-column e-field="ContractNo" e-headertext="ContractNo" e-width="130"></div>
-        <div e-column e-field="PostingDate" e-headertext="PostingDate" e-width="130"></div>
-        <div e-column e-field="GLCode" e-headertext="GL Code" e-width="130"></div>
-        <div e-column e-field="GL" e-headertext="GL" e-width="130"></div>
-        <div e-column e-field="BudgetrefNo" e-headertext="Budget Code" e-width="130"></div>
-        <div e-column e-field="Budget" e-headertext="Budget" e-width="130"></div>
-        <div e-column e-field="ActivityCode" e-headertext="Activity Code" e-width="130"></div>
-        <div e-column e-field="Activity" e-headertext="Activity" e-width="130"></div>
-        <div e-column e-field="CGLCode" e-headertext="GL Code" e-width="130"></div>
-        <div e-column e-field="CGL" e-headertext="GL" e-width="130"></div>
-        <div e-column e-field="CBudgetrefNo" e-headertext="Budget Code" e-width="130"></div>
-        <div e-column e-field="CBUdget" e-headertext="Budget" e-width="130"></div>
-        <div e-column e-field="CActivityId" e-headertext="CActivity Id" e-width="130"></div>
-        <div e-column e-field="CActivityCode" e-headertext="CActivity Code" e-width="130"></div>
-        <div e-column e-field="CActivity" e-headertext="Activity" e-width="130"></div>
-
-        <div e-column e-field="RefferenceNo" e-headertext="PORefference" e-width="130"></div>
-        <div e-column e-field="LCANo" e-headertext="LCRef" e-width="130"></div>
-        <div e-column e-field="IsApproved" e-headertext="IsApproved" e-width="130"></div>
-
-
-        <div e-column e-field="IssueQty" e-headertext="IssueQty" e-width="130"></div>
-        <div e-column e-field="BaseIssueQty" e-headertext="BaseIssueQty" e-width="130"></div>
-        <div e-column e-field="PurchaseReturnQty" e-headertext="PurchaseReturnQty" e-width="130"></div>
-        <div e-column e-field="IssueReturnQty" e-headertext="IssueReturnQty" e-width="130"></div>
-        <div e-column e-field="ReductionByAdjustmentQty" e-headertext="ReductionByAdjustmentQty" e-width="130"></div>
-        <div e-column e-field="InventorySalesQty" e-headertext="InventorySalesQty" e-width="130"></div>
-        <div e-column e-field="InventoryScrapQty" e-headertext="InventoryScrapQty" e-width="130"></div>
-        <div e-column e-field="InventoryTransferQty" e-headertext="InventoryTransferQty" e-width="130"></div>*@
-
-                            @*<div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="30"></div>*@
-
-                            @*<div e-column e-headertext="PDF" e-commands="commandPDF" e-isunbound=true e-textalign="center" e-width="60"></div>
-        <div e-column e-headertext="Excel" e-commands="commandExcel" e-isunbound=true e-textalign="left" e-width="60"></div>
-        <div e-column e-headertext="GRN" e-commands="commandGRN" e-isunbound=true e-textalign="left" e-width="60"></div>*@
                         </div>
                     </div>
-                    
-                    @*<script type="text/template" id="ShowActionButtonsBOM">
-                        <button style="color: #f3f3ec;background-color: #1c1f32;" ng-disabled="data.IsConsumptionDetail==false" title="Consumption" class="btn"><i class="glyphicon glyphicon-list" ng-click="$parent.GetConsumption(this);" style="margin: -6px;"></i></button>
-                        <button style="color: #f3f3ec;background-color: #1c1f32;" title="FGGRN PoPUp" class="btn"><i class="glyphicon glyphicon-pencil" ng-click="$parent.GetRawMaterialDetail(this);" style="margin: -6px;"></i></button>
-                        <button style="color: #f3f3ec;background-color: #1c1f32;" title="Detail" class="btn"><i class="glyphicon glyphicon-eye-open" ng-click="$parent.GetMatrixDetail(this);" style="margin: -6px;"></i></button>
-                            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeBoMDetail(this);" style="margin: -6px;"></i></button>
-                    </script>*@
-
                 </div>
             </div>
         </div>
