@@ -6556,7 +6556,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					where  InventorySalesReturnDataOpening.IsAsset=0 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
 
 					)x
-					where x.ArticleId='593' and not
+					where 
+					--x.ArticleId='593' and 
+						not
 					(ISNULL(OpeningBalance,0)=0
 				    and  ISNULL(OpeningIssueQty,0)=0
 					and  ISNULL(ReceivedForThePeriod,0)=0
