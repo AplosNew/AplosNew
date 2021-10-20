@@ -201,7 +201,7 @@ namespace Library.HumanResource.Payroll.Allowance
                             left join SalaryHead h on h.SalaryHeadID=t.SalaryHeadId
                             left join EmployeeServicesRate r on  r.EmployeeServiceCategoryId=c.Id
                             where d.chargeable=1 and d.EmployeeId in (" + sEmployeeIds + @")
-                                    AND d.[Date] BETWEEN '" + sFromDate + @"' AND '" + sFromDate + @"'
+                                    AND d.[Date] BETWEEN '" + sFromDate + @"' AND '" + sToDate + @"'
                             )x WHERE x.Am>0
                             group by x.EmpSystemId,SalaryHeadId";
 
