@@ -45,7 +45,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         #region -- Pages
 
-   
+
         public ActionResult Aplos()
         {
             return View();
@@ -106,7 +106,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 DataView dvEmp = new DataView();
                 DataView dvEmpAdvTvs = new DataView();
                 dvEmp.Table = dsSlrProc.Tables[0];
-                DataTable dtEmployees = dvEmp.ToTable(true, "EmpInfoSystemID", "EmployeeName", "EmployeeCode", "HeadCategoryT", "HeadCategoryA", "HeadCategoryG", "TaxAmount", "AdvanceAmount", "GrossAmount", "DocNumber");
+                DataTable dtEmployees = dvEmp.ToTable(true, "SystemId", "EmployeeName", "EmployeeCode", "TaxAmount", "AdvanceAmount", "GrossAmount", "DocNumber");
 
                 objRpt.SelectedPlantWiseCompany(identity.PlantId, out dsCmp);
                 objRpt.SelectedPlant(identity.PlantId, out dsFactory);
@@ -261,36 +261,24 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                     SetCellText(sheet1, xlsRow, ColIDNo, dtEmployees.Rows[i]["EmployeeCode"].ToString());
                     SetCellText(sheet1, xlsRow, ColName, dtEmployees.Rows[i]["EmployeeName"].ToString());
+                    SetCellText(sheet1, xlsRow, ColDoc, dtEmployees.Rows[i]["DocNumber"].ToString());
 
-                    if (dtEmployees.Rows[i]["HeadCategoryT"].ToString().ToUpper() == "TAX")
-                    {
-                        SetCellText(sheet1, xlsRow, ColDoc, dtEmployees.Rows[i]["DocNumber"].ToString());
-                    }
+                    var tax = Convert.ToDouble(dtEmployees.Rows[i]["TaxAmount"].ToString());
+                    SetCellText(sheet1, xlsRow, ColTDS, tax);
+                    sheet1.Range[xlsRow, ColTDS].NumberFormat = oRU.NumberFormatDecimalZero();
 
-                    if (dtEmployees.Rows[i]["HeadCategoryT"].ToString().ToUpper() == "TAX")
-                    {
-                        var tax = Convert.ToDouble(dtEmployees.Rows[i]["TaxAmount"].ToString());
-
-                        SetCellText(sheet1, xlsRow, ColTDS, tax);
-                        sheet1.Range[xlsRow, ColTDS].NumberFormat = oRU.NumberFormatDecimalZero();
-                    }
                     totalAmount = ColTDS;
-                    if (dtEmployees.Rows[i]["HeadCategoryA"].ToString().ToUpper() == "ADVANCE")
-                    {
-                        var adv = Convert.ToDouble(dtEmployees.Rows[i]["AdvanceAmount"].ToString());
-                        SetCellText(sheet1, xlsRow, ColAD, adv);
-                        sheet1.Range[xlsRow, ColAD].NumberFormat = oRU.NumberFormatDecimalZero();
 
-                    }
+                    var adv = Convert.ToDouble(dtEmployees.Rows[i]["AdvanceAmount"].ToString());
+                    SetCellText(sheet1, xlsRow, ColAD, adv);
+                    sheet1.Range[xlsRow, ColAD].NumberFormat = oRU.NumberFormatDecimalZero();
+
                     totalAdvAmount = ColAD;
 
-                    if (dtEmployees.Rows[i]["HeadCategoryG"].ToString().ToUpper() == "GROSS")
-                    {
-                        var gross = Convert.ToDouble(dtEmployees.Rows[i]["GrossAmount"].ToString());
-                        SetCellText(sheet1, xlsRow, ColGROSS, gross);
-                        sheet1.Range[xlsRow, ColGROSS].NumberFormat = oRU.NumberFormatDecimalZero();
+                    var gross = Convert.ToDouble(dtEmployees.Rows[i]["GrossAmount"].ToString());
+                    SetCellText(sheet1, xlsRow, ColGROSS, gross);
+                    sheet1.Range[xlsRow, ColGROSS].NumberFormat = oRU.NumberFormatDecimalZero();
 
-                    }
                     totalGrossAmount = ColGROSS;
                     if (isActive == true)
                     {
@@ -300,14 +288,12 @@ namespace Aplos.Areas.Payrolls.Controllers
                         SetCellText(sheet1, xlsRow, ColMB, "");
                     }
 
-
                     SrNo += 1;
                     #endregion
-                    x = dtEmployees.Rows[i]["EmpInfoSystemID"].ToString().Trim().ToUpper();
+                    x = dtEmployees.Rows[i]["SystemId"].ToString().Trim().ToUpper();
 
                     xlsRow++;
                 }
-
 
                 if (dtEmployees.Rows.Count > 0)
                 {
@@ -441,7 +427,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 DataView dvEmp = new DataView();
                 DataView dvEmpAdvTvs = new DataView();
                 dvEmp.Table = dsSlrProc.Tables[0];
-                DataTable dtEmployees = dvEmp.ToTable(true, "EmpInfoSystemID", "EmployeeName", "EmployeeCode", "HeadCategoryT", "HeadCategoryA", "HeadCategoryG", "TaxAmount", "AdvanceAmount", "GrossAmount", "DocNumber");
+                DataTable dtEmployees = dvEmp.ToTable(true, "SystemId", "EmployeeName", "EmployeeCode", "HeadCategoryT", "HeadCategoryA", "HeadCategoryG", "TaxAmount", "AdvanceAmount", "GrossAmount", "DocNumber");
 
                 objRpt.SelectedPlantWiseCompany(identity.PlantId, out dsCmp);
                 objRpt.SelectedPlant(identity.PlantId, out dsFactory);
@@ -638,7 +624,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                     SrNo += 1;
                     #endregion
-                    x = dtEmployees.Rows[i]["EmpInfoSystemID"].ToString().Trim().ToUpper();
+                    x = dtEmployees.Rows[i]["SystemId"].ToString().Trim().ToUpper();
 
                     xlsRow++;
                 }
@@ -801,10 +787,10 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         public void GetAdvanceAndTDS(ParamList para, out DataSet dsRef)
         {
-            string strSQL;
             ConnectionManager.DAL.ConManager objCon;
             try
             {
+                string strSQL = string.Empty;
                 var EmpStatus = "";
                 if (para.EmpStatus != "ALL")
                 {
@@ -826,55 +812,34 @@ namespace Aplos.Areas.Payrolls.Controllers
                 if (!string.IsNullOrEmpty(para.EmployeeId))
                 {
                 }
-                strSQL = @"SELECT * FROM (
-                                SELECT distinct c.EmpInfoSystemID,isnull(tax.TaxAmount,0) TaxAmount ,tax.HeadCategory HeadCategoryT
-                                
-                                ,ISNULL(advance.AdvanceAmount,0) AdvanceAmount,Advance.HeadCategory HeadCategoryA
-                                ,ISNULL(gross.GrossAmount,0) GrossAmount ,Gross.HeadCategory HeadCategoryG
-                                
+
+                strSQL = @"SELECT distinct EMP.SystemId,isnull(Advance.TaxAmount,0) TaxAmount 
+                                ,ISNULL(advance.Advance,0) AdvanceAmount
+                                ,ISNULL(Advance.Gross,0) GrossAmount 
                                 ,EMP.EmployeeCode,Emp.EmployeeCodeNumeric,Emp.EmployeeCodePreFix,EMP.EmployeeName,DC.DocNumber
                                 ,''Loan,''LoanInt,''Bus,''Mobile
-                                FROM SalaryProcMaster S
-                                JOIN SalaryProcChild C on s.SystemID=c.SlrProcMstSystemID and S.SystemId IN (" + salaryProcessID + @") and c.PlantID = '" + para.PlantId + @"'
-                                and c.SalaryHeadID in (select SalaryHeadID from SalaryHead where HeadCategory in ('Tax','Advance','Gross'))
-                                --inner join SalaryProcessLogSummary LS on ls.SalaryProcessId=s.SystemID
-                                JOIN EmployeeInformation EMP on EMP.SystemId=C.EmpInfoSystemID and Emp.PlantId = '" + para.PlantId + @"'
+                                FROM  EmployeeInformation EMP
                             LEFT JOIN
                             (
-                            select SlrProcMstSystemID,ct.EmpInfoSystemID,sum(ct.DisbusmentAmount)*(-1) AS TaxAmount,HT.HeadCategory from 
+                             select EmpInfoSystemID,SUM(TaxAmount)TaxAmount, SUM(Gross)Gross,SUM(Advance)Advance from (select SlrProcMstSystemID,ct.EmpInfoSystemID,(ct.DisbusmentAmount)*(-1) AS TaxAmount,0 AS Gross,0 AS Advance from 
                             SalaryProcChild CT 
-                            join SalaryHead HT ON HT.SalaryHeadID=CT.SalaryHeadID and SlrProcMstSystemID IN (" + salaryProcessID + @")  and ct.PlantID = '" + para.PlantId + @"' 
+                            join SalaryHead HT ON HT.SalaryHeadID=CT.SalaryHeadID and SlrProcMstSystemID IN (" + salaryProcessID + @") and ct.PlantID = '" + para.PlantId + @"'
                             where HT.HeadCategory='Tax' 
-                            group by SlrProcMstSystemID,ct.EmpInfoSystemID,HT.HeadCategory
-                            
-                            ) AS TAX on tax.SlrProcMstSystemID=s.SystemID and Tax.EmpInfoSystemID=c.EmpInfoSystemID
-                            
-                            LEFT JOIN
-                            (
-                            select SlrProcMstSystemID,ct.EmpInfoSystemID,sum(ct.DisbusmentAmount) AS GrossAmount,HT.HeadCategory from 
+							union all
+							 select SlrProcMstSystemID,ct.EmpInfoSystemID, 0 AS TaxAmount,(ct.DisbusmentAmount) AS Gross,0 AS Advance from 
                             SalaryProcChild CT 
-                            join SalaryHead HT ON HT.SalaryHeadID=CT.SalaryHeadID AND SlrProcMstSystemID IN (" + salaryProcessID + @") AND ct.PlantID = '" + para.PlantId + @"' 
+                            join SalaryHead HT ON HT.SalaryHeadID=CT.SalaryHeadID and SlrProcMstSystemID IN (" + salaryProcessID + @") and ct.PlantID = '" + para.PlantId + @"'
                             where HT.HeadCategory='Gross' 
-                            group by SlrProcMstSystemID,ct.EmpInfoSystemID,HT.HeadCategory
-                            
-                            ) AS Gross on Gross.SlrProcMstSystemID=s.SystemID and Gross.EmpInfoSystemID=c.EmpInfoSystemID
-                            
-                            
-                            LEFT JOIN
-                            (
-                            select SlrProcMstSystemID,ct.EmpInfoSystemID,sum(ct.DisbusmentAmount)*(-1) AS AdvanceAmount,HT.HeadCategory from 
+							union all
+							 select SlrProcMstSystemID,ct.EmpInfoSystemID,0 AS TaxAmount,0 AS Gross,(ct.DisbusmentAmount)*(-1) AS Advance from 
                             SalaryProcChild CT 
-                            join SalaryHead HT ON HT.SalaryHeadID=CT.SalaryHeadID AND SlrProcMstSystemID IN (" + salaryProcessID + @") AND ct.PlantID = '" + para.PlantId + @"' 
-                            where  HT.HeadCategory='Advance' 
-                            group by SlrProcMstSystemID,ct.EmpInfoSystemID,HT.HeadCategory
+                            join SalaryHead HT ON HT.SalaryHeadID=CT.SalaryHeadID and SlrProcMstSystemID IN (" + salaryProcessID + @") and ct.PlantID = '" + para.PlantId + @"'
+                            where HT.HeadCategory='Advance' ) AS K group by EmpInfoSystemID
                             
-                            ) AS Advance on Advance.SlrProcMstSystemID=s.SystemID and Advance.EmpInfoSystemID=c.EmpInfoSystemID
+                            ) AS Advance on Advance.EmpInfoSystemID=EMP.SystemId
                             LEFT JOIN (
                             SELECT ED.EmpSystemID,ED.DocNumber from EmployeeDocument ED
-                            LEFT JOIN HKP.ComplianceDocument CD ON CD.Id=ED.ComplianceDocumentId Where CD.ProfileType='TIN') DC ON DC.EmpSystemID=C.EmpInfoSystemID
-                            --WHERE S.FromDate between '" + para.FromDate + @"' and '" + para.ToDate + @"'
-                            --and C.PlantID = '" + para.PlantId + @"' AND ISNULL(c.SystemID,'')<>''
-                                ) A WHERE (A.HeadCategoryT='Tax' OR A.HeadCategoryA='Advance') ORDER BY CONVERT(INT, A.EmployeeCode)";
+                            LEFT JOIN HKP.ComplianceDocument CD ON CD.Id=ED.ComplianceDocumentId Where CD.ProfileType='TIN') DC ON DC.EmpSystemID=EMP.SystemId";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
