@@ -906,8 +906,8 @@ function MaterialTransferController($window, cboService, commonMessage, $scope, 
     $scope.validation = function () {
         $scope.manualValidationAddRemove('div_mm', 'MaterialMasterName');
         $scope.manualValidationAddRemove('div_ar', 'ArticleName');
-        $scope.manualValidationAddRemove('div_qty', 'TransactionQty');
-        $scope.manualValidationAddRemove('div_qty', 'TransactionUoMId', 'UoM is required');
+        //$scope.manualValidationAddRemove('div_qty', 'TransactionQty');
+       // $scope.manualValidationAddRemove('div_UoM', 'TransactionUoMId','UoM is required');
         //$scope.manualValidationAddRemove('div_entity', 'EntityId', 'Entity is required');
         //$scope.manualValidationAddRemove('div_budget', 'BudgetMasterid', 'budget is required');
 
@@ -926,6 +926,16 @@ function MaterialTransferController($window, cboService, commonMessage, $scope, 
     $scope.detailAdd = function () {
         //debugger;
         try {
+            if (baseService.isUndefinedOrNull($scope.detailModel.TransactionQty)) {
+                ShowResult('Please Enter Quantity', 'failure', 'detailPopUp');
+                return false;
+
+            }
+            if (baseService.isUndefinedOrNull($scope.detailModel.TransactionUoMId)) {
+                ShowResult('Please Select UoM', 'failure', 'detailPopUp');
+                return false;
+
+            }
             $scope.validation();
             //if ($scope.detailModel.BudgetMasterId === '' || $scope.detailModel.BudgetMasterId === null || $scope.detailModel.BudgetMasterId === undefined) {
             //    ShowResult('Budget is required', 'failure', 'detailPopUp');

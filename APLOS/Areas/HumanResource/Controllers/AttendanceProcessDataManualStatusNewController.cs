@@ -164,7 +164,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost]
-        public ActionResult SaveSingleEmployee(List<AttendanceProcessNewProcess> data)
+        public ActionResult SaveSingleEmployee(List<AttendanceProcessNewProcess> data , string Remarks)
         {
             try
             {
@@ -199,7 +199,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                     return Json(new { Error = true, Message = "Error occured", Data = DataToBeSaved }, JsonRequestBehavior.AllowGet);
                 }
 
-                saveData(DataToBeSaved);
+                saveData(DataToBeSaved, Remarks);
                 return Json(new { Error = false, Message = "Manual DayStatus Updated Successfully", Data = data }, JsonRequestBehavior.AllowGet);
 
             }
@@ -217,7 +217,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         }
 
-        private void saveData(List<AttendanceProcessNewProcess> data)
+        private void saveData(List<AttendanceProcessNewProcess> data,string Remarks)
         {
             ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
             try
@@ -228,6 +228,10 @@ namespace Aplos.Areas.HumanResource.Controllers
                 string man = "''";
                 NewAttendanceProcessService ap = new NewAttendanceProcessService();
 
+                DataSet dsRem;
+                ConnectionManager.DAL.ConManager conn = new ConnectionManager.DAL.ConManager("1");
+                conn.OpenDataSetThroughAdapter(@"Select * from dbo.ManualEntryRemarks where 1 = 2", out dsRem, false, "1");
+
                 clsStaticInfo objStatic = new clsStaticInfo();
 
                 for (int i = 0; i < data.Count; i++)
@@ -235,7 +239,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                     #region manual daystatus
 
                     DataSet dsManualAttendance = null;
-                   
+                    int kk = 0;
                     
 
                     if (data[i].DayStatus != data[i].DayStatusNew)
@@ -275,7 +279,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                             dr["IsOTComfirm"] = false;
                             dr.EndEdit();
                             ap.CheckerFunction(ref man, dsManualAttendance.Tables[0].Rows[0]["RowId"].ToString());
-
+                            kk = 1;
                         }
 
                     }
@@ -284,8 +288,24 @@ namespace Aplos.Areas.HumanResource.Controllers
                    
                     objStatic.SaveDataSets(dsManualAttendance);
 
+                    string _Id = "";
+                    if(kk == 1)
+                    {
+                        DataRow dr = dsRem.Tables[0].NewRow();
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("dbo.ManualEntryRemarks", out _Id);
+                        dr["Id"] = _Id;
+                        dr["RowId"] = dsManualAttendance.Tables[0].Rows[0]["RowId"].ToString();
+                        dr["Remarks"] = Remarks;
+                        dr["AddedDate"] = DateTime.Now;
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dr["Screen"] = "/manual-day-status-new";
+                        dsRem.Tables[0].Rows.Add(dr);
 
+                    }
                 }
+                objStatic.SaveDataSets(dsRem);
                 ap.ManualScheduler(identity.PlantId, man);
             }
             catch (Exception ex)
