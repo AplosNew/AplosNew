@@ -1,5 +1,5 @@
 ﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>Daily Target</h3>
-<div class="form-elements form-horizontal" ng-form name="DailyTargetForm">
+<div class="form-elements form-horizontal" ng-form name="DailyTargetForm" id="MainDivId">
     <div class="row">
         <div class="col-xs-12 col-sm-6 col-md-6">
             <div class="form-group">
@@ -67,9 +67,18 @@
             <div e-column e-template="#templateQuantity" e-headertext="Target Per Hour" e-width="15"></div>
             <div e-column e-field="Quantity" e-headertext="Quantity" e-width="10"></div>
 
+            <div e-column e-headertext="Actions" e-template="#ShowButtons" e-width="10"></div>
+
         </div>
     </div>
 
+    <script type="text/ng-template" id="ShowButtons">
+        <div class="common-btn">
+            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Actions" class="btn">
+                <i class="glyphicon glyphicon-list" ng-click="$parent.AddLineItemG(this);"></i>
+            </button>
+        </div>
+    </script>
 
     <script type="text/template" id="templateManPowerWithMachine">
         <input type="text" class="form-control" ej-numerictextbox e-decimalplaces="2" e-minValue="0" e-enablertl="false" e-value="data.ManPowerWithMachine" e-width="100%" />
@@ -164,3 +173,24 @@
 </div>
 <confirm-modal></confirm-modal>
 <confirm-archive-generic modalid="removePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="Delete();"></confirm-archive-generic>
+
+<ej-dialog id="LineDesign"
+           title="Line Design"
+           e-enablemodal="true"
+           e-position-y="0"
+           e-showoninit="false"
+           e-target="#MainDivId"
+           e-close="onDialogClose"
+           e-width="1020"
+           e-minheight="470"
+           e-open="enableBtn">
+
+    
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="SaveFormula();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
+            <li> <button ng-click="ClearFormula();" class="btn" tabindex="13"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+    
+</ej-dialog>

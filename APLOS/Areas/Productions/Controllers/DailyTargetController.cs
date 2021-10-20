@@ -514,6 +514,97 @@ namespace Aplos.Areas.Productions.Controllers
 
 
         #endregion
+
+        #region Copy function
+        public ActionResult CopyFromTable(string entityid, string processId, string ProductionDate, Dictionary<string,object> SelectedLine)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                string NewId = "";
+                string TableName = "";
+
+                DataSet LineLayoutDailyTarget, LineLayoutDailyTargetData;
+
+                con.OpenDataSetThroughAdapter("select * from LineLayoutDailyTarget where 1=2", out LineLayoutDailyTarget, false, "1");
+                con.OpenDataSetThroughAdapter("select * from LineLayoutDailyTargetData where 1=2", out LineLayoutDailyTargetData, false, "1");
+
+                DataTable LineLayoutByProductionBulletin = _sqlRepository.GetDataTable("select * from LineLayoutByProductionBulletin WHERE EntityId='" + SelectedLine[""] + "'");
+                DataTable LineLayoutByProductionBulletinData = _sqlRepository.GetDataTable("select * from LineLayoutByProductionBulletinData WHERE CostingMasterTemplateId='" + SelectedLine[""] + "'");
+
+                SetForeignKey(LineLayoutDailyTarget, "LineLayoutByProductionBulletinId", NewId);
+
+                NewId = GetPK(TableName);
+                CopyDataTable(LineLayoutByProductionBulletin, LineLayoutDailyTarget.Tables[0], "");
+                CopyDataTable(LineLayoutByProductionBulletinData, LineLayoutDailyTargetData.Tables[0], "");
+
+                return Json(/*ep.GetMaster(),*/ JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+        private string GetPK(string TableName)
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), TableName, out sID);
+            return sID;
+        }
+        private void CopyDataTable(DataTable dtSource, DataTable dtDestination, string PK)
+        {
+            int Index = 0;
+            foreach (DataRow drSource in dtSource.Rows)
+            {
+                Index++;
+                DataRow drDestination = dtDestination.NewRow();
+                CopyRow(drSource, ref drDestination);
+                if (PK != "")
+                    drDestination["Id"] = PK + Index;
+                dtDestination.Rows.Add(drDestination);
+            }
+        }
+        private void SetForeignKey(DataSet ds, string ColumnName, string KeyValue)
+        {
+            foreach (DataRow drSource in ds.Tables[0].Rows)
+            {
+                drSource[ColumnName] = KeyValue;
+
+            }
+        }
+        private void CopyRow(DataRow drSource, ref DataRow drDestination)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            for (int COL = 0; COL < drSource.Table.Columns.Count; COL++)
+            {
+                try
+                {
+                    drDestination[drSource.Table.Columns[COL].ColumnName] = drSource[drSource.Table.Columns[COL].ColumnName];
+
+                }
+                catch (Exception ex)
+                {
+                }
+                try
+                {
+                    drDestination["AddedBy"] = identity.Name;
+                    drDestination["AddedDate"] = DateTime.Now;
+                    drDestination["AddedFromIP"] = identity.IPAddress;
+                    drDestination["UpdatedBy"] = identity.Name;
+                    drDestination["UpdatedFromIP"] = identity.IPAddress;
+                    drDestination["UpdatedDate"] = DateTime.Now;
+
+                }
+                catch (Exception ex)
+                {
+                }
+            }
+
+        }
+        #endregion
+
     }
 
 
