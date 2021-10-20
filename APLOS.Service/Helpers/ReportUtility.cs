@@ -363,6 +363,16 @@ namespace Library.Service.Helpers
 
         }
 
+        public void SetText(ref IWorksheet sheet, int row, int col, double txt,int Number)
+        {
+            sheet.Range[row, col].Number = txt;
+            sheet.Range[row, col].NumberFormat = clsStaticInfo.NumberFormat(Number);
+            sheet.Range[row, col].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet.Range[row, col].VerticalAlignment = ExcelVAlign.VAlignTop;
+            //sheet.Range[row, col].BorderAround(ExcelLineStyle.Thin);
+
+        }
+
         public void SetText(ref IWorksheet sheet, int row, int col, double txt, ExcelHAlign al)
         {
             sheet.Range[row, col].Number = txt;

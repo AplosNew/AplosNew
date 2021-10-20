@@ -366,6 +366,7 @@ namespace Library.MaterialManagement.Inventory
 			Library.Service.Extension.Conversions.UOMConversion conversion = new Library.Service.Extension.Conversions.UOMConversion();
 			try
 			{
+				
 				_unitOfWork.BeginTransaction();
 
 				flag = true;
@@ -376,7 +377,7 @@ namespace Library.MaterialManagement.Inventory
 				{
 					var GRNAcceptance = new GRNAcceptanceMap
 					{
-						Id = GetPKGRNAccept(),
+						Id = base.GetAutoNumber(nameof(GRNAcceptanceMap), PKGeneratorEnum.Yearly, null, DateTime.Now),
 						GRNId = entity.Id,
 						PurchaseDocumentAcceptanceId = entity.PurchaseDocumentAcceptanceId,
 						//Qty = receiveDetail.TransactionQty
@@ -974,7 +975,7 @@ namespace Library.MaterialManagement.Inventory
 								var POBOQQtyNew = (decimal)conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.POUoMId.ToString(), Convert.ToDouble(itemDetail.TransactionQty));
 								var gRNPOAllocation = new GRNPORequisitionAllocation
 								{
-									Id = GetPKGRNPORequisitionAllocation(),
+									Id = base.GetAutoNumber(nameof(GRNPORequisitionAllocation), PKGeneratorEnum.Yearly, null, DateTime.Now),
 									InventoryReceiveDetailId = grndId,
 									POBOQMapId = issue.POBOQMapId,
 									POReqDetailsID = issue.POReqDetailsID,
@@ -1033,6 +1034,7 @@ namespace Library.MaterialManagement.Inventory
 			Library.Service.Extension.Conversions.UOMConversion conversion = new Library.Service.Extension.Conversions.UOMConversion();
 			try
 			{
+				
 				_unitOfWork.BeginTransaction();
 				flag = true;
 				entity.GRNType = GRNType;
@@ -1696,7 +1698,7 @@ namespace Library.MaterialManagement.Inventory
 
 								var gRNPORequisitionAllocation = new GRNPORequisitionAllocation
 								{
-									Id = GetPKGRNPORequisitionAllocation(),
+									Id = base.GetAutoNumber(nameof(GRNPORequisitionAllocation), PKGeneratorEnum.Yearly, null, DateTime.Now),
 									InventoryReceiveDetailId = itemDetail.InventoryReceiveDetailId,// grndId,
 									POBOQMapId = issue.POBOQMapId,
 									POReqDetailsID = issue.POReqDetailsID,

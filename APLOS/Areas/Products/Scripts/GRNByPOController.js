@@ -408,10 +408,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
 				ShowResult("Enter Doc Ref No", 'failure');
 				return false;
 			}
-			if (baseService.isUndefinedOrNull($scope.productNew.DocRefNo)) {
-				ShowResult("Enter Doc Ref No", 'failure');
-				return false;
-			}
+			
 			if (baseService.isUndefinedOrNull($scope.productNew.DocDate)) {
 				ShowResult("Enter Doc Date", 'failure');
 				return false;
