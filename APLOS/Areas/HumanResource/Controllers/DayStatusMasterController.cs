@@ -244,5 +244,29 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             return Json(ds.getDayStatusChild(HeaderId), JsonRequestBehavior.AllowGet);
         }
+
+        // ********************************************* Leave Day
+
+        [HttpPost, Authorize]
+        public ActionResult getleaveDayTypes(string DayTypeWithValuesId)
+        {
+            return Json(ds.getleaveDayTypes(DayTypeWithValuesId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult saveLeaveDayType(List<Dictionary<string, object>> Data , string DayTypeWithValuesId)
+        {
+            try
+            {
+                ds.saveLeaveDayType(Data, DayTypeWithValuesId);
+                return Json(new { Error = false,  Message = AplosMessage.Success });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+
+        }
     }
 }

@@ -8558,11 +8558,15 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 					--,Round(IRD.TotalMaterialBooksCurrencyAmount,2) RcvAmount	
 					,Round((Round(IRD.BaseQty,2)*Round(IRD.BooksCurrencyBaseRate,4)),2) RcvAmount	
 
+					,Round(IRD.TotalMaterialBooksCurrencyAmount,2) TotalRcvAmount	
+	
 					,REPLACE(CONVERT(CHAR(11), main.IssueDate, 106),' ','-') IssueDate
 					,main.IssueNo IssueNo
 					,isnull(Round(main.IssueQty,2),0) IssueQty
 					,isnull(Round(main.Rate,4),0) Rate
 					,isnull(Round(main.IssueAmount,2),0) IssueAmount
+					,isnull(Round(main.TotalIssueAmount,2),0) TotalIssueAmount
+					
 
 
                       ,REPLACE(CONVERT(CHAR(11), main.POReturnDate, 106),' ','-') PurchaseReturnDate
@@ -8637,7 +8641,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 						LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
 						LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
 						left jOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id	
-						left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
+						left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.BaseUOMId=TUoM.Id
 						left JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
 						left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
 						LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
@@ -8647,6 +8651,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                                     ,(Sum(Isnull(Ih.Qty,0))) IssueQty 
                                     ,Sum(IH.Rate) Rate
                                     ,(Sum(Isnull(Ih.Qty,0))*Sum(IH.Rate)) AS IssueAmount
+									,Ih.TotalAmount TotalIssueAmount
                                     ,0 PurchaseReturnQty,0 PurchaseReturnRate,0 PurchaseReturnAmount
                                     ,0 IssueReturnQty,0 IssueReturnRate,0 IssueReturnAmount
                                     , 0 PhysicalStockAdjustmentqty   ,0 PhysicalStockAdjustmentRate ,0 PhysicalStockAdjustmentAmount
@@ -8661,13 +8666,14 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                                      LEFT JOIN  TRN.InventoryIssueDetail IID on IID.ID=IH.InventoryIssueDetailId
                                      LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId=II.Id 
                                      Where  Ih.Qty>0 --ANd IH.InventoryReceiveDetailId='2020258-1'
-                                     group by IH.InventoryReceiveDetailId,II.IssueDate,II.Id,II.IssueType
+                                     group by IH.InventoryReceiveDetailId,II.IssueDate,II.Id,II.IssueType,Ih.TotalAmount
 
                                      Union all
 
                         select  IH.InventoryReceiveDetailId,NULL IssueDate,NULL IssueNo,NULL IssueType,II.POReturnDate  ,II.Id PurchaseReturnNo, NULL ReturnIssueDate  ,NULL ReturnIssueReturnNo, NULL PhysicalIssueDate,NULL PhysicalIssueNo,NULL SalesDate,NULL SalesNo,NULL SalesReturnDate,NULL SalesReturnNo
 
                                     , 0 IssueQty,0 Rate,0 IssueAmount
+									,0 TotalIssueAmount
                                      ,(Sum(Isnull(IH.TransactionQty,0))) PurchaseReturnQty 
                                      ,Sum(IH.MaterialTranRate) PurchaseReturnRate
                                      ,(Sum(Isnull(IH.TransactionQty,0))*Sum(IH.MaterialTranRate)) AS PurchaseReturnAmount
@@ -8692,7 +8698,9 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 
                         select  IH.InventoryReceiveDetailId,NULL IssueDate,NULL IssueNo,NULL IssueType,NULL POReturnDate  ,NULL PurchaseReturnNo,    II.IssueDate ReturnIssueDate ,II.Id ReturnIssueReturnNo, NULL PhysicalIssueDate,NULL PhysicalIssueNo,NULL SalesDate,NULL SalesNo,NULL SalesReturnDate,NULL SalesReturnNo
 
-                                     , 0 IssueQty,0 Rate,0 IssueAmount,0 PurchaseReturnQty
+                                     , 0 IssueQty,0 Rate,0 IssueAmount
+									 ,0 TotalIssueAmount
+									 ,0 PurchaseReturnQty
                                      ,0 PurchaseReturnRate,0PurchaseReturnAmount
                                     ,(Sum(Isnull(IH.Qty,0))) IssueReturnQty 
                                     ,Sum(IH.Rate) IssueReturnRate
@@ -8713,7 +8721,8 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 
                              Union all
                         select  IH.InventoryReceiveDetailId,NULL IssueDate,NULL IssueNo,NULL IssueType,NULL POReturnDate  ,NULL PurchaseReturnNo,    NULL ReturnIssueDate ,NULL IssueReturnNo, II.IssueDate PhysicalIssueDate,II.Id PhysicalIssueNo,NULL SalesDate,NULL SalesNo,NULL SalesReturnDate,NULL SalesReturnNo
-									, 0 IssueQty,0 Rate,0 IssueAmount,0 PurchaseReturnQty
+									, 0 IssueQty,0 Rate,0 IssueAmount,
+									0 TotalIssueAmount,0 PurchaseReturnQty
                                      ,0 PurchaseReturnRate,0PurchaseReturnAmount
                                       ,0 IssueReturnQty,0 IssueReturnRate,0 IssueReturnAmount
                                     ,(Sum(Isnull(Ih.Qty,0))) PhysicalStockAdjustmentqty 
@@ -8737,7 +8746,9 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 
 									Union all
                                     select  IH.InventoryReceiveDetailId,NULL IssueDate,NULL IssueNo,NULL IssueType,NULL POReturnDate  ,NULL PurchaseReturnNo,    NULL ReturnIssueDate ,NULL IssueReturnNo, NULL PhysicalIssueDate,NULL PhysicalIssueNo,II.SalesDate,II.Id SalesNo,NULL SalesReturnDate,NULL SalesReturnNo
-								, 0 IssueQty,0 Rate,0 IssueAmount,0 PurchaseReturnQty
+								, 0 IssueQty,0 Rate,0 IssueAmount
+								,0 TotalIssueAmount
+								,0 PurchaseReturnQty
                                     ,0 PurchaseReturnRate,0PurchaseReturnAmount
                                     ,0 IssueReturnQty,0 IssueReturnRate,0 IssueReturnAmount
 									,0 PhysicalStockAdjustmentqty 
@@ -8759,7 +8770,8 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 
 									Union all
                                     select  IRD.Id InventoryReceiveDetailId,NULL IssueDate,NULL IssueNo,NULL IssueType,NULL POReturnDate  ,NULL PurchaseReturnNo,    NULL ReturnIssueDate ,NULL IssueReturnNo, NULL PhysicalIssueDate,NULL PhysicalIssueNo,NULL SalesDate,NULL SalesNo,Ins.SalesDate SalesReturnDate,Ins.Id SalesReturnNo
-								, 0 IssueQty,0 Rate,0 IssueAmount,0 PurchaseReturnQty
+								, 0 IssueQty,0 Rate,0 IssueAmount,
+								0 TotalIssueAmount,0 PurchaseReturnQty
                                     ,0 PurchaseReturnRate,0PurchaseReturnAmount
                                     ,0 IssueReturnQty,0 IssueReturnRate,0 IssueReturnAmount
 									,0 PhysicalStockAdjustmentqty 
@@ -8780,7 +8792,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                                    
                                     Where ISD.TransactionQty>0 --ANd IH.InventoryReceiveDetailId='2020258-1'
                                     group by IRD.Id,Ins.SalesDate,Ins.Id--,Ins.Iss
-                                     )main on main.InventoryReceiveDetailId=IRD.Id		
+                                     )main on main.InventoryReceiveDetailId=IRD.Id			
                                      									 
 						where  	IM.PlantId='" + plantId + @"' AND MM.Id='" + MaterialId + @"' AND Art.Id='" + ArticleId + @"' AND 
 						Convert(date ,IR.GRNDate) between '" + fromDate + @"' AND '" + toDate + @"'  
@@ -9583,7 +9595,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                     report.SetText(ref sheet1, _rowL, colRCVQuantity, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RcvQty"].ToString()));
                     report.SetText(ref sheet1, _rowL, colRCVRate, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RcvRate"].ToString()));
                     sheet1.Range[_rowL, colRCVRate].NumberFormat = report.NumberFormatDecimalFour();
-                    report.SetText(ref sheet1, _rowL, colRCVAmount, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RcvAmount"].ToString()));
+                    report.SetText(ref sheet1, _rowL, colRCVAmount, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TotalRcvAmount"].ToString()));
 
 
 
@@ -9638,7 +9650,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                 report.SetText(ref sheet1, _rowL, colIssueQty, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IssueQty"].ToString()));
                 report.SetText(ref sheet1, _rowL, colIssueRate, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["Rate"].ToString()));
                 sheet1.Range[_rowL, colIssueRate].NumberFormat = report.NumberFormatDecimalFour();
-                report.SetText(ref sheet1, _rowL, colIssueAmount, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IssueAmount"].ToString()));
+                report.SetText(ref sheet1, _rowL, colIssueAmount, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TotalIssueAmount"].ToString()));
 
                 //Issue Return
 

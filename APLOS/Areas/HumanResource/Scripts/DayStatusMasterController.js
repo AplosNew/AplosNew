@@ -416,9 +416,18 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
             $rootScope.toggle();
         }
 
+        $scope.ClearDayTypeChild();
+        $scope.ClearDayStatus();
+        $scope.LeaveDt = {
+            HeaderId: null,
+            DayTypeWithValuesId: null,
+            DayTypeWithValue: null,
+        };
+        $scope.LeaveList = [];
         $scope.DayChild.HeaderId = e.data.Id;
         $scope.DayS.HeaderId = e.data.Id;
         $scope.Child.HeaderId = e.data.Id;
+        $scope.LeaveDt.HeaderId = e.data.Id;
         $scope.GetSequenceDayStatus();
         $scope.getDayTypeChild();
         updateChild();
@@ -474,6 +483,7 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
                     $scope.DayChild.HeaderId = response.data.Data.Id;
                     $scope.DayS.HeaderId = response.data.Data.Id;
                     $scope.Child.HeaderId = response.data.Data.Id;
+                    $scope.LeaveDt.HeaderId = response.data.Data.Id;
                     showTabs();
                 }
             }), function errorCallBack(response) {
@@ -1002,4 +1012,66 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
             }
         }
     }
+
+
+
+    // ********************************************** Leave Day Type Codes
+
+    $scope.LeaveDt = {
+        HeaderId: null,
+        DayTypeWithValuesId: null,
+        DayTypeWithValue: null,
+    };
+
+    //Getting the DayTypeWithValues
+    $scope.selectLeaveDayType = function () {
+        angular.element(document.querySelector('#LeaveDayType')).modal('show');
+    }
+
+    $scope.LeaveList = [];
+
+    $scope.doubleLeaveDayType = function (e) {
+        $scope.LeaveDt.DayTypeWithValue = e.data.DayType;
+        $scope.LeaveDt.DayTypeWithValuesId = e.data.Id;
+
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getleaveDayTypes',
+            data: { 'DayTypeWithValuesId': $scope.LeaveDt.DayTypeWithValuesId }
+        }).then(function succ(resp) {
+            $scope.LeaveList = [];
+            $scope.LeaveList = resp.data;
+        });
+
+        angular.element(document.querySelector('#LeaveDayType')).modal('hide');
+    }
+
+    $scope.saveLeaveDayType = function ()
+    {
+            $http({
+                method: 'POST',
+                url: $scope.path + 'saveLeaveDayType',
+                data: { 'Data': $scope.LeaveList, 'DayTypeWithValuesId': $scope.LeaveDt.DayTypeWithValuesId }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $http({
+                        method: 'POST',
+                        url: $scope.path + 'getleaveDayTypes',
+                        data: { 'DayTypeWithValuesId': $scope.LeaveDt.DayTypeWithValuesId }
+                    }).then(function succ(resp) {
+                        $scope.LeaveList = [];
+                        $scope.LeaveList = resp.data;
+                    });
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        
+    }
+
+      
 }
