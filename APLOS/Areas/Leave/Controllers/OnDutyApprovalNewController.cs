@@ -5,8 +5,10 @@ using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
+using Library.HumanResource.NewAttendanceProcess;
 using Library.Model.Enums;
 using Library.Model.HumanResources;
+using Library.Security.Core;
 using Library.Service.Attendances;
 using Library.Service.Enums;
 using Library.Service.HumanResources;
@@ -27,9 +29,7 @@ namespace Aplos.Areas.Leave.Controllers
         #region Constructor
         private readonly ISqlRepository _sqlRepository;
         private readonly IMaternityLeavePolicyService _LeavePolicyMaster;
-        private DataSet dsRef;
-        private object obj;
-
+       
         public OnDutyApprovalNewController(
               IMaternityLeavePolicyService LeavePolicyService,
             ISqlRepository sqlRepository
@@ -42,7 +42,7 @@ namespace Aplos.Areas.Leave.Controllers
         #endregion Constructor
 
         #region -- Pages
-        [Authorize]
+       
         public ActionResult Aplos()
         {
             return View();
@@ -51,11 +51,15 @@ namespace Aplos.Areas.Leave.Controllers
 
         #region -- Operations
 
-        [HttpPost]
-        public ActionResult Process(List<ApproveInfo> EmpList)
+        [HttpPost, Authorize]
+        public ActionResult Process(List<ApproveInfoNew> EmpList)
         {
             try
-            {             
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                int lockcounter = 0;
+                string Min = "", Max = "";
                 string EmpIdLoop = "";
                 foreach (var item in EmpList)
                 {
@@ -68,45 +72,81 @@ namespace Aplos.Areas.Leave.Controllers
                         EmpIdLoop += ",'" + item.EmpSystemId + "'";
 
                     }
+                    Min = item.MinDate;
+                    Max = item.MaxDate;
                 }
 
+                DataSet dsRef;
                 string ManualTrigger = "''";
 
-                string sql = @"update [dbo].[EmployeeOnDuty] set IsApproved=1 where EmpSystemId in(" + EmpIdLoop + @") ";
-                ExecuteRawSQL(sql);
+                         
+                ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                var sqlx = @"select * from AttdnProcessData where WorkDate between '" + Convert.ToDateTime(Min) + "' " +
+                "and '" + Convert.ToDateTime(Max) + @"' 
+                and EmpSystemID in(" + EmpIdLoop + @")";
+                    
+                objCon.OpenDataSetThroughAdapter(sqlx, out dsRef, false, false, "", "1");
 
                 foreach (var item in EmpList)
                 {
-                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                     DateTime FromDate = Convert.ToDateTime(item.FromDate);
                     DateTime ToDate = Convert.ToDateTime(item.ToDate);
+
+                    DataSet PlantLock;
+                    PlantLockCheck(FromDate.ToString(), ToDate.ToString(), out PlantLock, identity.PlantId);
+                    string pl = "";
+                    if (PlantLock.Tables[0].Rows.Count > 0)
+                    {
+                        for (var i = 0; i < PlantLock.Tables[0].Rows.Count; i++)
+                        {
+                            pl = pl + " " + PlantLock.Tables[0].Rows[i]["LockedDate"].ToString() + ", ";
+                        }
+                        lockcounter = 1;
+                        throw new Exception("The Plant is Locked for - " + pl);
+                       
+                    }
+
+
+
                     while (FromDate <= ToDate)
                     {
                         string newformat = Convert.ToDateTime(FromDate).ToString("yyyyMMdd");
                         ManualTrigger = ManualTrigger + ",'" + newformat + item.EmpSystemId + "'";
 
-                        DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                        dr.BeginEdit();
-                        dr["IsOD"] = 1;
-                        dr["IsManualDayStatus"] = true;
-                        dr["ManualDayStatus"] = "OD";
-                        dr["ManualEntryTime"] = Convert.ToDateTime(DateTime.Now);
-                        dr["LockedDate"] = DBNull.Value;
-                        dr["ManualByWhom"] = identity.Name;
-                        dr["LockedBy"] = DBNull.Value;
-                        dr["ManualFlag"] = true;
-                        dr["isLock"] = false;
-                        dr["OTComfirmBy"] = DBNull.Value;
-                        dr["DateOTComfirm"] = DBNull.Value;
-                        dr["IsOTComfirm"] = false;
-                        dr.EndEdit();
+                        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + item.EmpSystemId + "' ";
 
-                       // ReturnType r = obj.SaveTotal(identity.PlantId, FromDate.ToString("dd-MMM-yyyy"), item.EmpSystemId, false);
+                        if (dsRef.Tables[0].DefaultView.Count > 0)
+                        {
+
+                            DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();
+                            dr["IsOD"] = 1;
+                            dr["IsManualDayStatus"] = true;
+                            dr["ManualDayStatus"] = "OD";
+                            dr["ManualEntryTime"] = Convert.ToDateTime(DateTime.Now);
+                            dr["LockedDate"] = DBNull.Value;
+                            dr["ManualByWhom"] = identity.Name;
+                            dr["LockedBy"] = DBNull.Value;
+                            dr["ManualFlag"] = true;
+                            dr["isLock"] = false;
+                            dr["OTComfirmBy"] = DBNull.Value;
+                            dr["DateOTComfirm"] = DBNull.Value;
+                            dr["IsOTComfirm"] = false;
+                            dr.EndEdit();
+                        }
+
                         FromDate = FromDate.AddDays(1);
                     } 
                 }
-                
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsRef);
 
+                if (lockcounter==0)
+                {
+                    string sql = @"update [dbo].[EmployeeOnDuty] set IsApproved=1 where EmpSystemId in(" + EmpIdLoop + @") ";
+                    ExecuteRawSQL(sql);
+                }
+                
             }
             catch (Exception ex)
             {
@@ -115,6 +155,27 @@ namespace Aplos.Areas.Leave.Controllers
           
             return Json(new { Message = "Approve completed!!!" }, JsonRequestBehavior.AllowGet);
         }
+
+        public void PlantLockCheck(string FDate, string TDate, out DataSet ds, string Plant)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                string From = Convert.ToDateTime(FDate).ToString("dd-MMM-yyyy");
+                string To = Convert.ToDateTime(TDate).ToString("dd-MMM-yyyy");
+
+                var sql = @"select * from PlantWiseAttendanceLock where PlantId='" + Plant + @"'
+                and LockedDate between '" + From + "' and '" + To + "' and IsActive='1'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
 
         public void ExecuteRawSQL(string sql1)
         {
@@ -153,16 +214,25 @@ namespace Aplos.Areas.Leave.Controllers
             }
         }//End Function
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public ActionResult getlist()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"  select format(eod.FromDate,'dd-MMM-yyyy')FromDate ,format(eod.ToDate,'dd-MMM-yyyy')ToDate,eod.EmpSystemId,eod.Id,
-                            Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
-                            PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
-                            ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,FORMAT(emp.DOJ,'dd-MMM-yyyy') DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy') DOC
-                            ,EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric
-                              FROM [dbo].[EmployeeOnDuty] eod
+            string sql = @"select format(eod.FromDate,'dd-MMM-yyyy')FromDate ,format(eod.ToDate,'dd-MMM-yyyy')ToDate,
+                            eod.EmpSystemId,eod.Id,
+                            EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,
+							EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
+                            PR.UserName PositionName,DEG.UserName GivenDesignation,
+							DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
+                            ,PL.UserName Plant,LDEG.UserName LegalDesignation, 
+							L.UserName Line,FORMAT(emp.DOJ,'dd-MMM-yyyy') DOJ,
+							FORMAT(emp.DOC,'dd-MMM-yyyy') DOC
+                            ,EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric,
+							(select format(min(FromDate),'dd-MMM-yyyy') from [EmployeeOnDuty] where PlantId='" + identity.PlantId+ @"'
+							and IsApproved=0 )as MinDate,
+							(select format(max(ToDate),'dd-MMM-yyyy') from [EmployeeOnDuty] where PlantId='" + identity.PlantId+@"'
+							and IsApproved=0 )as MaxDate
+					          FROM [dbo].[EmployeeOnDuty] eod
                               INNER JOIN EmployeeInformation EMP on EMP.SystemId=eod.EmpSystemId
                               LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                               LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
@@ -175,16 +245,18 @@ namespace Aplos.Areas.Leave.Controllers
                               LEFT JOIN ORG.Line L ON L.Id=EMP.LineId
                               LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
                               LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
-                        	  where EMP.PlantId='" + identity.PlantId + "' and eod.IsApproved=0";
+                        	  where EMP.PlantId='"+identity.PlantId+"' and eod.IsApproved=0";
             var data = _sqlRepository.GetDataCollection(sql);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
-        public class ApproveInfo
+        public class ApproveInfoNew
         {
             public string EmpSystemId{get;set;}
             public string FromDate { get;set; }
             public string ToDate { get;set; }
+            public string MinDate { get; set; }
+            public string MaxDate { get; set; }
         }
 
         #endregion -- Operations  
