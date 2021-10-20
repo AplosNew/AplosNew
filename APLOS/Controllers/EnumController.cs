@@ -1,4 +1,5 @@
-﻿using Library.Model.Banks;
+﻿using Aplos.Service.Enums;
+using Library.Model.Banks;
 using Library.Model.Employees;
 using Library.Model.Enums;
 using Library.Model.ManagementChartOfAccounts;
@@ -687,6 +688,12 @@ namespace Aplos.Controllers
         public JsonResult GetTaxCategoryTypeEnumCbo()
         {
             return Json(new SelectList(EnumService.GetEnumCbo<TaxCategoryTypeEnum>(), "Value", "Text"), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetTaxCategoryLevelEnumCbo()
+        {
+            return Json(new SelectList(EnumService.GetEnumCbo<TaxCategoryLevelEnum>(), "Value", "Text"), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
