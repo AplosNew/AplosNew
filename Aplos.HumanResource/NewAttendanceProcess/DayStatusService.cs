@@ -503,6 +503,79 @@ namespace Library.HumanResource.NewAttendanceProcess
                 throw e;
             }
         }
+
+        // ********************************************* Leave Day Type
+
+        //Getting all the Day Types With Values
+        public IEnumerable<object> getleaveDayTypes(string DayTypeWithValuesId)
+        {
+            try
+            {
+                var str = @"Select  lt.LeaveType , lt.Id as LTId , ld.Id as LDTId, isnull(ld.EarnValue,0.0) as EarnValue, isnull(ld.AvailedValue,0.0) as AvailedValue ,lt.UserName as Leave
+                            from dbo.LeaveType lt
+                            left join dbo.LeaveDayType ld on ld.LeaveTypeId =lt.Id and ld.DayTypeWithValuesId = '" + DayTypeWithValuesId+@"'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
+        }
+
+        //Saving the Leave Day Type List
+        public void saveLeaveDayType(List<Dictionary<string, object>> Data, string DayTypeWithValuesId)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from dbo.LeaveDayType where DayTypeWithValuesId='"+DayTypeWithValuesId+@"'", out dsMaster, false, "1");
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                for (int i = 0; i< Data.Count;i++)
+                {
+                    //Data[i]["LDTId"].ToString();
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"Id = '" + bplib.clsWebLib.RetValidLen(Data[i]["LDTId"]).ToString() + "'";
+                    if(dsMaster.Tables[0].DefaultView.Count > 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+                        dr["EarnValue"] = clsStaticInfo.dbl(Data[i]["EarnValue"].ToString());
+                        dr["AvailedValue"] = clsStaticInfo.dbl(Data[i]["AvailedValue"].ToString());
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+                        dr.EndEdit();
+                    }
+                    else
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+                        string _Id = "";
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("dbo.LeaveDayType", out _Id);
+                        dr["Id"] = "LVDT-" + _Id;
+                        dr["DayTypeWithValuesId"] = DayTypeWithValuesId;
+                        dr["EarnValue"] = clsStaticInfo.dbl(Data[i]["EarnValue"].ToString());
+                        dr["AvailedValue"] = clsStaticInfo.dbl(Data[i]["AvailedValue"].ToString());
+                        dr["LeaveTypeId"] = Data[i]["LTId"].ToString();
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+                        dsMaster.Tables[0].Rows.Add(dr);
+                    }
+                }
+
+                clsStaticInfo ins = new clsStaticInfo();
+                ins.SaveDataSets(dsMaster);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
     }
 }
  
