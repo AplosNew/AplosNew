@@ -3374,7 +3374,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
                     ob.UserName = $scope.OperationList[i].UserName;
                     ob.MachineMaster = $scope.OperationList[i].MachineMaster;
                     ob.Skill = $scope.OperationList[i].Skill;
-
+                    ob.CycleTime = $scope.OperationList[i].CycleTime;
                     $scope.EmployeeOperationList.push(ob);
                 }
             }
