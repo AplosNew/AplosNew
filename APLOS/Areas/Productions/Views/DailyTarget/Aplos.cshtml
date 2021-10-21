@@ -226,10 +226,9 @@
 
     <div class="common-btn">
         <ul class="list-inline text-right">
-            <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+            <li> <button ng-click="SaveDiagram();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
         </ul>
     </div>
-
     <script id="htmlTemplate" type="text/template">
         <div class="row">
             <div class="col-xs-12 col-sm-4 col-md-4">
@@ -242,6 +241,17 @@
                 <input type="button" value="{{this.items[0].addInfo.AllotedWorkstation}}" style="color: #ffffff; width:100%; background-color: #009400; border-color: #f89b1c" />
             </div>
         </div>
+        <div class="row">
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <img onerror="$(arguments[0].currentTarget).attr('src','images/blankuser.png')" ng-click="$parent.employeeButtonClick(this);" src="POPResources/EmployeeProfiles/EmpPic/{{this.items[0].addInfo.EmpPicPath}}"
+                         style="height:70px;width:70px;border:2px solid #efefef; border-radius:50%;" />
+                </div>
+                <div class="col-xs-12 col-sm-8 col-md-8" style="vertical-align:central;">
+                    {{this.items[0].addInfo.EmployeeName}} <br />
+                    {{this.items[0].addInfo.Designation}}
+
+                </div>
+            </div>
 
         <div class="row" style="margin-top: 15px;">
             <div class="col-xs-12 col-sm-7 col-md-7" style="white-space: nowrap; overflow: hidden; font-size:10px">
@@ -279,10 +289,11 @@
                 </div>
             </div>
         </div>
+
+
     </script>
 
-
-
+  
     <script id="svgTemplate" type="text/x-jsrender">
         <svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="350.000000pt" height="229.000000pt" viewBox="0 0 350.000000 229.000000" preserveAspectRatio="xMidYMid meet">
             <g transform="translate(0.000000,229.000000) scale(0.100000,-0.100000)" fill="#de6ca9" stroke="none">
