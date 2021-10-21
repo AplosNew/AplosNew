@@ -7,6 +7,7 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.index = -1;
     $scope.costingTypeses = [];
     $scope.path = 'Productions/DailyTarget/';
+    $scope.Copy = $scope.path + 'CopyFromTable';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
     $scope.updateUrl = $scope.path + 'edit';
@@ -257,4 +258,33 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
 
 
     }
+    $scope.ShowDiv = false;
+    $scope.AddLineItemG = function () {
+        $scope.ShowDiv = true;
+        var eDialog = $("#LineDesign").data("ejDialog");
+        $scope.CopyTable();
+        eDialog.open();
+    };
+    $scope.CopyTable = function () {
+        try {
+            $scope.SelectedLineForPR = data;
+            $http({
+                method: 'POST',
+                url: $scope.Copy,
+                data: { 'entityid': $scope.DailyProductionTargetNew.EntityId, 'processId': $scope.DailyProductionTargetNew.ProcessId, 'ProductionDate': DailyProductionTargetNew.ProductionDate, 'SelectedLine': $scope.SelectedLineForPR},
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
 }

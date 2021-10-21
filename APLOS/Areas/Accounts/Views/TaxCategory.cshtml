@@ -41,6 +41,17 @@
                     <textarea class="form-control" rows="3" ng-model="taxCategoryNew.Description" tabindex="7" maxlength="250"></textarea>
                 </div>
             </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Trn Level<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="taxCategoryNew.TaxCategoryLevel" name="TaxCategoryLevel" required
+                                ng-options="item.Value as item.Text for item in taxCategoryLevelList">
+                            <option></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
             <div class="form-group">
                 <label class="col-sm-4 control-label">Active</label>
                 <div class="col-sm-8">

@@ -4084,7 +4084,7 @@ where gpm.GatePassEntryDate between '"+ fromDate + @"' AND '" + toDate + @"'";
 					inOutGatePassMasterModel.InventoryTransferId = null;
 					inOutGatePassMasterModel.InventorySalesId = null;
 					inOutGatePassMasterModel.InventoryScrapId = null;
-					inOutGatePassMasterModel.FixedAssetSalesId = null;
+					inOutGatePassMasterModel.FixedAssetRegisterDisposedId = null;
 					inOutGatePassMasterModel.FixedAssetScrapId = null;
 
 				}
@@ -4094,7 +4094,7 @@ where gpm.GatePassEntryDate between '"+ fromDate + @"' AND '" + toDate + @"'";
 					inOutGatePassMasterModel.InventoryTransferId = inOutGatePassMasterModel.ChallanItemTypeId;
 					inOutGatePassMasterModel.InventorySalesId = null;
 					inOutGatePassMasterModel.InventoryScrapId = null;
-					inOutGatePassMasterModel.FixedAssetSalesId = null;
+					inOutGatePassMasterModel.FixedAssetRegisterDisposedId = null;
 					inOutGatePassMasterModel.FixedAssetScrapId = null;
 				}
 				else if (inOutGatePassMasterModel.GatePassType == "InventorySales")
@@ -4103,7 +4103,7 @@ where gpm.GatePassEntryDate between '"+ fromDate + @"' AND '" + toDate + @"'";
 					inOutGatePassMasterModel.InventoryTransferId = null;
 					inOutGatePassMasterModel.InventorySalesId = inOutGatePassMasterModel.ChallanItemTypeId;
 					inOutGatePassMasterModel.InventoryScrapId = null;
-					inOutGatePassMasterModel.FixedAssetSalesId = null;
+					inOutGatePassMasterModel.FixedAssetRegisterDisposedId = null;
 					inOutGatePassMasterModel.FixedAssetScrapId = null;
 				}
 				else if (inOutGatePassMasterModel.GatePassType == "InventoryScrap")
@@ -4112,7 +4112,7 @@ where gpm.GatePassEntryDate between '"+ fromDate + @"' AND '" + toDate + @"'";
 					inOutGatePassMasterModel.InventoryTransferId = null;
 					inOutGatePassMasterModel.InventorySalesId = null;
 					inOutGatePassMasterModel.InventoryScrapId = inOutGatePassMasterModel.ChallanItemTypeId;
-					inOutGatePassMasterModel.FixedAssetSalesId = null;
+					inOutGatePassMasterModel.FixedAssetRegisterDisposedId = null;
 					inOutGatePassMasterModel.FixedAssetScrapId = null;
 				}
 				else if (inOutGatePassMasterModel.GatePassType == "FixedAssetSales")
@@ -4121,7 +4121,7 @@ where gpm.GatePassEntryDate between '"+ fromDate + @"' AND '" + toDate + @"'";
 					inOutGatePassMasterModel.InventoryTransferId = null;
 					inOutGatePassMasterModel.InventorySalesId = null;
 					inOutGatePassMasterModel.InventoryScrapId = null;
-					inOutGatePassMasterModel.FixedAssetSalesId = inOutGatePassMasterModel.ChallanItemTypeId;
+					inOutGatePassMasterModel.FixedAssetRegisterDisposedId = inOutGatePassMasterModel.ChallanItemTypeId;
 					inOutGatePassMasterModel.FixedAssetScrapId = null;
 				}
 				else if (inOutGatePassMasterModel.GatePassType == "FixedAssetScrap")
@@ -4130,7 +4130,7 @@ where gpm.GatePassEntryDate between '"+ fromDate + @"' AND '" + toDate + @"'";
 					inOutGatePassMasterModel.InventoryTransferId = null;
 					inOutGatePassMasterModel.InventorySalesId = null;
 					inOutGatePassMasterModel.InventoryScrapId = null;
-					inOutGatePassMasterModel.FixedAssetSalesId = null;
+					inOutGatePassMasterModel.FixedAssetRegisterDisposedId = null;
 					inOutGatePassMasterModel.FixedAssetScrapId = inOutGatePassMasterModel.ChallanItemTypeId;
 				}
 

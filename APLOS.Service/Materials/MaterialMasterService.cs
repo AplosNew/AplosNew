@@ -8507,9 +8507,9 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                 workbook.Version = ExcelVersion.Excel2016;
                 return workbook;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
 
@@ -8606,12 +8606,11 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 
 
 --InventoryTrans
-					,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') TransferDate
-,''InventoryTransferNo
-					,Isnull(Round(IRD.InventoryTransferQty,2),0) InventoryTransferQty
-
-					,Round(IRD.BooksCurrencyBaseRate,4) TransferRate
-					--,Round(IRD.TotalMaterialBooksCurrencyAmount,2) RcvAmount	
+					
+	               ,REPLACE(CONVERT(CHAR(11),IR.GRNDate, 106),' ','-') TransferDate
+					--,'' InventoryTransferNo
+					,isnull(Round(IRD.InventoryTransferQty,2),0) InventoryTransferQty
+					,isnull(Round(IRD.BooksCurrencyBaseRate,4),0) TransferRate
 					,Isnull(Round((Round(IRD.InventoryTransferQty,2)*Round(IRD.BooksCurrencyBaseRate,4)),2),0) TransferAmount	
 
 
@@ -9031,11 +9030,6 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
             sheet1headreColIndex++;
 
-
-
-
-
-
             //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Type");
             //sheet1headreColIndex++;
             var colIsAssetStatus = sheet1headreColIndex;
@@ -9067,7 +9061,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             var colUOM = sheet1headreColIndex;
 
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "UOM";
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "UoM";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -9693,13 +9687,14 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                 report.SetText(ref sheet1, _rowL, colInventorySalesReturnAmount, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["SalesReturnAmount"].ToString()));
 
                 //InventoryTransfer
-
+                if (Convert.ToDecimal(inventoryMaterialList.Rows[n]["InventoryTransferQty"].ToString()) > 0)
+                {            
                 report.SetText(ref sheet1, _rowL, colInventoryTransferDate, inventoryMaterialList.Rows[n]["TransferDate"].ToString());
                 report.SetText(ref sheet1, _rowL, colcolInventoryTransfernQty, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryTransferQty"].ToString()));
                 report.SetText(ref sheet1, _rowL, colcolInventoryTransferRate, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TransferRate"].ToString()));
                 sheet1.Range[_rowL, colcolInventoryTransferRate].NumberFormat = report.NumberFormatDecimalFour();
                 report.SetText(ref sheet1, _rowL, colcolInventoryTransferAmount, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TransferAmount"].ToString()));
-
+                }
 
             }
 

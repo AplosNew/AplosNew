@@ -997,7 +997,16 @@ namespace Aplos.Areas.FixedAssets.Controllers
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
             voucherVM.CompanyId = identity.CompanyId;
             voucherVM.PlantId = identity.PlantId;
-            _fixedAssetDisposeService.InsertFixedAssetDisposePosting(voucherVM, voucherDetailVMList, farDisposeDetailList, advanceSalarySchedulelist);
+            if (voucherVM.Status == "Sales")
+            {
+            _fixedAssetDisposeService.InsertFixedAssetDisposeSalesPosting(voucherVM, voucherDetailVMList, farDisposeDetailList, advanceSalarySchedulelist);
+
+            }
+            else if (voucherVM.Status == "Scrap")
+            {
+                _fixedAssetDisposeService.InsertFixedAssetDisposeScrapPosting(voucherVM, voucherDetailVMList, farDisposeDetailList, advanceSalarySchedulelist);
+
+            }
             return Json(new { Message = AplosMessage.Insert });
         }
 
