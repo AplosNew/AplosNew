@@ -409,21 +409,6 @@ namespace Library.MaterialManagement.InventoryManagements
             int colParty = COL;
             COL++;
 
-            sheet1.Range[ROW, COL].Text = "From Plant";
-            sheet1.Range[ROW, COL].ColumnWidth = 20;
-            sheet1.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            sheet1.Range[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet1.Range[ROW, COL].CellStyle.Font.Bold = true;
-            int colFromPlant = COL;
-            COL++;
-
-            sheet1.Range[ROW, COL].Text = "To Party";
-            sheet1.Range[ROW, COL].ColumnWidth = 20;
-            sheet1.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            sheet1.Range[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet1.Range[ROW, COL].CellStyle.Font.Bold = true;
-            int colToPlant = COL;
-            COL++;
 
             //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Doc Ref No");
             //sheet1headreColIndex++;
@@ -689,13 +674,27 @@ namespace Library.MaterialManagement.InventoryManagements
 
             //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Storage Location");
             //sheet1headreColIndex++;
-
+            sheet1.Range[ROW, COL].Text = "From Plant";
+            sheet1.Range[ROW, COL].ColumnWidth = 20;
+            sheet1.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[ROW, COL].CellStyle.Font.Bold = true;
+            int colFromPlant = COL;
+            COL++;
             sheet1.Range[ROW, COL].Text = "From Storage Location";
             sheet1.Range[ROW, COL].ColumnWidth = 10;
             sheet1.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[ROW, COL].CellStyle.Font.Bold = true;
             int colFromStorageLocation = COL;
+            COL++;
+            sheet1.Range[ROW, COL].Text = "To Plant";
+            sheet1.Range[ROW, COL].ColumnWidth = 20;
+            sheet1.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[ROW, COL].CellStyle.Font.Bold = true;
+            int colToPlant = COL;
+            
 
             COL++;
             sheet1.Range[ROW, COL].Text = "To Storage Location";
