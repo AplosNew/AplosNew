@@ -315,10 +315,13 @@ function fixedAssetDisposePostController(accountService, cboService, commonMessa
         $scope.voucher.DocDate = $scope.voucher.PostingDate;
         $scope.$broadcast("show-errors-check-validity");
         if ($scope.form0.$valid) {
+            if ($scope.voucher == 'Sales') {
+                $scope.SaveUrl = "fixedassets/FixedAssetRegister/CreateFixedAssetDisposePost"
+            }
             if ($scope.Action === "Save") {
                 $http({
                     method: "POST",
-                    url: "fixedassets/FixedAssetRegister/CreateFixedAssetDisposePost",
+                    url: $scope.SaveUrl,
                     data: {
                         "voucherVM": $scope.voucher,
                         "voucherDetailVMList": $scope.fixedAssetDisposeJVList,
@@ -375,30 +378,30 @@ function fixedAssetDisposePostController(accountService, cboService, commonMessa
         angular.element(document.querySelector("#confirmPostPopUp")).modal("show");
     };
 
-    $scope.post = function () {
-        $http({
-            method: "POST",
-            url: "accounts/OpeningBalance/PostOBAdvanceJournal",
-            data: {
-                "voucherVM": $scope.voucher,
-                "voucherDetailVMList": JSON.stringify($scope.voucherDetailList)
-            },
-            dataType: 'JSON'
-            , contentType: "application/json charset=utf-8"
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, "failure");
-            }
-            else {
-                ShowResult(response.data.Message, "success");
-                $scope.getData();
-                $scope.clear();
-            }
-        }, function errorCallback(response) {
-            ShowResult(response.status.Message, "failure");
-        });
-        return true;
-    };
+    //$scope.post = function () {
+    //    $http({
+    //        method: "POST",
+    //        url: "accounts/OpeningBalance/PostOBAdvanceJournal",
+    //        data: {
+    //            "voucherVM": $scope.voucher,
+    //            "voucherDetailVMList": JSON.stringify($scope.voucherDetailList)
+    //        },
+    //        dataType: 'JSON'
+    //        , contentType: "application/json charset=utf-8"
+    //    }).then(function successCallback(response) {
+    //        if (response.data.Error === true) {
+    //            ShowResult(response.data.Message, "failure");
+    //        }
+    //        else {
+    //            ShowResult(response.data.Message, "success");
+    //            $scope.getData();
+    //            $scope.clear();
+    //        }
+    //    }, function errorCallback(response) {
+    //        ShowResult(response.status.Message, "failure");
+    //    });
+    //    return true;
+    //};
 
     $scope.selectFARegisterPopUp = function (x) {
         var data = x.data;

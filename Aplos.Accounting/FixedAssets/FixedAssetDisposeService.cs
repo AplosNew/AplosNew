@@ -23,6 +23,8 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using Library.Model.Currencies;
+using Library.Model.Invoices;
+using Library.Model.Parties;
 
 namespace Library.Accounting.FixedAssets
 {
@@ -77,7 +79,7 @@ namespace Library.Accounting.FixedAssets
             dr["UpdatedDate"] = DateTime.Now.ToString();
             dr["UpdatedFromIP"] = identity.IPAddress;
             dr.EndEdit();
-            
+
         }
         private void EditRow(DataSet ds)
         {
@@ -104,7 +106,7 @@ namespace Library.Accounting.FixedAssets
             financingSchedule.AddedBy = voucherVM.AddedBy;
             financingSchedule.AddedDate = voucherVM.AddedDate;
             financingSchedule.AddedFromIP = voucherVM.AddedFromIP;
-            if(advRewSchedule==null || advRewSchedule.Tables.Count == 0)
+            if (advRewSchedule == null || advRewSchedule.Tables.Count == 0)
             {
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.getDataSet("Select * from dbo.AdvanceReqSchedule where 1=2", out advRewSchedule);
@@ -115,14 +117,14 @@ namespace Library.Accounting.FixedAssets
 
         public void UpdateFixedAssetRegisterDispose(FixedAssetRegisterDisposed voucherVM, ref DataSet frdispose)
         {
-            
+
             if (frdispose == null || frdispose.Tables.Count == 0)
             {
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.getDataSet("Select * from TRN.FixedAssetRegisterDisposed where Id='" + voucherVM.Id + "'", out frdispose);
 
             }
-            
+
             EditRow<FixedAssetRegisterDisposed>(frdispose.Tables[0].Rows[0], voucherVM);
         }
         public void UpdateFixedAssetRegister(FixedAssetRegister voucherVM, ref DataSet fixedRegister)
@@ -135,15 +137,15 @@ namespace Library.Accounting.FixedAssets
 
                 DataView dv = new DataView(fixedRegister.Tables[0]);
                 dv.RowFilter = "Id='" + voucherVM.Id + "'";
-                
+
                 if (dv.Count > 0)
                 {
                     DataRow drmo = dv[0].Row;
 
                     drmo.BeginEdit();
 
-                    drmo["DisposedVoucherId"] = voucherVM.DisposedVoucherId;                   
-                    drmo["DisposedDate"] = voucherVM.DisposedDate;                   
+                    drmo["DisposedVoucherId"] = voucherVM.DisposedVoucherId;
+                    drmo["DisposedDate"] = voucherVM.DisposedDate;
 
                     drmo.EndEdit();
 
@@ -162,7 +164,8 @@ namespace Library.Accounting.FixedAssets
                 _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
 
-
+                DataSet _invoiceData = null;
+                DataSet _invoiceDetailData = null;
                 DataSet _drvDetailData = null;
                 DataSet _drvDetailCurrencyData = null;
                 DataSet _crvDetailData = null;
@@ -171,6 +174,41 @@ namespace Library.Accounting.FixedAssets
                 DataSet _fixedAssetRegisterData = null;
                 DataSet _advanceReqScheData = null;
 
+                var invoice = new Invoice
+                {
+                    Amount = voucherVM.Amount,
+                    CompanyGroupId = voucherVM.CompanyGroupId,
+                    CompanyId = voucherVM.CompanyId,
+                    CurrencyId = voucherVM.CurrencyId,
+                    DocDate = voucherVM.DocDate,
+                    DocRefNo = voucherVM.DocRefNo,
+                    InvoiceNo = voucherVM.InvoiceNo,
+                    Narration = voucherVM.Narration,
+                    EntityId = voucherVM.EntityId,
+                    PlantId = voucherVM.PlantId,
+                    IsExcludingTax = voucherVM.IsExcludingTax,
+                    IsSplit = voucherVM.IsSplit,
+                    PartyId = voucherVM.PartyId,
+                    PartyPlantId = voucherVM.PartyPlantId,
+                    EmployeeId = voucherVM.EmployeeId,
+                    PaymentTermId = voucherVM.PaymentTermId,
+                    PostingDate = voucherVM.PostingDate,
+                    SourceType = SourceType.FixedAssetDisposeJournal.ToString(),
+
+                    VoucherTypeId = voucherVM.VoucherTypeId,
+                    FiscalYearId = voucherVM.FiscalYearId,
+                    FiscalYearPeriodId = voucherVM.FiscalYearPeriodId,
+                    TaxYearId = voucherVM.TaxYearId,
+                    VoucherDate = DateTime.Now,
+                    TaxYearPeriodId = voucherVM.TaxYearPeriodId,
+                    CompanyCurrencyRate = voucherVM.ToCurrencyRate,
+                    IsPark = false
+                };
+
+                invoice.BaseNoOfDays = voucherVM.BaseNoOfDays;
+                invoice.BaseOnDueDate = voucherVM.BaseOnDueDate;
+                invoice.RevisedDueDate = voucherVM.MatureDate;
+                invoice.ActualDueDate = voucherVM.MatureDate;
                 var voucher = new Voucher
                 {
                     CompanyGroupId = voucherVM.CompanyGroupId,
@@ -190,13 +228,45 @@ namespace Library.Accounting.FixedAssets
                     VoucherTypeId = voucherVM.VoucherTypeId
                 };
                 _accountsCommonService.InsertVoucher(voucher, voucherVM.FiscalYearPrefix, out DataSet _vdataset);
+               
+                    invoice.VoucherId = voucher.Id;
+                    invoice.PartyType = PartyType.Customer.ToString();
+                    _accountsCommonService.InsertInvoice(invoice, out DataSet _invoicedataSet);
 
                 var currentVoucherDetaiRecord = 0;
+                var currentInvoiceDetail = 0;
+
                 foreach (var voucherDetailVM in voucherDetailVMList)
                 {
-                    
-                    if (voucherDetailVM.TrnType == "Dr" && voucherDetailVM.Amount>0)
+
+                    if (voucherDetailVM.TrnType == "Dr" && voucherDetailVM.Amount > 0)
                     {
+
+                        // INSERT INTO InvoiceDetail
+
+                        var invoiceDetail = new InvoiceDetail
+                        {
+                            GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
+                            BudgetMasterId = voucherDetailVM.BudgetMasterId,
+                            ActivityId = voucherDetailVM.ActivityId,
+                            MaterialGroupMasterId = voucherDetailVM.MaterialGroupMasterId,
+                            Amount = voucherDetailVM.Amount,
+                            NetAmount = voucherDetailVM.Amount,
+                            TaxAmount = 0,
+                            AddedBy = invoice.AddedBy,
+                            AddedDate = invoice.AddedDate,
+                            AddedFromIP = invoice.AddedFromIP,
+                            Archive = invoice.Archive,
+                            InvoiceId = invoice.Id,
+                        };
+                        if (voucherVM.PartyId != null && voucherVM.Status == "Sales" && voucherDetailVM.OtherName== "A/R")
+                        {
+                            currentInvoiceDetail++;
+                            invoice.Amount = invoiceDetail.Amount;
+                            _accountsCommonService.InsertInvoiceDetail(invoice, invoiceDetail, currentInvoiceDetail, ref _invoiceDetailData);
+
+                        }
+
                         if (string.IsNullOrEmpty(voucherDetailVM.GLGeneralInfoId))
                             throw new CustomException("Without GL can not post.");
                         // in libility side Dr.
@@ -208,7 +278,14 @@ namespace Library.Accounting.FixedAssets
                             DrAmount = voucherDetailVM.Amount,
                             DocRefNo = voucherVM.DocRefNo,
                             Narration = voucherDetailVM.Narration,
+                            InvoiceDetailId = invoiceDetail.Id
                         };
+                        if(voucherDetailVM.OtherName == "A/R")
+                        {
+                            voucherDr.PartyId = voucherVM.PartyId;
+                            voucherDr.PartyPlantId = voucherVM.PartyPlantId;
+                            voucherDr.PartyType = PartyType.Customer.ToString();
+                        }
                         currentVoucherDetaiRecord++;
                         _accountsCommonService.InsertVoucherDetail(voucher, voucherDr, currentVoucherDetaiRecord, ref _drvDetailData);
 
@@ -257,15 +334,15 @@ namespace Library.Accounting.FixedAssets
 
                         var faRegisterDispose = new FixedAssetRegisterDisposed
                         {
-                            DisposedVoucherId= voucher.Id,
-                            Id=item.FixedAssetRegisterDisposedId,
-                            Status=voucherVM.Status,
-                            EmployeeId=voucherVM.EmployeeId,
-                            PartyId=voucherVM.PartyId,
-                            PartyPlantId=voucherVM.PartyPlantId,
-                            AddedBy=item.AddedBy,
-                            AddedDate=item.AddedDate,
-                            AddedFromIP=item.AddedFromIP
+                            DisposedVoucherId = voucher.Id,
+                            Id = item.FixedAssetRegisterDisposedId,
+                            Status = voucherVM.Status,
+                            EmployeeId = voucherVM.EmployeeId,
+                            PartyId = voucherVM.PartyId,
+                            PartyPlantId = voucherVM.PartyPlantId,
+                            AddedBy = item.AddedBy,
+                            AddedDate = item.AddedDate,
+                            AddedFromIP = item.AddedFromIP
                         };
                         UpdateFixedAssetRegisterDispose(faRegisterDispose, ref _frDisposeData);
 
@@ -300,7 +377,7 @@ namespace Library.Accounting.FixedAssets
                     }
                 }
                 clsStaticInfo objApp = new clsStaticInfo();
-                objApp.SaveDataSets(_vdataset , _drvDetailData, _drvDetailCurrencyData, _crvDetailData, _crvDetailCurrencyData, _frDisposeData, _fixedAssetRegisterData, _advanceReqScheData
+                objApp.SaveDataSets(_vdataset, _invoicedataSet, _invoiceDetailData, _crvDetailData, _drvDetailData, _drvDetailCurrencyData, _crvDetailData, _crvDetailCurrencyData, _frDisposeData, _fixedAssetRegisterData, _advanceReqScheData
                     );
             }
             catch (Exception ex)
@@ -446,7 +523,11 @@ namespace Library.Accounting.FixedAssets
             //sheet[row, 3].ColumnWidth = 25;
             //reportUtility.SetText(ref sheet, row, middleColumnCaption, header[""].ToString());
 
-            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Voucher Date");            reportUtility.SetText(ref sheet, row, 5, header["VoucherDate"].ToString());            sheet[row, 4].ColumnWidth = 15;            sheet[row, 5].ColumnWidth = 15;            row++;            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Posting Date");            reportUtility.SetText(ref sheet, row, 2, header["PostingDate"].ToString());            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "DocDate");            reportUtility.SetText(ref sheet, row, 5, header["DocDate"].ToString());            row++;            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Employee");          //  reportUtility.SetText(ref sheet, row, 2, header["Vendor"].ToString());            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Doc Ref");            reportUtility.SetText(ref sheet, row, 5, header["DocRefNo"].ToString());            row++;            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Vendor Plant");            //reportUtility.SetText(ref sheet, row, 2, header["VendorPlant"].ToString());            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Status");            reportUtility.SetText(ref sheet, row, 5, header["Status"].ToString());            row++;
+            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Voucher Date");            reportUtility.SetText(ref sheet, row, 5, header["VoucherDate"].ToString());            sheet[row, 4].ColumnWidth = 15;            sheet[row, 5].ColumnWidth = 15;            row++;            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Posting Date");            reportUtility.SetText(ref sheet, row, 2, header["PostingDate"].ToString());            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "DocDate");            reportUtility.SetText(ref sheet, row, 5, header["DocDate"].ToString());            row++;            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Employee");
+            //  reportUtility.SetText(ref sheet, row, 2, header["Vendor"].ToString());
+            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Doc Ref");            reportUtility.SetText(ref sheet, row, 5, header["DocRefNo"].ToString());            row++;            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Vendor Plant");
+            //reportUtility.SetText(ref sheet, row, 2, header["VendorPlant"].ToString());
+            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Status");            reportUtility.SetText(ref sheet, row, 5, header["Status"].ToString());            row++;
 
             colLast = companyCurrencyId == transcationCurrency ? 5 : 7;
             reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Narration");
