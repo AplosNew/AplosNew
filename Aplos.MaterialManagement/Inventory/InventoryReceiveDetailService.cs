@@ -3396,7 +3396,8 @@ namespace Library.MaterialManagement.Inventory
 				if (entity.Id.IsNull())
 				{
 
-
+					var BaseCurrencyId  = _receiveDetailRepository.SqlQuery<string>($"SELECT  BaseCurrencyId FROM [Org].[Company]  WHERE Id ='{entity.CompanyId}'").First();
+					entity.CurrencyId = BaseCurrencyId.ToString();
 					_inventoryReceiveService.Insert(entity);
 					var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 

@@ -36,7 +36,7 @@ namespace Aplos.Areas.JobWork.Controllers
 {
     public class OSTransformationPOController : BaseController
     {
-        string TableName = "JWTransformationPurchaseOrder";
+        string TableName = "OSTransformationPO";
         //authentication for
         //GetList Create Delete
         Library.MaterialManagement.JobWork.OSCommon JobWorkCommon = null;
