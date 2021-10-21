@@ -956,7 +956,7 @@ namespace Aplos.Areas.IE.Controllers
                 sheet[ROW, ColNoofWS].Number = Convert.ToDouble(data.Rows[i]["AllotedWorkstation"].ToString());
                 sheet[ROW, ColNoofWS].NumberFormat = clsStaticInfo.NumberFormat(2);
                 sheet[ROW, ColTarget].Number = Convert.ToDouble(data.Rows[i]["LineTargetPerHour"].ToString());
-                sheet[ROW, ColTarget].NumberFormat = clsStaticInfo.NumberFormat(2);
+                sheet[ROW, ColTarget].NumberFormat = clsStaticInfo.NumberFormat(0);
                 sheet[ROW, ColAddedDate].Text = data.Rows[i]["CreationDate"].ToString();
 
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
