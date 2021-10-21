@@ -2747,4 +2747,66 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 
 	};
 	//#endregions
+
+	// Editing mode in Issue
+
+	$scope.recorddoubleclickFromMasterGrid = function ($event) {
+		//debugger;
+		var x = $event;
+		var Id = x.data.Id;
+		var JWContractId = x.data.JWContractId;
+		var IssueDate = x.data.IssueDate;
+		var MaterialStorageId = x.data.MaterialStorageId;
+	//	$scope.Action = 'Update';
+		//ClearFields();		
+		$scope.Issue = x.data;
+		//$scope.SelectedValAddedMaterialStorage();
+		//$scope.GetSelectedMaterialStorage();
+		JWOutPutQuery(Id, JWContractId, IssueDate, MaterialStorageId);
+	//	JWByProductQuery(Id);
+		if (baseService.isUndefinedOrNull(x.data.CheckedBy) && !baseService.isUndefinedOrNull(x.data.AuthorizedBy)) {
+			$scope.CheckedByStatusForNoti = false;
+			$scope.ApprovedByStatusForNoti = true;
+			$scope.Issue.CheckedBy = x.data.ApprovedById;
+		}
+		else if (!baseService.isUndefinedOrNull(x.data.CheckedBy) && !baseService.isUndefinedOrNull(x.data.AuthorizedBy)) {
+			$scope.CheckedByStatusForNoti = true;
+			$scope.ApprovedByStatusForNoti = true;
+			$scope.Issue.CheckedBy = x.data.CheckedById;
+		}
+	//	$scope.GetCheckedByAndApprovedBy1();
+		if (baseService.isUndefinedOrNull(x.data.CheckedById) && !baseService.isUndefinedOrNull(x.data.ApprovedById)) {
+
+			$scope.Issue.CheckedBy = x.data.ApprovedById;
+			$scope.Issue.labelCheckAndApproved = 'To be approved by';
+		}
+		else if (!baseService.isUndefinedOrNull(x.data.CheckedById) && baseService.isUndefinedOrNull(x.data.ApprovedById)) {
+
+			$scope.Issue.CheckedBy = x.data.CheckedById;
+			$scope.Issue.labelCheckAndApproved = 'To be checked by';
+		}
+		if (!$rootScope.isCollapsed) $rootScope.toggle();
+	}
+
+	function JWOutPutQuery(IssueId, JWContractId, IssueDate, MaterialStorageId) {
+		$scope.masterId5 = IssueId;
+		$scope.IssueChildList = [];
+		$http({
+			method: 'GET',
+			url: $scope.path + 'GetOSOutPutInventoryMaterialList?IssueId=' + IssueId + '&PKId=' + JWContractId + '&IssueDate=' + IssueDate + '&MaterialStorageIdInventory=' + MaterialStorageId
+		}).then(function successCallback(response) {
+			$scope.IssueChildList = response.data;
+		});
+	}
+	$scope.inventoryMaterialListPO = [];
+	function JWByProductQuery(inveReveiveId) {
+		$scope.masterId5 = inveReveiveId;
+		$scope.inventoryMaterialList = [];
+		$http({
+			method: 'GET',
+			url: 'Products/GoodsReceiveNote/GetJWByProductInventoryMaterialList?inveReveiveId=' + inveReveiveId
+		}).then(function successCallback(response) {
+			$scope.inventoryMaterialListPO = response.data;
+		});
+	}
 }

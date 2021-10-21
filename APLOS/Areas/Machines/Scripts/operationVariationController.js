@@ -43,6 +43,7 @@ function operationVariationController(commonMessage, $scope, $rootScope, baseSer
         , TotalSAM: 0
         , OperationMasterId: null
         , OperationMasterCode: null
+        ,Color:null
     };
     $scope.operationVariationNew = Object.assign({}, $scope.operationVariation);
 
