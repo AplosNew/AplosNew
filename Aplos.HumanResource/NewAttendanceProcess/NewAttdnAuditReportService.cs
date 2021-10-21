@@ -9209,6 +9209,253 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }//End Function
 
+        public void GetManualInEntry(string FromDate, string ToDate, string plantId, string companyId, out DataSet dsRef)
+        {
+            clsConnectionManager con = new clsConnectionManager(120);
+            string strSql = string.Empty;
+
+            try
+            {
+                strSql = @"SELECT  FORMAT(AP.WorkDate, 'dd-MMM-yyyy') WorkDate
+                        	,EI.SystemId,EI.CellPhnNo TelePhnNo
+                            ,EI.EmployeeCode
+                        	,EI.EmployeeName
+                        	,PMB.Code BudgetCode
+                            , LGD.userName LegalDesignation
+                            , DeG.UserName Designation
+                            , DP.UserName Department
+                            , se.UserName Section
+                            , Sus.UserName SubSection
+                            , E.UserName EntityName
+                            , PR.UserName PositionName
+                            , FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ
+                            , EC.UserName as EmployeeCategory
+                            , L.UserName Line  ,AP.DayStatus,
+                             AP.IsManualInTime,FORMAT(ap.ManualInTime,'dd-MMM-yyyy hh:mm:ss tt') 
+							 as PunchTime							
+							,FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ
+                        	,SD.ShiftDefinationName ShiftName
+                        	,sd.ShiftType
+                        	,ShiftOutTime = CASE 
+                        		WHEN cs.OutTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.OutTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.OutTime AS TIME), 100)
+                        		END
+                        	,ShiftInTime = CASE 
+                        		WHEN cs.InTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.InTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.InTime AS TIME), 100)
+                        		END
+                        FROM AttdnProcessData AP
+                        
+                        LEFT JOIN EmployeeInformation EI ON AP.EmpSystemID = EI.SystemId
+
+                        LEFT JOIN (
+                        	SELECT m.ShiftDefinationID
+                        		,c.ShiftDate
+                        		,m.InTime
+                        		,m.SystemID
+                        		,m.OutTime
+                        	FROM [ShiftTimeChgMaster] m
+                        	LEFT JOIN [ShiftTimeChgChild] c ON m.SystemID = c.STCMasterSystemID
+                        	) CS ON cs.ShiftDefinationID = AP.ShiftSystemID
+                        	AND cs.ShiftDate = AP.WorkDate
+                        LEFT JOIN [ShiftDefination] sd ON sd.SystemID = AP.ShiftSystemID
+                        
+                        LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode = PMB.Id
+                        LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
+                        LEFT JOIN ORG.Entity E ON PMB.EntityId = E.Id                        
+                        LEFT JOIN ORG.Department DP ON DP.Id = PR.DepartmentId
+                        LEFT JOIN HKP.LegalDesignation LGD ON LGD.Id = EI.LegalDesignationId
+                        LEFT join  [MST].[DesignationMasterLegalDesignation] dmld on dmld.LegalDesignationId=LGD.Id
+                        left join [MST].[DesignationMaster] dm on dm.Id=dmld.DesignationMasterId
+						LEFT JOIN HKP.Designation DeG ON DeG.Id = dm.DesignationId
+                        left join HKP.EmployeeCategory EC ON EC.ID=DM.EmployeeCategoryId
+                        LEFT JOIN ORG.Section AS Se ON Se.Id = PR.SectionID
+                        LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID
+                        LEFT JOIN ORG.Line AS L ON L.Id= PMB.LineId
+                        WHERE (ap.ManualInTime is not null and ap.IsManualInTime=1) and 
+                              AP.WorkDate between '"+FromDate+@"' and  '"+ToDate+@"'   
+                           and ei.PlantId='"+plantId+@"' and ei.CompanyId='"+companyId+@"'	
+                       ORDER BY 
+                        	EmployeeCodePreFix,EmployeeCodeNumeric
+                               ,AP.WorkDate";
+                con.getDataSet(strSql, out dsRef);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                con = null;
+            }
+        }//End Function
+
+        public void GetManualOutEntry(string FromDate, string ToDate, string plantId, string companyId, out DataSet dsRef)
+        {
+            clsConnectionManager con = new clsConnectionManager(120);
+            string strSql = string.Empty;
+
+            try
+            {
+                strSql = @"SELECT  FORMAT(AP.WorkDate, 'dd-MMM-yyyy') WorkDate
+                        	,EI.SystemId,EI.CellPhnNo TelePhnNo
+                            ,EI.EmployeeCode
+                        	,EI.EmployeeName
+                        	,PMB.Code BudgetCode
+                            , LGD.userName LegalDesignation
+                            , DeG.UserName Designation
+                            , DP.UserName Department
+                            , se.UserName Section
+                            , Sus.UserName SubSection
+                            , E.UserName EntityName
+                            , PR.UserName PositionName
+                            , FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ
+                            , EC.UserName as EmployeeCategory
+                            , L.UserName Line  ,AP.DayStatus,
+                             AP.IsManualOutTime,FORMAT(ap.ManualOutTime,'dd-MMM-yyyy hh:mm:ss tt') 
+							 as PunchTime							
+							,FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ
+                        	,SD.ShiftDefinationName ShiftName
+                        	,sd.ShiftType
+                        	,ShiftOutTime = CASE 
+                        		WHEN cs.OutTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.OutTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.OutTime AS TIME), 100)
+                        		END
+                        	,ShiftInTime = CASE 
+                        		WHEN cs.InTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.InTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.InTime AS TIME), 100)
+                        		END
+                        FROM AttdnProcessData AP
+                        
+                        LEFT JOIN EmployeeInformation EI ON AP.EmpSystemID = EI.SystemId
+
+                        LEFT JOIN (
+                        	SELECT m.ShiftDefinationID
+                        		,c.ShiftDate
+                        		,m.InTime
+                        		,m.SystemID
+                        		,m.OutTime
+                        	FROM [ShiftTimeChgMaster] m
+                        	LEFT JOIN [ShiftTimeChgChild] c ON m.SystemID = c.STCMasterSystemID
+                        	) CS ON cs.ShiftDefinationID = AP.ShiftSystemID
+                        	AND cs.ShiftDate = AP.WorkDate
+                        LEFT JOIN [ShiftDefination] sd ON sd.SystemID = AP.ShiftSystemID
+                        
+                        LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode = PMB.Id
+                        LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
+                        LEFT JOIN ORG.Entity E ON PMB.EntityId = E.Id                        
+                        LEFT JOIN ORG.Department DP ON DP.Id = PR.DepartmentId
+                        LEFT JOIN HKP.LegalDesignation LGD ON LGD.Id = EI.LegalDesignationId
+                        LEFT join  [MST].[DesignationMasterLegalDesignation] dmld on dmld.LegalDesignationId=LGD.Id
+                        left join [MST].[DesignationMaster] dm on dm.Id=dmld.DesignationMasterId
+						LEFT JOIN HKP.Designation DeG ON DeG.Id = dm.DesignationId
+                        left join HKP.EmployeeCategory EC ON EC.ID=DM.EmployeeCategoryId
+                        LEFT JOIN ORG.Section AS Se ON Se.Id = PR.SectionID
+                        LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID
+                        LEFT JOIN ORG.Line AS L ON L.Id= PMB.LineId
+                        WHERE (ap.ManualOutTime is not null and ap.IsManualOutTime=1) and 
+                              AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'   
+                           and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"'	
+                       ORDER BY 
+                        	EmployeeCodePreFix,EmployeeCodeNumeric
+                               ,AP.WorkDate";
+                con.getDataSet(strSql, out dsRef);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                con = null;
+            }
+        }//End Function
+
+        public void GetManualDayStatusEntry(string FromDate, string ToDate, string plantId, string companyId, out DataSet dsRef)
+        {
+            clsConnectionManager con = new clsConnectionManager(120);
+            string strSql = string.Empty;
+
+            try
+            {
+                strSql = @"SELECT  FORMAT(AP.WorkDate, 'dd-MMM-yyyy') WorkDate
+                        	,EI.SystemId,EI.CellPhnNo TelePhnNo
+                            ,EI.EmployeeCode
+                        	,EI.EmployeeName
+                        	,PMB.Code BudgetCode
+                            , LGD.userName LegalDesignation
+                            , DeG.UserName Designation
+                            , DP.UserName Department
+                            , se.UserName Section
+                            , Sus.UserName SubSection
+                            , E.UserName EntityName
+                            , PR.UserName PositionName
+                            , FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ
+                            , EC.UserName as EmployeeCategory
+                            , L.UserName Line  ,AP.DayStatus,
+                             AP.IsManualDayStatus,ap.ManualDayStatus				
+							,FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ
+                        	,SD.ShiftDefinationName ShiftName
+                        	,sd.ShiftType
+                        	,ShiftOutTime = CASE 
+                        		WHEN cs.OutTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.OutTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.OutTime AS TIME), 100)
+                        		END
+                        	,ShiftInTime = CASE 
+                        		WHEN cs.InTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.InTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.InTime AS TIME), 100)
+                        		END
+                        FROM AttdnProcessData AP
+                        
+                        LEFT JOIN EmployeeInformation EI ON AP.EmpSystemID = EI.SystemId
+
+                        LEFT JOIN (
+                        	SELECT m.ShiftDefinationID
+                        		,c.ShiftDate
+                        		,m.InTime
+                        		,m.SystemID
+                        		,m.OutTime
+                        	FROM [ShiftTimeChgMaster] m
+                        	LEFT JOIN [ShiftTimeChgChild] c ON m.SystemID = c.STCMasterSystemID
+                        	) CS ON cs.ShiftDefinationID = AP.ShiftSystemID
+                        	AND cs.ShiftDate = AP.WorkDate
+                        LEFT JOIN [ShiftDefination] sd ON sd.SystemID = AP.ShiftSystemID
+                        
+                        LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode = PMB.Id
+                        LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
+                        LEFT JOIN ORG.Entity E ON PMB.EntityId = E.Id                        
+                        LEFT JOIN ORG.Department DP ON DP.Id = PR.DepartmentId
+                        LEFT JOIN HKP.LegalDesignation LGD ON LGD.Id = EI.LegalDesignationId
+                        LEFT join  [MST].[DesignationMasterLegalDesignation] dmld on dmld.LegalDesignationId=LGD.Id
+                        left join [MST].[DesignationMaster] dm on dm.Id=dmld.DesignationMasterId
+						LEFT JOIN HKP.Designation DeG ON DeG.Id = dm.DesignationId
+                        left join HKP.EmployeeCategory EC ON EC.ID=DM.EmployeeCategoryId
+                        LEFT JOIN ORG.Section AS Se ON Se.Id = PR.SectionID
+                        LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID
+                        LEFT JOIN ORG.Line AS L ON L.Id= PMB.LineId
+                        WHERE (ap.ManualDayStatus is not null and ap.IsManualDayStatus=1) and 
+                              AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'   
+                           and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"'	
+                       ORDER BY 
+                        	EmployeeCodePreFix,EmployeeCodeNumeric
+                               ,AP.WorkDate";
+                con.getDataSet(strSql, out dsRef);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                con = null;
+            }
+        }//End Function
 
     }
 
