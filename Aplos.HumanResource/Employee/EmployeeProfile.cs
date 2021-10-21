@@ -1220,6 +1220,8 @@ namespace Aplos.HumanResource
                 drLocal["DesignationGroupID"] = data.DesignationGroupID;
                 drLocal["DesignationSystemID"] = data.DesignationSystemID;
                 drLocal["RelativeSystemId"] = data.RelativeSystemId;
+                drLocal["ProfileShiftId"] = data.FixSystemID;
+                
                 if (!string.IsNullOrEmpty(data.RelativeSystemId))
                 {
                     drLocal["AnyRelativeWorkedHere"] = true;
@@ -1891,6 +1893,7 @@ namespace Aplos.HumanResource
                             dr["EmpSystemId"] = item.EmpSystemId;
                             dr["OperationMasterId"] = item.OperationMasterId;
                             dr["OperationVariationId"] = item.OperationVariationId;
+                            dr["CycleTime"] = item.CycleTime;
 
                             dr["AddedBy"] = para.AddedBy;
                             dr["AddedDate"] = DateTime.Now;
@@ -1911,6 +1914,7 @@ namespace Aplos.HumanResource
                             dr["Sequence"] = item.Sequence;
                             dr["OperationMasterId"] = item.OperationMasterId;
                             dr["OperationVariationId"] = item.OperationVariationId;
+                            dr["CycleTime"] = item.CycleTime;
 
                             dr["UpdatedBy"] = para.UpdatedBy;
                             dr["UpdatedDate"] = DateTime.Now;
@@ -2196,6 +2200,8 @@ namespace Aplos.HumanResource
         public string EmpSystemId { get; set; }
         public string OperationMasterId { get; set; }
         public string OperationVariationId { get; set; }
+
+        public decimal CycleTime { get; set; } = 0;
         public string AddedBy { get; set; }
         public DateTime AddedDate { get; set; }
         public string AddedFromIP { get; set; }

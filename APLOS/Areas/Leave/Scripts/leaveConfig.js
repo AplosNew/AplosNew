@@ -54,6 +54,10 @@ function leaveConfig($routeProvider) {
             templateUrl: 'Leave/OnDutyApproval/Aplos',
             controller: "onDutyApprovalController"
         })
+        .when('/on-duty-approval-new', {
+            templateUrl: 'Leave/OnDutyApprovalNew/Aplos',
+            controller: "onDutyApprovalNewController"
+        })
         .when('/leave-type', {
             templateUrl: 'Leave/LeaveType/Aplos',
             controller: "leaveTypeController"

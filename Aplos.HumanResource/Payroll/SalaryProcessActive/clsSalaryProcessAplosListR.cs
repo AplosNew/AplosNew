@@ -995,7 +995,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                     ///create emp with fd and to
                                     obj.Create_EmpDateRange_For_WC(dsGrid, para.FromDate, out _wc);
                                     ///get dsMMDSSI
-                                    obj.GetAttdnDataForMonthlyProc(_wc, out dsMMDSSI);
+                                    obj.GetAttdnDataForMonthlyProc(_wc, para, out dsMMDSSI);
 
                                 }
                                 else if (para.IsMaternityReturn)
@@ -1006,24 +1006,12 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                     ///create emp with fd and to
                                     obj.Create_EmpDateRange_For_Return_WC(dsGrid, para.ToDate, out _wc);
                                     ///get dsMMDSSI
-                                    obj.GetAttdnDataForMonthlyProc(_wc, out dsMMDSSI);
+                                    obj.GetAttdnDataForMonthlyProc(_wc, para, out dsMMDSSI);
                                 }
                                 else
                                 {
                                     SendNotification("Getting Attendance Process Data", TotProcComp, TotSelectEmpForProc);
                                     objSlrProc.GetAttdnDataForMonthlyProc(sEmpSysID, para.FromDate, para.ToDate, out dsMMDSSI);
-
-                                    //if ((fstDT.ToString("dd-MMM-yyyy").ToUpper() == para.FromDate.ToUpper().Trim()) && (lstDT.ToString("dd-MMM-yyyy").ToUpper() == para.ToDate.ToUpper().Trim()))
-                                    //{
-                                    //    SendNotification("Getting Monthly Attendance Summary", TotProcComp, TotSelectEmpForProc);
-
-                                    //    objSlrProc.GetAttdnDataMonthlySummary(intMonthNo, intYearNo, sEmpSysID, out dsMMDSSI);
-                                    //}
-                                    //else
-                                    //{
-                                    //    SendNotification("Getting Attendance Process Data", TotProcComp, TotSelectEmpForProc);
-                                    //    objSlrProc.GetAttdnDataForMonthlyProc(sEmpSysID, para.FromDate, para.ToDate, out dsMMDSSI);
-                                    //}
                                 }
                                 #endregion
 
@@ -7781,7 +7769,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                 }
 
                 drLocal["SlrProcMstSystemID"] = bplib.clsWebLib.RetValidLen(fpara.lblSalaryProcSystemId.Trim());
-                
+
                 drLocal["MonthNo"] = (int)Convert.ToDateTime(fpara.FromDate.Trim()).Month;
                 drLocal["YearNo"] = (int)Convert.ToDateTime(fpara.FromDate.Trim()).Year;
                 drLocal["GroupID"] = bplib.clsWebLib.RetValidLen(fpara.GroupId.ToString().Trim());

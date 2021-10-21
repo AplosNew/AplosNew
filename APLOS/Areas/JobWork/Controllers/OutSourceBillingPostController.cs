@@ -48,7 +48,7 @@ namespace Aplos.Areas.JobWork.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                string sql = @"SELECT RB.Id,RB.PlantId,RB.JWTransformationPurchaseOrderId,RB.InvoiceNo,RB.InvoiceNo DocRefNo
+                string sql = @"SELECT RB.Id,RB.PlantId,RB.OSTransformationPOId,RB.InvoiceNo,RB.InvoiceNo DocRefNo
 			, FORMAT(RB.InvoiceDate,'dd-MMM-yyyy') InvoiceDate
 			, FORMAT(RB.InvoiceDate,'dd-MMM-yyyy') PostingDate,FORMAT(RB.InvoiceDate,'dd-MMM-yyyy') DocDate
 			, RB.VoucherId,RB.BillingRate,RB.BillingRate CompanyCurrencyRate
@@ -57,8 +57,8 @@ namespace Aplos.Areas.JobWork.Controllers
 			                FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
 			                e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName,tc.CurrencyId,CU.Code Currency
                             ,TC.PurchaseLCId,ISNULL(LC.LCRef,'')LCRef,ISNULL(CN.ContractNo,'')ContractNo
-			                from [dbo].[JWReceiveBilling] RB
-			                LEFT JOIN [dbo].[JWTransformationPurchaseOrder] tc ON tc.Id=RB.JWTransformationPurchaseOrderId
+			                from [dbo].[OSReceiveBilling] RB
+			                LEFT JOIN [dbo].[OSTransformationPO] tc ON tc.Id=RB.OSTransformationPOId
 			                LEFT JOIN ORG.Entity e on e.Id=tc.EntityId
 			                LEFT JOIN HKP.Party p on p.Id=tc.PartyId
                             LEFT JOIN [SCS].[Currency] AS CU ON tc.CurrencyId=CU.Id
@@ -81,15 +81,15 @@ namespace Aplos.Areas.JobWork.Controllers
         {
             try
             {
-                string sql = @"SELECT RBD.*,CTC.Id JWTransformationContractChildId,CTC.MaterialMasterId,MM.UserName MaterialName
+                string sql = @"SELECT RBD.*,CTC.Id OSTransformationPODetailId,CTC.MaterialMasterId,MM.UserName MaterialName
                             ,ART.Id ArticleId,ART.StandardName Article,CTC.FirstCharacteristicsId,FC.UserName AS SKU1 ,CTC.FirstCharacteristicsValueId,FCV.UserName AS FirstCharacteristicsValue
                             ,CTC.SecondCharacteristicsId,SC.UserName AS SKU2,CTC.SecondCharacteristicsValueId,SCV.UserName AS SecondCharacteristicsValue
                             ,CTC.ThirdCharacteristicsId,TC.UserName AS SKU3,CTC.ThirdCharacteristicsValueId,TCV.UserName AS ThirdCharacteristicsValue
                             ,CTC.Quantity OrderQty,IRD.TransactionQty ReceiveQty,ISNULL(B.BillingQty,0) OtherBillingQty,(IRD.TransactionQty-ISNULL(B.BillingQty,0)) BalanceQty
-                            from  dbo.JWReceiveBillingDetail RBD 
-                            LEFT JOIN [dbo].[JobWorkTransformationContractChild] CTC ON CTC.Id=RBD.JWTransformationContractChildId
-                            --LEFT JOIN dbo.JobWorkTransformationContract JWTC ON JWTC.Id=CTC.JobWorkTransformationContractMasterId
-                            --LEFT JOIN [dbo].[JWTransformationPurchaseOrder] JWPO ON JWPO.Id=CTC.JobWorkTransformationContractMasterId
+                            from dbo.OSReceiveBillingDetail RBD 
+                            LEFT JOIN [dbo].[OSTransformationPODetail] CTC ON CTC.Id=RBD.OSTransformationPODetailId
+                            --LEFT JOIN dbo.JobWorkTransformationContract JWTC ON JWTC.Id=CTC.OSTransformationPOId
+                            --LEFT JOIN [dbo].[OSTransformationPO] JWPO ON JWPO.Id=CTC.OSTransformationPOId
                             LEFT JOIN MST.MaterialMaster AS MM ON CTC.MaterialMasterId = MM.Id
                             LEFT JOIN MST.MaterialMasterArticle AS ART ON CTC.ArticleId = ART.Id
                             LEFT JOIN HKP.Characteristics AS FC ON CTC.FirstCharacteristicsId = FC.Id
@@ -99,8 +99,8 @@ namespace Aplos.Areas.JobWork.Controllers
                             LEFT JOIN HKP.CharacteristicsValue AS SCV ON CTC.SecondCharacteristicsValueId = SCV.Id
                             LEFT JOIN HKP.CharacteristicsValue AS TCV ON CTC.ThirdCharacteristicsValueId = TCV.Id
                             LEFT JOIN (select SUM(TransactionQty) TransactionQty,OSTransformationPODetailId,MaterialTranRate from TRN.InventoryReceiveDetail GROUP BY OSTransformationPODetailId,MaterialTranRate) IRD ON IRD.OSTransformationPODetailId=CTC.Id
-                            LEFT JOIN (Select JWTransformationContractChildId,SUM(BillingQty) BillingQty from dbo.JWReceiveBillingDetail WHERE JWReceiveBillingId<>'" + masterId + @"' GROUP BY JWTransformationContractChildId ) B ON B.JWTransformationContractChildId=CTC.Id
-                            WHERE RBD.JWReceiveBillingId='" + masterId + "'";
+                            LEFT JOIN (Select OSTransformationPODetailId,SUM(BillingQty) BillingQty from dbo.OSReceiveBillingDetail WHERE OSReceiveBillingId<>'" + masterId + @"' GROUP BY OSTransformationPODetailId) B ON B.OSTransformationPODetailId=CTC.Id
+                            WHERE RBD.OSReceiveBillingId='" + masterId + "'";
 
                 var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
@@ -134,7 +134,7 @@ namespace Aplos.Areas.JobWork.Controllers
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
                 var sql = @"DECLARE @plantId VARCHAR(10)='" + plantId + @"';
-                        select top 100 * from (SELECT RB.Id,RB.PlantId,RB.JWTransformationPurchaseOrderId,RB.InvoiceNo,RB.InvoiceNo DocRefNo
+                        select top 100 * from (SELECT RB.Id,RB.PlantId,RB.OSTransformationPOId,RB.InvoiceNo,RB.InvoiceNo DocRefNo
 			, FORMAT(RB.InvoiceDate,'dd-MMM-yyyy') InvoiceDate
 			, FORMAT(RB.InvoiceDate,'dd-MMM-yyyy') PostingDate,FORMAT(RB.InvoiceDate,'dd-MMM-yyyy') DocDate
 			, RB.VoucherId,RB.BillingRate,RB.BillingRate CompanyCurrencyRate
@@ -143,8 +143,8 @@ namespace Aplos.Areas.JobWork.Controllers
 			                FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
 			                e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName,tc.CurrencyId,CU.Code Currency
                             ,TC.PurchaseLCId,ISNULL(LC.LCRef,'')LCRef,ISNULL(CN.ContractNo,'')ContractNo
-			                from [dbo].[JWReceiveBilling] RB
-			                LEFT JOIN [dbo].[JWTransformationPurchaseOrder] tc ON tc.Id=RB.JWTransformationPurchaseOrderId
+			                from [dbo].[OSReceiveBilling] RB
+			                LEFT JOIN [dbo].[OSTransformationPO] tc ON tc.Id=RB.OSTransformationPOId
 			                LEFT JOIN ORG.Entity e on e.Id=tc.EntityId
 			                LEFT JOIN HKP.Party p on p.Id=tc.PartyId
                             LEFT JOIN [SCS].[Currency] AS CU ON tc.CurrencyId=CU.Id
@@ -196,8 +196,8 @@ namespace Aplos.Areas.JobWork.Controllers
             ConnectionManager.DAL.ConManager objCon = null;
             try
             {
-                strCSQL = "DELETE FROM [dbo].[JWReceiveBillingDetail] WHERE JWReceiveBillingId='" + Id + "'";
-                strSQL = "DELETE FROM [dbo].[JWReceiveBilling] WHERE Id = '" + Id + "'";
+                strCSQL = "DELETE FROM [dbo].[OSReceiveBillingDetail] WHERE OSReceiveBillingId='" + Id + "'";
+                strSQL = "DELETE FROM [dbo].[OSReceiveBilling] WHERE Id = '" + Id + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenConnection("1");
                 objCon.BeginTransaction();
@@ -339,7 +339,7 @@ namespace Aplos.Areas.JobWork.Controllers
                 ConnectionManager.DAL.ConManager objCon;
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 DataSet dsBillMaster;
-                objCon.OpenDataSetThroughAdapter("select * from dbo.JWReceiveBilling Where Id='" + outsourceBillingId + "'", out dsBillMaster, false, "1");
+                objCon.OpenDataSetThroughAdapter("select * from dbo.OSReceiveBilling Where Id='" + outsourceBillingId + "'", out dsBillMaster, false, "1");
 
                 DataView dv = new DataView(dsBillMaster.Tables[0]);
                 dv.RowFilter = "Id='" + outsourceBillingId + "'";

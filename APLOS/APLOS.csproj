@@ -676,6 +676,7 @@
     <Compile Include="Areas\Leave\Controllers\CHourlyOTReportController.cs" />
     <Compile Include="Areas\Leave\Controllers\FirstAuthEmpLeaveApprovalController.cs" />
     <Compile Include="Areas\Leave\Controllers\LeaveBalanceToDateReportController.cs" />
+    <Compile Include="Areas\Leave\Controllers\OnDutyApprovalNewController.cs" />
     <Compile Include="Areas\Leave\Controllers\OnDutyApprovalController.cs" />
     <Compile Include="Areas\Leave\Controllers\EmployeeLeaveApprovalController.cs" />
     <Compile Include="Areas\Leave\Controllers\HourlyLeaveReasonController.cs" />
@@ -1923,6 +1924,7 @@
     <Content Include="Areas\Leave\Scripts\chourlyOTReportController.js" />
     <Content Include="Areas\Leave\Scripts\firstAuthEmpLeaveApprovalController.js" />
     <Content Include="Areas\Leave\Scripts\LeaveBalanceToDateReportController.js" />
+    <Content Include="Areas\Leave\Scripts\onDutyApprovalNewController.js" />
     <Content Include="Areas\Leave\Scripts\onDutyApprovalController.js" />
     <Content Include="Areas\Leave\Scripts\LeaveBalanceReportController.js" />
     <Content Include="Areas\Leave\Scripts\onDutyTransactionController.js" />
@@ -3759,6 +3761,7 @@
     <Content Include="Areas\IE\Views\LineLayoutForProductionBulletin\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\WeekOffUpdates\EWeekUpdate.cshtml" />
     <Content Include="Areas\Employees\Views\CompensatoryOffNew\Aplos.cshtml" />
+    <Content Include="Areas\Leave\Views\OnDutyApprovalNew\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -3842,6 +3845,7 @@
     <Content Include="POPResources\Templates\JWValAddedIssue20202.docx" />
     <Content Include="POPResources\Templates\JWValAddedGRNReceiptReport20202.docx" />
     <Content Include="POPResources\Templates\JWValAddedPurchaseOrder20202.docx" />
+    <Content Include="POPResources\Templates\InventoryPreSalesReport202026.docx" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />

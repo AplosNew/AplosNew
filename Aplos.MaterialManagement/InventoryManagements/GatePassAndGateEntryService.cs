@@ -253,7 +253,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						FROM Trn.PurchaseReturn PR
 						LEFT JOIN hkp.Party P On P.Id=PR.PartyId
                         Where PR.Id not in (Select PurchaseReturnId from trn.InOutGatePassMaster where PurchaseReturnId is not null)
-                        And PR.CheckedByStatus='Checked' And PR.ApprovedByStatus='Approved'
+                        --And PR.CheckedByStatus='Checked' And PR.ApprovedByStatus='Approved'
 						UNION All
 						SELECT InvSales.Id ComId,REPLACE(CONVERT(CHAR(11), InvSales.SalesDate, 106), ' ', '-') AS  CreatedDate,'InventorySales' GatePassFor,p.UserName VendorNameOrCuetomerName 
 						,InvSales.PlantId AS PlantId
@@ -278,7 +278,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						FROM Trn.FixedAssetRegisterDisposed FARD
 						LEFT JOIN hkp.Party P On P.Id=FARD.PartyId
                         Where FARD.Status='Sales' and 
-						FARD.Id not in (Select FixedAssetSalesId from trn.InOutGatePassMaster where FixedAssetSalesId is not null)
+						FARD.Id not in (Select FixedAssetRegisterDisposedId from trn.InOutGatePassMaster where FixedAssetRegisterDisposedId is not null)
 
                         Union all
 						SELECT distinct FARD.Id ComId, REPLACE(CONVERT(CHAR(11), FARD.AddedDate, 106), ' ', '-') AS  CreatedDate
@@ -287,17 +287,9 @@ namespace Library.MaterialManagement.InventoryManagements
 						FROM Trn.FixedAssetRegisterDisposed FARD
 						LEFT JOIN hkp.Party P On P.Id=FARD.PartyId
                         Where FARD.Status='Scrap' and 
-						FARD.Id not in (Select FixedAssetSalesId from trn.InOutGatePassMaster where FixedAssetSalesId is not null)
+						FARD.Id not in (Select FixedAssetRegisterDisposedId from trn.InOutGatePassMaster where FixedAssetRegisterDisposedId is not null)
 
-						Union all
-						SELECT distinct FARD.Id ComId, REPLACE(CONVERT(CHAR(11), FARD.AddedDate, 106), ' ', '-') AS  CreatedDate
-						,'FixedAssetCompensateByEmployee' GatePassFor,p.UserName VendorNameOrCuetomerName 
-						,null PlantId
-						FROM Trn.FixedAssetRegisterDisposed FARD
-						LEFT JOIN hkp.Party P On P.Id=FARD.PartyId
-                        Where FARD.Status='CompensateByEmployee' and 
-						FARD.Id not in (Select FixedAssetSalesId from trn.InOutGatePassMaster where FixedAssetSalesId is not null)
-
+						
 
 
 				)x
@@ -491,7 +483,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					InventoryTransferId = inOutGatePassMasterModel.InventoryTransferId,
 					InventorySalesId = inOutGatePassMasterModel.InventorySalesId,
 					InventoryScrapId = inOutGatePassMasterModel.InventoryScrapId,
-					FixedAssetSalesId = inOutGatePassMasterModel.FixedAssetSalesId,
+                    FixedAssetRegisterDisposedId = inOutGatePassMasterModel.FixedAssetRegisterDisposedId,
 					FixedAssetScrapId = inOutGatePassMasterModel.FixedAssetScrapId,
 				};
 				InsertInOutGatePass(inOutGatePassMaster, out DataSet _InOutGatePassdataset);
@@ -542,7 +534,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					InventoryTransferId = inOutGatePassMasterModel.InventoryTransferId,
 					InventorySalesId = inOutGatePassMasterModel.InventorySalesId,
 					InventoryScrapId = inOutGatePassMasterModel.InventoryScrapId,
-					FixedAssetSalesId = inOutGatePassMasterModel.FixedAssetSalesId,
+                    FixedAssetRegisterDisposedId = inOutGatePassMasterModel.FixedAssetRegisterDisposedId,
 					FixedAssetScrapId = inOutGatePassMasterModel.FixedAssetScrapId,
 				};
 				UpdateInOutGatePass(inOutGatePassMaster, out DataSet _InOutGatePassdataset);
