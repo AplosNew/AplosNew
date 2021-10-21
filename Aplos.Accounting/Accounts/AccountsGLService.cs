@@ -1,4 +1,5 @@
-﻿using Library.Core;
+﻿using Aplos.Service.Enums;
+using Library.Core;
 using Library.Data;
 using Library.Data.Sql;
 using Library.Service.ChartOfAccounts;
@@ -259,7 +260,7 @@ namespace Library.Accounting.Accounts
 						LEFT JOIN MST.TaxCodeDetail TCD ON TCD.TaxCodeId=TC.Id AND TCD.TaxCodeYearId=TCY.Id
                         WHERE TC.InputOrOutput='" + TaxCodeInputOutput.Input + @"'
 						AND TYP.StartDate <='" + postingDate.ToDbDate() + "' AND TYP.EndDate >='" + postingDate.ToDbDate() + "' AND CO.Id='" + companyId + @"' 
-                         AND TCA.TaxCategoryType='TCS'
+                         AND TCA.TaxCategoryLevel='"+ TaxCategoryLevelEnum.Invoice.ToString() + @"'
                     --UNION ALL
 						-- SELECT DISTINCT TC.Id, TC.UserName AS Text
                         --FROM [MST].[TaxCodeYear] AS TCY
