@@ -82,7 +82,6 @@ function OperationController(cboService, commonMessage, $scope, $rootScope, base
         , Frequency: 0
         , SPI: 0
         , ProductionSystemId: null
-        , CycleTime:0
         , Remarks: null
         , Active: true
 

@@ -27,7 +27,6 @@ namespace Library.Model.Machines
 
         public decimal OperationLength { get; set; } = 0;
         public decimal Frequency { get; set; } = 0;
-        public decimal CycleTime { get; set; } = 0;
         public int SPI { get; set; } = 0;
         public string ProductionSystemId { get; set; }
 

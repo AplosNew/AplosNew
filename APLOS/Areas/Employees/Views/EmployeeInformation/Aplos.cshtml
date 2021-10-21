@@ -2132,6 +2132,7 @@
                                             <div e-column e-field="UserName" e-headertext="User Name" e-width="70"></div>
                                             <div e-column e-field="MachineMaster" e-headertext="Machine Master" e-width="100"></div>
                                             <div e-column e-field="Skill" e-headertext="Skill" e-width="100"></div>
+                                            <div e-column e-field="CycleTime" e-headertext="Cycle Time" e-width="50"></div>
                                         </div>
                                     </div>
                                     <script type="text/template" id="Sequence">
@@ -3078,12 +3079,9 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">
-                    <i class="glyphicon glyphicon-info-sign"></i> {{Operation}}
-                </h4>
+                <h4 class="modal-title"><i class="glyphicon glyphicon-info-sign"></i> {{Operation}}</h4>
             </div>
             <div class="modal-body">
-
                 <div id="GridMultioperation" ej-grid e-datasource="OperationList" e-gridlines="vertical" e-templaterefresh="refreshTemplateOperation"
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                      e-allowselection="true" e-filtersettings-filterType="excel">
@@ -3096,16 +3094,19 @@
                         <div e-column e-field="UserName" e-headertext="User Name" e-width="70"></div>
                         <div e-column e-field="MachineMaster" e-headertext="Machine Master" e-width="100"></div>
                         <div e-column e-field="Skill" e-headertext="Skill" e-width="100"></div>
+                        <div e-column e-template="#CycleTime" e-headertext="Cycle Time" e-width="50" style="height: 20px;"></div>
                     </div>
-
                     <script type="text/template" id="checkboxTemplate">
                         <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.check" e-value="data.check" />
                     </script>
-
                     <script type="text/x-jsrender" id="headerTemplate">
                         <input type="checkbox" id="headchk" />
                     </script>
-
+                    <script type="text/template" id="CycleTime">
+                            <input type="text" ng-model="data.CycleTime" style="color:black;" class="form-control" />
+                        @*<div class="col-sm-10" style="padding:0px; width:70px;">
+                        </div>*@
+                    </script>
                 </div>
             </div>
             <div class="modal-footer">
