@@ -897,6 +897,29 @@ namespace Aplos.Areas.IE.Controllers
             report.SetHeaderText(ref sheet, ROW, COL, "By Whom", 15, ExcelHAlign.HAlignLeft);
             int ColByWhom = COL;
             COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "SPT", 15, ExcelHAlign.HAlignCenter);
+            int ColSPT = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "ReqMP", 15, ExcelHAlign.HAlignCenter);
+            int ColReqMP = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Allocated Mp", 15, ExcelHAlign.HAlignCenter);
+            int ColAllocatedMP = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "No of W/S", 15, ExcelHAlign.HAlignCenter);
+            int ColNoofWS = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Target", 15, ExcelHAlign.HAlignCenter);
+            int ColTarget = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Added Date", 15, ExcelHAlign.HAlignLeft);
+            int ColAddedDate = COL;
+            COL++;
 
             endCol = COL;
             #endregion Headers
@@ -923,6 +946,19 @@ namespace Aplos.Areas.IE.Controllers
 
                 sheet[ROW, ColByWhom].Text = data.Rows[i]["ByWhom"].ToString();
 
+                sheet[ROW, ColSPT].Number = Convert.ToDouble(data.Rows[i]["TotalSPT"].ToString());
+                sheet[ROW, ColSPT].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                sheet[ROW, ColReqMP].Number = Convert.ToDouble(data.Rows[i]["RequiredManPower"].ToString());
+                sheet[ROW, ColReqMP].NumberFormat = clsStaticInfo.NumberFormat(2);
+                sheet[ROW, ColAllocatedMP].Number = Convert.ToDouble(data.Rows[i]["AllotedManpower"].ToString());
+                sheet[ROW, ColAllocatedMP].NumberFormat = clsStaticInfo.NumberFormat(2);
+                sheet[ROW, ColNoofWS].Number = Convert.ToDouble(data.Rows[i]["AllotedWorkstation"].ToString());
+                sheet[ROW, ColNoofWS].NumberFormat = clsStaticInfo.NumberFormat(2);
+                sheet[ROW, ColTarget].Number = Convert.ToDouble(data.Rows[i]["LineTargetPerHour"].ToString());
+                sheet[ROW, ColTarget].NumberFormat = clsStaticInfo.NumberFormat(2);
+                sheet[ROW, ColAddedDate].Text = data.Rows[i]["CreationDate"].ToString();
+
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
 
@@ -942,8 +978,7 @@ namespace Aplos.Areas.IE.Controllers
         {
             try
             {
-                string sql = @"Select BT.*
-                         ,PM.UserName ProductMaster, SG.UserName SizeGroup
+                string sql = @"Select BT.* ,PM.UserName ProductMaster, SG.UserName SizeGroup
 						  ,Buyer=REPLACE(REPLACE(
 										 STUFF((select distinct ', '+B.UserName FROM 
                                         [MST].[BulletinTemplateBuyerInfo] BTB 
@@ -960,14 +995,17 @@ namespace Aplos.Areas.IE.Controllers
                                         [MST].[BulletinTemplateBuyerInfo] BTB 
                                         WHERE BT.Id=BTB.BulletinTemplateId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 										,'&amp;','&'), 'amp;', '')										
-						,Process=REPLACE(REPLACE(
-										STUFF((select distinct ', '+P.UserName FROM 
-                                       [MST].[BulletinTemplateMaster] BTP 
-									   join HKP.Process P ON P.Id=BTP.ProcessId
-                                        WHERE BT.Id=BTP.BulletinTemplateId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-										,'&amp;','&'), 'amp;', '')	
+							
+						,P.UserName Process,BTD.TotalSPT,BTD.RequiredManPower,BTD.AllotedManpower,BTD.AllotedWorkstation,CEILING(BTD.LineTargetPerHour)LineTargetPerHour
+                        ,FORMAT(BT.AddedDate,'dd-MMM-yyyy')CreationDate
                          FROM [MST].[BulletinTemplate] BT
                          LEFT JOIN MST.ProductMaster PM ON PM.Id=BT.ProductMasterId
+						 left join [MST].[BulletinTemplateMaster] BTP ON BT.Id=BTP.BulletinTemplateId
+						 left join (Select BulletinTemplateMasterId, SUM(TotalSPT) TotalSPT,SUM(RequiredManPower) RequiredManPower
+						 ,SUM(AllotedManpower) AllotedManpower,SUM(AllotedWorkstation) AllotedWorkstation
+						 ,LineTargetPerHour=(((SUM(AllotedManpower) * 60) /NULLIF(SUM(TotalSPT),0)) * (SUM(TotalSPT) /NULLIF(SUM(AllotedManpower),0))/ MAX(NULLIF(AvgAllotedTime,0)))
+						 from MST.BulletinTemplateDetail GROUP BY BulletinTemplateMasterId) BTD ON BTD.BulletinTemplateMasterId=BTP.Id
+						 left join HKP.Process P ON P.Id=BTP.ProcessId
                          LEFT JOIN HKP.SizeGroup SG ON SG.Id=BT.SizeGroupId";
                 return _sqlRepository.GetDataTable(sql);
             }
