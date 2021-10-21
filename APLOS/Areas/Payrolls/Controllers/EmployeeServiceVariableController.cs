@@ -22,6 +22,7 @@ using System.Collections.Specialized;
 using System.Data;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Web.Mvc;
@@ -86,7 +87,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
-            var workbook = report.GetWorkbook(ref excelEngine, 1);
+            var workbook = report.GetWorkbook(ref excelEngine, 2);
             workbook.Version = ExcelVersion.Excel2016;
             string FactoryName = string.Empty;
             DataSet dsCmp = null;
@@ -230,12 +231,86 @@ namespace Aplos.Areas.Payrolls.Controllers
                 ROW++;
             }
 
+
+
+            #region Sheet2
+            
+            // Linq Getting the Other DataTable
+            var newDt = data.AsEnumerable()
+              .GroupBy(r => new { 
+                  V = r["EmpId"],
+                  J = r["EmpName"],
+                  K = r["ServiceName"],
+              })
+              .Select(g =>
+              {
+                  var row = data.NewRow();
+
+                  row["EmpId"] = g.Key.V;
+                  row["EmpName"] = g.Key.J;
+                  row["ServiceName"] = g.Key.K;
+                  row["Amount"] = g.Sum(r => Convert.ToDouble(r["FinalAmount"]));
+
+                  return row;
+              }).CopyToDataTable();
+
+            DataTable ddt = newDt;
+
+            
+            var sheetA = workbook.Worksheets[1];
+
+            sheetA.Name = "EmployeeServiceVariableGroup";
+
+            int COLA = 1;
+            int ROWA = 1;
+            int endColA = 1;
+            report.SetHeaderText(ref sheetA, ROWA, COLA, "Employee Id", 12, ExcelHAlign.HAlignLeft);
+            int EmpId = COLA;
+            COLA++;
+
+            report.SetHeaderText(ref sheetA, ROWA, COLA, "Employee Name", 25, ExcelHAlign.HAlignLeft);
+            int EmpName = COLA;
+            COLA++;
+
+
+            report.SetHeaderText(ref sheetA, ROWA, COLA, "Service Name", 15, ExcelHAlign.HAlignLeft);
+            int SvcName = COLA;
+            COLA++;
+
+            report.SetHeaderText(ref sheetA, ROWA, COLA, "Amount", 15, ExcelHAlign.HAlignLeft);
+            int FinalAmount = COLA;
+            COLA++;
+
+            endColA = COLA - 1;
+
+            sheetA.Range[ROWA, 1, ROWA, COLA - 1].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+            sheetA.Range[ROWA, 1, ROWA, COLA - 1].BorderAround(ExcelLineStyle.Hair);
+            sheetA.Range[ROWA, 1, ROWA, COLA - 1].BorderInside(ExcelLineStyle.Hair);
+            sheetA.Range[ROWA, 1, ROWA, COLA - 1].CellStyle.Font.Bold = true;
+
+            ROWA++;
+            for (int i = 0; i < newDt.Rows.Count; i++)
+            {
+                sheetA[ROWA, ColEmpId].Text = newDt.Rows[i]["EmpId"].ToString();
+                sheetA[ROWA, ColEmpName].Text = newDt.Rows[i]["EmpName"].ToString();
+                sheetA[ROWA, ColEmpEntity].Text = newDt.Rows[i]["ServiceName"].ToString();
+                sheetA[ROWA, ColEmpDepertment].Number = clsStaticInfo.dbl(newDt.Rows[i]["Amount"]); 
+                
+                ROWA++;
+            }
+
+
+            #endregion Sheet2
+
             #region Line Setup
 
             sheet.Range[6, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
             sheet.Range[6, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
             sheet.Range[6, 1, ROW - 1, endCol].WrapText = true;
 
+            sheetA.Range[1, 1, ROWA - 1, endColA].BorderInside(ExcelLineStyle.Hair);
+            sheetA.Range[1, 1, ROWA - 1, endColA].BorderAround(ExcelLineStyle.Hair);
+            sheetA.Range[1, 1, ROWA - 1, endColA].WrapText = true;
             #endregion Line Setup
 
             #region ******************Report Header******************
@@ -358,6 +433,19 @@ namespace Aplos.Areas.Payrolls.Controllers
             sheet.PageSetup.FitToPagesWide = 1;
             sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
             sheet.IsDisplayZeros = false;
+
+            sheetA.PageSetup.TopMargin = 0.5;
+            sheetA.PageSetup.BottomMargin = 0.7;
+            sheetA.PageSetup.PrintTitleRows = "$1:$5";
+            sheetA.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+            sheetA.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + identity.Name + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
+            sheetA.PageSetup.LeftMargin = 0.5;
+            sheetA.PageSetup.RightMargin = 0.2;
+            sheetA.PageSetup.Orientation = ExcelPageOrientation.Portrait;
+            sheetA.PageSetup.FitToPagesTall = 0;
+            sheetA.PageSetup.FitToPagesWide = 1;
+            sheetA.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+            sheetA.IsDisplayZeros = false;
             #endregion Page Setup
 
 
@@ -379,6 +467,12 @@ namespace Aplos.Areas.Payrolls.Controllers
         {
             try
             {
+                string svc = "";
+                if(bplib.clsWebLib.RetValidLen(Service).ToString() != "null")
+                {
+                    svc = "AND est.Id = '"+ Service + "'";
+                }
+
                 string sql = @"select ei.EmployeeCode EmpId,ei.EmployeeName EmpName,e.UserName EmpEntity,d.UserName EmpDepertment,ld.UserName Designation,
                                 est.Service ServiceName,esc.Category ServiceCategory,uom.UserName UOM, esd.[From] , esd.[To],
 								esd.Quantity Qty,cu.Code Currency,esr.Rate ,esd.Amount, 
@@ -402,7 +496,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 								left join SCS.Currency cu on cu.Id = c.AmtDefinitionCurrency
                                 left join scs.UnitOfMeasurement uom on uom.Id =  est.UOMId
                                 left join [dbo].[EmployeeServicesRate] esr on esr.EmployeeServiceCategoryId = esd.EmployeeServiceCategoryId
-                                where esd.Date between '" + FromDate + "' and '" + ToDate + "' AND est.Id='"+ Service + "'";
+                                where esd.Date between '" + FromDate + "' and '" + ToDate + "' "+svc+"";
                 return _sqlRepository.GetDataTable(sql);
             }
             catch (Exception ex)
