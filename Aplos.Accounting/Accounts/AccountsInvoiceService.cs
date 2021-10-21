@@ -147,7 +147,7 @@ namespace Library.Accounting.Accounts
 										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
 									) AS CC ON CC.VoucherDetailId=VD.Id
 									
-                                     WHERE I.Archive=0 AND I.IsWrittenOff=0 AND ID.IsWrittenOff=0 AND I.IsPark=0 AND ID.IsBlock=0 AND I.SourceType in ('" + SourceType.CustomerInvoice + "','InventorySales' ,'" + SourceType.SalesInvoice + @"')
+                                     WHERE I.Archive=0 AND I.IsWrittenOff=0 AND ID.IsWrittenOff=0 AND I.IsPark=0 AND ID.IsBlock=0 AND I.SourceType in ('" + SourceType.CustomerInvoice + "','FixedAssetDisposeJournal','InventorySales' ,'" + SourceType.SalesInvoice + @"')
                                     AND I.CompanyGroupId='" + companyGroupId + "' AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + "' AND I.PartyId='" + partyId + "'";
                 return _sqlRepository.GetGridData(parameters);
             }
