@@ -1596,7 +1596,7 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 		return result;
 	}
 	$scope.LoadTaxButtonClick = function () {
-		accountService.getTaxCategoryCbo(" ", function (result) {
+		accountService.getTaxCategoryMaterialLevelCbo(" ", function (result) {
 			$scope.taxCategoryList = result;
 		});
 	}

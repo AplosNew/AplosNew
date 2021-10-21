@@ -138,7 +138,7 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
                 $scope.PlantCountryId = response.data[0].PlantCountryId;
             }
             $scope.GetPortByPlantCountry($scope.PlantCountryId);
-            accountService.getTaxCategoryCbo($scope.PlantCountryId, function (result) {
+            accountService.getTaxCategoryMaterialLevelCbo($scope.PlantCountryId, function (result) {
                 $scope.taxCategoryList = result;
             });
         });

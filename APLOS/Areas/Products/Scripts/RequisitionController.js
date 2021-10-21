@@ -577,11 +577,11 @@ function RequisitionController(accountService, addressService, $window, cboServi
 	$scope.receiveTaxList = [];
 
 	$scope.LoadTaxButtonClick = function () {
-		accountService.getTaxCategoryCbo(" ", function (result) {
+		accountService.getTaxCategoryMaterialLevelCbo(" ", function (result) {
 			$scope.taxCategoryList = result;
 		});
 	}
-	accountService.getTaxCategoryCbo(" ", function (result) {
+	accountService.getTaxCategoryMaterialLevelCbo(" ", function (result) {
 		$scope.taxCategoryList = result;
 	});
 	$scope.addTax = function () {

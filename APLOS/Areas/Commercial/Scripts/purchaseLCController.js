@@ -754,7 +754,7 @@ function purchaseLCController(accountService, commonMessage, $scope, $rootScope,
 
     // #region Tax
 
-    accountService.getTaxCategoryCbo(" ", function (result) {
+    accountService.getTaxCategoryMaterialLevelCbo(" ", function (result) {
         $scope.taxCategoryList = result;
     });
 

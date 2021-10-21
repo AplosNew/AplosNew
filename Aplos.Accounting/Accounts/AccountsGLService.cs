@@ -244,7 +244,23 @@ namespace Library.Accounting.Accounts
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
+        public List<Dictionary<string, object>> GetTaxCategoryMaterialLevelCbo(string companyGroupId, string countryId)
+        {
+            try
+            {
+                string sql = "";
+                sql = @"SELECT Id Value, UserName Text FROM MST.TaxCategory 
+								WHERE  Active = 1 AND CompanyGroupId = '" + companyGroupId + @"' AND CountryId = '" + countryId + @"' AND TaxCategoryLevel='Material' ";
 
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
         public List<Dictionary<string, object>> GetAdditionalTaxCbo(DateTime postingDate, string companyId)
         {
             try
