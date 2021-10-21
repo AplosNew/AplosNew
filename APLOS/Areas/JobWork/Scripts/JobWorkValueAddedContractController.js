@@ -1259,7 +1259,7 @@ function JobWorkValueAddedContractController($window,cboService, commonMessage, 
 
     $scope.MatPlanningModelTemp = {
         Id: null,
-        JobWorkTransformationContractMasterId: null,
+        OSTransformationPOId: null,
         JobWorkItemMasterId: null,
         MaterialSpecification: null,
         MaterialReference: null,
@@ -1349,7 +1349,7 @@ function JobWorkValueAddedContractController($window,cboService, commonMessage, 
 
 
     $scope.SaveMatPlanning = function () {
-        $scope.MatPlanning.JobWorkTransformationContractMasterId = $scope.Transformation.Id;
+        $scope.MatPlanning.OSTransformationPOId = $scope.Transformation.Id;
         //      $scope.$broadcast('show-errors-check-validity');
         //     if ($scope.FarmerMasterPlotForm.$valid) {
         if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 2000000)
