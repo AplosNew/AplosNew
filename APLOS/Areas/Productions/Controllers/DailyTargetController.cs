@@ -514,16 +514,28 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public ActionResult GetLineLayoutData(string entityid, string processId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            string sql = @" ";
+
+
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
 
         #endregion
 
         #region Copy function
-        [HttpPost,Authorize]
-        public ActionResult CopyFromTable(string entityid, string processId, string ProductionDate, Dictionary<string,object> SelectedLine)
+        [HttpPost, Authorize]
+        public ActionResult CopyFromTable(string entityid, string processId, string ProductionDate, Dictionary<string, object> SelectedLine)
         {
             try
             {
-                
+
                 DT.CopyFromTable(entityid, processId, ProductionDate, SelectedLine);
                 return Json(new { Error = false, Message = AplosMessage.Updated });
             }
@@ -534,10 +546,18 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
-        public JsonResult GetSaveData(string BulletinId)
+        public JsonResult GetSaveData(string WorkCenterMasterId, string ProductionOrderId, string TargetDate)
         {
-            return Json(DT.GetDesign(BulletinId), JsonRequestBehavior.AllowGet);
+            return Json(DT.GetDesign(WorkCenterMasterId, ProductionOrderId, TargetDate), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpPost]
+        public ActionResult SaveDiagram(List<Html> Nodes, string Design, string WorkCenterMasterId, string ProductionOrderId, string TargetDate)
+        {
+            DT.SaveData(Nodes, Design, WorkCenterMasterId, ProductionOrderId, TargetDate);
+            return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+        }
+
         #endregion
 
     }

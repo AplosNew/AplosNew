@@ -30,6 +30,8 @@ namespace Library.Planning.LineDesign
         public string OperationVariationDesc { get; set; } = "";
         public string MaterialMasterId { get; set; } = "";
         public string MaterialMasterDesc { get; set; } = "";
+        public string FixedAssetRegisterId { get; set; } = "";
+        public string FixedAssetRegisterDesc { get; set; } = "";
         public string ArticleId { get; set; } = "";
         public string ArticleDesc { get; set; } = "";
         public string EmployeeId { get; set; } = "";
