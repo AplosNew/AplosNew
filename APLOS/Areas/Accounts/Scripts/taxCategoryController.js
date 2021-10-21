@@ -63,6 +63,11 @@ function TaxCategoryController(addressService, cboService, commonMessage, $scope
         $scope.taxCategoryTypeList = result;
     });
 
+    $scope.taxCategoryLevelList = [];
+    cboService.getEnumCbo("enum/GetTaxCategoryLevelEnumCbo", function (result) {
+        $scope.taxCategoryLevelList = result;
+    });
+
     $scope.Get = function (id, index) {
         $scope.index = index;
         $scope.taxCategory = $scope.taxCodeCategories[$scope.index];

@@ -4159,7 +4159,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					group By IRD.InventoryMaterialId,IRD.IsAsset--,IRD.MaterialStorageId,IR.GRNDate
 					UNION ALL
 					SELECT IRD.InventoryMaterialId,IRD.IsAsset--, IRD.MaterialStorageId,IR.GRNDate
-							,Sum(IRD.TransactionQty) AS TransactionQty, Sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
+							,Sum(IRD.BaseQty) AS TransactionQty, Sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
 						--SELECT IRD.InventoryMaterialId, IRD.MaterialStorageId,IRD.IsAsset,Sum(IRD.TransactionQty) AS TransactionQty, Round(Sum(IRD.TransactionQty* IRD.MaterialTranRate*IR.ToCurrencyRate),2) TotalMaterialBooksCurrencyAmount, Sum(IRD.IssueQty) OpeningIssueQty, Round(Sum(IRD.IssueQty * IRD.MaterialTranRate* IR.ToCurrencyRate),2) OpeningIssueAmt
 					FROM [TRN].[InventoryReceiveDetail] IRD
 					LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
@@ -4337,7 +4337,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
 					LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id						
 					left join(SELECT IRD.InventoryMaterialId,IRD.IsAsset--,IRD.MaterialStorageId,IR.GRNDate
-								, Sum(IRD.TransactionQty) AS TransactionQty ,  Sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
+								, Sum(IRD.BaseQty) AS TransactionQty ,  Sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
 					FROM  [TRN].[InventoryReceiveDetail] IRD
 					LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
 					where convert(Date,IR.GRNDate)		
@@ -4430,7 +4430,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					--              
 
 					left join (select IID.InventoryMaterialId,IRD.IsAsset--,IRD.MaterialStorageId,IR.GRNDate
-								, Sum(IH.Qty) IssueQty , sum(IH.Qty*IH.Rate) PolicyAmount--Sum(IH.TotalAmount) PolicyAmount--Sum(IID.TransactionQty) IssueQty , Sum(IID.PolicyAmount) PolicyAmount
+								, Sum(IH.Qty) IssueQty , sum(IH.TotalAmount) PolicyAmount--Sum(IH.TotalAmount) PolicyAmount--Sum(IID.TransactionQty) IssueQty , Sum(IID.PolicyAmount) PolicyAmount
 					FROM TRN.InventoryIssueDetail IID  
 					LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId=II.Id	 
 					LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryIssueDetailId=IID.Id
@@ -5073,7 +5073,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id						   
 					where IM.PlantId='" + plantId + @"' AND MM.UserName is not null
 					)x
-					where not
+					where
+					--x.ArticleId='3366' and 
+					not
 					(ISNULL(OpeningBalance,0)=0
 				    and  ISNULL(OpeningIssueQty,0)=0
 					and  ISNULL(ReceivedForThePeriod,0)=0
@@ -6556,7 +6558,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					where  InventorySalesReturnDataOpening.IsAsset=0 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
 
 					)x
-					where x.ArticleId='593' and not
+					where 
+					--x.ArticleId='593' and 
+						not
 					(ISNULL(OpeningBalance,0)=0
 				    and  ISNULL(OpeningIssueQty,0)=0
 					and  ISNULL(ReceivedForThePeriod,0)=0

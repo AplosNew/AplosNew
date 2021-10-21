@@ -58,7 +58,7 @@
                             @*<hr ng-show="char1.CharacteristicsId.length>0;" />*@
                             <div class="col-xs-12 col-sm-6 col-md-6" ng-show="char1.CharacteristicsId.length>0;">
                                 <div class="form-group">
-                                    <label class="col-sm-4 control-label">{{char1.Name}}<sup>*</sup></label>
+                                    <label class="col-sm-4 control-label">{{char1.Name}}</label>
                                     <div class="col-sm-8">
                                         <div class="input-group">
                                             <input type="text" ng-model="char1.FreeText" class="form-control"
@@ -68,13 +68,13 @@
                                                 <button ng-click="clearCharValueField('char1');" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
                                             </span>
                                         </div>
-                                        <p class="msg-error" ng-show="IsMandatoryButNull(char1.IsMandatory, char1.FreeText)">value is required.</p>
+                                        @*<p class="msg-error" ng-show="IsMandatoryButNull(char1.IsMandatory, char1.FreeText)">value is required.</p>*@
                                     </div>
                                 </div>
                             </div>
                             <div class="col-xs-12 col-sm-6 col-md-6" ng-show="char2.CharacteristicsId.length>0;">
                                 <div class="form-group">
-                                    <label class="col-sm-4 control-label">{{char2.Name}}<sup>*</sup></label>
+                                    <label class="col-sm-4 control-label">{{char2.Name}}</label>
                                     <div class="col-sm-8">
                                         <div class="input-group">
                                             <input type="text" ng-model="char2.FreeText" class="form-control"
@@ -84,13 +84,13 @@
                                                 <button ng-click="clearCharValueField('char2');" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
                                             </span>
                                         </div>
-                                        <p class="msg-error" ng-show="IsMandatoryButNull(char2.IsMandatory, char2.FreeText)">value is required.</p>
+                                        @*<p class="msg-error" ng-show="IsMandatoryButNull(char2.IsMandatory, char2.FreeText)">value is required.</p>*@
                                     </div>
                                 </div>
                             </div>
                             <div class="col-xs-12 col-sm-6 col-md-6" ng-show="char3.CharacteristicsId.length>0;">
                                 <div class="form-group">
-                                    <label class="col-sm-4 control-label">{{char3.Name}}<sup>*</sup></label>
+                                    <label class="col-sm-4 control-label">{{char3.Name}}</label>
                                     <div class="col-sm-8">
                                         <div class="input-group">
                                             <input type="text" ng-model="char3.FreeText" class="form-control"
@@ -100,7 +100,7 @@
                                                 <button ng-click="clearCharValueField('char3');" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
                                             </span>
                                         </div>
-                                        <p class="msg-error" ng-show="IsMandatoryButNull(char3.IsMandatory, char3.FreeText)">value is required.</p>
+                                        @*<p class="msg-error" ng-show="IsMandatoryButNull(char3.IsMandatory, char3.FreeText)">value is required.</p>*@
                                     </div>
                                 </div>
                             </div>

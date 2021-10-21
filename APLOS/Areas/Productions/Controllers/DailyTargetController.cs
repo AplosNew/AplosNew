@@ -12,6 +12,7 @@ using System.Data;
 using Library.Crosscutting.Security;
 using System.Threading;
 using System.Collections.Generic;
+using Library.Planning.LineDesign;
 
 #endregion
 
@@ -22,6 +23,7 @@ namespace Aplos.Areas.Productions.Controllers
         #region Constructor
         /// <summary>   The CostingTypesService service. </summary>
         private readonly ISqlRepository _sqlRepository;
+        clsDailyTergatLineDesign DT = new clsDailyTergatLineDesign();
         public DailyTargetController(ISqlRepository R)
         {
             _sqlRepository = R;
@@ -348,7 +350,7 @@ namespace Aplos.Areas.Productions.Controllers
 		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 		                                                    LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = XSO.CustomerPOId
 			                                                    where POD.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
+                                                    ,convert(bit, case when isnull(LLD.Id,'')<>'' then 1 else 0 end ) As HasLayout
 
                                 from SCS.WorkCenterMaster WCM 
                                 left outer join  TRN.DailyProductionTarget DPT on dpt.WorkCenterMasterID=WCM.Id  and  DPT.TargetDate='" + ProductionDate + @"'
@@ -356,7 +358,7 @@ namespace Aplos.Areas.Productions.Controllers
                                 left join trn.ProductionOrderDetail POD ON POD.ProductionOrderId=po.Id and pod.Id=(select TOP 1 Id from TRN.ProductionOrderDetail D where D.ProductionOrderId=PO.Id)
                                 left join trn.SalesOrder SO ON SO.Id=POD.SalesOrderId
                                 left join trn.MasterOrderItem MOI ON MOI.Id=so.MasterOrderItemId
-
+                                Left join LineLayoutDailyTarget LLD on LLD.WorkCenterMasterId=DPT.WorkCenterMasterId and LLD.TargetDate=DPT.TargetDate and LLD.ProductionOrderId=DPT.ProductionOrderId
                                 left join mst.MaterialMaster MM ON MM.Id=MOI.MaterialMasterId
                                 left join mst.MaterialMasterArticle MMA ON MMA.Id=MOI.ArticleId                               
                                 where WCM.EntityId='" + EntityId + @"' AND WCM.ProcessId='" + ProcessId + @"' ORDER BY WCM.Sequence ";
@@ -514,6 +516,30 @@ namespace Aplos.Areas.Productions.Controllers
 
 
         #endregion
+
+        #region Copy function
+        [HttpPost,Authorize]
+        public ActionResult CopyFromTable(string entityid, string processId, string ProductionDate, Dictionary<string,object> SelectedLine)
+        {
+            try
+            {
+                
+                DT.CopyFromTable(entityid, processId, ProductionDate, SelectedLine);
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult GetSaveData(string BulletinId)
+        {
+            return Json(DT.GetDesign(BulletinId), JsonRequestBehavior.AllowGet);
+        }
+        #endregion
+
     }
 
 

@@ -88,8 +88,8 @@ namespace Aplos.Areas.JobWork.Controllers
                             ,CTC.Quantity OrderQty,IRD.TransactionQty ReceiveQty,ISNULL(B.BillingQty,0) OtherBillingQty,(IRD.TransactionQty-ISNULL(B.BillingQty,0)) BalanceQty
                             from dbo.OSReceiveBillingDetail RBD 
                             LEFT JOIN [dbo].[OSTransformationPODetail] CTC ON CTC.Id=RBD.OSTransformationPODetailId
-                            --LEFT JOIN dbo.JobWorkTransformationContract JWTC ON JWTC.Id=CTC.JobWorkTransformationContractMasterId
-                            --LEFT JOIN [dbo].[OSTransformationPO] JWPO ON JWPO.Id=CTC.JobWorkTransformationContractMasterId
+                            --LEFT JOIN dbo.JobWorkTransformationContract JWTC ON JWTC.Id=CTC.OSTransformationPOId
+                            --LEFT JOIN [dbo].[OSTransformationPO] JWPO ON JWPO.Id=CTC.OSTransformationPOId
                             LEFT JOIN MST.MaterialMaster AS MM ON CTC.MaterialMasterId = MM.Id
                             LEFT JOIN MST.MaterialMasterArticle AS ART ON CTC.ArticleId = ART.Id
                             LEFT JOIN HKP.Characteristics AS FC ON CTC.FirstCharacteristicsId = FC.Id

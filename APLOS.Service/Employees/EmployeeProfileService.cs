@@ -8812,7 +8812,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
         {
             try
             {
-                var sql = @"SELECT OM.Id,OM.Code,OM.ShortName,OM.StandardName,OM.UserName,MM.StandardName MachineMaster,S.UserName Skill,[check]=CAST (0 AS bit) FROM MST.OperationVariation OM
+                var sql = @"SELECT OM.Id,OM.Code,OM.ShortName,OM.StandardName,OM.UserName,MM.StandardName MachineMaster,S.UserName Skill,0 CycleTime, [check]=CAST (0 AS bit) FROM MST.OperationVariation OM
                           LEFT JOIN MST.MaterialMasterArticle MM ON MM.Id=OM.ArticleId
                           LEFT JOIN HKP.Skill S ON S.Id=OM.SkillId
                           WHERE  OM.CompanyGroupId='" + companyGroupId + "' ORDER BY UserName";
@@ -8829,7 +8829,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
         {
             try
             {
-                var sql = @"SELECT OM.Id,OM.Code,OM.ShortName,OM.StandardName,OM.UserName,MM.UserName MachineMaster,S.UserName Skill,[check]=CAST (0 AS bit) FROM MST.OperationMaster OM
+                var sql = @"SELECT OM.Id,OM.Code,OM.ShortName,OM.StandardName,OM.UserName,MM.UserName MachineMaster,S.UserName Skill,0 CycleTime,[check]=CAST (0 AS bit) FROM MST.OperationMaster OM
                           LEFT JOIN MST.MachineMaster MM ON MM.Id=OM.MachineMasterId 
                           LEFT JOIN HKP.Skill S ON S.Id=OM.SkillId
                           WHERE  OM.CompanyGroupId='" + companyGroupId + "' ORDER BY UserName";

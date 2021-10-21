@@ -1935,7 +1935,7 @@ namespace Library.MaterialManagement.InventoryManagements
 
             //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Transaction Rate");
             //sheet1headreColIndex++;
-
+         
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "Transaction Rate";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -2322,10 +2322,10 @@ namespace Library.MaterialManagement.InventoryManagements
                 report.SetText(ref sheet1, _rowL, Convert.ToInt32(colTCSTotal), Convert.ToDouble(sumObject).ToString("0.##"));
                 sheet1.Range[_rowL, Convert.ToInt32(colTCSTotal)].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet1.Range[_rowL, Convert.ToInt32(colTCSTotal)].VerticalAlignment = ExcelVAlign.VAlignTop;
-
-
             }
 
+            //sheet1.Range[(Row_Total_Start), 22, _rowL, 22].NumberFormat = "#,##0.00;(#,##0.0000)";
+            sheet1.Range[(Row_Total_Start), 22, _rowL, 22].NumberFormat = clsStaticInfo.NumberFormat(4);
             sheet1.Range[(Row_Total_Start), 1, _rowL, sheet1headreColIndex].CellStyle.Font.Size = 8;
 
             sheet1.Range[(row), 1, _rowL, sheet1headreColIndex].BorderInside(ExcelLineStyle.Hair);

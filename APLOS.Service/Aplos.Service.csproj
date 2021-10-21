@@ -90,6 +90,7 @@
     <Compile Include="Enums\CommercialEnum.cs" />
     <Compile Include="Enums\FixedAssetDisposeStatusEnum.cs" />
     <Compile Include="Enums\NewBeneficiaryType.cs" />
+    <Compile Include="Enums\TaxCategoryLevelEnum.cs" />
     <Compile Include="Enums\TermsAndConditionsEnum.cs" />
     <Compile Include="Enums\TaxCategoryTypeEnum.cs" />
     <Compile Include="Enums\InvoiceTypeEnum.cs" />

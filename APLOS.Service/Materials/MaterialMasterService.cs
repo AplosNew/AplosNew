@@ -2182,9 +2182,6 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             sheet1headreColIndex++;
             report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Amount");
 
-
-
-
             var Row_Total_Start = _rowL + 1;
             for (int n = 0; n < inventoryMaterialList.Rows.Count; n++)
             {
@@ -2253,9 +2250,6 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 
 
             sheet1.Range[(row), 1, _rowL, sheet1headreColIndex].BorderInside(ExcelLineStyle.Hair);
-            //  sheet2.Range[(row), 1, _rowL, sheet2headreColIndex].BorderAround(ExcelLineStyle.Hair);
-
-
             _rowL++;
 
 
@@ -2277,15 +2271,15 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             //sheet2.Range[_rowL, 3].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
             //sheet2.Range[_rowL, 6].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
 
-            //report.SetText(ref sheet2, _rowL, 1, "Prepared By", true);
-            //report.SetText(ref sheet2, _rowL, 3, "Checked By", true);
-            //report.SetText(ref sheet2, _rowL, 6, "Authorized By", true);
+            report.SetText(ref sheet2, _rowL, 1, "Prepared By", true);
+            report.SetText(ref sheet2, _rowL, 3, "Checked By", true);
+            report.SetText(ref sheet2, _rowL, 6, "Authorized By", true);
 
             //#endregion Signature
 
             sheet1.Name = sheet1Name;
             sheet1.UsedRange.WrapText = true;
-            sheet1.UsedRange.CellStyle.Font.Size = 12;
+            sheet1.UsedRange.CellStyle.Font.Size = 8f;
             report.PlantHeader(ref sheet1, sheet1headreColIndex, sheet1Name, plantId);
             report.PageSetup(ref sheet1, 5, ExcelPageOrientation.Landscape);
 
@@ -8507,9 +8501,9 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                 workbook.Version = ExcelVersion.Excel2016;
                 return workbook;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
 
@@ -8558,11 +8552,15 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 					--,Round(IRD.TotalMaterialBooksCurrencyAmount,2) RcvAmount	
 					,Round((Round(IRD.BaseQty,2)*Round(IRD.BooksCurrencyBaseRate,4)),2) RcvAmount	
 
+					,Round(IRD.TotalMaterialBooksCurrencyAmount,2) TotalRcvAmount	
+	
 					,REPLACE(CONVERT(CHAR(11), main.IssueDate, 106),' ','-') IssueDate
 					,main.IssueNo IssueNo
 					,isnull(Round(main.IssueQty,2),0) IssueQty
 					,isnull(Round(main.Rate,4),0) Rate
 					,isnull(Round(main.IssueAmount,2),0) IssueAmount
+					,isnull(Round(main.TotalIssueAmount,2),0) TotalIssueAmount
+					
 
 
                       ,REPLACE(CONVERT(CHAR(11), main.POReturnDate, 106),' ','-') PurchaseReturnDate
@@ -8602,12 +8600,11 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 
 
 --InventoryTrans
-					,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') TransferDate
-,''InventoryTransferNo
-					,Isnull(Round(IRD.InventoryTransferQty,2),0) InventoryTransferQty
-
-					,Round(IRD.BooksCurrencyBaseRate,4) TransferRate
-					--,Round(IRD.TotalMaterialBooksCurrencyAmount,2) RcvAmount	
+					
+	               ,REPLACE(CONVERT(CHAR(11),IR.GRNDate, 106),' ','-') TransferDate
+					--,'' InventoryTransferNo
+					,isnull(Round(IRD.InventoryTransferQty,2),0) InventoryTransferQty
+					,isnull(Round(IRD.BooksCurrencyBaseRate,4),0) TransferRate
 					,Isnull(Round((Round(IRD.InventoryTransferQty,2)*Round(IRD.BooksCurrencyBaseRate,4)),2),0) TransferAmount	
 
 
@@ -8637,7 +8634,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 						LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
 						LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
 						left jOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id	
-						left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
+						left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.BaseUOMId=TUoM.Id
 						left JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
 						left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
 						LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
@@ -8647,6 +8644,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                                     ,(Sum(Isnull(Ih.Qty,0))) IssueQty 
                                     ,Sum(IH.Rate) Rate
                                     ,(Sum(Isnull(Ih.Qty,0))*Sum(IH.Rate)) AS IssueAmount
+									,Ih.TotalAmount TotalIssueAmount
                                     ,0 PurchaseReturnQty,0 PurchaseReturnRate,0 PurchaseReturnAmount
                                     ,0 IssueReturnQty,0 IssueReturnRate,0 IssueReturnAmount
                                     , 0 PhysicalStockAdjustmentqty   ,0 PhysicalStockAdjustmentRate ,0 PhysicalStockAdjustmentAmount
@@ -8661,13 +8659,14 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                                      LEFT JOIN  TRN.InventoryIssueDetail IID on IID.ID=IH.InventoryIssueDetailId
                                      LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId=II.Id 
                                      Where  Ih.Qty>0 --ANd IH.InventoryReceiveDetailId='2020258-1'
-                                     group by IH.InventoryReceiveDetailId,II.IssueDate,II.Id,II.IssueType
+                                     group by IH.InventoryReceiveDetailId,II.IssueDate,II.Id,II.IssueType,Ih.TotalAmount
 
                                      Union all
 
                         select  IH.InventoryReceiveDetailId,NULL IssueDate,NULL IssueNo,NULL IssueType,II.POReturnDate  ,II.Id PurchaseReturnNo, NULL ReturnIssueDate  ,NULL ReturnIssueReturnNo, NULL PhysicalIssueDate,NULL PhysicalIssueNo,NULL SalesDate,NULL SalesNo,NULL SalesReturnDate,NULL SalesReturnNo
 
                                     , 0 IssueQty,0 Rate,0 IssueAmount
+									,0 TotalIssueAmount
                                      ,(Sum(Isnull(IH.TransactionQty,0))) PurchaseReturnQty 
                                      ,Sum(IH.MaterialTranRate) PurchaseReturnRate
                                      ,(Sum(Isnull(IH.TransactionQty,0))*Sum(IH.MaterialTranRate)) AS PurchaseReturnAmount
@@ -8692,7 +8691,9 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 
                         select  IH.InventoryReceiveDetailId,NULL IssueDate,NULL IssueNo,NULL IssueType,NULL POReturnDate  ,NULL PurchaseReturnNo,    II.IssueDate ReturnIssueDate ,II.Id ReturnIssueReturnNo, NULL PhysicalIssueDate,NULL PhysicalIssueNo,NULL SalesDate,NULL SalesNo,NULL SalesReturnDate,NULL SalesReturnNo
 
-                                     , 0 IssueQty,0 Rate,0 IssueAmount,0 PurchaseReturnQty
+                                     , 0 IssueQty,0 Rate,0 IssueAmount
+									 ,0 TotalIssueAmount
+									 ,0 PurchaseReturnQty
                                      ,0 PurchaseReturnRate,0PurchaseReturnAmount
                                     ,(Sum(Isnull(IH.Qty,0))) IssueReturnQty 
                                     ,Sum(IH.Rate) IssueReturnRate
@@ -8713,7 +8714,8 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 
                              Union all
                         select  IH.InventoryReceiveDetailId,NULL IssueDate,NULL IssueNo,NULL IssueType,NULL POReturnDate  ,NULL PurchaseReturnNo,    NULL ReturnIssueDate ,NULL IssueReturnNo, II.IssueDate PhysicalIssueDate,II.Id PhysicalIssueNo,NULL SalesDate,NULL SalesNo,NULL SalesReturnDate,NULL SalesReturnNo
-									, 0 IssueQty,0 Rate,0 IssueAmount,0 PurchaseReturnQty
+									, 0 IssueQty,0 Rate,0 IssueAmount,
+									0 TotalIssueAmount,0 PurchaseReturnQty
                                      ,0 PurchaseReturnRate,0PurchaseReturnAmount
                                       ,0 IssueReturnQty,0 IssueReturnRate,0 IssueReturnAmount
                                     ,(Sum(Isnull(Ih.Qty,0))) PhysicalStockAdjustmentqty 
@@ -8737,7 +8739,9 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 
 									Union all
                                     select  IH.InventoryReceiveDetailId,NULL IssueDate,NULL IssueNo,NULL IssueType,NULL POReturnDate  ,NULL PurchaseReturnNo,    NULL ReturnIssueDate ,NULL IssueReturnNo, NULL PhysicalIssueDate,NULL PhysicalIssueNo,II.SalesDate,II.Id SalesNo,NULL SalesReturnDate,NULL SalesReturnNo
-								, 0 IssueQty,0 Rate,0 IssueAmount,0 PurchaseReturnQty
+								, 0 IssueQty,0 Rate,0 IssueAmount
+								,0 TotalIssueAmount
+								,0 PurchaseReturnQty
                                     ,0 PurchaseReturnRate,0PurchaseReturnAmount
                                     ,0 IssueReturnQty,0 IssueReturnRate,0 IssueReturnAmount
 									,0 PhysicalStockAdjustmentqty 
@@ -8759,7 +8763,8 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 
 									Union all
                                     select  IRD.Id InventoryReceiveDetailId,NULL IssueDate,NULL IssueNo,NULL IssueType,NULL POReturnDate  ,NULL PurchaseReturnNo,    NULL ReturnIssueDate ,NULL IssueReturnNo, NULL PhysicalIssueDate,NULL PhysicalIssueNo,NULL SalesDate,NULL SalesNo,Ins.SalesDate SalesReturnDate,Ins.Id SalesReturnNo
-								, 0 IssueQty,0 Rate,0 IssueAmount,0 PurchaseReturnQty
+								, 0 IssueQty,0 Rate,0 IssueAmount,
+								0 TotalIssueAmount,0 PurchaseReturnQty
                                     ,0 PurchaseReturnRate,0PurchaseReturnAmount
                                     ,0 IssueReturnQty,0 IssueReturnRate,0 IssueReturnAmount
 									,0 PhysicalStockAdjustmentqty 
@@ -8780,7 +8785,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                                    
                                     Where ISD.TransactionQty>0 --ANd IH.InventoryReceiveDetailId='2020258-1'
                                     group by IRD.Id,Ins.SalesDate,Ins.Id--,Ins.Iss
-                                     )main on main.InventoryReceiveDetailId=IRD.Id		
+                                     )main on main.InventoryReceiveDetailId=IRD.Id			
                                      									 
 						where  	IM.PlantId='" + plantId + @"' AND MM.Id='" + MaterialId + @"' AND Art.Id='" + ArticleId + @"' AND 
 						Convert(date ,IR.GRNDate) between '" + fromDate + @"' AND '" + toDate + @"'  
@@ -8855,7 +8860,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             sheet1[_row, 6].Text = "Sku1:";
             sheet1[_row, 6].CellStyle.Font.Size = 10;
             sheet1[_row, 6].CellStyle.Font.Bold = true;
-            sheet1[_row, 7].Text = inventoryMaterialList.Rows[0]["FirstCharacteristicsValue"].ToString();
+            sheet1[_row, 7].Text = Sku1;
             sheet1.Range[_row, 7, _row, 8].Merge();
             sheet1.Range[_row, 6, _row, 8].BorderAround(ExcelLineStyle.Thin);
             sheet1.Range[_row, 6, _row, 8].BorderInside(ExcelLineStyle.Thin);
@@ -8863,7 +8868,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             sheet1[_row, 9].Text = "Sku2:";
             sheet1[_row, 9].CellStyle.Font.Size = 10;
             sheet1[_row, 9].CellStyle.Font.Bold = true;
-            sheet1[_row, 10].Text = inventoryMaterialList.Rows[0]["SecondCharacteristicsValue"].ToString();
+            sheet1[_row, 10].Text = Sku2;
             sheet1.Range[_row, 10, _row, 11].Merge();
             sheet1.Range[_row, 9, _row, 11].BorderAround(ExcelLineStyle.Thin);
             sheet1.Range[_row, 9, _row, 11].BorderInside(ExcelLineStyle.Thin);
@@ -8871,7 +8876,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             sheet1[_row, 12].Text = "Sku3:";
             sheet1[_row, 12].CellStyle.Font.Size = 10;
             sheet1[_row, 12].CellStyle.Font.Bold = true;
-            sheet1[_row, 13].Text = inventoryMaterialList.Rows[0]["ThirdCharacteristicsValue"].ToString();
+            sheet1[_row, 13].Text =Sku3;
             sheet1.Range[_row, 13, _row, 14].Merge();
             sheet1.Range[_row, 12, _row, 14].BorderAround(ExcelLineStyle.Thin);
             sheet1.Range[_row, 12, _row, 14].BorderInside(ExcelLineStyle.Thin);
@@ -9019,11 +9024,6 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
             sheet1headreColIndex++;
 
-
-
-
-
-
             //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Type");
             //sheet1headreColIndex++;
             var colIsAssetStatus = sheet1headreColIndex;
@@ -9042,7 +9042,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "MRNo");
             var colRCVMRNo = sheet1headreColIndex;
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "MRNo";
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "MR No.";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -9055,7 +9055,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             var colUOM = sheet1headreColIndex;
 
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "UOM";
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "UoM(Base)";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -9067,7 +9067,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             //sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "Quantity";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 14;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -9077,7 +9077,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             var colRCVRate = sheet1headreColIndex;
             //sheet1headreColIndex++;
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Rate";
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Rate(Base)";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -9088,8 +9088,8 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             var colRCVAmount = sheet1headreColIndex;
             //sheet1headreColIndex++;
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Amount";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Amount(Base)";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 14;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -9112,7 +9112,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             var colPurchaseReturnNo = sheet1headreColIndex;
             //sheet1headreColIndex++;
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "ReturnNo";
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Return No.";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -9123,8 +9123,8 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             var colPurchaseReturnQty = sheet1headreColIndex;
             //sheet1headreColIndex++;
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Qty";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Quantity";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 14;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -9146,7 +9146,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             //sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "Amount";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 14;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -9171,7 +9171,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             var colIssueNo = sheet1headreColIndex;
             //sheet1headreColIndex++;
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "SlipNo";
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Slip No.";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -9196,7 +9196,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             //sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "Quantity";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 14;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -9218,7 +9218,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             //sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "Amount";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 14;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -9240,7 +9240,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             var colIssuereturnNo = sheet1headreColIndex;
             //sheet1headreColIndex++;
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "ReturnNo";
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Return No.";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -9253,7 +9253,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             //sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "Quantity";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 14;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -9275,7 +9275,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             //sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "Amount";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 14;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -9299,7 +9299,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             var colAdjustmentNo = sheet1headreColIndex;
             //sheet1headreColIndex++;
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "AdjustmentsNo";
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Adjustments No.";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -9311,7 +9311,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             //sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "Quantity";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 14;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -9334,7 +9334,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             //sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "Amount";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 14;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -9358,7 +9358,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             var colInventorySalesNo = sheet1headreColIndex;
             //sheet1headreColIndex++;
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "SalesNo";
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Sales No.";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -9370,7 +9370,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             //sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "Quantity";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 14;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -9393,7 +9393,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             //sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "Amount";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 14;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -9420,7 +9420,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             var colInventorySalesReturnNo = sheet1headreColIndex;
             //sheet1headreColIndex++;
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "SalesReturnNo";
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Sales Return No.";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -9432,7 +9432,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             //sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "Quantity";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 14;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -9455,7 +9455,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             //sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "Amount";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 14;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -9472,18 +9472,12 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
             sheet1headreColIndex++;
-
-
-            
-
-       
-
             //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Quantity");
             var colcolInventoryTransfernQty = sheet1headreColIndex;
             //sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "Quantity";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 14;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -9506,16 +9500,11 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             //sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "Amount";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 14;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
             sheet1headreColIndex++;
-
-
-
-
-
 
             //Balance
 
@@ -9524,7 +9513,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             //sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "Quantity";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 14;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -9550,7 +9539,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             var colBalanceAmount = sheet1headreColIndex;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "Amount";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 14;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -9583,7 +9572,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                     report.SetText(ref sheet1, _rowL, colRCVQuantity, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RcvQty"].ToString()));
                     report.SetText(ref sheet1, _rowL, colRCVRate, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RcvRate"].ToString()));
                     sheet1.Range[_rowL, colRCVRate].NumberFormat = report.NumberFormatDecimalFour();
-                    report.SetText(ref sheet1, _rowL, colRCVAmount, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RcvAmount"].ToString()));
+                    report.SetText(ref sheet1, _rowL, colRCVAmount, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TotalRcvAmount"].ToString()));
 
 
 
@@ -9638,7 +9627,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                 report.SetText(ref sheet1, _rowL, colIssueQty, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IssueQty"].ToString()));
                 report.SetText(ref sheet1, _rowL, colIssueRate, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["Rate"].ToString()));
                 sheet1.Range[_rowL, colIssueRate].NumberFormat = report.NumberFormatDecimalFour();
-                report.SetText(ref sheet1, _rowL, colIssueAmount, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IssueAmount"].ToString()));
+                report.SetText(ref sheet1, _rowL, colIssueAmount, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TotalIssueAmount"].ToString()));
 
                 //Issue Return
 
@@ -9681,13 +9670,14 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                 report.SetText(ref sheet1, _rowL, colInventorySalesReturnAmount, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["SalesReturnAmount"].ToString()));
 
                 //InventoryTransfer
-
+                if (Convert.ToDecimal(inventoryMaterialList.Rows[n]["InventoryTransferQty"].ToString()) > 0)
+                {            
                 report.SetText(ref sheet1, _rowL, colInventoryTransferDate, inventoryMaterialList.Rows[n]["TransferDate"].ToString());
                 report.SetText(ref sheet1, _rowL, colcolInventoryTransfernQty, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["InventoryTransferQty"].ToString()));
                 report.SetText(ref sheet1, _rowL, colcolInventoryTransferRate, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TransferRate"].ToString()));
                 sheet1.Range[_rowL, colcolInventoryTransferRate].NumberFormat = report.NumberFormatDecimalFour();
                 report.SetText(ref sheet1, _rowL, colcolInventoryTransferAmount, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TransferAmount"].ToString()));
-
+                }
 
             }
 
@@ -9727,131 +9717,114 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
             _rowL++;
             sheet1.Range[_rowL, 1, _rowL, 2].Merge();
             report.SetText(ref sheet1, _rowL, 1, "Total :", true);
-            //report.SetText(ref sheet2, _rowL, 1, "Total :", true);
+            report.SetText(ref sheet2, _rowL, 1, "Total :", true);
             sheet1.Range[_rowL, 1, _rowL, 2].CellStyle.Font.Underline = ExcelUnderline.Double;
+          
 
             sheet1.Range[_rowL, colRCVQuantity].Formula = "=SUM(" + report.GetColumnNameForXls(colRCVQuantity) + Row_Total_Start + ":" + report.GetColumnNameForXls(colRCVQuantity) + (_rowL - 1) + ")";
             sheet1.Range[_rowL, colRCVQuantity].NumberFormat = report.NumberFormatDecimalTwo();
             sheet1.Range[_rowL, colRCVQuantity].CellStyle.Font.Bold = true;
-            sheet1.Range[_rowL, 1, _rowL, 3].CellStyle.Font.Underline = ExcelUnderline.Double;
+            sheet1.Range[_rowL, colRCVQuantity, _rowL, colRCVQuantity].CellStyle.Font.Underline = ExcelUnderline.Double;
+            //sheet1.Range[_rowL, colRCVQuantity, _rowL, 3].CellStyle.Font.Size = 9;         
 
             //BorderAround(ExcelLineStyle.Thick);
-
-
-
             sheet1.Range[_rowL, colRCVAmount].Formula = "=SUM(" + report.GetColumnNameForXls(colRCVAmount) + Row_Total_Start + ":" + report.GetColumnNameForXls(colRCVAmount) + (_rowL - 1) + ")";
             sheet1.Range[_rowL, colRCVAmount].NumberFormat = report.NumberFormatDecimalTwo();
             sheet1.Range[_rowL, colRCVAmount].CellStyle.Font.Bold = true;
-            sheet1.Range[_rowL, 1, _rowL, 5].CellStyle.Font.Underline = ExcelUnderline.Double;
+            sheet1.Range[_rowL, colRCVAmount, _rowL, colRCVAmount].CellStyle.Font.Underline = ExcelUnderline.Double;
+
 
             //PO Return
 
             sheet1.Range[_rowL, colPurchaseReturnQty].Formula = "=SUM(" + report.GetColumnNameForXls(colPurchaseReturnQty) + Row_Total_Start + ":" + report.GetColumnNameForXls(colPurchaseReturnQty) + (_rowL - 1) + ")";
             sheet1.Range[_rowL, colPurchaseReturnQty].NumberFormat = report.NumberFormatDecimalTwo();
             sheet1.Range[_rowL, colPurchaseReturnQty].CellStyle.Font.Bold = true;
-            sheet1.Range[_rowL, 1, _rowL, 3].CellStyle.Font.Underline = ExcelUnderline.Double;
+            sheet1.Range[_rowL, colPurchaseReturnQty, _rowL, colPurchaseReturnQty].CellStyle.Font.Underline = ExcelUnderline.Double;
+
 
             sheet1.Range[_rowL, colPurchaseReturnAmount].Formula = "=SUM(" + report.GetColumnNameForXls(colPurchaseReturnAmount) + Row_Total_Start + ":" + report.GetColumnNameForXls(colPurchaseReturnAmount) + (_rowL - 1) + ")";
             sheet1.Range[_rowL, colPurchaseReturnAmount].NumberFormat = report.NumberFormatDecimalTwo();
             sheet1.Range[_rowL, colPurchaseReturnAmount].CellStyle.Font.Bold = true;
-            sheet1.Range[_rowL, 1, _rowL, 10].CellStyle.Font.Underline = ExcelUnderline.Double;
-
-
-
-
+            sheet1.Range[_rowL, colPurchaseReturnAmount, _rowL, colPurchaseReturnAmount].CellStyle.Font.Underline = ExcelUnderline.Double;
             //Issue 
-
 
             sheet1.Range[_rowL, colIssueQty].Formula = "=SUM(" + report.GetColumnNameForXls(colIssueQty) + Row_Total_Start + ":" + report.GetColumnNameForXls(colIssueQty) + (_rowL - 1) + ")";
             sheet1.Range[_rowL, colIssueQty].NumberFormat = report.NumberFormatDecimalTwo();
             sheet1.Range[_rowL, colIssueQty].CellStyle.Font.Bold = true;
-            sheet1.Range[_rowL, 1, _rowL, 3].CellStyle.Font.Underline = ExcelUnderline.Double;
-
+            sheet1.Range[_rowL, colIssueQty, _rowL, colIssueQty].CellStyle.Font.Underline = ExcelUnderline.Double;
 
             sheet1.Range[_rowL, colIssueAmount].Formula = "=SUM(" + report.GetColumnNameForXls(colIssueAmount) + Row_Total_Start + ":" + report.GetColumnNameForXls(colIssueAmount) + (_rowL - 1) + ")";
             sheet1.Range[_rowL, colIssueAmount].NumberFormat = report.NumberFormatDecimalTwo();
             sheet1.Range[_rowL, colIssueAmount].CellStyle.Font.Bold = true;
-            sheet1.Range[_rowL, 1, _rowL, 10].CellStyle.Font.Underline = ExcelUnderline.Double;
+            sheet1.Range[_rowL, colIssueAmount, _rowL, colIssueAmount].CellStyle.Font.Underline = ExcelUnderline.Double;
 
             //STOCK BALANCE
             sheet1.Range[_rowL, colBalanceQty].Formula = "=SUM(" + report.GetColumnNameForXls(colBalanceQty) + Row_Total_Start + ":" + report.GetColumnNameForXls(colBalanceQty) + (_rowL - 1) + ")";
             sheet1.Range[_rowL, colBalanceQty].NumberFormat = report.NumberFormatDecimalTwo();
             sheet1.Range[_rowL, colBalanceQty].CellStyle.Font.Bold = true;
-            sheet1.Range[_rowL, 1, _rowL, 11].CellStyle.Font.Underline = ExcelUnderline.Double;
-
+            sheet1.Range[_rowL, colBalanceQty, _rowL, colBalanceQty].CellStyle.Font.Underline = ExcelUnderline.Double; 
 
             sheet1.Range[_rowL, colBalanceAmount].Formula = "=SUM(" + report.GetColumnNameForXls(colBalanceAmount) + Row_Total_Start + ":" + report.GetColumnNameForXls(colBalanceAmount) + (_rowL - 1) + ")";
             sheet1.Range[_rowL, colBalanceAmount].NumberFormat = report.NumberFormatDecimalTwo();
             sheet1.Range[_rowL, colBalanceAmount].CellStyle.Font.Bold = true;
-            sheet1.Range[_rowL, 1, _rowL, 13].CellStyle.Font.Underline = ExcelUnderline.Double;
-
-
+            sheet1.Range[_rowL, colBalanceAmount, _rowL, colBalanceAmount].CellStyle.Font.Underline = ExcelUnderline.Double;
 
             //Issue Return 
             sheet1.Range[_rowL, colIssuereturnQty].Formula = "=SUM(" + report.GetColumnNameForXls(colIssuereturnQty) + Row_Total_Start + ":" + report.GetColumnNameForXls(colIssuereturnQty) + (_rowL - 1) + ")";
             sheet1.Range[_rowL, colIssuereturnQty].NumberFormat = report.NumberFormatDecimalTwo();
             sheet1.Range[_rowL, colIssuereturnQty].CellStyle.Font.Bold = true;
-            sheet1.Range[_rowL, 1, _rowL, 8].CellStyle.Font.Underline = ExcelUnderline.Double;
+            sheet1.Range[_rowL, colIssuereturnQty, _rowL, colIssuereturnQty].CellStyle.Font.Underline = ExcelUnderline.Double;
 
 
             sheet1.Range[_rowL, colIssuereturnAmount].Formula = "=SUM(" + report.GetColumnNameForXls(colIssuereturnAmount) + Row_Total_Start + ":" + report.GetColumnNameForXls(colIssuereturnAmount) + (_rowL - 1) + ")";
             sheet1.Range[_rowL, colIssuereturnAmount].NumberFormat = report.NumberFormatDecimalTwo();
             sheet1.Range[_rowL, colIssuereturnAmount].CellStyle.Font.Bold = true;
-            sheet1.Range[_rowL, 1, _rowL, 10].CellStyle.Font.Underline = ExcelUnderline.Double;
-
-
+            sheet1.Range[_rowL, colIssuereturnAmount, _rowL, colIssuereturnAmount].CellStyle.Font.Underline = ExcelUnderline.Double;
             //Adustment 
             sheet1.Range[_rowL, colAdjustmentQty].Formula = "=SUM(" + report.GetColumnNameForXls(colAdjustmentQty) + Row_Total_Start + ":" + report.GetColumnNameForXls(colAdjustmentQty) + (_rowL - 1) + ")";
             sheet1.Range[_rowL, colAdjustmentQty].NumberFormat = report.NumberFormatDecimalTwo();
             sheet1.Range[_rowL, colAdjustmentQty].CellStyle.Font.Bold = true;
-            sheet1.Range[_rowL, 1, _rowL, 8].CellStyle.Font.Underline = ExcelUnderline.Double;
-
-
+            sheet1.Range[_rowL, colAdjustmentQty, _rowL, colAdjustmentQty].CellStyle.Font.Underline = ExcelUnderline.Double;
 
             sheet1.Range[_rowL, colAdjustmentAmount].Formula = "=SUM(" + report.GetColumnNameForXls(colAdjustmentAmount) + Row_Total_Start + ":" + report.GetColumnNameForXls(colAdjustmentAmount) + (_rowL - 1) + ")";
             sheet1.Range[_rowL, colAdjustmentAmount].NumberFormat = report.NumberFormatDecimalTwo();
             sheet1.Range[_rowL, colAdjustmentAmount].CellStyle.Font.Bold = true;
-            sheet1.Range[_rowL, 1, _rowL, 10].CellStyle.Font.Underline = ExcelUnderline.Double;
+            sheet1.Range[_rowL, colAdjustmentAmount, _rowL, colAdjustmentAmount].CellStyle.Font.Underline = ExcelUnderline.Double;
 
             //InventorySales 
             sheet1.Range[_rowL, colInventorySalesQty].Formula = "=SUM(" + report.GetColumnNameForXls(colInventorySalesQty) + Row_Total_Start + ":" + report.GetColumnNameForXls(colInventorySalesQty) + (_rowL - 1) + ")";
             sheet1.Range[_rowL, colInventorySalesQty].NumberFormat = report.NumberFormatDecimalTwo();
             sheet1.Range[_rowL, colInventorySalesQty].CellStyle.Font.Bold = true;
-            sheet1.Range[_rowL, 1, _rowL, 8].CellStyle.Font.Underline = ExcelUnderline.Double;
-
-
+            sheet1.Range[_rowL, colInventorySalesQty, _rowL, colInventorySalesQty].CellStyle.Font.Underline = ExcelUnderline.Double;
 
             sheet1.Range[_rowL, colInventorySalesAmount].Formula = "=SUM(" + report.GetColumnNameForXls(colInventorySalesAmount) + Row_Total_Start + ":" + report.GetColumnNameForXls(colInventorySalesAmount) + (_rowL - 1) + ")";
             sheet1.Range[_rowL, colInventorySalesAmount].NumberFormat = report.NumberFormatDecimalTwo();
             sheet1.Range[_rowL, colInventorySalesAmount].CellStyle.Font.Bold = true;
-            sheet1.Range[_rowL, 1, _rowL, 10].CellStyle.Font.Underline = ExcelUnderline.Double;
+            sheet1.Range[_rowL, colInventorySalesAmount, _rowL, colInventorySalesAmount].CellStyle.Font.Underline = ExcelUnderline.Double;
 
             //InventorySalesReturn 
             sheet1.Range[_rowL, colInventorySalesReturnQty].Formula = "=SUM(" + report.GetColumnNameForXls(colInventorySalesReturnQty) + Row_Total_Start + ":" + report.GetColumnNameForXls(colInventorySalesReturnQty) + (_rowL - 1) + ")";
             sheet1.Range[_rowL, colInventorySalesReturnQty].NumberFormat = report.NumberFormatDecimalTwo();
             sheet1.Range[_rowL, colInventorySalesReturnQty].CellStyle.Font.Bold = true;
-            sheet1.Range[_rowL, 1, _rowL, 8].CellStyle.Font.Underline = ExcelUnderline.Double;
-
-
+            sheet1.Range[_rowL, colInventorySalesReturnQty, _rowL, colInventorySalesReturnQty].CellStyle.Font.Underline = ExcelUnderline.Double;
 
             sheet1.Range[_rowL, colInventorySalesReturnAmount].Formula = "=SUM(" + report.GetColumnNameForXls(colInventorySalesReturnAmount) + Row_Total_Start + ":" + report.GetColumnNameForXls(colInventorySalesReturnAmount) + (_rowL - 1) + ")";
             sheet1.Range[_rowL, colInventorySalesReturnAmount].NumberFormat = report.NumberFormatDecimalTwo();
             sheet1.Range[_rowL, colInventorySalesReturnAmount].CellStyle.Font.Bold = true;
-            sheet1.Range[_rowL, 1, _rowL, 10].CellStyle.Font.Underline = ExcelUnderline.Double;
-
+            sheet1.Range[_rowL, colInventorySalesReturnAmount, _rowL, colInventorySalesReturnAmount].CellStyle.Font.Underline = ExcelUnderline.Double;
 
             //InventoryTransfer 
             sheet1.Range[_rowL, colcolInventoryTransfernQty].Formula = "=SUM(" + report.GetColumnNameForXls(colcolInventoryTransfernQty) + Row_Total_Start + ":" + report.GetColumnNameForXls(colcolInventoryTransfernQty) + (_rowL - 1) + ")";
             sheet1.Range[_rowL, colcolInventoryTransfernQty].NumberFormat = report.NumberFormatDecimalTwo();
             sheet1.Range[_rowL, colcolInventoryTransfernQty].CellStyle.Font.Bold = true;
-            sheet1.Range[_rowL, 1, _rowL, 8].CellStyle.Font.Underline = ExcelUnderline.Double;
-
-
+            sheet1.Range[_rowL, colcolInventoryTransfernQty, _rowL, colcolInventoryTransfernQty].CellStyle.Font.Underline = ExcelUnderline.Double;
 
             sheet1.Range[_rowL, colcolInventoryTransferAmount].Formula = "=SUM(" + report.GetColumnNameForXls(colcolInventoryTransferAmount) + Row_Total_Start + ":" + report.GetColumnNameForXls(colcolInventoryTransferAmount) + (_rowL - 1) + ")";
             sheet1.Range[_rowL, colcolInventoryTransferAmount].NumberFormat = report.NumberFormatDecimalTwo();
             sheet1.Range[_rowL, colcolInventoryTransferAmount].CellStyle.Font.Bold = true;
-            sheet1.Range[_rowL, 1, _rowL, 10].CellStyle.Font.Underline = ExcelUnderline.Double;
+            sheet1.Range[_rowL, colcolInventoryTransferAmount, _rowL, colcolInventoryTransferAmount].CellStyle.Font.Underline = ExcelUnderline.Double;
+            sheet1.Range[_rowL, 1, _rowL, colcolInventoryTransferAmount+3].CellStyle.Font.Size = 9;
+
             #endregion sumCalc
 
             sheet1["A" + 11].FreezePanes();

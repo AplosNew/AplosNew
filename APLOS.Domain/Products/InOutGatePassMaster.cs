@@ -57,7 +57,7 @@ namespace Library.Model.Products
         public string InventoryTransferId { get; set; }
         public string InventorySalesId { get; set; }
         public string InventoryScrapId { get; set; }
-        public string FixedAssetSalesId { get; set; }
+        public string FixedAssetRegisterDisposedId { get; set; }
         public string FixedAssetScrapId { get; set; }
         public string ChallanItemTypeId { get; set; } 
         

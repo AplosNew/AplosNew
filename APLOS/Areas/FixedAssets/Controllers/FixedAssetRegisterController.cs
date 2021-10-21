@@ -373,7 +373,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
         [Authorize, HttpGet]
         public JsonResult getDepreciationRulelist()
         {
-            return Json(_sqlRepository.GetDataCollection("select CFADR.DepreciationRuleId AS Value, FADR.Description as Text from mst.CompanyFixedAssetDepreciationRule CFADR left  join mst.FixedAssetDepreciationRule FADR ON CFADR.DepreciationRuleId = FADR.Id"), JsonRequestBehavior.AllowGet);
+            return Json(_sqlRepository.GetDataCollection("select distinct CFADR.DepreciationRuleId AS Value, FADR.Description as Text from mst.CompanyFixedAssetDepreciationRule CFADR left  join mst.FixedAssetDepreciationRule FADR ON CFADR.DepreciationRuleId = FADR.Id"), JsonRequestBehavior.AllowGet);
         }
 
         #endregion
@@ -997,7 +997,16 @@ namespace Aplos.Areas.FixedAssets.Controllers
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
             voucherVM.CompanyId = identity.CompanyId;
             voucherVM.PlantId = identity.PlantId;
-            _fixedAssetDisposeService.InsertFixedAssetDisposePosting(voucherVM, voucherDetailVMList, farDisposeDetailList, advanceSalarySchedulelist);
+            if (voucherVM.Status == "Sales")
+            {
+            _fixedAssetDisposeService.InsertFixedAssetDisposeSalesPosting(voucherVM, voucherDetailVMList, farDisposeDetailList, advanceSalarySchedulelist);
+
+            }
+            else if (voucherVM.Status == "Scrap")
+            {
+                _fixedAssetDisposeService.InsertFixedAssetDisposeScrapPosting(voucherVM, voucherDetailVMList, farDisposeDetailList, advanceSalarySchedulelist);
+
+            }
             return Json(new { Message = AplosMessage.Insert });
         }
 
