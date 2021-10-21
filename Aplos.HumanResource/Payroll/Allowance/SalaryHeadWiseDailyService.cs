@@ -41,8 +41,15 @@ namespace Library.HumanResource.Payroll.Allowance
                 DeleteMonthWiseExtraSalaryAmtMasterData(identity.PlantId, sToDate, sEmployeeIds);
 
                 GetCurrencyRuleId(identity.PlantId, out dsCurrencyRule);
-                GetEmpServiceDailySummaryData(identity.PlantId, sFromDate, sToDate, sEmployeeIds, out dsEmpServiceDailySummaryData);
+                GetEmpServiceDailySummaryData(identity.PlantId, sFromDate, sToDate, sEmployeeIds, out dsEmpServiceDailySummaryData, out DataSet dsEmpServiceDailySummaryDataToUpdate);
 
+                for (int i = 0; i < dsEmpServiceDailySummaryDataToUpdate.Tables[0].Rows.Count; i++)
+                {
+                    DataRow dr = dsEmpServiceDailySummaryDataToUpdate.Tables[0].Rows[i];
+                    dr.BeginEdit();
+                    dr["IsProcessed"] = true;
+                    dr.EndEdit();
+                }
                 if (dsEmpServiceDailySummaryData.Tables[0].Rows.Count > 0)
                 {
 
@@ -166,7 +173,7 @@ namespace Library.HumanResource.Payroll.Allowance
                     }
                 }
                 clsStaticInfo objt = new clsStaticInfo();
-                objt.SaveDataSets(dsMonthWiseExtraSalaryAmtMaster, dsMonthWiseExtraSalaryAmtChild);
+                objt.SaveDataSets(dsMonthWiseExtraSalaryAmtMaster, dsMonthWiseExtraSalaryAmtChild, dsEmpServiceDailySummaryDataToUpdate);
             }
             catch (Exception ex)
             {
@@ -176,7 +183,7 @@ namespace Library.HumanResource.Payroll.Allowance
             {
             }
         }//End Function
-        public void GetEmpServiceDailySummaryData(string sPlantID, string sFromDate, string sToDate, string sEmployeeIds, out System.Data.DataSet dsRef)
+        public void GetEmpServiceDailySummaryData(string sPlantID, string sFromDate, string sToDate, string sEmployeeIds, out System.Data.DataSet dsRef, out System.Data.DataSet dsReftoUpdate)
         {
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;
@@ -207,6 +214,14 @@ namespace Library.HumanResource.Payroll.Allowance
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+
+                strSQL = @" SELECT * FROM  [EmpServiceData] d  where
+                             d.chargeable=1 and d.EmployeeId in (" + sEmployeeIds + @")
+                                    AND d.[Date] BETWEEN '" + sFromDate + @"' AND '" + sToDate + @"'
+                           ";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsReftoUpdate, false, "1");
             }
             catch (Exception ex)
             {

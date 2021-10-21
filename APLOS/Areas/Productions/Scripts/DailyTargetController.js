@@ -284,6 +284,7 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.GetLineLayout(data);
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -298,8 +299,12 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
             $scope.SelectedLineForPR = data;
             $http({
                 method: "POST",
-                url: $scope.path + 'GetLineLayoutData',
-                data: { 'entityid': $scope.DailyProductionTargetNew.EntityId, 'processId': $scope.DailyProductionTargetNew.ProcessId, 'ProductionDate': $scope.DailyProductionTargetNew.ProductionDate, 'SelectedLine': $scope.SelectedLineForPR},
+                url: $scope.path + 'GetSaveData',
+                data: {
+                    'ProductionOrderId': $scope.SelectedLineForPR.PRNo,
+                    'TargetDate': $scope.DailyProductionTargetNew.ProductionDate,
+                    'WorkCenterMasterId': $scope.SelectedLineForPR.WorkCenterMasterId
+                },
                 dataType: 'JSON',
             }).then(function successCallback(response) {
                 response.data = JSON.parse(response.data[0].Layout);
@@ -511,4 +516,35 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
         $scope.OpenEmployeeSearchBox();
     }
 
+    $scope.SaveDiagram = function () {
+        try {
+            var diagram = $("#diagram").ejDiagram("instance");
+            var diagramModel = diagram.save();
+            var diagramData = diagramModel.nodes;
+            $http({
+                method: 'POST',
+                url: $scope.path + "SaveDiagram",
+                data: {
+                    'Nodes': diagramData, 'Design': JSON.stringify(diagramData),
+                    'ProductionOrderId': $scope.SelectedLineForPR.PRNo,
+                    'TargetDate': $scope.DailyProductionTargetNew.ProductionDate,
+                    'WorkCenterMasterId': $scope.SelectedLineForPR.WorkCenterMasterId
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    }
 }
