@@ -43,6 +43,7 @@ function operationVariationController(commonMessage, $scope, $rootScope, baseSer
         , TotalSAM: 0
         , OperationMasterId: null
         , OperationMasterCode: null
+        ,Color:null
     };
     $scope.operationVariationNew = Object.assign({}, $scope.operationVariation);
 
@@ -244,6 +245,7 @@ function operationVariationController(commonMessage, $scope, $rootScope, baseSer
             , Active: true
             , TotalSAM: 0
             , IsMachineRequired: 'M'
+            , Color: null
         };
         getOperationUtilityData();
     }
@@ -269,6 +271,7 @@ function operationVariationController(commonMessage, $scope, $rootScope, baseSer
             , SPI: 0
             , IsMachineRequired: 'M'
             , TotalSAM: 0
+            , Color:null
         };
     }
 

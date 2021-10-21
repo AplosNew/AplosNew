@@ -4194,12 +4194,12 @@ namespace Aplos.Areas.IE.Controllers
                 sheet.Range[ROW, COL, ROW, COL + 1].Merge();
                 //sheet.Range[ROW, COL + 3].Text = " " + data.Rows[0]["BuyerStyleRefNo"].ToString().Trim();
                 //sheet.Range[ROW, COL, ROW, COL + 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                sheet.Range[ROW, COL + 3].Text = " " + data.Rows[0]["BuyerStyleRefNo"].ToString().Trim();
+                sheet.Range[ROW, COL + 2].Text = " " + data.Rows[0]["BuyerStyleRefNo"].ToString().Trim();
                 //sheet.Range[ROW, COL + 2, ROW, COL + 3].Merge();
                 ROW++;
                 sheet.Range[ROW, COL + 1].Text = "Own Style Ref No";
                 sheet.Range[ROW, COL, ROW, COL + 1].Merge();
-                sheet.Range[ROW, COL + 3].Text = " " + data.Rows[0]["OwnStyleRefNo"].ToString().Trim();
+                sheet.Range[ROW, COL + 2].Text = " " + data.Rows[0]["OwnStyleRefNo"].ToString().Trim();
                 //sheet.Range[ROW, COL + 3].Number = Convert.ToInt32(data.Rows[0]["OwnStyleRefNo"].ToString().Trim());
                 //sheet.Range[ROW, COL + 3].NumberFormat = clsStaticInfo.NumberFormat(0);
 
@@ -4208,8 +4208,8 @@ namespace Aplos.Areas.IE.Controllers
                 ROW++;
                 sheet.Range[ROW, COL + 1].Text = "Product Master";
                 sheet.Range[ROW, COL, ROW, COL + 1].Merge();
-                sheet.Range[ROW, COL + 3].Text = " " + data.Rows[0]["ProductMaster"].ToString().Trim();
-                sheet.Range[ROW, COL, ROW, COL + 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[ROW, COL + 2].Text = " " + data.Rows[0]["ProductMaster"].ToString().Trim();
+                sheet.Range[ROW, COL, ROW, COL + 2].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 //sheet.Range[ROW, COL + 2, ROW, COL + 3].Merge();
 
                 double plannedHourPerDay = Convert.ToDouble(data.Rows[0]["PlannedHoursPerDay"]);
