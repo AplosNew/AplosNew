@@ -785,7 +785,7 @@ function InOutGatePassController(accountService, addressService, $location, $win
         , InventoryTransferId: null
         , InventorySalesId: null
         , InventoryScrapId: null
-        , FixedAssetSalesId: null
+		, FixedAssetRegisterDisposedId: null
         , FixedAssetScrapId: null
 	};
 

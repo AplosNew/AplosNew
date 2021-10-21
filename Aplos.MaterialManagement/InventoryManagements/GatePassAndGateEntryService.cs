@@ -278,7 +278,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						FROM Trn.FixedAssetRegisterDisposed FARD
 						LEFT JOIN hkp.Party P On P.Id=FARD.PartyId
                         Where FARD.Status='Sales' and 
-						FARD.Id not in (Select FixedAssetSalesId from trn.InOutGatePassMaster where FixedAssetSalesId is not null)
+						FARD.Id not in (Select FixedAssetRegisterDisposedId from trn.InOutGatePassMaster where FixedAssetRegisterDisposedId is not null)
 
                         Union all
 						SELECT distinct FARD.Id ComId, REPLACE(CONVERT(CHAR(11), FARD.AddedDate, 106), ' ', '-') AS  CreatedDate
@@ -287,7 +287,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						FROM Trn.FixedAssetRegisterDisposed FARD
 						LEFT JOIN hkp.Party P On P.Id=FARD.PartyId
                         Where FARD.Status='Scrap' and 
-						FARD.Id not in (Select FixedAssetSalesId from trn.InOutGatePassMaster where FixedAssetSalesId is not null)
+						FARD.Id not in (Select FixedAssetRegisterDisposedId from trn.InOutGatePassMaster where FixedAssetRegisterDisposedId is not null)
 
 						
 
@@ -483,7 +483,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					InventoryTransferId = inOutGatePassMasterModel.InventoryTransferId,
 					InventorySalesId = inOutGatePassMasterModel.InventorySalesId,
 					InventoryScrapId = inOutGatePassMasterModel.InventoryScrapId,
-					FixedAssetSalesId = inOutGatePassMasterModel.FixedAssetSalesId,
+                    FixedAssetRegisterDisposedId = inOutGatePassMasterModel.FixedAssetRegisterDisposedId,
 					FixedAssetScrapId = inOutGatePassMasterModel.FixedAssetScrapId,
 				};
 				InsertInOutGatePass(inOutGatePassMaster, out DataSet _InOutGatePassdataset);
@@ -534,7 +534,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					InventoryTransferId = inOutGatePassMasterModel.InventoryTransferId,
 					InventorySalesId = inOutGatePassMasterModel.InventorySalesId,
 					InventoryScrapId = inOutGatePassMasterModel.InventoryScrapId,
-					FixedAssetSalesId = inOutGatePassMasterModel.FixedAssetSalesId,
+                    FixedAssetRegisterDisposedId = inOutGatePassMasterModel.FixedAssetRegisterDisposedId,
 					FixedAssetScrapId = inOutGatePassMasterModel.FixedAssetScrapId,
 				};
 				UpdateInOutGatePass(inOutGatePassMaster, out DataSet _InOutGatePassdataset);
