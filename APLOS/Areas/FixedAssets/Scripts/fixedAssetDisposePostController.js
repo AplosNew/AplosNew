@@ -219,8 +219,8 @@ function fixedAssetDisposePostController(accountService, cboService, commonMessa
         $scope.GetCurrencyExchangeRateList();
     });
 
-    $scope.getCboVoucherTypeJournalVoucherList = function () {
-        accountService.getCboVoucherTypeJournalVoucherList(function (result) {
+    $scope.getCboVoucherTypeFixedAssetDisposeJournalList = function () {
+        accountService.getCboVoucherTypeFixedAssetDisposeJournalList(function (result) {
             $scope.voucherTypeList = result;
             if ($scope.voucherTypeList.length === 1) {
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
@@ -230,7 +230,7 @@ function fixedAssetDisposePostController(accountService, cboService, commonMessa
             }
         });
     };
-    $scope.getCboVoucherTypeJournalVoucherList();
+    $scope.getCboVoucherTypeFixedAssetDisposeJournalList();
     $scope.GetCurrencyExchangeRateList = function () {
         if (!baseService.isUndefinedOrNull($scope.voucher.PostingDate) && !baseService.isUndefinedOrNull($scope.voucher.CurrencyId)) {
             $http({
@@ -315,9 +315,7 @@ function fixedAssetDisposePostController(accountService, cboService, commonMessa
         $scope.voucher.DocDate = $scope.voucher.PostingDate;
         $scope.$broadcast("show-errors-check-validity");
         if ($scope.form0.$valid) {
-            if ($scope.voucher == 'Sales') {
                 $scope.SaveUrl = "fixedassets/FixedAssetRegister/CreateFixedAssetDisposePost"
-            }
             if ($scope.Action === "Save") {
                 $http({
                     method: "POST",
