@@ -173,7 +173,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 IEnumerable<PurchaseLCCharges> Charges = JsonConvert.DeserializeObject<IEnumerable<PurchaseLCCharges>>(form["Charges"], settings);
                 IEnumerable<PurchaseOrder> POList = JsonConvert.DeserializeObject<IEnumerable<PurchaseOrder>>(form["POList"], settings);
                 IEnumerable<ServicePOMaster> SPOList = JsonConvert.DeserializeObject<IEnumerable<ServicePOMaster>>(form["SPOList"], settings);
-                IEnumerable<JWTransformationPurchaseOrder> JWPOList = JsonConvert.DeserializeObject<IEnumerable<JWTransformationPurchaseOrder>>(form["JWPOList"], settings);
+                IEnumerable<OSTransformationPO> JWPOList = JsonConvert.DeserializeObject<IEnumerable<OSTransformationPO>>(form["JWPOList"], settings);
 
 
                 var directory = ResourcesPathReader.GetLCDocPath();
@@ -412,7 +412,7 @@ namespace Aplos.Areas.Commercial.Controllers
             }
         }
 
-        private void UpdateJWPO(IEnumerable<JWTransformationPurchaseOrder> SPOList, string masterId, PurchaseLC model)
+        private void UpdateJWPO(IEnumerable<OSTransformationPO> SPOList, string masterId, PurchaseLC model)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
@@ -423,7 +423,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     DataSet dsMaster;
                     foreach (var item in SPOList)
                     {
-                        string sql = "SELECT * FROM [dbo].[JWTransformationPurchaseOrder] WHERE Id='" + item.Id + "'";
+                        string sql = "SELECT * FROM [dbo].[OSTransformationPO] WHERE Id='" + item.Id + "'";
                         objCon = new ConnectionManager.DAL.ConManager("1");
                         objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
                         if (dsMaster.Tables[0].Rows.Count > 0)
@@ -448,7 +448,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 }
                 else
                 {
-                    string _sql = "Update [dbo].[JWTransformationPurchaseOrder] SET PurchaseLCId=NULL WHERE PurchaseLCId='" + masterId + "'";
+                    string _sql = "Update [dbo].[OSTransformationPO] SET PurchaseLCId=NULL WHERE PurchaseLCId='" + masterId + "'";
                     _sqlRepository.ExecuteSqlCommand(_sql);
                 }
             }
@@ -837,9 +837,9 @@ namespace Aplos.Areas.Commercial.Controllers
                                     InvPP.StandardName ,ISNULL(PO.OrderSpecific,'')OrderSpecifi,PO.ContractId,PO.PurchaseLCId, CN.Code Currency,PO.CurrencyId
                                     ,CONVERT(NUMERIC(10,2),POD.TransactionAmount) TransactionAmount,ISNULL(C.ContractNo,'')ContractNo,Flag='OutSourcePO',CC.UserName CustomerName
                                     ,IsFirst=0
-                                    FROM [dbo].[JWTransformationPurchaseOrder] PO
-                                    INNER JOIN (SELECT SUM(ISNULL(TransactionAmount,0)) TransactionAmount, JobWorkTransformationContractMasterId 
-							        FROM [dbo].[JobWorkTransformationContractChild] GROUP BY JobWorkTransformationContractMasterId) POD ON POD.JobWorkTransformationContractMasterId=PO.Id
+                                    FROM [dbo].[OSTransformationPO] PO
+                                    INNER JOIN (SELECT SUM(ISNULL(TransactionAmount,0)) TransactionAmount, OSTransformationPOId 
+							        FROM [dbo].[OSTransformationPODetail] GROUP BY OSTransformationPOId) POD ON POD.OSTransformationPOId=PO.Id
                                     LEFT JOIN [HKP].[Party] AS InvPP ON PO.PartyId=InvPP.Id
                                     LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId 
                                     LEFT JOIN [dbo].[Contract] C ON C.Id=PO.ContractId
@@ -889,8 +889,8 @@ namespace Aplos.Areas.Commercial.Controllers
                             distinct PO.Id,REPLACE(CONVERT(CHAR(11), PO.PODate, 106),' ','-') AS PODate,PO.PartyId,
                             InvPP.StandardName ,ISNULL(PLC.OrderSpecific,PO.OrderSpecific) OrderSpecific,ISNULL(PLC.ContractId, PO.ContractId) ContractId,PO.PurchaseLCId, CN.Code Currency,PO.CurrencyId
                             ,CONVERT(NUMERIC(10,2),POD.TransactionAmount) TransactionAmount, 0 AS [check],Flag='OutSourcePO',PLC.LCRef
-                            FROM [dbo].[JWTransformationPurchaseOrder] PO
-                            INNER JOIN (SELECT SUM(ISNULL(TransactionAmount,0)) TransactionAmount, JobWorkTransformationContractMasterId FROM [dbo].[JobWorkTransformationContractChild] GROUP BY JobWorkTransformationContractMasterId) POD ON POD.JobWorkTransformationContractMasterId=PO.Id
+                            FROM [dbo].[OSTransformationPO] PO
+                            INNER JOIN (SELECT SUM(ISNULL(TransactionAmount,0)) TransactionAmount, OSTransformationPOId FROM [dbo].[OSTransformationPODetail] GROUP BY OSTransformationPOId) POD ON POD.OSTransformationPOId=PO.Id
                             LEFT JOIN [HKP].[Party] AS InvPP ON PO.PartyId=InvPP.Id
                             LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId 
                             LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=PO.PurchaseLCId 
@@ -978,7 +978,7 @@ namespace Aplos.Areas.Commercial.Controllers
 
 
     }
-    public class JWTransformationPurchaseOrder
+    public class OSTransformationPO
     {
 
         #region Scalar Properties

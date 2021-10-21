@@ -2077,7 +2077,8 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
         					   left join scs.Currency c on c.Id=vcc.CurrencyId
         					   left join dbo.EmployeeInformation emp on emp.SystemId=vcc.ResponsiblePersonId
 							   left join dbo.OSTransformationPO vc on vc.Id=vcc.OSTransformationPOId
-							   left join dbo.JobWorkTransformationContractChild2 owr on owr.OSTransformationPODetailId=vcc.Id
+							   --	   left join dbo.JobWorkTransformationContractChild2 owr on owr.OSTransformationPODetailId=vcc.Id
+							   left join dbo.OSTransformationPOMasterOrderItem owr on owr.OSTransformationPODetailId=vcc.Id
 							   left join [TRN].[SalesOrder] AS SO on SO.Id=owr.SalesOrderId
 							   left JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
 							   left JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
@@ -6746,6 +6747,23 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
         }
 
         #endregion end Reports for Transformation Contract
+
+        // Edit Mode
+
+        [Authorize, HttpGet]
+        public JsonResult GetOSOutPutInventoryMaterialList(string IssueId, string PKId, string IssueDate, string MaterialStorageIdInventory)
+        {
+            try
+            {
+
+                return Json(JWTIR.GetOSOutPutInventoryMaterialList(IssueId, PKId, IssueDate, MaterialStorageIdInventory), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
 
     }
 }

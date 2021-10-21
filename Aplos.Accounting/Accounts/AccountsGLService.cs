@@ -1,4 +1,5 @@
-﻿using Library.Core;
+﻿using Aplos.Service.Enums;
+using Library.Core;
 using Library.Data;
 using Library.Data.Sql;
 using Library.Service.ChartOfAccounts;
@@ -243,7 +244,23 @@ namespace Library.Accounting.Accounts
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
+        public List<Dictionary<string, object>> GetTaxCategoryMaterialLevelCbo(string companyGroupId, string countryId)
+        {
+            try
+            {
+                string sql = "";
+                sql = @"SELECT Id Value, UserName Text FROM MST.TaxCategory 
+								WHERE  Active = 1 AND CompanyGroupId = '" + companyGroupId + @"' AND CountryId = '" + countryId + @"' AND TaxCategoryLevel='Material' ";
 
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
         public List<Dictionary<string, object>> GetAdditionalTaxCbo(DateTime postingDate, string companyId)
         {
             try
@@ -259,7 +276,7 @@ namespace Library.Accounting.Accounts
 						LEFT JOIN MST.TaxCodeDetail TCD ON TCD.TaxCodeId=TC.Id AND TCD.TaxCodeYearId=TCY.Id
                         WHERE TC.InputOrOutput='" + TaxCodeInputOutput.Input + @"'
 						AND TYP.StartDate <='" + postingDate.ToDbDate() + "' AND TYP.EndDate >='" + postingDate.ToDbDate() + "' AND CO.Id='" + companyId + @"' 
-                         AND TCA.TaxCategoryType='TCS'
+                         AND TCA.TaxCategoryLevel='"+ TaxCategoryLevelEnum.Invoice.ToString() + @"'
                     --UNION ALL
 						-- SELECT DISTINCT TC.Id, TC.UserName AS Text
                         --FROM [MST].[TaxCodeYear] AS TCY

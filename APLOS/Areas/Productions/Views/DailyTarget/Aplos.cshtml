@@ -74,7 +74,7 @@
 
     <script type="text/ng-template" id="ShowButtons">
         <div class="common-btn">
-            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Actions" class="btn">
+            <button ng-disabled="data.HasLayout" style="color: #f3f3ec;background-color: #1c1f32;" title="Actions" class="btn">
                 <i class="glyphicon glyphicon-list" ng-click="$parent.AddLineItemG(this);"></i>
             </button>
         </div>
@@ -181,16 +181,271 @@
            e-showoninit="false"
            e-target="#MainDivId"
            e-close="onDialogClose"
-           e-width="1020"
+           e-width="1220"
            e-minheight="470"
            e-open="enableBtn">
 
-    
+    <link href="content/images/diagram/drawingtools/drawingtools.css" rel="stylesheet" />
+    <style type="text/css">
+        .e-toolbar > .e-horizontal.e-ul > li {
+            margin: 5px;
+            margin-left: .3px;
+            margin-top: 0px;
+            width: 36px;
+            height: 25px;
+        }
+
+        .toolBarIconStyle {
+            font-size: 17px;
+            color: #6B6B6B;
+            margin-top: 4px;
+            margin-left: 8px;
+        }
+
+        .icon-colors {
+            color: #ffffff;
+        }
+
+        .router {
+            margin-top: 0px;
+            margin-bottom: 0px;
+        }
+    </style>
+
+
+    <div id="mainContent"></div>
+
+    <div id="ToolbarItem" ej-toolbar e-datasource="drawingToolsList" e-fields-tooltiptext="tooltiptext"
+         e-width="100%" e-height="33px" e-fields-id="id" e-fields-spritecssclass="spriteCss" e-click="onItemclick"
+         style="background-color: #ebeced; border-bottom-color: #bbbbbb; border-top-style: none; border-left-style: none; border-right-style: none">
+    </div>
+    <div>
+        <ej-diagram id="diagram" e-height="350px" e-itemclick="itemClick" e-width="100%" e-nodes="nodes">
+        </ej-diagram>
+    </div>
+
     <div class="common-btn">
         <ul class="list-inline text-right">
-            <li> <button ng-click="SaveFormula();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
-            <li> <button ng-click="ClearFormula();" class="btn" tabindex="13"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            <li> <button ng-click="SaveDiagram();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
         </ul>
     </div>
-    
+    <script id="htmlTemplate" type="text/template">
+        <div class="row">
+            <div class="col-xs-12 col-sm-4 col-md-4">
+                <input type="button" value="{{this.items[0].addInfo.Sequence}}" style="color: #000; width:100%; background-color: #fbfb00; border-color: #f89b1c" />
+            </div>
+            <div class="col-xs-12 col-sm-4 col-md-4">
+                <input type="button" value="{{this.items[0].addInfo.RequiredManPower}}" style="color: #ffffff; width:100%; background-color: #3900e8; border-color: #f89b1c" />
+            </div>
+            <div class="col-xs-12 col-sm-4 col-md-4">
+                <input type="button" value="{{this.items[0].addInfo.AllotedWorkstation}}" style="color: #ffffff; width:100%; background-color: #009400; border-color: #f89b1c" />
+            </div>
+        </div>
+        <div class="row">
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <img onerror="$(arguments[0].currentTarget).attr('src','images/blankuser.png')" ng-click="$parent.employeeButtonClick(this);" src="POPResources/EmployeeProfiles/EmpPic/{{this.items[0].addInfo.EmpPicPath}}"
+                         style="height:70px;width:70px;border:2px solid #efefef; border-radius:50%;" />
+                </div>
+                <div class="col-xs-12 col-sm-8 col-md-8" style="vertical-align:central;">
+                    {{this.items[0].addInfo.EmployeeName}} <br />
+                    {{this.items[0].addInfo.Designation}}
+
+                </div>
+            </div>
+
+        <div class="row" style="margin-top: 15px;">
+            <div class="col-xs-12 col-sm-7 col-md-7" style="white-space: nowrap; overflow: hidden; font-size:10px">
+                <span title="{{this.items[0].addInfo.OperationDesc?this.items[0].addInfo.OperationDesc:'[select operation]'}}">
+                    {{this.items[0].addInfo.OperationDesc?this.items[0].addInfo.OperationDesc:'[select operation]'}}
+                </span>
+            </div>
+            <div class="col-xs-12 col-sm-5 col-md-5">
+                <div class="common-btn">
+                    <ul class="list-inline text-right small">
+                        <li>
+                            <button ng-click="$parent.operationButtonClick(this);" class="btn small" style="height: 20px; width: 20px; padding: 0px; margin: 0px;">
+                                <i class="glyphicon glyphicon-search"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="row" style="padding-top:4px;">
+            <div class="col-xs-12 col-sm-7 col-md-7" style="white-space: nowrap; overflow: hidden; font-size: 10px">
+                <span title=" {{this.items[0].addInfo.ArticleId?this.items[0].addInfo.ArticleDesc:'[select machine]'}}">
+                    {{this.items[0].addInfo.ArticleId?this.items[0].addInfo.ArticleDesc:'[select machine]'}}
+                </span>
+            </div>
+            <div class="col-xs-12 col-sm-5 col-md-5">
+                <div class="common-btn">
+                    <ul class="list-inline text-right small">
+                        <li>
+                            <button ng-click="$parent.machineButtonClick(this);" class="btn small" style="height: 20px; width: 20px; padding: 0px; margin: 0px;">
+                                <i class="glyphicon glyphicon-search"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+
+    </script>
+
+  
+    <script id="svgTemplate" type="text/x-jsrender">
+        <svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="350.000000pt" height="229.000000pt" viewBox="0 0 350.000000 229.000000" preserveAspectRatio="xMidYMid meet">
+            <g transform="translate(0.000000,229.000000) scale(0.100000,-0.100000)" fill="#de6ca9" stroke="none">
+                <path d="M0 23l8-8 17 17 7-7-17-17 8-8h-23v23z"></path>
+            </g>
+
+        </svg>
+    </script>
+
+
+
+
+
 </ej-dialog>
+
+@*<ej-diagram id="diagram" e-height="350px" e-itemclick="itemClick" e-width="100%" e-nodes="nodes">
+</ej-diagram>*@
+
+<ej-dialog id="dialogSearchEmployee" title="Employees" e-enablemodal="true" e-position-y="0" e-position-x="0" e-showoninit="false" e-target="#mainContent" e-close="onDialogClose" e-width="900" e-open="enableBtn">
+    <div class="col-xs-12" style="border:1px solid #dfdfdf">
+        <div class="row text-right">
+            <div class="col-xs-12 col-sm-12 col-sm-12">
+                <div class="search-form">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-3 col-md-3">
+                            <div class="select-style">
+                                <select ng-model="EmployeeSearchCol">
+                                    <option ng-repeat="option in EmployeemodelFilterByList" value="{{option.value}}">{{option.name}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-7 col-md-7">
+                            <input type="text" class="form-control" placeholder="Search" ng-model="EmployeeSearchVal" ng-enter="getEmployeeData()">
+                        </div>
+                        <div class="col-xs-12 col-sm-2 col-md-2">
+                            <button type="button" ng-click="getEmployeeData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="SearchEmployee" ng-init="chkinit()" ej-grid e-datasource="EmployeeList" e-gridlines="horizontal"
+             e-allowtextwrap="true" e-textwrapsettings.wrapmode="content"
+             e-recorddoubleclick="ViewEmployeeStatus" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel">
+            <div e-columns>
+                <div e-column e-field="Id" e-headertext="Id" e-width="30" e-primarykey="true" e-visible="false"></div>
+                <div e-column e-headertext="" e-template="#empimage" e-textalign="center" e-width="40"></div>
+                <div e-column e-headertext="" e-template="#empdetail" e-textalign="left" e-width="400"></div>
+                @*<div e-column e-field="EmployeeCode" e-headertext="Code" e-width="30"></div>
+                    <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                    <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                    <div e-column e-field="Designation" e-headertext="Designation" e-width="80"></div>
+                    <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                    <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="80"></div>*@
+            </div>
+        </div>
+        <script type="text/x-jsrender" id="empimage">
+            <img onerror="$(arguments[0].currentTarget).attr('src','images/blankuser.png')"
+                 src="POPResources/EmployeeProfiles/EmpPic/{{:EmpPicPath}}" style="height:48px;width:48px;border:2px solid #efefef; border-radius:50%;" />
+        </script>
+        <script type="text/template" id="empdetail">
+            <div style="font-size:1.2em">
+                <span style="color:blue;font-weight:bold;">{{data.EmployeeCode}}  </span><span style="color:black;font-weight:bold;">{{data.EmployeeName}}</span><br />
+            </div>
+            <div style="font-size:1em;font-style:italic">
+                {{data.Designation}}, {{data.Department}}
+            </div>
+            <div style="font-size:1em;">
+                Section: {{data.Section}}, Sub-section: {{data.SubSection}}
+            </div>
+        </script>
+    </div>
+</ej-dialog>
+
+<div class="modal site-modal" id="modalOperationList" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" style="width: 80%;">
+        <div class="modal-content">
+            <div class="modal-header">Operations<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12">
+                        <div id="GridOperation" ej-grid e-datasource="operationList" e-gridlines="vertical" e-templaterefresh="refreshTemplateOperation"
+                             e-allowfiltering="true" e-toolbarsettings-showtoolbar="true" e-toolbarsettings-toolbaritems="[ej.Grid.ToolBarItems.Search]"
+                             e-allowpaging="true"
+                             e-allowsorting="true"
+                             e-allowTextWrap="true"
+                             e-allowResizing="true" e-allowscrolling="true"
+                             e-filtersettings-filterType="excel"
+                             e-enabletouch="true" e-responsive="true"
+                             e-recorddoubleclick="recordoperationdoubleclick">
+                            <div e-columns>
+                                <div e-column e-type="string" e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
+                                <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="65"></div>
+                                <div e-column e-type="string" e-field="OperationVariationDesc" e-headertext="Variation Name" e-width="120"></div>
+                                <div e-column e-type="string" e-field="OperationDesc" e-headertext="Operation Name" e-width="120"></div>
+                                <div e-column e-type="string" e-field="MachineName" e-headertext="Machine Name" e-width="120"></div>
+                                <div e-column e-type="string" e-field="ProductionSystem" e-headertext="Pdn. System" e-width="80"></div>
+                                <div e-column e-type="string" e-field="Frequency" e-headertext="Frequency" e-width="50" e-allowfiltering="true" e-visible="false"></div>
+                                <div e-column e-type="string" e-field="SPI" e-headertext="SPI" e-width="50" e-allowfiltering="true" e-visible="false"></div>
+                                <div e-column e-type="string" e-field="PersonalAllowance" e-headertext="Personal" textAlign='center' e-width="80" e-allowfiltering="true"></div>
+                                <div e-column e-type="string" e-field="MachineAllowance" e-headertext="Machine" textAlign='center' e-width="80" e-allowfiltering="true"></div>
+                                <div e-column e-type="string" e-field="AdditionalAllowances" e-headertext="Additional" textAlign='center' e-width="80" e-allowfiltering="true"></div>
+                                <div e-column e-type="string" e-field="RPM" e-headertext="RPM" textAlign='center' e-width="50" e-allowfiltering="true" e-visible="false"></div>
+                                <div e-column e-type="string" e-field="TotalSAM" e-headertext="Total SPT" textAlign='center' e-width="50" e-allowfiltering="true"></div>
+                                <div e-column e-type="string" e-field="TotalVersion" e-headertext="Total Version" textAlign='center' e-width="50" e-allowfiltering="true"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ej-dialog id="graph" title=" Product Plan Quantity Distribution" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+           e-width="900" e-target="#MainDIV" e-open="enableBtn">
+    <div class="common-btn">
+        <ul class="list-inline text-left">
+            <li> <button ng-click="printChart('chartContainer');" class="btn">Print</button></li>
+        </ul>
+    </div>
+    <div id="graphdiv" style="position:relative;overflow:scroll;width:880px;">
+        <div id="chartContainer" ej-chart e-isresponsive="true" style="width:{{graphmaxwidth}};"
+             e-primaryxaxis-title-text="Day"
+             e-load=onchartload e-size-height="500px" e-size-width="graphmaxwidth"
+             e-legend-visible="true" e-legend-position="bottom"
+             e-title-text="Qty"
+             e-primaryyaxis-title-text="Qty" e-primaryyaxis-range-min="0"
+             e-primaryyaxis-range-max="graphmaxheight"
+             e-commonseriesoptions-type="column"
+             e-commonseriesoptions-enableanimation="true" e-commonseriesoptions-tooltip-visible="true"
+             e-commonseriesoptions-tooltip-format="#point.x# : #point.y# #series.name#">
+
+            <e-series>
+                <e-series e-name="Production Plan" e-marker-dataLabel-visible="true"
+                          e-marker-dataLabel-verticaltextalignment="near"
+                          e-marker-dataLabel-angle="270"
+                          e-marker-dataLabel-font-fontweight="bold"
+                          e-marker-dataLabel-font-color="yellow"
+                          e-marker-dataLabel-enablecontrastcolor="true" e-datasource=dataSourceLineGraph e-xname="PlanDate" e-yname="Quantity" e-fill="VPRDATA.Color">
+                </e-series>
+            </e-series>
+        </div>
+    </div>
+
+</ej-dialog>
+
+<ej-dialog id="dialogWorkCenterParameters" title=" Product Parameters" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#MainDIV" e-minwidth="900" e-open="enableBtn">
+    @*<div class="form-element-ctrl form-horizontal">*@
+    @Html.Partial("~/Areas/OrderManagements/Views/productionOrderSchedulingParametersType1/workCenterParameters.cshtml")
+    @*</div>*@
+</ej-dialog>
+
+@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPopUp.cshtml")

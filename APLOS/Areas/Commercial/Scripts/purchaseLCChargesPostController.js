@@ -285,7 +285,7 @@ function purchaseLCChargesPostController(commonMessage, $scope, $rootScope, base
         }
     }];
 
-    accountService.getTaxCategoryCbo(" ", function (result) {
+    accountService.getTaxCategoryMaterialLevelCbo(" ", function (result) {
         $scope.taxCategoryList = result;
     });
    

@@ -32,7 +32,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
     $scope.paymentTermList = [];
     $scope.taxAbleAmnt = 0.00;
-    $scope.JWPurchaseOrderFileLocation = virtualPath.JWTransformationPurchaseOrder;
+    $scope.JWPurchaseOrderFileLocation = virtualPath.OSTransformationPO;
 
     $http({
         method: 'GET',
@@ -495,7 +495,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     $scope.detailgrid = function detailGridData(e) {
 
         var filteredData = e.data["Id"];
-        var data = ej.DataManager($scope.PoChildListAll).executeLocal(ej.Query().where("JobWorkTransformationContractMasterId", "equal", filteredData, true).take(100));
+        var data = ej.DataManager($scope.PoChildListAll).executeLocal(ej.Query().where("OSTransformationPOId", "equal", filteredData, true).take(100));
         e.detailsElement.find("#detailGrid").ejGrid({
 
             dataSource: data,
@@ -861,7 +861,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
 
     //$scope.getJwActivityId = function (OSTransformationPOId) {
-    //    $http.get('JobWork/JWTransformationPurchaseOrder/GetJWTransformationPurchaseOrderId?OSTransformationPOId=' + OSTransformationPOId).then(function (response) {
+    //    $http.get('JobWork/OSTransformationPO/GetJWTransformationPurchaseOrderId?OSTransformationPOId=' + OSTransformationPOId).then(function (response) {
     //        var DropDownListObj = $("#ddlActivityList").data("ejDropDownList");
     //        for (var j = 0; j < response.data.length; j++) {
     //            DropDownListObj.selectItemByValue(response.data[j].Id);
@@ -1502,7 +1502,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
 
     //$scope.getJwActivityId = function (OSTransformationPOId) {
-    //    $http.get('JobWork/JWTransformationPurchaseOrder/GetJWTransformationPurchaseOrderId?OSTransformationPOId=' + OSTransformationPOId).then(function (response) {
+    //    $http.get('JobWork/OSTransformationPO/GetJWTransformationPurchaseOrderId?OSTransformationPOId=' + OSTransformationPOId).then(function (response) {
     //        var DropDownListObj = $("#ddlActivityList").data("ejDropDownList");
     //        for (var j = 0; j < response.data.length; j++) {
     //            DropDownListObj.selectItemByValue(response.data[j].Id);
@@ -1543,12 +1543,12 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     $scope.receiveTaxList = [];
     $scope.taxcboCategoryList = [];
     $scope.LoadTaxButtonClick = function () {
-        accountService.getTaxCategoryCbo(" ", function (result) {
+        accountService.getTaxCategoryMaterialLevelCbo(" ", function (result) {
             $scope.taxcboCategoryList = result;
         });
     };
     $scope.taxcboCategoryList = [];
-    accountService.getTaxCategoryCbo(" ", function (result) {
+    accountService.getTaxCategoryMaterialLevelCbo(" ", function (result) {
         $scope.taxcboCategoryList = result;
     });
     $scope.addTax = function () {
@@ -3443,7 +3443,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
     $scope.MatPlanningModelTemp = {
         Id: null,
-        JobWorkTransformationContractMasterId: null,
+        OSTransformationPOId: null,
         JobWorkItemMasterId: null,
         MaterialSpecification: null,
         MaterialReference: null,
@@ -3479,7 +3479,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     $scope.MatPlanning = Object.assign({}, $scope.MatPlanningModelTemp);
     //PO Details save
     $scope.SaveMatPlanning = function () {
-        $scope.MatPlanning.JobWorkTransformationContractMasterId = $scope.Transformation.Id;
+        $scope.MatPlanning.OSTransformationPOId = $scope.Transformation.Id;
         //      $scope.$broadcast('show-errors-check-validity');
         //     if ($scope.FarmerMasterPlotForm.$valid) {
         if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 2000000)

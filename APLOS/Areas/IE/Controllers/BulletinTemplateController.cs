@@ -897,6 +897,29 @@ namespace Aplos.Areas.IE.Controllers
             report.SetHeaderText(ref sheet, ROW, COL, "By Whom", 15, ExcelHAlign.HAlignLeft);
             int ColByWhom = COL;
             COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "SPT", 15, ExcelHAlign.HAlignCenter);
+            int ColSPT = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "ReqMP", 15, ExcelHAlign.HAlignCenter);
+            int ColReqMP = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Allocated Mp", 15, ExcelHAlign.HAlignCenter);
+            int ColAllocatedMP = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "No of W/S", 15, ExcelHAlign.HAlignCenter);
+            int ColNoofWS = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Target", 15, ExcelHAlign.HAlignCenter);
+            int ColTarget = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Added Date", 15, ExcelHAlign.HAlignLeft);
+            int ColAddedDate = COL;
+            COL++;
 
             endCol = COL;
             #endregion Headers
@@ -923,6 +946,33 @@ namespace Aplos.Areas.IE.Controllers
 
                 sheet[ROW, ColByWhom].Text = data.Rows[i]["ByWhom"].ToString();
 
+                sheet[ROW, ColSPT].Number = Convert.ToDouble(data.Rows[i]["TotalSPT"].ToString());
+                sheet[ROW, ColSPT].NumberFormat = clsStaticInfo.NumberFormat(2);
+                sheet[ROW, ColSPT].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColSPT].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
+
+                sheet[ROW, ColReqMP].Number = Convert.ToDouble(data.Rows[i]["RequiredManPower"].ToString());
+                sheet[ROW, ColReqMP].NumberFormat = clsStaticInfo.NumberFormat(2);
+                sheet[ROW, ColReqMP].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColReqMP].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
+                sheet[ROW, ColAllocatedMP].Number = Convert.ToDouble(data.Rows[i]["AllotedManpower"].ToString());
+                sheet[ROW, ColAllocatedMP].NumberFormat = clsStaticInfo.NumberFormat(2);
+                sheet[ROW, ColAllocatedMP].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColAllocatedMP].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
+                sheet[ROW, ColNoofWS].Number = Convert.ToDouble(data.Rows[i]["AllotedWorkstation"].ToString());
+                sheet[ROW, ColNoofWS].NumberFormat = clsStaticInfo.NumberFormat(2);
+                sheet[ROW, ColNoofWS].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColNoofWS].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
+                sheet[ROW, ColTarget].Text = data.Rows[i]["LineTargetPerHour"].ToString();
+                sheet[ROW, ColTarget].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColTarget].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
+                sheet[ROW, ColAddedDate].Text = data.Rows[i]["CreationDate"].ToString();
+
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
 
@@ -930,7 +980,7 @@ namespace Aplos.Areas.IE.Controllers
             }
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            sheet.UsedRange.NumberFormat = "#,##0.000";
+            sheet.UsedRange.NumberFormat = "#,##0.00";
             sheet.UsedRange.WrapText = true;
             sheet.UsedRange.CellStyle.Font.Size = 8;
             report.CompanyHeader(ref sheet, endCol, "Bulletin Tamplate", identity.CompanyId);
@@ -942,8 +992,7 @@ namespace Aplos.Areas.IE.Controllers
         {
             try
             {
-                string sql = @"Select BT.*
-                         ,PM.UserName ProductMaster, SG.UserName SizeGroup
+                string sql = @"Select BT.* ,PM.UserName ProductMaster, SG.UserName SizeGroup
 						  ,Buyer=REPLACE(REPLACE(
 										 STUFF((select distinct ', '+B.UserName FROM 
                                         [MST].[BulletinTemplateBuyerInfo] BTB 
@@ -960,14 +1009,17 @@ namespace Aplos.Areas.IE.Controllers
                                         [MST].[BulletinTemplateBuyerInfo] BTB 
                                         WHERE BT.Id=BTB.BulletinTemplateId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 										,'&amp;','&'), 'amp;', '')										
-						,Process=REPLACE(REPLACE(
-										STUFF((select distinct ', '+P.UserName FROM 
-                                       [MST].[BulletinTemplateMaster] BTP 
-									   join HKP.Process P ON P.Id=BTP.ProcessId
-                                        WHERE BT.Id=BTP.BulletinTemplateId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-										,'&amp;','&'), 'amp;', '')	
+							
+						,P.UserName Process,BTD.TotalSPT,BTD.RequiredManPower,BTD.AllotedManpower,BTD.AllotedWorkstation,CEILING(BTD.LineTargetPerHour)LineTargetPerHour
+                        ,FORMAT(BT.AddedDate,'dd-MMM-yyyy')CreationDate
                          FROM [MST].[BulletinTemplate] BT
                          LEFT JOIN MST.ProductMaster PM ON PM.Id=BT.ProductMasterId
+						 left join [MST].[BulletinTemplateMaster] BTP ON BT.Id=BTP.BulletinTemplateId
+						 left join (Select BulletinTemplateMasterId, SUM(TotalSPT) TotalSPT,SUM(RequiredManPower) RequiredManPower
+						 ,SUM(AllotedManpower) AllotedManpower,SUM(AllotedWorkstation) AllotedWorkstation
+						 ,LineTargetPerHour=(((SUM(AllotedManpower) * 60) /NULLIF(SUM(TotalSPT),0)) * (SUM(TotalSPT) /NULLIF(SUM(AllotedManpower),0))/ MAX(NULLIF(AvgAllotedTime,0)))
+						 from MST.BulletinTemplateDetail GROUP BY BulletinTemplateMasterId) BTD ON BTD.BulletinTemplateMasterId=BTP.Id
+						 left join HKP.Process P ON P.Id=BTP.ProcessId
                          LEFT JOIN HKP.SizeGroup SG ON SG.Id=BT.SizeGroupId";
                 return _sqlRepository.GetDataTable(sql);
             }
@@ -4194,12 +4246,12 @@ namespace Aplos.Areas.IE.Controllers
                 sheet.Range[ROW, COL, ROW, COL + 1].Merge();
                 //sheet.Range[ROW, COL + 3].Text = " " + data.Rows[0]["BuyerStyleRefNo"].ToString().Trim();
                 //sheet.Range[ROW, COL, ROW, COL + 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                sheet.Range[ROW, COL + 3].Text = " " + data.Rows[0]["BuyerStyleRefNo"].ToString().Trim();
+                sheet.Range[ROW, COL + 2].Text = " " + data.Rows[0]["BuyerStyleRefNo"].ToString().Trim();
                 //sheet.Range[ROW, COL + 2, ROW, COL + 3].Merge();
                 ROW++;
                 sheet.Range[ROW, COL + 1].Text = "Own Style Ref No";
                 sheet.Range[ROW, COL, ROW, COL + 1].Merge();
-                sheet.Range[ROW, COL + 3].Text = " " + data.Rows[0]["OwnStyleRefNo"].ToString().Trim();
+                sheet.Range[ROW, COL + 2].Text = " " + data.Rows[0]["OwnStyleRefNo"].ToString().Trim();
                 //sheet.Range[ROW, COL + 3].Number = Convert.ToInt32(data.Rows[0]["OwnStyleRefNo"].ToString().Trim());
                 //sheet.Range[ROW, COL + 3].NumberFormat = clsStaticInfo.NumberFormat(0);
 
@@ -4208,8 +4260,8 @@ namespace Aplos.Areas.IE.Controllers
                 ROW++;
                 sheet.Range[ROW, COL + 1].Text = "Product Master";
                 sheet.Range[ROW, COL, ROW, COL + 1].Merge();
-                sheet.Range[ROW, COL + 3].Text = " " + data.Rows[0]["ProductMaster"].ToString().Trim();
-                sheet.Range[ROW, COL, ROW, COL + 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[ROW, COL + 2].Text = " " + data.Rows[0]["ProductMaster"].ToString().Trim();
+                sheet.Range[ROW, COL, ROW, COL + 2].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 //sheet.Range[ROW, COL + 2, ROW, COL + 3].Merge();
 
                 double plannedHourPerDay = Convert.ToDouble(data.Rows[0]["PlannedHoursPerDay"]);

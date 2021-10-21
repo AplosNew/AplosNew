@@ -1380,7 +1380,7 @@ function invoiceOverheadController(cboService, commonMessage, $scope, $rootScope
     }
     //#endregion
     $scope.updateTaxCategoryList = [];
-    accountService.getTaxCategoryCbo(" ", function (result) {
+    accountService.getTaxCategoryMaterialLevelCbo(" ", function (result) {
         $scope.updateTaxCategoryList = result;
     });
 

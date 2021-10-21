@@ -39,7 +39,7 @@ namespace Library.Model.Machines
         public string Description { get; set; }
 
         public string Remarks { get; set; }
-
+        public string Color { get; set; } = "";
         #endregion Scalar Properties
 
         #region Audit Properties

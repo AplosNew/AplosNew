@@ -669,8 +669,8 @@ namespace Aplos.Areas.Commercial.Controllers
 									  union ALL
 
 							    select po.PurchaseLCId,0 AS MaterialPOAmount,pod.TransactionAmount,0 AS ServicePOAmount, po.Id
-								 from [dbo].[JWTransformationPurchaseOrder]  PO 
-                                  inner JOin [dbo].[JobWorkTransformationContractChild] POD ON POD.JobWorkTransformationContractMasterId=po.Id
+								 from [dbo].[OSTransformationPO]  PO 
+                                  inner JOin [dbo].[OSTransformationPODetail] POD ON POD.OSTransformationPOId=po.Id
 
 								   union ALL
 
@@ -688,10 +688,10 @@ namespace Aplos.Areas.Commercial.Controllers
 									group by po.PurchaseLCId
 									union 
 									
-									 select  po.PurchaseLCId as LCId,sum(g.TransactionQty*JWTCC.RatePerUnit) as GRNTotalAmount,count(distinct g.InventoryReceiveId) as GRNCount from  [dbo].[JWTransformationPurchaseOrder] as po 
+									 select  po.PurchaseLCId as LCId,sum(g.TransactionQty*JWTCC.RatePerUnit) as GRNTotalAmount,count(distinct g.InventoryReceiveId) as GRNCount from  [dbo].[OSTransformationPO] as po 
 									inner join TRN.InventoryReceiveDetail as g on g.OSTransformationPOId=po.Id
 									LEFT JOIN [MST].[JobWorkTransformationMaster] JWTM ON JWTM.Id=g.OSTransformationPOId
-						            LEFT JOIN dbo.JobWorkTransformationContractChild JWTCC ON JWTCC.Id=g.OSTransformationPODetailId
+						            LEFT JOIN dbo.OSTransformationPODetail JWTCC ON JWTCC.Id=g.OSTransformationPODetailId
 									group by po.PurchaseLCId
 								    union 
 								    select  po.PurchaseLCId as LCId,sum(g.Amount) as GRNTotalAmount,count(distinct g.ServicePOMasterId) as GRNCount from  trn.ServicePOMaster PO 
@@ -764,7 +764,7 @@ select PO.Id PONo,FORMAT(PO.PODate,'dd-MMM-yyy') PODate
 , POD.POAmount,c.Code Currency,P.UserName Vendor
 ,GRN.GRNTotalAmount
 ,PO.AddedDate,PT.UserName PaymentTerm
-from [dbo].[JWTransformationPurchaseOrder] PO
+from [dbo].[OSTransformationPO] PO
 left outer join (select sum(TransactionAmount) POAmount,InventoryReceiveId from  TRN.PurchaseOrderDetail
 group by InventoryReceiveId)POD on POD.InventoryReceiveId=PO.Id
 left outer join mst.PaymentTerm PT on PT.Id=PO.PaymentTermId
