@@ -5073,7 +5073,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id						   
 					where IM.PlantId='" + plantId + @"' AND MM.UserName is not null
 					)x
-					where x.ArticleId='3366' and  not
+					where
+					--x.ArticleId='3366' and 
+					not
 					(ISNULL(OpeningBalance,0)=0
 				    and  ISNULL(OpeningIssueQty,0)=0
 					and  ISNULL(ReceivedForThePeriod,0)=0
