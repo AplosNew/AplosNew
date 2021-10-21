@@ -383,11 +383,11 @@ function FgPoFormasterOrderController(accountService, addressService, $window, f
     //   //angular.element(document.querySelector('#receiveTaxPopUp')).modal('hide');
     //};
     $scope.LoadTaxButtonClick = function () {
-        accountService.getTaxCategoryCbo(" ", function (result) {
+        accountService.getTaxCategoryMaterialLevelCbo(" ", function (result) {
             $scope.taxCategoryList = result;
         });
     }
-    accountService.getTaxCategoryCbo(" ", function (result) {
+    accountService.getTaxCategoryMaterialLevelCbo(" ", function (result) {
         $scope.taxCategoryList = result;
     });
     $scope.addTax = function () {
