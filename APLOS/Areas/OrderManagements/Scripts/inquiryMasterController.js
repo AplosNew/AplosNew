@@ -1494,7 +1494,7 @@ function inquiryMasterController(accountService, $window, cboService, commonMess
 
     $scope.TaxAction = 'Save';
 
-    accountService.getTaxCategoryCbo(" ", function (result) {
+    accountService.getTaxCategoryMaterialLevelCbo(" ", function (result) {
         $scope.taxCategoryList = result;
     });
 

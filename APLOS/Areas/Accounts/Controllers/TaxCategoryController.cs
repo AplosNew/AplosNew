@@ -1,7 +1,9 @@
 ﻿using Aplos.Controllers;
 using Aplos.Properties;
+using Library.Accounting.Accounts;
 using Library.Core;
 using Library.Crosscutting.Security;
+using Library.Data.Sql;
 using Library.Model.Taxations;
 using Library.Service.Organizations;
 using Library.Service.Taxations;
@@ -16,16 +18,19 @@ namespace Aplos.Areas.Accounts.Controllers
         private readonly ITaxCategoryService _taxCategoryService;
         private readonly ITaxVariantService _taxVariantService;
         private readonly IPlantService _plantService;
+        private readonly ISqlRepository _sqlRepository;
 
         public TaxCategoryController(
               ITaxCategoryService taxCategoryService
             , ITaxVariantService taxVariantService
             , IPlantService plantService
+            , ISqlRepository sqlRepository
             )
         {
             _taxCategoryService = taxCategoryService;
             _taxVariantService = taxVariantService;
             _plantService = plantService;
+            _sqlRepository = sqlRepository;
         }
 
         [Authorize]
@@ -46,6 +51,19 @@ namespace Aplos.Areas.Accounts.Controllers
             }
             return Json(_taxCategoryService.GetCbo(identity.CompanyGroupId, countryId), JsonRequestBehavior.AllowGet);
         }
+
+        [Authorize]
+        public JsonResult GetTaxCategoryMaterialLevelCbo(string countryId)
+        {
+            AccountsGLService _accountsGLService = new AccountsGLService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            if (string.IsNullOrEmpty(countryId))
+            {
+                countryId = _plantService.GetPlantCountryId(identity.PlantId);
+            }
+            return Json(_accountsGLService.GetTaxCategoryMaterialLevelCbo(identity.CompanyGroupId, countryId), JsonRequestBehavior.AllowGet);
+        }
+
 
         [HttpGet, Authorize]
         public ActionResult GetList(GridParameter parameters, string countryId)

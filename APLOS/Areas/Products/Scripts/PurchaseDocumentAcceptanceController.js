@@ -2244,7 +2244,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
 
     $scope.taxCatList = [];
 
-    accountService.getTaxCategoryCbo(" ", function (result) {
+    accountService.getTaxCategoryMaterialLevelCbo(" ", function (result) {
         $scope.taxCategoryList = result;
     });
     $scope.changeService = function () {
@@ -2537,14 +2537,14 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
 
     // #endregion
 
-    accountService.getTaxCategoryCbo(" ", function (result) {
+    accountService.getTaxCategoryMaterialLevelCbo(" ", function (result) {
         $scope.taxCategoryList = result;
         $scope.taxCategoryListcbo = result;
     });
 
     $scope.taxCategoryListcbo = [];
     $scope.LoadTaxButtonClick = function () {
-        accountService.getTaxCategoryCbo(" ", function (result) {
+        accountService.getTaxCategoryMaterialLevelCbo(" ", function (result) {
             $scope.taxCategoryListcbo = result;
         });
     }
@@ -3104,7 +3104,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
     };
 
     $scope.LoadServicePOTaxButtonClick = function () {
-        accountService.getTaxCategoryCbo(" ", function (result) {
+        accountService.getTaxCategoryMaterialLevelCbo(" ", function (result) {
             $scope.taxCategoryList = result;
         });
     }

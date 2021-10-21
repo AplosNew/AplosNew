@@ -220,7 +220,7 @@ function fixedAssetDisposePostController(accountService, cboService, commonMessa
     });
 
     $scope.getCboVoucherTypeFixedAssetDisposeJournalList = function () {
-        accountService.getCboVoucherTypeFixedAssetDisposeJournalList(function (result) {
+        cboService.getCboVoucherTypeFixedAssetDisposeJournalList(function (result) {
             $scope.voucherTypeList = result;
             if ($scope.voucherTypeList.length === 1) {
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
