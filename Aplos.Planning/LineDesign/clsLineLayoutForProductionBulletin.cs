@@ -276,7 +276,7 @@ namespace Library.Planning.LineDesign
                                             
                                             WHERE d.ProductionBulletinTemplateMasterId='" + BulletinId + "' ORDER BY D.Sequence");
 
-                int ItemWidth = 100; int ItemHeight = 100;
+                int ItemWidth = 160; int ItemHeight = 120;
 
                 if (drawType == DrawType.Linear)
                     makeShapesLinear(dtBulletin, 0, 0, ItemWidth, ItemHeight);
@@ -294,7 +294,7 @@ namespace Library.Planning.LineDesign
 
 
                         dtBulletin.DefaultView.RowFilter = "SQ>" + Half;
-                        makeShapesLinear(dtBulletin.DefaultView.ToTable(), 0, ItemWidth * 2, ItemWidth, ItemHeight);
+                        makeShapesLinear(dtBulletin.DefaultView.ToTable(), 0, ItemHeight * 2, ItemWidth, ItemHeight);
                     }
 
                 }
