@@ -60,7 +60,7 @@
                 <label class="col-sm-4 control-label">Upload Picture</label>
                 <div class="col-sm-8">
                     <img id="uploadSigsrc" ng-src="{{PicFileName}}" style="border: 1px dashed; height: 150px; width: 140px;" />
-                    <div id="UploadDefault" e-dialogtext-title="Product Picture" e-autoupload="true" e-begin="onBeginPBUpload" e-filesize="2097152" ej-uploadbox e-saveurl="uploadPBUrl" e-multiplefilesselection="false"  e-success="getFileList" e-extensionsallow=".jpg,.bmp,.png,.jpeg" e-error="errorPBPicUpload"></div>
+                    <div id="UploadDefault" e-dialogtext-title="Product Picture" e-autoupload="true" e-begin="onBeginPBUpload" e-filesize="2097152" ej-uploadbox e-saveurl="uploadPBUrl" e-multiplefilesselection="false" e-success="getFileList" e-extensionsallow=".jpg,.bmp,.png,.jpeg" e-error="errorPBPicUpload"></div>
                 </div>
             </div>
 
@@ -646,69 +646,60 @@
 
         </ul>
     </div>
-    <div class="content-container-fluid" style="color:black;">
-        <div style="color:black;" id="Gridbulletin" ej-grid e-datasource="bulletinMasters" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-             e-allowResizing="true" e-recorddoubleclick="Get" e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
-            <div e-columns>
-                <div e-column e-field="Id" e-headertext="Bulletin ID" e-headertext-color="black" e-textalign="left" e-width="40"></div>
-                <div e-column e-field="BulletinName" e-headertext="Bulletin Name" e-width="80"></div>
-                <div e-column e-field="AlternativeName" e-headertext="Alternative Name" e-width="80"></div>
-                <div e-column e-field="ProductMaster" e-headertext="Product Master" e-width="50"></div>
-                <div e-column e-field="SizeGroup" e-headertext="Size Group" e-width="20"></div>
-                <div e-column e-field="Buyer" e-headertext="Buyer" e-width="80"></div>
-                <div e-column e-field="BuyerItemRefNo" e-headertext="Buyer Style RefNo" e-width="50"></div>
-                <div e-column e-field="OwnStyleRefNo" e-headertext="Own Style RefNo" e-width="50"></div>
-                <div e-column e-field="Process" e-headertext="Process" e-width="80"></div>
-                @*<div e-column e-headertext="Print" e-width="100">
-                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" title="Details" class="btn"><i class="fa fa-file-excel-o" ng-click="$parent.onClickExcelPrints(this);"></i></button>
-                    <ul class="list-inline action-list">
-                        <li><a class="btn btn-action" href="IE/bulletintemplate/GetBulletinTamplateDetailReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&bulletinTemplateId={{data.Id}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
-                    </ul>
-                      
-                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" title="Summary" class="btn"><i class="fa fa-file-excel-o" ng-click="$parent.DownloadBTSummaryReport(this);"></i></button>
-                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" title="Bulletin Summary" class="btn"><i class="fa fa-file-excel-o" ng-click="$parent.BulSummaryExcelPrints(this);"></i></button>
-                        
-                </div>*@
 
-                <div style="float:left;" e-column e-headertext="Print" e-width="200">
-                    <ul class="common-btn list-inline text-left">
-                        <li>
-                            <div ej-tooltip e-showshadow="true" e-content="Detail" ng-click="$parent.onClickExcelPrints(this);" e-width="width">
-                                <button class="btn" style="background-color: #1c1f32;"><i class="fa fa-file-excel-o"></i></button>
-                            </div>
-                        </li>
-                        <li>
-                            <ul class="list-inline action-list">
-                                <li><a class="btn btn-action" title="Detail" href="IE/bulletintemplate/GetBulletinTamplateDetailReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&bulletinTemplateId={{data.Id}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
-                            </ul>
-                        </li>
-                        <li>
-                            <div ej-tooltip e-showshadow="true" e-content="Summary" ng-click="$parent.DownloadBTSummaryReport(this);" e-width="width">
-                                <button class="btn" style="background-color: #1c1f32;"><i class="fa fa-file-excel-o"></i></button>
-                            </div>
-                        </li>
-                        <li>
-                            <ul class="list-inline action-list">
-                                <li><a class="btn btn-action" title="Summary" href="IE/bulletintemplate/GetBulletinTamplateSummaryReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&bulletinTemplateId={{data.Id}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
-                            </ul>
-                        </li>
-                        <li>
-                            <div ej-tooltip e-showshadow="true" e-content="Bulletin Summary" ng-click="$parent.BulSummaryExcelPrints(this);" e-width="width">
-                                <button class="btn" style="background-color: #1c1f32;"><i class="fa fa-file-excel-o"></i></button>
-                            </div>
-                        </li>
-                        <li>
-                            <ul class="list-inline action-list">
-                                <li><a class="btn btn-action" title="Bulletin Summary" href="IE/bulletintemplate/GetBulTamplateSummaryReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&bulletinTemplateId={{data.Id}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
-                            </ul>
-                        </li>
-                    </ul>
+    <div style="color:black;" id="Gridbulletin" ej-grid e-datasource="bulletinMasters" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+         e-allowResizing="true" e-recorddoubleclick="Get" e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Bulletin ID" e-headertext-color="black" e-textalign="left" e-width="40"></div>
+            <div e-column e-field="BulletinName" e-headertext="Bulletin Name" e-width="80"></div>
+            <div e-column e-field="AlternativeName" e-headertext="Alternative Name" e-width="80"></div>
+            <div e-column e-field="ProductMaster" e-headertext="Product Master" e-width="50"></div>
+            <div e-column e-field="SizeGroup" e-headertext="Size Group" e-width="20"></div>
+            <div e-column e-field="Buyer" e-headertext="Buyer" e-width="80"></div>
+            <div e-column e-field="BuyerItemRefNo" e-headertext="Buyer Style RefNo" e-width="50"></div>
+            <div e-column e-field="OwnStyleRefNo" e-headertext="Own Style RefNo" e-width="50"></div>
+            <div e-column e-field="Process" e-headertext="Process" e-width="80"></div>
+            <div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="250"></div>
 
-                    
-                </div>
-            </div>
         </div>
+        <script type="text/template" id="ShowActionButtonsBOM">
+
+            <ul class="common-btn list-inline text-left">
+                <li>
+                    <div ej-tooltip e-showshadow="true" e-content="Detail" ng-click="$parent.onClickExcelPrints(this);" e-width="width">
+                        <button class="btn" style="background-color: #1c1f32;"><i class="fa fa-file-excel-o"></i></button>
+                    </div>
+                </li>
+                <li>
+                    <ul class="list-inline action-list">
+                        <li><a class="btn btn-action" title="Detail" href="IE/bulletintemplate/GetBulletinTamplateDetailReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&bulletinTemplateId={{data.Id}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
+                    </ul>
+                </li>
+                <li>
+                    <div ej-tooltip e-showshadow="true" e-content="Summary" ng-click="$parent.DownloadBTSummaryReport(this);" e-width="width">
+                        <button class="btn" style="background-color: #1c1f32;"><i class="fa fa-file-excel-o"></i></button>
+                    </div>
+                </li>
+                <li>
+                    <ul class="list-inline action-list">
+                        <li><a class="btn btn-action" title="Summary" href="IE/bulletintemplate/GetBulletinTamplateSummaryReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&bulletinTemplateId={{data.Id}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
+                    </ul>
+                </li>
+                <li>
+                    <div ej-tooltip e-showshadow="true" e-content="Bulletin Summary" ng-click="$parent.BulSummaryExcelPrints(this);" e-width="width">
+                        <button class="btn" style="background-color: #1c1f32;"><i class="fa fa-file-excel-o"></i></button>
+                    </div>
+                </li>
+                <li>
+                    <ul class="list-inline action-list">
+                        <li><a class="btn btn-action" title="Bulletin Summary" href="IE/bulletintemplate/GetBulTamplateSummaryReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&bulletinTemplateId={{data.Id}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
+                    </ul>
+                </li>
+            </ul>
+
+        </script>
     </div>
+
 </div>
 <confirm-modal></confirm-modal>
 <!-- #region Process -->

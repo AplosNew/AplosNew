@@ -105,6 +105,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LineDesign\clsDailyTergatLineDesign.cs" />
     <Compile Include="LineDesign\clsLineLayoutForProductionBulletin.cs" />
     <Compile Include="LineDesign\DiagramShapes.cs" />
     <Compile Include="LineDesign\GenerateLineDiagram.cs" />
