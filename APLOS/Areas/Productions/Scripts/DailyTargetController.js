@@ -276,7 +276,7 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
             $http({
                 method: 'POST',
                 url: $scope.Copy,
-                data: { 'entityid': $scope.DailyProductionTargetNew.EntityId, 'processId': $scope.DailyProductionTargetNew.ProcessId, 'ProductionDate': $scope.DailyProductionTargetNew.ProductionDate, 'SelectedLine': $scope.SelectedLineForPR},
+                data: { 'entityid': $scope.DailyProductionTargetNew.EntityId, 'processId': $scope.DailyProductionTargetNew.ProcessId, 'ProductionDate': $scope.DailyProductionTargetNew.ProductionDate, 'SelectedLine': $scope.SelectedLineForPR },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -284,6 +284,7 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.GetLineLayout(data);
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -298,11 +299,21 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
             $scope.SelectedLineForPR = data;
             $http({
                 method: "POST",
-                url: $scope.path + 'GetLineLayoutData',
-                data: { 'entityid': $scope.DailyProductionTargetNew.EntityId, 'processId': $scope.DailyProductionTargetNew.ProcessId, 'ProductionDate': $scope.DailyProductionTargetNew.ProductionDate, 'SelectedLine': $scope.SelectedLineForPR},
+                url: $scope.path + 'GetSaveData',
+                data: {
+                    'ProductionOrderId': $scope.SelectedLineForPR.PRNo,
+                    'TargetDate': $scope.DailyProductionTargetNew.ProductionDate,
+                    'WorkCenterMasterId': $scope.SelectedLineForPR.WorkCenterMasterId
+                },
                 dataType: 'JSON',
             }).then(function successCallback(response) {
                 response.data = JSON.parse(response.data[0].Layout);
+                for (var i = 0; i < response.data.length; i++) {
+                    if (response.data[i]["templateId"] == "htmlTemplate")
+                        response.data[i]["templateId"] = "htmlTemplate00";
+
+                    response.data[i]["id"] = "GENERIC-" + i;
+                }
                 $scope.nodes = response.data;
                 var diagram = $("#diagram").ejDiagram("instance");
                 diagram.clear();
@@ -326,7 +337,7 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
         }
         , {
             id: "LeftUpArrow", tooltiptext: "Left Up Arrow",
-            spriteCss: "icon-LeftUpArrow",
+            spriteCss: "glyphicon glyphicon-arrow-up",
         }
         , {
             id: "UpArrow", tooltiptext: "UpArrow",
@@ -433,13 +444,14 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
                 break;
             case "Html_Tool":
                 diagram.model.drawType = {
-                    type: "html", templateId: "htmlTemplate"
+                    type: "html", templateId: "htmlTemplate00"
                 };
                 break;
         }
 
-        var tool = diagram.tool();
-        diagram.update({ tool: tool | ej.datavisualization.Diagram.Tool.DrawOnce })
+        var _tool = diagram.tool();
+        diagram.update({ tool: _tool | ej.datavisualization.Diagram.Tool.DrawOnce });
+        //  diagram.update({ tool: _tool });
     }
     $scope.OpenEmployeeSearchBox = function () {
         var eDialog = $("#dialogSearchEmployee").data("ejDialog");
@@ -454,7 +466,8 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
         { value: 'Department', name: 'Department ' },
         { value: 'Designation', name: 'Designation ' },
         { value: 'Section', name: 'Section ' },
-        { value: 'SubSection', name: 'Sub Section ' }
+        { value: 'SubSection', name: 'Sub Section ' },
+        { value: 'OtherSkills', name: 'Other Skills ' }
     ];
     $scope.searchCol = "UserName";
     $scope.searchVal = "";
@@ -467,8 +480,8 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
             $http({
                 method: "POST",
                 dataType: 'JSON',
-                data: { 'column': $scope.EmployeeSearchCol, 'value': $scope.EmployeeSearchVal },
-                url: 'IE/LineDesigner/SearchEmployee'
+                data: { 'column': $scope.EmployeeSearchCol, 'value': $scope.EmployeeSearchVal, 'OperationId': $scope.selectednode.items[0].addInfo.OperationId, 'OperationVariationId': $scope.selectednode.items[0].addInfo.OperationVariationId },
+                url: $scope.path + 'SearchEmployee'
 
             }).then(function successCallback(response) {
                 $scope.EmployeeList = response.data;
@@ -484,6 +497,7 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
             $scope.selectednode.items[0].addInfo.EmployeeName = args.data.EmployeeName;
             $scope.selectednode.items[0].addInfo.EmpPicPath = args.data.EmpPicPath;
             $scope.selectednode.items[0].addInfo.Designation = args.data.Designation;
+            $scope.selectednode.items[0].addInfo.EmployeeCode = args.data.EmployeeCode;
 
             var eDialog = $("#dialogSearchEmployee").data("ejDialog");
             eDialog.close();
@@ -511,4 +525,38 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
         $scope.OpenEmployeeSearchBox();
     }
 
+    $scope.SaveDiagram = function () {
+        try {
+            var diagram = $("#diagram").ejDiagram("instance");
+            var diagramModel = diagram.save();
+            for (var i = 0; i < diagramModel.nodes.length; i++) {
+                diagramModel.nodes[i].id = 'GENERIC-' + i;
+            }
+            var diagramData = diagramModel.nodes;
+            $http({
+                method: 'POST',
+                url: $scope.path + "SaveDiagram",
+                data: {
+                    'Nodes': diagramData, 'Design': JSON.stringify(diagramData),
+                    'ProductionOrderId': $scope.SelectedLineForPR.PRNo,
+                    'TargetDate': $scope.DailyProductionTargetNew.ProductionDate,
+                    'WorkCenterMasterId': $scope.SelectedLineForPR.WorkCenterMasterId
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    }
 }

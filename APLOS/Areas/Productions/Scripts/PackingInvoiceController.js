@@ -675,7 +675,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
     };
 
     $scope.LoadTaxButtonClick = function () {
-        accountService.getTaxCategoryCbo(" ", function (result) {
+        accountService.getTaxCategoryMaterialLevelCbo(" ", function (result) {
             $scope.taxCategoryList = result;
         });
     }

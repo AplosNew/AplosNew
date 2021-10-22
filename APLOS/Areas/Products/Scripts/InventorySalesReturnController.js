@@ -1039,7 +1039,7 @@ function InventorySalesReturnController(accountService, $window, cboService, com
     };
 
     $scope.LoadTaxButtonClick = function () {
-        accountService.getTaxCategoryCbo(" ", function (result) {
+        accountService.getTaxCategoryMaterialLevelCbo(" ", function (result) {
             $scope.taxCategoryList = result;
         });
     }

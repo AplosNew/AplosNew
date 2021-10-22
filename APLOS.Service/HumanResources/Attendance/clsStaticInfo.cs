@@ -2138,6 +2138,20 @@ namespace OTSBD
 
             return str;
         }
+        public static string nullObj(object obj)
+        {
+            if (obj == null)
+                return "";
+
+            string str = obj.ToString();
+            //this function returns an empty string(not a null) from null or empty or '&nbsp;' from the page
+            if (str == "&nbsp;")
+                str = "";
+            if (string.IsNullOrEmpty(str) == true)
+                str = "";
+
+            return str;
+        }
 
         public static int dateDiff(string firstDate, string lastDate)
         {
