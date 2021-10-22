@@ -73,9 +73,9 @@
                         <div e-column e-type="string" e-field="SKUInfo" e-headertext="SKU Info." e-width="100"></div>
                         <div e-column e-type="number" e-field="TransactionQty" e-textalign="right" e-format="{0:N2}" e-headertext="Transaction Qty" e-width="100"></div>
 
-                        <div e-column e-type="string" e-field="UoM" e-headertext="UOM" e-width="120"></div>
+                        <div e-column e-type="string" e-field="UoM" e-headertext="UoM" e-width="120"></div>
                         <div e-column e-type="number" e-field="SplitCount" e-textalign="right" e-format="{0:N2}" e-headertext="Split Count" e-width="80"></div>
-                        <div e-column e-type="number" e-field="TotalDistributeQty" e-textalign="right" e-format="{0:N2}" e-headertext="TotalDistribute Qty" e-width="100"></div>
+                        <div e-column e-type="number" e-field="TotalDistributeQty" e-textalign="right" e-format="{0:N2}" e-headertext="Total Distribute Qty" e-width="100"></div>
                         <div e-column e-headertext=" Distribute " e-template="#distributeBTN" e-width="150"></div>
 
                     </div>
@@ -427,11 +427,10 @@
                     </div>
                     <div class="common-btn">
                         <ul class="list-inline text-right">
-
-                            @*<li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="10"></i> {{Action}}</button></li>*@
-                            @*<li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="12"></i> Clear</button></li>*@
                             <li> <button ng-click="Previous();" class="btn"><i class="glyphicon glyphicon-backward" tabindex="12"></i> Prev</button></li>
                             <li> <button ng-click="Next();" class="btn"><i class="glyphicon glyphicon-forward" tabindex="12"></i> Next</button></li>
+                            <li> <button ng-click="SaveAndClose();" class="btn"><i class="glyphicon glyphicon-floppy-remove" tabindex="12"></i> Save & Close</button></li>
+                            <li> <button ng-click="Close();" class="btn"><i class="glyphicon glyphicon-off" tabindex="12"></i> Close</button></li>
                         </ul>
                     </div>
                 </div>
