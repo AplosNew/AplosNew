@@ -115,15 +115,25 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr["PlantInPunchStartTime"] = clsWebLib.RetValidLen(PlantInPunchStartTime);
 
                                 #region ManualData Entry
-
-                                dr["ManualInTime"] = clsWebLib.RetValidLen(ManualInTime);
-                                dr["ManualOutTime"] = clsWebLib.RetValidLen(ManualOuTime);
-                                dr["ManualDayStatus"] = clsWebLib.RetValidLen(ManualDayStatus);
-                                dr["IsManualInTime"] = clsWebLib.GetBoolData(IsManualInTime);
-                                dr["IsManualOutTime"] = clsWebLib.GetBoolData(IsManualOutTime);
-                                dr["IsManualDayStatus"] = clsWebLib.GetBoolData(IsManualDayStatus);
-
+                                if (clsWebLib.RetValidLen(ManualInTime).ToString() != "")
+                                {
+                                    dr["ManualInTime"] = clsWebLib.RetValidLen(ManualInTime);
+                                    dr["IsManualInTime"] = clsWebLib.GetBoolData(IsManualInTime);
+                                    dr["OriginalManualInTime"]= clsWebLib.RetValidLen(ManualInTime);
+                                }
+                                if (clsWebLib.RetValidLen(ManualOuTime).ToString() != "")
+                                {
+                                    dr["ManualOutTime"] = clsWebLib.RetValidLen(ManualOuTime);
+                                    dr["IsManualOutTime"] = clsWebLib.GetBoolData(IsManualOutTime);
+                                    dr["OriginalManualInTime"]= clsWebLib.RetValidLen(ManualOuTime);
+                                }
+                                if (clsWebLib.RetValidLen(ManualDayStatus).ToString() != "")
+                                {
+                                    dr["ManualDayStatus"] = clsWebLib.RetValidLen(ManualDayStatus);
+                                    dr["IsManualDayStatus"] = clsWebLib.GetBoolData(IsManualDayStatus);
+                                }
                                 #endregion
+
                                 // Priority Wise Shift Assignment
                                 #region AssignedShift Data
                                 if (ManualShift.ToString() != "")
@@ -203,14 +213,23 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr["PlantInPunchStartTime"] = clsWebLib.RetValidLen(PlantInPunchStartTime);
 
                                 #region ManualData Entry
-
-                                dr["ManualInTime"] = clsWebLib.RetValidLen(ManualInTime);
-                                dr["ManualOutTime"] = clsWebLib.RetValidLen(ManualOuTime);
-                                dr["ManualDayStatus"] = clsWebLib.RetValidLen(ManualDayStatus);
-                                dr["IsManualInTime"] = clsWebLib.GetBoolData(IsManualInTime);
-                                dr["IsManualOutTime"] = clsWebLib.GetBoolData(IsManualOutTime);
-                                dr["IsManualDayStatus"] = clsWebLib.GetBoolData(IsManualDayStatus);
-
+                                if (clsWebLib.RetValidLen(ManualInTime).ToString() != "")
+                                {
+                                    dr["ManualInTime"] = clsWebLib.RetValidLen(ManualInTime);
+                                    dr["IsManualInTime"] = clsWebLib.GetBoolData(IsManualInTime);
+                                    dr["OriginalManualInTime"] = clsWebLib.RetValidLen(ManualInTime);
+                                }
+                                if (clsWebLib.RetValidLen(ManualOuTime).ToString() != "")
+                                {
+                                    dr["ManualOutTime"] = clsWebLib.RetValidLen(ManualOuTime);
+                                    dr["IsManualOutTime"] = clsWebLib.GetBoolData(IsManualOutTime);
+                                    dr["OriginalManualInTime"] = clsWebLib.RetValidLen(ManualOuTime);
+                                }
+                                if (clsWebLib.RetValidLen(ManualDayStatus).ToString() != "")
+                                {
+                                    dr["ManualDayStatus"] = clsWebLib.RetValidLen(ManualDayStatus);
+                                    dr["IsManualDayStatus"] = clsWebLib.GetBoolData(IsManualDayStatus);
+                                }
                                 #endregion
 
                                 #region AssignedShift Data
