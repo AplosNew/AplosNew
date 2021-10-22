@@ -59,7 +59,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             string ManualShiftIn = clsWebLib.RetValidLen(UnProcessed.Tables[0].Rows[i][@"ManualShiftIn"]).ToString();
                             string ManualShiftOut = clsWebLib.RetValidLen(UnProcessed.Tables[0].Rows[i][@"ManualShiftOut"]).ToString();
                             string ManualInTime = UnProcessed.Tables[0].Rows[i][@"ManualInTime"].ToString();
-                            string ManualOuTime = UnProcessed.Tables[0].Rows[i][@"ManualOutTime"].ToString();
+                            string ManualOutTime = UnProcessed.Tables[0].Rows[i][@"ManualOutTime"].ToString();
                             string ManualDayStatus = UnProcessed.Tables[0].Rows[i][@"ManualDayStatus"].ToString();
                             string IsManualInTime = UnProcessed.Tables[0].Rows[i][@"IsManualInTime"].ToString();
                             string IsManualOutTime = UnProcessed.Tables[0].Rows[i][@"IsManualOutTime"].ToString();
@@ -121,11 +121,11 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     dr["IsManualInTime"] = clsWebLib.GetBoolData(IsManualInTime);
                                     dr["OriginalManualInTime"]= clsWebLib.RetValidLen(ManualInTime);
                                 }
-                                if (clsWebLib.RetValidLen(ManualOuTime).ToString() != "")
+                                if (clsWebLib.RetValidLen(ManualOutTime).ToString() != "")
                                 {
-                                    dr["ManualOutTime"] = clsWebLib.RetValidLen(ManualOuTime);
+                                    dr["ManualOutTime"] = clsWebLib.RetValidLen(ManualOutTime);
                                     dr["IsManualOutTime"] = clsWebLib.GetBoolData(IsManualOutTime);
-                                    dr["OriginalManualInTime"]= clsWebLib.RetValidLen(ManualOuTime);
+                                    dr["OriginalManualOutTime"]= clsWebLib.RetValidLen(ManualOutTime);
                                 }
                                 if (clsWebLib.RetValidLen(ManualDayStatus).ToString() != "")
                                 {
@@ -219,11 +219,11 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     dr["IsManualInTime"] = clsWebLib.GetBoolData(IsManualInTime);
                                     dr["OriginalManualInTime"] = clsWebLib.RetValidLen(ManualInTime);
                                 }
-                                if (clsWebLib.RetValidLen(ManualOuTime).ToString() != "")
+                                if (clsWebLib.RetValidLen(ManualOutTime).ToString() != "")
                                 {
-                                    dr["ManualOutTime"] = clsWebLib.RetValidLen(ManualOuTime);
+                                    dr["ManualOutTime"] = clsWebLib.RetValidLen(ManualOutTime);
                                     dr["IsManualOutTime"] = clsWebLib.GetBoolData(IsManualOutTime);
-                                    dr["OriginalManualInTime"] = clsWebLib.RetValidLen(ManualOuTime);
+                                    dr["OriginalManualInTime"] = clsWebLib.RetValidLen(ManualOutTime);
                                 }
                                 if (clsWebLib.RetValidLen(ManualDayStatus).ToString() != "")
                                 {
