@@ -8620,6 +8620,287 @@ namespace Library.HumanResource.NewAttendanceProcess
                 catch (Exception)
                 {
                 }
+                #endregion
+
+                #region  ManualOut Entries of Employees 25
+                try
+                {
+                    IWorksheet sheet30 = null;
+
+                    xlsRow = 1; xlsCol = 1;
+                    endXlsCol = 1;
+                    FactoryName = "";
+                    CmpName = "";
+                    SheetIndex++;
+                    sheet30 = workbook.Worksheets[SheetIndex];
+                    xlsRow = 6;
+
+                    #region ------------------Column Header------------------
+                    igoto = xlsCol;
+                    sheet30.Range[5, igoto].Text = "Goto Index";
+                    sheet30.Range[5, igoto].ColumnWidth = 6;
+                    IHyperLink linkManualOutPunch = sheet30.HyperLinks.Add(sheet30.Range[5, igoto]);
+                    linkManualOutPunch.Type = ExcelHyperLinkType.Workbook;
+                    linkManualOutPunch.TextToDisplay = sheet30.Range[5, igoto].Text;
+                    linkManualOutPunch.ScreenTip = "Go To " + sheet30.Range[5, igoto].Text;
+                    linkManualOutPunch.Address = "1_Index!A1";
+
+                    isl = xlsCol;
+                    sheet30.Range[xlsRow, isl].Text = "SL";
+                    sheet30.Range[xlsRow, isl].ColumnWidth = 7;
+
+                    xlsCol += 1;
+                    iEmployeeCode = xlsCol;
+                    sheet30.Range[xlsRow, iEmployeeCode].Text = "Employee Code";
+                    sheet30.Range[xlsRow, iEmployeeCode].ColumnWidth = 14;
+
+                    xlsCol += 1;
+                    iEmployeeName = xlsCol;
+                    sheet30.Range[xlsRow, iEmployeeName].Text = "Employee Name";
+                    sheet30.Range[xlsRow, iEmployeeName].ColumnWidth = 20;
+
+                    xlsCol += 1;
+                    iDesignation = xlsCol;
+                    sheet30.Range[xlsRow, iDesignation].Text = "Designation";
+                    sheet30.Range[xlsRow, iDesignation].ColumnWidth = 18;
+
+                    xlsCol += 1;
+                    iDepartment = xlsCol;
+                    sheet30.Range[xlsRow, iDepartment].Text = "Department";
+                    sheet30.Range[xlsRow, iDepartment].ColumnWidth = 25;
+
+                    xlsCol += 1;
+                    iSection = xlsCol;
+                    sheet30.Range[xlsRow, iSection].Text = "Section";
+                    sheet30.Range[xlsRow, iSection].ColumnWidth = 18;
+
+                    xlsCol += 1;
+                    iSubSection = xlsCol;
+                    sheet30.Range[xlsRow, iSubSection].Text = "SubSection";
+                    sheet30.Range[xlsRow, iSubSection].ColumnWidth = 18;
+
+                    xlsCol += 1;
+                    iEmployeeCategory = xlsCol;
+                    sheet30.Range[xlsRow, iEmployeeCategory].Text = "Employee Category";
+                    sheet30.Range[xlsRow, iEmployeeCategory].ColumnWidth = 18;
+
+                    xlsCol += 1;
+                    iEntity = xlsCol;
+                    sheet30.Range[xlsRow, iEntity].Text = "Entity";
+                    sheet30.Range[xlsRow, iEntity].ColumnWidth = 18;
+
+                    xlsCol += 1;
+                    iDOJ = xlsCol;
+                    sheet30.Range[xlsRow, iDOJ].Text = "DOJ";
+                    sheet30.Range[xlsRow, iDOJ].ColumnWidth = 18;
+
+                    xlsCol += 1;
+                    iRawPunch = xlsCol;
+                    sheet30.Range[xlsRow, iRawPunch].Text = "PunchTime";
+                    sheet30.Range[xlsRow, iRawPunch].ColumnWidth = 18;
+
+
+
+                    sheet30.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+                    sheet30.Range[xlsRow, 1, xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet30.Range[xlsRow, 1, xlsRow, xlsCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet30.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Font.Bold = true;
+
+                    xlsRow++;
+                    endXlsCol = xlsCol;
+                    #endregion ------------------Column Header------------------
+                    SLNo = 1;
+                    if (dtManualOutEntry.Rows.Count > 0)
+                    {
+                        for (int i = 0; i < dtManualOutEntry.Rows.Count; i++)
+                        {
+
+                            #region ----------------------Data-----------------------
+                            sheet30.Range[xlsRow, isl].Text = SLNo.ToString();
+
+                            sheet30.Range[xlsRow, iEmployeeCode].Text = dtManualOutEntry.Rows[i]["EmployeeCode"].ToString();
+
+                            sheet30.Range[xlsRow, iEmployeeName].Text = dtManualOutEntry.Rows[i]["EmployeeName"].ToString();
+
+                            sheet30.Range[xlsRow, iEmployeeCategory].Text = dtManualOutEntry.Rows[i]["EmpCategory"].ToString();
+
+                            sheet30.Range[xlsRow, iDepartment].Text = dtManualOutEntry.Rows[i]["Department"].ToString();
+
+                            sheet30.Range[xlsRow, iDesignation].Text = dtManualOutEntry.Rows[i]["Designation"].ToString();
+
+                            sheet30.Range[xlsRow, iSection].Text = dtManualOutEntry.Rows[i]["Section"].ToString();
+
+                            sheet30.Range[xlsRow, iSubSection].Text = dtManualOutEntry.Rows[i]["SubSection"].ToString();
+
+                            sheet30.Range[xlsRow, iEntity].Text = dtManualOutEntry.Rows[i]["Entity"].ToString();
+
+                            sheet30.Range[xlsRow, iDOJ].Text = dtManualOutEntry.Rows[i]["DOJ"].ToString();
+
+                            sheet30.Range[xlsRow, iRawPunch].Text = dtManualOutEntry.Rows[i]["PunchTime"].ToString();
+
+                            xlsRow++;
+                            SLNo++;
+
+                        }
+
+                        #endregion ----------------------Data-----------------------
+
+                        #region Line Setup
+
+                        sheet30.Range[6, 1, xlsRow - 1, endXlsCol].BorderInside(ExcelLineStyle.Hair);
+                        sheet30.Range[6, 1, xlsRow - 1, endXlsCol].BorderAround(ExcelLineStyle.Hair);
+                        sheet30.Range[6, 1, xlsRow - 1, endXlsCol].WrapText = true;
+
+                        #endregion Line Setup
+
+
+                    }
+
+                    #region ******************Report Header******************
+                    try
+                    {
+                        string strPath = Path.Combine(ResourcesPathReader.GetLogoOrImagePath(), companyId + ".jpg");  // IDCardEng.xlsx
+                        Image companyLogo = Image.FromFile(strPath);
+                        if (companyLogo != null)
+                        {
+                            double totalWidth = sheet30.GetColumnWidth(1) + sheet30.GetColumnWidth(2);
+                            int totalWidthPixel = (int)(totalWidth * 7.5);
+                            int totalheight = (int)((sheet30.GetRowHeight(1) + sheet30.GetRowHeight(2) + sheet30.GetRowHeight(3) + sheet30.GetRowHeight(3)) * 1.50);
+
+                            companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
+                            IPictureShape pic = null;
+
+                            pic = sheet30.Pictures.AddPicture(1, 1, companyLogo);
+
+                        }
+
+
+                    }
+                    catch (Exception)
+                    {
+
+
+                    }
+
+                    xlsRow = 1;
+                    xlsCol = 1;
+
+                    FactoryName = string.Empty;
+
+                    if (dsCmp.Tables[0].Rows.Count > 0)
+                    {
+                        CmpName = dsCmp.Tables[0].Rows[0]["CompanyName"].ToString();
+                    }
+                    else
+                    {
+                        CmpName = "";
+                    }
+                    sheet30.Range[xlsRow, 3].Text = CmpName;
+                    sheet30.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                    sheet30.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                    sheet30.Range[xlsRow, 3].CellStyle.Font.Size = 12;
+                    sheet30.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
+                    sheet30.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet30.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet30.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = Color.Snow;
+
+                    xlsRow += 1;
+                    if (dsFactory.Tables[0].Rows.Count > 0)
+                    {
+
+                        FactoryName = dsFactory.Tables[0].Rows[0]["UserName"].ToString();
+                    }
+                    else
+                    {
+                        FactoryName = "";
+                    }
+                    sheet30.Range[xlsRow, 3].Text = FactoryName;
+                    sheet30.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                    sheet30.Range[xlsRow, 3].CellStyle.Font.Size = 10;
+                    sheet30.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
+                    sheet30.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet30.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet30.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = Color.Snow;
+
+                    xlsRow += 1;
+                    if (dsFactory.Tables[0].Rows.Count > 0)
+                    {
+                        FactoryAddress = dsFactory.Tables[0].Rows[0]["Address1"].ToString();
+                    }
+                    else
+                    {
+                        FactoryAddress = "";
+                    }
+                    sheet30.Range[xlsRow, 3].Text = FactoryAddress;
+                    sheet30.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                    sheet30.Range[xlsRow, 3].CellStyle.Font.Size = 22;
+                    sheet30.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 17;
+                    sheet30.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet30.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet30.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = Color.Snow;
+
+                    xlsRow += 1;
+                    sheet30.Range[xlsRow, 3].Text = (SheetIndex + 1) + "-ManualOut Entries";
+                    sheet30.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                    sheet30.Range[xlsRow, 3].CellStyle.Font.Size = 10;
+                    sheet30.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
+                    sheet30.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                    sheet30.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet30.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet30.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = Color.Snow;
+
+                    #endregion ******************Report Header******************
+
+                    #region Freeze Panes
+
+                    sheet30.IsDisplayZeros = false;
+                    sheet30.UsedRange["A7"].FreezePanes();
+                    sheet30.FirstVisibleColumn = 1;
+                    sheet30.FirstVisibleRow = 6;
+
+                    #endregion Freeze Panes
+
+                    #region UsedRange Alignment
+
+                    sheet30.UsedRange.WrapText = true;
+                    sheet30.UsedRange.CellStyle.Font.Size = 8;
+                    sheet30.Range["A1"].CellStyle.Font.Size = 14;
+                    sheet30.Range["A2"].CellStyle.Font.Size = 10;
+                    sheet30.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+
+                    #endregion UsedRange Alignment
+
+                    #region Page Setup
+                    sheet30.PageSetup.TopMargin = 0.5;
+                    sheet30.PageSetup.BottomMargin = 0.7;
+                    sheet30.PageSetup.PrintTitleRows = "$1:$5";
+                    sheet30.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                    sheet30.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + username + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
+                    sheet30.PageSetup.LeftMargin = 0.5;
+                    sheet30.PageSetup.RightMargin = 0.2;
+                    sheet30.PageSetup.Orientation = ExcelPageOrientation.Portrait;
+                    sheet30.PageSetup.FitToPagesTall = 0;
+                    sheet30.PageSetup.FitToPagesWide = 1;
+                    sheet30.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                    sheet30.IsDisplayZeros = false;
+
+                    if (dtManualOutEntry.Rows.Count > 0)
+                    {
+                        sheet30.Name = (SheetIndex + 1) + "_ManualOut_Entry";
+                        sheet30.TabColorRGB = Color.Red;
+
+                    }
+                    else
+                    {
+                        sheet30.Name = (SheetIndex + 1) + "_ManualOut_Entry";
+                    }
+                    #endregion Page Setup
+
+
+                }
+                catch (Exception)
+                {
+                }
                 #endregion 
 
                 return workbook;
