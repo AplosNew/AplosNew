@@ -557,7 +557,11 @@ namespace Aplos.Areas.Productions.Controllers
             DT.SaveData(Nodes, Design, WorkCenterMasterId, ProductionOrderId, TargetDate);
             return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
         }
-
+        [Authorize, HttpPost]
+        public ActionResult SearchEmployee(string column, string value, string OperationId, string OperationVariationId)
+        {
+            return Json(DT.SearchEmployee(column, value, OperationId, OperationVariationId), JsonRequestBehavior.AllowGet);
+        }
         #endregion
 
     }
