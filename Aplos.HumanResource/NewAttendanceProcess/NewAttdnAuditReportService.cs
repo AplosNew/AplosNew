@@ -55,6 +55,12 @@ namespace Library.HumanResource.NewAttendanceProcess
             DataSet dsNotInLegalDesignationMaster = null;
             DataSet dsSalaryNotApproved = null;
             DataSet dsSeparatedEmpWithPunches = null;
+            DataSet dsManualInEntry = null;
+            DataTable dtManualInEntry = null;
+            DataSet dsManualOutEntry = null;
+            DataTable dtManualOutEntry = null;
+            DataSet dsManualDayStatusEntry = null;
+            DataTable dtManualDayStatusEntry = null;
             DataTable dtNotInLegalDesignationMaster = null;
             DataTable dtAbsent = null;
             DataTable dtInPunchMissing = null;
@@ -145,16 +151,6 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 }
                 catch (Exception )
-                {
-
-                }
-                try
-                {
-                    Gen.GetSeparatedEmployeesPunches(FromDate, ToDate, plantId, companyId, out dsSeparatedEmpWithPunches);
-                    dtSeparatedEmpWithPunches = dsSeparatedEmpWithPunches.Tables[0];
-
-                }
-                catch (Exception)
                 {
 
                 }
@@ -360,6 +356,49 @@ namespace Library.HumanResource.NewAttendanceProcess
                 {
 
                 }
+                try
+                {
+                    Gen.GetSeparatedEmployeesPunches(FromDate, ToDate, plantId, companyId, out dsSeparatedEmpWithPunches);
+                    dtSeparatedEmpWithPunches = dsSeparatedEmpWithPunches.Tables[0];
+
+                }
+                catch (Exception)
+                {
+
+                }
+                try
+                {
+                    Gen.GetManualInEntry(FromDate, ToDate, plantId, companyId, out dsManualInEntry);
+                    dtManualInEntry = dsManualInEntry.Tables[0];
+
+                }
+                catch (Exception)
+                {
+
+                }
+                try
+                {
+                    Gen.GetManualOutEntry(FromDate, ToDate, plantId, companyId, out dsManualOutEntry);
+                    dtManualOutEntry = dsManualOutEntry.Tables[0];
+
+                }
+                catch (Exception)
+                {
+
+                }
+
+                try
+                {
+                    Gen.GetManualDayStatusEntry(FromDate, ToDate, plantId, companyId, out dsManualDayStatusEntry);
+                    dtManualDayStatusEntry = dsManualDayStatusEntry.Tables[0];
+
+                }
+                catch (Exception)
+                {
+
+                }
+
+
                 #endregion DataSet
 
                 objRpt.SelectedPlantWiseCompany(plantId, out dsCmp);
@@ -518,7 +557,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                     linkAbsentNoPunchTime.TextToDisplay = sheet20.Range[xlsRow, iReportName].Text;
                     linkAbsentNoPunchTime.ScreenTip = "Go To " + sheet20.Range[xlsRow, iReportName].Text;
                     linkAbsentNoPunchTime.Address = "2_Absent_No_Punch_Time!A1";
-
                     xlsRow++;
 
                     sheet20.Range[xlsRow, isl].Text = "3";
@@ -532,7 +570,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                     linkAbsentWithPunch.TextToDisplay = sheet20.Range[xlsRow, iReportName].Text;
                     linkAbsentWithPunch.ScreenTip = "Go To " + sheet20.Range[xlsRow, iReportName].Text;
                     linkAbsentWithPunch.Address = "3_In_Missing!A1";
-
                     xlsRow++;
 
                     sheet20.Range[xlsRow, isl].Text = "4";
@@ -546,7 +583,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                     linkLeaveWithPunch.TextToDisplay = sheet20.Range[xlsRow, iReportName].Text;
                     linkLeaveWithPunch.ScreenTip = "Go To " + sheet20.Range[xlsRow, iReportName].Text;
                     linkLeaveWithPunch.Address = "4_Leave_With_Punch!A1";
-
                     xlsRow++;
 
                     
@@ -561,7 +597,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                     linkShortDuration.TextToDisplay = sheet20.Range[xlsRow, iReportName].Text;
                     linkShortDuration.ScreenTip = "Go To " + sheet20.Range[xlsRow, iReportName].Text;
                     linkShortDuration.Address = "5_Short_Duration!A1";
-
                     xlsRow++;
 
                     sheet20.Range[xlsRow, isl].Text = "6";
@@ -576,8 +611,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                     linkOtApplicableAndOutMissing.TextToDisplay = sheet20.Range[xlsRow, iReportName].Text;
                     linkOtApplicableAndOutMissing.ScreenTip = "Go To " + sheet20.Range[xlsRow, iReportName].Text;
                     linkOtApplicableAndOutMissing.Address = "6_OT_Applicable_And_Out_Missing!A1";
-
                     xlsRow++;
+
                     sheet20.Range[xlsRow, isl].Text = "7";
                     sheet20.Range[xlsRow, iLogic].Text = "OT Not Applicable And Out Missing";
                     sheet20.Range[xlsRow, iReportName].Text = "7-OT Not Applicable And Out Missing";
@@ -672,7 +707,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                     sheet20.Range[xlsRow, isl].Text = "14";
                     sheet20.Range[xlsRow, iLogic].Text = "Who have in Maternity Leave";
-                    sheet20.Range[xlsRow, iReportName].Text = "17-Maternity Leave";
+                    sheet20.Range[xlsRow, iReportName].Text = "14-Maternity Leave";
                     sheet20.Range[xlsRow, iObjective].Text = "To Finds Whose Are in Maternity Leave";
                     sheet20.Range[xlsRow, iCount].Number = dtMaternityLeave.Rows.Count;
 
@@ -709,7 +744,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     linkSeparationWithAbsent.Address = "16_Separation_With_Absent!A1";
                     xlsRow++;
 
-                    sheet20.Range[xlsRow, isl].Text = "";
+                    sheet20.Range[xlsRow, isl].Text = "17";
                     sheet20.Range[xlsRow, iLogic].Text = "Whose Attendance Lock Not Done Yet(" + cc + "/" + dtAttendanceNotLockPlant.Rows.Count + ")";
                     sheet20.Range[xlsRow, iReportName].Text = "17-Attendance Not Lock";
                     sheet20.Range[xlsRow, iObjective].Text = "Whose Attendance Lock Need to Done";
@@ -786,6 +821,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     linkLeaveRejectionReflection.TextToDisplay = sheet20.Range[xlsRow, iReportName].Text;
                     linkLeaveRejectionReflection.ScreenTip = "Go To " + sheet20.Range[xlsRow, iReportName].Text;
                     linkLeaveRejectionReflection.Address = "22_Shift_Not_Assign!A1";
+                    xlsRow++;
 
                     sheet20.Range[xlsRow, isl].Text = "23";
                     sheet20.Range[xlsRow, iLogic].Text = "InActive Employees With Punches";
@@ -798,6 +834,47 @@ namespace Library.HumanResource.NewAttendanceProcess
                     linkSeparatedEmpPunches.TextToDisplay = sheet20.Range[xlsRow, iReportName].Text;
                     linkSeparatedEmpPunches.ScreenTip = "Go To " + sheet20.Range[xlsRow, iReportName].Text;
                     linkSeparatedEmpPunches.Address = "23_InActive_Emp_Punches!A1";
+                    xlsRow++;
+
+                    sheet20.Range[xlsRow, isl].Text = "24";
+                    sheet20.Range[xlsRow, iLogic].Text = "ManualIn Entry";
+                    sheet20.Range[xlsRow, iReportName].Text = "24-ManualIn Entries";
+                    sheet20.Range[xlsRow, iObjective].Text = "Manual-In Punches of Employees";
+                    sheet20.Range[xlsRow, iCount].Number = dtManualInEntry.Rows.Count;
+
+                    IHyperLink linkManualInPunch = sheet20.HyperLinks.Add(sheet20.Range[xlsRow, iReportName]);
+                    linkManualInPunch.Type = ExcelHyperLinkType.Workbook;
+                    linkManualInPunch.TextToDisplay = sheet20.Range[xlsRow, iReportName].Text;
+                    linkManualInPunch.ScreenTip = "Go To " + sheet20.Range[xlsRow, iReportName].Text;
+                    linkManualInPunch.Address = "24_ManualIn_Entry!A1";
+                    xlsRow++;
+
+                    sheet20.Range[xlsRow, isl].Text = "25";
+                    sheet20.Range[xlsRow, iLogic].Text = "ManualOut Entry";
+                    sheet20.Range[xlsRow, iReportName].Text = "25-ManualOut Entries";
+                    sheet20.Range[xlsRow, iObjective].Text = "Manual-Out Punches of Employees";
+                    sheet20.Range[xlsRow, iCount].Number = dtManualOutEntry.Rows.Count;
+
+                    IHyperLink linkManualOutPunch = sheet20.HyperLinks.Add(sheet20.Range[xlsRow, iReportName]);
+                    linkManualOutPunch.Type = ExcelHyperLinkType.Workbook;
+                    linkManualOutPunch.TextToDisplay = sheet20.Range[xlsRow, iReportName].Text;
+                    linkManualOutPunch.ScreenTip = "Go To " + sheet20.Range[xlsRow, iReportName].Text;
+                    linkManualOutPunch.Address = "25_ManualOut_Entry!A1";
+                    xlsRow++;
+
+                    sheet20.Range[xlsRow, isl].Text = "26";
+                    sheet20.Range[xlsRow, iLogic].Text = "ManualDayStatus Entry";
+                    sheet20.Range[xlsRow, iReportName].Text = "26-ManualDayStatus Entries";
+                    sheet20.Range[xlsRow, iObjective].Text = "Manual DayStatus of Employees";
+                    sheet20.Range[xlsRow, iCount].Number = dtManualDayStatusEntry.Rows.Count;
+
+                    IHyperLink linkManualDayStatus = sheet20.HyperLinks.Add(sheet20.Range[xlsRow, iReportName]);
+                    linkManualDayStatus.Type = ExcelHyperLinkType.Workbook;
+                    linkManualDayStatus.TextToDisplay = sheet20.Range[xlsRow, iReportName].Text;
+                    linkManualDayStatus.ScreenTip = "Go To " + sheet20.Range[xlsRow, iReportName].Text;
+                    linkManualDayStatus.Address = "26_ManualDayStatus_Entry!A1";
+                    xlsRow++;
+
 
                     sheet20.Range[2, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
                     sheet20.Range[2, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
