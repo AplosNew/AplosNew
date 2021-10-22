@@ -795,11 +795,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                             }
 
 
-                            if (clsWebLib.RetValidLen(data[i]["DayStatus"]).ToString() != "")
+                            if (clsWebLib.RetValidLen(data[i]["ManualDayStatus"]).ToString() != "")
                             {
-                                if (dsMaster.Tables[0].DefaultView[0]["DayStatus"].ToString() != data[i]["DayStatus"].ToString())
+                                if (dsMaster.Tables[0].DefaultView[0]["ManualDayStatus"].ToString() != data[i]["DayStatus"].ToString())
                                 {
-                                    if (DayTypesList.Contains(data[i]["DayStatus"].ToString()))
+                                    if (DayTypesList.Contains(data[i]["ManualDayStatus"].ToString()))
                                     {
 
                                         string TodaySandwich = clsWebLib.RetValidLen(dsMaster.Tables[0].DefaultView[0]["SandwichFlag"]).ToString();
