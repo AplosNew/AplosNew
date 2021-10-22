@@ -259,7 +259,45 @@ namespace Library.Planning.LineDesign
             SaveInfo.SaveDataSets(dsMaster, dsChild);
         }
 
+        public List<Dictionary<string,object>> SearchEmployee(string column, string value, string OperationId, string OperationVariationId)
+        {
 
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            string sql = @"
+                      select top 100 * from (  
+                        SELECT distinct Emp.SystemID AS Id,
+                        EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,
+						isnull(D.UserName,'') Designation,
+                                        OtherSkills =STUFF((select distinct ','+ovx.UserName 
+                                        FROM EmployeeOperation AS eox
+				                        JOIN mst.OperationVariation AS ovx ON ovx.Id=eox.OperationVariationId                                             
+			                            where eox.EmpSystemId=EMP.SystemId and eox.OperationVariationId<>EMP.OperationVariationId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+                            DEPT.UserName Department,S.UserName Section,
+                            EMP.SectionId,SS.UserName SubSection
+                            ,PL.UserName Plant
+                            FROM EmployeeInformation EMP
+                            LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
+                            LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                            LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+                            LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
+                            LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                            LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=EMP.LegalDesignationId
+                            LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
+                            LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
+                            LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
+   
+                        WHERE emp.EmployeeStatus='Active' and EMP.OperationVariationId='" + OperationVariationId + @"'
+                ) AS TEMP where " + strkey + " Order By Id";
+
+
+
+
+
+            return _sqlRepository.GetDataCollection(sql);
+        }
     }
 }
 
