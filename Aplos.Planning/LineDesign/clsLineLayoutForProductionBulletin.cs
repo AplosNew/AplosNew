@@ -264,7 +264,7 @@ namespace Library.Planning.LineDesign
                 DataTable dtBulletin = _sqlRepository.GetDataTable(@"SELECT  ROW_NUMBER() OVER(ORDER BY D.Sequence,d.id) AS SQ,d.Id,ov.Id AS OperationVariationId,ov.UserName AS OperationVariation,
                                             d.AllotedManpower,MM.Id MaterialMasterId,MM.UserName AS MaterialMasterDesc
 											,M.StandardName AS ArticleDesc,o.Id as OperationId,o.UserName as OperationDesc
-                                                ,M.Id ArticleId    ,d.Sequence,NULL AS Designation,
+                                                ,M.Id ArticleId    ,d.Sequence,NULL AS Designation,isnull(Ov.color,'#ffffff') AS Color,
                                             mv.Id AS MachineId,mv.UserName AS MachineDesc,d.AllotedWorkstation,d.RequiredManPower,
                                             '1800001.jpg' AS EmpPicPath
                                                 FROM trn.ProductionBulletinTemplateDetail D
@@ -276,7 +276,7 @@ namespace Library.Planning.LineDesign
                                             
                                             WHERE d.ProductionBulletinTemplateMasterId='" + BulletinId + "' ORDER BY D.Sequence");
 
-                int ItemWidth = 100; int ItemHeight = 100;
+                int ItemWidth = 160; int ItemHeight = 120;
 
                 if (drawType == DrawType.Linear)
                     makeShapesLinear(dtBulletin, 0, 0, ItemWidth, ItemHeight);
@@ -294,7 +294,7 @@ namespace Library.Planning.LineDesign
 
 
                         dtBulletin.DefaultView.RowFilter = "SQ>" + Half;
-                        makeShapesLinear(dtBulletin.DefaultView.ToTable(), 0, ItemWidth * 2, ItemWidth, ItemHeight);
+                        makeShapesLinear(dtBulletin.DefaultView.ToTable(), 0, ItemHeight * 2, ItemWidth, ItemHeight);
                     }
 
                 }
@@ -332,7 +332,7 @@ namespace Library.Planning.LineDesign
                         emp.width = Width;
                         emp.offsetX = offsetX + (emp.width / 2);
                         emp.offsetY = offsetY + (emp.height / 2);
-
+                        emp.fillColor = dtBulletin.Rows[i]["Color"].ToString();
                         emp.id = "E" + dtBulletin.Rows[i]["Id"].ToString() + System.DateTime.Now.Ticks.ToString() + ItemIndex;
                         emp.name = "E" + dtBulletin.Rows[i]["Id"].ToString() + System.DateTime.Now.Ticks.ToString() + ItemIndex;
 

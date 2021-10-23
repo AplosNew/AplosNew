@@ -1380,6 +1380,8 @@ function bulletinTemplateController(cboService, commonMessage, $scope, $rootScop
             ob.ProductionEfficiencyPerDay = (ob.ProductionEfficiencyPerHour * $scope.PlannedHoursPerDay).toFixed(2);
             ob.LineTargetPerHour = (ob.ProductionEfficiencyPerHour * ob.OrganizationEfficiency).toFixed(2);
 
+           // ((totalMP * 60) / totalspt) * ((totalspt / totalMP) / ob.MaxAllottedTime)
+
             $scope.PitchTime = pitchTime;
             $scope.MaxAllottedTime = avgat;
             $scope.OrganizationEfficiency = (ob.PitchTime / ob.MaxAllottedTime).toFixed(2);

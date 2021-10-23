@@ -2212,7 +2212,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     $scope.TaxAction = 'Save';
 
-    accountService.getTaxCategoryCbo(" ", function (result) {
+    accountService.getTaxCategoryMaterialLevelCbo(" ", function (result) {
         $scope.taxCategoryList = result;
     });
 

@@ -314,6 +314,38 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
             ShowResult(response.data.Message, 'failure');
         };
     }
+    $scope.Close = function () {       
+        angular.element(document.querySelector('#SinglefabricRollPopUpargegrfd')).modal('hide');
+
+    }
+    function updateSingleDataAndClose() {
+
+        validFabric();
+        var data = [];
+        data.push($scope.GetFabricRollList[$scope.Index]);
+        $http({
+            method: 'POST',
+            url: 'Materials/FabricRoll/Update',
+            data: { 'FabricRollData': data, 'PackingForm': $scope.PackingformSearchBy },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                //$scope.getGRNDetail();
+                angular.element(document.querySelector('#SinglefabricRollPopUpargegrfd')).modal('hide');
+                $scope.LoadFabricRollList();
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        };
+    }
+    $scope.SaveAndClose = function () {        
+        updateSingleDataAndClose();
+
+    }
     $scope.Next = function ()
     {
         if ($scope.Index == $scope.GetFabricRollList.length-1) {

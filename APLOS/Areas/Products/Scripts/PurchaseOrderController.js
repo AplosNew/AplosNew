@@ -1063,12 +1063,12 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 	//};
 	$scope.taxCategoryListcbo = [];
 	$scope.LoadTaxButtonClick = function () {
-		accountService.getTaxCategoryCbo(" ", function (result) {
+		accountService.getTaxCategoryMaterialLevelCbo(" ", function (result) {
 			$scope.taxCategoryListcbo = result;
 			//$scope.taxCategoryList = result;
 		});
 	}
-	accountService.getTaxCategoryCbo(" ", function (result) {
+	accountService.getTaxCategoryMaterialLevelCbo(" ", function (result) {
 		$scope.taxCategoryListcbo = result;
 	});
 	$scope.addTax = function () {

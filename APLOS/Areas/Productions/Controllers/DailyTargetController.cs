@@ -12,6 +12,7 @@ using System.Data;
 using Library.Crosscutting.Security;
 using System.Threading;
 using System.Collections.Generic;
+using Library.Planning.LineDesign;
 
 #endregion
 
@@ -22,6 +23,7 @@ namespace Aplos.Areas.Productions.Controllers
         #region Constructor
         /// <summary>   The CostingTypesService service. </summary>
         private readonly ISqlRepository _sqlRepository;
+        clsDailyTergatLineDesign DT = new clsDailyTergatLineDesign();
         public DailyTargetController(ISqlRepository R)
         {
             _sqlRepository = R;
@@ -348,7 +350,7 @@ namespace Aplos.Areas.Productions.Controllers
 		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 		                                                    LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = XSO.CustomerPOId
 			                                                    where POD.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
+                                                    ,convert(bit, case when isnull(LLD.Id,'')<>'' then 1 else 0 end ) As HasLayout
 
                                 from SCS.WorkCenterMaster WCM 
                                 left outer join  TRN.DailyProductionTarget DPT on dpt.WorkCenterMasterID=WCM.Id  and  DPT.TargetDate='" + ProductionDate + @"'
@@ -356,7 +358,7 @@ namespace Aplos.Areas.Productions.Controllers
                                 left join trn.ProductionOrderDetail POD ON POD.ProductionOrderId=po.Id and pod.Id=(select TOP 1 Id from TRN.ProductionOrderDetail D where D.ProductionOrderId=PO.Id)
                                 left join trn.SalesOrder SO ON SO.Id=POD.SalesOrderId
                                 left join trn.MasterOrderItem MOI ON MOI.Id=so.MasterOrderItemId
-
+                                Left join LineLayoutDailyTarget LLD on LLD.WorkCenterMasterId=DPT.WorkCenterMasterId and LLD.TargetDate=DPT.TargetDate and LLD.ProductionOrderId=DPT.ProductionOrderId
                                 left join mst.MaterialMaster MM ON MM.Id=MOI.MaterialMasterId
                                 left join mst.MaterialMasterArticle MMA ON MMA.Id=MOI.ArticleId                               
                                 where WCM.EntityId='" + EntityId + @"' AND WCM.ProcessId='" + ProcessId + @"' ORDER BY WCM.Sequence ";
@@ -512,96 +514,53 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public ActionResult GetLineLayoutData(string entityid, string processId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            string sql = @" ";
+
+
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
 
         #endregion
 
         #region Copy function
-        public ActionResult CopyFromTable(string entityid, string processId, string ProductionDate, Dictionary<string,object> SelectedLine)
+        [HttpPost, Authorize]
+        public ActionResult CopyFromTable(string entityid, string processId, string ProductionDate, Dictionary<string, object> SelectedLine)
         {
             try
             {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                string NewId = "";
-                string TableName = "";
 
-                DataSet LineLayoutDailyTarget, LineLayoutDailyTargetData;
-
-                con.OpenDataSetThroughAdapter("select * from LineLayoutDailyTarget where 1=2", out LineLayoutDailyTarget, false, "1");
-                con.OpenDataSetThroughAdapter("select * from LineLayoutDailyTargetData where 1=2", out LineLayoutDailyTargetData, false, "1");
-
-                DataTable LineLayoutByProductionBulletin = _sqlRepository.GetDataTable("select * from LineLayoutByProductionBulletin WHERE EntityId='" + SelectedLine[""] + "'");
-                DataTable LineLayoutByProductionBulletinData = _sqlRepository.GetDataTable("select * from LineLayoutByProductionBulletinData WHERE CostingMasterTemplateId='" + SelectedLine[""] + "'");
-
-                SetForeignKey(LineLayoutDailyTarget, "LineLayoutByProductionBulletinId", NewId);
-
-                NewId = GetPK(TableName);
-                CopyDataTable(LineLayoutByProductionBulletin, LineLayoutDailyTarget.Tables[0], "");
-                CopyDataTable(LineLayoutByProductionBulletinData, LineLayoutDailyTargetData.Tables[0], "");
-
-                return Json(/*ep.GetMaster(),*/ JsonRequestBehavior.AllowGet);
+                DT.CopyFromTable(entityid, processId, ProductionDate, SelectedLine);
+                return Json(new { Error = false, Message = AplosMessage.Updated });
             }
             catch (Exception ex)
             {
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
-        private string GetPK(string TableName)
+
+        [HttpPost, Authorize]
+        public JsonResult GetSaveData(string WorkCenterMasterId, string ProductionOrderId, string TargetDate)
         {
-            string sID = string.Empty;
-            bplib.clsGenID objGenID = new bplib.clsGenID();
-            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), TableName, out sID);
-            return sID;
+            return Json(DT.GetDesign(WorkCenterMasterId, ProductionOrderId, TargetDate), JsonRequestBehavior.AllowGet);
         }
-        private void CopyDataTable(DataTable dtSource, DataTable dtDestination, string PK)
+
+        [HttpPost]
+        public ActionResult SaveDiagram(List<Html> Nodes, string Design, string WorkCenterMasterId, string ProductionOrderId, string TargetDate)
         {
-            int Index = 0;
-            foreach (DataRow drSource in dtSource.Rows)
-            {
-                Index++;
-                DataRow drDestination = dtDestination.NewRow();
-                CopyRow(drSource, ref drDestination);
-                if (PK != "")
-                    drDestination["Id"] = PK + Index;
-                dtDestination.Rows.Add(drDestination);
-            }
+            DT.SaveData(Nodes, Design, WorkCenterMasterId, ProductionOrderId, TargetDate);
+            return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
         }
-        private void SetForeignKey(DataSet ds, string ColumnName, string KeyValue)
+        [Authorize, HttpPost]
+        public ActionResult SearchEmployee(string column, string value, string OperationId, string OperationVariationId)
         {
-            foreach (DataRow drSource in ds.Tables[0].Rows)
-            {
-                drSource[ColumnName] = KeyValue;
-
-            }
-        }
-        private void CopyRow(DataRow drSource, ref DataRow drDestination)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            for (int COL = 0; COL < drSource.Table.Columns.Count; COL++)
-            {
-                try
-                {
-                    drDestination[drSource.Table.Columns[COL].ColumnName] = drSource[drSource.Table.Columns[COL].ColumnName];
-
-                }
-                catch (Exception ex)
-                {
-                }
-                try
-                {
-                    drDestination["AddedBy"] = identity.Name;
-                    drDestination["AddedDate"] = DateTime.Now;
-                    drDestination["AddedFromIP"] = identity.IPAddress;
-                    drDestination["UpdatedBy"] = identity.Name;
-                    drDestination["UpdatedFromIP"] = identity.IPAddress;
-                    drDestination["UpdatedDate"] = DateTime.Now;
-
-                }
-                catch (Exception ex)
-                {
-                }
-            }
-
+            return Json(DT.SearchEmployee(column, value, OperationId, OperationVariationId), JsonRequestBehavior.AllowGet);
         }
         #endregion
 
