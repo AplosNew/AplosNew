@@ -197,11 +197,11 @@ namespace Aplos.Areas.Banks.Controllers
             DECLARE @companyId VARCHAR(10)='" + identity.CompanyId + @"';
             DECLARE @plantId VARCHAR(10)='" + identity.PlantId + @"';
             DECLARE @bankMasterId VARCHAR(10) = 'null';
-                SELECT  IsSelect = CONVERT(bit,'False'),
+                SELECT  
                PartyId = STUFF((select distinct ',' + XP.Id from
                TRN.VoucherDetail XVD JOIN[HKP].[Party] AS XP ON XP.Id = XVD.PartyId
             where XVD.VoucherId = V.Id AND XVD.PartyId <> ''  for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
+            ,IsSelect = CONVERT(bit,'False')
 			,PartyCode = STUFF((select distinct ',' + XP.Code from
                TRN.VoucherDetail XVD JOIN[HKP].[Party] AS XP ON XP.Id = XVD.PartyId
             where XVD.VoucherId = V.Id AND XVD.PartyId <> ''  for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
@@ -248,7 +248,24 @@ namespace Aplos.Areas.Banks.Controllers
             LEFT JOIN[HKP].[Party] AS P ON P.Id = VD.PartyId
             WHERE V.Archive = 0 AND V.IsPark =1 AND V.CompanyGroupId = @companyGroupId AND V.CompanyId = @companyId AND V.PlantId = @plantId
            AND VD.BankMasterId <> ''
-            AND V.PostingDate BETWEEN '" + fromDate + "' AND '" + toDate + @"' AND V.SourceType = 'VendorPayment'";
+            AND V.PostingDate BETWEEN '" + fromDate + "' AND '" + toDate + @"' AND V.SourceType = 'VendorPayment'
+
+            UNION ALL
+			
+			SELECT distinct  MPD.PartyId,IsSelect = CONVERT(bit,'False'),P.Code PartyCode,P.UserName Party
+			,PAG.UserName PartyAccountGroupName,CU.Code Currency,C.UserName Country,S.UserName PartyState
+			FROM TRN.MultiplePaymentDetail MPD 
+			JOIN TRN.MultiplePayment MU ON MU.Id=MPD.MultiplePaymentId 
+			LEFT JOIN [HKP].[Party] AS P ON P.Id = MPD.PartyId
+			LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId = P.Id and CP.PartyType='Vendor' and CP.PlantId=@plantId
+            LEFT JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id = CP.PartyAccountGroupId and PAG.AccountType='Vendor'
+			LEFT JOIN SCS.Currency CU ON CU.Id=CP.CurrencyId
+			left join MST.AddressMaster am on am.Id = P.AddressMasterId
+            left join SCS.Country C on C.Id = am.CountryId
+			left join SCS.[State] S on S.Id = am.StateId
+			WHERE MU.IsPark=1 AND MU.TentativeDate BETWEEN '" + fromDate + "' AND '" + toDate + @"' AND MU.SourceType = 'VendorPayment'
+
+            ";
                 return _sqlRepository.GetDataCollection(_sql, null);
             }
             catch (Exception e)

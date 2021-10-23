@@ -371,7 +371,7 @@ namespace Library.OrderManagement.ShipmentControl
                             where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 
 															PO.Qty,FORMAT(PO.LSD,'dd-MMM-yyyy') LSD,FORMAT(PO.CommitmentDate,'dd-MMM-yyyy') CommitmentDate
-															, PD.Product, PD.ProductCategory
+															,ISNULL(PD.Product,'') Product, PD.ProductCategory,PD.MaterialMaster,PD.Article
                             --from trn.ProductionOrder PO
                             --LEFT OUTER JOIN ProductionOrderSchedulingParametersType1 AS T ON t.ProductionOrderID=po.Id
                             --LEFT OUTER JOIN OrderControl AS OCT ON oct.ProductionOrderId=PO.Id AND ISNULL(oct.ProductionOrderId,'')<>'' AND oct.ControlTypeId='" + dt.Rows[0]["Id"].ToString() + @"' 
@@ -388,10 +388,11 @@ namespace Library.OrderManagement.ShipmentControl
                             LEFT OUTER JOIN org.Unit AS u ON u.Id=e.UnitId
                             left outer join org.Plant PLN on pln.Id=PO.PlantId
 							left join (
-							select distinct POD.ProductionOrderId,PM.UserName AS Product,pc.UserName AS ProductCategory FROM TRN.SalesOrder SO
+							select distinct POD.ProductionOrderId,PM.UserName AS Product,pc.UserName AS ProductCategory,mm.UserName MaterialMaster,mma.StandardName Article FROM TRN.SalesOrder SO
 							       LEFT JOIN  TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
 								   LEFT JOIN TRN.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
                                    LEFT JOIN MST.MaterialMaster mm on mm.id=MOI.MaterialMasterId
+                                   LEFT JOIN MST.MaterialMasterArticle mma on mma.id=MOI.ArticleId
 								   LEFT JOIN TRN.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
 								   LEFT JOIN [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
                                    LEFT JOIN [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId

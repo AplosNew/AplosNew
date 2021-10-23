@@ -102,11 +102,11 @@ namespace Library.Service.Employees
                 throw;
             }
         }
-        public IEnumerable<object> GetCboSeparationType()
+        public IEnumerable<object> GetCboSeparationType(string PlantId)
         {
             try
             {
-                var sql = @"SELECT Id,UserName  FROM HKP.SeparationType";
+                var sql = @"SELECT Id,UserName  FROM HKP.SeparationType where PlantId='"+ PlantId + @"'";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)

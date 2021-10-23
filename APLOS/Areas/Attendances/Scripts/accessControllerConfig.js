@@ -306,6 +306,10 @@ function AccessControllerConfig($routeProvider, $locationProvider, $windowProvid
             templateUrl: 'Attendances/AttendanceFromAppReport/Aplos',
             controller: 'AttendanceFromAppReportController'
         })
+        .when('/year-present-days-summary', {
+            templateUrl: 'Attendances/EntireYearPresentDaysSummary/Aplos',
+            controller: 'EntireYearPresentDaysSummaryController'
+        })
         .when('/monthly-good-work-report', {
             templateUrl: 'Attendances/MonthlyGoodWorkReport/Aplos',
             controller: 'monthlyGoodWorkReportController'

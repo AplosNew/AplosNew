@@ -23528,6 +23528,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 							  ,FORMAT(tcon.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
                               ,Ety.UserName as TConEntity,p.Code as PartyCode, p.UserName as PartyName,IR.Types, MS.UserName as MaterialStorage
 							  ,IssueStatus=case when IR.IsConfirmed=0 then 'Not Confirmed' else 'Confirmed' End
+                              ,IRD.TransactionUoMId,IRD.TransactionQty,IRD.BaseQty,uom.UserName as IssueUoM,Buom.UserName as BaseUoM ,AverageAmount=round(DD.AverageAmount,2)
                          FROM TRN.InventoryIssue IR
                          LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
                          LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
@@ -23556,6 +23557,12 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 						 left join ORG.Entity Ety on Ety.Id=tcon.EntityId
 					     left join HKP.Party p on p.Id=tcon.PartyId
 						 left join HKP.MaterialStorage MS on MS.Id=IR.MaterialStorageId
+                          left join SCS.UnitOfMeasurement uom on uom.Id=IRD.TransactionUoMId
+						left join SCS.UnitOfMeasurement Buom on Buom.Id=IRD.BaseUOMId
+						left join(select SUM(IIH.BooksCurrencyBaseRate) AverageRate, SUM(IIH.TotalMaterialBooksCurrencyAmount) AverageAmount,IIH.InventoryIssueDetailId 
+						from TRN.InventoryIssueHistory IIH left join TRN.InventoryIssueDetail IID on IID.Id=IIH.InventoryIssueDetailId
+						group by IIH.InventoryIssueDetailId)
+						DD on DD.InventoryIssueDetailId=IRD.Id
                          WHERE IR.Id ='" + OrderMasterID + "'";
 
                 return _sqlRepository.GetDataTable(strSQL);
@@ -23607,7 +23614,8 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
             dsOrderItems = JWloadIssueOrderMasterItems(grnId);
             dsTax = JWloadIssueOrderMasterTax(grnId);
 
-            int LasColumnIndex = 9;
+           // int LasColumnIndex = 9;
+            int LasColumnIndex = 10;
             Dictionary<string, int> dicTaxes = new Dictionary<string, int>();
             DataView dv = new DataView(dsTax.DefaultView.ToTable(true, "TaxCode"));
 
@@ -23684,20 +23692,38 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
             int colcomments = COL; COL++;
             //wTable.Rows[ROW].Cells[colChar3].Width = 52;
 
-
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Trn UoM");
             range.ApplyCharacterFormat(FontBold);
-            int colQty = COL; COL++;
-            wTable.Rows[ROW].Cells[colQty].CellFormat.VerticalAlignment = VerticalAlignment.Middle;
+            int colIssueUoM = COL; COL++;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UOM");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Trn Qty");
             range.ApplyCharacterFormat(FontBold);
-            int colUoM = COL; COL++;
-            //wTable.Rows[ROW].Cells[colUoM].Width = 30;
+            int colTransactionQty = COL; COL++;
+            //      wTable.Rows[ROW].Cells[colTransactionQty].CellFormat.VerticalAlignment = VerticalAlignment.Middle;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Base UoM");
             range.ApplyCharacterFormat(FontBold);
-            int colRate = COL;
+            int colBaseUoM = COL; COL++;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Base Qty");
+            range.ApplyCharacterFormat(FontBold);
+            //  int colBaseQty = COL; COL++;
+            int colBaseQty = COL;
+
+
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colQty = COL; COL++;
+            //wTable.Rows[ROW].Cells[colQty].CellFormat.VerticalAlignment = VerticalAlignment.Middle;
+
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UOM");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colUoM = COL; COL++;
+            ////wTable.Rows[ROW].Cells[colUoM].Width = 30;
+
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colRate = COL;
 
 
 
@@ -23731,7 +23757,8 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
                 COL++;
 
                 colTotalTaxableAmount = COL;
-                range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Total Value (" + dsOrderMaster.Rows[0]["CurrencyName"].ToString() + ")");
+          //      range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Total Value (" + dsOrderMaster.Rows[0]["CurrencyName"].ToString() + ")");
+                range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Issue Amount");
                 range.ApplyCharacterFormat(FontBold);
             }
 
@@ -23791,14 +23818,21 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
                 TROW.Cells[colChar3].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ThirdCharacteristicsValue"].ToString());
                 //TROW.Cells[colHSNCODE].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());
                 TROW.Cells[colcomments].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Comments"].ToString());
-                TROW.Cells[colQty].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("F2"));
-                TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString().ToString());
+         //       TROW.Cells[colQty].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("F2"));
+        //        TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString().ToString());
                 //     TROW.Cells[colRate].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("F2"));
-                TROW.Cells[colRate].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("F4"));
+         //       TROW.Cells[colRate].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("F4"));
 
-                TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("F2"));
+                TROW.Cells[colIssueUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["IssueUoM"].ToString());
+                TROW.Cells[colTransactionQty].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TransactionQty"].ToString()).ToString("F2"));
+                TROW.Cells[colBaseUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["BaseUoM"].ToString());
+                TROW.Cells[colBaseQty].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["BaseQty"].ToString()).ToString("F2"));
 
-                totalValue += clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString());
+         //       TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("F2"));
+                TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["AverageAmount"].ToString()).ToString("F2"));
+
+                //       totalValue += clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString());
+                totalValue += clsStaticInfo.dbl(dsOrderMaster.Rows[i]["AverageAmount"].ToString());
 
                 if (dv.Count > 0)
                 {
@@ -23829,8 +23863,9 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 
             for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
             {
-                if (C == colRate || C == colArticle || C == colChar1 || C == colChar2 || C == colChar3 || C == colcomments || C == colQty || C == colRate || C == colUoM || C == colMaterialGroup || dicTaxes.ContainsValue(C))
-                    continue;
+         //       if (C == colRate || C == colArticle || C == colChar1 || C == colChar2 || C == colChar3 || C == colcomments || C == colQty || C == colRate || C == colUoM || C == colMaterialGroup || dicTaxes.ContainsValue(C))
+                    if (C == colArticle || C == colChar1 || C == colChar2 || C == colChar3 || C == colcomments || C == colIssueUoM || C == colTransactionQty || C == colBaseUoM || C == colBaseQty || C == colMaterialGroup || dicTaxes.ContainsValue(C))
+                        continue;
 
                 double value = 0;
                 for (int i = startRow; i < TotalRow; i++)
@@ -23855,7 +23890,8 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 
             //_TROW.Cells[SubTotalColumn].AddParagraph().AppendText("Sub Total");
 
-            double total = clsStaticInfo.dbl(dsOrderMaster.Compute("SUM(TrnAmount)", "").ToString())
+      //      double total = clsStaticInfo.dbl(dsOrderMaster.Compute("SUM(TrnAmount)", "").ToString())
+                double total = clsStaticInfo.dbl(dsOrderMaster.Compute("SUM(AverageAmount)", "").ToString())
                 //- clsStdLib.dbl(dsOrderItems.Tables[0].Compute("SUM(Discount)", "").ToString())
                 + clsStaticInfo.dbl(dsTax.Compute("SUM(TaxAmount)", "").ToString());
 
@@ -24087,7 +24123,8 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
                     }
                 }
                 IParagraphItem p = TROW.Cells[colServiceName].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Service"].ToString());
-                TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("#,##0.00"));
+            //    TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("#,##0.00"));
+                TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["AverageAmount"].ToString()).ToString("#,##0.00"));
 
                 TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["Amount"].ToString()).ToString("#,##0.00"));
 
@@ -24492,6 +24529,8 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 							  ,FORMAT(tcon.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
                               ,Ety.UserName as TConEntity,p.Code as PartyCode, p.UserName as PartyName,IR.Types, MS.UserName as MaterialStorage
 							  ,IssueStatus=case when IR.IsConfirmed=0 then 'Not Confirmed' else 'Confirmed' End
+                              ,IRD.TransactionUoMId,IRD.TransactionQty,IRD.BaseQty,uom.UserName as IssueUoM,Buom.UserName as BaseUoM
+                              ,AverageAmount=round(DD.AverageAmount,2)
                          FROM TRN.InventoryIssue IR
                          LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
                          LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
@@ -24521,6 +24560,12 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 						 left join ORG.Entity Ety on Ety.Id=tcon.EntityId
 					     left join HKP.Party p on p.Id=tcon.PartyId
 						 left join HKP.MaterialStorage MS on MS.Id=IR.MaterialStorageId
+                         left join SCS.UnitOfMeasurement uom on uom.Id=IRD.TransactionUoMId
+					   	left join SCS.UnitOfMeasurement Buom on Buom.Id=IRD.BaseUOMId
+                        left join(select SUM(IIH.BooksCurrencyBaseRate) AverageRate, SUM(IIH.TotalMaterialBooksCurrencyAmount) AverageAmount,IIH.InventoryIssueDetailId 
+						from TRN.InventoryIssueHistory IIH left join TRN.InventoryIssueDetail IID on IID.Id=IIH.InventoryIssueDetailId
+						group by IIH.InventoryIssueDetailId)
+						DD on DD.InventoryIssueDetailId=IRD.Id
                          WHERE IR.Id ='" + OrderMasterID + "'";
 
                 return _sqlRepository.GetDataTable(strSQL);
@@ -24572,7 +24617,8 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
             dsOrderItems = JWValAddedloadIssueOrderMasterItems(grnId);
             dsTax = JWValAddedloadIssueOrderMasterTax(grnId);
 
-            int LasColumnIndex = 9;
+           // int LasColumnIndex = 9;
+            int LasColumnIndex = 10;
             Dictionary<string, int> dicTaxes = new Dictionary<string, int>();
             DataView dv = new DataView(dsTax.DefaultView.ToTable(true, "TaxCode"));
 
@@ -24649,20 +24695,38 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
             int colcomments = COL; COL++;
             //wTable.Rows[ROW].Cells[colChar3].Width = 52;
 
-
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Trn UoM");
             range.ApplyCharacterFormat(FontBold);
-            int colQty = COL; COL++;
-            wTable.Rows[ROW].Cells[colQty].CellFormat.VerticalAlignment = VerticalAlignment.Middle;
+            int colIssueUoM = COL; COL++;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UOM");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Trn Qty");
             range.ApplyCharacterFormat(FontBold);
-            int colUoM = COL; COL++;
-            //wTable.Rows[ROW].Cells[colUoM].Width = 30;
+            int colTransactionQty = COL; COL++;
+      //      wTable.Rows[ROW].Cells[colTransactionQty].CellFormat.VerticalAlignment = VerticalAlignment.Middle;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Base UoM");
             range.ApplyCharacterFormat(FontBold);
-            int colRate = COL;
+            int colBaseUoM = COL; COL++;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Base Qty");
+            range.ApplyCharacterFormat(FontBold);
+          //  int colBaseQty = COL; COL++;
+            int colBaseQty = COL;
+            //       wTable.Rows[ROW].Cells[colBaseQty].CellFormat.VerticalAlignment = VerticalAlignment.Middle;
+
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colQty = COL; COL++;
+            //wTable.Rows[ROW].Cells[colQty].CellFormat.VerticalAlignment = VerticalAlignment.Middle;
+
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UOM");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colUoM = COL; COL++;
+            ////wTable.Rows[ROW].Cells[colUoM].Width = 30;
+
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colRate = COL;
 
 
 
@@ -24696,7 +24760,8 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
                 COL++;
 
                 colTotalTaxableAmount = COL;
-                range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Total Value (" + dsOrderMaster.Rows[0]["CurrencyName"].ToString() + ")");
+                //  range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Total Value (" + dsOrderMaster.Rows[0]["CurrencyName"].ToString() + ")");
+                range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Issue Amount");
                 range.ApplyCharacterFormat(FontBold);
             }
 
@@ -24756,14 +24821,21 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
                 TROW.Cells[colChar3].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ThirdCharacteristicsValue"].ToString());
                 //TROW.Cells[colHSNCODE].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());
                 TROW.Cells[colcomments].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Comments"].ToString());
-                TROW.Cells[colQty].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("F2"));
-                TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString().ToString());
+          //      TROW.Cells[colQty].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("F2"));
+          //      TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString().ToString());
                 //	TROW.Cells[colRate].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("F2"));
-                TROW.Cells[colRate].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("F4"));
+          //      TROW.Cells[colRate].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("F4"));
 
-                TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("F2"));
+           //     TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("F2"));
+                TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["AverageAmount"].ToString()).ToString("F2"));
 
-                totalValue += clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString());
+                TROW.Cells[colIssueUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["IssueUoM"].ToString());
+                TROW.Cells[colTransactionQty].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TransactionQty"].ToString()).ToString("F2"));
+                TROW.Cells[colBaseUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["BaseUoM"].ToString());
+                TROW.Cells[colBaseQty].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["BaseQty"].ToString()).ToString("F2"));
+
+             //   totalValue += clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString());
+                totalValue += clsStaticInfo.dbl(dsOrderMaster.Rows[i]["AverageAmount"].ToString());
 
                 if (dv.Count > 0)
                 {
@@ -24794,8 +24866,9 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 
             for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
             {
-                if (C == colRate || C == colArticle || C == colChar1 || C == colChar2 || C == colChar3 || C == colcomments || C == colQty || C == colRate || C == colUoM || C == colMaterialGroup || dicTaxes.ContainsValue(C))
-                    continue;
+           //     if (C == colRate || C == colArticle || C == colChar1 || C == colChar2 || C == colChar3 || C == colcomments || C == colIssueUoM || C == colTransactionQty || C == colBaseUoM || C == colBaseQty || C == colQty || C == colRate || C == colUoM || C == colMaterialGroup || dicTaxes.ContainsValue(C))
+                    if (C == colArticle || C == colChar1 || C == colChar2 || C == colChar3 || C == colcomments || C == colIssueUoM || C == colTransactionQty || C == colBaseUoM || C == colBaseQty || C == colMaterialGroup || dicTaxes.ContainsValue(C))
+                        continue;
 
                 double value = 0;
                 for (int i = startRow; i < TotalRow; i++)
@@ -24820,7 +24893,8 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 
             //_TROW.Cells[SubTotalColumn].AddParagraph().AppendText("Sub Total");
 
-            double total = clsStaticInfo.dbl(dsOrderMaster.Compute("SUM(TrnAmount)", "").ToString())
+      //      double total = clsStaticInfo.dbl(dsOrderMaster.Compute("SUM(TrnAmount)", "").ToString())
+                double total = clsStaticInfo.dbl(dsOrderMaster.Compute("SUM(AverageAmount)", "").ToString())
                 //- clsStdLib.dbl(dsOrderItems.Tables[0].Compute("SUM(Discount)", "").ToString())
                 + clsStaticInfo.dbl(dsTax.Compute("SUM(TaxAmount)", "").ToString());
 
@@ -25052,7 +25126,8 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
                     }
                 }
                 IParagraphItem p = TROW.Cells[colServiceName].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Service"].ToString());
-                TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("#,##0.00"));
+          //      TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("#,##0.00"));
+                TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["AverageAmount"].ToString()).ToString("#,##0.00"));
 
                 TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["Amount"].ToString()).ToString("#,##0.00"));
 
@@ -25650,10 +25725,14 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 				//TROW.Cells[colQualityStatus].AddParagraph().AppendText(dsOrderMaster.Rows[i]["QualityStatus"].ToString().ToString());
 				//TROW.Cells[colGrossAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["GrossAmount"].ToString()).ToString("F2"));
 				//TROW.Cells[colDiscountAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["DiscountAmount"].ToString()).ToString("F2"));
-				TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("#,##0.00"));
-				totalValue += clsStdLib.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString());
-				//TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(totalValue.ToString("F2"));
-				if (dv.Count > 0)
+		//		TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("#,##0.00"));
+
+                TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["AverageAmount"].ToString()).ToString("#,##0.00"));
+
+        //        totalValue += clsStdLib.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString());
+                totalValue += clsStdLib.dbl(dsOrderMaster.Rows[i]["AverageAmount"].ToString());
+                //TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(totalValue.ToString("F2"));
+                if (dv.Count > 0)
 				{
 					//dsTax.Tables[0].DefaultView.RowFilter = "MasterOrderItemId='" + dsOrderItems.Tables[0].Rows[i]["MasterOrderItemId"].ToString() + "'";
 					DataView dvtax = new DataView(dsTax.DefaultView.ToTable());
