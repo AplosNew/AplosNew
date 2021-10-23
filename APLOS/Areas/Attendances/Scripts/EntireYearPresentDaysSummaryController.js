@@ -91,15 +91,7 @@ function EntireYearPresentDaysSummaryController($window, $timeout, cboService, c
         }
 
         var parameters = [];
-        parameters.push({ "Key": "EmpName", "Value": getString(filteredRecords, "EmployeeName") });
-        parameters.push({ "Key": "PlantId", "Value": getString(filteredRecords, "PlantId") });
-        parameters.push({ "Key": "SubId", "Value": getString(filteredRecords, "SubsectionId") });
-        parameters.push({ "Key": "SectionId", "Value": getString(filteredRecords, "SectionId") });
-        parameters.push({ "Key": "DesgId", "Value": getString(filteredRecords, "DesignationId") });
-        parameters.push({ "Key": "UnitId", "Value": getString(filteredRecords, "UnitId") });
-        parameters.push({ "Key": "DeptId", "Value": getString(filteredRecords, "DepartmentId") });
-        parameters.push({ "Key": "EmpCode", "Value": getString(filteredRecords, "EmployeeCode") });
-
+        parameters.push({ "Key": "EmpId", "Value": getString(filteredRecords, "EmpId") });
         applyFilters(parameters);
 
        
@@ -113,11 +105,7 @@ function EntireYearPresentDaysSummaryController($window, $timeout, cboService, c
             method: 'POST',
             url: $scope.path + 'GetPrintReport',
             data: {
-                From: $scope.selectedValues.FromDate, To: $scope.selectedValues.ToDate,
-                AttndType: $scope.selectedValues.AttndType, EmpName: parameters[0].Value,
-                PlantId: parameters[1].Value, SubId: parameters[2].Value,
-                SectionId: parameters[3].Value, DesgId: parameters[4].Value, UnitId: parameters[5].Value,
-                DeptId: parameters[6].Value, EmpCode: parameters[7].Value
+                EmpId: parameters[0].Value,
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
