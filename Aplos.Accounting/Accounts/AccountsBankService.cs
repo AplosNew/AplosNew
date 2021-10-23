@@ -199,8 +199,40 @@ namespace Library.Accounting.Accounts
            AND VD.BankMasterId <>'' 
             -- (isnull(VD.BankMasterId,'')='' OR (isnull(VD.BankMasterId,'')<>'' AND ))
             AND V.PostingDate BETWEEN '" + fromDate + "' AND '" + toDate + @"' AND V.SourceType='VendorPayment'
+
+            UNION ALL
+
+			SELECT BeneficiaryAccNo=PB.BankAccountNo,P.UserName BeneficiaryName,  MPD.PartyId,MPD.Amount InstrumentAmount
+			,IFSCCode=PB.BankAccountNo,BeneficiaryEmail=am.Email, REPLACE(CONVERT(VARCHAR(11), MU.TentativeDate, 106), ' ', '-') AS TransactionDate,NULL TransactionTypeNEFT_RTGS
+			, InformationToBeneficiary=A.UserName+'('+ p.UserName+')'
+			, '' DebitAcccountNarration
+            , '' PaymentDetails1, MPD.Amount Paymentdetails2
+            ,NULL Paymentdetails3,NULL Paymentdetails4,NULL Paymentdetails5,NULL Paymentdetails6,NULL Paymentdetails7
+            ,BN.UserName BeneBankName
+
+            , 0 CompanyCurrencyDrAmount,MPD.Amount* IV.CompanyCurrencyRate CompanyCurrencyCrAmount 
+           
+			FROM TRN.MultiplePaymentDetail MPD 
+			JOIN TRN.MultiplePayment MU ON MU.Id=MPD.MultiplePaymentId 
+			LEFT JOIN [HKP].[Party] AS P ON P.Id = MPD.PartyId
+			LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId = P.Id and CP.PartyType='Vendor' and CP.PlantId=@plantId
+            LEFT JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id = CP.PartyAccountGroupId and PAG.AccountType='Vendor'
+			LEFT JOIN SCS.Currency CU ON CU.Id=CP.CurrencyId
+			left join MST.AddressMaster am on am.Id = P.AddressMasterId
+            left join SCS.Country C on C.Id = am.CountryId
+			left join SCS.[State] S on S.Id = am.StateId
+			LEFT JOIN HKP.PartyBank PB ON PB.CompanyPartyId=CP.Id
+			LEFT JOIN TRN.Invoice IV ON IV.Id=MPD.InvoiceId
+			LEFT JOIN TRN.InvoiceDetail IVD ON IVD.Id=MPD.InvoiceDetailId
+			LEFT JOIN [MST].[BudgetMaster] AS BDM ON BDM.Id=IVD.BudgetMasterId
+            LEFT JOIN [HKP].[Budget] AS B ON B.Id=BDM.BudgetId
+            LEFT JOIN [HKP].[Activity] AS A ON A.Id=IVD.ActivityId
+			 LEFT JOIN [MST].[BankMaster] AS BM ON BM.Id=MU.BankMasterId
+			 LEFT JOIN [HKP].[Bank] AS BN ON BN.Id=BM.BankId
+			WHERE MU.IsPark=1 AND MU.TentativeDate BETWEEN '" + fromDate + "' AND '" + toDate + @"' AND MU.SourceType = 'VendorPayment'
+			AND CP.PlantId=@plantId and PAG.AccountType='Vendor' and CP.PartyType='Vendor'
                 ) X
-			where x.PartyId IN ("+PartyList+@")";
+			where x.PartyId IN (" + PartyList+@")";
 
             return _sqlRepository.GetDataTable(sql);
         }

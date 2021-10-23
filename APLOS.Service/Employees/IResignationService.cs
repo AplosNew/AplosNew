@@ -35,7 +35,7 @@ namespace Library.Service.Employees
         IWorkbook ReportEmployeeInfo(ReportParam status);
 
         void UpdateResignedEmployees();
-        IEnumerable<object> GetCboSeparationType();
+        IEnumerable<object> GetCboSeparationType(string PlantId);
         IEnumerable<object> ResignationHistoryByID(string empID);
     }
 }
