@@ -176,7 +176,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         }
        
 
-        public string GetData()
+        public IEnumerable<object> GetData()
         {
             try
             {
@@ -271,7 +271,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                                                     LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = EI.SubSectionID                        
                             where eI.PlantID='" + plantId+@"' and year(WorkDate)=year('"+date+@"')
                             AND (ei.EmployeeStatus='Active')";
-                return sql;
+
+                return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
             {
