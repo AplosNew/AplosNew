@@ -189,7 +189,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             , DP.UserName Department
                             , se.UserName Section
                             , Sus.UserName SubSection
-                            , FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ
+                            , FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ,ei.SubSectionId,ei.DepartmentId,ei.SectionId
 							
                             ,Jan=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
                             where MONTH(workdate)='1'
