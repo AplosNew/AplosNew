@@ -189,7 +189,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             , DP.UserName Department
                             , se.UserName Section
                             , Sus.UserName SubSection
-                            , FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ
+                            , FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ,ei.SubSectionId,ei.DepartmentId,ei.SectionId
 							
                             ,Jan=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
                             where MONTH(workdate)='1'
@@ -280,7 +280,112 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
-       
+        public DataTable GetReportData(string EmpId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var plantId = identity.PlantId;
+                var date = DateTime.Now.ToString("dd-MMM-yyyy");
+
+                var sql = @"select distinct SystemId as EmpId,EI.EmployeeCode
+                        	,EI.EmployeeName
+                            , DP.UserName Department
+                            , se.UserName Section
+                            , Sus.UserName SubSection
+                            , FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ,ei.SubSectionId,ei.DepartmentId,ei.SectionId
+							
+                            ,Jan=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
+                            where MONTH(workdate)='1'
+                            and PlantID='" + plantId + @"'
+                            and y.EmpSystemID=a.EmpSystemID
+                            group by EmpSystemID),'0'),
+                            
+                            Feb=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
+                            where MONTH(workdate)='2'
+                            and PlantID='" + plantId + @"'
+                            and y.EmpSystemID=a.EmpSystemID
+                            group by EmpSystemID),'0'),
+                            
+                            Mar=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
+                            where MONTH(workdate)='3'
+                            and PlantID='" + plantId + @"'
+                            and y.EmpSystemID=a.EmpSystemID
+                            group by EmpSystemID),'0'),
+    
+                            Apr=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
+                            where MONTH(workdate)='4'
+                            and PlantID='" + plantId + @"'
+                            and y.EmpSystemID=a.EmpSystemID
+                            group by EmpSystemID),'0'),
+                            
+                            May=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
+                            where MONTH(workdate)='5'
+                            and PlantID='" + plantId + @"'
+                            and y.EmpSystemID=a.EmpSystemID
+                            group by EmpSystemID),'0')
+
+							,June=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
+                            where MONTH(workdate)='6'
+                            and PlantID='" + plantId + @"'
+                            and y.EmpSystemID=a.EmpSystemID
+                            group by EmpSystemID),'0')
+
+							,July=isnull((select SUM(presentvalue)+sum(latevalue)
+                            from AttdnProcessData y
+                            where MONTH(workdate)='7'
+                            and PlantID='" + plantId + @"'
+                            and y.EmpSystemID=a.EmpSystemID
+                            group by EmpSystemID),'0')
+							                 
+                            ,Aug=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
+                            where MONTH(workdate)='8'
+                            and PlantID='" + plantId + @"'
+                            and y.EmpSystemID=a.EmpSystemID
+                            group by EmpSystemID),'0'),
+                            
+                            Sep=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
+                            where MONTH(workdate)='9'
+                            and PlantID='" + plantId + @"' 
+                            and y.EmpSystemID=a.EmpSystemID
+                            group by EmpSystemID),'0'),
+                            
+                            Oct=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
+                            where MONTH(workdate)='10'
+                            and PlantID='" + plantId + @"'
+                            and y.EmpSystemID=a.EmpSystemID
+                            group by EmpSystemID),'0'),
+                            
+                            Nov=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
+                            where MONTH(workdate)='11'
+                            and PlantID='" + plantId + @"'
+                            and y.EmpSystemID=a.EmpSystemID
+                            group by EmpSystemID),'0'),
+                            
+                            Dec=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
+                            where MONTH(workdate)='12'
+                            and PlantID='" + plantId + @"'
+                            and y.EmpSystemID=a.EmpSystemID
+                            group by EmpSystemID),'0')
+                            
+                            from attdnprocessdata a JOIN
+                            EmployeeInformation eI on eI.SystemId=a.EmpSystemID
+                                                    LEFT JOIN ORG.Department DP ON DP.Id = EI.DepartmentId
+                                                    LEFT JOIN ORG.Section AS Se ON Se.Id = EI.SectionID
+                                                    LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = EI.SubSectionID                        
+                            where eI.PlantID='" + plantId + @"' and year(WorkDate)=year('" + date + @"')
+                            AND (ei.EmployeeStatus='Active')
+                            --- Filters
+                            and isnull(ei.SystemId, '') IN(" + EmpId + @")";
+
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
 
     }
 
