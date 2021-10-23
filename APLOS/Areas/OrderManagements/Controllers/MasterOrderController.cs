@@ -1639,7 +1639,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                         LEFT JOIN [HKP].[CharacteristicsValue] AS CHV ON FCH.CharacteristicsValueId=CHV.Id
                         JOIN [TRN].[SalesOrder] AS SO ON FCH.SalesOrderId=SO.Id
                         JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
-                        WHERE MOI.Id='" + ItemId + @"'";
+                        WHERE MOI.Id='" + ItemId + @"' ORDER BY CHV.UserName";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
@@ -1651,7 +1651,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 						LEFT JOIN [HKP].[CharacteristicsValue] AS CHV ON FCH.CharacteristicsValueId=CHV.Id
                         JOIN [TRN].[SalesOrder] AS SO ON FCH.SalesOrderId=SO.Id
                         JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
-                       WHERE MOI.Id='"+ ItemId + "'";
+                       WHERE MOI.Id='"+ ItemId + "' ORDER BY CHV.UserName";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
