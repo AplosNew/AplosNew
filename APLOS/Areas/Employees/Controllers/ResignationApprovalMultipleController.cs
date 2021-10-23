@@ -116,7 +116,7 @@ namespace Aplos.Areas.Employees.Controllers
         public JsonResult GetSeparationType()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_ResignationService.GetCboSeparationType(), JsonRequestBehavior.AllowGet);
+            return Json(_ResignationService.GetCboSeparationType(identity.PlantId), JsonRequestBehavior.AllowGet);
         }
         [HttpPost, Authorize]
         public JsonResult Edit(Resignation model)
