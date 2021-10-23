@@ -591,7 +591,7 @@ namespace Library.OrderManagement.Packing
 
                 }
 
-                DataSet dsMaster, dsFGDetail, dsProductionSummary, dsInventoryReceive, dsInventoryReceiveDetail, dsInventoryMaterial, dsConsumptionByCosting;
+                DataSet dsMaster, dsFGDetail, dsProductionSummary, dsInventoryReceive, dsInventoryReceiveDetail, dsInventoryMaterial, dsConsumptionByCosting, dsFromConsumptionByCosting;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
 
@@ -789,11 +789,34 @@ namespace Library.OrderManagement.Packing
                             drInventoryReceiveDetail["AddedDate"] = DateTime.Now;
                             drInventoryReceiveDetail["AddedFromIP"] = identity.IPAddress;
                             dsInventoryReceiveDetail.Tables[0].Rows.Add(drInventoryReceiveDetail);
-                            #endregion
+							#endregion
 
+							#region ConsumptionByCosting
 
-                        }
-                    }
+							if (item["CostingMasterTemplateId"] != null)
+							{
+								GetConsumptionByCostingData(item["CostingMasterTemplateId"].ToString(), out dsFromConsumptionByCosting);
+								dsFromConsumptionByCosting.Tables[0].DefaultView.RowFilter = "CostingId='" + item["CostingMasterTemplateId"].ToString() + "'";
+								for (int l = 0; l < dsFromConsumptionByCosting.Tables[0].DefaultView.Count; l++)
+								{
+									DataRow drConsumptionByCosting = dsConsumptionByCosting.Tables[0].NewRow();
+									CopyRow(dsFromConsumptionByCosting.Tables[0].DefaultView[l].Row, ref drConsumptionByCosting);
+									drConsumptionByCosting["Id"] = detailId + (l + 1);
+									drConsumptionByCosting["InventoryReceiveDetailId"] = detailId;
+									drConsumptionByCosting["GrossConsumption"] = dsFromConsumptionByCosting.Tables[0].DefaultView[l]["GrossConsumption"].ToString();
+									drConsumptionByCosting["GrossAmount"] = dsFromConsumptionByCosting.Tables[0].DefaultView[l]["GrossAmount"].ToString();
+									drConsumptionByCosting["InPutCostingItemId"] = dsFromConsumptionByCosting.Tables[0].DefaultView[l]["InPutCostingItemId"].ToString();
+									drConsumptionByCosting["TotalInputConsumption"] = Convert.ToDecimal(item["Qty"]) * Convert.ToDecimal(dsFromConsumptionByCosting.Tables[0].DefaultView[l]["GrossConsumption"].ToString());
+
+									drConsumptionByCosting["TotalInputStandardCost"] = Convert.ToDecimal(dsFromConsumptionByCosting.Tables[0].DefaultView[l]["GrossAmount"].ToString()) * Convert.ToDecimal(dsFromConsumptionByCosting.Tables[0].DefaultView[l]["GrossConsumption"].ToString());
+
+									dsConsumptionByCosting.Tables[0].Rows.Add(drConsumptionByCosting);
+								}
+
+							}
+							#endregion
+						}
+					}
                 }
 
                 #region ProductionSummary

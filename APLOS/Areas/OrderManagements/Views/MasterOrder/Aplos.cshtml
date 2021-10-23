@@ -2140,17 +2140,17 @@
             <div class="modal-body">
                 <div class="modal-body">
                 <div class="form-elements form-horizontal table-responsive modal-table">
-                    
-                    
+                    <button ng-click="AddSOSKU('1');" title="Add New {{rowName}}" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i>{{rowName}}</button>
+                    <button ng-click="AddSOSKU('2');" title="Add New {{columnName}}" align="left" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i>{{columnName}}</button>
                     <table class="table table-striped">
                         <thead>
                             <tr>
                                 <th>
-                                    <button ng-click="AddSOSKU('1');" title="Add New {{rowName}}" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> </button>
+                                    @*<button ng-click="AddSOSKU('1');" title="Add New {{rowName}}" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> </button>*@
                                     {{rowName}}
                                 </th>
                                 <th ng-repeat="x in skuList[0].childList" class="text-center" ng-class="{ 'has-error':x.isDuplicate == true, '':x.isDuplicate != true }">
-                                    <button ng-click="AddSOSKU('2');" title="Add New {{columnName}}" align="left" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> </button>
+                                    @*<button ng-click="AddSOSKU('2');" title="Add New {{columnName}}" align="left" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> </button>*@
                                     <button ng-click="removeSkuMatrixColumn($index)" class="btn btn-action tooltip-here pull-right" tooltip data-placement="top" title="Remove" ng-disabled="skuList[0].childList.length <= 1"><i class="glyphicon glyphicon-remove"></i></button>
                                     <div class="select-style">
                                         <select class="form-control" ng-model="x.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char2.Id }:true"
