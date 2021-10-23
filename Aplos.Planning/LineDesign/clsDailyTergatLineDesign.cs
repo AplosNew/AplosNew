@@ -32,8 +32,8 @@ namespace Library.Planning.LineDesign
                                 FROM trn.ProductionOrder po
                                 LEFT JOIN LineLayoutDailyTarget LL ON LL.ProcessId = '" + processId + @"'                                
                                     AND LL.ProductionOrderId = po.Id                                
-                                    AND LL.TargetDate = '"+ ProductionDate + @"'                                
-                                    AND LL.WorkCenterMasterId = '"+ SelectedLine["WorkCenterMasterId"] + @"'
+                                    AND LL.TargetDate = '" + ProductionDate + @"'                                
+                                    AND LL.WorkCenterMasterId = '" + SelectedLine["WorkCenterMasterId"] + @"'
                                 LEFT JOIN LineLayoutDailyTarget LLP ON LLP.ProcessId = '" + processId + @"'                                
                                     AND LLP.ProductionOrderId = po.Id                                
                                     AND LLP.TargetDate = (
@@ -157,12 +157,12 @@ namespace Library.Planning.LineDesign
 
         }
 
-        public List<Dictionary<string, object>> GetDesign(string BulletinId)
+        public List<Dictionary<string, object>> GetDesign(string WorkCenterMasterId, string ProductionOrderId, string TargetDate)
         {
 
             try
             {
-                string sql = @"select * from LineLayoutDailyTarget where ProductionBulletinTemplateMasterId = '" + BulletinId + "' ";
+                string sql = @"select * from LineLayoutDailyTarget where WorkCenterMasterId = '" + WorkCenterMasterId + @"' AND  ProductionOrderId='" + ProductionOrderId + @"' AND TargetDate='" + TargetDate + @"'";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -171,6 +171,133 @@ namespace Library.Planning.LineDesign
                 throw ex;
             }
         }
+        public void SaveData(List<Html> Nodes, string Design, string WorkCenterMasterId, string ProductionOrderId, string TargetDate)
+        {
+            bplib.clsGenID objGenID = null;
+            string idFromDB = "";
+            string idFromDBC = "";
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            List<addInfo> HtmlsInfo = new List<addInfo>();
+            for (int i = 0; i < Nodes.Count; i++)
+            {
+                try
+                {
+                    Html TempHtml = Nodes[i];
+                    if (TempHtml == null)
+                        continue;
 
+                    if (TempHtml.addInfo == null)
+                        continue;
+
+                    if (string.IsNullOrEmpty(TempHtml.addInfo.OperationVariationId))
+                        continue;
+
+                    HtmlsInfo.Add(TempHtml.addInfo);
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
+
+            DataSet dsMaster, dsChild;
+            ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+            con.OpenDataSetThroughAdapter("select * from LineLayoutDailyTarget where WorkCenterMasterId = '" + WorkCenterMasterId + @"' AND  ProductionOrderId='" + ProductionOrderId + @"' AND TargetDate='" + TargetDate + @"'", out dsMaster, false, "1");
+            con.OpenDataSetThroughAdapter("select * from LineLayoutDailyTargetData where LineLayoutDailyTargetId=(select top 1 Id from LineLayoutDailyTarget where WorkCenterMasterId = '" + WorkCenterMasterId + @"' AND  ProductionOrderId='" + ProductionOrderId + @"' AND TargetDate='" + TargetDate + @"')", out dsChild, false, "1");
+
+            string PrimaryKey = "";
+            if (dsMaster.Tables[0].Rows.Count > 0)
+            {
+
+                DataRow dr = dsMaster.Tables[0].Rows[0];
+                PrimaryKey = dr["Id"].ToString();
+                dr.BeginEdit();
+                dr["Layout"] = Design;
+                dr["UpdatedBy"] = identity.Name;
+                dr["UpdatedDate"] = DateTime.Now;
+                dr["UpdatedFromIP"] = identity.IPAddress;
+                dr.EndEdit();
+            }
+
+            //delete missing items from db
+            while (dsChild.Tables[0].DefaultView.Count > 0)
+                dsChild.Tables[0].DefaultView[0].Delete();
+
+            string ChildPK = "";
+            for (int i = 0; i < HtmlsInfo.Count; i++)
+            {
+                if (ChildPK == "")
+                {
+                    objGenID = new bplib.clsGenID();
+                    objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "LineLayoutByProductionBulletinData", out idFromDBC);
+                    ChildPK = "LD-" + idFromDBC;
+                }
+                DataRow dr = dsChild.Tables[0].NewRow();
+                dr["Id"] = ChildPK + "-" + (i + 1);
+                dr["LineLayoutDailyTargetId"] = PrimaryKey;
+                dr["OperationId"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(HtmlsInfo[i].OperationId));
+                dr["MaterialMasterId"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(HtmlsInfo[i].MaterialMasterId));
+                dr["ArticleId"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(HtmlsInfo[i].ArticleId));
+                dr["OperationVariationId"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(HtmlsInfo[i].OperationVariationId));
+                dr["OperationId"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(HtmlsInfo[i].OperationId));
+
+                dr["EmployeeSystemId"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(HtmlsInfo[i].EmployeeId));
+                dr["FixedAssetRegisterId"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(HtmlsInfo[i].FixedAssetRegisterId));
+                dr["Sequence"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(HtmlsInfo[i].Sequence));
+
+                dr["AddedBy"] = identity.Name;
+                dr["AddedDate"] = DateTime.Now;
+                dr["AddedFromIP"] = identity.IPAddress;
+
+                dr["UpdatedBy"] = identity.Name;
+                dr["UpdatedDate"] = DateTime.Now;
+                dr["UpdatedFromIP"] = identity.IPAddress;
+                dsChild.Tables[0].Rows.Add(dr);
+            }
+
+            OTSBD.clsStaticInfo SaveInfo = new OTSBD.clsStaticInfo();
+            SaveInfo.SaveDataSets(dsMaster, dsChild);
+        }
+
+        public List<Dictionary<string,object>> SearchEmployee(string column, string value, string OperationId, string OperationVariationId)
+        {
+
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            string sql = @"
+                      select top 100 * from (  
+                        SELECT distinct Emp.SystemID AS Id,
+                        EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,
+						isnull(D.UserName,'') Designation,
+                                        OtherSkills =STUFF((select distinct ','+ovx.UserName 
+                                        FROM EmployeeOperation AS eox
+				                        JOIN mst.OperationVariation AS ovx ON ovx.Id=eox.OperationVariationId                                             
+			                            where eox.EmpSystemId=EMP.SystemId and eox.OperationVariationId<>EMP.OperationVariationId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+                            DEPT.UserName Department,S.UserName Section,
+                            EMP.SectionId,SS.UserName SubSection
+                            ,PL.UserName Plant
+                            FROM EmployeeInformation EMP
+                            LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
+                            LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                            LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+                            LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
+                            LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                            LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=EMP.LegalDesignationId
+                            LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
+                            LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
+                            LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
+   
+                        WHERE emp.EmployeeStatus='Active' and EMP.OperationVariationId='" + OperationVariationId + @"'
+                ) AS TEMP where " + strkey + " Order By Id";
+
+
+
+
+
+            return _sqlRepository.GetDataCollection(sql);
+        }
     }
 }
+

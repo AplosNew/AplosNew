@@ -200,8 +200,6 @@ namespace Library.Service.Materials
             clsStaticInfo _info = new clsStaticInfo();
             _info.SaveDataSets(dsFabricRoll, dsPackingForm);
 
-
-
         }
         public void CreateRoll(int NoofRolls, Dictionary<string, object> SelectedRow, double Width, string PackingForm)
         {

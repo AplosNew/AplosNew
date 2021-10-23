@@ -2263,6 +2263,26 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             }
         }
 
+        public IEnumerable<object> ValAddedMaterialStorageForEdit(string IssueId, string MaterialStorageIdInventory)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string sql = @"select MS.Id as Value, JL.LocationName as Text, MS.UserName as StorageLocation,II.EmployeeId,emp.EmployeeName as ResponsiblePerson,emp.EmployeeCode
+                                ,II.IssueType,II.OrderRefNo,II.RefferenceNo
+                                from HKP.MaterialStorage MS left join HKP.JobWorkLocation JL on MS.Id=JL.StoreLocationId
+                                left join TRN.InventoryIssue II on II.MaterialStorageId=MS.Id
+                                left join dbo.EmployeeInformation emp on emp.SystemId=II.EmployeeId       
+                                where JL.StoreLocationId='" + MaterialStorageIdInventory + @"' and II.Id='"+ IssueId + @"' ";
+
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
     }
 }
 public class MaterialPlanning

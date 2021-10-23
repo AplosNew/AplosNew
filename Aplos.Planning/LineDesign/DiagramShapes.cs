@@ -30,10 +30,13 @@ namespace Library.Planning.LineDesign
         public string OperationVariationDesc { get; set; } = "";
         public string MaterialMasterId { get; set; } = "";
         public string MaterialMasterDesc { get; set; } = "";
+        public string FixedAssetRegisterId { get; set; } = "";
+        public string FixedAssetRegisterDesc { get; set; } = "";
         public string ArticleId { get; set; } = "";
         public string ArticleDesc { get; set; } = "";
         public string EmployeeId { get; set; } = "";
         public string EmployeeName { get; set; } = "";
+        public string EmployeeCode { get; set; } = "";
         public string Designation { get; set; } = "";
         public string EmpPicPath { get; set; } = "";
         public double Sequence { get; set; } = 0;
@@ -129,7 +132,7 @@ namespace Library.Planning.LineDesign
         public string name { get; set; } = "html";
         public object type { get; set; } = "Html";
         public List<labels> labels { get; set; } = new List<labels>();
-        public override string fillColor { get => "#fcbc7c"; set => base.fillColor = value; }
+        //public override string fillColor { get => "#fcbc7c"; set => base.fillColor = value; }
         public override string borderColor { get => "#f89b4c"; set => base.borderColor = value; }
         public string content { get; set; } = "";
         public string templateId { get; set; } = "htmlTemplate";

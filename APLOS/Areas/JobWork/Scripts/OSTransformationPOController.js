@@ -1543,12 +1543,12 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     $scope.receiveTaxList = [];
     $scope.taxcboCategoryList = [];
     $scope.LoadTaxButtonClick = function () {
-        accountService.getTaxCategoryCbo(" ", function (result) {
+        accountService.getTaxCategoryMaterialLevelCbo(" ", function (result) {
             $scope.taxcboCategoryList = result;
         });
     };
     $scope.taxcboCategoryList = [];
-    accountService.getTaxCategoryCbo(" ", function (result) {
+    accountService.getTaxCategoryMaterialLevelCbo(" ", function (result) {
         $scope.taxcboCategoryList = result;
     });
     $scope.addTax = function () {

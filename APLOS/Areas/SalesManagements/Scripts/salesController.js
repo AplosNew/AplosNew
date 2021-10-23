@@ -89,7 +89,7 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
         $scope.entityList = result;
     });
 
-    accountService.getTaxCategoryCbo(" ", function (result) {
+    accountService.getTaxCategoryMaterialLevelCbo(" ", function (result) {
         $scope.taxCategoryList = result;
 
     });
@@ -799,7 +799,7 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
 
     };
     $scope.LoadTaxButtonClick = function () {
-        accountService.getTaxCategoryCbo(" ", function (result) {
+        accountService.getTaxCategoryMaterialLevelCbo(" ", function (result) {
             $scope.taxCategoryList = result;
         });
     }

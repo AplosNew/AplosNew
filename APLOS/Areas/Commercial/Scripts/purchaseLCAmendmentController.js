@@ -691,7 +691,7 @@ function purchaseLCAmendmentController(accountService,commonMessage, $scope, $ro
 
     // #region Tax
 
-    accountService.getTaxCategoryCbo(" ", function (result) {
+    accountService.getTaxCategoryMaterialLevelCbo(" ", function (result) {
         $scope.taxCategoryList = result;
     });
 
