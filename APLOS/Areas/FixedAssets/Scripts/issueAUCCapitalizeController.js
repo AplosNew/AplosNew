@@ -152,7 +152,7 @@ function issueAUCCapitalizeController(cboService, commonMessage, $scope, $rootSc
         $scope.dr.ActivityId = data.PostDrActivityId;
         $scope.dr.ActivityCode = data.DrActivityCode;
         $scope.dr.ActivityName = data.DrActivityName;
-        $scope.dr.Amount = data.Amount;
+        $scope.dr.Amount = parseFloat(data.Amount.toFixed(2));
         $scope.dr.FixedAssetMasterId = data.FixedAssetMasterId;
         $scope.dr.InventoryIssueHistoryId = data.InventoryIssueHistoryId;
         $scope.dr.TrnType = 'Dr';
@@ -166,7 +166,7 @@ function issueAUCCapitalizeController(cboService, commonMessage, $scope, $rootSc
         $scope.cr.ActivityId = data.PostCrActivityId;
         $scope.cr.ActivityCode = data.CrActivityCode;
         $scope.cr.ActivityName = data.CrActivityName;
-        $scope.cr.Amount = data.Amount;
+        $scope.cr.Amount = parseFloat(data.Amount.toFixed(2));
         $scope.cr.TrnType = 'Cr';
         $scope.capitalizeJournalDataList.push($scope.dr);
         $scope.capitalizeJournalDataList.push($scope.cr);
@@ -793,8 +793,8 @@ function issueAUCCapitalizeController(cboService, commonMessage, $scope, $rootSc
                 $scope.invGLDr.ActivityId = $scope.selectFixedAssetDataList[d].PostDrActivityId;
                 $scope.invGLDr.ActivityName = $scope.selectFixedAssetDataList[d].DrActivityName;
                 $scope.invGLDr.TrnType = "Dr";
-                $scope.invGLDr.Dr = $scope.selectFixedAssetDataList[d].Amount;
-                $scope.invGLDr.Amount = $scope.selectFixedAssetDataList[d].Amount;
+                $scope.invGLDr.Dr = Math.round(parseFloat($scope.selectFixedAssetDataList[d].Amount.toFixed(2)) * 100 + Number.EPSILON) / 100;
+                $scope.invGLDr.Amount = Math.round(parseFloat($scope.selectFixedAssetDataList[d].Amount.toFixed(2)) * 100 + Number.EPSILON) / 100;
                 $scope.invGLDr.Cr = 0;
                 $scope.capitalizeJournalList.push($scope.invGLDr);
                 $scope.invGLDr = {};
@@ -803,8 +803,9 @@ function issueAUCCapitalizeController(cboService, commonMessage, $scope, $rootSc
                 for (var k = 0; k < $scope.capitalizeJournalList.length; k++) {
                     if (getRowDr[0].BudgetMasterId == $scope.capitalizeJournalList[k].BudgetMasterId
                         && getRowDr[0].ActivityId == $scope.capitalizeJournalList[k].ActivityId) {
-                        $scope.capitalizeJournalList[k].Dr += $scope.selectFixedAssetDataList[d].Amount;
-                        $scope.capitalizeJournalList[k].Amount += $scope.selectFixedAssetDataList[d].Amount;
+                        var dr = parseFloat($scope.capitalizeJournalList[k].Dr.toFixed(2)) + parseFloat($scope.selectFixedAssetDataList[d].Amount.toFixed(2));
+                        $scope.capitalizeJournalList[k].Dr = parseFloat(dr.toFixed(2));
+                        $scope.capitalizeJournalList[k].Amount = parseFloat(dr.toFixed(2));
                     }
                 }
             }
@@ -820,8 +821,8 @@ function issueAUCCapitalizeController(cboService, commonMessage, $scope, $rootSc
                 $scope.invGL.ActivityId = $scope.selectFixedAssetDataList[i].PostCrActivityId;
                 $scope.invGL.ActivityName = $scope.selectFixedAssetDataList[i].CrActivityName;
                 $scope.invGL.TrnType = "Cr";
-                $scope.invGL.Cr = parseFloat($scope.selectFixedAssetDataList[i].Amount.toFixed(4));
-                $scope.invGL.Amount = parseFloat($scope.selectFixedAssetDataList[i].Amount.toFixed(4));
+                $scope.invGL.Cr = Math.round(parseFloat($scope.selectFixedAssetDataList[i].Amount.toFixed(2)) * 100 + Number.EPSILON) / 100;
+                $scope.invGL.Amount = Math.round(parseFloat($scope.selectFixedAssetDataList[i].Amount.toFixed(2)) * 100 + Number.EPSILON) / 100;
                 $scope.invGL.Dr = 0;
                 $scope.capitalizeJournalList.push($scope.invGL);
                 $scope.invGL = {};
@@ -831,9 +832,9 @@ function issueAUCCapitalizeController(cboService, commonMessage, $scope, $rootSc
                 for (var j = 0; j < $scope.capitalizeJournalList.length; j++) {
                     if (getRow[0].BudgetMasterId == $scope.capitalizeJournalList[j].BudgetMasterId
                         && getRow[0].ActivityId == $scope.capitalizeJournalList[j].ActivityId) {
-                        var cr = parseFloat($scope.capitalizeJournalList[j].Cr.toFixed(4)) + parseFloat($scope.selectFixedAssetDataList[i].Amount.toFixed(4));
-                        $scope.capitalizeJournalList[j].Cr = parseFloat(cr.toFixed(4));
-                        $scope.capitalizeJournalList[j].Amount = parseFloat(cr.toFixed(4));
+                        var cr = parseFloat($scope.capitalizeJournalList[j].Cr.toFixed(2)) + parseFloat($scope.selectFixedAssetDataList[i].Amount.toFixed(2));
+                        $scope.capitalizeJournalList[j].Cr = parseFloat(cr.toFixed(2));
+                        $scope.capitalizeJournalList[j].Amount = parseFloat(cr.toFixed(2));
                         cr = 0;
                     }
                 }
