@@ -55,12 +55,12 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetPrintReport(string EmpId, string SubId, string SectionId, string DeptId,string EmpCode)
+        public ActionResult GetPrintReport(string EmpId)
         {
 
             try
             {
-                var workbook = GetFilterData(EmpId, SubId, SectionId, DeptId, EmpCode);
+                var workbook = GetFilterData(EmpId);
 
                 var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "PresentDaysSummary.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
@@ -75,7 +75,7 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
 
-        private IWorkbook GetFilterData(string EmpId, string SubId, string SectionId, string DeptId,string EmpCode)
+        private IWorkbook GetFilterData(string EmpId)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
@@ -83,25 +83,15 @@ namespace Aplos.Areas.Attendances.Controllers
             workbook.Version = ExcelVersion.Excel2016;
 
             var sheet = workbook.Worksheets[0];
-            sheet.Name = "AttendanceReport";
+            sheet.Name = "PresentDays";
 
 
             int ROW = 6;
             int endCol = 1;
             int COL = 1;
-            //DataTable data = rep.GetReportData(From, To, AttndType,
-            //    EmpName, SubId, PlantId, SectionId, DesgId, UnitId, DeptId, EmpCode);
+            DataTable data = rep.GetReportData(EmpId);
 
             #region Headers
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Plant", 13, ExcelHAlign.HAlignCenter);
-            int ColPlant = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Unit", 13, ExcelHAlign.HAlignCenter);
-            int ColUnit = COL;
-            COL++;
-
 
             report.SetHeaderText(ref sheet, ROW, COL, "EmployeeCode", 13, ExcelHAlign.HAlignCenter);
             int ColEmployeeCode = COL;
@@ -125,37 +115,53 @@ namespace Aplos.Areas.Attendances.Controllers
             COL++;
 
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Designation", 13, ExcelHAlign.HAlignCenter);
-            int ColDesignation = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "January", 13, ExcelHAlign.HAlignCenter);
+            int ColJanuary = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Date", 13, ExcelHAlign.HAlignCenter);
-            int ColDate = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Feburary", 13, ExcelHAlign.HAlignCenter);
+            int ColFeburary = COL;
             COL++;
 
 
-            report.SetHeaderText(ref sheet, ROW, COL, "InTime", 13, ExcelHAlign.HAlignCenter);
-            int ColInTime = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "March", 13, ExcelHAlign.HAlignCenter);
+            int ColMarch = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "OutTime", 13, ExcelHAlign.HAlignCenter);
-            int ColOutTime = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "April", 13, ExcelHAlign.HAlignCenter);
+            int ColApril = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "InRemarks", 13, ExcelHAlign.HAlignCenter);
-            int ColInRemarks = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "May", 13, ExcelHAlign.HAlignCenter);
+            int ColMay = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "InLocation", 13, ExcelHAlign.HAlignCenter);
-            int ColInLocation = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "June", 13, ExcelHAlign.HAlignCenter);
+            int ColJune = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "OutRemarks", 13, ExcelHAlign.HAlignCenter);
-            int ColOutRemarks = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "July", 13, ExcelHAlign.HAlignCenter);
+            int ColJuly = COL;
             COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "OutLocation", 13, ExcelHAlign.HAlignCenter);
-            int ColOutLocation = COL;
+           
+            report.SetHeaderText(ref sheet, ROW, COL, "August", 13, ExcelHAlign.HAlignCenter);
+            int ColAugust = COL;
+            COL++; 
+            
+            report.SetHeaderText(ref sheet, ROW, COL, "September", 13, ExcelHAlign.HAlignCenter);
+            int ColSeptember = COL;
+            COL++; 
+            
+            report.SetHeaderText(ref sheet, ROW, COL, "October", 13, ExcelHAlign.HAlignCenter);
+            int ColOctober = COL;
+            COL++;
+            
+            report.SetHeaderText(ref sheet, ROW, COL, "November", 13, ExcelHAlign.HAlignCenter);
+            int ColNovember = COL;
+            COL++; 
+                     
+            report.SetHeaderText(ref sheet, ROW, COL, "December", 13, ExcelHAlign.HAlignCenter);
+            int ColDecember = COL;
             ROW++;
             endCol = COL;
             #endregion Headers
@@ -166,31 +172,32 @@ namespace Aplos.Areas.Attendances.Controllers
             int RowIndex = ROW;
             startRow = ROW;
 
-            //for (int i = 0; i < data.Rows.Count; i++)
-            //{
-            //    sheet[ROW, ColPlant].Text = data.Rows[i]["Plant"].ToString();
-            //    sheet[ROW, ColUnit].Text = data.Rows[i]["Unit"].ToString();
-            //    sheet[ROW, ColEmployeeCode].Text = data.Rows[i]["EmployeeCode"].ToString();
-            //    sheet[ROW, ColEmployeeName].Text = data.Rows[i]["EmployeeName"].ToString();
-            //    sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
-            //    sheet[ROW, ColSection].Text = data.Rows[i]["Section"].ToString();
-            //    sheet[ROW, ColSubSection].Text = data.Rows[i]["SubSection"].ToString();
-            //    sheet[ROW, ColDesignation].Text = data.Rows[i]["Designation"].ToString();
-            //    sheet[ROW, ColDate].Text = data.Rows[i]["Date"].ToString();
-            //    sheet[ROW, ColInTime].Text = data.Rows[i]["InTime"].ToString();
-            //    sheet[ROW, ColOutTime].Text = data.Rows[i]["OutTime"].ToString();
-            //    sheet[ROW, ColInLocation].Text = data.Rows[i]["InLocation"].ToString();
-            //    sheet[ROW, ColOutLocation].Text = data.Rows[i]["OutLocation"].ToString();
-            //    sheet[ROW, ColInRemarks].Text = data.Rows[i]["InRemarks"].ToString();
-            //    sheet[ROW, ColOutRemarks].Text = data.Rows[i]["OutRemarks"].ToString();
+            for (int i = 0; i < data.Rows.Count; i++)
+            {
+                sheet[ROW, ColJanuary].Number = clsStaticInfo.dbl(data.Rows[i]["Jan"].ToString());
+                sheet[ROW, ColFeburary].Number = clsStaticInfo.dbl(data.Rows[i]["Feb"].ToString());
+                sheet[ROW, ColEmployeeCode].Text = data.Rows[i]["EmployeeCode"].ToString();
+                sheet[ROW, ColEmployeeName].Text = data.Rows[i]["EmployeeName"].ToString();
+                sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
+                sheet[ROW, ColSection].Text = data.Rows[i]["Section"].ToString();
+                sheet[ROW, ColSubSection].Text = data.Rows[i]["SubSection"].ToString();
+                sheet[ROW, ColMarch].Number = clsStaticInfo.dbl(data.Rows[i]["Mar"].ToString());
+                sheet[ROW, ColApril].Number = clsStaticInfo.dbl(data.Rows[i]["Apr"].ToString());
+                sheet[ROW, ColMay].Number = clsStaticInfo.dbl(data.Rows[i]["May"].ToString());
+                sheet[ROW, ColJune].Number = clsStaticInfo.dbl(data.Rows[i]["June"].ToString());
+                sheet[ROW, ColJuly].Number = clsStaticInfo.dbl(data.Rows[i]["July"].ToString());
+                sheet[ROW, ColAugust].Number = clsStaticInfo.dbl(data.Rows[i]["Aug"].ToString());
+                sheet[ROW, ColSeptember].Number = clsStaticInfo.dbl(data.Rows[i]["Sep"].ToString());
+                sheet[ROW, ColOctober].Number = clsStaticInfo.dbl(data.Rows[i]["Oct"].ToString());
+                sheet[ROW, ColNovember].Number = clsStaticInfo.dbl(data.Rows[i]["Nov"].ToString());
+                sheet[ROW, ColDecember].Number = clsStaticInfo.dbl(data.Rows[i]["Dec"].ToString());
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
 
-            //    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-            //    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                ROW++;
 
-            //    ROW++;
+            }
 
-            //}
-            
             endRow = ROW - 1;
             string reportname = "Present Days Summary Report";
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

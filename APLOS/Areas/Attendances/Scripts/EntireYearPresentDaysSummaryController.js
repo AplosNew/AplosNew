@@ -92,11 +92,6 @@ function EntireYearPresentDaysSummaryController($window, $timeout, cboService, c
 
         var parameters = [];
         parameters.push({ "Key": "EmpId", "Value": getString(filteredRecords, "EmpId") });
-        parameters.push({ "Key": "SubId", "Value": getString(filteredRecords, "SubsectionId") });
-        parameters.push({ "Key": "SectionId", "Value": getString(filteredRecords, "SectionId") });
-        parameters.push({ "Key": "DeptId", "Value": getString(filteredRecords, "DepartmentId") });
-        parameters.push({ "Key": "EmpCode", "Value": getString(filteredRecords, "EmployeeCode") });
-
         applyFilters(parameters);
 
        
@@ -111,9 +106,6 @@ function EntireYearPresentDaysSummaryController($window, $timeout, cboService, c
             url: $scope.path + 'GetPrintReport',
             data: {
                 EmpId: parameters[0].Value,
-                SubId: parameters[1].Value,
-                SectionId: parameters[2].Value,
-                DeptId: parameters[3].Value, EmpCode: parameters[4].Value
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
