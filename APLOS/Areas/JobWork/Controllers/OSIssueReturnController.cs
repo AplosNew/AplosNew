@@ -3970,12 +3970,13 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             GRNOSTCOL++;
 
             //Issue
-            report.SetHeaderText(ref sheet, GRNOSTROW, GRNOSTCOL, "Trn Qty", 10, ExcelHAlign.HAlignLeft);
-            int ColOSTGRNIssueQty = GRNOSTCOL;
-            GRNOSTCOL++;
 
             report.SetHeaderText(ref sheet, GRNOSTROW, GRNOSTCOL, "Tran UoM", 12, ExcelHAlign.HAlignLeft);
             int ColOSTIssueUoM = GRNOSTCOL;
+            GRNOSTCOL++;
+
+            report.SetHeaderText(ref sheet, GRNOSTROW, GRNOSTCOL, "Trn Qty", 10, ExcelHAlign.HAlignLeft);
+            int ColOSTGRNIssueQty = GRNOSTCOL;
             GRNOSTCOL++;
 
             report.SetHeaderText(ref sheet, GRNOSTROW, GRNOSTCOL, "Trn Rate", 12, ExcelHAlign.HAlignLeft);
@@ -5364,12 +5365,13 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             GRNOSTCOL++;
 
             //Issue
-            report.SetHeaderText(ref sheet, GRNOSTROW, GRNOSTCOL, "Trn Qty", 10, ExcelHAlign.HAlignLeft);
-            int ColOSTGRNIssueQty = GRNOSTCOL;
-            GRNOSTCOL++;
 
             report.SetHeaderText(ref sheet, GRNOSTROW, GRNOSTCOL, "Tran UoM", 12, ExcelHAlign.HAlignLeft);
             int ColOSTIssueUoM = GRNOSTCOL;
+            GRNOSTCOL++;
+
+            report.SetHeaderText(ref sheet, GRNOSTROW, GRNOSTCOL, "Trn Qty", 10, ExcelHAlign.HAlignLeft);
+            int ColOSTGRNIssueQty = GRNOSTCOL;
             GRNOSTCOL++;
 
             report.SetHeaderText(ref sheet, GRNOSTROW, GRNOSTCOL, "Trn Rate", 12, ExcelHAlign.HAlignLeft);
