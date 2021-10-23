@@ -32,6 +32,7 @@ namespace OTSBD
             DataSet dsMLVinfo = null;
             bool isFixedDayAmountApplicable = false;
             bool isGratuityApplicable = false;
+            bool IsNetPayWithFinalSattlement = false;
             string _formulaValue = "0";
             string sFormulaResult = "0";
             decimal sTotalAmount = 0;
@@ -61,6 +62,7 @@ namespace OTSBD
                     obj.SeparationTypeId = dsSeparationType.Tables[0].Rows[0]["Id"].ToString();
                     obj.SeparationTypeName = dsSeparationType.Tables[0].Rows[0]["UserName"].ToString();
                     isGratuityApplicable = Convert.ToBoolean(dsSeparationType.Tables[0].Rows[0]["IsGratuityApplicable"].ToString());
+                    IsNetPayWithFinalSattlement = Convert.ToBoolean(dsSeparationType.Tables[0].Rows[0]["IsNetPayWithFinalSattlement"].ToString());
                     isFixedDayAmountApplicable = Convert.ToBoolean(dsSeparationType.Tables[0].Rows[0]["IsFixedDayAmountApplicable"].ToString());
                 }
                 else
@@ -228,7 +230,7 @@ namespace OTSBD
 
 
                     //Calculate Gratuity
-                    if (isGratuityApplicable)
+                    if (isGratuityApplicable && IsNetPayWithFinalSattlement == false)
                     {
                         string _formulaValueG = "0";
                         int GratuityNumberOfYears = 0;
