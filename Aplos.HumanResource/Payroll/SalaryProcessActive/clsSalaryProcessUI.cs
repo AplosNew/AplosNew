@@ -665,8 +665,9 @@ and isnull(locka.EmpSystemId,'')=''
 										                )--not in
                                                     and e.systemid not in 
                                                     (
-                                                    select EmpSystemID from AttdnDataMonthlySummary where  YearNo=Year('" + sFromDate + @"') and MonthNo=Month('" + sFromDate + @"') and TotalPresent=0 and TotalLv=0 and TotalLate=0  and PlantID='" + sPlantID + @"'
-                                                    )
+                                                   -- select EmpSystemID from AttdnDataMonthlySummary where  YearNo=Year('" + sFromDate + @"') and MonthNo=Month('" + sFromDate + @"') and TotalPresent=0 and TotalLv=0 and TotalLate=0  and PlantID='" + sPlantID + @"'
+                                                          SELECT apd.EmpSystemID FROM AttdnProcessData AS apd WHERE apd.WorkDate BETWEEN '" + sFromDate + @"' AND 	'" + sToDate + @"'	GROUP BY apd.EmpSystemID HAVING SUM(ISNULL(apd.PresentValue,0)+ISNULL(apd.LateValue,0)+ISNULL(apd.LvValue,0))=0											                
+							                          )
                                                     and E.SystemId not in
 										                (														                
 							                                ( 
