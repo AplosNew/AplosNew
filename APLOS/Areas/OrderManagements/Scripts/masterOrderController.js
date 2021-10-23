@@ -2635,8 +2635,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                         $scope.rowName = $scope.characteristicsList[0].Text;
                         $scope.columnName = $scope.characteristicsList[1].Text;
 
-                        $scope.rowName = $scope.characteristicsList[0].Value;
-                        $scope.columnName = $scope.characteristicsList[1].Value;
+                        $scope.char1Id = $scope.characteristicsList[0].Value;
+                        $scope.char2Id = $scope.characteristicsList[1].Value;
 
                         //angular.element(document.querySelector('#firstPopup')).modal('hide');
                         //angular.element(document.querySelector('#secondPopup')).modal('show');
@@ -4632,6 +4632,9 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.CloseCharacteristicsValuePopUp = function () {
         angular.element(document.querySelector('#SKUpopup')).modal('hide');
     }
+    $scope.CloseCharacteristicsValuePopUp1 = function () {
+        angular.element(document.querySelector('#SOSKUpopup')).modal('hide');
+    }
     $scope.clearMasterCharacteristicsValue = function () {
         $scope.characteristicsValue = {};
         $scope.characteristicsvalueNew = {
@@ -4647,9 +4650,11 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.AddSOSKU = function (sku) {
         if (sku==1) {
             $scope.charId = $scope.char1Id;
+            $scope.charName = $scope.rowName;
         }
         else {
             $scope.charId = $scope.char2Id;
+            $scope.charName = $scope.columnName;
         }
 
         $scope.characteristicsValue = {
@@ -4668,9 +4673,16 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             , Active: true
         };
         $scope.characteristicsvalueNew = angular.copy($scope.characteristicsValue);
-        $scope.GetMaterialMasterCharacteristicsValueSequence();
+        $scope.GetSOMaterialMasterCharacteristicsValueSequence();
         angular.element(document.querySelector('#SOSKUpopup')).modal('show');
     }
+
+    $scope.GetSOMaterialMasterCharacteristicsValueSequence = function () {
+        $http.get('Materials/characteristicsvalue/getautosequence?characteristicsId=' + $scope.charId + '&materialId=' + $scope.materialMasterId)
+            .then(function (response) {
+                $scope.characteristicsvalueNew.Sequence = response.data;
+            });
+    };
 
     function GetChValueCbo() {
         $http.get($scope.path + 'GetChValueCbo?materialId=' + $scope.materialMasterId)

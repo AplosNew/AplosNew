@@ -2140,13 +2140,17 @@
             <div class="modal-body">
                 <div class="modal-body">
                 <div class="form-elements form-horizontal table-responsive modal-table">
-                    @*<button ng-click="AddSOSKU("1");" title="Add SKU1" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> </button>
-                    <button ng-click="AddSOSKU("2");" title="Add SKU2" align="left" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> </button>*@
+                    
+                    
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>{{rowName}}</th>
+                                <th>
+                                    <button ng-click="AddSOSKU('1');" title="Add New {{rowName}}" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> </button>
+                                    {{rowName}}
+                                </th>
                                 <th ng-repeat="x in skuList[0].childList" class="text-center" ng-class="{ 'has-error':x.isDuplicate == true, '':x.isDuplicate != true }">
+                                    <button ng-click="AddSOSKU('2');" title="Add New {{columnName}}" align="left" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> </button>
                                     <button ng-click="removeSkuMatrixColumn($index)" class="btn btn-action tooltip-here pull-right" tooltip data-placement="top" title="Remove" ng-disabled="skuList[0].childList.length <= 1"><i class="glyphicon glyphicon-remove"></i></button>
                                     <div class="select-style">
                                         <select class="form-control" ng-model="x.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char2.Id }:true"
@@ -3576,7 +3580,7 @@
 <div class="modal fade site-modal in" id="SOSKUpopup" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header"> Add SKU<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-header"> Add {{charName}}<button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body text-center">
                 <div class="form-horizontal form-elements" ng-form="skuForm">
                     <div class="col-xs-12 col-sm-6 col-md-6">
@@ -3649,7 +3653,7 @@
                         <ul class="list-inline text-right">
                             <li><button ng-click="SaveSOSKU();" class="btn" tabindex="38"><i class="glyphicon glyphicon-plus"></i> Save</button></li>
                             <li><button ng-click="clearMasterCharacteristicsValue();" class="btn" tabindex="39"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                            <li><button ng-click="CloseCharacteristicsValuePopUp();" class="btn" tabindex="40"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                            <li><button ng-click="CloseCharacteristicsValuePopUp1();" class="btn" tabindex="40"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
                         </ul>
                     </div>
                 </div>
