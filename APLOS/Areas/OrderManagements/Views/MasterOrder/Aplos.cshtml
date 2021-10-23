@@ -2139,51 +2139,61 @@
             </div>
             <div class="modal-body">
                 <div class="modal-body">
-                    <div class="form-elements form-horizontal table-responsive modal-table">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>{{rowName}}</th>
-                                    <th ng-repeat="x in skuList[0].childList" class="text-center" ng-class="{ 'has-error':x.isDuplicate == true, '':x.isDuplicate != true }">
-                                        <button ng-click="removeSkuMatrixColumn($index)" class="btn btn-action tooltip-here pull-right" tooltip data-placement="top" title="Remove" ng-disabled="skuList[0].childList.length <= 1"><i class="glyphicon glyphicon-remove"></i></button>
-                                        <div class="select-style">
-                                            <select class="form-control" ng-model="x.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char2.Id }:true"
-                                                    ng-change="chvChange(x.CharacteristicsValueId, $index); verifySkuMatrix();">
-                                                <option value=""></option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <input type="text" ng-model="x.ValueFreeText" ng-keyup="chvKeyChange(x.ValueFreeText, $index); verifySkuMatrix();" class="form-control" maxlength="15">
-                                        </div>
-                                    </th>
-                                    <th>
-                                        <button ng-click="addSkuMatrixColumn();" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> Add </button>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr ng-repeat="x in skuList">
-                                    <td>
-                                        <div class="select-style" ng-class="{ 'has-error':x.isDuplicate == true, '':x.isDuplicate != true }">
-                                            <select class="form-control" ng-model="x.CharacteristicsValueId" ng-change="verifySkuMatrix();" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char1.Id }:true">
-                                                <option value=""></option>
-                                            </select>
-                                        </div>
-                                        <div ng-class="{ 'has-error':x.isDuplicate == true, '':x.isDuplicate != true }">
-                                            <input type="text" ng-model="x.ValueFreeText" class="form-control" ng-keyup="verifySkuMatrix();" maxlength="15" />
-                                        </div>
-                                    </td>
-                                    <td ng-repeat="y in x.childList">
-                                        <input type="text" n-decimals="2" ng-model="y.Qty" ng-keyup="sumQty(x, $parent.$index );" class="form-control text-right" />
-                                    </td>
-                                    <td>
-                                        <button ng-click="removeSkuMatrixRow($index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove" @*ng-disabled="skuList.length <= 1"*@><i class="glyphicon glyphicon-remove"></i></button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <button ng-click="addSkuMatrixRow();" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> Add </button>
-                    </div>
+                @*<div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li> <button ng-click="AddSKU('1st','mat');" title="Add SKU1" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus-sign"></i></button></li>
+                    </ul>
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="AddSKU('2nd','mat');" title="Add SKU2" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus-sign"></i></button></li>
+                    </ul>
+                </div>*@
+                <div class="form-elements form-horizontal table-responsive modal-table">
+                    @*<button ng-click="AddSKU('1st','mat');" title="Add SKU1" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> </button>
+                    <button ng-click="AddSKU('2nd','mat');" title="Add SKU2" align="left" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> </button>*@
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>{{rowName}}</th>
+                                <th ng-repeat="x in skuList[0].childList" class="text-center" ng-class="{ 'has-error':x.isDuplicate == true, '':x.isDuplicate != true }">
+                                    <button ng-click="removeSkuMatrixColumn($index)" class="btn btn-action tooltip-here pull-right" tooltip data-placement="top" title="Remove" ng-disabled="skuList[0].childList.length <= 1"><i class="glyphicon glyphicon-remove"></i></button>
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="x.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char2.Id }:true"
+                                                ng-change="chvChange(x.CharacteristicsValueId, $index); verifySkuMatrix();">
+                                            <option value=""></option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <input type="text" ng-model="x.ValueFreeText" ng-keyup="chvKeyChange(x.ValueFreeText, $index); verifySkuMatrix();" class="form-control" maxlength="15">
+                                    </div>
+                                </th>
+                                <th>
+                                    <button ng-click="addSkuMatrixColumn();" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> Add </button>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in skuList">
+                                <td>
+                                    <div class="select-style" ng-class="{ 'has-error':x.isDuplicate == true, '':x.isDuplicate != true }">
+                                        <select class="form-control" ng-model="x.CharacteristicsValueId" ng-change="verifySkuMatrix();" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char1.Id }:true">
+                                            <option value=""></option>
+                                        </select>
+                                    </div>
+                                    <div ng-class="{ 'has-error':x.isDuplicate == true, '':x.isDuplicate != true }">
+                                        <input type="text" ng-model="x.ValueFreeText" class="form-control" ng-keyup="verifySkuMatrix();" maxlength="15" />
+                                    </div>
+                                </td>
+                                <td ng-repeat="y in x.childList">
+                                    <input type="text" n-decimals="2" ng-model="y.Qty" ng-keyup="sumQty(x, $parent.$index );" class="form-control text-right" />
+                                </td>
+                                <td>
+                                    <button ng-click="removeSkuMatrixRow($index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove" @*ng-disabled="skuList.length <= 1"*@><i class="glyphicon glyphicon-remove"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button ng-click="addSkuMatrixRow();" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> Add </button>
+                </div>
                 </div>
                 <div class="common-btn" style="padding-right: 15px;">
                     <ul class="list-inline text-right">
