@@ -7408,6 +7408,13 @@ namespace Library.Accounting.Accounts
             // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
+            worksheet[ROW, COL].Text = "Entity";
+            int colEntity = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
             worksheet[ROW, COL].Text = "Voucher No";
             int colVoucherNo = COL;
             worksheet[ROW, COL].ColumnWidth = 15;
@@ -7527,6 +7534,7 @@ namespace Library.Accounting.Accounts
                 worksheet[ROW, colDrAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
 
                 worksheet[ROW, colSourceType].Text = dtDayBookData.Rows[i]["VoucherType"].ToString();
+                worksheet[ROW, colEntity].Text = dtDayBookData.Rows[i]["EntityName"].ToString();
                 worksheet[ROW, colVoucherNo].Text = dtDayBookData.Rows[i]["VoucherNo"].ToString();
                 worksheet[ROW, colPostingDate].Text = dtDayBookData.Rows[i]["PostingDate"].ToString();
                 worksheet[ROW, colDocDate].Text = dtDayBookData.Rows[i]["DocDate"].ToString();

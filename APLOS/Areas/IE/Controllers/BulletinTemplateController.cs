@@ -948,15 +948,29 @@ namespace Aplos.Areas.IE.Controllers
 
                 sheet[ROW, ColSPT].Number = Convert.ToDouble(data.Rows[i]["TotalSPT"].ToString());
                 sheet[ROW, ColSPT].NumberFormat = clsStaticInfo.NumberFormat(2);
+                sheet[ROW, ColSPT].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColSPT].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
 
                 sheet[ROW, ColReqMP].Number = Convert.ToDouble(data.Rows[i]["RequiredManPower"].ToString());
                 sheet[ROW, ColReqMP].NumberFormat = clsStaticInfo.NumberFormat(2);
+                sheet[ROW, ColReqMP].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColReqMP].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
                 sheet[ROW, ColAllocatedMP].Number = Convert.ToDouble(data.Rows[i]["AllotedManpower"].ToString());
                 sheet[ROW, ColAllocatedMP].NumberFormat = clsStaticInfo.NumberFormat(2);
+                sheet[ROW, ColAllocatedMP].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColAllocatedMP].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
                 sheet[ROW, ColNoofWS].Number = Convert.ToDouble(data.Rows[i]["AllotedWorkstation"].ToString());
                 sheet[ROW, ColNoofWS].NumberFormat = clsStaticInfo.NumberFormat(2);
-                sheet[ROW, ColTarget].Number = Convert.ToDouble(data.Rows[i]["LineTargetPerHour"].ToString());
-                sheet[ROW, ColTarget].NumberFormat = clsStaticInfo.NumberFormat(0);
+                sheet[ROW, ColNoofWS].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColNoofWS].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
+                sheet[ROW, ColTarget].Text = data.Rows[i]["LineTargetPerHour"].ToString();
+                sheet[ROW, ColTarget].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColTarget].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
                 sheet[ROW, ColAddedDate].Text = data.Rows[i]["CreationDate"].ToString();
 
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -966,7 +980,7 @@ namespace Aplos.Areas.IE.Controllers
             }
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            sheet.UsedRange.NumberFormat = "#,##0.000";
+            sheet.UsedRange.NumberFormat = "#,##0.00";
             sheet.UsedRange.WrapText = true;
             sheet.UsedRange.CellStyle.Font.Size = 8;
             report.CompanyHeader(ref sheet, endCol, "Bulletin Tamplate", identity.CompanyId);

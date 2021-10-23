@@ -3558,43 +3558,71 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Issue/ Return Quantity", 12, ExcelHAlign.HAlignLeft);
             MPChildROW++;
 
-            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "JW Output Item Id", 12, ExcelHAlign.HAlignLeft);
-            int ColJWOutputItemId = MPChildCOL;
+            //report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "JW Output Item Id", 12, ExcelHAlign.HAlignLeft);
+            //int ColJWOutputItemId = MPChildCOL;
+            //MPChildCOL++;
+
+            //report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "JW Output Item", 12, ExcelHAlign.HAlignLeft);
+            //int ColJWOutputItem = MPChildCOL;
+            //MPChildCOL++;
+
+            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Inventory Issue Detail Id", 12, ExcelHAlign.HAlignLeft);
+            int ColInventoryIssueDetailId = MPChildCOL;
             MPChildCOL++;
 
-            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "JW Output Item", 12, ExcelHAlign.HAlignLeft);
-            int ColJWOutputItem = MPChildCOL;
+            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Issue No", 12, ExcelHAlign.HAlignLeft);
+            int ColInventoryIssueId = MPChildCOL;
             MPChildCOL++;
 
-            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "JW Input Material", 12, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Material", 12, ExcelHAlign.HAlignLeft);
             int ColJWInputMaterial = MPChildCOL;
             MPChildCOL++;
 
-            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "JW Input Article", 12, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Article", 12, ExcelHAlign.HAlignLeft);
             int ColArticle = MPChildCOL;
             MPChildCOL++;
 
-            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Required Quantity", 12, ExcelHAlign.HAlignLeft);
-            int ColRequiredQuantity = MPChildCOL;
+            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "SKU 1", 12, ExcelHAlign.HAlignLeft);
+            int ColFirstCharacteristicsValue = MPChildCOL;
             MPChildCOL++;
 
-            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Total Issued Quantity", 12, ExcelHAlign.HAlignLeft);
-            int ColTIRCTotalQty = MPChildCOL;
+            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "SKU 2", 12, ExcelHAlign.HAlignLeft);
+            int ColSecondCharacteristicsValue = MPChildCOL;
             MPChildCOL++;
 
-            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Balance To Issue", 12, ExcelHAlign.HAlignLeft);
-            int ColBalanceToIssue = MPChildCOL;
+            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "SKU 3", 12, ExcelHAlign.HAlignLeft);
+            int ColThirdCharacteristicsValue = MPChildCOL;
             MPChildCOL++;
 
-            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Issue UoM", 12, ExcelHAlign.HAlignLeft);
+            //report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Required Quantity", 12, ExcelHAlign.HAlignLeft);
+            //int ColRequiredQuantity = MPChildCOL;
+            //MPChildCOL++;
+
+            //report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Total Issued Quantity", 12, ExcelHAlign.HAlignLeft);
+            //int ColTIRCTotalQty = MPChildCOL;
+            //MPChildCOL++;
+
+            //report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Balance To Issue", 12, ExcelHAlign.HAlignLeft);
+            //int ColBalanceToIssue = MPChildCOL;
+            //MPChildCOL++;
+
+            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Transaction UoM", 12, ExcelHAlign.HAlignLeft);
             int ColJWIssueUoM = MPChildCOL;
             MPChildCOL++;
 
-            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Issued Quantity", 10, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Trn Qty", 10, ExcelHAlign.HAlignLeft);
             int ColTIRCQty = MPChildCOL;
             MPChildCOL++;
 
-            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Average Issue Rate", 12, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Base UoM", 12, ExcelHAlign.HAlignLeft);
+            int ColBaseUoM = MPChildCOL;
+            MPChildCOL++;
+
+            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Base Qty", 10, ExcelHAlign.HAlignLeft);
+            int ColBaseQuantity = MPChildCOL;
+            MPChildCOL++;
+
+            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Avg Issue Rate", 12, ExcelHAlign.HAlignLeft);
             int ColAvgRate = MPChildCOL;
             MPChildCOL++;
 
@@ -3624,21 +3652,21 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                     if (RowIndexNo < MPChildROW)
                     {
                         //sheet.Range[RowIndexNo, ColJobWorkItem, MPChildROW - 1, ColJobWorkItem].Merge();
-                        sheet.Range[RowIndexNo, ColJWOutputItem, MPChildROW - 1, ColJWOutputItem].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        sheet.Range[RowIndexNo, ColJWOutputItem, MPChildROW - 1, ColJWOutputItem].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet.Range[RowIndexNo, ColInventoryIssueDetailId, MPChildROW - 1, ColInventoryIssueDetailId].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet.Range[RowIndexNo, ColInventoryIssueDetailId, MPChildROW - 1, ColInventoryIssueDetailId].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     }
                     RowIndexNo = MPChildROW;
                 }
 
-                sheet[MPChildROW, ColJWOutputItemId].Text = TransformationIssueReturnChilddata.Rows[i]["JWOutputId"].ToString();
-                sheet[MPChildROW, ColJWOutputItem].Text = TransformationIssueReturnChilddata.Rows[i]["JWOutputItem"].ToString();
+                //sheet[MPChildROW, ColJWOutputItemId].Text = TransformationIssueReturnChilddata.Rows[i]["JWOutputId"].ToString();
+                //sheet[MPChildROW, ColJWOutputItem].Text = TransformationIssueReturnChilddata.Rows[i]["JWOutputItem"].ToString();
                 //sheet[MPChildROW, ColJWInputItemId].Text = TransformationIssueReturnChilddata.Rows[i]["JwInputId"].ToString();
                 //sheet[MPChildROW, ColJWInputItem].Text = TransformationIssueReturnChilddata.Rows[i]["JWInputItem"].ToString();
                 sheet[MPChildROW, ColJWInputMaterial].Text = TransformationIssueReturnChilddata.Rows[i]["Material"].ToString();
                 sheet[MPChildROW, ColArticle].Text = TransformationIssueReturnChilddata.Rows[i]["Article"].ToString();
-                sheet[MPChildROW, ColBalanceToIssue].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["BalanceToIssue"].ToString());
-                sheet[MPChildROW, ColRequiredQuantity].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["RequiredQuantity"].ToString());
-                sheet[MPChildROW, ColTIRCTotalQty].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["TotalIssuedQty"].ToString());
+                //sheet[MPChildROW, ColBalanceToIssue].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["BalanceToIssue"].ToString());
+                //sheet[MPChildROW, ColRequiredQuantity].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["RequiredQuantity"].ToString());
+                //sheet[MPChildROW, ColTIRCTotalQty].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["TotalIssuedQty"].ToString());
                 sheet[MPChildROW, ColTIRCQty].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["TransactionQty"].ToString());
 
                 sheet[MPChildROW, ColAvgRate].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["AveRateeee"].ToString());
@@ -3648,6 +3676,16 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                 sheet[MPChildROW, ColAvgAmount].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["AverageAmount"].ToString());
 
                 sheet[MPChildROW, ColJWIssueUoM].Text = TransformationIssueReturnChilddata.Rows[i]["IssueUoM"].ToString();
+
+                sheet[MPChildROW, ColInventoryIssueDetailId].Text = TransformationIssueReturnChilddata.Rows[i]["InventoryIssueDetailId"].ToString();
+                sheet[MPChildROW, ColInventoryIssueId].Text = TransformationIssueReturnChilddata.Rows[i]["InventoryIssueId"].ToString();
+
+                sheet[MPChildROW, ColFirstCharacteristicsValue].Text = TransformationIssueReturnChilddata.Rows[i]["FirstCharacteristicsValue"].ToString();
+                sheet[MPChildROW, ColSecondCharacteristicsValue].Text = TransformationIssueReturnChilddata.Rows[i]["SecondCharacteristicsValue"].ToString();
+                sheet[MPChildROW, ColThirdCharacteristicsValue].Text = TransformationIssueReturnChilddata.Rows[i]["ThirdCharacteristicsValue"].ToString();
+
+                sheet[MPChildROW, ColBaseUoM].Text = TransformationIssueReturnChilddata.Rows[i]["BaseUoM"].ToString();
+                sheet[MPChildROW, ColBaseQuantity].Number = Convert.ToDouble(clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["BaseQty"].ToString()).ToString("F2"));
 
                 sheet.Range[MPChildROW, 1, MPChildROW, MPChildendCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[MPChildROW, 1, MPChildROW, MPChildendCol].BorderAround(ExcelLineStyle.Hair);
@@ -3677,7 +3715,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             }
 
             // SUM OF TOTAL Amount
-            int ColTotalRecQty = 11;
+            int ColTotalRecQty = 13;
             decimal x = 0;
             decimal y = 0;
             decimal z = 0;
@@ -3696,8 +3734,8 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             if (RowIndexNo < MPChildROW - 1)
             {
                 //sheet.Range[RowIndexNo, ColJobWorkItem, MPChildROW - 1, ColJobWorkItem].Merge();
-                sheet.Range[RowIndexNo, ColJWOutputItem, MPChildROW - 1, ColJWOutputItem].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet.Range[RowIndexNo, ColJWOutputItem, MPChildROW - 1, ColJWOutputItem].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[RowIndexNo, ColInventoryIssueDetailId, MPChildROW - 1, ColInventoryIssueDetailId].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet.Range[RowIndexNo, ColInventoryIssueDetailId, MPChildROW - 1, ColInventoryIssueDetailId].HorizontalAlignment = ExcelHAlign.HAlignLeft;
             }
 
             // GRN DETAILS
@@ -3859,12 +3897,28 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             int ColGRNId = GRNOSTCOL;
             GRNOSTCOL++;
 
+            report.SetHeaderText(ref sheet, GRNOSTROW, GRNOSTCOL, "JW Output Item Id", 12, ExcelHAlign.HAlignLeft);
+            int ColOSTransformationPOId = GRNOSTCOL;
+            GRNOSTCOL++;
+
             report.SetHeaderText(ref sheet, GRNOSTROW, GRNOSTCOL, "Material", 12, ExcelHAlign.HAlignLeft);
             int ColOSTJWInputMat = GRNOSTCOL;
             GRNOSTCOL++;
 
             report.SetHeaderText(ref sheet, GRNOSTROW, GRNOSTCOL, "Article", 12, ExcelHAlign.HAlignLeft);
             int ColOSTJWInputArticle = GRNOSTCOL;
+            GRNOSTCOL++;
+
+            report.SetHeaderText(ref sheet, GRNOSTROW, GRNOSTCOL, "SKU 1", 12, ExcelHAlign.HAlignLeft);
+            int ColSKU1 = GRNOSTCOL;
+            GRNOSTCOL++;
+
+            report.SetHeaderText(ref sheet, GRNOSTROW, GRNOSTCOL, "SKU 2", 12, ExcelHAlign.HAlignLeft);
+            int ColSKU2 = GRNOSTCOL;
+            GRNOSTCOL++;
+
+            report.SetHeaderText(ref sheet, GRNOSTROW, GRNOSTCOL, "SKU 3", 12, ExcelHAlign.HAlignLeft);
+            int ColSKU3 = GRNOSTCOL;
             GRNOSTCOL++;
 
             report.SetHeaderText(ref sheet, GRNOSTROW, GRNOSTCOL, "GRN No", 12, ExcelHAlign.HAlignLeft);
@@ -4041,6 +4095,11 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                 sheet[GRNOSTROW, ColAmtBDT].Number = clsStaticInfo.dbl(IIGRNdata.Rows[i]["AmtBD"].ToString());
 
                 //sheet[GRNOSTROW, ColTotalAmount].Number = clsStaticInfo.dbl(IIGRNdata.Rows[i]["TotalAmount"].ToString());
+
+                sheet[GRNOSTROW, ColOSTransformationPOId].Text = IIGRNdata.Rows[i]["OSTransformationPOId"].ToString();
+                sheet[GRNOSTROW, ColSKU1].Text = IIGRNdata.Rows[i]["FirstCharacteristicsValue"].ToString();
+                sheet[GRNOSTROW, ColSKU2].Text = IIGRNdata.Rows[i]["SecondCharacteristicsValue"].ToString();
+                sheet[GRNOSTROW, ColSKU3].Text = IIGRNdata.Rows[i]["ThirdCharacteristicsValue"].ToString();
 
                 sheet.Range[GRNOSTROW, 1, GRNOSTROW, GRNOSTendCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[GRNOSTROW, 1, GRNOSTROW, GRNOSTendCol].BorderAround(ExcelLineStyle.Hair);
@@ -4405,11 +4464,76 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             //					,BB.TotalAmt
             //                                   order by mp.Id";
 
-            var sql = @"select distinct IID.InventoryIssueId,kk.TotalIssuedQty, kk.MaterialMasterId, kk.Material,kk.ArticleId,kk.Article, mp.Id as JWOutputId, jwi.UserName as JWOutputItem
+            //       var sql = @"select distinct IID.InventoryIssueId,kk.TotalIssuedQty, kk.MaterialMasterId, kk.Material,kk.ArticleId,kk.Article, mp.Id as JWOutputId, jwi.UserName as JWOutputItem
+            //                   ,RequiredQuantity = (mp.Quantity * JWMi.GrossConsumption)
+            //                   ,BalanceToIssue = (mp.Quantity * JWMi.GrossConsumption) - (ISNULL(kk.TotalIssuedQty, '0'))
+            //                   ,IID.TransactionQty
+            //	 ,uom.UserName as IssueUoM
+            //	 ,AverageAmount=round(DD.AverageAmount,2) 
+            //--	 ,AveRateeee= ROUND(DD.AverageRate,4)
+            //                  --  ,AveRateeee= ROUND((DD.AverageRate / IID.TransactionQty),4)
+            //                    ,AveRateeee= ROUND((DD.AverageAmount / IID.TransactionQty),4)
+            //                   from TRN.InventoryIssueDetail IID left
+            //                   join TRN.InventoryIssue II on II.Id = IID.InventoryIssueId
+            //                   left
+            //                   join TRN.InventoryMaterial IM on IM.Id = IID.InventoryMaterialId
+            //                   left
+            //                   join dbo.OSTransformationPODetail mp on mp.OSTransformationPOId = II.JWContractId and mp.Id = IID.OSTransformationPOId
+            //                   left join HKP.JobWorkItem jwi on jwi.Id = mp.JobWorkItemMasterId
+            //                   LEFT join(Select Sum(mi.GrossConsumption) GrossConsump, mi.GrossConsumption, mi.ArticleId, mm.Id as MaterialMstId,mi.OSTransformationPODetailId
+            //                                   from dbo.OSTransformationPOInputMaterial mi
+
+            //                                   left join MST.MaterialMasterArticle mma on mma.Id = mi.ArticleId
+
+            //                                   left join MST.MaterialMaster mm on mm.Id = mma.MaterialMasterId
+
+            //                                   group by mi.ArticleId,mi.OSTransformationPODetailId,mm.Id,mi.GrossConsumption)
+            //					JWMi on JWMi.ArticleId = IM.ArticleId and JWMi.OSTransformationPODetailId = mp.Id and JWMi.MaterialMstId = IM.MaterialMasterId
+            //                               left join(select Sum(IID.TransactionQty) as TotalIssuedQty, IM.MaterialMasterId,mm.UserName as Material,mma.StandardName as Article
+            //                               , IM.ArticleId,IID.InventoryMaterialId
+            //                               ,IID.OSTransformationPOId                                       
+            //                               from TRN.InventoryIssue II inner join TRN.InventoryIssueDetail IID on II.Id = IID.InventoryIssueId
+            //                                   left join TRN.InventoryMaterial IM on IM.Id = IID.InventoryMaterialId
+            //                                   left join MST.MaterialMaster mm on mm.Id = IM.MaterialMasterId
+            //                                   left join MST.MaterialMasterArticle mma on mma.Id = IM.ArticleId
+
+            //                                   where II.JWContractId = '" + PrintTabId + @"' --and IID.InventoryIssueId='202188'
+
+            //                                   group by IM.MaterialMasterId,IM.ArticleId,IID.InventoryMaterialId,mm.UserName,mma.StandardName,IID.OSTransformationPOId)
+            //					kk on kk.InventoryMaterialId = IM.Id and kk.OSTransformationPOId=mp.Id
+            //	left join(select SUM(IIH.BooksCurrencyBaseRate) AverageRate, SUM(IIH.TotalMaterialBooksCurrencyAmount) AverageAmount,IIH.InventoryIssueDetailId 
+            //	from TRN.InventoryIssueHistory IIH left join TRN.InventoryIssueDetail IID on IID.Id=IIH.InventoryIssueDetailId
+            //	group by IIH.InventoryIssueDetailId)
+            //	DD on DD.InventoryIssueDetailId=IID.Id
+
+            //                                   left join SCS.UnitOfMeasurement uom on uom.Id=IID.TransactionUoMId
+
+            //                                   where mp.OSTransformationPOId = '" + PrintTabId + @"' and II.Id = '" + IssueId + @"'--and mi.Id is not null
+            //                                      and II.Types = 'InventoryJWIssue' and JWMi.GrossConsumption is not null-- and JWMi.GrossConsump is not null
+
+            //                                   group by IID.InventoryIssueId,kk.TotalIssuedQty, kk.MaterialMasterId, kk.Material,kk.ArticleId,kk.Article, mp.Id
+            //					, jwi.UserName
+            //					,mp.Quantity
+            //					,IID.TransactionQty
+            //					,JWMi.GrossConsumption
+            //                                   ,uom.UserName
+            //					,DD.AverageAmount,DD.AverageRate
+            //                                   order by mp.Id";
+
+            var sql = @"select distinct IID.Id as InventoryIssueDetailId, IID.InventoryIssueId,kk.TotalIssuedQty, kk.MaterialMasterId, kk.Material,kk.ArticleId,kk.Article
+,IM.FirstCharacteristicsId,IM.FirstCharacteristicsValueId
+,ISNULL(FChar.UserName,'') FirstCharacteristics,ISNULL(FCharValue.UserName,'') FirstCharacteristicsValue
+,IM.SecondCharacteristicsId,IM.SecondCharacteristicsValueId
+,ISNULL(SChar.UserName,'') SecondCharacteristics,ISNULL(SCharValue.UserName,'') SecondCharacteristicsValue
+,IM.ThirdCharacteristicsId,IM.ThirdCharacteristicsValueId
+,ISNULL(TChar.UserName,'') ThirdCharacteristics,ISNULL(TCharValue.UserName,'') ThirdCharacteristicsValue
+, mp.Id as JWOutputId, jwi.UserName as JWOutputItem
                         ,RequiredQuantity = (mp.Quantity * JWMi.GrossConsumption)
                         ,BalanceToIssue = (mp.Quantity * JWMi.GrossConsumption) - (ISNULL(kk.TotalIssuedQty, '0'))
                         ,IID.TransactionQty
+						,isnull(IID.BaseQty,'0') as BaseQty
 						 ,uom.UserName as IssueUoM
+						 ,Buom.UserName as BaseUoM
 						 ,AverageAmount=round(DD.AverageAmount,2) 
 					--	 ,AveRateeee= ROUND(DD.AverageRate,4)
                        --  ,AveRateeee= ROUND((DD.AverageRate / IID.TransactionQty),4)
@@ -4448,6 +4572,14 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 						DD on DD.InventoryIssueDetailId=IID.Id
 
                                         left join SCS.UnitOfMeasurement uom on uom.Id=IID.TransactionUoMId
+										left join SCS.UnitOfMeasurement Buom on Buom.Id=IID.BaseUOMId
+
+							LEFT JOIN [HKP].[Characteristics]  FChar  ON FChar.Id = IM.FirstCharacteristicsId
+                            LEFT JOIN [HKP].[CharacteristicsValue]   FCharValue  ON FCharValue.Id = IM.FirstCharacteristicsValueId
+                            LEFT JOIN [HKP].[Characteristics]   SChar  ON SChar.Id = IM.SecondCharacteristicsId
+                            LEFT JOIN [HKP].[CharacteristicsValue]   SCharValue  ON SCharValue.Id = IM.SecondCharacteristicsValueId
+                            LEFT JOIN [HKP].[Characteristics]   TChar  ON TChar.Id = IM.ThirdCharacteristicsId
+                            LEFT JOIN [HKP].[CharacteristicsValue]   TCharValue  ON TCharValue.Id = IM.ThirdCharacteristicsValueId
 
                                         where mp.OSTransformationPOId = '" + PrintTabId + @"' and II.Id = '" + IssueId + @"'--and mi.Id is not null
                                            and II.Types = 'InventoryJWIssue' and JWMi.GrossConsumption is not null-- and JWMi.GrossConsump is not null
@@ -4459,6 +4591,11 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 										,JWMi.GrossConsumption
                                         ,uom.UserName
 										,DD.AverageAmount,DD.AverageRate
+										,IID.Id
+										,FChar.UserName,FCharValue.UserName,SChar.UserName,SCharValue.UserName ,TChar.UserName,TCharValue.UserName
+										 ,IM.FirstCharacteristicsId,IM.FirstCharacteristicsValueId,IM.SecondCharacteristicsId,IM.SecondCharacteristicsValueId
+										 ,IM.ThirdCharacteristicsId,IM.ThirdCharacteristicsValueId
+										 ,Buom.UserName,IID.BaseQty
                                         order by mp.Id";
 
             return _sqlRepository.GetDataTable(sql);
@@ -4513,6 +4650,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             var sql = @"SELECT IID.Id
                         	,IRD.InventoryReceiveId AS GRNNo
                         	,IRD.Id AS GRNRowId
+                            ,IID.OSTransformationPOId
                         	---GRN---
                         	,tuom.UserName TranUoM
                         	,IRD.TransactionQty TrnQty
@@ -4539,6 +4677,12 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 							--,aa.BaseUOMFactor
 							--,IIH.Qty AS GRNIssueQty--
 							,GRNIssueQty=Round(IIH.Qty/IRD.BaseUOMFactor,2)
+                            ,IM.FirstCharacteristicsId,IM.FirstCharacteristicsValueId
+							,ISNULL(FChar.UserName,'') FirstCharacteristics,ISNULL(FCharValue.UserName,'') FirstCharacteristicsValue
+							,IM.SecondCharacteristicsId,IM.SecondCharacteristicsValueId
+							,ISNULL(SChar.UserName,'') SecondCharacteristics,ISNULL(SCharValue.UserName,'') SecondCharacteristicsValue
+							,IM.ThirdCharacteristicsId,IM.ThirdCharacteristicsValueId
+							,ISNULL(TChar.UserName,'') ThirdCharacteristics,ISNULL(TCharValue.UserName,'') ThirdCharacteristicsValue
                         FROM TRN.InventoryIssue II
                         LEFT JOIN TRN.InventoryIssueDetail IID ON II.Id = IID.InventoryIssueId
                         LEFT JOIN TRN.InventoryIssueHistory IIH ON IIH.InventoryIssueDetailId = IID.Id
@@ -4551,6 +4695,12 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                         LEFT JOIN TRN.InventoryReceive IR ON IR.Id = IRD.InventoryReceiveId
                         LEFT JOIN SCS.Currency C ON C.Id = IR.CurrencyId
                         LEFT JOIN SCS.Currency CC ON CC.Id = IR.BaseCurrencyId
+                        LEFT JOIN [HKP].[Characteristics]  FChar  ON FChar.Id = IM.FirstCharacteristicsId
+                        LEFT JOIN [HKP].[CharacteristicsValue]   FCharValue  ON FCharValue.Id = IM.FirstCharacteristicsValueId
+                        LEFT JOIN [HKP].[Characteristics]   SChar  ON SChar.Id = IM.SecondCharacteristicsId
+                        LEFT JOIN [HKP].[CharacteristicsValue]   SCharValue  ON SCharValue.Id = IM.SecondCharacteristicsValueId
+                        LEFT JOIN [HKP].[Characteristics]   TChar  ON TChar.Id = IM.ThirdCharacteristicsId
+                        LEFT JOIN [HKP].[CharacteristicsValue]   TCharValue  ON TCharValue.Id = IM.ThirdCharacteristicsValueId
                         where IID.InventoryIssueId='" + IssueId + @"' and IRD.InventoryReceiveId is not null
                         order by IID.Id";
 
@@ -4801,43 +4951,71 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Issue/ Return Quantity", 12, ExcelHAlign.HAlignLeft);
             MPChildROW++;
 
-            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "JW Output Item Id", 12, ExcelHAlign.HAlignLeft);
-            int ColJWOutputItemId = MPChildCOL;
+            //report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "JW Output Item Id", 12, ExcelHAlign.HAlignLeft);
+            //int ColJWOutputItemId = MPChildCOL;
+            //MPChildCOL++;
+
+            //report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "JW Output Item", 12, ExcelHAlign.HAlignLeft);
+            //int ColJWOutputItem = MPChildCOL;
+            //MPChildCOL++;
+
+            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Inventory Issue Detail Id", 12, ExcelHAlign.HAlignLeft);
+            int ColInventoryIssueDetailId = MPChildCOL;
             MPChildCOL++;
 
-            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "JW Output Item", 12, ExcelHAlign.HAlignLeft);
-            int ColJWOutputItem = MPChildCOL;
+            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Issue No", 12, ExcelHAlign.HAlignLeft);
+            int ColInventoryIssueId = MPChildCOL;
             MPChildCOL++;
 
-            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "JW Output Material", 12, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Material", 12, ExcelHAlign.HAlignLeft);
             int ColJWInputMaterial = MPChildCOL;
             MPChildCOL++;
 
-            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "JW Output Article", 12, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Article", 12, ExcelHAlign.HAlignLeft);
             int ColArticle = MPChildCOL;
             MPChildCOL++;
 
-            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Required Quantity", 12, ExcelHAlign.HAlignLeft);
-            int ColRequiredQuantity = MPChildCOL;
+            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "SKU 1", 12, ExcelHAlign.HAlignLeft);
+            int ColFirstCharacteristicsValue = MPChildCOL;
             MPChildCOL++;
 
-            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Total Issued Quantity", 12, ExcelHAlign.HAlignLeft);
-            int ColTIRCTotalQty = MPChildCOL;
+            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "SKU 2", 12, ExcelHAlign.HAlignLeft);
+            int ColSecondCharacteristicsValue = MPChildCOL;
             MPChildCOL++;
 
-            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Balance To Issue", 12, ExcelHAlign.HAlignLeft);
-            int ColBalanceToIssue = MPChildCOL;
+            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "SKU 3", 12, ExcelHAlign.HAlignLeft);
+            int ColThirdCharacteristicsValue = MPChildCOL;
             MPChildCOL++;
 
-            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Issue UoM", 12, ExcelHAlign.HAlignLeft);
+            //report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Required Quantity", 12, ExcelHAlign.HAlignLeft);
+            //int ColRequiredQuantity = MPChildCOL;
+            //MPChildCOL++;
+
+            //report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Total Issued Quantity", 12, ExcelHAlign.HAlignLeft);
+            //int ColTIRCTotalQty = MPChildCOL;
+            //MPChildCOL++;
+
+            //report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Balance To Issue", 12, ExcelHAlign.HAlignLeft);
+            //int ColBalanceToIssue = MPChildCOL;
+            //MPChildCOL++;
+
+            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Transaction UoM", 12, ExcelHAlign.HAlignLeft);
             int ColJWIssueUoM = MPChildCOL;
             MPChildCOL++;
 
-            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Issued Quantity", 10, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Trn Qty", 10, ExcelHAlign.HAlignLeft);
             int ColTIRCQty = MPChildCOL;
             MPChildCOL++;
 
-            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Average Issue Rate", 12, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Base UoM", 12, ExcelHAlign.HAlignLeft);
+            int ColBaseUoM = MPChildCOL;
+            MPChildCOL++;
+
+            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Base Qty", 10, ExcelHAlign.HAlignLeft);
+            int ColBaseQuantity = MPChildCOL;
+            MPChildCOL++;
+
+            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Avg Issue Rate", 12, ExcelHAlign.HAlignLeft);
             int ColAvgRate = MPChildCOL;
             MPChildCOL++;
 
@@ -4867,21 +5045,21 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                     if (RowIndexNo < MPChildROW)
                     {
                         //sheet.Range[RowIndexNo, ColJobWorkItem, MPChildROW - 1, ColJobWorkItem].Merge();
-                        sheet.Range[RowIndexNo, ColJWOutputItem, MPChildROW - 1, ColJWOutputItem].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        sheet.Range[RowIndexNo, ColJWOutputItem, MPChildROW - 1, ColJWOutputItem].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet.Range[RowIndexNo, ColInventoryIssueDetailId, MPChildROW - 1, ColInventoryIssueDetailId].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet.Range[RowIndexNo, ColInventoryIssueDetailId, MPChildROW - 1, ColInventoryIssueDetailId].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     }
                     RowIndexNo = MPChildROW;
                 }
 
-                sheet[MPChildROW, ColJWOutputItemId].Text = TransformationIssueReturnChilddata.Rows[i]["JWOutputId"].ToString();
-                sheet[MPChildROW, ColJWOutputItem].Text = TransformationIssueReturnChilddata.Rows[i]["JWOutputItem"].ToString();
+                //sheet[MPChildROW, ColJWOutputItemId].Text = TransformationIssueReturnChilddata.Rows[i]["JWOutputId"].ToString();
+                //sheet[MPChildROW, ColJWOutputItem].Text = TransformationIssueReturnChilddata.Rows[i]["JWOutputItem"].ToString();
                 //sheet[MPChildROW, ColJWInputItemId].Text = TransformationIssueReturnChilddata.Rows[i]["JwInputId"].ToString();
                 //sheet[MPChildROW, ColJWInputItem].Text = TransformationIssueReturnChilddata.Rows[i]["JWInputItem"].ToString();
                 sheet[MPChildROW, ColJWInputMaterial].Text = TransformationIssueReturnChilddata.Rows[i]["Material"].ToString();
                 sheet[MPChildROW, ColArticle].Text = TransformationIssueReturnChilddata.Rows[i]["Article"].ToString();
-                sheet[MPChildROW, ColBalanceToIssue].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["BalanceToIssue"].ToString());
-                sheet[MPChildROW, ColRequiredQuantity].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["RequiredQuantity"].ToString());
-                sheet[MPChildROW, ColTIRCTotalQty].Number = Convert.ToDouble(clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["TotalIssuedQty"].ToString()).ToString("F2"));
+                //sheet[MPChildROW, ColBalanceToIssue].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["BalanceToIssue"].ToString());
+                //sheet[MPChildROW, ColRequiredQuantity].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["RequiredQuantity"].ToString());
+                //sheet[MPChildROW, ColTIRCTotalQty].Number = Convert.ToDouble(clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["TotalIssuedQty"].ToString()).ToString("F2"));
                 sheet[MPChildROW, ColTIRCQty].Number = Convert.ToDouble(clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["TransactionQty"].ToString()).ToString("F2"));
 
                 sheet[MPChildROW, ColAvgRate].Number = Convert.ToDouble(clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["AveRateeee"].ToString()).ToString("F4"));
@@ -4892,6 +5070,16 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                 sheet[MPChildROW, ColAvgAmount].Number = Convert.ToDouble(clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["AverageAmount"].ToString()).ToString("F2"));
 
                 sheet[MPChildROW, ColJWIssueUoM].Text = TransformationIssueReturnChilddata.Rows[i]["IssueUoM"].ToString();
+
+                sheet[MPChildROW, ColInventoryIssueDetailId].Text = TransformationIssueReturnChilddata.Rows[i]["InventoryIssueDetailId"].ToString();
+                sheet[MPChildROW, ColInventoryIssueId].Text = TransformationIssueReturnChilddata.Rows[i]["InventoryIssueId"].ToString();
+
+                sheet[MPChildROW, ColFirstCharacteristicsValue].Text = TransformationIssueReturnChilddata.Rows[i]["FirstCharacteristicsValue"].ToString();
+                sheet[MPChildROW, ColSecondCharacteristicsValue].Text = TransformationIssueReturnChilddata.Rows[i]["SecondCharacteristicsValue"].ToString();
+                sheet[MPChildROW, ColThirdCharacteristicsValue].Text = TransformationIssueReturnChilddata.Rows[i]["ThirdCharacteristicsValue"].ToString();
+
+                sheet[MPChildROW, ColBaseUoM].Text = TransformationIssueReturnChilddata.Rows[i]["BaseUoM"].ToString();
+                sheet[MPChildROW, ColBaseQuantity].Number = Convert.ToDouble(clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["BaseQty"].ToString()).ToString("F2"));
 
                 sheet.Range[MPChildROW, 1, MPChildROW, MPChildendCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[MPChildROW, 1, MPChildROW, MPChildendCol].BorderAround(ExcelLineStyle.Hair);
@@ -4921,7 +5109,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             }
 
             // SUM OF TOTAL Amount
-            int ColTotalRecQty = 11;
+            int ColTotalRecQty = 13;
             decimal x = 0;
             decimal y = 0;
             decimal z = 0;
@@ -4940,8 +5128,8 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             if (RowIndexNo < MPChildROW - 1)
             {
                 //sheet.Range[RowIndexNo, ColJobWorkItem, MPChildROW - 1, ColJobWorkItem].Merge();
-                sheet.Range[RowIndexNo, ColJWOutputItem, MPChildROW - 1, ColJWOutputItem].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet.Range[RowIndexNo, ColJWOutputItem, MPChildROW - 1, ColJWOutputItem].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[RowIndexNo, ColInventoryIssueDetailId, MPChildROW - 1, ColInventoryIssueDetailId].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet.Range[RowIndexNo, ColInventoryIssueDetailId, MPChildROW - 1, ColInventoryIssueDetailId].HorizontalAlignment = ExcelHAlign.HAlignLeft;
             }
 
             // GRN DETAILS
@@ -5103,12 +5291,28 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             int ColGRNId = GRNOSTCOL;
             GRNOSTCOL++;
 
+            report.SetHeaderText(ref sheet, GRNOSTROW, GRNOSTCOL, "JW Output Item Id", 12, ExcelHAlign.HAlignLeft);
+            int ColOSTransformationPOId = GRNOSTCOL;
+            GRNOSTCOL++;
+
             report.SetHeaderText(ref sheet, GRNOSTROW, GRNOSTCOL, "Material", 12, ExcelHAlign.HAlignLeft);
             int ColOSTJWInputMat = GRNOSTCOL;
             GRNOSTCOL++;
 
             report.SetHeaderText(ref sheet, GRNOSTROW, GRNOSTCOL, "Article", 12, ExcelHAlign.HAlignLeft);
             int ColOSTJWInputArticle = GRNOSTCOL;
+            GRNOSTCOL++;
+
+            report.SetHeaderText(ref sheet, GRNOSTROW, GRNOSTCOL, "SKU 1", 12, ExcelHAlign.HAlignLeft);
+            int ColSKU1 = GRNOSTCOL;
+            GRNOSTCOL++;
+
+            report.SetHeaderText(ref sheet, GRNOSTROW, GRNOSTCOL, "SKU 2", 12, ExcelHAlign.HAlignLeft);
+            int ColSKU2 = GRNOSTCOL;
+            GRNOSTCOL++;
+
+            report.SetHeaderText(ref sheet, GRNOSTROW, GRNOSTCOL, "SKU 3", 12, ExcelHAlign.HAlignLeft);
+            int ColSKU3 = GRNOSTCOL;
             GRNOSTCOL++;
 
             report.SetHeaderText(ref sheet, GRNOSTROW, GRNOSTCOL, "GRN No", 12, ExcelHAlign.HAlignLeft);
@@ -5249,6 +5453,8 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                 sheet[GRNOSTROW, ColOSTGRNNo].Text = IIGRNdata.Rows[i]["GRNNo"].ToString();
                 sheet[GRNOSTROW, ColOSTGRNRowId].Text = IIGRNdata.Rows[i]["GRNRowId"].ToString();
 
+                sheet[GRNOSTROW, ColOSTransformationPOId].Text = IIGRNdata.Rows[i]["OSTransformationPOId"].ToString();
+
                 sheet[GRNOSTROW, ColTranUoM].Text = IIGRNdata.Rows[i]["TranUoM"].ToString();
                 //sheet[GRNOSTROW, ColTrnQty].Text = Convert.ToDouble(IIGRNdata.Rows[i]["TrnQty"].ToString()).ToString("#,##0.00");
                 sheet[GRNOSTROW, ColTrnQty].Number = Convert.ToDouble(IIGRNdata.Rows[i]["TrnQty"].ToString());
@@ -5269,6 +5475,10 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 
                 sheet[GRNOSTROW, ColOSTJWInputMat].Text = IIGRNdata.Rows[i]["JWInputMaterial"].ToString();
                 sheet[GRNOSTROW, ColOSTJWInputArticle].Text = IIGRNdata.Rows[i]["JWInputArticle"].ToString();
+
+                sheet[GRNOSTROW, ColSKU1].Text = IIGRNdata.Rows[i]["FirstCharacteristicsValue"].ToString();
+                sheet[GRNOSTROW, ColSKU2].Text = IIGRNdata.Rows[i]["SecondCharacteristicsValue"].ToString();
+                sheet[GRNOSTROW, ColSKU3].Text = IIGRNdata.Rows[i]["ThirdCharacteristicsValue"].ToString();
 
                 sheet[GRNOSTROW, ColOSTGRNIssueQty].Number = clsStaticInfo.dbl(IIGRNdata.Rows[i]["GRNIssueQty"].ToString());
                 sheet[GRNOSTROW, ColIssueBaseQty].Number = clsStaticInfo.dbl(IIGRNdata.Rows[i]["BaseQty"].ToString());
@@ -5549,15 +5759,70 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             //				,XX.TAmt
             //                                  order by mp.Id";
 
-            var sql = @"select distinct IID.InventoryIssueId,kk.TotalIssuedQty, kk.MaterialMasterId, kk.Material,kk.ArticleId,kk.Article, mp.Id as JWOutputId, jwi.UserName as JWOutputItem
+            //      var sql = @"select distinct IID.InventoryIssueId,kk.TotalIssuedQty, kk.MaterialMasterId, kk.Material,kk.ArticleId,kk.Article, mp.Id as JWOutputId, jwi.UserName as JWOutputItem
+            // ,RequiredQuantity = (mp.Quantity)
+            //                  ,BalanceToIssue = (mp.Quantity) - (ISNULL(kk.TotalIssuedQty, '0'))
+            //                   ,isnull(IID.TransactionQty,'0') as TransactionQty
+            // ,IssueUoM=case when IID.TransactionUoMId is not null then uom.UserName else uomm.UserName End
+
+            // ,AverageAmount=round(DD.AverageAmount,2) 
+            //-- ,AveRateeee= ROUND(DD.AverageRate,4)
+            //              --      ,AveRateeee= ROUND((DD.AverageRate / IID.TransactionQty),4)
+            //                  ,AveRateeee= ROUND((DD.AverageAmount / IID.TransactionQty),4)
+            //                  from TRN.InventoryIssueDetail IID left
+            //                  join TRN.InventoryIssue II on II.Id = IID.InventoryIssueId
+            //                  left
+            //                  join TRN.InventoryMaterial IM on IM.Id = IID.InventoryMaterialId
+            //                  left join dbo.OSTransformationPODetail mp on mp.OSTransformationPOId = II.JWContractId and mp.Id = IID.OSTransformationPOId
+            //                  left join HKP.JobWorkItem jwi on jwi.Id = mp.JobWorkItemMasterId
+            //                              left join(select Sum(IID.TransactionQty) as TotalIssuedQty, IM.MaterialMasterId,mm.UserName as Material,mma.StandardName as Article
+            //                              , IM.ArticleId,IID.InventoryMaterialId
+            //                              ,IID.OSTransformationPOId                                       
+            //                              from TRN.InventoryIssue II inner join TRN.InventoryIssueDetail IID on II.Id = IID.InventoryIssueId
+            //                                  left join TRN.InventoryMaterial IM on IM.Id = IID.InventoryMaterialId
+            //                                  left join MST.MaterialMaster mm on mm.Id = IM.MaterialMasterId
+            //                                  left join MST.MaterialMasterArticle mma on mma.Id = IM.ArticleId
+
+            //                                  where II.JWContractId = '" + PrintTabId + @"'
+
+            //                                  group by IM.MaterialMasterId,IM.ArticleId,IID.InventoryMaterialId,mm.UserName,mma.StandardName,IID.OSTransformationPOId)
+            //				kk on kk.InventoryMaterialId = IM.Id and kk.OSTransformationPOId=mp.Id
+
+            //left join(select SUM(IIH.BooksCurrencyBaseRate) AverageRate, SUM(IIH.TotalMaterialBooksCurrencyAmount) AverageAmount,IIH.InventoryIssueDetailId 
+            //from TRN.InventoryIssueHistory IIH left join TRN.InventoryIssueDetail IID on IID.Id=IIH.InventoryIssueDetailId
+            //group by IIH.InventoryIssueDetailId)
+            //DD on DD.InventoryIssueDetailId=IID.Id
+
+            //                                  left join SCS.UnitOfMeasurement uom on uom.Id=IID.TransactionUoMId
+            //				left join SCS.UnitOfMeasurement uomm on uomm.Id=mp.TransactionUoMId
+
+            //                                  where mp.OSTransformationPOId = '" + PrintTabId + @"' and II.Id = '" + IssueId + @"'
+            //                                     and II.Types = 'InventoryJWIssue'
+            //                                  group by IID.InventoryIssueId,kk.TotalIssuedQty, kk.MaterialMasterId, kk.Material,kk.ArticleId,kk.Article, mp.Id
+            //				, jwi.UserName
+            //				,mp.Quantity
+            //				,IID.TransactionQty
+            //                                  ,uom.UserName
+            //				,uomm.UserName,IID.TransactionUoMId
+            //				,DD.AverageAmount,DD.AverageRate
+            //                                  order by mp.Id";
+
+            var sql = @"select distinct IID.Id as InventoryIssueDetailId, IID.InventoryIssueId,kk.TotalIssuedQty, kk.MaterialMasterId, kk.Material,kk.ArticleId,kk.Article
+,IM.FirstCharacteristicsId,IM.FirstCharacteristicsValueId
+,ISNULL(FChar.UserName,'') FirstCharacteristics,ISNULL(FCharValue.UserName,'') FirstCharacteristicsValue
+,IM.SecondCharacteristicsId,IM.SecondCharacteristicsValueId
+,ISNULL(SChar.UserName,'') SecondCharacteristics,ISNULL(SCharValue.UserName,'') SecondCharacteristicsValue
+,IM.ThirdCharacteristicsId,IM.ThirdCharacteristicsValueId
+,ISNULL(TChar.UserName,'') ThirdCharacteristics,ISNULL(TCharValue.UserName,'') ThirdCharacteristicsValue
+, mp.Id as JWOutputId, jwi.UserName as JWOutputItem
 						 ,RequiredQuantity = (mp.Quantity)
                         ,BalanceToIssue = (mp.Quantity) - (ISNULL(kk.TotalIssuedQty, '0'))
                          ,isnull(IID.TransactionQty,'0') as TransactionQty
+						  ,isnull(IID.BaseQty,'0') as BaseQty
 						 ,IssueUoM=case when IID.TransactionUoMId is not null then uom.UserName else uomm.UserName End
+						 ,Buom.UserName as BaseUoM
 
 						 ,AverageAmount=round(DD.AverageAmount,2) 
-						-- ,AveRateeee= ROUND(DD.AverageRate,4)
-                    --      ,AveRateeee= ROUND((DD.AverageRate / IID.TransactionQty),4)
                         ,AveRateeee= ROUND((DD.AverageAmount / IID.TransactionQty),4)
                         from TRN.InventoryIssueDetail IID left
                         join TRN.InventoryIssue II on II.Id = IID.InventoryIssueId
@@ -5565,36 +5830,49 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                         join TRN.InventoryMaterial IM on IM.Id = IID.InventoryMaterialId
                         left join dbo.OSTransformationPODetail mp on mp.OSTransformationPOId = II.JWContractId and mp.Id = IID.OSTransformationPOId
                         left join HKP.JobWorkItem jwi on jwi.Id = mp.JobWorkItemMasterId
-                                    left join(select Sum(IID.TransactionQty) as TotalIssuedQty, IM.MaterialMasterId,mm.UserName as Material,mma.StandardName as Article
-                                    , IM.ArticleId,IID.InventoryMaterialId
-                                    ,IID.OSTransformationPOId                                       
-                                    from TRN.InventoryIssue II inner join TRN.InventoryIssueDetail IID on II.Id = IID.InventoryIssueId
-                                        left join TRN.InventoryMaterial IM on IM.Id = IID.InventoryMaterialId
-                                        left join MST.MaterialMaster mm on mm.Id = IM.MaterialMasterId
-                                        left join MST.MaterialMasterArticle mma on mma.Id = IM.ArticleId
+                        left join(select Sum(IID.TransactionQty) as TotalIssuedQty, IM.MaterialMasterId,mm.UserName as Material,mma.StandardName as Article
+                        , IM.ArticleId,IID.InventoryMaterialId
+                        ,IID.OSTransformationPOId                                       
+                        from TRN.InventoryIssue II inner join TRN.InventoryIssueDetail IID on II.Id = IID.InventoryIssueId
+                            left join TRN.InventoryMaterial IM on IM.Id = IID.InventoryMaterialId
+                            left join MST.MaterialMaster mm on mm.Id = IM.MaterialMasterId
+                            left join MST.MaterialMasterArticle mma on mma.Id = IM.ArticleId
 
-                                        where II.JWContractId = '" + PrintTabId + @"'
+                            where II.JWContractId = '" + PrintTabId + @"'
 
-                                        group by IM.MaterialMasterId,IM.ArticleId,IID.InventoryMaterialId,mm.UserName,mma.StandardName,IID.OSTransformationPOId)
-										kk on kk.InventoryMaterialId = IM.Id and kk.OSTransformationPOId=mp.Id
+                            group by IM.MaterialMasterId,IM.ArticleId,IID.InventoryMaterialId,mm.UserName,mma.StandardName,IID.OSTransformationPOId)
+							kk on kk.InventoryMaterialId = IM.Id and kk.OSTransformationPOId=mp.Id
 
 						left join(select SUM(IIH.BooksCurrencyBaseRate) AverageRate, SUM(IIH.TotalMaterialBooksCurrencyAmount) AverageAmount,IIH.InventoryIssueDetailId 
 						from TRN.InventoryIssueHistory IIH left join TRN.InventoryIssueDetail IID on IID.Id=IIH.InventoryIssueDetailId
 						group by IIH.InventoryIssueDetailId)
 						DD on DD.InventoryIssueDetailId=IID.Id
 
-                                        left join SCS.UnitOfMeasurement uom on uom.Id=IID.TransactionUoMId
-										left join SCS.UnitOfMeasurement uomm on uomm.Id=mp.TransactionUoMId
+                        left join SCS.UnitOfMeasurement uom on uom.Id=IID.TransactionUoMId
+						left join SCS.UnitOfMeasurement uomm on uomm.Id=mp.TransactionUoMId
+						left join SCS.UnitOfMeasurement Buom on Buom.Id=IID.BaseUOMId
+
+							LEFT JOIN [HKP].[Characteristics]  FChar  ON FChar.Id = IM.FirstCharacteristicsId
+                            LEFT JOIN [HKP].[CharacteristicsValue]   FCharValue  ON FCharValue.Id = IM.FirstCharacteristicsValueId
+                            LEFT JOIN [HKP].[Characteristics]   SChar  ON SChar.Id = IM.SecondCharacteristicsId
+                            LEFT JOIN [HKP].[CharacteristicsValue]   SCharValue  ON SCharValue.Id = IM.SecondCharacteristicsValueId
+                            LEFT JOIN [HKP].[Characteristics]   TChar  ON TChar.Id = IM.ThirdCharacteristicsId
+                            LEFT JOIN [HKP].[CharacteristicsValue]   TCharValue  ON TCharValue.Id = IM.ThirdCharacteristicsValueId
 
                                         where mp.OSTransformationPOId = '" + PrintTabId + @"' and II.Id = '" + IssueId + @"'
                                            and II.Types = 'InventoryJWIssue'
-                                        group by IID.InventoryIssueId,kk.TotalIssuedQty, kk.MaterialMasterId, kk.Material,kk.ArticleId,kk.Article, mp.Id
+                                          group by IID.InventoryIssueId,kk.TotalIssuedQty, kk.MaterialMasterId, kk.Material,kk.ArticleId,kk.Article, mp.Id
 										, jwi.UserName
 										,mp.Quantity
 										,IID.TransactionQty
                                         ,uom.UserName
 										,uomm.UserName,IID.TransactionUoMId
 										,DD.AverageAmount,DD.AverageRate
+										,IID.Id
+										,FChar.UserName,FCharValue.UserName,SChar.UserName,SCharValue.UserName ,TChar.UserName,TCharValue.UserName
+										 ,IM.FirstCharacteristicsId,IM.FirstCharacteristicsValueId,IM.SecondCharacteristicsId,IM.SecondCharacteristicsValueId
+										 ,IM.ThirdCharacteristicsId,IM.ThirdCharacteristicsValueId
+										 ,Buom.UserName,IID.BaseQty
                                         order by mp.Id";
 
             return _sqlRepository.GetDataTable(sql);
@@ -5634,6 +5912,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             var sql = @"SELECT IID.Id
                         	,IRD.InventoryReceiveId AS GRNNo
                         	,IRD.Id AS GRNRowId
+                            ,IID.OSTransformationPOId
                         	---GRN---
                         	,tuom.UserName TranUoM
                         	,IRD.TransactionQty TrnQty
@@ -5660,6 +5939,12 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 							--,aa.BaseUOMFactor
 							--,IIH.Qty AS GRNIssueQty--
 							,GRNIssueQty=Round(IIH.Qty/IRD.BaseUOMFactor,2)
+                            ,IM.FirstCharacteristicsId,IM.FirstCharacteristicsValueId
+							,ISNULL(FChar.UserName,'') FirstCharacteristics,ISNULL(FCharValue.UserName,'') FirstCharacteristicsValue
+							,IM.SecondCharacteristicsId,IM.SecondCharacteristicsValueId
+							,ISNULL(SChar.UserName,'') SecondCharacteristics,ISNULL(SCharValue.UserName,'') SecondCharacteristicsValue
+							,IM.ThirdCharacteristicsId,IM.ThirdCharacteristicsValueId
+							,ISNULL(TChar.UserName,'') ThirdCharacteristics,ISNULL(TCharValue.UserName,'') ThirdCharacteristicsValue
                         FROM TRN.InventoryIssue II
                         LEFT JOIN TRN.InventoryIssueDetail IID ON II.Id = IID.InventoryIssueId
                         LEFT JOIN TRN.InventoryIssueHistory IIH ON IIH.InventoryIssueDetailId = IID.Id
@@ -5672,6 +5957,13 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                         LEFT JOIN TRN.InventoryReceive IR ON IR.Id = IRD.InventoryReceiveId
                         LEFT JOIN SCS.Currency C ON C.Id = IR.CurrencyId
                         LEFT JOIN SCS.Currency CC ON CC.Id = IR.BaseCurrencyId
+
+                        LEFT JOIN [HKP].[Characteristics]  FChar  ON FChar.Id = IM.FirstCharacteristicsId
+                        LEFT JOIN [HKP].[CharacteristicsValue]   FCharValue  ON FCharValue.Id = IM.FirstCharacteristicsValueId
+                        LEFT JOIN [HKP].[Characteristics]   SChar  ON SChar.Id = IM.SecondCharacteristicsId
+                        LEFT JOIN [HKP].[CharacteristicsValue]   SCharValue  ON SCharValue.Id = IM.SecondCharacteristicsValueId
+                        LEFT JOIN [HKP].[Characteristics]   TChar  ON TChar.Id = IM.ThirdCharacteristicsId
+                        LEFT JOIN [HKP].[CharacteristicsValue]   TCharValue  ON TCharValue.Id = IM.ThirdCharacteristicsValueId
                         where IID.InventoryIssueId='" + IssueId + @"' and IRD.InventoryReceiveId is not null
                         order by IID.Id";
 
@@ -6757,6 +7049,21 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             {
 
                 return Json(JWTIR.GetOSOutPutInventoryMaterialList(IssueId, PKId, IssueDate, MaterialStorageIdInventory), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult ValAddedMaterialStorageForEdit(string IssueId, string MaterialStorageIdInventory)
+        {
+            try
+            {
+
+                return Json(JWTIR.ValAddedMaterialStorageForEdit(IssueId, MaterialStorageIdInventory), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
