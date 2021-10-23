@@ -282,8 +282,32 @@ function FinishGoodsBookingController(cboService, commonMessage, $scope, $rootSc
         angular.element(document.querySelector('#FGInventoryRegisterPopup')).modal('show');
     };
 
-    $scope.getFGInventoryRegisterPopUpData = function (id) {
+    $scope.costingItemDetailDataList = [];
+    $scope.GetCostingItemDetailData = function (obj) {
+        $scope.costingItemDetailDataList = [];
+        $http.get("Productions/FinishGoodsBooking/GetCostingItemDetailData?costingId=" + obj.data.CostingMasterTemplateId)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.costingItemDetailDataList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+        angular.element(document.querySelector('#CostingItemDetailDataPoUp')).modal('show');
+    };
 
+    $scope.SummaryRows = [{
+        title: "Total", summaryColumns: [
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "GrossAmount", dataMember: "GrossAmount", format: "{0:0.0000}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Rate", dataMember: "Rate", format: "{0:0.0000}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "GrossConsumption", dataMember: "GrossConsumption", format: "{0:0.0000}" }
+        ],
+        showCaptionSummary: true
+    }];
+
+    $scope.getFGInventoryRegisterPopUpData = function (id) {
         $http({
             method: "GET",
             url: "Productions/FinishGoodsBooking/GetFGInventoryRegisterPoPUpListData?finishGoodsBookingId=" + id
