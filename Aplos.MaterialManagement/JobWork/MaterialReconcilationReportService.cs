@@ -129,7 +129,7 @@ namespace Library.MaterialManagement.JobWork
 , TotalValue= (kk.TotalReceivedQty * mp.RatePerUnit)
 from dbo.JobWorkTransformationContract tc left join org.Entity e on e.Id=tc.EntityId
 left join HKP.Party p on p.Id=tc.VendorPartyId
-left join dbo.JobWorkTransformationContractChild mp on tc.Id=mp.JobWorkTransformationContractMasterId
+left join dbo.OSTransformationPODetail mp on tc.Id=mp.OSTransformationPOId
 left join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
 left join MST.MaterialMasterArticle mma on mma.Id=mp.ArticleCodeId
 left join HKP.JobWorkActivity jwa on jwa.Id=mp.JobActivityId
@@ -157,12 +157,12 @@ from dbo.JobWorkTransformationIssueReturnChild tirc left join dbo.JobWorkTransfo
 left join MST.MaterialMasterArticle mma on mma.Id=tirc.MaterialMasterArticleId
 left join MST.MaterialMaster mm on mm.Id=tirc.MaterialMasterId
 left join HKP.JobWorkItem jwi on jwi.Id=mi.JobWorkItemId
-left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+left join dbo.OSTransformationPODetail mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
 left join (Select SUM(Quantity) as TotalIssuedQuantity,MaterialInputId from dbo.JobWorkTransformationIssueReturnChild group by MaterialInputId)
 kk on kk.MaterialInputId=mi.Id
 left join (Select SUM(ReceivedQuantity) as TotalReceivedQty, MaterialPlanningId from dbo.JobWorkReceiptTransformationChild group by MaterialPlanningId)
 k on k.MaterialPlanningId=mp.Id
-left join dbo.JobWorkTransformationContract tc on tc.Id=mp.JobWorkTransformationContractMasterId
+left join dbo.JobWorkTransformationContract tc on tc.Id=mp.OSTransformationPOId
 left join SCS.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId
 left join SCS.UnitOfMeasurement uom on uom.Id=jwi.UOMId
 where tc.Id='" + ContractId + @"'
@@ -188,8 +188,8 @@ left join MST.MaterialMasterArticle mma on mma.Id=irtc.MaterialMasterArticleId
 left join (Select SUM(Quantity) as TotalIssuedQuantity, TransformationIssueReturnMasterId,MaterialInputId from dbo.JobWorkTransformationIssueReturnChild group by TransformationIssueReturnMasterId,MaterialInputId)
 kk on kk.MaterialInputId=irtc.MaterialInputId and kk.TransformationIssueReturnMasterId=irtc.TransformationIssueReturnMasterId
 left join dbo.JobWorkTransformationContractChild3 mi on mi.Id=irtc.MaterialInputId
-left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
-left join dbo.JobWorkTransformationContract tc on tc.Id=mp.JobWorkTransformationContractMasterId
+left join dbo.OSTransformationPODetail mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+left join dbo.JobWorkTransformationContract tc on tc.Id=mp.OSTransformationPOId
 where tc.Id='" + ContractId + @"'
 group by irt.Date,irt.Id,irtc.MaterialInputId, mm.UserName,kk.TotalIssuedQuantity, irtc.Remarks,irtc.Id,mp.Id,mma.StandardName
 order by irt.Date desc ";
@@ -212,8 +212,8 @@ order by irt.Date desc ";
                                from dbo.JobWorkReceiptTransformation rt inner join dbo.JobWorkReceiptTransformationChild rtc on rt.Id=rtc.JobWorkReceiptTransformationMasterId
                                left join (Select SUM(ReceivedQuantity) as TotalReceiptQuantity,JobWorkReceiptTransformationMasterId, MaterialPlanningId from dbo.JobWorkReceiptTransformationChild group by JobWorkReceiptTransformationMasterId, MaterialPlanningId)
                                kk on kk.JobWorkReceiptTransformationMasterId=rtc.JobWorkReceiptTransformationMasterId and kk.MaterialPlanningId=rtc.MaterialPlanningId
-                               left join dbo.JobWorkTransformationContractChild mp on mp.Id=rtc.MaterialPlanningId
-                               left join dbo.JobWorkTransformationContract tc on tc.Id=mp.JobWorkTransformationContractMasterId
+                               left join dbo.OSTransformationPODetail mp on mp.Id=rtc.MaterialPlanningId
+                               left join dbo.JobWorkTransformationContract tc on tc.Id=mp.OSTransformationPOId
 							   left join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
 							   left join MST.MaterialMasterArticle mma on mma.Id=mp.ArticleCodeId
 							   left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
@@ -242,14 +242,14 @@ order by irt.Date desc ";
                                from dbo.JobWorkTransformationContractChild4 tbp 
                                left join HKP.JobWorkItem jwi on jwi.Id=tbp.JobWorkItemId
                                left join dbo.JobWorkTransformationContractChild3 mi on mi.Id=tbp.JobWorkTransformationContractChild3MasterId
-                               left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+                               left join dbo.OSTransformationPODetail mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
                                left join HKP.JobWorkItem jwit on jwit.Id=mp.JobWorkItemMasterId
 							   left join HKP.JobWorkItem ji on ji.Id=mi.JobWorkItemId
 							   left join MST.MaterialMasterArticle mma on mma.Id=tbp.ArticleId
 							   left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
                                left join (Select SUM(ReceivedQuantity) as TotalReceivedQuantity,ByProductId from dbo.JobWorkReceiptTransformationByProduct group by ByProductId)
                                rvbp on rvbp.ByProductId=tbp.Id
-                               left join dbo.JobWorkTransformationContract tc on tc.Id=mp.JobWorkTransformationContractMasterId
+                               left join dbo.JobWorkTransformationContract tc on tc.Id=mp.OSTransformationPOId
                                where tc.Id='" + ContractId + @"' order by mp.Id ";
 
                 return _sqlRepository.GetDataTable(_sql);
