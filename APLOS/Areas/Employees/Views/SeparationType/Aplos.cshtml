@@ -46,7 +46,7 @@
                 <textarea maxlength="250" name="Remarks" class="form-control" rows="3" ng-model="SeparationType.Remarks" tabindex="6"></textarea>
             </div>
         </div>
-       
+
         <div class="form-group">
             <label class="col-sm-4 control-label">Active</label>
             <div class="col-sm-8">
@@ -63,14 +63,14 @@
         <fieldset class="scheduler-border" style="width:1076px ;padding:15px !important">
             <div class="col-xs-12 col-sm-6 col-md-6">
 
-                
+
 
 
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Salary Head</label>
                     <div class="col-sm-6">
                         <div class="select-style">
-                           
+
                             <select id="SalaryHeadFormula" class="form-control" ng-model="salaryRuleGeneral.SalaryHeadIdFormula" name="DailyAllowanceType" tabindex="1">
                                 <option value="">--Select--</option>
                                 <option ng-repeat="option in salaryHeadList" value="{{option.SalaryHeadID}}">{{option.SalaryHead}}</option>
@@ -137,7 +137,7 @@
         <div class="col-xs-12 col-sm-12 col-md-8 ">
             <div class="common-btn">
                 <ul class="list-inline text-right">
-                   
+
                     <li><button ng-click="AddNewRoweparationTypeDetails();" class="btn"><i class="glyphicon glyphicon-plus-sign" tabindex="11"></i> Add Row</button></li>
                 </ul>
             </div>
@@ -196,9 +196,9 @@
                     <div class="select-style">
                         <input ej-dropdownlist e-datasource="$parent.EmploymentTypeList" e-value="data.EmploymentType" e-fields-value="UserName" e-fields-text="UserName" e-width="100%" />
                         @*<select id="SalaryHeadFormula" class="form-control" ng-model="salaryRuleGeneral.SalaryHeadIdFormula" name="DailyAllowanceType" tabindex="1">
-                        <option value="">--Select--</option>
-                        <option ng-repeat="option in $parent.EmploymentTypeList" value="{{option.UserName}}">{{option.UserName}}</option>
-                    </select>*@
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in $parent.EmploymentTypeList" value="{{option.UserName}}">{{option.UserName}}</option>
+                            </select>*@
                     </div>
 
                 </div>
@@ -206,17 +206,31 @@
 
         </div>
         <div class="col-xs-12 col-sm-12 col-md-4 ">
-            <div class="form-group">
-                <label class="col-sm-8 control-label">Gratuity Applicable</label>
-                <div class="col-sm-4">
-                    <div class="checkbox-site">
-                        <label>
-                            <input tabindex="8" type="checkbox" ng-model="SeparationType.IsGratuityApplicable">
-                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                        </label>
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border"> Gratuity</legend>
+                <div class="form-group">
+                    <label class="col-sm-8 control-label"> Applicable</label>
+                    <div class="col-sm-4">
+                        <div class="checkbox-site">
+                            <label>
+                                <input tabindex="8" type="checkbox" ng-model="SeparationType.IsGratuityApplicable">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
                     </div>
                 </div>
-            </div>
+                <div class="form-group">
+                    <label class="col-sm-8 control-label">Net Pay with Final settlement</label>
+                    <div class="col-sm-4">
+                        <div class="checkbox-site">
+                            <label>
+                                <input tabindex="8" type="checkbox" ng-model="SeparationType.IsNetPayWithFinalSattlement">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
             <div class="form-group">
                 <label class="col-sm-8 control-label">Fixed Days Amount Applicable</label>
                 <div class="col-sm-4">
@@ -242,21 +256,21 @@
                  e-allowselection="true"
                  @*e-filtersettings-filterType="excel"*@>
                 <div e-columns>
-                   
+
                     <div e-column e-field="EmploymentType" e-headertext="Employment Type" e-width="100"></div>
                     <div e-column e-template="#DayNoFixed" e-headertext="Days No." e-width="100"></div>
 
-                    
+
                 </div>
             </div>
-          
+
             <script type="text/template" id="DayNoFixed">
                 <div class="col-sm-10" style="padding:0px; width:100%;height:20px;">
                     <input type="text" ng-model="data.DayNo" style="color:black;" class="form-control" />
 
                 </div>
             </script>
-           
+
 
         </div>
     </div>
@@ -272,14 +286,14 @@
 <div class="row text-right aplos-grid-toggle">
     <div class="col-xs-12 col-sm-12 col-sm-12">
 
-        <div style="color:black;" 
-             id="GridSeparationTypesList" 
-             ej-grid e-datasource="SeparationTypesList" 
-             e-gridlines="vertical" 
-             e-allowfiltering="true" 
-             e-allowpaging="true" 
+        <div style="color:black;"
+             id="GridSeparationTypesList"
+             ej-grid e-datasource="SeparationTypesList"
+             e-gridlines="vertical"
+             e-allowfiltering="true"
+             e-allowpaging="true"
              e-allowsorting="true"
-             e-allowselection="true" 
+             e-allowselection="true"
              e-filtersettings-filterType="excel" e-allowtouch="true">
             <div e-columns>
                 <div e-column e-field="Sequence" e-headertext="Sequence" e-width="100" @*e-visible="false" e-primarykey="true"*@></div>
@@ -287,7 +301,7 @@
                 <div e-column e-field="UserName" e-headertext="UserName" e-width="100"></div>
                 <div e-column e-field="FormulaDes" e-headertext="FormulaDes" e-width="55"></div>
                 <div e-column e-field="IsGratuityApplicable" e-headertext="IsGratuityApplicable Date" e-width="50"></div>
-              
+
                 <div e-column e-headertext="Actions" e-width="70">
                     <button style="color: #f3f3ec;background-color: #1c1f32;height: 28px;" class="btn"><i class="glyphicon glyphicon-edit" ng-click="$parent.EditSeparationType($event);" style="margin: -6px;"></i></button>
                     <button style="color: #f3f3ec;background-color: #1c1f32;height: 28px;" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.remove($event);" style="margin: -6px;"></i></button>
