@@ -160,6 +160,7 @@ namespace Library.Model.Employees
         public string PlantID { get; set; }
         public bool IsGratuityApplicable { get; set; }
         public bool IsFixedDayAmountApplicable { get; set; }
+        public bool IsNetPayWithFinalSattlement { get; set; }
         #endregion Audit Properties
 
         #region Navigation Properties
