@@ -35,7 +35,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return View();
         }
 
-        public ActionResult InventoryJobWorkReceived()
+        public ActionResult InventoryOutSourceReceivePost()
         {
             return View();
         }
@@ -241,24 +241,24 @@ namespace Aplos.Areas.Accounts.Controllers
         #region InventoryJobWorkReceived
 
         [Authorize, HttpGet]
-        public JsonResult GetListForInvJobWorkReceived()
+        public JsonResult GetListForInvOutSourceReceived()
         {
             AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_accountsInventoryPayableService.GetJobWorkReceivedList(identity.PlantId), JsonRequestBehavior.AllowGet);
+            return Json(_accountsInventoryPayableService.GetOutSourceReceivedList(identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
 
         [Authorize, HttpGet]
-        public JsonResult GetInventoryJobWorkReceivedJV(string inveReveiveId, string employeeId, bool isReversCharge, string foc)
+        public JsonResult GetInventoryOutSourceReceivedJV(string inveReveiveId, string employeeId, bool isReversCharge, string foc)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
             if (foc == "NO")
             {
                 
-                  return Json(_accountsInventoryPayableService.GetInventoryJobWorkReceivedJV(identity.CompanyId, identity.PlantId, inveReveiveId), JsonRequestBehavior.AllowGet);
+                  return Json(_accountsInventoryPayableService.GetInventoryOutSourceReceivedJV(identity.CompanyId, identity.PlantId, inveReveiveId), JsonRequestBehavior.AllowGet);
             }
             else
             {
@@ -269,27 +269,34 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [Authorize, HttpGet]
-        public JsonResult GetInventoryJobWorkGIRI(string inveReveiveId)
+        public JsonResult GetInventoryOSServiceMasterData(string inveReveiveId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
-                return Json(_accountsInventoryPayableService.GetInventoryJobWorkGIRI(identity.CompanyId, identity.PlantId, inveReveiveId), JsonRequestBehavior.AllowGet);
+                return Json(_accountsInventoryPayableService.GetInventoryOSServiceMasterData(identity.CompanyId, identity.PlantId, inveReveiveId), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetInventoryOutSourceGIRI(string inveReveiveId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
+            return Json(_accountsInventoryPayableService.GetInventoryOutSourceGIRI(identity.CompanyId, identity.PlantId, inveReveiveId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
-        public JsonResult GetInventoryJobWorkWIP(string inveReveiveId)
+        public JsonResult GetInventoryOutSourceWIP(string inveReveiveId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
-            return Json(_accountsInventoryPayableService.GetInventoryJobWorkWIP(identity.CompanyId, identity.PlantId, inveReveiveId), JsonRequestBehavior.AllowGet);
+            return Json(_accountsInventoryPayableService.GetInventoryOutSourceWIP(identity.CompanyId, identity.PlantId, inveReveiveId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]
-        public JsonResult GetJobWorkInventoryReceivePostedList(string column, string value)
+        public JsonResult GetOutSourceInventoryReceivePostedList(string column, string value)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
-            return Json(_accountsInventoryPayableService.GetJWPostedList(column, value, identity.PlantId), JsonRequestBehavior.AllowGet);
+            return Json(_accountsInventoryPayableService.GetOutSourcePostedList(column, value, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]

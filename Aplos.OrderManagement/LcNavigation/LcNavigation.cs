@@ -96,8 +96,8 @@ namespace Library.OrderManagement.LcNavigation
 									  union ALL
 
 							    select po.PurchaseLCId,0 AS MaterialPOAmount,pod.TransactionAmount,0 AS ServicePOAmount, po.Id
-								 from [dbo].[JWTransformationPurchaseOrder]  PO 
-                                  inner JOin [dbo].[JobWorkTransformationContractChild] POD ON POD.JobWorkTransformationContractMasterId=po.Id
+								 from [dbo].[OSTransformationPO]  PO 
+                                  inner JOin [dbo].[OSTransformationPODetail] POD ON POD.OSTransformationPOId=po.Id
 
 								   union ALL
 
@@ -115,10 +115,10 @@ namespace Library.OrderManagement.LcNavigation
 									group by po.PurchaseLCId
 									union 
 									
-								    select  po.PurchaseLCId as LCId,sum(g.TransactionQty*JWTCC.RatePerUnit) as GRNTotalAmount,count(distinct g.InventoryReceiveId) as GRNCount from  [dbo].[JWTransformationPurchaseOrder] as po 
+								    select  po.PurchaseLCId as LCId,sum(g.TransactionQty*JWTCC.RatePerUnit) as GRNTotalAmount,count(distinct g.InventoryReceiveId) as GRNCount from  [dbo].[OSTransformationPO] as po 
 									inner join TRN.InventoryReceiveDetail as g on g.OSTransformationPOId=po.Id
 									LEFT JOIN [MST].[JobWorkTransformationMaster] JWTM ON JWTM.Id=g.OSTransformationPOId
-						            LEFT JOIN dbo.JobWorkTransformationContractChild JWTCC ON JWTCC.Id=g.OSTransformationPODetailId
+						            LEFT JOIN dbo.OSTransformationPODetail JWTCC ON JWTCC.Id=g.OSTransformationPODetailId
 									group by po.PurchaseLCId
 								  
 								    union 
@@ -273,9 +273,9 @@ select PO.Id PONo,FORMAT(PO.PODate,'dd-MMM-yyy') PODate
 , POD.POAmount,c.Code Currency,P.UserName Vendor
 ,GRN.GRNTotalAmount
 ,PO.AddedDate,PT.UserName PaymentTerm
-from [dbo].[JWTransformationPurchaseOrder] PO
-left outer join (select sum(TransactionAmount) POAmount,JobWorkTransformationContractMasterId from  [dbo].[JobWorkTransformationContractChild]
-group by JobWorkTransformationContractMasterId)POD on POD.JobWorkTransformationContractMasterId=PO.Id
+from [dbo].[OSTransformationPO] PO
+left outer join (select sum(TransactionAmount) POAmount,OSTransformationPOId from  [dbo].[OSTransformationPODetail]
+group by OSTransformationPOId)POD on POD.OSTransformationPOId=PO.Id
 left outer join mst.PaymentTerm PT on PT.Id=PO.PaymentTermId
 left outer join SCS.Currency C on c.Id=PO.CurrencyId
 left outer join hkp.Party P on P.Id=PO.PartyId
@@ -564,16 +564,16 @@ order by a.PODate desc";
 
                             from PurchaseLC as PL
 
-                            join [dbo].[JWTransformationPurchaseOrder] as PO on po.PurchaseLCId = pl.Id
+                            join [dbo].[OSTransformationPO] as PO on po.PurchaseLCId = pl.Id
                             inner join SCS.Currency as C on  PL.CurrencyId=c.Id
-                            inner join [dbo].[JobWorkTransformationContractChild] as POD on POD.JobWorkTransformationContractMasterId=po.Id
+                            inner join [dbo].[OSTransformationPODetail] as POD on POD.OSTransformationPOId=po.Id
 
                             left join
                              (
                             select  IR.OSTransformationPOId,sum(IR.TransactionQty*JWTCC.RatePerUnit) as GRNTotalAmount,count(distinct IR.InventoryReceiveId) as GRNCount
 							from TRN.InventoryReceiveDetail IR 
 							LEFT JOIN [MST].[JobWorkTransformationMaster] JWTM ON JWTM.Id=IR.OSTransformationPOId
-				         	LEFT JOIN dbo.JobWorkTransformationContractChild JWTCC ON JWTCC.Id=IR.OSTransformationPODetailId
+				         	LEFT JOIN dbo.OSTransformationPODetail JWTCC ON JWTCC.Id=IR.OSTransformationPODetailId
 							group by IR.OSTransformationPOId				
 
                             )
@@ -623,11 +623,11 @@ order by a.PODate desc";
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return @"select IRD.InventoryReceiveId,sum(IRD.TransactionQty*JWTCC.RatePerUnit) GRNValue,Format(IR.GRNDate,'dd-MMM-yyyy') GRNDate
-							from [dbo].[JWTransformationPurchaseOrder] PO 
+							from [dbo].[OSTransformationPO] PO 
 							left outer join trn.InventoryReceiveDetail IRD on IRD.OSTransformationPOId=PO.Id			
 							left outer join trn.InventoryReceive IR on IR.Id=IRD.InventoryReceiveId	
 							LEFT JOIN [MST].[JobWorkTransformationMaster] JWTM ON JWTM.Id=IRD.OSTransformationPOId
-				         	LEFT JOIN dbo.JobWorkTransformationContractChild JWTCC ON JWTCC.Id=IRD.OSTransformationPODetailId			
+				         	LEFT JOIN dbo.OSTransformationPODetail JWTCC ON JWTCC.Id=IRD.OSTransformationPODetailId			
 							
 							where PO.Id='" + POID+@"'
 							group by IRD.InventoryReceiveId,IR.GRNDate";
@@ -660,9 +660,9 @@ order by a.PODate desc";
 							union all
 							select IR.Id,IRD.OSTransformationPOId,sum(IRD.TransactionQty*JWTCC.RatePerUnit) GRNValue,Format(IR.GRNDate,'dd-MMM-yyyy') GRNDate from trn.InventoryReceive IR 
 							left outer join trn.InventoryReceiveDetail IRD on IRD.InventoryReceiveId=IR.Id
-							left outer join [dbo].[JWTransformationPurchaseOrder]  PO  on PO.id=IRD.OSTransformationPOId
+							left outer join [dbo].[OSTransformationPO]  PO  on PO.id=IRD.OSTransformationPOId
 							LEFT JOIN [MST].[JobWorkTransformationMaster] JWTM ON JWTM.Id=IRD.OSTransformationPOId
-					LEFT JOIN dbo.JobWorkTransformationContractChild JWTCC ON JWTCC.Id=IRD.OSTransformationPODetailId
+					LEFT JOIN dbo.OSTransformationPODetail JWTCC ON JWTCC.Id=IRD.OSTransformationPODetailId
 							
 							group by IR.Id,IRD.OSTransformationPOId,IR.GRNDate
 							union all
@@ -715,7 +715,7 @@ Left outer JOIN trn.InventoryReceiveDetail AS xIRD ON xIRD.POId=xPO.Id
 where xIRD.InventoryReceiveId=gn.GRNNo for xml path('') ), 1, 1, '')
 
  ,STUFF((select distinct ','+xPO.Id from
-[dbo].[JWTransformationPurchaseOrder] AS xPO
+[dbo].[OSTransformationPO] AS xPO
 Left outer JOIN trn.InventoryReceiveDetail AS xIRD ON xIRD.OSTransformationPOId=xPO.Id
 where xIRD.InventoryReceiveId=gn.GRNNo for xml path('') ), 1, 1, '')
 
@@ -729,7 +729,7 @@ trn.PurchaseOrder AS xPO
 Left outer JOIN trn.InventoryReceiveDetail AS xIRD ON xIRD.POId=xPO.Id
 where xIRD.InventoryReceiveId=gn.GRNNo for xml path('')), 1, 1, '')
  ,STUFF((select distinct ','+xPO.DocRefNo from
-[dbo].[JWTransformationPurchaseOrder] AS xPO
+[dbo].[OSTransformationPO] AS xPO
 Left outer JOIN trn.InventoryReceiveDetail AS xIRD ON xIRD.OSTransformationPOId=xPO.Id
 where xIRD.InventoryReceiveId=gn.GRNNo for xml path('') ), 1, 1, '')
 
@@ -765,10 +765,10 @@ where xIRD.ServiceAcknowledgementMasterId=gn.GRNNo for xml path('') ), 1, 1, '')
 					FORMAT( IR.GRNDate,'dd-MMM-yyyy') as GRNDate
 					,Gate.UserName GateName
 					,IR.GateEntryNo
-					from [dbo].[JWTransformationPurchaseOrder] as PO
+					from [dbo].[OSTransformationPO] as PO
 					left outer join TRN.InventoryReceiveDetail as IRD on IRD.OSTransformationPOId=po.Id
 					LEFT JOIN [MST].[JobWorkTransformationMaster] JWTM ON JWTM.Id=IRD.OSTransformationPOId
-					LEFT JOIN dbo.JobWorkTransformationContractChild JWTCC ON JWTCC.Id=IRD.OSTransformationPODetailId
+					LEFT JOIN dbo.OSTransformationPODetail JWTCC ON JWTCC.Id=IRD.OSTransformationPODetailId
                     left join TRN.InventoryReceive as IR on IR.Id=IRD.InventoryReceiveId
 					left outer join trn.GateEntry as G on G.Id=IR.GateEntryNo
                     left outer join dbo.PlantWiseGate as  gate on gate.Id=g.PlantWiseGateId

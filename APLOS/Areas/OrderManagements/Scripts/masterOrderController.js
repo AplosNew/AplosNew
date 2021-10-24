@@ -1185,6 +1185,15 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 { Value: "Trading", Text: "Trading" }
             ];
         }
+
+        for (var i = 0; i < $scope.itemList.length; i++) {
+            $scope.itemList[i].JobWorkType = null;
+            $scope.itemList[i].EntityOrVendorName = null;
+            $scope.itemList[i].EntityIdWithinCompany = null;
+            $scope.itemList[i].EntityIdWithinGroup = null;
+            $scope.itemList[i].PartyId = null;
+        }
+
     };
 
     $scope.enableJobOrOutSource = true;
@@ -1387,6 +1396,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                             ProductionGrouping: null,
                             TestingStandardId: $scope.fileNew.TestingStandardId,
                             IsRepeat: false,
+                            Consignment: false,
                             Type: $scope.fileNew.Type,
                             ContractId: $scope.modelNew.Id == null ? null : $scope.modelNew.Id,
                             BuyerItemDescription: null,
@@ -1463,6 +1473,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             ProductionGrouping: null,
             TestingStandardId: $scope.fileNew.TestingStandardId,
             IsRepeat: false,
+            Consignment: false,
             Type: $scope.fileNew.Type,
             ContractId: $scope.modelNew.Id == null ? null : $scope.modelNew.Id,
             BuyerItemDescription: null,
@@ -1699,8 +1710,11 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     // #endregion value
 
     // #region Sales Order
+    $scope.JobWorkType = '';
+    $scope.getSalesOrder = function (x, id, materialMasterId, mName, aName, hsnCodeId, BuyerReferenceNo) {
+        $scope.JobWorkType = baseService.isUndefinedOrNull(x.JobWorkType) ? x.JobWorkType : x.JobWorkType + '>> ' + baseService.isUndefinedOrNull(x.EntityOrVendorName) ? x.EntityOrVendorName : x.EntityOrVendorName;
+       
 
-    $scope.getSalesOrder = function (id, materialMasterId, mName, aName, hsnCodeId, BuyerReferenceNo) {
         $scope.TotalProducedQty = 0;
         $scope.ProdBookedQty = 0;
         if ($scope.mmChangeFlag) return ShowResult('Please update changes data', 'failure');
@@ -2634,6 +2648,10 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                         getSkuMatrix(firstData, secondtData);
                         $scope.rowName = $scope.characteristicsList[0].Text;
                         $scope.columnName = $scope.characteristicsList[1].Text;
+
+                        $scope.char1Id = $scope.characteristicsList[0].Value;
+                        $scope.char2Id = $scope.characteristicsList[1].Value;
+
                         //angular.element(document.querySelector('#firstPopup')).modal('hide');
                         //angular.element(document.querySelector('#secondPopup')).modal('show');
                         //angular.element(document.querySelector('#thirdPopup')).modal('hide');
@@ -4543,10 +4561,10 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         }
         if ($scope.state == '2nd') {
             $scope.charId = $scope.char2Id;
-          //  $scope.SKU = $scope.rmchar2.Name;
+            //  $scope.SKU = $scope.rmchar2.Name;
             $scope.SKULevel = 'Specific';
         }
-       
+
         $scope.characteristicsValue = {
             Id: baseService.pk()
             , MaterialMasterId: $scope.ToMaterialMasterId
@@ -4582,11 +4600,11 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         if ($scope.state == '2nd') {
             $scope.characteristicsvalueNew.SourceType = 'Specific';
         }
-        
+
         if (baseService.isUndefinedOrNull($scope.name)) {
             $scope.SaveBOMSKU();
         }
-        
+
     }
 
     $scope.SaveBOMSKU = function () {
@@ -4605,29 +4623,14 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                     else {
                         ShowResult(response.data.Message, 'success', 'SKUpopup');
 
-                       
-                     
-
                         if ($scope.state == '1st') {
                             $scope.GetToItemMaterialSKU1($scope.ToMaterialMasterId);
-                            //$scope.bomDetailNew.FirstCharacteristicsId = $scope.charId;
-                            //$scope.rmchar1.FreeText = response.data.CharacteristicsValue.UserName;
-                            //$scope.bomDetailNew.FirstCharacteristicsValueId = response.data.CharacteristicsValue.Id;
-
-                            //$scope.rmchar1.CharacteristicsId = $scope.bomDetailNew.FirstCharacteristicsId;
-                            //$scope.rmchar1.CharacteristicsValueId = $scope.bomDetailNew.FirstCharacteristicsValueId;
                         }
                         if ($scope.state == '2nd') {
                             $scope.GetToItemMaterialSKU2($scope.ToMaterialMasterId);
-                            //$scope.bomDetailNew.SecondCharacteristicsId = $scope.charId;
-                            //$scope.rmchar2.FreeText = response.data.CharacteristicsValue.UserName;
-                            //$scope.bomDetailNew.SecondCharacteristicsValueId = response.data.CharacteristicsValue.Id;
-
-                            //$scope.rmchar2.CharacteristicsId = $scope.bomDetailNew.SecondCharacteristicsId;
-                            //$scope.rmchar2.CharacteristicsValueId = $scope.bomDetailNew.SecondCharacteristicsValueId;
                         }
 
-                       // $scope.clearMasterCharacteristicsValue();
+                        // $scope.clearMasterCharacteristicsValue();
                         angular.element(document.querySelector('#SKUpopup')).modal('hide');
                     }
                 }), function errorCallBack(response) {
@@ -4643,6 +4646,9 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.CloseCharacteristicsValuePopUp = function () {
         angular.element(document.querySelector('#SKUpopup')).modal('hide');
     }
+    $scope.CloseCharacteristicsValuePopUp1 = function () {
+        angular.element(document.querySelector('#SOSKUpopup')).modal('hide');
+    }
     $scope.clearMasterCharacteristicsValue = function () {
         $scope.characteristicsValue = {};
         $scope.characteristicsvalueNew = {
@@ -4653,6 +4659,80 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         };
         $scope.GetMaterialMasterCharacteristicsValueSequence();
     }
+
+
+    $scope.AddSOSKU = function (sku) {
+        if (sku == 1) {
+            $scope.charId = $scope.char1Id;
+            $scope.charName = $scope.rowName;
+        }
+        else {
+            $scope.charId = $scope.char2Id;
+            $scope.charName = $scope.columnName;
+        }
+
+        $scope.characteristicsValue = {
+            Id: baseService.pk()
+            , MaterialMasterId: $scope.materialMasterId
+            , CharacteristicsId: $scope.charId
+            , Sequence: null
+            , Code: null
+            , ShortName: null
+            , StandardName: null
+            , UserName: null
+            , SourceType: 'Specific'
+            , Description: null
+            , Remarks: null
+            , IsDefault: false
+            , Active: true
+        };
+        $scope.characteristicsvalueNew = angular.copy($scope.characteristicsValue);
+        $scope.GetSOMaterialMasterCharacteristicsValueSequence();
+        angular.element(document.querySelector('#SOSKUpopup')).modal('show');
+    }
+
+    $scope.GetSOMaterialMasterCharacteristicsValueSequence = function () {
+        $http.get('Materials/characteristicsvalue/getautosequence?characteristicsId=' + $scope.charId + '&materialId=' + $scope.materialMasterId)
+            .then(function (response) {
+                $scope.characteristicsvalueNew.Sequence = response.data;
+            });
+    };
+
+    function GetChValueCbo() {
+        $http.get($scope.path + 'GetChValueCbo?materialId=' + $scope.materialMasterId)
+            .then(function (response) {
+                $scope.charValueList = [];
+                $scope.charValueList = response.data;
+            });
+    }
+
+    $scope.SaveSOSKU = function () {
+        try {
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.skuForm.$valid) {
+                $http({
+                    method: 'POST',
+                    url: 'OrderManagements/BOMMaster/CreateCharacteristicsValue',
+                    data: { 'entity': $scope.characteristicsvalueNew },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure', 'SOSKUpopup');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success', 'SOSKUpopup');
+                        GetChValueCbo();
+                        angular.element(document.querySelector('#SOSKUpopup')).modal('hide');
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure', 'SOSKUpopup');
+                }
+
+            }
+        } catch (e) {
+            ShowResult(e, 'failure', 'SOSKUpopup');
+        }
+    };
 
     //#endregion 
 

@@ -441,7 +441,6 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
                         $scope.costingItemDetailDataList = response.data;
-
                     }
                 },
                 function errorCallback(response) {

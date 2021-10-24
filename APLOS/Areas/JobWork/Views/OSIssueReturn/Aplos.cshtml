@@ -467,7 +467,7 @@
                             <div class="common-btn" style="padding-right: 15px;">
                                 <ul class="list-inline text-right">
                                     <li>
-                                        <button ng-click="SaveSlipIssue();" tabindex="17" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button>
+                                        <button ng-click="SaveSlipIssue();" tabindex="17" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button>
                                         <button ng-click="ClearIssueChildTab();" tabindex="18" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button>
                                         <button ng-click="DownloadReport();" tabindex="18" ng-disabled="Issue.Id==null" class="btn"><i class="glyphicon glyphicon-download"></i> Download</button>
                                     </li>
@@ -971,7 +971,7 @@
                                 <ul class="list-inline text-right">
                                     <li>
                                         @*SaveTransformationChild*@
-                                        <button ng-click="SaveSlipIssue();" tabindex="17" @*ng-disabled="IssueTransformation.Id==null"*@ class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button>
+                                        <button ng-click="SaveSlipIssue();" tabindex="17" @*ng-disabled="IssueTransformation.Id==null"*@ class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button>
                                         <button ng-click="ClearIssueTransformationChildTab();" tabindex="18" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button>
                                         <button ng-click="DownloadIssueTransformationReport();" tabindex="18" ng-disabled="IssueTransformation.Id==null" class="btn"><i class="glyphicon glyphicon-download"></i> Download</button>
                                     </li>

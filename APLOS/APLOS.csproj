@@ -378,6 +378,7 @@
       <DependentUpon>AccountsDataSet.xsd</DependentUpon>
     </Compile>
     <Compile Include="Areas\Attendances\Controllers\AdditionalPayDayController.cs" />
+    <Compile Include="Areas\Attendances\Controllers\EntireYearPresentDaysSummaryController.cs" />
     <Compile Include="Areas\Attendances\Controllers\MonthlyAttendanceInformationNewController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AttendanceRawDataFromAppController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AttendanceDashboardController.cs" />
@@ -1551,7 +1552,7 @@
     <Content Include="Areas\Accounts\Scripts\gstR2ReportController.js" />
     <Content Include="Areas\Accounts\Scripts\GSTPayableSalesReportController.js" />
     <Content Include="Areas\Accounts\Scripts\GSTReceivableReportController.js" />
-    <Content Include="Areas\Accounts\Scripts\inventoryJobWorkReceivedController.js" />
+    <Content Include="Areas\Accounts\Scripts\inventoryOutSourceReceivePostController.js" />
     <Content Include="Areas\Accounts\Scripts\loanCloseController.js" />
     <Content Include="Areas\Accounts\Scripts\FinancialStatusCustomerReceivableInvoiceDetailController.js" />
     <Content Include="Areas\Accounts\Scripts\partyReconsilationDetailController.js" />
@@ -1610,6 +1611,7 @@
     <Content Include="Areas\Accounts\Scripts\vendorTranTypeController.js" />
     <Content Include="Areas\Accounts\Scripts\taxPayableReportController.js" />
     <Content Include="Areas\Accounts\Scripts\invoiceChargeWriteOffController.js" />
+    <Content Include="Areas\Attendances\Scripts\EntireYearPresentDaysSummaryController.js" />
     <Content Include="Areas\Attendances\Scripts\AttendanceRawDataFromAppController.js" />
     <Content Include="Areas\Attendances\Scripts\AttendanceDashboardController.js" />
     <Content Include="Areas\Attendances\Scripts\AuditReportSummaryNewController.js" />
@@ -3668,7 +3670,7 @@
     <Content Include="Areas\Productions\Views\ProductionRelay\Aplos.cshtml" />
     <Content Include="Areas\Modules\Views\NotificationURL.cshtml" />
     <Content Include="Areas\Parties\Views\Party\_PartyOtherPopUpNew.cshtml" />
-    <Content Include="Areas\Accounts\Views\InventoryPayable\InventoryJobWorkReceived.cshtml" />
+    <Content Include="Areas\Accounts\Views\InventoryPayable\InventoryOutSourceReceivePost.cshtml" />
     <Content Include="Areas\HumanResource\Views\ManualShift\Aplos.cshtml" />
     <Content Include="Areas\JobWork\Views\OSReceiveBilling\Aplos.cshtml" />
     <Content Include="Areas\FixedAssets\Views\EntityFixedAssetsRegister\Aplos.cshtml" />
@@ -3762,6 +3764,7 @@
     <Content Include="Areas\HumanResource\Views\WeekOffUpdates\EWeekUpdate.cshtml" />
     <Content Include="Areas\Employees\Views\CompensatoryOffNew\Aplos.cshtml" />
     <Content Include="Areas\Leave\Views\OnDutyApprovalNew\Aplos.cshtml" />
+    <Content Include="Areas\Attendances\Views\EntireYearPresentDaysSummary\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
