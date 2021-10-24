@@ -263,7 +263,41 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
         }
     }
 
+    $scope.DownloadRollReport = function (data) {
+       /* $scope.GetRollDataList = [];*/
+        try {
+            $scope.selectedGRNRow = data;
+            $scope.Index = 0;
+            $http({
+                method: 'POST',
+                url: $scope.path + "DownloadRollReport",
+                data: { 'inventoryReceiveDetailId': $scope.selectedGRNRow.Id },
+                dataType: 'JSON'
 
+            }).then(function successCallback(response) {
+
+                //$scope.GetFabricRollList = [];
+                //$scope.GetFabricRollList = response.data;
+               // angular.element(document.querySelector('#SinglefabricRollPopUpargegrfd')).modal('show');
+
+            });
+        }
+        catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+    //$scope.IRDId = $scope.selectedGRNRow.Id;
+    $scope.RR = function (data) {
+   
+        try {
+
+            var file_src = $scope.path + 'DownloadRollReport?inventoryReceiveDetailId=' + data.Id
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
 
     $scope.LoadFabricRollList();
     $scope.Index = 0;

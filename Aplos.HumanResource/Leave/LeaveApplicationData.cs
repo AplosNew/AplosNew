@@ -361,8 +361,8 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 
                 string Sql = @"SELECT EEI.SystemId as RespersonId,EEI.EmailId,EEI.EmployeeName as ResPersonName,EEI.BudgetCode  FROM EmployeeInformation EEI
                     --LEFT JOIN MST.ManpowerBudget MB ON EEI.BudgetCode = MB.ROBudgetCode
-                    WHERE  EEI.EmployeeStatus = 'Active' AND EEI.BudgetCode = (select Id from MST.ManpowerBudget where Code ='" + dtRPBudgetCode.Rows[0]["ROBudgetCode"].ToString() + @"')   AND
-                    EEI.DOJ = (SELECT MIN(DOJ) FROM EmployeeInformation WHERE BudgetCode = (select Id from MST.ManpowerBudget where Code ='" + dtRPBudgetCode.Rows[0]["ROBudgetCode"].ToString() + @"'))";
+                    WHERE  EEI.EmployeeStatus = 'Active' AND EEI.BudgetCode = (select Id from MST.ManpowerBudget where Id ='" + dtRPBudgetCode.Rows[0]["ROBudgetCode"].ToString() + @"')   AND
+                    EEI.DOJ = (SELECT MIN(DOJ) FROM EmployeeInformation WHERE BudgetCode = (select Id from MST.ManpowerBudget where Id ='" + dtRPBudgetCode.Rows[0]["ROBudgetCode"].ToString() + @"'))";
 
 
                 return _sqlRepository.GetDataCollection(Sql, null);

@@ -122,12 +122,13 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
 							,efs.LvEncashmentRateAmount
 							,SY.UserName AS SeparationType
 							,CONVERT(INT, ISNULL(efs.PolicyYearNo,0)*ISNULL(efs.PolicyDayNo,0)) SeparationTypeDay
-							,efs.SalaryRate SeparationTypeRate
+							,efs.SalaryRate SeparationTypeRate,format(apd.WorkDate,'dd-MMM-yyyy') LastPayDate
                             From [dbo].[EmployeeFinalSettlement] efs 
 	                        LEFT JOIN [HKP].[SeparationType] SY ON SY.Id=efs.SeparationTypeId
                             LEFT JOIN EmployeeInformation E ON E.SystemId=efs.EmpSystemID
+                            Left join AttdnProcessData APD ON CONCAT(apd.WorkDate,'-',APD.EmpSystemId)=(select top 1 CONCAT(WorkDate,'-',EmpSystemId) from AttdnProcessData where EmpSystemID= '" + SystemId + @"' and PayDayValue=1 and WorkDate <= E.DOS order by workdate desc ) 
                             LEFT OUTER JOIN ORG.Plant ep on ep.id=e.PlantId
-                            where EmpSystemId='" + SystemId + @"'and ep.Id='" + plantId + @"'";
+                            where efs.EmpSystemId='" + SystemId + @"'and ep.Id='" + plantId + @"'";
 
                 string xsql = @"select FORMAT(efs.FinalSettlementDate,'dd-MMM-yyy') FinalSettlementDate,efs.SalaryRate,efs.OTRate,efs.[TotalDeductionAmount]
                             ,efs.LvEncashmentAmount,efs.OthersAmount,efs.DeductionAmount,efs.GratuityAmount,efs.[LastMonthAbsentDay]
@@ -149,14 +150,13 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
 							,convert(int,efs.[TenureYearNo]) TenureYearNo
 							,convert(int,efs.[TenureMonthNo]) TenureMonthNo
 							,convert(int,efs.TenureDayNo) TenureDayNoA
-
-		,efs.LastMonthNetPayAmount,efs.LvEncashmentRateAmount
-
+		                    ,efs.LastMonthNetPayAmount,efs.LvEncashmentRateAmount,apd.WorkDate LastPayDate
                             From [dbo].[EmployeeFinalSettlement] efs 
 	                        LEFT JOIN [HKP].[SeparationType] SY ON SY.Id=efs.SeparationTypeId
                             LEFT JOIN EmployeeInformation E ON E.SystemId=efs.EmpSystemID
+                            Left join AttdnProcessData APD ON CONCAT(apd.WorkDate,'-',APD.EmpSystemId)=(select top 1 CONCAT(WorkDate,'-',EmpSystemId) from AttdnProcessData where EmpSystemID= '" + SystemId + @"' and PayDayValue=1 and WorkDate <= E.DOS order by workdate desc ) 
                             LEFT OUTER JOIN ORG.Plant ep on ep.id=e.PlantId
-                            where EmpSystemId='" + SystemId + @"'and ep.Id='" + plantId + @"'";
+                            where efs.EmpSystemId='" + SystemId + @"'and ep.Id='" + plantId + @"'";
                 return _sqlRepository.GetDataTable(sql);
             }
             catch (Exception)

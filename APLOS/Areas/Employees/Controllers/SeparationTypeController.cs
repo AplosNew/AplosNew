@@ -153,6 +153,7 @@ namespace Aplos.Areas.Employees.Controllers
                     }
                     dr["IsGratuityApplicable"] = Convert.ToBoolean(SeparationTypeData.IsGratuityApplicable);
                     dr["IsFixedDayAmountApplicable"] = Convert.ToBoolean(SeparationTypeData.IsFixedDayAmountApplicable);
+                    dr["IsNetPayWithFinalSattlement"] = Convert.ToBoolean(SeparationTypeData.IsNetPayWithFinalSattlement);
                     dr["PlantID"] = identity.PlantId;
                     dr["IsActive"] = Convert.ToBoolean(SeparationTypeData.IsActive);
                     dr["IsArchive"] = false;
@@ -202,6 +203,7 @@ namespace Aplos.Areas.Employees.Controllers
 
                     dr["IsFixedDayAmountApplicable"] = Convert.ToBoolean(SeparationTypeData.IsFixedDayAmountApplicable);
                     dr["IsGratuityApplicable"] = Convert.ToBoolean(SeparationTypeData.IsGratuityApplicable);
+                    dr["IsNetPayWithFinalSattlement"] = Convert.ToBoolean(SeparationTypeData.IsNetPayWithFinalSattlement);
                     dr["PlantID"] = identity.PlantId;
                     dr["IsActive"] = Convert.ToBoolean(SeparationTypeData.IsActive);
                     dr["IsArchive"] = false;

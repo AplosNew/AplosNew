@@ -18301,7 +18301,7 @@ And IR.IsApproved = 1 and IR.GRNType='GRNBYPO' AND IR.TransformationContractId='
                         LEFT JOIN HKP.CharacteristicsValue AS TCV ON IRD.ThirdCharacteristicsValueId=TCV.Id
                        -- JOIN [TRN].[PurchaseOrderDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
-                        LEFT JOIN [dbo].[JWTransformationPurchaseOrder] AS IR ON IRD.JWTransformationPurchaseOrderId=IR.Id
+                        LEFT JOIN [dbo].[OSTransformationPO] AS IR ON IRD.JWTransformationPurchaseOrderId=IR.Id
                         LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
                         --LEFT join [trn].MaterialRequsitionDetails MRD on MRD.Id=IRD.RequisitionDetailId
 						LEFT JOIN (SELECT POId,PODetailId,Sum(TransactionQty) AcptTransactionQty FROM TRN.PurchaseDocAcceptanceDetail GROUP BY POId,PODetailId) PAD ON PAD.POId=IRD.JWTransformationPurchaseOrderId AND PAD.PODetailId=IRD.Id

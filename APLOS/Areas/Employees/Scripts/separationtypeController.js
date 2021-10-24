@@ -292,6 +292,7 @@ function separationtypeController(commonMessage, $scope, $rootScope, baseService
         FormulaDes: null,
         FormulaDesID: null,
         IsGratuityApplicable: false,
+        IsNetPayWithFinalSattlement: false,
         IsActive: true,
         AddedBy: null,
         AddedDate: new Date('dd-MMM-yyyy'),
