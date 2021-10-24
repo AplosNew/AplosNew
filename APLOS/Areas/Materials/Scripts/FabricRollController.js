@@ -298,7 +298,7 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
         }
     }
 
-    $scope.POPupReport = function (data) {
+    $scope.POPupReport = function () {
 
         try {
 
@@ -662,6 +662,75 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
             value: 'Bale'
         }
     ];
+
+    //File Upload
+    $rootScope.title = 'Fabric Roll File Upload';
+    $("#uploadRollData").change(function () {
+        $scope.Rolldata = this.files[0];
+    });
+
+
+
+
+    $scope.save = function () {
+        try {
+            if ($scope.Rolldata != null) {
+                var RollData = new FormData();
+                //if ($scope.Action == "Save") {
+                $http({
+                    method: 'POST',
+                    url: 'Materials/FabricRoll/Create',
+                    headers: { 'Content-Type': undefined },
+                    transformRequest: function (data) {
+                        RollData.append("FabricRollFile", angular.toJson(data.FabricRollFile));
+                        if (baseService.isUndefinedOrNull($scope.Rolldata) === false) {
+                            RollData.append('file', data.file);
+                        }
+                        return RollData;
+                    },
+                    data: {
+                        'FabricRollFile': $scope.FabricRollFile,
+                        'file': $scope.Rolldata
+                    }
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, "failure");
+                    }
+                    else {
+                        ShowResult(response.data.Message, "success");
+                        $scope.getMaster();
+                        document.getElementById("uploadRollData").value = '';
+                    }
+                }, function errorCallback(response) {
+                    $scope.savedisable = false;
+                    $scope.showdiv = false;
+                });
+                return true;
+                //}
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.MasterList = [];
+    $scope.getMaster = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetMaster",
+        }).then(function successCallback(response) {
+            $scope.MasterList = response.data;
+            //for (var i = 0; i < response.data.length; i++) {
+            //}
+            //$scope.MasterList = $filter('dateFiltering')(response.data.AddedDate, 'dd-MMM-yyyy');
+        });
+    }
+    $scope.getMaster();
+    //EndFile Upload
+
+
+
+
 
 
 }
