@@ -450,7 +450,25 @@
                 </fieldset>
 
                 <fieldset class="scheduler-border">
-                    <legend class="scheduler-border"> Sservice Value</legend>
+                    <legend class="scheduler-border"> Service Value</legend>
+                    <div class="col-xs-12 col-sm-4 col-md-4">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Currency</label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" ng-maxlength="50" name="Service Currency" ng-model="inventoryOSServiceData.CurrencyCode" class="form-control" readonly  required autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-4 col-md-4">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Rate</label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" ng-maxlength="50" name="Service Currency Rate" ng-model="inventoryOSServiceData.ToCurrencyRate" class="form-control" readonly required  autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="clearfix"></div>
                     <div class="table-responsive modal-table">
                         <table class="table table-striped">
                             <thead>
@@ -480,7 +498,7 @@
                             </tbody>
                         </table>
                     </div>
-                    </fieldset>
+                </fieldset>
                     <div class="clearfix"></div>
 
             </div>

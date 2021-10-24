@@ -356,7 +356,7 @@ namespace Library.MaterialManagement.InventoryManagements
         #region FA register
         public List<Dictionary<string, object>> GetFixedAssetRegisterElasticSearchDataList(string companyGroupId, string companyId, string plantId, string fixedAssetRegisterDisposeId)
         {
-            var sql = @"SELECT top 100 FR.SerialNo, FR.Id AssetNo,  e.UserName Entity, D.UserName Department, FR.Model
+            var sql = @"SELECT top 100 FR.SerialNo, FR.Id, FR.AssetNo,IRD.IsAsset,  e.UserName Entity, D.UserName Department, FR.Model
                 , FR.InvoiceNo, MM.UserName MaterialMasterName, MMA.StandardName Article,FR.[Description]
                 , FAM.UserName FixedAssetMasterName, FAC.UserName FixedAssetCategory
                 --, FASC.UserName FixedAssetSubCategory, FAM.FixedAssetCategoryId
@@ -620,7 +620,7 @@ namespace Library.MaterialManagement.InventoryManagements
 								,GPM.[UpdatedBy]
 								,GPM.[UpdatedDate]
 								,GPM.[UpdatedFromIP]--,GPM.ChallanNo
-								,PurchaseReturnId,InventoryTransferId,InventorySalesId,InventoryScrapId,FixedAssetSalesId,FixedAssetScrapId
+								,PurchaseReturnId,InventoryTransferId,InventorySalesId,InventoryScrapId,FixedAssetRegisterDisposedId,FixedAssetScrapId
 							FROM [TRN].[InOutGatePassMaster] GPM
 								LEFT JOIN Employeeinformation EI on EI.SystemId= GPM.CheckedBy
 							LEFT JOIN Employeeinformation EI1 on EI1.SystemId= GPM.ApprovedBy   
