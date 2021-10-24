@@ -259,7 +259,7 @@ namespace Library.Planning.LineDesign
             SaveInfo.SaveDataSets(dsMaster, dsChild);
         }
 
-        public List<Dictionary<string,object>> SearchEmployee(string column, string value, string OperationId, string OperationVariationId)
+        public List<Dictionary<string, object>> SearchEmployee(string column, string value, string OperationId, string OperationVariationId,string TargetDate)
         {
 
             string strkey = "1=1";
@@ -267,8 +267,10 @@ namespace Library.Planning.LineDesign
                 strkey = column + " like '%" + value + "%'";
 
             string sql = @"
-                      select top 100 * from (  
-                        SELECT distinct Emp.SystemID AS Id,
+                      select top 10000 * from (  
+                        SELECT distinct Emp.SystemID AS Id,dt.WorkCenterMasterId,apd.DayStatus,ISNULL(dt2.ColorCode,'#000000') AS DayColor,
+CONVERT(BIT,CASE WHEN ISNULL(dtd.EmployeeSystemId,'')='' THEN 0 ELSE 1 END) AS IsAssigned,
+CASE WHEN ISNULL(dtd.EmployeeSystemId,'')='' THEN 'Unassigned' ELSE CONCAT('Assigned to ',wcm.UserName,' for ',ov.UserName) END AS AssignmentStatus,
                         EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,
 						isnull(D.UserName,'') Designation,
                                         OtherSkills =STUFF((select distinct ','+ovx.UserName 
@@ -279,6 +281,14 @@ namespace Library.Planning.LineDesign
                             EMP.SectionId,SS.UserName SubSection
                             ,PL.UserName Plant
                             FROM EmployeeInformation EMP
+                            join EmployeeOperation AS eo ON EO.EmpSystemId=EMP.SystemId --AND EO.OperationVariationId='" + OperationVariationId + @"'
+                            LEFT JOIN LineLayoutDailyTargetData AS DTD ON dtD.EmployeeSystemId=emp.SystemId 
+														AND dtD.LineLayoutDailyTargetId IN (SELECT Id FROM LineLayoutDailyTarget AS X Where x.TargetDate='"+ TargetDate + @"')
+							LEFT JOIN LineLayoutDailyTarget		DT ON dt.Id=dtd.LineLayoutDailyTargetId		
+							LEFT JOIN scs.WorkCenterMaster AS wcm ON wcm.Id=dt.WorkCenterMasterId
+							LEFT JOIN mst.OperationVariation AS ov ON ov.Id=dtd.OperationVariationId
+							LEFT JOIN AttdnProcessData AS apd ON apd.EmpSystemID=emp.SystemId AND apd.WorkDate='" + TargetDate + @"'
+							LEFT JOIN DayType AS dt2 ON dt2.DayType=apd.DayStatus
                             LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                             LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                             LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
@@ -289,8 +299,37 @@ namespace Library.Planning.LineDesign
                             LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
                             LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
    
-                        WHERE emp.EmployeeStatus='Active' and EMP.OperationVariationId='" + OperationVariationId + @"'
-                ) AS TEMP where " + strkey + " Order By Id";
+                        WHERE emp.EmployeeStatus='Active'  
+                ) AS TEMP where " + strkey + " Order By IsAssigned,Id";
+
+
+
+
+
+            return _sqlRepository.GetDataCollection(sql);
+        }
+        public List<Dictionary<string, object>> SearchFixedAsset(string column, string value, string ArticleId)
+        {
+
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            string sql = @"
+                      select top 100 * from (  
+                       SELECT far.Id,far.Model, far.SerialNo, far.CapitalizationDate,
+                           far.YearOfManufacture, far.YearOfInstallation, far.[Description],CONCAT(far.Id,'/',far.[Description]) AS FixedAssetDesc,
+                           far.AssetNo, far.[Status], far.Remarks,cm.UserName AS Vendor,B.UserName AS Brand,c.UserName AS CountryOfOrigin,FR.UserName FixedAssetMaster,
+                           A.UserName AS FixedAssetActivity
+                      FROM trn.FixedAssetRegister AS far
+                                LEFT JOIN hkp.Party AS cm ON cm.Id=far.VendorId
+                                LEFT JOIN SCS.Brand B ON b.Id=far.BrandId
+                                LEFT JOIN SCS.Country C ON c.Id=far.CountryOfOriginId
+                                LEFT JOIN MST.FixedAssetMaster FR ON fr.Id=far.FixedAssetMasterId
+                                LEFT JOIN HKP.Activity A ON A.Id=far.FAActivityId
+
+                                WHERE far.MaterialMasterArticleId='" + ArticleId + @"'
+                ) AS TEMP where " + strkey + " Order By SerialNo";
 
 
 

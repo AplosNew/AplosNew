@@ -558,9 +558,14 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpPost]
-        public ActionResult SearchEmployee(string column, string value, string OperationId, string OperationVariationId)
+        public ActionResult SearchEmployee(string column, string value, string OperationId, string OperationVariationId,string TargetDate)
         {
-            return Json(DT.SearchEmployee(column, value, OperationId, OperationVariationId), JsonRequestBehavior.AllowGet);
+            return Json(DT.SearchEmployee(column, value, OperationId, OperationVariationId, TargetDate), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpPost]
+        public ActionResult SearchFixedAsset(string column, string value, string ArticleId)
+        {
+            return Json(DT.SearchFixedAsset(column, value, ArticleId), JsonRequestBehavior.AllowGet);
         }
         #endregion
 
