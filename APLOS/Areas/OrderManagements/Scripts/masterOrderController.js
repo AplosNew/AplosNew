@@ -1185,6 +1185,15 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 { Value: "Trading", Text: "Trading" }
             ];
         }
+
+        for (var i = 0; i < $scope.itemList.length; i++) {
+            $scope.itemList[i].JobWorkType = null;
+            $scope.itemList[i].EntityOrVendorName = null;
+            $scope.itemList[i].EntityIdWithinCompany = null;
+            $scope.itemList[i].EntityIdWithinGroup = null;
+            $scope.itemList[i].PartyId = null;
+        }
+
     };
 
     $scope.enableJobOrOutSource = true;
@@ -1703,15 +1712,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     // #region Sales Order
     $scope.JobWorkType = '';
     $scope.getSalesOrder = function (x, id, materialMasterId, mName, aName, hsnCodeId, BuyerReferenceNo) {
-      
-        if (baseService.isUndefinedOrNull($scope.JobWorkType)) {
-            $scope.JobWorkType = x.JobWorkType+'>> '+ x.EntityOrVendorName;
-        } else if (baseService.isUndefinedOrNull($scope.JobWorkType)) {
-
-            $scope.JobWorkType = x.JobWorkType + '>> ' + x.EntityIdWithinGroup;
-        } else {
-            $scope.JobWorkType = x.JobWorkType + '>> ' + x.EntityIdWithinCompany;
-        }
+        $scope.JobWorkType = baseService.isUndefinedOrNull(x.JobWorkType) ? x.JobWorkType : x.JobWorkType + '>> ' + baseService.isUndefinedOrNull(x.EntityOrVendorName) ? x.EntityOrVendorName : x.EntityOrVendorName;
+       
 
         $scope.TotalProducedQty = 0;
         $scope.ProdBookedQty = 0;
