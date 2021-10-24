@@ -43,7 +43,7 @@ namespace bplib
         //public static readonly string SAPDownLoadFilePath = "PO Download";
         //public static readonly string DB_USER_ID = "bappaather";
         //public static readonly string DB_USER_PASSWORD = "bappaather";
-        //public static readonly string REPORT_LOCK_PASSWORD = "whypaSSword?!";
+        public static readonly string REPORT_LOCK_PASSWORD = "whypaSSword?!";
 
         //public static readonly string DB_USER_ID = "sa";//DBUSERID
         //public static readonly string DB_USER_PASSWORD = "!!@@";//"123";//DBUSERPWD

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -42,7 +43,7 @@ namespace Library.Planning.LineDesign
         public double Sequence { get; set; } = 0;
         public double AllotedWorkstation { get; set; } = 0;
         public double RequiredManPower { get; set; } = 0;
-        
+
     }
     public class GroupingData
     {
@@ -133,6 +134,44 @@ namespace Library.Planning.LineDesign
         public object type { get; set; } = "Html";
         public List<labels> labels { get; set; } = new List<labels>();
         //public override string fillColor { get => "#fcbc7c"; set => base.fillColor = value; }
+        public string fontColor { get; set; } = "#000000";
+
+        private string _fillColor = "#ffffff";
+        public override string fillColor
+        {
+            get
+            {
+
+                return _fillColor;
+
+            }
+            set
+            {
+
+                Color color = Color.White;
+                try
+                {
+                    color = System.Drawing.ColorTranslator.FromHtml(value);
+                }
+                catch (Exception ex)
+                {
+                }
+                int d = 0;
+
+                // Counting the perceptive luminance - human eye favors green color... 
+                double luminance = (0.299 * color.R + 0.587 * color.G + 0.114 * color.B) / 255;
+
+                if (luminance > 0.5)
+                    d = 0; // bright colors - black font
+                else
+                    d = 255; // dark colors - white font
+
+                fontColor = System.Drawing.ColorTranslator.ToHtml(Color.FromArgb(d, d, d));
+                _fillColor = value;
+
+
+            }
+        }
         public override string borderColor { get => "#f89b4c"; set => base.borderColor = value; }
         public string content { get; set; } = "";
         public string templateId { get; set; } = "htmlTemplate";

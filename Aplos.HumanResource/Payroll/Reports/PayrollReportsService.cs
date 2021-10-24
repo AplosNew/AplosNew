@@ -31,6 +31,8 @@ using System.IO;
 using Library.Model.Enums;
 using Library.Service.Payrolls.OT;
 using Library.HumanResource.Report.Payroll;
+using System.Threading;
+using Library.Crosscutting.Security;
 
 #endregion Using
 
@@ -1926,11 +1928,7 @@ namespace Library.HumanResource.Payroll
 
                 #region DataSet
 
-                DataSet dsExtraAbsent = null;
-                DataView dvExtraAbsent = null;
-                objRpt.GetExtraAbsent(plantId, parameters, month.ToInt(), year.ToInt(), out dsExtraAbsent);
 
-                dvExtraAbsent = new DataView(dsExtraAbsent.Tables[0]);
 
                 //Sql Salary Structure 
                 List<SalarySheetReportUD> listdsSlrStr = new List<SalarySheetReportUD>();
@@ -1957,9 +1955,11 @@ namespace Library.HumanResource.Payroll
 
                 dvSlrSheet = new DataView();
 
-                objRpt.SelectedPlantWiseCompany(plantId, out dsCmp);
 
-                objRpt.SelectedPlant(plantId, out dsFactory);
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                objRpt.SelectedPlantWiseCompany(identity.PlantId, out dsCmp);
+
+                objRpt.SelectedPlant(identity.PlantId, out dsFactory);
 
                 #endregion DataSet
 
@@ -2015,6 +2015,7 @@ namespace Library.HumanResource.Payroll
 
                 //1
                 SetCellValue("Sr. No.", sheet1, xlsRow, ref xlsCol, out ColSr);
+                SetCellValue("Plant", sheet1, xlsRow, ref xlsCol, out int ColPlant, 12);
                 SetCellValue("ID No.", sheet1, xlsRow, ref xlsCol, out ColIDNo, 12);
                 SetCellValue("Name", sheet1, xlsRow, ref xlsCol, out ColName, 17);
                 SetCellValue("DOJ", sheet1, xlsRow, ref xlsCol, out ColDOJ, 12);
@@ -2270,6 +2271,9 @@ namespace Library.HumanResource.Payroll
                         sheet1.Range[xlsRow, ColIDNo].Text = dtEmployees.Rows[i]["EmployeeCode"].ToString();
                     sheet1.Range[xlsRow, ColIDNo].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     sheet1.Range[xlsRow, ColIDNo].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    sheet1.Range[xlsRow, ColPlant].Text = dtEmployees.Rows[i]["PlantName"].ToString();
+
                     //3
                     if (string.IsNullOrEmpty(dtEmployees.Rows[i]["EmployeeName"].ToString()) == false)
                         sheet1.Range[xlsRow, ColName].Text = dtEmployees.Rows[i]["EmployeeName"].ToString();
@@ -2514,8 +2518,7 @@ namespace Library.HumanResource.Payroll
                 #region Freeze Panes
                 var freezePan = RowIndex - 1;
                 sheet1.UsedRange["A" + freezePan].FreezePanes();
-                sheet1.FirstVisibleColumn = 1;
-                sheet1.FirstVisibleRow = 10;
+
                 #endregion
 
                 #region UsedRange Alignment
@@ -13350,7 +13353,7 @@ INNER JOIN
             string salaryProcessId = "";
             var _wc = string.Empty;
             var wcSalaryProcessSystemIdStr = "";
-
+            plantId = "'" + plantId.Replace(",", "','") + "'";
 
             if (!string.IsNullOrEmpty(salaryProcessSystemId) && salaryProcessSystemId != "undefined" && salaryProcessSystemId != "null")
             {
@@ -13360,13 +13363,13 @@ INNER JOIN
             {
                 wcSalaryProcessSystemIdStr = @"SystemID IN( SELECT SystemID FROM SalaryProcMaster
                                       WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
-                                                        WHERE PlantID = '" + plantId + @"' GROUP BY SlrProcMstSystemID)
+                                                        WHERE PlantID IN(" + plantId + @") GROUP BY SlrProcMstSystemID)
                                         AND MonthNo = Month('" + fromDate + "') AND YearNo = Year('" + fromDate + "')  )";
 
 
                 string strSql = @"SELECT SystemID FROM SalaryProcMaster
                                       WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
-                                                        WHERE PlantID = '" + plantId + @"' GROUP BY SlrProcMstSystemID)
+                                                        WHERE PlantID IN(" + plantId + @") GROUP BY SlrProcMstSystemID)
                                         AND MonthNo =  MONTH('" + fromDate + @"') AND YearNo =  YEAR('" + fromDate + @"')";
 
                 DataTable dtSalPrcId = _sqlRepository.GetDataTable(strSql);
@@ -13436,7 +13439,7 @@ INNER JOIN
                                     ) SPM ON spm.EmpInfoSystemID=e.SystemId
 									 JOIN SalaryProcessLogDetail SPLD ON SPLD.SalaryProcessId  IN(" + salaryProcessId + @") AND e.SystemId = SPLD.EmpSystemId  --SPLD.SalaryProcessId = SPM.SystemId AND SPC.EmpInfoSystemID = SPLD.EmpSystemId and SPLD.PlantId = '202022' 
                          
-									 			LEFT JOIN ORG.Plant F ON SPLD.PlantID = F.Id
+									 			LEFT JOIN ORG.Plant F ON F.Id= E.PlantId
 												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
 												LEFT JOIN hkp.Designation DE ON E.GivenDesignationId = DE.Id
 												LEFT JOIN hkp.LegalDesignation LDS ON SPLD.LegalDesignationId = LDS.Id
@@ -13499,9 +13502,9 @@ INNER JOIN
 										,ISNULL(TotalOTHr,0) TotalOTHr,ISNULL(TotalNormalOTHr,0) TotalNormalOTHr,ISNULL(TotalExtraOTHr,0) TotalExtraOTHr,ISNULL(WeekOffOTHr,0) WeekOffOTHr
 										,ISNULL(HoliDayOTHr,0) HoliDayOTHr,ISNULL(TotalLWP,0) TotalLWP,ISNULL(IsOTEntitled,0) IsOTEntitled,ISNULL(OTRate,0) OTRate,ISNULL(TotalHoliDay,0) TotalHoliDay
 										  FROM SalaryProceAttdnData MMDSA where MMDSA.MonthNo = MONTH('" + fromDate + @"') AND
-						                               MMDSA.YearNo = YEAR('" + fromDate + @"') AND MMDSA.PlantID = '" + plantId + @"' 
+						                               MMDSA.YearNo = YEAR('" + fromDate + @"') --AND MMDSA.PlantID = '" + plantId + @"' 
 											) MMDSA ON EmpBasic.EmpSystemID = MMDSA.EmpSystemID 
-                                            WHERE EmpBasic.CompanyGroupId = '" + companyGroupId + @"'  AND EmpBasic.PlantId ='" + plantId + @"' " + wcEmpStatus + @"";
+                                            WHERE EmpBasic.PlantId IN (" + plantId + @") " + wcEmpStatus + @"";
                 try
                 {
                     if (parameters.Count > 0)
@@ -14265,9 +14268,13 @@ INNER JOIN
             DataSet dsRef = null;
             Dictionary<string, List<DataRow>> dicBonus = new Dictionary<string, List<DataRow>>();
             distinctSalaryHead = new DataTable("Tmp");
+
+            plantId = "'" + plantId.Replace(",", "','") + "'";
+
+
             string strSql = @"SELECT SystemID FROM SalaryProcMaster
                                       WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
-                                                        WHERE PlantID = '" + plantId + @"' GROUP BY SlrProcMstSystemID)
+                                                        WHERE PlantID IN(" + plantId + @") GROUP BY SlrProcMstSystemID)
                                         AND MonthNo = Month('" + fromDate + @"') AND YearNo = Year('" + fromDate + @"')";
             DataTable dtSalPrcId = _sqlRepository.GetDataTable(strSql);
 
@@ -14319,11 +14326,11 @@ INNER JOIN
                                          LEFT JOIN SalaryRuleMaster SRM ON SRM.SystemID = EEI.SalaryRuleMasterSystemID
 
                                         LEFT JOIN SalaryRuleGeneral SRG ON SRG.SalaryRuleMasterSystemID = SRM.SystemID  AND SRG.SalaryHeadID = EmpSlr.SalaryHeadID
-                                        LEFT JOIN(SELECT* FROM [MST].[PlantSalaryHeadSequence] WHERE PlantId = '" + plantId + @"') PSH
-                                                                       ON PSH.SalaryHeadId = EmpSlr.SalaryHeadID
+                                        LEFT JOIN [MST].[PlantSalaryHeadSequence] PSH
+                                                                       ON PSH.SalaryHeadId = EmpSlr.SalaryHeadID AND PSH.PlantId=EEI.PlantId
                                         LEFT JOIN CurrencyRuleChild CRC ON CRC.MstSystemID = srm.CurrencyRuleSystemID AND CRC.SalaryHeadID = EmpSlr.SalaryHeadID
 
-                                                WHERE EEI.GroupID = '" + companyGroupId + @"' AND  EmpSlr.PlantId = '" + plantId + @"'";
+                                                WHERE EEI.GroupID = '" + companyGroupId + @"' AND  EmpSlr.PlantId IN(" + plantId + @")";
 
                 try
                 {
@@ -14347,6 +14354,12 @@ INNER JOIN
                 distinctSalaryHead = dsRef.Tables[0].DefaultView.ToTable(true, "SalaryHeadID", "SalaryHead", "HeadType", "Sequence", "HeadCategory", "IntegerInDisb", "DecimalNo", "PartOfNetPay", "IsCTCComponent", "IsGrossComponent");
                 distinctSalaryHead.DefaultView.Sort = "Sequence";
                 distinctSalaryHead = distinctSalaryHead.DefaultView.ToTable();
+
+                distinctSalaryHead = distinctSalaryHead.DefaultView.ToTable(true, "SalaryHeadID", "SalaryHead", "HeadType", "HeadCategory", "IntegerInDisb", "DecimalNo", "PartOfNetPay", "IsCTCComponent", "IsGrossComponent");
+                distinctSalaryHead = distinctSalaryHead.DefaultView.ToTable();
+                distinctSalaryHead.Columns.Add("Sequence", typeof(int));
+                for (int i = 0; i < distinctSalaryHead.Rows.Count; i++)
+                    distinctSalaryHead.Rows[i]["Sequence"] = (i + 1);
 
                 DataTable dt = dsRef.Tables[0];
                 List<DataRow> _data = new List<DataRow>();
