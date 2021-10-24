@@ -523,13 +523,14 @@ namespace Aplos.Areas.Accounts.Controllers
 
         #endregion
 
-        #region InventoryJobWorkReceived
+        #region Inventory OutSource Received
         [HttpPost]
-        public JsonResult InventoryJobWorkReceivedPost(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> inventoryJobWorkWIPList
+        public JsonResult InventoryOutSourceReceivedPost(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> inventoryJobWorkWIPList
         , IEnumerable<VoucherDetailViewModel> inventoryReceiveDetailVMList
         , IEnumerable<VoucherDetailViewModel> inventoryPayableVMList
         , IEnumerable<VoucherDetailViewModel> changeInInventoryList
         , IEnumerable<VoucherDetailViewModel> inventoryJobWorkGIRIList
+        , VoucherViewModel ServiceVM
         )
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -597,8 +598,8 @@ namespace Aplos.Areas.Accounts.Controllers
 
                 return Json(new
                 {
-                    Message = string.Format(AplosMessage.VoucherSave, _inventoryPayableService.InventoryJobWorkReceivedPost(voucherVM, inventoryJobWorkWIPList, inventoryReceiveDetailVMList, inventoryPayableVMList, changeInInventoryList
-                        , inventoryJobWorkGIRIList))
+                    Message = string.Format(AplosMessage.VoucherSave, _inventoryPayableService.InventoryOSReceivedPost(voucherVM, inventoryJobWorkWIPList, inventoryReceiveDetailVMList, inventoryPayableVMList, changeInInventoryList
+                        , inventoryJobWorkGIRIList, ServiceVM))
                 });
 
 
