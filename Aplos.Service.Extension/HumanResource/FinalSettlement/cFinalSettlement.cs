@@ -54,7 +54,7 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
             try
             {
 
-                string sql = @"select isnull(e.EmployeeNameLocal,e.EmployeeName) as EmployeeName,ISNULL(ll.Name, LDN.UserName)AS Designation , ISNULL(e.EmployeeCode,e.EmployeeCode) EmployeeCode,
+                string sql = @"select case when isnull(cg.Id,'')='' THEN isnull(E.EmployeeNameLocal,E.EmployeeName) ELSE EmployeeName END as EmployeeName,ISNULL(ll.Name, LDN.UserName)AS Designation , ISNULL(e.EmployeeCode,e.EmployeeCode) EmployeeCode,
         ISNULL(lls.Name,Se.UserName)AS Section
         ,FORMAT(e.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(e.DOS,'dd-MMM-yyyy')DOS,FORMAT(e.DOS,'MMMM-yyyy') DOSMonth
                                         from EmployeeInformation e
@@ -63,9 +63,10 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
                                 LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
                                 LEFT JOIN ORG.Entity ET ON PMB.EntityId = ET.Id
         						LEFT JOIN ORG.Section AS Se ON Se.Id = PR.SectionID
-                                        left join [HKP].[LocalLanguage] ll on ll.LegalDesignationId=e.LegalDesignationId
-                                        left join [HKP].[LocalLanguage] lls on lls.SectionId=e.SectionId
+                                        left join [HKP].[LocalLanguage] ll on ll.LegalDesignationId=e.LegalDesignationId and ll.LanguageId='" + LanguageId + @"'
+                                        left join [HKP].[LocalLanguage] lls on lls.SectionId=e.SectionId and lls.LanguageId='" + LanguageId + @"'
                                         left join [ORG].[Plant] p on p.Id=e.PlantId
+                                        LEFT JOIN org.CompanyGroup  CG on e.GroupID=cg.Id and CG.LanguageId='" + LanguageId + @"'
                                         where e.SystemId='" + SystemId + @"'and p.Id='" + plantId + @"' ";
                 return _sqlRepository.GetDataTable(sql);
             }
@@ -247,7 +248,7 @@ SELECT ISNULL(ll.Name, dh.UserName) AS FinalSettlementHead ,Amount= convert(int,
             wTable.TableFormat.Borders.BorderType = BorderStyle.Single;
             wTable.TableFormat.IsAutoResized = true;
             //wTable.TableFormat.Paddings.All = 0;
-            
+
 
             int ROW = 0; int COL = 0;
             wTable.ResetCells(1, LasColumnIndex + 1);
@@ -260,8 +261,8 @@ SELECT ISNULL(ll.Name, dh.UserName) AS FinalSettlementHead ,Amount= convert(int,
             WCharacterFormat FontBold = new WCharacterFormat(document);
             FontBold.Bold = false;
             FontBold.FontSize = 9;
-          
-          
+
+
 
             //IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Earning.");
             //range.ApplyCharacterFormat(FontBold);
@@ -288,17 +289,17 @@ SELECT ISNULL(ll.Name, dh.UserName) AS FinalSettlementHead ,Amount= convert(int,
 
             #endregion column headers
             double totalValue = 0;
-            int startRow = ROW ;
+            int startRow = ROW;
             int slno = 0;
             for (int i = 0; i < dsFinalSettlementHeadWiseData.Rows.Count; i++)
             {
                 //slno++; 
                 WTableRow TROW = wTable.LastRow;
-                
+
                 // WTableRow TROW = wTable.Rows[1].Clone();
                 for (int CE = 0; CE < TROW.Cells.Count; CE++)
                 {
-                    
+
                     TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
                 }
                 //TROW.Cells[colSLId].AddParagraph().AppendText(sl.ToString());
@@ -310,13 +311,13 @@ SELECT ISNULL(ll.Name, dh.UserName) AS FinalSettlementHead ,Amount= convert(int,
 
                 IWTextRange range = TROW.Cells[1].AddParagraph().AppendText(dsFinalSettlementHeadWiseData.Rows[i]["FinalSettlementHead"].ToString());
                 range.ApplyCharacterFormat(FontBold);
-                
 
-                TROW.Cells[1].Width =  document.Sections[0].Tables[1].Rows[0].Cells[document.Sections[0].Tables[1].Rows[0].Cells.Count - 2].Width
+
+                TROW.Cells[1].Width = document.Sections[0].Tables[1].Rows[0].Cells[document.Sections[0].Tables[1].Rows[0].Cells.Count - 2].Width
                                       + document.Sections[0].Tables[1].Rows[0].Cells[document.Sections[0].Tables[1].Rows[0].Cells.Count - 3].Width
                                       + document.Sections[0].Tables[1].Rows[0].Cells[document.Sections[0].Tables[1].Rows[0].Cells.Count - 4].Width;
 
-                IWTextRange range2 = TROW.Cells[2].AddParagraph().AppendText(cnDgt(Convert.ToDecimal( dsFinalSettlementHeadWiseData.Rows[i]["Amount"]).ToString("N0"), lng));
+                IWTextRange range2 = TROW.Cells[2].AddParagraph().AppendText(cnDgt(Convert.ToDecimal(dsFinalSettlementHeadWiseData.Rows[i]["Amount"]).ToString("N0"), lng));
                 TROW.Cells[2].Width = document.Sections[0].Tables[1].Rows[0].Cells[document.Sections[0].Tables[1].Rows[0].Cells.Count - 1].Width;
                 range2.ApplyCharacterFormat(FontBold);
 
@@ -335,7 +336,7 @@ SELECT ISNULL(ll.Name, dh.UserName) AS FinalSettlementHead ,Amount= convert(int,
                 //IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Earning.");
                 //range.ApplyCharacterFormat(FontBold);
 
-                if (i < dsFinalSettlementHeadWiseData.Rows.Count-1)
+                if (i < dsFinalSettlementHeadWiseData.Rows.Count - 1)
                 {
                     ROW++;
                     wTable.AddRow();
@@ -345,7 +346,7 @@ SELECT ISNULL(ll.Name, dh.UserName) AS FinalSettlementHead ,Amount= convert(int,
             TextBodyPart textBodyPart = new TextBodyPart(document);
             textBodyPart.BodyItems.Add(wTable);
             document.Replace(replaceString, textBodyPart, false, false);
-           
+
 
         }
 
@@ -443,6 +444,6 @@ SELECT ISNULL(ll.Name, dh.UserName) AS FinalSettlementHead ,Amount= convert(int,
 
 
 
-        
+
     }
 }

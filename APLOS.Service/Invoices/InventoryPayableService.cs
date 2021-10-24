@@ -6230,10 +6230,10 @@ namespace Library.Service.Invoices
             }
         }
 
-        public string InventoryJobWorkReceivedPost(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> inventoryJobWorkWIPList
+        public string InventoryOSReceivedPost(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> inventoryJobWorkWIPList
             , IEnumerable<VoucherDetailViewModel> inventoryReceiveDetailVMList, IEnumerable<VoucherDetailViewModel> inventoryPayableVMList
         , IEnumerable<VoucherDetailViewModel> changeInInventoryList
-        , IEnumerable<VoucherDetailViewModel> inventoryJobWorkGIRIList)
+        , IEnumerable<VoucherDetailViewModel> inventoryJobWorkGIRIList, VoucherViewModel ServiceVM)
         {
             var flag = false;
             try
@@ -6467,7 +6467,7 @@ namespace Library.Service.Invoices
                         CompanyGroupId = voucherVM.CompanyGroupId,
                         CompanyId = voucherVM.CompanyId,
                         PlantId = voucherVM.PlantId,
-                        CurrencyId = voucherVM.CurrencyId,
+                        CurrencyId = ServiceVM.CurrencyId,
                         FiscalYearId = voucherVM.FiscalYearId,
                         FiscalYearPeriodId = voucherVM.FiscalYearPeriodId,
                         TaxYearId = voucherVM.TaxYearId,
@@ -6499,7 +6499,7 @@ namespace Library.Service.Invoices
                                 BudgetMasterId = voucherDetailVMGIRI.BudgetMasterId,
                                 ActivityId = voucherDetailVMGIRI.ActivityId,
                                 DrAmount = voucherDetailVMGIRI.Amount,
-                                CurrencyId = voucherVM.CurrencyId,
+                                CurrencyId = ServiceVM.CurrencyId,
                                 DocDate = voucherVM.DocDate,
                                 DocRefNo = voucherVM.DocRefNo,
                                 Narration = voucherDetailVMGIRI.Narration,
@@ -6512,9 +6512,9 @@ namespace Library.Service.Invoices
                                 ToCurrencyRate = voucherVM.ToCurrencyRate,
                                 ToCurrencyId = companyCurrencyId,
                                 ParallelCurrencyId = companyCurrencyId,
-                                FromCurrencyId = voucherVM.CurrencyId,
-                                DrAmount = voucherVM.ToCurrencyRate * voucherDr.DrAmount,
-                                ToCurrencyConversion = 1 / voucherVM.ToCurrencyRate
+                                FromCurrencyId = ServiceVM.CurrencyId,
+                                DrAmount = ServiceVM.ToCurrencyRate * voucherDr.DrAmount,
+                                ToCurrencyConversion = 1 / ServiceVM.ToCurrencyRate
                             };
                             _voucherService.InsertVoucherDetailCompanyCurrency(voucherDr, voucherDetailCurrencydb);
                             voucherDetailCurrencydb = null;
@@ -6526,7 +6526,7 @@ namespace Library.Service.Invoices
                                 GLGeneralInfoId = voucherDetailVMGIRI.GLGeneralInfoId,
                                 BudgetMasterId = voucherDetailVMGIRI.BudgetMasterId,
                                 ActivityId = voucherDetailVMGIRI.ActivityId,
-                                CurrencyId = voucherGIRI.CurrencyId,
+                                CurrencyId = ServiceVM.CurrencyId,
                                 DrAmount = 0,
                                 CrAmount = voucherDetailVMGIRI.Amount,
                                 DocDate = voucherGIRI.DocDate,
@@ -6541,9 +6541,9 @@ namespace Library.Service.Invoices
                                 ToCurrencyRate = voucherVM.ToCurrencyRate,
                                 ToCurrencyId = companyCurrencyId,
                                 ParallelCurrencyId = companyCurrencyId,
-                                FromCurrencyId = voucherVM.CurrencyId,
-                                CrAmount = voucherVM.ToCurrencyRate * voucherCr.CrAmount,
-                                ToCurrencyConversion = 1 / voucherVM.ToCurrencyRate
+                                FromCurrencyId = ServiceVM.CurrencyId,
+                                CrAmount = ServiceVM.ToCurrencyRate * voucherCr.CrAmount,
+                                ToCurrencyConversion = 1 / ServiceVM.ToCurrencyRate
                             };
                             _voucherService.InsertVoucherDetailCompanyCurrency(voucherCr, voucherDetailCurrencydb);
                             voucherDetailCurrencydb = null;

@@ -86,9 +86,8 @@ function salaryStructureAndProcessedReportNewController(commonMessage, $scope, $
 
     $scope.isCompletedMonth = null;
     $scope.salaryProcessId = null;
-    
+
     $scope.payGroupId = null;
-    $scope.empGrid = false;
     $scope.localLanguageList = [];
 
     cboService.getLanguageIdCbo(function (result) {
@@ -108,11 +107,11 @@ function salaryStructureAndProcessedReportNewController(commonMessage, $scope, $
             $scope.cboSalaryProcessIdList = result;
         });
     };
-  
+
     $scope.selectedPaymentMode = $("#paymentMode option:selected").text();
     $scope.selectedEmployeeCategory = $("#employeeCategoryId option:selected").text();
     $scope.payGroupListSelected = [];
-    $scope.EmployeeList = [];   
+    $scope.EmployeeList = [];
     $scope.EmployeeListDefault = [];
     $scope.EmployeeListTemp = [];
     $scope.getYear = function () {
@@ -134,13 +133,49 @@ function salaryStructureAndProcessedReportNewController(commonMessage, $scope, $
     };
 
     $scope.empGridShow = function (args) {
-        $scope.empGrid = false;
-        ShowResult('Press the Go Button  After Year/Month Change.', 'success');
+        $scope.hideDownloadButton = true;
+        ShowResult('Press the Go Button  After Year/Month/Plant Change.', 'success');
 
     };
 
+    // THe Addition Of Plant Filter
+    $scope.plantList = [];
+    $scope.getPlants = function () {
+        $http({
+            method: 'GET',
+            url: "humanresource/payrollReports/GetPlantList",
+        }).then(function successCallback(response) {
+            $scope.plantList = response.data;
+            var index = 0;
+            for (var i = 0; i < $scope.plantList.length; i++) {
+                if ($scope.plantList[i].PlantId == $window.plantId) {
+                    index = i;
+                }
+            }
 
+            $('#plantList').ejDropDownList(
+                {
+                    dataSource: $scope.plantList,
+                    fields: { text: "PlantName", value: "PlantId" }, change: $scope.checkChange,
+                    selectedIndex: index, showCheckBox: true, multiSelectMode: ej.MultiSelectMode.VisualMode
+                    , width: 250
+                });
+        });
+    };
+    $scope.getPlants();
+
+    $scope.hideDownloadButton = true;
+    $scope.checkChange = function (args) {
+        $scope.hideDownloadButton = true;
+    }
+
+
+    $scope.PlantIdList = [];
     $scope.GetEmployeeInformation = function () {
+
+        var DropDownListObj = $("#plantList").data("ejDropDownList");
+        $scope.PlantIdList = DropDownListObj.getSelectedValue();
+
         var DropDownListObj = $("#ddlPayRollGroupList").data("ejDropDownList");
         //$scope.payGroupListSelected = DropDownListObj.getSelectedValue();
         var DropDownListMonth = $("#ddlMonthList").data("ejDropDownList");
@@ -149,7 +184,7 @@ function salaryStructureAndProcessedReportNewController(commonMessage, $scope, $
 
         $scope.month = DropDownListMonth.getSelectedValue();
         $scope.year = DropDownListYear.getSelectedValue();
-       
+
         var monthName = $scope.monthList.filter(function (mnth) {
             return mnth.Value == $scope.month;
         });
@@ -163,12 +198,12 @@ function salaryStructureAndProcessedReportNewController(commonMessage, $scope, $
         if (angular.isUndefinedOrNull($scope.effectiveDate)) {
             ShowResult("Select Effective Date", 'failure');
         }
-        else
-        {
+        else {
             var parameters = {
-                'effectiveDate': $scope.effectiveDate, 'payRollGroup': $scope.payGroupListSelected,'isActive': $scope.isActive,
+                'effectiveDate': $scope.effectiveDate, 'payRollGroup': $scope.payGroupListSelected, 'isActive': $scope.isActive,
                 'isSeperated': $scope.isSeperated,
-                'isMaternity': $scope.isMaternity }; 
+                'isMaternity': $scope.isMaternity, 'PlantId': $scope.PlantIdList
+            };
             $http({
                 method: "POST",
                 dataType: 'JSON',
@@ -176,24 +211,31 @@ function salaryStructureAndProcessedReportNewController(commonMessage, $scope, $
                 data: parameters
             }).then(function successCallback(response) {
                 if (response.data.length > 0) {
-                    $scope.empGrid = true;
+                    $scope.hideDownloadButton = false;
                     $scope.EmployeeListDefault = response.data.filter(d => d.isSelect == true);
                     $scope.EmployeeList = $scope.EmployeeListDefault;
                     $scope.EmployeeListTemp = $scope.EmployeeListDefault;
+                    $scope.hideDownloadButton = false;
                 }
                 else {
                     ShowResult("No Data Found", 'failure');
-                    $scope.empGrid = false;
+                    $scope.hideDownloadButton = true;
                 }
                 var gridObj = $("#empInfoGrid").data("ejGrid");
                 gridObj.windowonresize();
                 gridObj.refreshContent(true);
             });
-        }       
+        }
     };
 
     $scope.GetEmployeeSalaryStructureWithProceesd = function () {
         try {
+
+            $scope.PlantIdList = "";
+            var DropDownListObj = $("#plantList").data("ejDropDownList");
+            $scope.PlantIdList = DropDownListObj.getSelectedValue();
+
+
             var parameters = [];
             var gridObj = $("#empInfoGrid").ejGrid("instance");
             var filteredRecords = gridObj.getFilteredRecords();
@@ -205,13 +247,12 @@ function salaryStructureAndProcessedReportNewController(commonMessage, $scope, $
             }
             if (angular.isUndefinedOrNull(filteredRecords) === false) {
                 if (filteredRecords.length > 0) {
-                     parameters = [];
-                     parameters.push({ "Key": "EmpSystemId", "Value": getString(filteredRecords, "EmpSystemId") });                  
-                }               
+                    parameters = [];
+                    parameters.push({ "Key": "EmpSystemId", "Value": getString(filteredRecords, "EmpSystemId") });
+                }
             }
-            if (parameters.length === 0)
-            {
-                parameters.push({ "Key": "", "Value": ""});                  
+            if (parameters.length === 0) {
+                parameters.push({ "Key": "", "Value": "" });
 
             }
 
@@ -227,6 +268,7 @@ function salaryStructureAndProcessedReportNewController(commonMessage, $scope, $
                 data: {
                     'month': $scope.month,
                     'year': $scope.year,
+                    'PlantId': $scope.PlantIdList,
                     'payRollGroup': $scope.payGroupListSelected,
                     'parameters': parameters,
                     'isActive': $scope.isActive,
@@ -259,7 +301,7 @@ function salaryStructureAndProcessedReportNewController(commonMessage, $scope, $
     };
     function daysInMonth(month, year) {
         return new Date(year, month, 0).getDate();
-    } 
+    }
 
 
     $scope.SelectDefaultValue = function (args) {
