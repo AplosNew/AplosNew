@@ -47,10 +47,10 @@ namespace Library.Service.Invoices
            , IEnumerable<VoucherDetailViewModel> toPlantInventoryTransferJV
            , IEnumerable<VoucherDetailViewModel> inventoryPayableVMList
            );
-        string InventoryJobWorkReceivedPost(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> inventoryJobWorkWIPList
+        string InventoryOSReceivedPost(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> inventoryJobWorkWIPList
             , IEnumerable<VoucherDetailViewModel> inventoryReceiveDetailVMList, IEnumerable<VoucherDetailViewModel> inventoryPayableVMList
         , IEnumerable<VoucherDetailViewModel> voucherDetailVMList
-        , IEnumerable<VoucherDetailViewModel> inventoryJobWorkGIRIList);
+        , IEnumerable<VoucherDetailViewModel> inventoryJobWorkGIRIList, VoucherViewModel ServiceVM);
         void DeleteTDSPostServicePayable(string invoiceWriteOffId, string voucherId, string serviceAckId);
         void DeleteTDSServicePayable(string additionalTaxId,string voucherId);
         void DeleteIssueJournal(string issueId, string voucherId);
