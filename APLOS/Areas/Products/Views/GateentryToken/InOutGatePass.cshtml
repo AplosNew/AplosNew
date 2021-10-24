@@ -58,7 +58,7 @@
                                     <div e-column e-headertext="Actions" e-width="70">
                                         <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Print" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPrint('GridGatePass1');" style="margin: -6px;"></i></button>
                                     </div>
-                                    <div e-column e-field="ComId" e-headertext="Gate Pass ID" e-width="100"></div>
+                                    <div e-column e-field="ComId" e-headertext="Id" e-width="100"></div>
                                     <div e-column e-field="CreatedDate" e-headertext="Created Date" e-width="170" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
                                     <div e-column e-field="GatePassFor" e-headertext="Gate Pass For" e-width="150"></div>
                                     <div e-column e-field="VendorNameOrCuetomerName" e-headertext="VendorName/CuetomerName" e-width="150"></div>
@@ -792,7 +792,7 @@
 
     <div class="site-tab">
         <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Material</a></li>
+            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">{{TabName}}</a></li>
             @*<li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">Charges</a></li>*@
         </ul>
     </div>
@@ -887,22 +887,24 @@
                                  e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true" @*e-summaryrows="TotalFARegisterSummaryAmount"*@
                                  e-filtersettings-filterType="excel" e-enabletouch="false" e-allowresizing="true" e-allowselection="false" e-allowsorting="true">
                                 <div e-columns>
-                                    <div e-column e-field="SerialNo" e-headertext="Serial No" e-width="70"></div>
-                                    <div e-column e-field="AssetNo" e-headertext="Asset No" e-width="90"></div>
+                                    <div e-column e-field="AssetNo" e-headertext="Asset No" e-width="60"></div>
+
+                                    <div e-column e-field="SerialNo" e-headertext="Serial No" e-width="60"></div>
                                     <div e-column e-field="MaterialMasterName" e-headertext="Material Master" e-width="90"></div>
                                     <div e-column e-type="text" e-field="Article" e-headertext="Article" e-width="90" style="height: 20px;"></div>
 
                                     <div e-column e-type="text" e-field="FixedAssetMasterName" e-headertext="Asset Master" e-width="90" style="height: 20px;"></div>
                                     <div e-column e-type="text" e-field="VendorName" e-headertext="Party" e-width="90" style="height: 20px;"></div>
-                                    <div e-column e-type="text" e-field="IsAsset" e-headertext="Asset" e-width="20" style="height: 20px;"></div>
-                                    @*<div e-column e-type="text" e-field="Machine" e-headertext="Machine" e-width="20" style="height: 20px;"></div>
-                                    <div e-column e-type="text" e-field="FACount" e-headertext="FA Count" e-width="30" e-textalign="right" style="height: 20px;"></div>*@
-
                                     <div e-column e-type="numeric" e-format="{0:0.00}" e-field="FABaseAmount" e-headertext="FA Base Amount" e-width="65" e-textalign="right" style="height: 20px;"></div>
-                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="SubAssetAmount" e-headertext="Sub Asset Amount" e-width="65" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="SubAssetBaseAmount" e-headertext="Sub Asset Amount" e-width="65" e-textalign="right" style="height: 20px;"></div>
                                     <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TotalBaseAmount" e-headertext="Total Base Amount" e-width="65" e-textalign="right" style="height: 20px;"></div>
                                     <div e-column e-type="numeric" e-format="{0:0.00}" e-field="ADBaseAmount" e-headertext="AD Base Amount" e-width="65" e-textalign="right" style="height: 20px;"></div>
                                     <div e-column e-type="numeric" e-format="{0:0.00}" e-field="NetFixedAssetsAmount" e-headertext="Net Base Amount" e-width="65" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="NegotiationValue" e-headertext="Negotiation Value" e-width="65" e-textalign="right" style="height: 20px;"></div>
+                                    
+                                    <div e-column e-type="text" e-field="OpeningBalance" e-headertext="OpeningBalance" e-width="20" style="height: 20px;"></div>
+
+
                                 </div>
                             </div>
 

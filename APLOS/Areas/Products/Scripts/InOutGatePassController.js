@@ -1060,7 +1060,7 @@ function InOutGatePassController(accountService, addressService, $location, $win
 
 	//    });
 	//}
-
+	$scope.TabName = null;
 	$scope.recorddoubleclick1 = function ($event) {
 		debugger;
 		var gridObj = $("#GridGatePass1").data("ejGrid");
@@ -1103,6 +1103,7 @@ function InOutGatePassController(accountService, addressService, $location, $win
 			$scope.getInventoryScrapData();
 		}
 		else if (data.GatePassFor === 'FixedAssetSales') {
+			$scope.TabName = 'Fixed Asset';
 			$scope.SelectType = 'Select FixedAsset Sales';
 			$scope.productNew.GatePassType = 'FixedAssetSales';
 			$scope.productNew.GatePassStatus = 'NonReturnable';
