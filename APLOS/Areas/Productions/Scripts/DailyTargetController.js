@@ -491,7 +491,7 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
     }
     $scope.ViewEmployeeStatus = function (args) {
         try {
-         
+
             if (angular.isUndefinedOrNull(args.data.WorkCenterMasterId) == false) {
                 if (args.data.WorkCenterMasterId != $scope.SelectedLine.WorkCenterMasterId) {
                     ShowResult("Employee has already been " + args.data.AssignmentStatus, 'failure');
@@ -596,6 +596,11 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
         $scope.selectednode = args;
         $scope.OpenFixedAssetSearchBox();
     }
+    $scope.ViewEmployeeCard = function (args) {
+
+        $scope.selectednode = args;
+        $scope.GetEmployeeCard();
+    }
 
     $scope.SaveDiagram = function () {
         try {
@@ -626,36 +631,30 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
             ShowResult(e, "failure");
         }
     }
+    $scope.showCardIcons = false;
+    $scope.EmployeeCard = [];
+    $scope.GetEmployeeCard = function () {
+        $scope.EmployeeCard = [];
+        try {
+            $http({
+                method: "POST",
+                dataType: 'JSON',
+                data: {
+                    'EmployeeId': $scope.selectednode.items[0].addInfo.EmployeeId,
+                    'OperationVariationId': $scope.selectednode.items[0].addInfo.OperationVariationId,
+                    'AssetRegisterId': $scope.selectednode.items[0].addInfo.FixedAssetRegisterId,
+                    'TargetDate': $scope.DailyProductionTargetNew.ProductionDate
+                },
+                url: $scope.path + 'GetEmployeeCard'
 
-    $scope.invertColor = function (hex, bw) {
-        if (hex.indexOf('#') === 0) {
-            hex = hex.slice(1);
+            }).then(function successCallback(response) {
+                $scope.EmployeeCard = response.data;
+
+            });
+            var eDialog = $("#dialogEmployeeCard").data("ejDialog");
+            eDialog.open();
+        } catch (e) {
+
         }
-        // convert 3-digit hex to 6-digits.
-        if (hex.length === 3) {
-            hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
-        }
-        if (hex.length !== 6) {
-            throw new Error('Invalid HEX color.');
-        }
-        var r = parseInt(hex.slice(0, 2), 16),
-            g = parseInt(hex.slice(2, 4), 16),
-            b = parseInt(hex.slice(4, 6), 16);
-        if (bw) {
-            return (r * 0.299 + g * 0.587 + b * 0.114) > 186
-                ? '#000000'
-                : '#FFFFFF';
-        }
-        // invert color components
-        r = (255 - r).toString(16);
-        g = (255 - g).toString(16);
-        b = (255 - b).toString(16);
-        // pad each with zeros and return
-        return "#" + padZero(r) + padZero(g) + padZero(b);
-    }
-    function padZero(str, len) {
-        len = len || 2;
-        var zeros = new Array(len).join('0');
-        return (zeros + str).slice(-len);
     }
 }

@@ -567,6 +567,11 @@ namespace Aplos.Areas.Productions.Controllers
         {
             return Json(DT.SearchFixedAsset(column, value, ArticleId), JsonRequestBehavior.AllowGet);
         }
+        [Authorize, HttpPost]
+        public ActionResult GetEmployeeCard(string EmployeeId, string OperationVariationId, string AssetRegisterId,string TargetDate)
+        {
+            return Json(DT.GetEmployeeCard(EmployeeId, OperationVariationId, AssetRegisterId, TargetDate), JsonRequestBehavior.AllowGet);
+        }
         #endregion
 
     }
