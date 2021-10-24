@@ -16,6 +16,7 @@ namespace Library.Model.OrderManagements
         public decimal? ExtraOrderPercentage { get; set; } = 0;
         public string Type { get; set; }
         public bool IsRepeat { get; set; }
+        public bool Consignment { get; set; }
         public string ProductionGrouping { get; set; }
         public string BuyerItemDescription { get; set; }
         public string MainRawMaterialDescription { get; set; }

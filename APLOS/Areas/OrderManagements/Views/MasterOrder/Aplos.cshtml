@@ -407,7 +407,6 @@
                                         <th>Sample No</th>
                                         <th>Material</th>
                                         <th>Article</th>
-                                        <th>Type</th>
                                         <th>Testing Std</th>
                                         <th>Production Grouping</th>
                                         <th>Buyer Ref.No</th>
@@ -424,6 +423,8 @@
                                         <th>Copy SO</th>
                                         <th>Contract No</th>
                                         <th>MasterLC No</th>
+                                        <th>Consignment</th>
+                                        <th>Type</th>
                                         <th style="width: 170px;">JW/OS Type</th>
                                         <th>Entity/Vendor</th>
                                         <th>Remark</th>
@@ -457,14 +458,7 @@
                                                 </span>
                                             </div>
                                         </td>
-                                        <td>
-                                            <div class="select-style">
-                                                <select name="Type" class="form-control" ng-model="x.Type" @*ng-change="ChangeJobType(x.Type);"*@
-                                                        ng-options="item.Value as item.Text for item in linetypeList" style="width: 80px;">
-                                                    <option value="">--Select--</option>
-                                                </select>
-                                            </div>
-                                        </td>
+
                                         <td>
                                             <div class="select-style">
                                                 <select class="form-control" ng-model="x.TestingStandardId"
@@ -521,13 +515,13 @@
                                         <td class="text-right table-td">
                                             <ul class="list-inline action-list">
                                                 @*
-                                                    <li>
-                                                    <button ng-click="getAttribute(x.Id, x.MaterialMasterId, x.MaterialMasterName);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Attribute" ng-disabled="x.Id==null || x.MaterialMasterId==null">Attribute</button></li>*@
+                <li>
+                <button ng-click="getAttribute(x.Id, x.MaterialMasterId, x.MaterialMasterName);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Attribute" ng-disabled="x.Id==null || x.MaterialMasterId==null">Attribute</button></li>*@
                                                 <li>
                                                     <button ng-click="AddDescription(x)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Description"><i class="glyphicon glyphicon-th-list"></i></button>
                                                 </li>
                                                 <li>
-                                                    <button ng-click="getSalesOrder(x.Id, x.MaterialMasterId, x.MaterialMasterName, x.ArticleName,x.HSNCodeId,x.BuyerReferenceNo);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="SO" ng-disabled="x.Id==null">SO</button>
+                                                    <button ng-click="getSalesOrder(x,x.Id, x.MaterialMasterId, x.MaterialMasterName, x.ArticleName,x.HSNCodeId,x.BuyerReferenceNo);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="SO" ng-disabled="x.Id==null">SO</button>
                                                 </li>
                                                 <li>
                                                     <button ng-click="AddQBOQ(x)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Quick BOQ">BOQ({{x.BOQNo}})</button>
@@ -552,8 +546,24 @@
                                         <td>{{x.ContractNo}}</td>
                                         <td>{{x.LCRef}}</td>
                                         <td>
+                                            <div class="checkbox-site">
+                                                <label class="control-label">
+                                                    <input type="checkbox" ng-model="x.Consignment" ng-checked="x.Consignment">
+                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                </label>
+                                            </div>
+                                        </td>
+                                        <td>
                                             <div class="select-style">
-                                                <select class="form-control" ng-model="x.JobWorkType" ng-disabled="x.Type!=='JobWork' && x.Type!=='OutSource'" ng-change="clearEntityOrVendor(itemList, $index);"
+                                                <select name="Type" class="form-control" ng-model="x.Type" @*ng-change="ChangeJobType(x.Type);"*@
+                                                        ng-options="item.Value as item.Text for item in linetypeList" style="width: 80px;">
+                                                    <option value="">--Select--</option>
+                                                </select>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="select-style">
+                                                <select class="form-control" ng-model="x.JobWorkType" ng-disabled="x.Type==='JobWork'" ng-change="clearEntityOrVendor(itemList, $index);"
                                                         ng-options="item.Value as item.Text for item in jobWorkTypeList" style="width: 100px;">
                                                     <option value=""></option>
                                                 </select>
@@ -567,8 +577,8 @@
                                             <div class="input-group">
                                                 <input type="text" name="EntityOrVendorName" ng-model="x.EntityOrVendorName" class="form-control" readonly style="width: 80px;">
                                                 <span class="input-group-btn">
-                                                    <button ng-click="popUp($index);" class="btn single-small-btn" ng-disabled="x.Type!=='JobWork' && x.Type!=='OutSource'"><i class="glyphicon glyphicon-search"></i></button>
-                                                    <button ng-click="clearEntityOrVendor(itemList,$index);" class="btn single-small-btn" ng-disabled="x.Type!=='JobWork' && x.Type!=='OutSource'"><i class="glyphicon glyphicon-refresh"></i></button>
+                                                    <button ng-click="popUp($index);" class="btn single-small-btn" ng-disabled="x.Type==='JobWork'"><i class="glyphicon glyphicon-search"></i></button>
+                                                    <button ng-click="clearEntityOrVendor(itemList,$index);" class="btn single-small-btn" ng-disabled="x.Type==='JobWork'"><i class="glyphicon glyphicon-refresh"></i></button>
                                                 </span>
                                             </div>
                                         </td>
@@ -576,21 +586,9 @@
                                             <textarea type="text" ng-model="x.Remark" rows="1" class="form-control" style="width: 105px;"></textarea>
                                         </td>
                                         <td>
-                                            @*<div class="form-group">
-                                                    <label class="col-sm-4 control-label" ng-click="FileDownload(x)"><a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{x.FileName}}" target="_self">{{x.FileName}}</a></label>
-                                                    <div class="col-sm-8">
-                                                        <div class="inputBtnSection common-btn">
-                                                            <label class="fileUpload" style="height: 30px;">
-                                                                <span class="uploadBtn" id="UploadDefault" e-dialogtext-title="Document" e-data="x.Id" e-autoupload="true" e-begin="onBeginUpload" e-filesize="10971520" ej-uploadbox e-saveurl="uploadUrl" e-multiplefilesselection=false e-extensionsallow=".jpg,.bmp,.png,.jpeg,.pdf" e-error="errorPicUpload" e-complete="getMasterItemList" style="width: 100px; height: 17px;margin:10px"><i class="fa fa-paperclip" aria-hidden="true"> Upload</i></span>
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                </div>*@
-
                                             <div class="col-md-12">
                                                 <div class="col-md-7">
                                                     <label class="col-sm-4 control-label" ng-click="FileDownload(x)"><a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{x.FileName}}" target="_self">{{x.FileName}}</a></label>
-
                                                 </div>
                                                 <div class="col-md-5">
                                                     <div id="UploadDefault" e-id="{{x.Id}}" e-data="x.Id" e-dialogPosition-x="0" e-multiplefilesselection="false" e-width="50" e-buttontext-browse="+File" e-success="$parent.getFileList" e-showroundedcorner="false" @*e-height="30"*@ e-autoupload="true" e-begin="onBeginUpload" e-filesize="2097152" ej-uploadbox e-saveurl="uploadUrl" e-extensionsallow=".jpg,.bmp,.png,.jpeg,.pdf,.xls,.xlsx,.doc,.docx,.ppt,.pptx,.txt" @*e-error="errorUpload"*@></div>
@@ -607,7 +605,6 @@
 
                                         <td class="text-center">
                                             <button ng-click="ReportPopUp(x);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Costing Report">Costing</button>
-
                                         </td>
                                     </tr>
                                     <tr>
@@ -1415,7 +1412,8 @@
         <div class="modal-content">
             <div class="modal-header">
                 {{mName}} > Sales Order
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <button type="button" class="close" data-dismiss="modal">&times;</button><br />
+                {{JobWorkType}}
             </div>
             <div class="modal-body form-elements form-horizontal">
                 <div ng-form="soForm">
@@ -2139,57 +2137,57 @@
             </div>
             <div class="modal-body">
                 <div class="modal-body">
-                <div class="form-elements form-horizontal table-responsive modal-table">
-                    <button ng-click="AddSOSKU('1');" title="Add New {{rowName}}" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i>{{rowName}}</button>
-                    <button ng-click="AddSOSKU('2');" title="Add New {{columnName}}" align="left" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i>{{columnName}}</button>
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>
-                                    @*<button ng-click="AddSOSKU('1');" title="Add New {{rowName}}" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> </button>*@
-                                    {{rowName}}
-                                </th>
-                                <th ng-repeat="x in skuList[0].childList" class="text-center" ng-class="{ 'has-error':x.isDuplicate == true, '':x.isDuplicate != true }">
-                                    @*<button ng-click="AddSOSKU('2');" title="Add New {{columnName}}" align="left" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> </button>*@
-                                    <button ng-click="removeSkuMatrixColumn($index)" class="btn btn-action tooltip-here pull-right" tooltip data-placement="top" title="Remove" ng-disabled="skuList[0].childList.length <= 1"><i class="glyphicon glyphicon-remove"></i></button>
-                                    <div class="select-style">
-                                        <select class="form-control" ng-model="x.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char2.Id }:true"
-                                                ng-change="chvChange(x.CharacteristicsValueId, $index); verifySkuMatrix();">
-                                            <option value=""></option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <input type="text" ng-model="x.ValueFreeText" ng-keyup="chvKeyChange(x.ValueFreeText, $index); verifySkuMatrix();" class="form-control" maxlength="15">
-                                    </div>
-                                </th>
-                                <th>
-                                    <button ng-click="addSkuMatrixColumn();" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> Add </button>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="x in skuList">
-                                <td>
-                                    <div class="select-style" ng-class="{ 'has-error':x.isDuplicate == true, '':x.isDuplicate != true }">
-                                        <select class="form-control" ng-model="x.CharacteristicsValueId" ng-change="verifySkuMatrix();" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char1.Id }:true">
-                                            <option value=""></option>
-                                        </select>
-                                    </div>
-                                    <div ng-class="{ 'has-error':x.isDuplicate == true, '':x.isDuplicate != true }">
-                                        <input type="text" ng-model="x.ValueFreeText" class="form-control" ng-keyup="verifySkuMatrix();" maxlength="15" />
-                                    </div>
-                                </td>
-                                <td ng-repeat="y in x.childList">
-                                    <input type="text" n-decimals="2" ng-model="y.Qty" ng-keyup="sumQty(x, $parent.$index );" class="form-control text-right" />
-                                </td>
-                                <td>
-                                    <button ng-click="removeSkuMatrixRow($index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove" @*ng-disabled="skuList.length <= 1"*@><i class="glyphicon glyphicon-remove"></i></button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <button ng-click="addSkuMatrixRow();" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> Add </button>
-                </div>
+                    <div class="form-elements form-horizontal table-responsive modal-table">
+                        <button ng-click="AddSOSKU('1');" title="Add New {{rowName}}" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i>{{rowName}}</button>
+                        <button ng-click="AddSOSKU('2');" title="Add New {{columnName}}" align="left" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i>{{columnName}}</button>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        @*<button ng-click="AddSOSKU('1');" title="Add New {{rowName}}" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> </button>*@
+                                        {{rowName}}
+                                    </th>
+                                    <th ng-repeat="x in skuList[0].childList" class="text-center" ng-class="{ 'has-error':x.isDuplicate == true, '':x.isDuplicate != true }">
+                                        @*<button ng-click="AddSOSKU('2');" title="Add New {{columnName}}" align="left" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> </button>*@
+                                        <button ng-click="removeSkuMatrixColumn($index)" class="btn btn-action tooltip-here pull-right" tooltip data-placement="top" title="Remove" ng-disabled="skuList[0].childList.length <= 1"><i class="glyphicon glyphicon-remove"></i></button>
+                                        <div class="select-style">
+                                            <select class="form-control" ng-model="x.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char2.Id }:true"
+                                                    ng-change="chvChange(x.CharacteristicsValueId, $index); verifySkuMatrix();">
+                                                <option value=""></option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <input type="text" ng-model="x.ValueFreeText" ng-keyup="chvKeyChange(x.ValueFreeText, $index); verifySkuMatrix();" class="form-control" maxlength="15">
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <button ng-click="addSkuMatrixColumn();" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> Add </button>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in skuList">
+                                    <td>
+                                        <div class="select-style" ng-class="{ 'has-error':x.isDuplicate == true, '':x.isDuplicate != true }">
+                                            <select class="form-control" ng-model="x.CharacteristicsValueId" ng-change="verifySkuMatrix();" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char1.Id }:true">
+                                                <option value=""></option>
+                                            </select>
+                                        </div>
+                                        <div ng-class="{ 'has-error':x.isDuplicate == true, '':x.isDuplicate != true }">
+                                            <input type="text" ng-model="x.ValueFreeText" class="form-control" ng-keyup="verifySkuMatrix();" maxlength="15" />
+                                        </div>
+                                    </td>
+                                    <td ng-repeat="y in x.childList">
+                                        <input type="text" n-decimals="2" ng-model="y.Qty" ng-keyup="sumQty(x, $parent.$index );" class="form-control text-right" />
+                                    </td>
+                                    <td>
+                                        <button ng-click="removeSkuMatrixRow($index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove" @*ng-disabled="skuList.length <= 1"*@><i class="glyphicon glyphicon-remove"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <button ng-click="addSkuMatrixRow();" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> Add </button>
+                    </div>
                 </div>
                 <div class="common-btn" style="padding-right: 15px;">
                     <ul class="list-inline text-right">
@@ -3437,7 +3435,7 @@
                                 </div>
                                 <script type="text/template" id="SKU1">
                                     <input ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-datasource="$parent.ToSKU1List" ng-model="data.ToSKU1Id" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
-                                    
+
                                 </script>
                                 <script type="text/template" id="SKUC1">
                                     @*<button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-plus-sign" ng-click="$parent.AddSKU('1st','mat');" style="margin: -6px;"></i></button>*@

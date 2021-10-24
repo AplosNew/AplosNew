@@ -1387,6 +1387,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                             ProductionGrouping: null,
                             TestingStandardId: $scope.fileNew.TestingStandardId,
                             IsRepeat: false,
+                            Consignment: false,
                             Type: $scope.fileNew.Type,
                             ContractId: $scope.modelNew.Id == null ? null : $scope.modelNew.Id,
                             BuyerItemDescription: null,
@@ -1463,6 +1464,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             ProductionGrouping: null,
             TestingStandardId: $scope.fileNew.TestingStandardId,
             IsRepeat: false,
+            Consignment: false,
             Type: $scope.fileNew.Type,
             ContractId: $scope.modelNew.Id == null ? null : $scope.modelNew.Id,
             BuyerItemDescription: null,
@@ -1699,8 +1701,18 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     // #endregion value
 
     // #region Sales Order
+    $scope.JobWorkType = '';
+    $scope.getSalesOrder = function (x, id, materialMasterId, mName, aName, hsnCodeId, BuyerReferenceNo) {
+      
+        if (baseService.isUndefinedOrNull($scope.JobWorkType)) {
+            $scope.JobWorkType = x.JobWorkType+'>> '+ x.EntityOrVendorName;
+        } else if (baseService.isUndefinedOrNull($scope.JobWorkType)) {
 
-    $scope.getSalesOrder = function (id, materialMasterId, mName, aName, hsnCodeId, BuyerReferenceNo) {
+            $scope.JobWorkType = x.JobWorkType + '>> ' + x.EntityIdWithinGroup;
+        } else {
+            $scope.JobWorkType = x.JobWorkType + '>> ' + x.EntityIdWithinCompany;
+        }
+
         $scope.TotalProducedQty = 0;
         $scope.ProdBookedQty = 0;
         if ($scope.mmChangeFlag) return ShowResult('Please update changes data', 'failure');
@@ -4547,10 +4559,10 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         }
         if ($scope.state == '2nd') {
             $scope.charId = $scope.char2Id;
-          //  $scope.SKU = $scope.rmchar2.Name;
+            //  $scope.SKU = $scope.rmchar2.Name;
             $scope.SKULevel = 'Specific';
         }
-       
+
         $scope.characteristicsValue = {
             Id: baseService.pk()
             , MaterialMasterId: $scope.ToMaterialMasterId
@@ -4586,11 +4598,11 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         if ($scope.state == '2nd') {
             $scope.characteristicsvalueNew.SourceType = 'Specific';
         }
-        
+
         if (baseService.isUndefinedOrNull($scope.name)) {
             $scope.SaveBOMSKU();
         }
-        
+
     }
 
     $scope.SaveBOMSKU = function () {
@@ -4616,7 +4628,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                             $scope.GetToItemMaterialSKU2($scope.ToMaterialMasterId);
                         }
 
-                       // $scope.clearMasterCharacteristicsValue();
+                        // $scope.clearMasterCharacteristicsValue();
                         angular.element(document.querySelector('#SKUpopup')).modal('hide');
                     }
                 }), function errorCallBack(response) {
@@ -4648,7 +4660,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
 
     $scope.AddSOSKU = function (sku) {
-        if (sku==1) {
+        if (sku == 1) {
             $scope.charId = $scope.char1Id;
             $scope.charName = $scope.rowName;
         }
