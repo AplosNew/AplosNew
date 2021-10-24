@@ -42,8 +42,10 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
     $scope.selectedGRNRow = {};
     $scope.fabDistributeQty = 0;
     $scope.fabricEdit = false;
+    $scope.RowData = '';
     $scope.showFabricPop = function (data) {
 
+        $scope.RowData = data;
         $scope.fabricRollSplitOb.VendorWidth = null;
         // $scope.fabricEdit = isEdit;
         $scope.fabricRollMasterNew.GRNSplitQty = null;
@@ -276,10 +278,7 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
 
             }).then(function successCallback(response) {
 
-                //$scope.GetFabricRollList = [];
-                //$scope.GetFabricRollList = response.data;
-               // angular.element(document.querySelector('#SinglefabricRollPopUpargegrfd')).modal('show');
-
+              
             });
         }
         catch (e) {
@@ -288,10 +287,22 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
     }
     //$scope.IRDId = $scope.selectedGRNRow.Id;
     $scope.RR = function (data) {
-   
+      
         try {
 
             var file_src = $scope.path + 'DownloadRollReport?inventoryReceiveDetailId=' + data.Id
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
+
+    $scope.POPupReport = function (data) {
+
+        try {
+
+            var file_src = $scope.path + 'DownloadRollReport?inventoryReceiveDetailId=' + $scope.RowData.Id
             $rootScope.report(file_src);
 
         } catch (e) {
