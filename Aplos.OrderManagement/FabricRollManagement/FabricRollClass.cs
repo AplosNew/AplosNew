@@ -31,14 +31,14 @@ namespace Library.OrderManagement.FabricRollClass
             USER,
             RerpotName,
             InventoryReceiveId,
-            SystemID,          
+            SystemID,
 
             RollControlNo = 6,
-            Color,
-            VendorSpec,
-            VendorPackingFormNo,
+            VendorRollNo,
             VendorLotNo,
+            Quantity,
             PackingListQuantity,
+            VendorPackingFormNo,
             StorageLocationName,
             BinSystemID,
             Remarks
@@ -50,8 +50,6 @@ namespace Library.OrderManagement.FabricRollClass
         }
 
         private static readonly string reportScreenName = "GRN";
-
-      
         public void DownloadReport(string inventoryReceiveDetailId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -95,9 +93,6 @@ namespace Library.OrderManagement.FabricRollClass
                 // objPur.getPlantForReportTitle(dsHeader.Tables[0].Rows[0]["PlantID"].ToString(), out dsCompany);
                 objPur.getPlantForReportTitle(identity.PlantId, out dsCompany);
 
-
-          
-
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
                 workbook = application.Workbooks.Create(3);
@@ -114,10 +109,7 @@ namespace Library.OrderManagement.FabricRollClass
 
                 ROW = 5;
 
-
-
                 #region Left Data
-
 
                 sheet[ROW, leftCOL].Text = "GRN No";
                 sheet[ROW, leftCOL].CellStyle.Font.Bold = true;
@@ -135,15 +127,12 @@ namespace Library.OrderManagement.FabricRollClass
                 sheet.Range[ROW, leftCOLData, ROW, rightCOL - 1].Merge();
                 ROW++;
 
-
                 sheet[ROW, leftCOL].Text = "Supplier Code";
                 sheet[ROW, leftCOL].CellStyle.Font.Bold = true;
-
                 //left data
                 sheet[ROW, leftCOLData].Text = dsHeader.Tables[0].Rows[0]["PartyCode"].ToString();
                 sheet.Range[ROW, leftCOLData, ROW, rightCOL - 1].Merge();
                 ROW++;
-
 
                 sheet[ROW, leftCOL].Text = "Supplier";
                 sheet[ROW, leftCOL].CellStyle.Font.Bold = true;
@@ -153,29 +142,20 @@ namespace Library.OrderManagement.FabricRollClass
                 sheet.Range[ROW, leftCOLData, ROW, rightCOL - 1].Merge();
 
                 ROW++;
-                //sheet[ROW, leftCOL].Text = "Buyer";
-                //sheet[ROW, leftCOL].CellStyle.Font.Bold = true;
+
+                sheet[ROW, leftCOL].Text = dsHeader.Tables[0].Rows[0]["SKU1"].ToString();
+                sheet[ROW, leftCOL].CellStyle.Font.Bold = true;
 
                 //left data
-                //sheet[ROW, leftCOLData].Text = dsHeader.Tables[0].Rows[0]["Buyer"].ToString();
-                //sheet.Range[ROW, leftCOLData, ROW, rightCOL - 1].Merge();
-                //ROW++;
-
-                //sheet[ROW, leftCOL].Text = "Our Ref";
-                //sheet[ROW, leftCOL].CellStyle.Font.Bold = true;
-                //sheet.Range[ROW, leftCOLData, ROW, rightCOL - 1].Merge();
-                //left data
-                //sheet[ROW, leftCOLData].Text = dsItems.Tables[0].Rows[0]["MaterialCode"].ToString() + "(" + dsItems.Tables[0].Rows[0]["BOMAndSOWiseRMSystemID"].ToString() + "/" + dsItems.Tables[0].Rows[0]["MaterialFileNos"].ToString() + ")";
-                //sheet.Range[ROW, leftCOLData, ROW, lastCOL - 1].Merge();
-                //ROW++;
+                sheet[ROW, leftCOLData].Text = dsHeader.Tables[0].Rows[0]["SKUValue"].ToString();
+                sheet.Range[ROW, leftCOLData, ROW, rightCOL - 1].Merge();
+                ROW++;
 
                 sheet[ROW, leftCOL].Text = "Material";
                 sheet[ROW, leftCOL].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, leftCOLData, ROW, rightCOL - 1].Merge();
                 //left data
                 sheet[ROW, leftCOLData].Text = dsHeader.Tables[0].Rows[0]["MaterialMasterName"].ToString();
-
-                //sheet[ROW, leftCOLData].Text = dsItems.Tables[0].Rows[0]["MaterialMasterName"].ToString();
                 sheet.Range[ROW, leftCOLData, ROW, lastCOL - 1].Merge();
                 sheet[ROW, leftCOLData].RowHeight = sheet[ROW, leftCOLData].RowHeight * 3;
                 #endregion Left Data
@@ -196,7 +176,7 @@ namespace Library.OrderManagement.FabricRollClass
                 sheet[ROW, rightCOL].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, rightCOL, ROW, rightCOLData - 1].Merge();
                 //right data
-                //sheet[ROW, rightCOLData].Text = dsHeader.Tables[0].Rows[0]["PoNo"].ToString();
+                sheet[ROW, rightCOLData].Text = dsHeader.Tables[0].Rows[0]["POId"].ToString();
                 sheet.Range[ROW, rightCOLData, ROW, lastCOL - 1].Merge();
 
                 ROW++;
@@ -209,13 +189,11 @@ namespace Library.OrderManagement.FabricRollClass
 
                 ROW++;
 
-
-
                 sheet[ROW, rightCOL].Text = "Invoice No";
                 sheet[ROW, rightCOL].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, rightCOL, ROW, rightCOLData - 1].Merge();
                 //right data
-                //sheet[ROW, rightCOLData].Text = dsHeader.Tables[0].Rows[0]["InvoiceNumber"].ToString();
+                sheet[ROW, rightCOLData].Text = dsHeader.Tables[0].Rows[0]["InvoiceNo"].ToString();
                 sheet.Range[ROW, rightCOLData, ROW, lastCOL - 1].Merge();
 
                 ROW++;
@@ -225,8 +203,8 @@ namespace Library.OrderManagement.FabricRollClass
                 sheet[ROW, rightCOL].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, rightCOL, ROW, rightCOLData - 1].Merge();
                 //right data
-                //if (dsHeader.Tables[0].Rows[0]["InvoiceDate"].ToString() != "")
-                    //sheet[ROW, rightCOLData].Text = bplib.clsWebLib.makeBaseBlank(Convert.ToDateTime(dsHeader.Tables[0].Rows[0]["InvoiceDate"].ToString()).ToString("dd-MMM-yyyy"));
+                if (dsHeader.Tables[0].Rows[0]["InvoiceDate"].ToString() != "")
+                    sheet[ROW, rightCOLData].Text = bplib.clsWebLib.makeBaseBlank(Convert.ToDateTime(dsHeader.Tables[0].Rows[0]["InvoiceDate"].ToString()));
                 sheet.Range[ROW, rightCOLData, ROW, lastCOL - 1].Merge();
 
                 ROW++;
@@ -237,7 +215,7 @@ namespace Library.OrderManagement.FabricRollClass
 
                 sheet[ROW, (int)colIndex.Type].Text = dataType.MAINHEADER.ToString();
                 sheet[ROW, (int)colIndex.USER].Text = identity.UserId;
-               
+
                 sheet[ROW, (int)colIndex.RerpotName].Text = reportScreenName;
 
                 sheet[ROW, (int)colIndex.InventoryReceiveId].Text = dsHeader.Tables[0].Rows[0]["GRNNO"].ToString();
@@ -245,23 +223,16 @@ namespace Library.OrderManagement.FabricRollClass
                 ROW++;
                 int endCol = 8;
 
-                sheet[ROW, COL].Text = "Roll  No";
+                sheet[ROW, COL].Text = "Roll No.";
                 sheet[ROW, COL].ColumnWidth = 18;
                 int colRollControlNo = (int)colIndex.RollControlNo;
                 COL++;
 
-                sheet[ROW, COL].Text = "Color";//display only
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colColor = (int)colIndex.Color;
-                COL++;
-                sheet[ROW, COL].Text = "Vendor Spec";//display only
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colVendorSpec = (int)colIndex.VendorSpec;
-                COL++;
+
 
                 sheet[ROW, COL].Text = "Supplier Roll No";
                 sheet[ROW, COL].ColumnWidth = 18;
-                int colSupplierRollNo = (int)colIndex.VendorPackingFormNo;
+                int colSupplierRollNo = (int)colIndex.VendorRollNo;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 COL++;
 
@@ -274,21 +245,9 @@ namespace Library.OrderManagement.FabricRollClass
                 sheet[ROW, COL].Text = "Roll Wise Packing List Qty";
                 sheet[ROW, COL].ColumnWidth = 10;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colCurrentReceivedQty = COL;
-                COL++;
+                int colCurrentReceivedQty = (int)colIndex.Quantity;
 
-                sheet[ROW, COL].Text = "Location";//Display Only (Storage Location)
-                sheet[ROW, COL].ColumnWidth = 18;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                int colStorageLocation = (int)colIndex.StorageLocationName;
-                COL++;
-
-                sheet[ROW, COL].Text = "GRN Remarks";
-                sheet[ROW, COL].ColumnWidth = 30;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                int colRemarks = (int)colIndex.Remarks;
-
-                endCol = COL;
+                endCol = colCurrentReceivedQty;
 
                 sheet.Range[ROW, leftCOL, ROW, endCol].CellStyle.Interior.Color = System.Drawing.Color.FromArgb(150, 250, 150);
                 sheet.Range[ROW, leftCOL, ROW, endCol].CellStyle.Font.Bold = true;
@@ -313,13 +272,10 @@ namespace Library.OrderManagement.FabricRollClass
                     //sheet[ROW, (int)colIndex.UOMSystemIDBase].Text = dsItems.Tables[0].Rows[i]["UOMSystemIDBase"].ToString();
 
                     sheet[ROW, colRollControlNo].Text = dsItems.Tables[0].Rows[i]["RollNo"].ToString();
-                    //sheet[ROW, colColor].Text = dsItems.Tables[0].Rows[i]["SKU"].ToString();
-                    //sheet[ROW, colVendorSpec].Text = dsItems.Tables[0].Rows[i]["POVendorSpec"].ToString();
+                    //sheet[ROW, colColor].Text = dsItems.Tables[0].Rows[i]["SKUValue"].ToString();
                     sheet[ROW, colSupplierRollNo].Text = dsItems.Tables[0].Rows[i]["VendorRollNo"].ToString();
                     sheet[ROW, colLotNo].Text = dsItems.Tables[0].Rows[i]["VendorLotNo"].ToString();
                     sheet[ROW, colCurrentReceivedQty].Number = Convert.ToDouble(bplib.clsWebLib.GetNumData(dsItems.Tables[0].Rows[i]["VendorQty"].ToString()));
-                    //sheet[ROW, colStorageLocation].Text = dsItems.Tables[0].Rows[i]["StorageLocationName"].ToString();
-                    sheet[ROW, colRemarks].Text = dsItems.Tables[0].Rows[i]["Remark"].ToString();
 
                     //if (dsItems.Tables[0].Rows[i]["BOMandSOwiseRMSystemID"].ToString().ToUpper() != dsItems.Tables[0].Rows[i]["BOMandSOwiseRMSystemIDtransferred"].ToString().ToUpper()
                     //     || dsItems.Tables[0].Rows[i]["MaterialMasterAttributeSystemID"].ToString().ToUpper() != dsItems.Tables[0].Rows[i]["MaterialMasterAttributeSystemIDtransferred"].ToString().ToUpper()
@@ -329,10 +285,11 @@ namespace Library.OrderManagement.FabricRollClass
                     //}
 
                     sheet.Range[ROW, colSupplierRollNo, ROW, endCol].CellStyle.Locked = false;
-                    sheet.Range[ROW, colRollControlNo, ROW, colVendorSpec].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
+                    sheet[ROW, colSupplierRollNo].CellStyle.Locked = false;
+                    sheet.Range[ROW, colRollControlNo, ROW, colCurrentReceivedQty].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
 
 
-                    sheet[ROW, colStorageLocation].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    //sheet[ROW, colStorageLocation].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet.Range[ROW, leftCOL, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, leftCOL, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                     sheet.Range[ROW, leftCOL, ROW, endCol].CellStyle.Font.Size = 8f;
@@ -358,26 +315,26 @@ namespace Library.OrderManagement.FabricRollClass
                         sheet.Range[startRow, i, ROW, i].NumberFormat = clsStaticInfo.NumberFormat(2);
                     }
                 }
-                sheet.Range[startRow, colStorageLocation, ROW, colStorageLocation].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                //sheet.Range[startRow, colStorageLocation, ROW, colStorageLocation].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet.Range[startRow, colCurrentReceivedQty, ROW, colCurrentReceivedQty].NumberFormat = clsStaticInfo.NumberFormat(2);
 
 
 
 
-                //sheet.Range[startRow, colCurrentReceivedQty, ROW - 1, colCurrentReceivedQty].DataValidation.IsEmptyCellAllowed = true;
-                //sheet.Range[startRow, colCurrentReceivedQty, ROW - 1, colCurrentReceivedQty].DataValidation.AllowType = ExcelDataType.Decimal;
-                //sheet.Range[startRow, colCurrentReceivedQty, ROW - 1, colCurrentReceivedQty].DataValidation.CompareOperator = ExcelDataValidationComparisonOperator.GreaterOrEqual;
-                //sheet.Range[startRow, colCurrentReceivedQty, ROW - 1, colCurrentReceivedQty].DataValidation.FirstFormula = "0";
-                //sheet.Range[startRow, colCurrentReceivedQty, ROW - 1, colCurrentReceivedQty].DataValidation.ErrorStyle = ExcelErrorStyle.Stop;
-                //sheet.Range[startRow, colCurrentReceivedQty, ROW - 1, colCurrentReceivedQty].DataValidation.ErrorBoxText = "Only positive numbers are allowed";
-                //sheet.Range[startRow, colCurrentReceivedQty, ROW - 1, colCurrentReceivedQty].DataValidation.ErrorBoxTitle = "Number Error";
+                sheet.Range[startRow, colCurrentReceivedQty, ROW - 1, colCurrentReceivedQty].DataValidation.IsEmptyCellAllowed = true;
+                sheet.Range[startRow, colCurrentReceivedQty, ROW - 1, colCurrentReceivedQty].DataValidation.AllowType = ExcelDataType.Decimal;
+                sheet.Range[startRow, colCurrentReceivedQty, ROW - 1, colCurrentReceivedQty].DataValidation.CompareOperator = ExcelDataValidationComparisonOperator.GreaterOrEqual;
+                sheet.Range[startRow, colCurrentReceivedQty, ROW - 1, colCurrentReceivedQty].DataValidation.FirstFormula = "0";
+                sheet.Range[startRow, colCurrentReceivedQty, ROW - 1, colCurrentReceivedQty].DataValidation.ErrorStyle = ExcelErrorStyle.Stop;
+                sheet.Range[startRow, colCurrentReceivedQty, ROW - 1, colCurrentReceivedQty].DataValidation.ErrorBoxText = "Only positive numbers are allowed";
+                sheet.Range[startRow, colCurrentReceivedQty, ROW - 1, colCurrentReceivedQty].DataValidation.ErrorBoxTitle = "Number Error";
 
                 //sheet.Range[startRow, colCurrentReceivedQty, ROW - 1, colCurrentReceivedQty].Numb
 
 
-                //sheet.Protect(bplib.clsWebLib.REPORT_LOCK_PASSWORD);
-                //workbook.Worksheets[1].Protect(bplib.clsWebLib.REPORT_LOCK_PASSWORD);
-                //workbook.Protect(false, true, bplib.clsWebLib.REPORT_LOCK_PASSWORD);
+                sheet.Protect(bplib.clsWebLib.REPORT_LOCK_PASSWORD);
+                workbook.Worksheets[1].Protect(bplib.clsWebLib.REPORT_LOCK_PASSWORD);
+                workbook.Protect(false, true, bplib.clsWebLib.REPORT_LOCK_PASSWORD);
                 sheet.PageSetup.TopMargin = 0.2;
                 sheet.PageSetup.BottomMargin = 0.8;
                 sheet.PageSetup.PrintTitleRows = "$1:$6";
@@ -393,12 +350,10 @@ namespace Library.OrderManagement.FabricRollClass
                 //workbook.Version = ExcelVersion.Excel97to2003;
                 workbook.Version = ExcelVersion.Excel2016;
 
-
-                string strFileName = "GRN " + (inventoryReceiveDetailId) + ".xls";
-                //string strFileName = "GRN " + (inventoryReceiveDetailId) + " " + dsItems.Tables[0].Rows[0]["BOMandSOWiseRMSystemID"].ToString() + " " + System.DateTime.Today.ToString("dd-MMM-yyyy") + ".xls";
+                string strFileName = "GRN " + (inventoryReceiveDetailId) + " " + System.DateTime.Today.ToString("dd-MMM-yyyy") + ".xls";
                 workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
                 workbook.Close();
-                //excelEngine.Dispose();
+                excelEngine.Dispose();
 
 
             }
@@ -407,7 +362,7 @@ namespace Library.OrderManagement.FabricRollClass
                 //displayMsgs(ex.Message, "ERROR", "Save");
                 //ShowLog(ex.Message);
 
-                throw ex; 
+                throw ex;
             }
             finally
             {
@@ -528,17 +483,18 @@ AND pidf.isDocumentOpen='YES'";
             {
                 strSQL = @"SELECT 
 DISTINCT IRD.Id,IRD.InventoryReceiveId,IRD.TransactionQty,IRD.TransactionUoMId,Isnull(FRM.SplitCount,0)SplitCount
-,ISNULL(FRM.TotalDistributeQty,0)TotalDistributeQty,UOM.UserName UOM,BUoM.UserName BaseUoM,IR.Id GRNNo,IR.GRNDate
+,ISNULL(FRM.TotalDistributeQty,0)TotalDistributeQty,UOM.UserName UOM,BUoM.UserName BaseUoM,IR.Id GRNNo,FORMAT(IR.GRNDate,'dd-MMM-yyyy') GRNDate
 ,P.UserName PartyName,P.code PartyCode,PL.FabRollPrefix,IM.PlantId,IM.MaterialMasterId,IM.ArticleId
 ,IM.FirstCharacteristicsId SKUId,MM.UserName MaterialMasterName,MMA.StandardName ArticleName
 ,C.UserName SKU1,C2.UserName SKU2,C3.UserName SKU3,CV.UserName SKUValue, C.UserName +':'+CV.UserName SKUInfo,CU.Code
-,MGM.UserName MaterialGroup,MOI.MasterOrderId 
+,MGM.UserName MaterialGroup,MOI.MasterOrderId,PO.Id POId,IR.InvoiceNo,FORMAT(IR.InvoiceDate,'dd-MMM-yyyy') InvoiceDate
 FROM [TRN].[InventoryReceiveDetail] IRD
                                         LEFT JOIN TRN.InventoryReceive IR ON IRD.InventoryReceiveId=IR.Id
                                         LEFT JOIN HKP.Party P ON IR.PartyId=P.Id
                                         LEFT JOIN TRN.InventoryMaterial IM ON IRD.InventoryMaterialId=IM.Id
 										left outer join trn.MasterOrderItem MOI on MOI.Id=IRD.MasterOrderItemId
-										--LEFT JOIN ORG.Plant PL ON IM.PlantId= PL.Id
+										left outer join TRN.PurchaseOrder PO ON PO.id=IRD.POId
+										left outer join TRN.PurchaseOrderDetail POD ON POD.Id=IRD.PODetailsId
                                         LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
 										LEFT JOIN scs.PlantConfig PL ON  PL.PlantId=IM.PlantId
                                         LEFT JOIN SCS.UnitOfMeasurement UOM ON IRD.TransactionUoMId=UOM.Id
@@ -572,8 +528,6 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND ird.Id='" + InventoryRec
                 objCon = null;
             }
         }//end function
-
-
         public void GetGRNHeaderInfo_Report(string SystemID, out System.Data.DataSet dsRef)
         {
             string strSQL;
@@ -768,11 +722,11 @@ ORDER BY pod.BOMandSOWiseRMSystemID,ISNULL(isnull(mcvDIM1.Code,mcvdtmDIM1.Code),
             ConnectionManager.DAL.ConManager objCon;
 
             string Filter = "";
-      
+
 
             try
             {
-                strSQL = @"select * from TRN.FabricRollMaster where InventoryReceiveDetailId='"+inventoryReceiveDetailId+@"'";
+                strSQL = @"select * from TRN.FabricRollMaster where InventoryReceiveDetailId='" + inventoryReceiveDetailId + @"'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
@@ -788,12 +742,11 @@ ORDER BY pod.BOMandSOWiseRMSystemID,ISNULL(isnull(mcvDIM1.Code,mcvdtmDIM1.Code),
         }//end function
 
 
-     
+
 
         public void getPlantForReportTitle(string PlantID, out System.Data.DataSet dsRef)
         {
             ConnectionManager.DAL.ConManager objCon;
-
             try
             {
                 string strSql = @"SELECT P.*,'' AS Address3,'' AS Address4,c2.UserName AS CountryName,AM.Postcode,c3.UserName Company
@@ -801,7 +754,7 @@ ORDER BY pod.BOMandSOWiseRMSystemID,ISNULL(isnull(mcvDIM1.Code,mcvdtmDIM1.Code),
 Left outer join MST.AddressMaster AM on AM.Id=P.AddressMasterId
 LEFT OUTER JOIN  SCS.Country c2 ON AM.CountryId=c2.Id
 LEFT OUTER JOIN ORG.Company c3 ON c3.Id=p.CompanyID
-WHERE P.Id='"+PlantID+@"'";
+WHERE P.Id='" + PlantID + @"'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, "1");
@@ -818,7 +771,6 @@ WHERE P.Id='"+PlantID+@"'";
         public void getStorageLocationForDdlByLocalPO(string POSystemID, string grnSystemID, out System.Data.DataSet dsRef)
         {
             ConnectionManager.DAL.ConManager objCon;
-
             try
             {
 
@@ -1051,7 +1003,7 @@ from GRNPackingList g where g.GRNMasterSystemID='" + grnSystemID + "' " + @"
         //            }
 
 
-        //            string fileLocation =Server.MapPath("~/DOC/" + fileName + Session.SessionID);
+        //            string fileLocation = Server.MapPath("~/DOC/" + fileName + Session.SessionID);
         //            ctrlFileUpload.SaveAs(fileLocation);
 
 
@@ -1083,7 +1035,7 @@ from GRNPackingList g where g.GRNMasterSystemID='" + grnSystemID + "' " + @"
         //                        Exception ex = new Exception(error_user);
         //                        throw (ex);
         //                    }
-        //                    if (Session["USER"].ToString().ToUpper() != dvSO[0][colIndex.USER.ToString()].ToString().ToUpper())
+        //                    if (identit.ToString().ToUpper() != dvSO[0][colIndex.USER.ToString()].ToString().ToUpper())
         //                    {
         //                        error_user = "login user does not match with file user [" + dvSO[0][1].ToString().ToUpper() + "]";
         //                        Exception ex = new Exception(error_user);
@@ -1474,68 +1426,68 @@ from GRNPackingList g where g.GRNMasterSystemID='" + grnSystemID + "' " + @"
             }
         }//end of function
         private string fileList = "";
-        //public void grnInternalControls(DataGrid dg, string GRNMasterSystemID, string POSystemID)
-        //{
-        //    DataSet dsTemp = null;
-        //    try
-        //    {
-        //        if (fileList == "")
-        //            fileList = listFiles(dg);
+        public void grnInternalControls(DataGrid dg, string GRNMasterSystemID, string POSystemID)
+        {
+            DataSet dsTemp = null;
+            try
+            {
+                if (fileList == "")
+                    fileList = listFiles(dg);
 
-        //        //inventory file closed
-        //        getInventoryClosedFiles(fileList, GRNMasterSystemID, out dsTemp);
-        //        if (dsTemp.Tables[0].Rows.Count > 0)
-        //        {
-        //            throw new Exception("File# " + dsTemp.Tables[0].Rows[0]["fileNos"].ToString() + " has been closed for inventory therefore cannot update/save/delete current GRN");
-        //        }
+                //inventory file closed
+                getInventoryClosedFiles(fileList, GRNMasterSystemID, out dsTemp);
+                if (dsTemp.Tables[0].Rows.Count > 0)
+                {
+                    throw new Exception("File# " + dsTemp.Tables[0].Rows[0]["fileNos"].ToString() + " has been closed for inventory therefore cannot update/save/delete current GRN");
+                }
 
-        //        //file opened for physical inventory
-        //        getOpenFiles(fileList, GRNMasterSystemID, out dsTemp);
-        //        if (dsTemp.Tables[0].Rows.Count > 0)
-        //            throw new Exception("File# " + dsTemp.Tables[0].Rows[0]["fileNos"].ToString() + " has been opened for physical inventory, Document# " + dsTemp.Tables[0].Rows[0]["physicalInventoryDocumentMasterSystemID"].ToString() + " therefore cannot update/save/delete current GRN");
-
-
-        //        //po approval related
-        //        getPurchaseOrderMasterOnRMRequisition(POSystemID, out dsTemp);
-        //        if (dsTemp.Tables[0].Rows.Count > 0)
-        //        {
-        //            if (bplib.clsWebLib.GetBoolData(dsTemp.Tables[0].Rows[0]["isOutOfBudget"].ToString()) == true && bplib.clsWebLib.GetBoolData(dsTemp.Tables[0].Rows[0]["isPOApproved"].ToString()) == false)
-        //                throw new Exception("Unapproved PO (Out of budget), cannot update/save/delete current GRN");
-
-        //            if (bplib.clsWebLib.GetBoolData(dsTemp.Tables[0].Rows[0]["isPOApproved"].ToString()) == false && dsTemp.Tables[0].Rows[0]["POType"].ToString().ToUpper() == "LOCAL PO")
-        //                throw new Exception("Unapproved PO (LOCAL PO), cannot update/save/delete current GRN");
-
-        //            //if (bplib.clsWebLib.GetBoolData(dsTemp.Tables[0].Rows[0]["isPOApproved"].ToString()) == false && dsTemp.Tables[0].Rows[0]["POType"].ToString().ToUpper() == "DIRECT LC")
-        //            //    throw new Exception("Unapproved PO (DIRECT LC), cannot update/save/delete current GRN");
-        //        }
+                //file opened for physical inventory
+                getOpenFiles(fileList, GRNMasterSystemID, out dsTemp);
+                if (dsTemp.Tables[0].Rows.Count > 0)
+                    throw new Exception("File# " + dsTemp.Tables[0].Rows[0]["fileNos"].ToString() + " has been opened for physical inventory, Document# " + dsTemp.Tables[0].Rows[0]["physicalInventoryDocumentMasterSystemID"].ToString() + " therefore cannot update/save/delete current GRN");
 
 
+                //po approval related
+                //getPurchaseOrderMasterOnRMRequisition(POSystemID, out dsTemp);
+                //if (dsTemp.Tables[0].Rows.Count > 0)
+                {
+                    if (bplib.clsWebLib.GetBoolData(dsTemp.Tables[0].Rows[0]["isOutOfBudget"].ToString()) == true && bplib.clsWebLib.GetBoolData(dsTemp.Tables[0].Rows[0]["isPOApproved"].ToString()) == false)
+                        throw new Exception("Unapproved PO (Out of budget), cannot update/save/delete current GRN");
 
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw (ex);
-        //    }
+                    if (bplib.clsWebLib.GetBoolData(dsTemp.Tables[0].Rows[0]["isPOApproved"].ToString()) == false && dsTemp.Tables[0].Rows[0]["POType"].ToString().ToUpper() == "LOCAL PO")
+                        throw new Exception("Unapproved PO (LOCAL PO), cannot update/save/delete current GRN");
 
-        //}
-        //public void grnInternalControls(string BOMAndSoWiseRMSystemID, string POSystemID)
-        //{
-        //    try
-        //    {
-        //        DataSet dsLocal = null;
-        //        GetBOMandSOWiseRM(BOMAndSoWiseRMSystemID, out dsLocal);
-        //        if (dsLocal.Tables[0].Rows.Count > 0)
-        //            fileList = "'" + dsLocal.Tables[0].Rows[0]["SalesOrderMasterSystemID"].ToString() + "'";
+                    //if (bplib.clsWebLib.GetBoolData(dsTemp.Tables[0].Rows[0]["isPOApproved"].ToString()) == false && dsTemp.Tables[0].Rows[0]["POType"].ToString().ToUpper() == "DIRECT LC")
+                    //    throw new Exception("Unapproved PO (DIRECT LC), cannot update/save/delete current GRN");
+                }
 
 
-        //        grnInternalControls(null, "", POSystemID);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw (ex);
-        //    }
 
-        //}
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }
+        public void grnInternalControls(string BOMAndSoWiseRMSystemID, string POSystemID)
+        {
+            try
+            {
+                DataSet dsLocal = null;
+                GetBOMandSOWiseRM(BOMAndSoWiseRMSystemID, out dsLocal);
+                if (dsLocal.Tables[0].Rows.Count > 0)
+                    fileList = "'" + dsLocal.Tables[0].Rows[0]["SalesOrderMasterSystemID"].ToString() + "'";
+
+
+                grnInternalControls(null, "", POSystemID);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }
 
         public void GetBOMandSOWiseRM(string systemID, out System.Data.DataSet dsRef)
         {
@@ -1566,4 +1518,19 @@ LEFT OUTER JOIN MaterialGridMaster mgm ON mgm.SystemID=mm.materialGridMasterSyst
             }
         }//end function
     }
+}
+public class FabricRollFile
+{
+    public string Id { get; set; }
+    public string FileId { get; set; }
+    public string FileName { get; set; }
+    public string FileStatus { get; set; }
+    public string PlantId { get; set; }
+    public string AddedBy { get; set; }
+    public string AddedDate { get; set; }
+    public string AddedFromIP { get; set; }
+    public string UpdatedBy { get; set; }
+    public string UpdatedDate { get; set; }
+    public string UpdatedFromIP { get; set; }
+
 }

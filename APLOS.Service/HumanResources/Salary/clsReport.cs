@@ -4790,7 +4790,7 @@ namespace OTSBD
                             ,ld.UserName ,Department.UserName,Department.Id,pwhr.OTConsiderOn,l.UserName ,EmployeeCodePreFix,ei.systemid
 							 ,EmployeeCodeNumeric,dt.OriginalDayType,ssd.InTime,ssd.OutTime,HOT.Duration 
                             HAVING  SUM(ISNULL(ot.TotalOTHr,0))/60 > '" + OTDuration + @"'
-                            ORDER BY EmployeeCode,TotalOT desc,EmployeeCodePreFix,EmployeeCodeNumeric,WorkDate";
+                            ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric,TotalOT desc,WorkDate";
 
                 }
                 else
@@ -4837,7 +4837,7 @@ namespace OTSBD
                             ,ld.UserName ,Department.UserName,Department.Id,pwhr.OTConsiderOn,l.UserName ,EmployeeCodePreFix,ei.systemid
 							,HOT.Duration ,EmployeeCodeNumeric,dt.OriginalDayType
                             having  sum(isnull(ssd.OTHr,0))/60 > " + OTDuration + @"
-                            order by EmployeeCode,TotalOT desc,EmployeeCodePreFix,EmployeeCodeNumeric,WorkDate";
+                            order by EmployeeCodePreFix,EmployeeCodeNumeric,TotalOT desc,WorkDate";
                 }
                 return _sqlRepository.GetDataTable(strSql);
             }

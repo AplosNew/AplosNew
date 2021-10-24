@@ -423,10 +423,10 @@
                                         <th>Copy SO</th>
                                         <th>Contract No</th>
                                         <th>MasterLC No</th>
-                                        <th>Consignment</th>
                                         <th>Type</th>
                                         <th style="width: 170px;">JW/OS Type</th>
                                         <th>Entity/Vendor</th>
+                                        <th>Consignment</th>
                                         <th>Remark</th>
                                         <th>Attachment</th>
                                         <th>Order Status</th>
@@ -545,17 +545,10 @@
                                         </td>
                                         <td>{{x.ContractNo}}</td>
                                         <td>{{x.LCRef}}</td>
-                                        <td>
-                                            <div class="checkbox-site">
-                                                <label class="control-label">
-                                                    <input type="checkbox" ng-model="x.Consignment" ng-checked="x.Consignment">
-                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                                </label>
-                                            </div>
-                                        </td>
+
                                         <td>
                                             <div class="select-style">
-                                                <select name="Type" class="form-control" ng-model="x.Type" @*ng-change="ChangeJobType(x.Type);"*@
+                                                <select name="Type" class="form-control" ng-model="x.Type" ng-change="ChangeJobType($index);"
                                                         ng-options="item.Value as item.Text for item in linetypeList" style="width: 80px;">
                                                     <option value="">--Select--</option>
                                                 </select>
@@ -577,9 +570,17 @@
                                             <div class="input-group">
                                                 <input type="text" name="EntityOrVendorName" ng-model="x.EntityOrVendorName" class="form-control" readonly style="width: 80px;">
                                                 <span class="input-group-btn">
-                                                    <button ng-click="popUp($index);" class="btn single-small-btn"  ng-disabled="x.Type!=='OutSource'"><i class="glyphicon glyphicon-search"></i></button>
-                                                    <button ng-click="clearEntityOrVendor(itemList,$index);" class="btn single-small-btn"  ng-disabled="x.Type!=='OutSource'"><i class="glyphicon glyphicon-refresh"></i></button>
+                                                    <button ng-click="popUp($index);" class="btn single-small-btn" ng-disabled="x.Type!=='OutSource'"><i class="glyphicon glyphicon-search"></i></button>
+                                                    <button ng-click="clearEntityOrVendor(itemList,$index);" class="btn single-small-btn" ng-disabled="x.Type!=='OutSource'"><i class="glyphicon glyphicon-refresh"></i></button>
                                                 </span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="checkbox-site">
+                                                <label class="control-label">
+                                                    <input type="checkbox" ng-model="x.Consignment" ng-checked="x.Consignment">
+                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                </label>
                                             </div>
                                         </td>
                                         <td>
