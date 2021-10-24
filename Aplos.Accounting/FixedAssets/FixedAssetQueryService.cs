@@ -283,6 +283,11 @@ namespace Library.Accounting.FixedAssets
                                     , GL.AccountCode GLGeneralInfoCode,GL.UserName GLGeneralInfoName,GL.Id GLGeneralInfoId
 									, BM.Id BudgetMasterId,B.UserName BudgetName,BM.RefNo BudgetRefNo
 									, A.UserName ActivityName, FR.FAActivityId ActivityId
+                                   		,format( FR.CapitalizationDate,'dd-MMM-yyyy')CapitalizationDate
+									,format(IR.GRNDate,'dd-MMM-yyyy') PurchaseDate
+									,format( ii.IssueDate,'dd-MMM-yyyy')IssueDate
+
+
                                     FROM[TRN].[FixedAssetRegister] FR
                                    LEFT JOIN MST.MaterialMaster MM ON FR.MaterialMasterId= MM.Id
                                    LEFT JOIN MST.MaterialMasterArticle MMA ON FR.MaterialMasterArticleId= MMA.Id
@@ -290,6 +295,17 @@ namespace Library.Accounting.FixedAssets
                                    LEFT JOIN [MST].[FixedAssetMaster] FAM ON FR.FixedAssetMasterId= FAM.Id
                                    LEFT JOIN HKP.FixedAssetCategory FAC ON FAM.FixedAssetCategoryId= FAC.Id
                                    LEFT JOIN HKP.FixedAssetSubCategory FASC ON FAM.FixedAssetSubCategoryId= FASC.Id
+
+	                                LEFT JOIN TRN.FixedAssetRegisterDetail FRD ON FRD.CapitalizeRegisterNo=FR.CapitalizeRegisterNo
+									LEFT JOIN TRN.InventoryIssueHistory IIH ON IIH.Id=FRD.InventoryIssueHistoryId
+									LEFT JOIN TRN.VoucherDetail VD ON VD.Id=IIH.CapitalizeVoucherDetailId
+									LEFT JOIN TRN.InventoryIssueDetail IID ON IID.Id=IIH.InventoryIssueDetailId
+									left join trn.InventoryIssue II on ii.Id = iid.InventoryIssueId
+									LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
+									left join trn.InventoryReceive IR on IR.Id =  IRD.InventoryReceiveId
+									LEFT JOIN TRN.Voucher V ON V.Id=VD.VoucherId 
+
+
 								   LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=BM.GLGeneralInfoId
 								   LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
 								   LEFT JOIN HKP.Activity A ON A.Id=FR.FAActivityId
