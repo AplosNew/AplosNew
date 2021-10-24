@@ -1193,17 +1193,15 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             $scope.itemList[i].EntityIdWithinGroup = null;
             $scope.itemList[i].PartyId = null;
         }
-
     };
 
-    $scope.enableJobOrOutSource = true;
-    $scope.ChangeJobType = function (Type) {
-        if (Type == "JobWork" || Type == "OutSource") {
-            $scope.enableJobOrOutSource = false;
-        } else {
-
-            $scope.enableJobOrOutSource = true;
-        }
+   
+    $scope.ChangeJobType = function (index) {
+        $scope.itemList[index].JobWorkType = null;
+        $scope.itemList[index].EntityOrVendorName = null;
+        $scope.itemList[index].EntityIdWithinCompany = null;
+        $scope.itemList[index].EntityIdWithinGroup = null;
+        $scope.itemList[index].PartyId = null;
     }
 
     //#region Job Work PopUp
