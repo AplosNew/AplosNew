@@ -664,6 +664,15 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
     ];
 
     //File Upload
+    $scope.FabricRollFile = {
+        Id: null,
+        FileId: null,
+        FileName: null,
+        FileStatus: null,
+        PlantId: $window.plantId,
+    }
+
+
     $rootScope.title = 'Fabric Roll File Upload';
     $("#uploadRollData").change(function () {
         $scope.Rolldata = this.files[0];
@@ -672,14 +681,14 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
 
 
 
-    $scope.save = function () {
+    $scope.saveRollFile = function () {
         try {
             if ($scope.Rolldata != null) {
                 var RollData = new FormData();
                 //if ($scope.Action == "Save") {
                 $http({
                     method: 'POST',
-                    url: 'Materials/FabricRoll/Create',
+                    url: 'Materials/FabricRoll/CreateRollFile',
                     headers: { 'Content-Type': undefined },
                     transformRequest: function (data) {
                         RollData.append("FabricRollFile", angular.toJson(data.FabricRollFile));
