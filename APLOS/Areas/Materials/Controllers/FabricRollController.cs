@@ -410,5 +410,62 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
 
 
 
+		[HttpPost, Authorize]
+		public JsonResult ImportData()
+		{
+			string path;
+			FabricRollClass objR = null;
+			try
+			{
+				objR = new FabricRollClass();
+				var file = Request.Files["file"];
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+				SaveFile(out path);
+				var data = objR.ReadData(identity.PlantId, path);
+				JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
+				json.MaxJsonLength = int.MaxValue;
+				return json;
+			}
+			catch (Exception ex)
+			{
+				return Json(new { Error = true, Message = ex.Message });
+			}
+		}
+		public void SaveFile(out string path)
+		{
+			path = "";
+			try
+			{
+				var file = Request.Files["file"];
+				if (file != null)
+				{
+					var extension = Path.GetExtension(file.FileName);
+					if (extension.ToLower() == ".xlsx" || extension.ToLower() == ".xls")
+					{
+					}
+					else
+						throw new CustomException(Resources.ExcelUploadError);
+				}
+				if (file != null)
+				{
+					path = Path.Combine(ResourcesPathReader.GetFabricRollData(), file.FileName);
+					if (System.IO.File.Exists(path))
+					{
+						System.IO.File.Delete(path);
+						file.SaveAs(path);
+					}
+					else
+					{
+						file.SaveAs(path);
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
+
 	}
 }
