@@ -1195,7 +1195,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         }
     };
 
-   
+
     $scope.ChangeJobType = function (index) {
         $scope.itemList[index].JobWorkType = null;
         $scope.itemList[index].EntityOrVendorName = null;
@@ -1362,6 +1362,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                             if ($scope.mitemList[j].Id != $scope.itemList[i].Id) {
                                 obj.MasterOrderItemId = $scope.mitemList[j].Id;
                                 obj.MaterialMasterId = $scope.mitemList[j].MaterialMasterId;
+                                obj.TotalQty = $scope.mitemList[j].TotalQty;
                                 $scope.itemList[i].TempList.push(obj);
                                 obj = {};
                             }
@@ -1711,7 +1712,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.JobWorkType = '';
     $scope.getSalesOrder = function (x, id, materialMasterId, mName, aName, hsnCodeId, BuyerReferenceNo) {
         $scope.JobWorkType = baseService.isUndefinedOrNull(x.JobWorkType) ? x.JobWorkType : x.JobWorkType + '>> ' + baseService.isUndefinedOrNull(x.EntityOrVendorName) ? x.EntityOrVendorName : x.EntityOrVendorName;
-       
+
 
         $scope.TotalProducedQty = 0;
         $scope.ProdBookedQty = 0;
@@ -4431,6 +4432,18 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.ShowSKUMapPopUp = function (data, MasterOrderItemId) {
         try {
             if (!baseService.isUndefinedOrNull(MasterOrderItemId)) {
+
+                for (var i = 0; i < $scope.itemList.length; i++) {
+                    for (var j = 0; j < $scope.itemList[i].TempList.length; j++) {
+                        if ($scope.itemList[i].TempList[j].MasterOrderItemId == MasterOrderItemId) {
+                            if (data.TotalQty > $scope.itemList[i].TempList[j].TotalQty) {
+                                throw "Destination Total Qty can't greater than Source Total Qty.";
+                            }
+                        }
+                    }
+                }
+
+
                 $scope.setTab3(1);
                 $scope.ToMasterOrderItemId = data.Id;
                 $scope.FromMasterOrderItemId = MasterOrderItemId;
@@ -4495,20 +4508,20 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     $scope.CopySObyMOI = function () {
         try {
-            //if (baseService.arrayLength($scope.FromSKU1List)>0) {
-            //    for (var i = 0; i < $scope.FromSKU1List.length; i++) {
-            //        if (baseService.isUndefinedOrNull($scope.FromSKU1List[i].ToSKU1Id)) {
-            //            throw "Select SKU1";
-            //        }
-            //    }
-            //}
-            //if (baseService.arrayLength($scope.FromSKU1List) > 0) {
-            //    for (var i = 0; i < $scope.FromSKU1List.length; i++) {
-            //        if (baseService.isUndefinedOrNull($scope.FromSKU1List[i].ToSKU2Id)) {
-            //            throw "Select SKU2";
-            //        }
-            //    }
-            //}
+            if (baseService.arrayLength($scope.FromSKU1List) > 0) {
+                for (var i = 0; i < $scope.FromSKU1List.length; i++) {
+                    if (baseService.isUndefinedOrNull($scope.FromSKU1List[i].ToSKU1Id)) {
+                        throw "Select SKU1";
+                    }
+                }
+            }
+            if (baseService.arrayLength($scope.FromSKU2List) > 0) {
+                for (var i = 0; i < $scope.FromSKU2List.length; i++) {
+                    if (baseService.isUndefinedOrNull($scope.FromSKU2List[i].ToSKU2Id)) {
+                        throw "Select SKU2";
+                    }
+                }
+            }
 
             $http({
                 method: 'POST',
