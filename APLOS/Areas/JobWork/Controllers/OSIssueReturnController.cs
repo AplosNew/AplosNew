@@ -3547,7 +3547,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 
             }
 
-            //       Issue/ Return Child data
+            //       Issue Child data
 
             int MPChildROW = ROW + 1;
             int MPChildendCol = 1;

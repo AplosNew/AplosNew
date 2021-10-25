@@ -958,7 +958,9 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 (DATEDIFF(DAY, (Select top 1 ed.EffectiveDate from
                 dbo.WeekOffHeader h 
-                left join dbo.WeekOffEffectiveDate ed on ed.WOHeaderId = h.Id
+                --left join dbo.WeekOffEffectiveDate ed on ed.WOHeaderId = h.Id               
+                left join dbo.EmployeeWeeklyOff ed on ed.WOHeaderId = h.Id
+                and ed.EmpSystemId = e.SystemId
                 where ed.EffectiveDate <= '" + Date + @"' and ed.WOHeaderId =  
 				(Select top 1 ex.WOHeaderId from dbo.EmployeeWeeklyOff ex
                 where EmpSystemId = e.SystemId and ex.EffectiveDate<='" + Date + @"'

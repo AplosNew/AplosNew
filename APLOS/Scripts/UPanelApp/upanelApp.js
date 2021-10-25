@@ -861,7 +861,7 @@ var upanelApp = angular
     .controller("salaryProcessedReportExtraOTCTCOriginalController", salaryProcessedReportExtraOTCTCOriginalController)
     .controller("FarmingDashboardController", FarmingDashboardController)
     .controller("BOQPurchaseOrderController", BOQPurchaseOrderController)
-   
+    .controller("PhysicalVerificationReportController", PhysicalVerificationReportController)
     .controller("payRegisterBDReportContractorController", payRegisterBDReportContractorController)
     .controller("yearlySalaryProcessedReportController", yearlySalaryProcessedReportController)
     .controller("MovementScanDataReportController", MovementScanDataReportController)
