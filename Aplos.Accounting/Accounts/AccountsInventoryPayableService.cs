@@ -3758,7 +3758,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
             return _sqlRepository.GetDataCollection(sql);
         }
 
-        public IEnumerable<object> GetJobWorkReceivedList(string plantId)
+        public IEnumerable<object> GetOutSourceReceivedList(string plantId)
         {
             try
             {
@@ -3840,7 +3840,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
                     LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
                     WHERE IR.PlantId='" + plantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' AND IR.IsPaymentHold=0 AND IR.PlantId='" + plantId + @"' AND IR.FixedAssetOrInventory='Inventory' AND IR.OpeningBalanceId IS NULL 
 					--AND IR.IsApproved=1 AND IR.RequiredPosting=1 
-					AND IR.GRNType='GRNBYPO'
+					AND IR.GRNType='GRNBYJW'
                     order by IR.GRNDate desc";
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -3851,7 +3851,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
-        public IEnumerable<object> GetInventoryJobWorkReceivedJV(string companyId, string plantId, string inveReveiveId)
+        public IEnumerable<object> GetInventoryOutSourceReceivedJV(string companyId, string plantId, string inveReveiveId)
         {
             try
             {
@@ -4102,7 +4102,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
             }
         }
 
-        public IEnumerable<object> GetInventoryJobWorkGIRI(string companyId, string plantId, string inveReveiveId)
+        public IEnumerable<object> GetInventoryOutSourceGIRI(string companyId, string plantId, string inveReveiveId)
         {
             try
             {
@@ -4174,8 +4174,27 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
+		public IEnumerable<object> GetInventoryOSServiceMasterData(string companyId, string plantId, string inveReveiveId)
+		{
+			try
+			{
+				var sql = @"DECLARE @receiveId varchar(10)= '" + inveReveiveId + @"',@plantId varchar(10)='" + plantId + @"'
+						SELECT top(1) OSPO.CurrencyId,CU.Code CurrencyCode,OSPO.ToCurrencyRate 
+						FROM dbo.OSTransformationPO OSPO 
+						JOIN TRN.InventoryReceive IR ON IR.TransformationContractId=OSPO.Id
+						LEFT JOIN SCS.Currency CU ON CU.Id=OSPO.CurrencyId
+						WHERE IR.Id=@receiveId AND IR.PlantId=@plantId";
+				return _sqlRepository.GetDataCollection(sql);
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+			}
+		}
 
-        public IEnumerable<object> GetInventoryJobWorkWIP(string companyId, string plantId, string inveReveiveId)
+		public IEnumerable<object> GetInventoryOutSourceWIP(string companyId, string plantId, string inveReveiveId)
         {
             try
             {
@@ -4245,7 +4264,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
             }
         }
 
-        public IEnumerable<object> GetJWPostedList(string column, string value, string plantId)
+        public IEnumerable<object> GetOutSourcePostedList(string column, string value, string plantId)
         {
             try
             {

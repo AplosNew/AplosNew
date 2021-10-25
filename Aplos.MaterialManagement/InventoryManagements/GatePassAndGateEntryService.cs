@@ -356,7 +356,7 @@ namespace Library.MaterialManagement.InventoryManagements
         #region FA register
         public List<Dictionary<string, object>> GetFixedAssetRegisterElasticSearchDataList(string companyGroupId, string companyId, string plantId, string fixedAssetRegisterDisposeId)
         {
-            var sql = @"SELECT top 100 FR.SerialNo, FR.Id AssetNo,  e.UserName Entity, D.UserName Department, FR.Model
+            var sql = @"SELECT top 100 FR.SerialNo, FR.Id, FR.AssetNo,  e.UserName Entity, D.UserName Department, FR.Model
                 , FR.InvoiceNo, MM.UserName MaterialMasterName, MMA.StandardName Article,FR.[Description]
                 , FAM.UserName FixedAssetMasterName, FAC.UserName FixedAssetCategory
                 --, FASC.UserName FixedAssetSubCategory, FAM.FixedAssetCategoryId
@@ -371,7 +371,7 @@ namespace Library.MaterialManagement.InventoryManagements
 				,isnull (FR.FABaseAmount,0) + (ISNULL(SAR.SubAssetAmount,0)) TotalBaseAmount
 				,ISNULL(FR.ADBaseAmount,0) ADBaseAmount
 				,ISNULL(FR.FABaseAmount,0) + isnull(SAR.SubAssetAmount,0) - ISNULL(FR.ADBaseAmount,0) NetFixedAssetsBaseAmount
-
+                ,isnull(FR.NegotiationValue,0)NegotiationValue
                 ,OpeningBalance = case when fr.IsOpeningBalance = 1 then 'YES' else 'NO' end
                 ,format( fr.CapitalizationDate, 'dd-MMM-yyyy') CapitalizationDate
                 --, FR.IsFinanciali
@@ -383,7 +383,7 @@ namespace Library.MaterialManagement.InventoryManagements
 			    ,fardd.FixedAssetRegisterDisposedId
 				,fardd.Id FixedAssetRegisterDisposedDetailId
 				,fardd.FixedAssetRegisterId
-
+                ,IsAsset= case when FR.IsOpeningBalance =1 then 'Yes' else 'No' end
 
                 FROM [TRN].[FixedAssetRegister] FR
                 LEFT JOIN MST.MaterialMaster MM ON FR.MaterialMasterId=MM.Id
@@ -620,7 +620,7 @@ namespace Library.MaterialManagement.InventoryManagements
 								,GPM.[UpdatedBy]
 								,GPM.[UpdatedDate]
 								,GPM.[UpdatedFromIP]--,GPM.ChallanNo
-								,PurchaseReturnId,InventoryTransferId,InventorySalesId,InventoryScrapId,FixedAssetSalesId,FixedAssetScrapId
+								,PurchaseReturnId,InventoryTransferId,InventorySalesId,InventoryScrapId,FixedAssetRegisterDisposedId,FixedAssetScrapId
 							FROM [TRN].[InOutGatePassMaster] GPM
 								LEFT JOIN Employeeinformation EI on EI.SystemId= GPM.CheckedBy
 							LEFT JOIN Employeeinformation EI1 on EI1.SystemId= GPM.ApprovedBy   

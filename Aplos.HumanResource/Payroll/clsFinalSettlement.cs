@@ -230,7 +230,7 @@ namespace OTSBD
 
 
                     //Calculate Gratuity
-                    if (isGratuityApplicable && IsNetPayWithFinalSattlement == false)
+                    if (isGratuityApplicable || IsNetPayWithFinalSattlement == false)
                     {
                         string _formulaValueG = "0";
                         int GratuityNumberOfYears = 0;

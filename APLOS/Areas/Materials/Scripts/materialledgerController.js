@@ -1,7 +1,7 @@
 ﻿'use strict';
 materialledgerController.$inject = ['fileReader', 'commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter', 'cboService', '$window', '$controller'];
 function materialledgerController(fileReader, commonMessage, $scope, $rootScope, baseService, $http, $filter, cboService, $window, $controller) {
-	$rootScope.title = "Material Ledger / Report";
+	$rootScope.title = "Material Ledger/Report";
 	$scope.Action = 'Save';
 	$scope.index = -1;
 	$scope.products = [];

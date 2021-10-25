@@ -260,6 +260,7 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
     }
     $scope.ShowDiv = false;
     $scope.AddLineItemG = function (obj) {
+        $scope.SelectedLine = obj.data;
         $scope.ShowDiv = true;
         var eDialog = $("#LineDesign").data("ejDialog");
         if (obj.data.HasLayout == false) {
@@ -472,7 +473,12 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
             $http({
                 method: "POST",
                 dataType: 'JSON',
-                data: { 'column': $scope.EmployeeSearchCol, 'value': $scope.EmployeeSearchVal, 'OperationId': $scope.selectednode.items[0].addInfo.OperationId, 'OperationVariationId': $scope.selectednode.items[0].addInfo.OperationVariationId },
+                data: {
+                    'column': $scope.EmployeeSearchCol, 'value': $scope.EmployeeSearchVal,
+                    'OperationId': $scope.selectednode.items[0].addInfo.OperationId,
+                    'OperationVariationId': $scope.selectednode.items[0].addInfo.OperationVariationId,
+                    'TargetDate': $scope.DailyProductionTargetNew.ProductionDate
+                },
                 url: $scope.path + 'SearchEmployee'
 
             }).then(function successCallback(response) {
@@ -485,6 +491,21 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
     }
     $scope.ViewEmployeeStatus = function (args) {
         try {
+
+            if (angular.isUndefinedOrNull(args.data.WorkCenterMasterId) == false) {
+                if (args.data.WorkCenterMasterId != $scope.SelectedLine.WorkCenterMasterId) {
+                    ShowResult("Employee has already been " + args.data.AssignmentStatus, 'failure');
+                    return;
+                }
+            }
+            var exists = ej.DataManager($scope.nodes).executeLocal(ej.Query().where("id", "notEqual", $scope.selectednode.items[0].id));
+            for (var i = 0; i < exists.length; i++) {
+                if (exists[i].addInfo.EmployeeId == args.data.Id) {
+                    ShowResult("Employee has already been " + args.data.AssignmentStatus, 'failure');
+                    return;
+                }
+            }
+
             $scope.selectednode.items[0].addInfo.EmployeeId = args.data.Id;
             $scope.selectednode.items[0].addInfo.EmployeeName = args.data.EmployeeName;
             $scope.selectednode.items[0].addInfo.EmpPicPath = args.data.EmpPicPath;
@@ -497,6 +518,60 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
 
         }
     }
+
+
+    //////////////////////////////////////////
+    $scope.OpenFixedAssetSearchBox = function () {
+        var eDialog = $("#dialogSearchFixedAsset").data("ejDialog");
+        eDialog.open();
+
+        $scope.getFixedAssetData();
+    }
+
+    $scope.FixedAssetmodelFilterByList = [
+        { value: 'Id', name: 'Id ' },
+        { value: 'Model', name: 'Model ' },
+        { value: 'SerialNo', name: 'SerialNo ' },
+        { value: 'YearOfManufacture', name: 'Year ' },
+        { value: 'Description', name: 'Description ' },
+        { value: 'AssetNo', name: 'Asset No ' },
+        { value: 'Status', name: 'Status ' },
+        { value: 'Brand', name: 'Brand ' },
+        { value: 'CountryOfOrigin', name: 'Country Of Origin ' },
+        { value: 'Vendor', name: 'Vendor ' }
+    ];
+    $scope.FixedAssetSearchCol = "Description";
+    $scope.FixedAssetSearchVal = "";
+    $scope.WhereFixedAssetNeeded = '';
+    $scope.FixedAssetList = [];
+    $scope.getFixedAssetData = function () {
+        try {
+            $http({
+                method: "POST",
+                dataType: 'JSON',
+                data: { 'column': $scope.FixedAssetSearchCol, 'value': $scope.FixedAssetSearchVal, 'ArticleId': $scope.selectednode.items[0].addInfo.ArticleId },
+                url: $scope.path + 'SearchFixedAsset'
+
+            }).then(function successCallback(response) {
+                $scope.FixedAssetList = response.data;
+
+            });
+        } catch (e) {
+
+        }
+    }
+    $scope.ViewFixedAssetStatus = function (args) {
+        try {
+            $scope.selectednode.items[0].addInfo.FixedAssetRegisterId = args.data.Id;
+            $scope.selectednode.items[0].addInfo.FixedAssetRegisterDesc = args.data.FixedAssetDesc;
+
+            var eDialog = $("#dialogSearchFixedAsset").data("ejDialog");
+            eDialog.close();
+        } catch (e) {
+
+        }
+    }
+
 
     $scope.nodes = [];
     $scope.operationList = [];
@@ -515,6 +590,16 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
 
         $scope.selectednode = args;
         $scope.OpenEmployeeSearchBox();
+    }
+    $scope.FixedAssetButtonClick = function (args) {
+
+        $scope.selectednode = args;
+        $scope.OpenFixedAssetSearchBox();
+    }
+    $scope.ViewEmployeeCard = function (args) {
+
+        $scope.selectednode = args;
+        $scope.GetEmployeeCard();
     }
 
     $scope.SaveDiagram = function () {
@@ -544,6 +629,32 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
 
         } catch (e) {
             ShowResult(e, "failure");
+        }
+    }
+    $scope.showCardIcons = false;
+    $scope.EmployeeCard = [];
+    $scope.GetEmployeeCard = function () {
+        $scope.EmployeeCard = [];
+        try {
+            $http({
+                method: "POST",
+                dataType: 'JSON',
+                data: {
+                    'EmployeeId': $scope.selectednode.items[0].addInfo.EmployeeId,
+                    'OperationVariationId': $scope.selectednode.items[0].addInfo.OperationVariationId,
+                    'AssetRegisterId': $scope.selectednode.items[0].addInfo.FixedAssetRegisterId,
+                    'TargetDate': $scope.DailyProductionTargetNew.ProductionDate
+                },
+                url: $scope.path + 'GetEmployeeCard'
+
+            }).then(function successCallback(response) {
+                $scope.EmployeeCard = response.data;
+
+            });
+            var eDialog = $("#dialogEmployeeCard").data("ejDialog");
+            eDialog.open();
+        } catch (e) {
+
         }
     }
 }

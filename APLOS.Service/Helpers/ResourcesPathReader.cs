@@ -465,6 +465,18 @@ namespace Library.Service.Helpers
 				throw new CustomException(ServiceResources.FilePathNotFound);
 			}
 		}
+
+		public static string GetFabricRollFilePath()
+		{
+			try
+			{
+				return ResolveFilePath(GetVirtualDirectory() + "/FabricRoll/RollData/");
+			}
+			catch
+			{
+				throw new CustomException(ServiceResources.FilePathNotFound);
+			}
+		}
 		public static string GetCostingPicPath()
 		{
 			try

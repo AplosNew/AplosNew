@@ -1552,7 +1552,7 @@
     <Content Include="Areas\Accounts\Scripts\gstR2ReportController.js" />
     <Content Include="Areas\Accounts\Scripts\GSTPayableSalesReportController.js" />
     <Content Include="Areas\Accounts\Scripts\GSTReceivableReportController.js" />
-    <Content Include="Areas\Accounts\Scripts\inventoryJobWorkReceivedController.js" />
+    <Content Include="Areas\Accounts\Scripts\inventoryOutSourceReceivePostController.js" />
     <Content Include="Areas\Accounts\Scripts\loanCloseController.js" />
     <Content Include="Areas\Accounts\Scripts\FinancialStatusCustomerReceivableInvoiceDetailController.js" />
     <Content Include="Areas\Accounts\Scripts\partyReconsilationDetailController.js" />
@@ -3670,7 +3670,7 @@
     <Content Include="Areas\Productions\Views\ProductionRelay\Aplos.cshtml" />
     <Content Include="Areas\Modules\Views\NotificationURL.cshtml" />
     <Content Include="Areas\Parties\Views\Party\_PartyOtherPopUpNew.cshtml" />
-    <Content Include="Areas\Accounts\Views\InventoryPayable\InventoryJobWorkReceived.cshtml" />
+    <Content Include="Areas\Accounts\Views\InventoryPayable\InventoryOutSourceReceivePost.cshtml" />
     <Content Include="Areas\HumanResource\Views\ManualShift\Aplos.cshtml" />
     <Content Include="Areas\JobWork\Views\OSReceiveBilling\Aplos.cshtml" />
     <Content Include="Areas\FixedAssets\Views\EntityFixedAssetsRegister\Aplos.cshtml" />

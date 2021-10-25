@@ -21949,7 +21949,10 @@ namespace Library.Service.HumanResources
                 foreach (TextSelection item in allresult)
                 {
                     string foundText = item.SelectedText;
+                    if (foundText == "LastPayDate")
+                    {
 
+                    }
                     if (replaced.ContainsKey(foundText) == false)
                         replaced.Add(foundText, 0);
 

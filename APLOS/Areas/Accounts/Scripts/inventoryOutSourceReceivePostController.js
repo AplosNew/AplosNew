@@ -1,13 +1,13 @@
 ﻿'use strict';
-inventoryJobWorkReceivedController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter', 'factoryService', '$window'];
-function inventoryJobWorkReceivedController(cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, factoryService, $window) {
+inventoryOutSourceReceivePostController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter', 'factoryService', '$window'];
+function inventoryOutSourceReceivePostController(cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, factoryService, $window) {
     $rootScope.title = "Inventory Payable";
     $scope.Action = 'Save';
     $scope.index = -1;
     $scope.products = [];
     $scope.path = 'Accounts/InventoryPayable/';
-    $scope.getListUrl = 'Accounts/InventoryPayable/GetJobWorkInventoryReceivePostedList/';
-    $scope.saveUrl = 'Accounts/InvoicePost/InventoryJobWorkReceivedPost/';
+    $scope.getListUrl = 'Accounts/InventoryPayable/GetOutSourceInventoryReceivePostedList/';
+    $scope.saveUrl = 'Accounts/InvoicePost/InventoryOutSourceReceivedPost/';
     $scope.AcceptanceId = null;
     $scope.TotalPayableAmount = 0;
 
@@ -16,7 +16,7 @@ function inventoryJobWorkReceivedController(cboService, commonMessage, $scope, $
         , { value: 'PostingDate', name: "PostingDate" }, { value: 'GateEntryNo', name: "Gate EntryNo" }, { value: 'DocRefNo', name: "DocRef No" }
         , { value: 'DocDate', name: "Doc Date" }];
 
-    $scope.products = [];    $scope.getDataList = function () {        $http({            method: 'POST',            url: 'Accounts/InventoryPayable/GetJobWorkInventoryReceivePostedList',            data: { column: $scope.searchByPostedGRN, value: $scope.searchGRN },
+    $scope.products = [];    $scope.getDataList = function () {        $http({            method: 'POST',            url: 'Accounts/InventoryPayable/GetOutSourceInventoryReceivePostedList',            data: { column: $scope.searchByPostedGRN, value: $scope.searchGRN },
             dataType: 'JSON',        }).then(function successCallback(response) {            $scope.products = response.data;        });    };
     $scope.getDataList();
 
@@ -181,7 +181,7 @@ function inventoryJobWorkReceivedController(cboService, commonMessage, $scope, $
     }
 
 
-    $scope.approvedGRNList = [];    $scope.getPopUpData = function () {        $http({            method: 'GET',            url: 'Accounts/InventoryPayable/GetListForInvJobWorkReceived',        }).then(function successCallback(response) {            $scope.approvedGRNList = response.data;            for (var i = 0; i < $scope.approvedGRNList.length; i++) {
+    $scope.approvedGRNList = [];    $scope.getPopUpData = function () {        $http({            method: 'GET',            url: 'Accounts/InventoryPayable/GetListForInvOutSourceReceived',        }).then(function successCallback(response) {            $scope.approvedGRNList = response.data;            for (var i = 0; i < $scope.approvedGRNList.length; i++) {
                 response.data[i].GRNDate = new Date($scope.approvedGRNList[i].GRNDate);                response.data[i].DocDate = new Date($scope.approvedGRNList[i].DocDate);
                 response.data[i].PODate = new Date($scope.approvedGRNList[i].PODate);
             }        });    };
@@ -291,14 +291,27 @@ function inventoryJobWorkReceivedController(cboService, commonMessage, $scope, $
     $scope.inventoryJobWorkWIPList = [];
     $scope.inventoryJobWorkGIRIList = [];
     function getInventoryJobWorkWIP(inveReveiveId) {
-        $http.get('Accounts/InventoryPayable/GetInventoryJobWorkWIP?inveReveiveId=' + inveReveiveId)
+        $http.get('Accounts/InventoryPayable/GetInventoryOutSourceWIP?inveReveiveId=' + inveReveiveId)
             .then(function (response) {
                 $scope.inventoryJobWorkWIPList = [];
                 $scope.inventoryJobWorkWIPList = response.data;
             });
     }
+    $scope.inventoryOSServiceData = {
+        CurrencyId: null,
+        CurrencyCode: null,
+        ToCurrencyRate:null
+    };
+    function getInventoryOSServiceMasterData(inveReveiveId) {
+        $http.get('Accounts/InventoryPayable/GetInventoryOSServiceMasterData?inveReveiveId=' + inveReveiveId)
+            .then(function (response) {
+                $scope.inventoryOSServiceData = {};
+                $scope.inventoryOSServiceData = response.data[0];
+            });
+    }
+
     function getInventoryJobWorkGIRI(inveReveiveId) {
-        $http.get('Accounts/InventoryPayable/GetInventoryJobWorkGIRI?inveReveiveId=' + inveReveiveId)
+        $http.get('Accounts/InventoryPayable/GetInventoryOutSourceGIRI?inveReveiveId=' + inveReveiveId)
             .then(function (response) {
                 $scope.inventoryJobWorkGIRIList = [];
                 $scope.inventoryJobWorkGIRIList = response.data;
@@ -313,7 +326,7 @@ function inventoryJobWorkReceivedController(cboService, commonMessage, $scope, $
     }
 
     function getInventoryMaterialList(inveReveiveId, employeeId, isReversCharge, foc, partyId) {
-        $http.get('Accounts/InventoryPayable/GetInventoryJobWorkReceivedJV?inveReveiveId=' + inveReveiveId + '&employeeId=' + employeeId + '&isReversCharge=' + isReversCharge + '&foc=' + foc)
+        $http.get('Accounts/InventoryPayable/GetInventoryOutSourceReceivedJV?inveReveiveId=' + inveReveiveId + '&employeeId=' + employeeId + '&isReversCharge=' + isReversCharge + '&foc=' + foc)
             .then(function (response) {
                 $scope.inventoryPayableList = [];
                 $scope.inventoryReceiveDetailList = [];
@@ -331,6 +344,7 @@ function inventoryJobWorkReceivedController(cboService, commonMessage, $scope, $
                     if (partyId != null) {
                         getVendorPayableGLBudgetActivity(inveReveiveId);
                     }
+                    getInventoryOSServiceMasterData(inveReveiveId);
                     getInventoryJobWorkGIRI(inveReveiveId);
                     getInventoryJobWorkWIP(inveReveiveId);
                 }
@@ -781,6 +795,7 @@ function inventoryJobWorkReceivedController(cboService, commonMessage, $scope, $
                 , 'inventoryPayableVMList': $scope.inventoryPayableList
                 , 'changeInInventoryList': $scope.newList
                 , 'inventoryJobWorkGIRIList': $scope.inventoryJobWorkGIRIList
+                , 'ServiceVM': $scope.inventoryOSServiceData
             },
             dataType: 'JSON'
         }).then(function (response) {
