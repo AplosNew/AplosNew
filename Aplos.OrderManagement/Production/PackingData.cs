@@ -1138,6 +1138,7 @@ order by  Assigned, ProductCode , PO
                             LEFT JOIN MST.MaterialMasterArticle M ON M.Id = P.ArticleId 
                             LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId 
                             WHERE s.booked = 'False' AND R.ToLocation <> 'JOB WORK LOCATION' AND R.ToLocation <> 'DyeHouse' AND R.ToLocation <> 'PACKING' "+loc+ @"
+                            and M.StandardName is not null
                             group by  M.StandardName , S.LotNo, S.NetWeight 
                             order by M.StandardName , S.LotNo";
                 return _sqlRepository.GetDataTable(str);
@@ -1161,7 +1162,7 @@ order by  Assigned, ProductCode , PO
                 {
                     loc = "AND R.ToStorageLocId = '" + Loc + "'";
                 }
-                var str = @"Select M.StandardName ,  S.LotNo, S.RefNo as Cartons, S.NetWeight ,S.NetWeight, S.GWeight as GtWt
+                var str = @"Select M.StandardName ,  S.LotNo, S.RefNo as Cartons, S.NetWeight as NtWt, S.GWeight as GtWt
                             from ItemScanChild S 
                             LEFT JOIN ProductLibrary P ON P.Code = S.ProductCode 
                             LEFT JOIN MST.MaterialMasterArticle M ON M.Id = P.ArticleId 

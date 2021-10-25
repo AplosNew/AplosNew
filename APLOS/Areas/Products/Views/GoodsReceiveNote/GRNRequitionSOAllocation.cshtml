@@ -1,326 +1,204 @@
 ﻿
-
 <togglable name="{{FormTitle}}"></togglable>
 
 @*Index Grid*@
 @*Taufik create list start*@
 <div class="tab-design" id="tab_show">
-	<div class="site-tab">
-		<ul class="nav nav-tabs" role="tablist">
-			<li role="presentation" ng-class="{ active: isSetpou(1) }"><a ng-click="setTabpou(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Un Allocated GRN</a></li>
-			<li role="presentation" ng-class="{ active: isSetGRNRejectHoldList(3) }"><a ng-click="setTabGRNRejectHoldList(3)" href="" aria-controls="address" role="tab" data-toggle="tab">Allocated GRN</a></li>
-			<li role="presentation" ng-class="{ active: isSetpoa(2) }"><a ng-click="setTabpoa(2)" href="" aria-controls="address" role="tab" data-toggle="tab">Checked</a></li>
-		</ul>
+    <div class="site-tab">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" ng-class="{ active: isSetpou(1) }"><a ng-click="setTabpou(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Un Allocated GRN</a></li>
+            <li role="presentation" ng-class="{ active: isSetGRNRejectHoldList(3) }"><a ng-click="setTabGRNRejectHoldList(3)" href="" aria-controls="address" role="tab" data-toggle="tab">Allocated GRN</a></li>
+            <li role="presentation" ng-class="{ active: isSetpoa(2) }"><a ng-click="setTabpoa(2)" href="" aria-controls="address" role="tab" data-toggle="tab">Checked</a></li>
+        </ul>
 
 
-	</div>
+    </div>
 
 
-	<div class="tab-content">
-		<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetpou(1), active: isSetpou(1) }">
-			<fieldset class="scheduler-border">
-				<legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
-				<div id="GRNUncheck">
-					<div class="content-container-fluid" style="color:black;overflow:scroll">
-						<div style="color:black;" id="GridPO" ej-grid e-datasource="JWGRNData" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
-							 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-							 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
-							 e-detailstemplate="detailTemp"
-							 e-detailsdatabound="detailgrid">
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetpou(1), active: isSetpou(1) }">
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+                <div id="GRNUncheck">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="GridPO" ej-grid e-datasource="OutSourceGRNData" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
+                             e-detailstemplate="detailTemp"
+                             e-detailsdatabound="detailgrid">
 
-							<div e-columns>
-								<div e-column e-headertext="Actions" e-width="50">
-									<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Checked/Hold/Reject" ng-click="$parent.onClickSave('GridPO');" style="margin: -6px;"></i></button>
-									@*<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridPO');" style="margin: -6px;"></i></button>*@
-								</div>
-								@*<div e-column e-template="#ToBeApprovedBy" e-headertext="To Be Approved By" e-width="190"></div>
-		<div e-column e-template="#RejectCheckedReason" e-headertext="Hold / Reject Reason" e-width="200" style="height: 20px;"></div>
-		<div e-column e-template="#CheckbyStatus" e-headertext="Check by Status" e-width="130"></div>*@
-								<div e-column e-template="#bootstrapToggle2" e-headertext="Chk" e-width="40" textAlign='center'></div>
-								<div e-column e-field="InventoryReceiveDetailId" e-headertext="GRN No" e-width="120"></div>
+                            <div e-columns>
+                                <div e-column e-field="InventoryReceiveDetailId" e-headertext="GRN No" e-width="120"></div>
+                                <div e-column e-field="MaterialMasterName" e-headertext="MaterialMasterName" e-width="120"></div>
+                                <div e-column e-field="ArticleName" e-headertext="ArticleName" e-width="180"></div>
+                                <div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="70"></div>
+                                <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="70"></div>
+                                <div e-column e-field="ThirdCharacteristicsValue" e-headertext="SKU3" e-width="70"></div>
+                                <div e-column e-field="GRNType" e-headertext="Type" e-width="80"></div>
+                                <div e-column e-field="TransactionQty1" e-headertext="TranQty" e-width="100"></div>
+                                <div e-column e-field="AllocatedQty" e-headertext="AlreadyAllocatedQty" e-width="120"></div>
+                                <div e-column e-field="TransactionUoM" e-headertext="TUoM" textAlign='Right' e-width="100"></div>
+                                <div e-column e-field="BaseQty1" e-headertext="BaseQty" textAlign='Right' e-width="100"></div>
+                                <div e-column e-field="BaseUOMId" e-headertext="BUOMId" textAlign='Right' e-width="100"></div>
+                                <div e-column e-field="BaseUoM" e-headertext="BaseUoM" textAlign='Right' e-width="100"></div>
+                                <div e-column e-field="POId" e-headertext="POId" textAlign='Right' e-width="100"></div>
+                                <div e-column e-field="PODetailsId" e-headertext="PODetailsId" textAlign='Right' e-width="150"></div>
+                                <div e-column e-headertext="Action " e-template="#SOAllocationTemplate" e-width="120"></div>
+                            </div>
+                        </div>
+                        <script id="SOAllocationTemplate" type="text/template">
+                            <div class="common-btn">
+                                <ul class="common-btn list-inline text-center">
+                                    <li>
+                                        <button ng-click="$parent.SOAllowcation(data);" class="btn small tooltip-here" style="height: 28px; width: 50px; padding: 0px; margin: 0px;" title="Allocation">
+                                            Allocation
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </script>
+                    </div>
+                    @*<script id="tabGridContents" type="text/x-jsrender">
+                            <div class="tabcontrol" id="Test">
+                                <ul>
+                                    <li><a href="#gridTab{{:Id}}">GRN Details</a></li>
+                                    <li><a href="#gridTab1{{:Id}}">GRN Checked Status</a></li>
+                                    <li><a href="#gridTab2{{:Id}}">Attached Documents List</a></li>
+                                </ul>
+                                <div id="gridTab{{:Id}}">
+                                    <div id="detailGrid"></div>
+                                </div>
 
-								<div e-column e-field="MaterialMasterName" e-headertext="MaterialMasterName" e-width="120"></div>
-								<div e-column e-field="ArticleName" e-headertext="ArticleName" e-width="180"></div>
-								<div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="70"></div>
-								<div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="70"></div>
-								<div e-column e-field="ThirdCharacteristicsValue" e-headertext="SKU3" e-width="70"></div>
-
-
-								<div e-column e-field="POBOQMapId" e-headertext="POBOQMapId" e-width="120"></div>
-								<div e-column e-field="POReqDetailsId" e-headertext="PO Requisition DetailId" e-width="120"></div>
-								<div e-column e-field="GRNType" e-headertext="Type" e-width="80"></div>
-								<div e-column e-field="TransactionQty1" e-headertext="TranQty" e-width="100"></div>
-								<div e-column e-field="AllocatedQty" e-headertext="AlreadyAllocatedQty" e-width="120"></div>
-								<div e-column e-template="#TransQty" e-headertext="CurrentTransactionQty" e-width="190"></div>
-
-
-
-								<div e-column e-field="TransactionUoM" e-headertext="TUoM" textAlign='Right' e-width="100"></div>
-								<div e-column e-field="BaseQty1" e-headertext="BaseQty" textAlign='Right' e-width="100"></div>
-								<div e-column e-template="#Baqty" e-headertext="CurrentBaseQty" e-width="190"></div>
-								<div e-column e-field="BaseUOMId" e-headertext="BUOMId" textAlign='Right' e-width="100"></div>
-								<div e-column e-field="BaseUoM" e-headertext="BaseUoM" textAlign='Right' e-width="100"></div>
-								<div e-column e-field="POBOQQty" e-headertext="POBOQQty" textAlign='Right' e-width="100"></div>
-								<div e-column e-field="POUoM" e-headertext="POUoM" textAlign='Right' e-width="100"></div>
-								<div e-column e-field="SalesOrderId" e-headertext="SalesOrderId" textAlign='Right' e-width="150"></div>
-								<div e-column e-field="POId" e-headertext="POId" textAlign='Right' e-width="100"></div>
-								<div e-column e-field="PODetailsId" e-headertext="PODetailsId" textAlign='Right' e-width="150"></div>
-
-
-							</div>
-						</div>
-						<script type="text/template" id="bootstrapToggle2">
-							<input type="checkbox" e-change="$parent.getTaxCategoryList1" e-value="data.Active" ej-checkbox class="rowCheckbox" e-checked="data.Active" />
-						</script>
-					</div>
-					@*<script id="tabGridContents" type="text/x-jsrender">
-						<div class="tabcontrol" id="Test">
-							<ul>
-								<li><a href="#gridTab{{:Id}}">GRN Details</a></li>
-								<li><a href="#gridTab1{{:Id}}">GRN Checked Status</a></li>
-								<li><a href="#gridTab2{{:Id}}">Attached Documents List</a></li>
-							</ul>
-							<div id="gridTab{{:Id}}">
-								<div id="detailGrid"></div>
-							</div>
-
-							<div id="gridTab1{{:Id}}">
-								<div>
-									<div class='employee-details'>
-										<ul>
-											<li><label style="color:maroon;">Account Group:</label><span style="padding-left:8px">{{:PartyAccountGroupName}}</span></li>
-											<li><label style="color:maroon;">Vendor Ref No:</label><span style="padding-left:8px">{{:DocRefNo}}</span></li>
-											<li><label style="color:maroon;">Prepared By:</label><span style="padding-left:8px">{{:AddedBy}}</span></li>
-											<li><label style="color:maroon;">Checked By:</label><span style="padding-left:8px">{{:CheckedBy}}</span></li>
-											<li><label style="color:maroon;">Checked Status:</label><span style="padding-left:8px">{{:CheckedByStatus}}</span></li>
-											<li><label style="color:maroon;">Authorized By:</label><span style="padding-left:8px">{{:AuthorizedBy}}</span></li>
-											<li><label style="color:maroon;">Authorized Status:</label><span style="padding-left:8px">{{:AuthorizedByStatus}}</span></li>
-											<li><label style="color:maroon;">Hold /Reject Reason:</label><span style="padding-left:8px">{{:CheckedHoldRejectReason}}</span></li>
-											<li><label style="color:maroon;">Appr.No:</label><span style="padding-left:8px">{{:CtnId}}</span></li>
-										</ul>
-									</div>
-								</div>
-							</div>
+                                <div id="gridTab1{{:Id}}">
+                                    <div>
+                                        <div class='employee-details'>
+                                            <ul>
+                                                <li><label style="color:maroon;">Account Group:</label><span style="padding-left:8px">{{:PartyAccountGroupName}}</span></li>
+                                                <li><label style="color:maroon;">Vendor Ref No:</label><span style="padding-left:8px">{{:DocRefNo}}</span></li>
+                                                <li><label style="color:maroon;">Prepared By:</label><span style="padding-left:8px">{{:AddedBy}}</span></li>
+                                                <li><label style="color:maroon;">Checked By:</label><span style="padding-left:8px">{{:CheckedBy}}</span></li>
+                                                <li><label style="color:maroon;">Checked Status:</label><span style="padding-left:8px">{{:CheckedByStatus}}</span></li>
+                                                <li><label style="color:maroon;">Authorized By:</label><span style="padding-left:8px">{{:AuthorizedBy}}</span></li>
+                                                <li><label style="color:maroon;">Authorized Status:</label><span style="padding-left:8px">{{:AuthorizedByStatus}}</span></li>
+                                                <li><label style="color:maroon;">Hold /Reject Reason:</label><span style="padding-left:8px">{{:CheckedHoldRejectReason}}</span></li>
+                                                <li><label style="color:maroon;">Appr.No:</label><span style="padding-left:8px">{{:CtnId}}</span></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
 
 
-							<div id="gridTab2{{:Id}}">
-								<div id="detailGrid1" style="width:800px;"></div>
-							</div>
-						</div>
-					</script>*@
-				</div>
-			</fieldset>
-		</div>
-		<script type="text/template" id="ToBeApprovedBy">
-			<div class="">
-				<div id="control">
-					<input ej-dropdownlist e-datasource="$parent.checkedByList" e-value="data.AuthorizedBy" e-fields-text="Text" e-fields-value="Value" e-width="100%" />
+                                <div id="gridTab2{{:Id}}">
+                                    <div id="detailGrid1" style="width:800px;"></div>
+                                </div>
+                            </div>
+                        </script>*@
+                </div>
+            </fieldset>
+        </div>
+        <script type="text/template" id="ToBeApprovedBy">
+            <div class="">
+                <div id="control">
+                    <input ej-dropdownlist e-datasource="$parent.checkedByList" e-value="data.AuthorizedBy" e-fields-text="Text" e-fields-value="Value" e-width="100%" />
 
-				</div>
-
-
-			</div>
-
-		</script>
-		<script type="text/template" id="CheckbyStatus">
-			<div class="">
-				<div id="control1">
-
-					<input id="combo-default" type="text" e-fields-text="Text" e-fields-value="Value" ej-combobox e-datasource="$parent.POApprovalList" e-value="data.CheckedStatus" e-width="100%" />
-				</div>
-
-			</div>
-
-		</script>
-		<script type="text/template" id="TransQty">
-			<input type="text" ng-model="data.TransactionQty" style="color:black;" class="form-control" ng-blur="$parent.CalculateBaseQty(data)"/>
-		</script>
-		<script type="text/template" id="Baqty">
-			<input type="text" ng-model="data.BaseQty" style="color:black;" class="form-control" readonly />
-		</script>
-
-		<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetGRNRejectHoldList(3), active: isSetGRNRejectHoldList(3) }">
-			<fieldset class="scheduler-border">
-				<legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
-				<div id="GRNUncheck1">
-					<div class="content-container-fluid" style="color:black;overflow:scroll">
-						<div style="color:black;" id="GridRejHold" ej-grid e-datasource="JWGRNData" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
-							 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-							 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
-							 e-detailstemplate="detailTemp"
-							 e-detailsdatabound="detailgrid">
-							<div e-columns>
-								@*<div e-column e-headertext="" e-commands="commandpoUncheckedHR" e-isunbound=true e-textalign="center" e-width="100"></div>*@
-								@*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
-								<div e-column e-headertext="Actions" e-width="80">
-									<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Update for Hold / Reject" ng-click="$parent.onClickSave('GridRejHold');" style="margin: -6px;"></i></button>
-									<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridRejHold');" style="margin: -6px;"></i></button>
-								</div>
-								<div e-column e-template="#ToBeApprovedBy1" e-headertext="To Be Approved By" e-width="200"></div>
-								<div e-column e-template="#RejectCheckedReason1" e-headertext="Hold / Reject Reason" e-width="150" style="height: 20px;"></div>
-								<div e-column e-template="#CheckbyStatus1" e-headertext="Check by Status" e-width="150"></div>
-
-								<div e-column e-field="PartyCode" e-headertext="Vendor Code" e-width="100"></div>
-								<div e-column e-field="PartyName" e-headertext="Vendor" e-width="100"></div>
-								<div e-column e-field="GRNDate" e-headertext="GRN Date" e-width="120"></div>
-								<div e-column e-field="Id" e-headertext="GRN No" e-width="120"></div>
-								<div e-column e-field="GateName" e-headertext="Gate Name" e-width="120"></div>
-								<div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="120"></div>
-								<div e-column e-field="GRNType" e-headertext="Type" e-width="80"></div>
-								<div e-column e-field="EmployeeName" e-headertext="Employee" e-width="180"></div>
-								@*<div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="120"></div>*@
-								@*<div e-column e-field="DocRefNo" e-headertext="Vendor Ref No" e-width="100"></div>*@
-								<div e-column e-field="TransactionQty" e-headertext="Received Qty" textAlign='Right' e-width="150"></div>
-								<div e-column e-field="ShortageRatePercent" e-headertext="Shortage(Percentage)" textAlign='Right' e-width="150"></div>
-								<div e-column e-field="ShortageValue" e-headertext="Shortage Value" textAlign='Right' e-width="150"></div>
-								<div e-column e-field="Shortageqty" e-headertext="Shortage Qty" textAlign='Right' e-width="150"></div>
-								<div e-column e-field="RejectionQty" e-headertext="Rejection Qty" textAlign='Right' e-width="150"></div>
-								<div e-column e-field="RejectRatePercent" e-headertext="Rejection(Percentage)" textAlign='Right' e-width="150"></div>
-								<div e-column e-field="RejectionValue" e-headertext="Rejection Value" textAlign='Right' e-width="150"></div>
-								<div e-column e-field="RejectClamPercent" e-headertext="RejectionClam(Percentage)" textAlign='Right' e-width="150"></div>
-								<div e-column e-field="NetQty" e-headertext="Net Qty" textAlign='Right' e-width="150"></div>
-								<div e-column e-field="TransactionAmount" e-headertext="Amount(TRN)" textAlign='Right' e-width="120"></div>
-								<div e-column e-field="TotalMaterialTranAmount" e-headertext="Total Material Tran Amount" textAlign='Right' e-width="120"></div>
-								<div e-column e-field="TotalMaterialBooksCurrencyAmount" e-headertext="Total Material Books Currency Amount" textAlign='Right' e-width="120"></div>
-								@*<div e-column e-field="CtnId" e-headertext="Appr.No" e-width="100"></div>*@
-								<div e-column e-field="ServiceTranAmount" e-headertext="Service Amount " textAlign='Right' e-width="150"></div>
-								<div e-column e-field="ServiceTaxTranAmount" e-headertext="Service Tax " textAlign='Right' e-width="150"></div>
-								<div e-column e-field="MaterialTaxAmount" e-headertext="Material Tax" textAlign='Right' e-width="150"></div>
-								<div e-column e-field="RequisitionNumber" e-headertext="Requisition Number" textAlign='Right' e-width="150"></div>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<script id="tabGridContents" type="text/x-jsrender">
-					<div class="tabcontrol" id="Test">
-						<ul>
-							<li><a href="#gridTab{{:Id}}">GRN Details</a></li>
-							<li><a href="#gridTab1{{:Id}}">Attached Documents List</a></li>
-						</ul>
-						<div id="gridTab{{:Id}}">
-							<div id="detailGrid"></div>
-						</div>
+                </div>
 
 
-						<div id="gridTab1{{:Id}}">
-							<div id="detailGrid1" style="width:800px;"></div>
-						</div>
-					</div>
-				</script>
+            </div>
 
-			</fieldset>
-		</div>
+        </script>
+        <script type="text/template" id="CheckbyStatus">
+            <div class="">
+                <div id="control1">
 
-		<script type="text/template" id="ToBeApprovedBy1">
-			<div class="">
-				<div id="control">
-					<input ej-dropdownlist e-datasource="$parent.checkedByList" e-value="data.AuthorizedBy" e-fields-text="Text" e-fields-value="Value" e-width="100%" />
-					@*<input id="combo-default1" type="text" e-fields-text="Text" e-fields-value="Value" ej-combobox e-datasource="$parent.checkedByList" e-value="data.SystemId" e-width="100%" />*@
+                    <input id="combo-default" type="text" e-fields-text="Text" e-fields-value="Value" ej-combobox e-datasource="$parent.POApprovalList" e-value="data.CheckedStatus" e-width="100%" />
+                </div>
 
-				</div>
+            </div>
 
+        </script>
 
-			</div>
-
-		</script>
-
-
-		<script type="text/template" id="CheckbyStatus1">
-			<div class="">
-				<div id="control1">
-
-					<input id="combo-default" type="text" e-fields-text="Text" e-fields-value="Value" ej-combobox e-datasource="$parent.POApprovalList" e-value="data.CheckedStatus" e-width="100%" />
-				</div>
-
-			</div>
-
-		</script>
-
-		<script type="text/template" id="RejectCheckedReason1">
-			@*<div class="col-sm-10" style="width:300px;height:20px; ">*@
-			<input type="text" readonly ng-model="data.CheckedRejectReason" style="color:black;" class="form-control" />
-			@*</div>*@
-		</script>
-
-		<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetpoa(2), active: isSetpoa(2) }">
-			<fieldset class="scheduler-border">
-				<legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
-				<div id="GRNCheck">
-					<div class="content-container-fluid" style="color:black;overflow:scroll">
-						<div style="color:black;" id="GridPO1" ej-grid e-datasource="JWGRNData" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
-							 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-							 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
-							 e-detailstemplate="detailTemp"
-							 e-detailsdatabound="detailgrid">
-							<div e-columns>
-								<div e-column e-headertext="Actions" e-width="80">
-									@*  <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-check" title="Checked/H/R" ng-click="$parent.onClickPOA('GridPO1');" style="margin: -6px;"></i></button>*@
-									<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridPO1');" style="margin: -6px;"></i></button>
-								</div>
-								@*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
-								<div e-column e-field="PartyCode" e-headertext="Vendor Code" e-width="100"></div>
-								<div e-column e-field="PartyName" e-headertext="Vendor" e-width="100"></div>
-
-								<div e-column e-field="GRNDate" e-headertext="GRN Date" e-width="120"></div>
-								<div e-column e-field="Id" e-headertext="GRN No" e-width="120"></div>
-								<div e-column e-field="GateName" e-headertext="Gate Name" e-width="120"></div>
-								<div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="120"></div>
-								<div e-column e-field="GRNType" e-headertext="Type" e-width="80"></div>
-								<div e-column e-field="EmployeeName" e-headertext="Employee" e-width="180"></div>
-								@*<div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="120"></div>*@
-								<div e-column e-field="TransactionQty" e-headertext="Received Qty" textAlign='Right' e-width="150"></div>
-								<div e-column e-field="ShortageRatePercent" e-headertext="Shortage(Percentage)" textAlign='Right' e-width="150"></div>
-								<div e-column e-field="ShortageValue" e-headertext="Shortage Value" textAlign='Right' e-width="150"></div>
-								<div e-column e-field="Shortageqty" e-headertext="Shortage Qty" textAlign='Right' e-width="150"></div>
-								<div e-column e-field="RejectionQty" e-headertext="Rejection Qty" textAlign='Right' e-width="150"></div>
-								<div e-column e-field="RejectRatePercent" e-headertext="Rejection(Percentage)" textAlign='Right' e-width="150"></div>
-								<div e-column e-field="RejectionValue" e-headertext="Rejection Value" textAlign='Right' e-width="150"></div>
-								<div e-column e-field="RejectClamPercent" e-headertext="RejectionClam(Percentage)" textAlign='Right' e-width="150"></div>
-								<div e-column e-field="NetQty" e-headertext="Net Qty" textAlign='Right' e-width="150"></div>
-								<div e-column e-field="TransactionAmount" e-headertext="Amount(TRN)" textAlign='Right' e-width="120"></div>
-								<div e-column e-field="TotalMaterialTranAmount" e-headertext="Total Material Tran Amount" textAlign='Right' e-width="120"></div>
-								<div e-column e-field="TotalMaterialBooksCurrencyAmount" e-headertext="Total Material Books Currency Amount" textAlign='Right' e-width="120"></div>
-
-
-								<div e-column e-field="ServiceTranAmount" e-headertext="Service Amount " textAlign='Right' e-width="150"></div>
-								<div e-column e-field="ServiceTaxTranAmount" e-headertext="Service Tax " textAlign='Right' e-width="150"></div>
-								<div e-column e-field="MaterialTaxAmount" e-headertext="Material Tax" textAlign='Right' e-width="150"></div>
-								<div e-column e-field="RequisitionNumber" e-headertext="Requisition Number" textAlign='Right' e-width="150"></div>
-							</div>
-
-						</div>
-
-					</div>
-					<script id="tabGridContents" type="text/x-jsrender">
-						<div class="tabcontrol" id="Test">
-							<ul>
-								<li><a href="#gridTab{{:Id}}">GRN Details</a></li>
-								<li><a href="#gridTab1{{:Id}}">Attached Documents List</a></li>
-							</ul>
-							<div id="gridTab{{:Id}}">
-								<div id="detailGrid"></div>
-							</div>
-
-
-							<div id="gridTab1{{:Id}}">
-								<div id="detailGrid1" style="width:800px;"></div>
-							</div>
-						</div>
-					</script>
-				</div>
-			</fieldset>
-		</div>
-		<div class="clearfix"></div>
-		<div class="common-btn">
-			<ul class="list-inline text-right">
-				<li><button ng-click="UpdateJWSOAllocation();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-				@*<li><button ng-click="closeDetaiPopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>*@
-			</ul>
-		</div>
-	</div>
+        <div class="clearfix"></div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li><button ng-click="UpdateJWSOAllocation();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                @*<li><button ng-click="closeDetaiPopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>*@
+            </ul>
+        </div>
+    </div>
 </div>
-@*Taufik create list End*@
+
+
+<style>
+    .modellgModify {
+        width: 1460px;
+    }
+</style>
+<div class="modal fade site-modal in" id="ListOfSo" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">  List <button type="button" class="close" ng-click="ClsoeListOfSo();">&times;</button></div>
+            <div style="padding-left: 100px;color:maroon;font-weight:bolder;"><label id="totalGRN" ng-model="totalGRNVal" class="text-right">GRN No:{{GRNDetailNo}}</label></div>
+            <div style="padding-left: 100px;color:maroon;font-weight:bolder;"><label id="totalGRN" ng-model="totalGRNVal" class="text-right">Total GRN Qty:{{GRNTrnQty}}{{GRNUOM}}</label></div>
+            <div class="modal-body ">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="table-responsive modal-table">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Select</th>
+                                        <th>Material Master</th>
+                                        <th>Article</th>
+                                        <th>SKU1</th>
+                                        <th>SKU2</th>
+                                        <th>SKU3</th>
+                                        <th>Qty</th>
+                                        <th>Base Qty</th>
+                                        <th>Sale Order</th>
+                                        <th>PO No</th>
+                                        <th>PO Detail No</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in OutSourceReceiptDetailData">
+                                        <td>
+                                            <div class="checkbox-site">
+                                                <label>
+                                                    <input type="checkbox" ng-model="x.Active">
+                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                </label>
+                                            </div>
+                                        </td>
+                                        <td>{{x.MaterialMasterName}}</td>
+                                        <td>{{x.ArticleName}}</td>
+                                        <td>{{x.FirstCharacteristicsValue}}</td>
+                                        <td>{{x.SecondCharacteristicsValue}}</td>
+                                        <td>{{x.ThirdCharacteristicsValue}}</td>
+                                        <td><input type="text" class="form-control text-right" id="TransactionQty" ng-model="x.TransactionQty " n-decimals="2" tabindex="11" ng-change="calculateAllocationQty(x)" autocomplete="off">{{x.TransactionUoM}}</td>
+                                        <td class="text-right">{{x.BaseQty}}{{x.BaseUoM}}</td>
+                                        <td class="text-right">{{x.SalesOrderId}}</td>
+                                        <td class="text-right">{{x.POId}}</td>
+                                        <td class="text-right">{{x.PODetailsId}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="7" class="text-right"><strong>Total : </strong></td>
+                                        <td class="text-right"><strong>{{OutSourceReceiptDetailData | sumByKey : 'TransactionQty' }}</strong></td>
+                                        <td colspan="3" class="text-right"><strong>Total : </strong></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="UpdateJWSOAllocation();" class="btn"> Save</button></li>
+                    <li><button ng-click="ClsoeListOfSo();" class="btn"> Close</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 <confirm-archive-generic modalid="poapprovealert" title="Confirmation" message={{message}} data-ng-click-right-button="GRNCheckedBy();"></confirm-archive-generic>

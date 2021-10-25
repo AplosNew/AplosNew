@@ -46,7 +46,7 @@ function GRNRequisitionSOAllocationController(accountService, addressService, $w
 
 		$scope.tab = newTab;
 		//$scope.getListForGRNRejectHoldList();
-		$scope.getListForGRNRejectHoldList();
+		//$scope.getListForGRNRejectHoldList();
 	};
 	$scope.isSetGRNRejectHoldList = function (tabNum) {
 		return $scope.tab === tabNum;
@@ -57,7 +57,7 @@ function GRNRequisitionSOAllocationController(accountService, addressService, $w
 
 		$scope.tab = newTab;
 		//$scope.getListForGRNRejectHoldList();
-		$scope.GRNNGriddataHoldReject();
+		//$scope.GRNNGriddataHoldReject();
 	};
 	$scope.isSetGRNRejectHoldList1 = function (tabNum) {
 		return $scope.tab === tabNum;
@@ -95,55 +95,22 @@ function GRNRequisitionSOAllocationController(accountService, addressService, $w
 
 	
 // #endregion
-	$scope.JWGRNData = [];
-	$scope.GetJWGRData = function () {
+	
+	$scope.OutSourceGRNData = [];
+	$scope.GetOutSourceGRData = function () {
 		//debugger;
 		$http({
 			method: 'GET',
 			dataType: 'JSON',
-			url: 'Products/GoodsReceiveNote/GetJWReceiptDataForAllocation',
+			url: 'Products/GoodsReceiveNote/GetOutSourceReceiptDataForAllocation',
 		}).then(function successCallback(response) {
-			$scope.JWGRNData = response.data;
+			$scope.OutSourceGRNData = response.data;
 		});
-	};	
-	$scope.GetJWGRData();
-
-
-
-	$scope.UpdateJWSOAllocation = function () {
-
-		$scope.detailListNew = [];
-		for (var i = 0; i < $scope.JWGRNData.length; i++) {
-			if ($scope.JWGRNData[i].Active === true) {
-				//var JWGRNData = $filter("filter")($scope.JWGRNData, { "MaterialMasterId": $scope.JWGRNData[i].MaterialMasterId, "ArticleId": $scope.JWGRNData[i].ArticleId, "FirstCharacteristicsValueId": $scope.JWGRNData[i].FirstCharacteristicsValueId, "SecondCharacteristicsValueId": $scope.JWGRNData[i].SecondCharacteristicsValueId, "ThirdCharacteristicsValueId": $scope.JWGRNData[i].ThirdCharacteristicsValueId, "ThirdCharacteristicsValueId": $scope.JWGRNData[i].InventoryReceiveDetailId, "check": true }).TransactionQty;
-				//$scope.JWGRNData[i].TransactionQty1 = $filter('sumByKey')($filter('filter')($scope.JWGRNData, {	MaterialMasterId: $scope.JWGRNData[i].MaterialMasterId, ArticleId: $scope.JWGRNData[i].ArticleId, FirstCharacteristicsValueId: $scope.JWGRNData[i].FirstCharacteristicsValueId, SecondCharacteristicsValueId: $scope.JWGRNData[i].SecondCharacteristicsValueId, ThirdCharacteristicsValueId: $scope.JWGRNData[i].ThirdCharacteristicsValueId, InventoryReceiveDetailId: $scope.JWGRNData[i].InventoryReceiveDetailId, "check": true }), 'TransactionQty1');
-				$scope.detailListNew.push($scope.JWGRNData[i]);
-			}
-		}
-		
-		if ($scope.Action === "Update") {
-			$http({
-				method: 'POST'
-				, url: 'Products/GoodsReceiveNote/CreateJWSOAllocation'
-				, data: {'Data': $scope.detailListNew }
-				, dataType: 'JSON'
-			}).then(function (response) {
-				if (response.data.Error === true)
-					ShowResult(response.data.Message, 'failure');
-				else {
-					ShowResult(response.data.Message, 'success');
-					//$scope.Clear();
-					//$scope.getdataInventoryIssue();
-					//$scope.productNew.Id = response.data.inventoryIssue.Id;
-					//$scope.getData();
-					//$scope.GetDataList();
-				}
-			}), function (response) {
-				ShowResult(response.data.Message, 'failure');
-			};
-		}
-		else ShowResult('Please issue material', 'failure');
 	};
+	$scope.GetOutSourceGRData();
+
+
+
 
 	$scope.CalculateBaseQty = function (data) {
 		if (data.TransactionQty > data.TransactionQty1) {
@@ -163,4 +130,75 @@ function GRNRequisitionSOAllocationController(accountService, addressService, $w
 		}
 		
 	}
+
+	$scope.SOAllowcation = function (data) {
+		//$scope.Action1 = 'Update'
+		$scope.GRNTrnQty = data.TransactionQty
+		$scope.GRNUOM = data.TransactionUoM
+		$scope.GRNDetailNo = data.InventoryReceiveDetailId
+		GRNAllowcationForSOList(data.InventoryReceiveDetailId);
+		angular.element(document.querySelector('#ListOfSo')).modal('show');
+	};
+
+	$scope.OutSourceReceiptDetailData = [];
+	function GRNAllowcationForSOList(inventoryReceiveId) {
+		$scope.Action1 = 'Save';
+		$http.get('Products/GoodsReceiveNote/GetOutSourceReceiptDetailDataForAllocation?inventoryReceiveDetailId=' + inventoryReceiveId)
+			.then(function (response) {
+				$scope.OutSourceReceiptDetailData = response.data;
+			});
+	}
+    $scope.GrnRequisitionAllocationSave = function () {
+
+    }
+	$scope.ClsoeListOfSo = function () {
+		$scope.GRNTrnQty = null;
+		$scope.GRNUOM = null;
+		$scope.GRNDetailNo = null;
+		angular.element(document.querySelector('#ListOfSo')).modal('hide');
+	}
+
+	$scope.calculateAllocationQty = function (data) {
+		$scope.currentTransactionQty = $filter("sumByKey")($filter("filter")($scope.OutSourceReceiptDetailData), "TransactionQty");
+		if ($scope.GRNTrnQty < $scope.currentTransactionQty) {
+			ShowResult('Current Base Qty can not grater than Base Qty ', 'failure', 'ListOfSo');
+		}
+		else {
+			data.BaseQty = data.TransactionQty * BaseUOMFactor
+        }
+	}
+	$scope.UpdateJWSOAllocation = function () {
+
+		$scope.detailListNew = [];
+		for (var i = 0; i < $scope.OutSourceReceiptDetailData.length; i++) {
+			if ($scope.OutSourceReceiptDetailData[i].Active === true) {
+				//var OutSourceGRNData = $filter("filter")($scope.OutSourceGRNData, { "MaterialMasterId": $scope.OutSourceGRNData[i].MaterialMasterId, "ArticleId": $scope.OutSourceGRNData[i].ArticleId, "FirstCharacteristicsValueId": $scope.OutSourceGRNData[i].FirstCharacteristicsValueId, "SecondCharacteristicsValueId": $scope.OutSourceGRNData[i].SecondCharacteristicsValueId, "ThirdCharacteristicsValueId": $scope.OutSourceGRNData[i].ThirdCharacteristicsValueId, "ThirdCharacteristicsValueId": $scope.OutSourceGRNData[i].InventoryReceiveDetailId, "check": true }).TransactionQty;
+				//$scope.OutSourceGRNData[i].TransactionQty1 = $filter('sumByKey')($filter('filter')($scope.OutSourceGRNData, {	MaterialMasterId: $scope.OutSourceGRNData[i].MaterialMasterId, ArticleId: $scope.OutSourceGRNData[i].ArticleId, FirstCharacteristicsValueId: $scope.OutSourceGRNData[i].FirstCharacteristicsValueId, SecondCharacteristicsValueId: $scope.OutSourceGRNData[i].SecondCharacteristicsValueId, ThirdCharacteristicsValueId: $scope.OutSourceGRNData[i].ThirdCharacteristicsValueId, InventoryReceiveDetailId: $scope.OutSourceGRNData[i].InventoryReceiveDetailId, "check": true }), 'TransactionQty1');
+				$scope.detailListNew.push($scope.OutSourceReceiptDetailData[i]);
+			}
+		}
+
+		if ($scope.Action === "Update") {
+			$http({
+				method: 'POST'
+				, url: 'Products/GoodsReceiveNote/CreateJWSOAllocation'
+				, data: { 'Data': $scope.detailListNew }
+				, dataType: 'JSON'
+			}).then(function (response) {
+				if (response.data.Error === true)
+					ShowResult(response.data.Message, 'failure');
+				else {
+					ShowResult(response.data.Message, 'success');
+					//$scope.Clear();
+					//$scope.getdataInventoryIssue();
+					//$scope.productNew.Id = response.data.inventoryIssue.Id;
+					//$scope.getData();
+					//$scope.GetDataList();
+				}
+			}), function (response) {
+				ShowResult(response.data.Message, 'failure');
+			};
+		}
+		else ShowResult('Please issue material', 'failure');
+	};
 }

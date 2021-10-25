@@ -26,6 +26,7 @@ using System.Web.Mvc;
 using Library.MaterialManagement.Products;
 using System.Data;
 using Library.Security.Core;
+using Library.MaterialManagement.JobWork;
 
 namespace Aplos.Areas.Products.Controllers
 {
@@ -4055,16 +4056,22 @@ UNION ALL
 		}
 
 		[Authorize, HttpGet]
-		public JsonResult GetJWReceiptDataForAllocation()
+		public JsonResult GetOutSourceReceiptDataForAllocation()
 		{
 
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-			return Json(obj.GetJWReceiptDataForAllocation(), JsonRequestBehavior.AllowGet);
-
-			
+			OutsourceReceiveAllocationService outsourceReceiveAllocationService = new OutsourceReceiveAllocationService();
+			//Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
+			return Json(outsourceReceiveAllocationService.GetOutSourceReceiptDataForAllocation(), JsonRequestBehavior.AllowGet);
 		}
 
+		[Authorize, HttpGet]
+		public JsonResult GetOutSourceReceiptDetailDataForAllocation(string inventoryReceiveDetailId)
+		{
+			OutsourceReceiveAllocationService outsourceReceiveAllocationService = new OutsourceReceiveAllocationService();
+			//Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
+			return Json(outsourceReceiveAllocationService.GetOutSourceReceiptDetailDataForAllocation(inventoryReceiveDetailId), JsonRequestBehavior.AllowGet);
+		}
 
 		[HttpPost]
 		public JsonResult CreateJWSOAllocation(IList<Dictionary<string, object>> Data)
