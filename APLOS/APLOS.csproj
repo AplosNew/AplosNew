@@ -3765,6 +3765,10 @@
     <Content Include="Areas\Employees\Views\CompensatoryOffNew\Aplos.cshtml" />
     <Content Include="Areas\Leave\Views\OnDutyApprovalNew\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\EntireYearPresentDaysSummary\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\DailyTarget\LineDesignCanvas.cshtml" />
+    <Content Include="Areas\Productions\Views\DailyTarget\EmployeeCardView.cshtml" />
+    <Content Include="Areas\Productions\Views\DailyTarget\LineLayoutSearchViews.cshtml" />
+    <Content Include="Areas\Productions\Views\DailyTarget\DailyTargetGrid.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
