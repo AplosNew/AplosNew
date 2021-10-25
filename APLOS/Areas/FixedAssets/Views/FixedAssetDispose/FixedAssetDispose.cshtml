@@ -118,12 +118,22 @@
                             <th>Fixed Asset</th>
                             <th>Asset No</th>
                             <th>Serial No</th>
+                            <th>Vendor</th>
+                            <th>Material</th>
+                            <th>Article</th>
+                            <th>Capitalization Date</th>
+                            <th>Purchase Date</th>
+                            <th>Issue Date</th>
+                            <th class="text-center">Trn Currency</th>
+
+                            @*<th></th>*@
                             <th class="text-center">Price</th>
                             <th class="text-center">Sub Asset</th>
-                            <th class="text-center">Total Value</th>
+                            <th style="width:100px">Total Value</th>
                             <th class="text-center">Depreciation</th>
                             <th class="text-center">Net Book Value</th>
                             <th class="text-center">Negotiation Value</th>
+                            <th class="text-center">OB</th>
                             <th class="text-right">Action</th>
                         </tr>
                     </thead>
@@ -132,12 +142,22 @@
                             <td>{{x.ParticularName}}</td>
                             <td>{{x.AssetNo}}</td>
                             <td>{{x.SerialNo}}</td>
+                            <td>{{x.vendor}}</td>
+                            <td>{{x.Material}}</td>
+                            <td>{{x.Article}}</td>
+                            <td>{{x.CapitalizationDate}}</td>
+                            <td>{{x.PurchaseDate}}</td>
+                            <td>{{x.IssueDate}}</td>
+                            <td>{{x.TrnCurrency}}</td>
+
                             <td><input type="text" class="form-control text-right" ng-disabled="true" id="Price" ng-model="x.Price " n-decimals="2"></td>
                             <td><input type="text" class="form-control text-right" ng-disabled="true" id="SubAssetAmount" ng-model="x.SubAssetAmount " n-decimals="2"></td>
-                            <td><input type="text" class="form-control text-right" ng-disabled="true" id="PurchasePrice" ng-model="x.PurchasePrice " n-decimals="2"></td>
+                            <td><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="PurchasePrice" ng-model="x.PurchasePrice " n-decimals="2"></td>
                             <td><input type="text" class="form-control text-right" ng-disabled="true" id="ADBaseAmount" ng-model="x.ADBaseAmount " n-decimals="2"></td>
                             <td><input type="text" class="form-control text-right" ng-disabled="true" id="NetBookValue" ng-model="x.NetBookValue " n-decimals="2"></td>
                             <td><input type="text" class="form-control text-right" id="NegotiationValue" ng-disabled="voucher.Status == 'Scrap'" ng-model="x.NegotiationValue " n-decimals="2"></td>
+                            <td>{{x.isOB}}</td>
+
                             <td class="text-right">
                                 <button ng-click="removeRow($index)" data-toggle="modal" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
                                     <i class="glyphicon glyphicon-remove"></i>
@@ -147,7 +167,7 @@
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="3" class="text-right">Total</td>
+                            <td colspan="9" class="text-right">Total</td>
                             <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'Price' }}</b></td>
                             <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'SubAssetAmount' }}</b></td>
                             <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'PurchasePrice' }}</b></td>
@@ -201,14 +221,16 @@
         <div e-columns>
             <div e-column e-field="DisposeNo" e-headertext="Dispose No" e-width="80" e-filter="false"></div>
             <div e-column e-field="Status" e-headertext="Status" e-width="80"></div>
+            <div e-column e-field="Vendor" e-headertext="Vendor" e-width="120"></div>
             <div e-column e-field="EmployeeName" e-headertext="Employee" e-width="120"></div>
+            <div e-column e-field="TrnCurrency" e-headertext="Trn Curr" e-width="60"></div>
             <div e-column e-field="Price" e-headertext="Price" e-width="80"></div>
-            <div e-column e-field="SubAssetAmount" e-headertext="SubAssetAmount" e-width="80"></div>
-            <div e-column e-field="PurchasePrice" e-headertext="PurchasePrice" e-width="80"></div>
+            <div e-column e-field="SubAssetAmount" e-headertext="Sub Asset" e-width="80"></div>
+            <div e-column e-field="PurchasePrice" e-headertext="Total Value" e-width="80"></div>
             <div e-column e-field="ADBaseAmount" e-headertext="Depreciation" e-width="80"></div>
-            <div e-column e-field="NetBookValue" e-headertext="NetBookValue" e-width="80"></div>
-            <div e-column e-field="NegotiationValue" e-headertext="NegotiationValue" e-width="80"></div>
-            @*<div e-column e-field="IsPark" e-headertext="Status" e-width="80"></div>*@
+            <div e-column e-field="NetBookValue" e-headertext="Net Book Value" e-width="80"></div>
+            <div e-column e-field="NegotiationValue" e-headertext="Negotiation Value" e-width="80"></div>
+            <div e-column e-field="IsOBBalance" e-headertext="OB" e-width="80"></div>
         </div>
     </div>
 </div>

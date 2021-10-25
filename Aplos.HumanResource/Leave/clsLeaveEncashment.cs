@@ -106,11 +106,16 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
 	                        ,DOJorDOC=CASE WHEN ltd.LvAvailedOnDOJ=1 THEN                            										 
                             																	 CASE WHEN ltd.CanAvailUOM='Year' THEN DateAdd(YEAR,LvCanAvailAfter,  e.DOJ )
 																									  WHEN ltd.CanAvailUOM='Month' THEN DateAdd(MONTH,LvCanAvailAfter,  e.DOJ )
-																									  WHEN ltd.CanAvailUOM='Day' THEN DateAdd(DAY,LvCanAvailAfter,  e.DOJ ) END
+																									  WHEN ltd.CanAvailUOM='Day' THEN DateAdd(DAY,LvCanAvailAfter,  e.DOJ )
+                                                                                                    WHEN ltd.CanAvailUOM is null
+                                                                                                    						THEN DateAdd(DAY, LvCanAvailAfter, e.DOJ)
+                                                                                                    END
 																	   WHEN  ltd.LvAvailedOnDOC=1 THEN 										   
 										   														 CASE WHEN ltd.CanAvailUOM='Year' THEN DateAdd(YEAR,LvCanAvailAfter,  	e.DOC  )
 																									  WHEN ltd.CanAvailUOM='Month' THEN DateAdd(MONTH,LvCanAvailAfter,  	e.DOC  )
 																									  WHEN ltd.CanAvailUOM='Day' THEN DateAdd(DAY,LvCanAvailAfter,  	e.DOC  )
+                                                                                                        WHEN ltd.CanAvailUOM is null
+                                                                                                        						THEN DateAdd(DAY, LvCanAvailAfter, e.DOC)
 										   													END
 																   END
                             from trn.EmployeeLeaveSummary s 

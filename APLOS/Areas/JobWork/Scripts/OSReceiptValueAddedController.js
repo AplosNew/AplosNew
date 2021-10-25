@@ -1250,30 +1250,34 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 	});
 	$scope.getToCurrencyRate = function () {
 		if ($scope.ModelNew.TabType == "Transformation") {
-			if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.DocDate)) {
-				$scope.ReceiptTransformation.ToCurrencyRate = 1;
-				return;
-			}
-			$http.get('Products/InventoryReceive/GetToCurrencyRateForJWR?currencyId=' + $scope.ReceiptTransformation.CurrencyId + '&baseCurrencyId=' + $scope.ReceiptTransformation.BaseCurrencyId + '&docDate=' + $filter('dateFiltering')($scope.ReceiptTransformation.DocDate))
-				.then(function (response) {
-					if (parseFloat(response.data) === 0)
-						$scope.ReceiptTransformation.ToCurrencyRate = 1;
-					else
-						$scope.ReceiptTransformation.ToCurrencyRate = response.data;
-				});
+			//if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.DocDate)) {
+			//	$scope.ReceiptTransformation.ToCurrencyRate = 1;
+			//	return;
+			//}
+			//$http.get('Products/InventoryReceive/GetToCurrencyRateForJWR?currencyId=' + $scope.ReceiptTransformation.CurrencyId + '&baseCurrencyId=' + $scope.ReceiptTransformation.BaseCurrencyId + '&docDate=' + $filter('dateFiltering')($scope.ReceiptTransformation.DocDate))
+			//	.then(function (response) {
+			//		if (parseFloat(response.data) === 0)
+			//			$scope.ReceiptTransformation.ToCurrencyRate = 1;
+			//		else
+			//			$scope.ReceiptTransformation.ToCurrencyRate = response.data;
+			//	});
+
+			$scope.ReceiptTransformation.ToCurrencyRate = 1;
 		}
 		else {
-			if (baseService.isUndefinedOrNull($scope.ReceiptVA.DocDate)) {
-				$scope.ReceiptVA.ToCurrencyRate = 1;
-				return;
-			}
-			$http.get('Products/InventoryReceive/GetToCurrencyRateForJWR?currencyId=' + $scope.ReceiptVA.CurrencyId + '&baseCurrencyId=' + $scope.ReceiptVA.BaseCurrencyId + '&docDate=' + $filter('dateFiltering')($scope.ReceiptVA.DocDate))
-				.then(function (response) {
-					if (parseFloat(response.data) === 0)
-						$scope.ReceiptVA.ToCurrencyRate = 1;
-					else
-						$scope.ReceiptVA.ToCurrencyRate = response.data;
-				});
+			//if (baseService.isUndefinedOrNull($scope.ReceiptVA.DocDate)) {
+			//	$scope.ReceiptVA.ToCurrencyRate = 1;
+			//	return;
+			//}
+			//$http.get('Products/InventoryReceive/GetToCurrencyRateForJWR?currencyId=' + $scope.ReceiptVA.CurrencyId + '&baseCurrencyId=' + $scope.ReceiptVA.BaseCurrencyId + '&docDate=' + $filter('dateFiltering')($scope.ReceiptVA.DocDate))
+			//	.then(function (response) {
+			//		if (parseFloat(response.data) === 0)
+			//			$scope.ReceiptVA.ToCurrencyRate = 1;
+			//		else
+			//			$scope.ReceiptVA.ToCurrencyRate = response.data;
+			//	});
+
+			$scope.ReceiptVA.ToCurrencyRate = 1;
         }
 
 	};

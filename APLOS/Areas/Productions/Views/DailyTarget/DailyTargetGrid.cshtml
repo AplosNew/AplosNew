@@ -1,0 +1,76 @@
+﻿<div id="GridDailyTargetList" ej-grid e-datasource="DailyTargetList" e-templaterefresh="DailyTargetAllCheck"
+     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-rowdatabound="rowDataBound">
+    <div e-columns>
+        <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="5"></div>
+        <div e-column e-field="Line" e-headertext="Work Center" e-width="15"></div>
+        <div e-column e-field="PRNo" e-headertext="PR No" e-width="12"></div>
+        <div e-column e-template="#templateSearchPR" e-headertext="" e-width="6"></div>
+        <div e-column e-field="Material" e-headertext="Material" e-width="20"></div>
+        <div e-column e-field="Article" e-headertext="Article" e-width="20"></div>
+        <div e-column e-field="CustomerPONo" e-headertext="PO No." e-width="20"></div>
+        <div e-column e-field="BuyerItemNo" e-headertext="Buyer Item No." e-width="20"></div>
+
+        <div e-column e-template="#templateManPowerWithMachine" e-headertext="Manpower With MC" e-width="15"></div>
+        <div e-column e-template="#templateManPowerWithHand" e-headertext="Manpower Without MC" e-width="15"></div>
+        <div e-column e-template="#templateSMV" e-headertext="SPT" e-width="15"></div>
+        <div e-column e-template="#templateTotalHour" e-headertext="Target Hours" e-width="15"></div>
+        <div e-column e-template="#templateQuantity" e-headertext="Target Per Hour" e-width="15"></div>
+        <div e-column e-field="Quantity" e-headertext="Quantity" e-width="10"></div>
+
+        <div e-column e-headertext="Actions" e-template="#ShowButtons" e-width="10"></div>
+
+    </div>
+</div>
+
+<script type="text/ng-template" id="ShowButtons">
+    <div class="common-btn">
+        <button style="color: #f3f3ec;background-color:{{data.HasLayout?'#00ff00':'#1c1f32'}};" title="Actions" class="btn">
+            <i class="glyphicon glyphicon-list" ng-click="$parent.AddLineItemG(this);"></i>
+        </button>
+    </div>
+</script>
+
+<script type="text/template" id="templateManPowerWithMachine">
+    <input type="text" class="form-control" ej-numerictextbox e-decimalplaces="2" e-minValue="0" e-enablertl="false" e-value="data.ManPowerWithMachine" e-width="100%" />
+</script>
+<script type="text/template" id="templateManPowerWithHand">
+    <input type="text" class="form-control" ej-numerictextbox e-decimalplaces="2" e-minValue="0" e-enablertl="false" e-value="data.ManPowerWithHand" e-width="100%" />
+
+</script>
+<script type="text/template" id="templateSMV">
+    <input type="text" class="form-control" ej-numerictextbox e-decimalplaces="2" e-minValue="0" e-enablertl="false" e-value="data.SMV" e-width="100%" />
+
+</script>
+<script type="text/template" id="templateTotalHour">
+    <input type="text" class="form-control" ej-numerictextbox e-decimalplaces="2" e-minValue="0" e-enablertl="false" e-value="data.TotalHour" e-width="100%" />
+
+</script>
+<script type="text/template" id="templateQuantity">
+    <input type="text" class="form-control" e-focusout="$parent.CalculateTotalQuantity" ej-numerictextbox e-decimalplaces="0" e-minValue="0" e-enablertl="false" e-value="data.QuantityPerHour" e-width="100%" />
+
+</script>
+<script type="text/x-jsrender" id="headerTemplate">
+    <input type="checkbox" id="headchk" />
+</script>
+<script type="text/template" id="checkboxTemplate">
+    <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
+</script>
+
+<script type="text/template" id="templateSearchPR">
+    <div class="common-btn">
+        <ul class="list-inline text-right small">
+            <li>
+                <button ng-click="$parent.SearchPRPopup(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                    <i class="glyphicon glyphicon-search"></i>
+                </button>
+            </li>
+        </ul>
+    </div>
+</script>
+<div class="common-btn" ng-show="DailyTargetList.length>0">
+    <ul class="list-inline text-right">
+        <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+        <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+    </ul>
+</div>
