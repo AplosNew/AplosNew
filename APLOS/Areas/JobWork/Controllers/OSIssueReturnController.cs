@@ -3547,7 +3547,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 
             }
 
-            //       Issue/ Return Child data
+            //       Issue Child data
 
             int MPChildROW = ROW + 1;
             int MPChildendCol = 1;
@@ -5593,7 +5593,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
         private DataTable GetValueAddedPOReportDataById(string PrintTabId, string IssueId)
         {
 
-            var sql = @"select tc.Id,TabType='ValueAdded', tc.EntityId,tc.PartyId,tc.PODate,FORMAT(tc.PODate,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),tc.[Time],108)[VACTime]
+            var sql = @"select tc.Id,TabType='ValueAdded', tc.EntityId,tc.PartyId,tc.PODate,FORMAT(tc.PODate,'dd-MMM-yyyy') as ValueAddedDate--,CONVERT(varchar(5),tc.[Time],108)[VACTime]
                                     ,FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
                                     FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
                                     e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName

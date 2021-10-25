@@ -62,7 +62,7 @@ namespace Library.MaterialManagement.JobWork
                             ,GE.Remarks
                             ,GE.AddedBy
                             ,p.UserName
-                            ,p.Id
+                            ,p.Id as PartyId
                             FROM TRN.GateEntry GE
                             left Join hkp.Party p on p.Id=GE.PartyId
                             Where GE.CompanyGroupId='" + CompanyGroupId + "' AND GE.CompanyId='" + CompanyId + "' AND GE.PlantId='" + PlantId + "' and p.Id='" + partyCode + "' and GE.GateEntryType='Vendor' AND isnull(GE.Id,'') not in (select isnull(GateEntryNo, '') from trn.InventoryReceive) Order By GE.EntryDate DESC";
@@ -143,27 +143,50 @@ namespace Library.MaterialManagement.JobWork
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                //           string sql = @"select distinct rt.Id,rtc.Id as ReceiveId,rtc.TransformationContractId as ContractId, rt.PODate, FORMAT(rtc.GRNDate,'dd-MMM-yyyy') as ReceiveDate,rtc.ByWhomEmployeeId
+                //               , rtc.DocRefNo,rtc.InvoiceNo, rtc.GateEntryNo 
+                //              ,rt.Remarks, FORMAT(rtc.DocDate,'dd-MMM-yyyy') as ReceiveDocumentDate, FORMAT(rtc.InvoiceDate,'dd-MMM-yyyy') as ReceiveInvoiceDate
+                //              ,emp.EmployeeName, emp.EmployeeCode, ISNULL(kk.TotalIssuedQty,'0') as TotalReceivedQty
+                //               from dbo.OSTransformationPO rt left join TRN.InventoryReceive rtc on rt.Id=rtc.TransformationContractId
+                //               left join dbo.EmployeeInformation emp on emp.SystemId=rtc.ByWhomEmployeeId
+                //left join TRN.GateEntry ge on ge.Id=rtc.GateEntryNo
+                //left join TRN.InventoryReceiveDetail ird on ird.InventoryReceiveId=rtc.Id
+                //               left join dbo.OSTransformationPODetail mp on mp.Id=ird.OSTransformationPODetailId
+                //       --        left join dbo.JobWorkTransformationContract tc on tc.Id=mp.OSTransformationPOId
+                //left join(select Sum(IRD.TransactionQty) as TotalIssuedQty, IM.MaterialMasterId,mm.UserName as Material,mma.StandardName as Article
+                //                               , IM.ArticleId,IRD.InventoryMaterialId,IRD.OSTransformationPODetailId                                       
+                //                               from TRN.InventoryReceive IR inner join TRN.InventoryReceiveDetail IRD on IR.Id = IRD.InventoryReceiveId
+                //                                   left join TRN.InventoryMaterial IM on IM.Id = IRD.InventoryMaterialId
+                //                                   left join MST.MaterialMaster mm on mm.Id = IM.MaterialMasterId
+                //                                   left join MST.MaterialMasterArticle mma on mma.Id = IM.ArticleId
+                //                                   where IR.TransformationContractId = '"+ Id + @"'
+                //                                   group by IM.MaterialMasterId,IM.ArticleId,IRD.InventoryMaterialId,mm.UserName,mma.StandardName,IRD.OSTransformationPODetailId)
+                //					kk on kk.InventoryMaterialId = ird.InventoryMaterialId and kk.OSTransformationPODetailId=mp.Id
+                //               where rtc.TransformationContractId='"+ Id + @"' --and rtc.Id='"+ ReceivedId + @"' 
+                //               order by rt.PODate desc  ";
+
                 string sql = @"select distinct rt.Id,rtc.Id as ReceiveId,rtc.TransformationContractId as ContractId, rt.PODate, FORMAT(rtc.GRNDate,'dd-MMM-yyyy') as ReceiveDate,rtc.ByWhomEmployeeId
                     , rtc.DocRefNo,rtc.InvoiceNo, rtc.GateEntryNo 
                    ,rt.Remarks, FORMAT(rtc.DocDate,'dd-MMM-yyyy') as ReceiveDocumentDate, FORMAT(rtc.InvoiceDate,'dd-MMM-yyyy') as ReceiveInvoiceDate
-                   ,emp.EmployeeName, emp.EmployeeCode, ISNULL(kk.TotalIssuedQty,'0') as TotalReceivedQty
+                   ,emp.EmployeeName, emp.EmployeeCode--, ISNULL(kk.TotalIssuedQty,'0') as TotalReceivedQty
+				   , ISNULL(RR.TotalIssuedQty,'0') as TotalReceivedQty
                     from dbo.OSTransformationPO rt left join TRN.InventoryReceive rtc on rt.Id=rtc.TransformationContractId
                     left join dbo.EmployeeInformation emp on emp.SystemId=rtc.ByWhomEmployeeId
 					left join TRN.GateEntry ge on ge.Id=rtc.GateEntryNo
 					left join TRN.InventoryReceiveDetail ird on ird.InventoryReceiveId=rtc.Id
                     left join dbo.OSTransformationPODetail mp on mp.Id=ird.OSTransformationPODetailId
-            --        left join dbo.JobWorkTransformationContract tc on tc.Id=mp.OSTransformationPOId
-			  left join(select Sum(IRD.TransactionQty) as TotalIssuedQty, IM.MaterialMasterId,mm.UserName as Material,mma.StandardName as Article
-                                    , IM.ArticleId,IRD.InventoryMaterialId,IRD.OSTransformationPODetailId                                       
+
+					  left join(select Sum(IRD.TransactionQty) as TotalIssuedQty,IRD.InventoryReceiveId                                   
                                     from TRN.InventoryReceive IR inner join TRN.InventoryReceiveDetail IRD on IR.Id = IRD.InventoryReceiveId
                                         left join TRN.InventoryMaterial IM on IM.Id = IRD.InventoryMaterialId
                                         left join MST.MaterialMaster mm on mm.Id = IM.MaterialMasterId
                                         left join MST.MaterialMasterArticle mma on mma.Id = IM.ArticleId
-                                        where IR.TransformationContractId = '"+ Id + @"'
-                                        group by IM.MaterialMasterId,IM.ArticleId,IRD.InventoryMaterialId,mm.UserName,mma.StandardName,IRD.OSTransformationPODetailId)
-										kk on kk.InventoryMaterialId = ird.InventoryMaterialId and kk.OSTransformationPODetailId=mp.Id
-                    where rtc.TransformationContractId='"+ Id + @"' --and rtc.Id='"+ ReceivedId + @"' 
-                    order by rt.PODate desc  ";
+                                        where IR.TransformationContractId = '" + Id + @"'
+                                        group by IRD.InventoryReceiveId)
+										RR on RR.InventoryReceiveId=rtc.Id
+
+                    where rtc.TransformationContractId='" + Id + @"' --and rtc.Id='' 
+                    order by rt.PODate desc    ";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -4932,9 +4955,12 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
                             ,IR.IsApproved
                             ,IR.PartyType
                             ,EMPIN.EmployeeName
-                            ,Party.UserName VendorName
-                            ,Party.AddressMasterId VendorAddressMasterId
-                            ,Party.TINNO VendorGSTIN
+                              --,Party.UserName VendorName
+                            --,Party.AddressMasterId VendorAddressMasterId
+                            --,Party.TINNO VendorGSTIN
+							,VendorName=case when IR.PartyId is not null then Party.UserName else Pty.UserName End
+							,VendorAddressMasterId=case when IR.PartyId is not null then Party.AddressMasterId else Pty.AddressMasterId End
+							,VendorGSTIN=case when IR.PartyId is not null then Party.TINNO else Pty.TINNO End
                             ,Case When IR.IsNonCreditable = 1 then 'NonCreditable' when IR.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
                             ,IR.IsNonCreditable
                             ,IR.CurrencyId
@@ -5035,6 +5061,7 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
 							LEFT JOIN dbo.OSTransformationPODetail POD ON POD.Id = IRD.OSTransformationPODetailId
 	                    --    LEFT JOIN TRN.PurchaseOrder PO ON PO.Id = IRD.POId
 							 LEFT JOIN dbo.OSTransformationPO PO ON PO.Id = IRD.OSTransformationPOId
+                             left join HKP.Party Pty on Pty.Id=PO.PartyId
                             	LEFT JOIN (select Distinct PDAA.Id,AcceptanceDate,AcceptanceNo,ACMAP.GRNId from TRN.GRNAcceptanceMap ACMAP 
 									left Join trn.PurchaseDocAcceptance  PDAA ON PDAA.Id=ACMAP.PurchaseDocumentAcceptanceId
 									)PDA ON PDA.GRNId=IR.Id
@@ -5106,9 +5133,12 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
                             ,IR.IsApproved
                             ,IR.PartyType
                             ,EMPIN.EmployeeName
-                            ,Party.UserName VendorName
-                            ,Party.AddressMasterId VendorAddressMasterId
-                            ,Party.TINNO VendorGSTIN
+                              --,Party.UserName VendorName
+                            --,Party.AddressMasterId VendorAddressMasterId
+                            --,Party.TINNO VendorGSTIN
+							,VendorName=case when IR.PartyId is not null then Party.UserName else Pty.UserName End
+							,VendorAddressMasterId=case when IR.PartyId is not null then Party.AddressMasterId else Pty.AddressMasterId End
+							,VendorGSTIN=case when IR.PartyId is not null then Party.TINNO else Pty.TINNO End
                             ,Case When IR.IsNonCreditable = 1 then 'NonCreditable' when IR.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
                             ,IR.IsNonCreditable
                             ,IR.CurrencyId
@@ -5196,6 +5226,7 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
 							LEFT JOIN dbo.OSTransformationPODetail POD ON POD.Id = IRD.OSTransformationPODetailId
 	                    --    LEFT JOIN TRN.PurchaseOrder PO ON PO.Id = IRD.POId
 							 LEFT JOIN dbo.OSTransformationPO PO ON PO.Id = IRD.OSTransformationPOId
+                            left join HKP.Party Pty on Pty.Id=PO.PartyId
                             LEFT JOIN (select Distinct PDAA.Id,AcceptanceDate,AcceptanceNo,ACMAP.GRNId from TRN.GRNAcceptanceMap ACMAP 
 									left Join trn.PurchaseDocAcceptance  PDAA ON PDAA.Id=ACMAP.PurchaseDocumentAcceptanceId
 									)PDA ON PDA.GRNId=IR.Id

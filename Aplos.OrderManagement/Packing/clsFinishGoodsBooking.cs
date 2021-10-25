@@ -698,7 +698,7 @@ namespace Library.OrderManagement.Packing
 
                             //if (dsInventoryMaterial.Tables[0].Rows.Count > 0)
                             //{
-                            dsInventoryMaterial.Tables[0].DefaultView.RowFilter = "MaterialMasterId='" + item["MaterialMasterId"].ToString() + "' AND ArticleId = '" + item["ArticleId"] + "'";
+                            dsInventoryMaterial.Tables[0].DefaultView.RowFilter = "MaterialMasterId='" + item["MaterialMasterId"].ToString() + "' AND ArticleId = '" + item["ArticleId"] + "' AND FirstCharacteristicsValueId = '" + item["FirstCharacteristicsValueId"] + "' AND SecondCharacteristicsValueId = '" + item["SecondCharacteristicsValueId"] + "'";
 
                             if (dsInventoryMaterial.Tables[0].DefaultView.Count > 0)
                             {
@@ -722,6 +722,12 @@ namespace Library.OrderManagement.Packing
                                 drInventoryMaterial["PlantId"] = identity.PlantId;
                                 drInventoryMaterial["MaterialMasterId"] = item["MaterialMasterId"];
                                 drInventoryMaterial["ArticleId"] = item["ArticleId"];
+
+                                drInventoryMaterial["FirstCharacteristicsId"] = item["FirstCharacteristicsId"];
+                                drInventoryMaterial["FirstCharacteristicsValueId"] = item["FirstCharacteristicsValueId"];
+                                drInventoryMaterial["SecondCharacteristicsId"] = item["SecondCharacteristicsId"];
+                                drInventoryMaterial["SecondCharacteristicsValueId"] = item["SecondCharacteristicsValueId"];
+
                                 drInventoryMaterial["TotalQty"] = item["Qty"];
                                 drInventoryMaterial["AvgRate"] = 0;
 
@@ -1469,14 +1475,6 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
         {
             try
             {
-
-				//string sql = @"SELECT  '' Id,PS.ProductionOrderId,MM.Id MaterialMasterId,MMA.Id ArticleId,MM.UserName MaterialMaster,MMA.StandardName Article,SUM(PS.Quantity) Qty, 0 Rate,0 Amount,U.Id UOM
-				//            FROM [TRN].ProductionSummary PS
-				//            LEFT JOIN MST.MaterialMaster MM ON MM.Id=PS.MaterialMasterId
-				//            LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=PS.ArticleId
-				//            LEFT JOIN SCS.UnitOfMeasurement U ON MM.BaseUoMId = U.Id
-				//            where PS.ProductionDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(PS.FinishGoodsBookingId,'')='' AND PS.EntityId='" + entityId + @"' AND PS.ProcessId='" + processId + @"' AND ISNULL(PS.MaterialMasterId,'')<>''
-				//            GROUP BY PS.ProductionOrderId,MM.Id,MMA.Id,MM.UserName,MMA.StandardName,U.Id";
 				string sql = @"SELECT '' Id,PS.ProductionOrderId,MM.Id MaterialMasterId,MMA.Id ArticleId,MM.UserName MaterialMaster,MMA.StandardName Article
 					,SUM(PS.Quantity) Qty,FORMAT(PD.Rate, 'N4') Rate,FORMAT((SUM(PS.Quantity) * PD.Rate), 'N2') Amount
 					,U.Id UOM,PD.MasterOrderItemId,PD.CostingMasterTemplateId
@@ -1486,10 +1484,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 							WHERE XSO.MasterOrderItemId = PD.MasterOrderItemId
 							FOR XML path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 				FROM [TRN].ProductionSummary PS
-				LEFT JOIN TRN.ProductionSummaryDetail PSD ON PS.Id = PSD.ProductionSummaryId
-				LEFT JOIN [HKP].[CharacteristicsValue] AS FCHV ON FCHV.Id = PSD.Characteristics1ValueId
-				LEFT JOIN [HKP].[CharacteristicsValue] AS SCHV ON SCHV.Id = PSD.Characteristics2ValueId
-				LEFT JOIN TRN.ProductionOrder PO ON PO.Id = PS.ProductionOrderId
+				
 				LEFT JOIN (
 					SELECT DISTINCT POD.ProductionOrderId,ISNULL(B.Rate, 0) Rate,MOI.Id MasterOrderItemId,B.CostingMasterTemplateId
 					FROM TRN.SalesOrder SO
@@ -1525,7 +1520,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 							GROUP BY a.CostingMasterTemplateId
 							) AS COST
 						) B ON B.CostingMasterTemplateId = CT.Id
-					) PD ON PD.ProductionOrderId = PO.Id
+					) PD ON PD.ProductionOrderId = PS.ProductionOrderId
 				LEFT JOIN MST.MaterialMaster MM ON MM.Id = PS.MaterialMasterId
 				LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id = PS.ArticleId
 				LEFT JOIN SCS.UnitOfMeasurement U ON MM.BaseUoMId = U.Id
@@ -1543,55 +1538,54 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
         {
             try
             {
-				//string sql = @"SELECT  '' Id,PS.Id ProductionSummaryId,PS.ProductionOrderId,MM.Id MaterialMasterId,MMA.Id ArticleId,MM.UserName MaterialMaster,MMA.StandardName Article,PS.Quantity Qty, 0 Rate,0 Amount,U.Id UOM,FORMAT(PS.ProductionDate ,'dd-MMM-yyyy') WorkDate,MM.IsAsset
-				//            FROM [TRN].ProductionSummary PS
-				//            LEFT JOIN MST.MaterialMaster MM ON MM.Id=PS.MaterialMasterId
-				//            LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=PS.ArticleId
-				//            LEFT JOIN SCS.UnitOfMeasurement U ON MM.BaseUoMId = U.Id
-				//            where PS.ProductionDate between '" + fromDate + "' AND '" + toDate + "' AND ISNULL(PS.FinishGoodsBookingId,'')='' AND PS.EntityId='" + entityId + "' AND PS.ProcessId='" + processId + "' AND ISNULL(PS.MaterialMasterId,'')<>''";
-				string sql = @"SELECT  '' Id,PS.Id ProductionSummaryId,PS.ProductionOrderId,MM.Id MaterialMasterId,MMA.Id ArticleId,MM.UserName MaterialMaster,MMA.StandardName Article,PS.Quantity Qty, 0 Rate,0 Amount,U.Id UOM,FORMAT(PS.ProductionDate ,'dd-MMM-yyyy') WorkDate,MM.IsAsset
-,PD.CostingMasterTemplateId
-FROM [TRN].ProductionSummary PS
-LEFT JOIN TRN.ProductionOrder PO ON PO.Id = PS.ProductionOrderId
-LEFT JOIN (
-	SELECT DISTINCT POD.ProductionOrderId,ISNULL(B.Rate, 0) Rate,MOI.Id MasterOrderItemId,B.CostingMasterTemplateId
-	FROM TRN.SalesOrder SO
-	LEFT JOIN TRN.ProductionOrderDetail POD ON POD.SalesOrderId = SO.Id
-	LEFT JOIN TRN.MasterOrderItem MOI ON moi.Id = so.MasterOrderItemId
-	LEFT JOIN dbo.CostingMasterTemplate AS CT ON CT.Id = MOI.OrderCostingMasterTemplateId
-	LEFT JOIN (
-		SELECT DISTINCT COST.CostingMasterTemplateId,COST.Rate
-		FROM (
-			SELECT A.CostingMasterTemplateId,sum(A.rate) AS Rate
-			FROM CostingMasterTemplate CMT
-			JOIN (
-				SELECT DM.CostingItemId,DM.CostingMasterTemplateId,DM.GrossAmount Rate
-				FROM [dbo].PreCostingDirectMaterial DM				
-				UNION				
-				SELECT DP.CostingItemId,DP.CostingMasterTemplateId,DP.Amount Rate
-				FROM [dbo].PreCostingDirectProcess DP				
-				UNION				
-				SELECT OP.CostingItemId,OP.CostingMasterTemplateId,OP.[Value] Rate
-				FROM [dbo].PreCostingOperation OP
-				UNION
-				SELECT P.CostingItemId,P.CostingMasterTemplateId,P.[Value] Rate
-				FROM [dbo].PreCostingProfit P
-				UNION
-				SELECT SE.CostingItemId,SE.CostingMasterTemplateId,SE.[Value] Rate
-				FROM [dbo].PreCostingSalesExpense SE
-				UNION
-				SELECT VL.CostingItemId,VL.CostingMasterTemplateId,VL.[Value] Rate
-				FROM [dbo].PreCostingValueLoss VL
-				) AS A ON A.CostingMasterTemplateId = CMT.Id
-			LEFT JOIN [HKP].[CostingItem] CI ON CI.Id = A.CostingItemId
-			LEFT JOIN [HKP].[CostingComponent] CC ON CC.Id = CI.CostingComponentId
-			GROUP BY a.CostingMasterTemplateId
-			) AS COST
-		) B ON B.CostingMasterTemplateId = CT.Id
-	) PD ON PD.ProductionOrderId = PO.Id
-                            LEFT JOIN MST.MaterialMaster MM ON MM.Id=PS.MaterialMasterId
-                            LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=PS.ArticleId
-                            LEFT JOIN SCS.UnitOfMeasurement U ON MM.BaseUoMId = U.Id
+				
+				string sql = @"SELECT  '' Id,PS.Id ProductionSummaryId,PS.ProductionOrderId,MM.Id MaterialMasterId,MMA.Id ArticleId,MM.UserName MaterialMaster,MMA.StandardName Article
+								,Qty= CASE WHEN PSD.Id IS NULL THEN PS.Quantity ELSE PSD.Qty END
+								, 0 Rate,0 Amount,U.Id UOM,FORMAT(PS.ProductionDate ,'dd-MMM-yyyy') WorkDate,MM.IsAsset,PD.CostingMasterTemplateId
+								,PSD.Characteristics1Id FirstCharacteristicsId,PSD.Characteristics1ValueId FirstCharacteristicsValueId,PSD.Characteristics2Id SecondCharacteristicsId,PSD.Characteristics2ValueId SecondCharacteristicsValueId
+								FROM [TRN].ProductionSummary PS
+								LEFT JOIN TRN.ProductionSummaryDetail PSD ON PS.Id = PSD.ProductionSummaryId
+								LEFT JOIN [HKP].[CharacteristicsValue] AS FCHV ON FCHV.Id = PSD.Characteristics1ValueId
+								LEFT JOIN [HKP].[CharacteristicsValue] AS SCHV ON SCHV.Id = PSD.Characteristics2ValueId
+								LEFT JOIN (
+								SELECT DISTINCT POD.ProductionOrderId,ISNULL(B.Rate, 0) Rate,MOI.Id MasterOrderItemId,B.CostingMasterTemplateId
+								FROM TRN.SalesOrder SO
+								LEFT JOIN TRN.ProductionOrderDetail POD ON POD.SalesOrderId = SO.Id
+								LEFT JOIN TRN.MasterOrderItem MOI ON moi.Id = so.MasterOrderItemId
+								LEFT JOIN dbo.CostingMasterTemplate AS CT ON CT.Id = MOI.OrderCostingMasterTemplateId
+								LEFT JOIN (
+								SELECT DISTINCT COST.CostingMasterTemplateId,COST.Rate
+								FROM (
+								SELECT A.CostingMasterTemplateId,sum(A.rate) AS Rate
+								FROM CostingMasterTemplate CMT
+								JOIN (
+								SELECT DM.CostingItemId,DM.CostingMasterTemplateId,DM.GrossAmount Rate
+								FROM [dbo].PreCostingDirectMaterial DM				
+								UNION				
+								SELECT DP.CostingItemId,DP.CostingMasterTemplateId,DP.Amount Rate
+								FROM [dbo].PreCostingDirectProcess DP				
+								UNION				
+								SELECT OP.CostingItemId,OP.CostingMasterTemplateId,OP.[Value] Rate
+								FROM [dbo].PreCostingOperation OP
+								UNION
+								SELECT P.CostingItemId,P.CostingMasterTemplateId,P.[Value] Rate
+								FROM [dbo].PreCostingProfit P
+								UNION
+								SELECT SE.CostingItemId,SE.CostingMasterTemplateId,SE.[Value] Rate
+								FROM [dbo].PreCostingSalesExpense SE
+								UNION
+								SELECT VL.CostingItemId,VL.CostingMasterTemplateId,VL.[Value] Rate
+								FROM [dbo].PreCostingValueLoss VL
+								) AS A ON A.CostingMasterTemplateId = CMT.Id
+								LEFT JOIN [HKP].[CostingItem] CI ON CI.Id = A.CostingItemId
+								LEFT JOIN [HKP].[CostingComponent] CC ON CC.Id = CI.CostingComponentId
+								GROUP BY a.CostingMasterTemplateId
+								) AS COST
+								) B ON B.CostingMasterTemplateId = CT.Id
+								) PD ON PD.ProductionOrderId = PS.ProductionOrderId
+								LEFT JOIN MST.MaterialMaster MM ON MM.Id=PS.MaterialMasterId
+								LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=PS.ArticleId
+								LEFT JOIN SCS.UnitOfMeasurement U ON MM.BaseUoMId = U.Id
                             where PS.ProductionDate between '" + fromDate + "' AND '" + toDate + "' AND ISNULL(PS.FinishGoodsBookingId,'')='' AND PS.EntityId='" + entityId + "' AND PS.ProcessId='" + processId + "' AND ISNULL(PS.MaterialMasterId,'')<>''";
 
 				return _sqlRepository.GetDataCollection(sql, null);
@@ -5867,20 +5861,13 @@ LEFT JOIN (
 		{
 			try
 			{
-				
-					var sql = @"select * from TRN.InventoryReceive Where FinishGoodsBookingId='"+finishGoodsBookingId+@"' ";
+					var sql = @"SELECT Id,FORMAT(GRNDate,'dd-MMM-yyyy')GRNDate,DocRefNo,FORMAT(EntryDate,'dd-MMM-yyyy')EntryDate,FixedAssetOrInventory,[Status],GRNType FROM TRN.InventoryReceive WHERE FinishGoodsBookingId='" + finishGoodsBookingId+@"' ";
 					return _sqlRepository.GetDataCollection(sql);
-
-				
 			}
 			catch (Exception ex)
 			{
-
 				throw ex;
 			}
-
-
-
 		}
 
 

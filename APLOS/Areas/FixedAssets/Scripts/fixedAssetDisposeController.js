@@ -330,6 +330,16 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
                 $scope.voucherDetail.FixedAssetMasterId = data.FixedAssetMasterId;
                 $scope.voucherDetail.FixedAssetRegisterId = data.FixedAssetRegisterId;
                 $scope.voucherDetail.ParticularName = data.FixedAssetMasterName;
+
+                $scope.voucherDetail.Material = data.MaterialMasterName;
+                $scope.voucherDetail.Article = data.Article;
+                $scope.voucherDetail.CapitalizationDate = data.CapitalizationDate;
+                $scope.voucherDetail.PurchaseDate = data.PurchaseDate;
+                $scope.voucherDetail.IssueDate = data.IssueDate;
+                $scope.voucherDetail.TrnCurrency = data.TrnCurrency;
+                $scope.voucherDetail.isOB = data.IsOBBalance;
+                $scope.voucherDetail.vendor = data.Vendor;
+                
                 $scope.voucherDetail.FAType = $scope.voucher.FAType;
                 $scope.voucherDetail.DocDate = $filter("dateFiltering")($scope.voucher.DocDate);
                 $scope.voucherDetail.DocRefNo = $scope.voucher.DocRefNo;

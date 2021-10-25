@@ -118,6 +118,7 @@
                             <th>Fixed Asset</th>
                             <th>Asset No</th>
                             <th>Serial No</th>
+                            <th>Trn Currency</th>
                             <th class="text-center">Price</th>
                             <th class="text-center">Sub Asset</th>
                             <th class="text-center">Total Value</th>
@@ -131,6 +132,8 @@
                             <td>{{x.FixedAssetMasterName}}</td>
                             <td>{{x.AssetNo}}</td>
                             <td>{{x.SerialNo}}</td>
+                            <td>{{x.TrnCurrency}}</td>
+                            
                             <td><input type="text" class="form-control text-right" ng-disabled="true" id="Price" ng-model="x.Price " n-decimals="2"></td>
                             <td><input type="text" class="form-control text-right" ng-disabled="true" id="SubAssetAmount" ng-model="x.SubAssetAmount " n-decimals="2"></td>
                             <td><input type="text" class="form-control text-right" ng-disabled="true" id="PurchasePrice" ng-model="x.PurchasePrice " n-decimals="2"></td>
@@ -141,7 +144,7 @@
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="3" class="text-right">Total</td>
+                            <td colspan="4" class="text-right">Total</td>
                             <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'Price' }}</b></td>
                             <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'SubAssetAmount' }}</b></td>
                             <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'PurchasePrice' }}</b></td>
@@ -328,6 +331,8 @@
             <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="80" e-filter="false"></div>
             <div e-column e-field="Status" e-headertext="Status" e-width="80"></div>
             <div e-column e-field="EmployeeName" e-headertext="Employee" e-width="120"></div>
+            <div e-column e-field="TrnCurrency" e-headertext="Trn Currency" e-width="60"></div>
+            
             <div e-column e-field="Price" e-headertext="Price" e-width="80"></div>
             <div e-column e-field="SubAssetAmount" e-headertext="SubAssetAmount" e-width="80"></div>
             <div e-column e-field="PurchasePrice" e-headertext="PurchasePrice" e-width="80"></div>
@@ -403,6 +408,7 @@
                                 <div e-column e-field="DisposeNo" e-headertext="Dispose No" e-width="80" e-filter="false"></div>
                                 <div e-column e-field="Status" e-headertext="Status" e-width="80"></div>
                                 <div e-column e-field="EmployeeName" e-headertext="Employee" e-width="120"></div>
+                                <div e-column e-field="TrnCurrency" e-headertext="Trn Cur" e-width="40"></div>
                                 <div e-column e-field="Price" e-headertext="Price" e-width="80"></div>
                                 <div e-column e-field="SubAssetAmount" e-headertext="SubAssetAmount" e-width="80"></div>
                                 <div e-column e-field="PurchasePrice" e-headertext="PurchasePrice" e-width="80"></div>

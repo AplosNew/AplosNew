@@ -13,6 +13,13 @@ using System.Web.Mvc;
 using Library.Data.Sql;
 using System.Web.Script.Serialization;
 using System;
+using Newtonsoft.Json;
+using Library.Data;
+using System.IO;
+using Library.HumanResource.Attendance.Manual;
+using Library.Service.Helpers;
+using System.Data;
+using Library.OrderManagement.FabricRollClass;
 
 #endregion using
 
@@ -342,6 +349,66 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
 			}
 
 		}
+
+
+		#region Upload Roll Data
+
+		[HttpPost]
+		public JsonResult CreateRollFile(FormCollection form)
+		{
+			var pre = form["FabricRollFile"];
+			var settings = new JsonSerializerSettings
+			{
+				NullValueHandling = NullValueHandling.Ignore,
+				MissingMemberHandling = MissingMemberHandling.Ignore
+			};
+			var FabricRollFile = JsonConvert.DeserializeObject<FabricRollFile>(pre, settings);
+			var file = Request.Files["file"];
+			if (file != null)
+			{
+				var extension = Path.GetExtension(file.FileName);
+				if (extension.ToLower() != ".xls" && extension.ToLower() != ".xlsx")
+				{
+					throw new CustomException(Resources.ImageUploadError);
+				}
+
+
+				FabricRollClass Clsss = new FabricRollClass();
+				//clsManualAttendanceFileUpload p = new clsManualAttendanceFileUpload();
+				Clsss.Save(file.FileName, extension, FabricRollFile, out DataSet dsMaster);
+				var path = Path.Combine(ResourcesPathReader.GetFabricRollFilePath(), dsMaster.Tables[0].Rows[0]["FileId"].ToString());
+
+				if (System.IO.File.Exists(path))
+				{
+					System.IO.File.Delete(path);
+					file.SaveAs(path);
+				}
+				else
+				{
+					file.SaveAs(path);
+				}
+			}
+			return Json(new { Message = AplosMessage.Success });
+		}
+
+
+		[HttpGet, Authorize]
+		public ActionResult GetMaster()
+		{
+			try
+			{
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+				clsManualAttendanceFileUpload ep = new clsManualAttendanceFileUpload();
+				return Json(ep.GetMaster(identity.PlantId), JsonRequestBehavior.AllowGet);
+			}
+			catch (Exception ex)
+			{
+				return Json(new { Error = true, Message = ex.Message });
+			}
+		}
+		#endregion
+
+
 
 	}
 }

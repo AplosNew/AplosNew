@@ -256,7 +256,7 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
             }
         }
         [HttpPost, Authorize]
-        public ActionResult GetEmployeeSalaryStructureWithProceesdNew(string month, string year, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity)
+        public ActionResult GetEmployeeSalaryStructureWithProceesdNew(string month, string year,string PlantId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity)
         {
             try
             {
@@ -265,7 +265,7 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
                 var fileName = "EmployeeSalaryStructure" + DateTime.Now.ToString("yyMMdd") + identity.Name + ".xls";
                 string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
 
-                var workbook = _payrollReportsService.GetEmployeeSalaryStructureWithProcessedNew(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, payRollGroup, parameters, isActive, isSeperated, isMaternity);
+                var workbook = _payrollReportsService.GetEmployeeSalaryStructureWithProcessedNew(identity.CompanyGroupId, identity.CompanyId, PlantId, identity.UserId, month, year, payRollGroup, parameters, isActive, isSeperated, isMaternity);
                 workbook.Version = ExcelVersion.Excel97to2003;
                 workbook.SaveAs(fullPath);
 

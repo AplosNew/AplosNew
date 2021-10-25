@@ -446,7 +446,7 @@ namespace OTSBD
                 DataSet dsYearlyCalendar = null;
                 GetYearlyCalendarIdByDOS(dsTenure.Tables[0].Rows[0]["DOS"].ToString(), plantId, out dsYearlyCalendar);
                 clsLeaveEncashment olv = new clsLeaveEncashment();
-                LeaveEncashmentViewModel cc = olv.GetLeaveEncashmentDataForFinalSettlement(sEmpSystemId, dsTenure.Tables[0].Rows[0]["DOS"].ToString(), dsYearlyCalendar.Tables[0].Rows[0]["Id"].ToString(), plantId);
+                LeaveEncashmentViewModel cc = olv.GetLeaveEncashmentDataForFinalSettlement(sEmpSystemId, Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOS"]).ToString("dd-MMM-yyyy"), dsYearlyCalendar.Tables[0].Rows[0]["Id"].ToString(), plantId);
                 obj.LvEncashmentDayNo = cc.Days;
                 obj.LvEncashmentRate = cc.Rate;
                 obj.LeaveTypeId = cc.LeaveTypeId;

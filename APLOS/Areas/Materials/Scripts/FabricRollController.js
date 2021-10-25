@@ -42,8 +42,10 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
     $scope.selectedGRNRow = {};
     $scope.fabDistributeQty = 0;
     $scope.fabricEdit = false;
+    $scope.RowData = '';
     $scope.showFabricPop = function (data) {
 
+        $scope.RowData = data;
         $scope.fabricRollSplitOb.VendorWidth = null;
         // $scope.fabricEdit = isEdit;
         $scope.fabricRollMasterNew.GRNSplitQty = null;
@@ -276,10 +278,7 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
 
             }).then(function successCallback(response) {
 
-                //$scope.GetFabricRollList = [];
-                //$scope.GetFabricRollList = response.data;
-               // angular.element(document.querySelector('#SinglefabricRollPopUpargegrfd')).modal('show');
-
+              
             });
         }
         catch (e) {
@@ -288,10 +287,22 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
     }
     //$scope.IRDId = $scope.selectedGRNRow.Id;
     $scope.RR = function (data) {
-   
+      
         try {
 
             var file_src = $scope.path + 'DownloadRollReport?inventoryReceiveDetailId=' + data.Id
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
+
+    $scope.POPupReport = function () {
+
+        try {
+
+            var file_src = $scope.path + 'DownloadRollReport?inventoryReceiveDetailId=' + $scope.RowData.Id
             $rootScope.report(file_src);
 
         } catch (e) {
@@ -651,6 +662,84 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
             value: 'Bale'
         }
     ];
+
+    //File Upload
+    $scope.FabricRollFile = {
+        Id: null,
+        FileId: null,
+        FileName: null,
+        FileStatus: null,
+        PlantId: $window.plantId,
+    }
+
+
+    $rootScope.title = 'Fabric Roll File Upload';
+    $("#uploadRollData").change(function () {
+        $scope.Rolldata = this.files[0];
+    });
+
+
+
+
+    $scope.saveRollFile = function () {
+        try {
+            if ($scope.Rolldata != null) {
+                var RollData = new FormData();
+                //if ($scope.Action == "Save") {
+                $http({
+                    method: 'POST',
+                    url: 'Materials/FabricRoll/CreateRollFile',
+                    headers: { 'Content-Type': undefined },
+                    transformRequest: function (data) {
+                        RollData.append("FabricRollFile", angular.toJson(data.FabricRollFile));
+                        if (baseService.isUndefinedOrNull($scope.Rolldata) === false) {
+                            RollData.append('file', data.file);
+                        }
+                        return RollData;
+                    },
+                    data: {
+                        'FabricRollFile': $scope.FabricRollFile,
+                        'file': $scope.Rolldata
+                    }
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, "failure");
+                    }
+                    else {
+                        ShowResult(response.data.Message, "success");
+                        $scope.getMaster();
+                        document.getElementById("uploadRollData").value = '';
+                    }
+                }, function errorCallback(response) {
+                    $scope.savedisable = false;
+                    $scope.showdiv = false;
+                });
+                return true;
+                //}
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.MasterList = [];
+    $scope.getMaster = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetMaster",
+        }).then(function successCallback(response) {
+            $scope.MasterList = response.data;
+            //for (var i = 0; i < response.data.length; i++) {
+            //}
+            //$scope.MasterList = $filter('dateFiltering')(response.data.AddedDate, 'dd-MMM-yyyy');
+        });
+    }
+    $scope.getMaster();
+    //EndFile Upload
+
+
+
+
 
 
 }

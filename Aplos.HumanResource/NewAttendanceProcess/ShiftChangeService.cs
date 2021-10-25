@@ -7,6 +7,8 @@ using OTSBD;
 using Library.Service.EmployeeServices;
 using bplib;
 using Newtonsoft.Json;
+using Library.Crosscutting.Security;
+using System.Threading;
 
 namespace Library.HumanResource.NewAttendanceProcess
 {
@@ -752,6 +754,77 @@ namespace Library.HumanResource.NewAttendanceProcess
         public int FutureDays { get; set; }
         public string GroupId { get; set; }
     }
-      
+
+    public class PhysicalVerificationReportService
+    {
+        SqlRepository _sqlRepository;
+        ConnectionManager.clsConnectionManager ConManager;
+
+        public PhysicalVerificationReportService()
+        {
+            _sqlRepository = new SqlRepository();
+            ConManager = new ConnectionManager.clsConnectionManager();
+        }
+
+
+        public IEnumerable<object> GetData(string WkDate)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var plantId = identity.PlantId;
+              
+                var sql = @"select e.EmployeeCode,e.EmployeeName,pv.EmpSystemID,s.UserName as Section,ss.UserName as SubSection,
+                d.UserName as Department,
+                o.UserName as Unit,ld.UserName as LegalDesignation,
+                format(pv.WorkDate,'dd-MMM-yyyy')as WorkDate,pv.InTime,pv.OutTime,pv.AddedBy from 
+                PhysicalVerification pv left join EmployeeInformation e on e.SystemId=pv.EmpSystemID
+                left join org.Department d on d.Id=e.DepartmentId
+                left join org.Section s on s.Id=e.SectionId
+                left join org.SubSection ss on ss.Id=e.SubSectionId
+                left join org.Unit o on o.Id=e.UnitId
+                left join hkp.LegalDesignation ld on ld.Id=e.LegalDesignationId
+                where WorkDate='"+WkDate+@"'
+                and e.PlantId='"+plantId+"'";
+
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable GetReportData(string WkDate,string EmpId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var plantId = identity.PlantId;
+                
+                var sql = @"select e.EmployeeCode,e.EmployeeName,pv.EmpSystemID,s.UserName as Section,ss.UserName as SubSection,
+                d.UserName as Department,
+                o.UserName as Unit,ld.UserName as LegalDesignation,
+                format(pv.WorkDate,'dd-MMM-yyyy')as WorkDate,pv.InTime,pv.OutTime,pv.AddedBy from 
+                PhysicalVerification pv left join EmployeeInformation e on e.SystemId=pv.EmpSystemID
+                left join org.Department d on d.Id=e.DepartmentId
+                left join org.Section s on s.Id=e.SectionId
+                left join org.SubSection ss on ss.Id=e.SubSectionId
+                left join org.Unit o on o.Id=e.UnitId
+                left join hkp.LegalDesignation ld on ld.Id=e.LegalDesignationId
+                where WorkDate='" + WkDate + @"'
+                and e.PlantId='" + plantId + "' and isnull(e.SystemId, '') IN(" + EmpId + @")"; 
+
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+    }
+
 }
 

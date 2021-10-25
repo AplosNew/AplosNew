@@ -1185,16 +1185,23 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 { Value: "Trading", Text: "Trading" }
             ];
         }
+
+        for (var i = 0; i < $scope.itemList.length; i++) {
+            $scope.itemList[i].JobWorkType = null;
+            $scope.itemList[i].EntityOrVendorName = null;
+            $scope.itemList[i].EntityIdWithinCompany = null;
+            $scope.itemList[i].EntityIdWithinGroup = null;
+            $scope.itemList[i].PartyId = null;
+        }
     };
 
-    $scope.enableJobOrOutSource = true;
-    $scope.ChangeJobType = function (Type) {
-        if (Type == "JobWork" || Type == "OutSource") {
-            $scope.enableJobOrOutSource = false;
-        } else {
 
-            $scope.enableJobOrOutSource = true;
-        }
+    $scope.ChangeJobType = function (index) {
+        $scope.itemList[index].JobWorkType = null;
+        $scope.itemList[index].EntityOrVendorName = null;
+        $scope.itemList[index].EntityIdWithinCompany = null;
+        $scope.itemList[index].EntityIdWithinGroup = null;
+        $scope.itemList[index].PartyId = null;
     }
 
     //#region Job Work PopUp
@@ -1355,6 +1362,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                             if ($scope.mitemList[j].Id != $scope.itemList[i].Id) {
                                 obj.MasterOrderItemId = $scope.mitemList[j].Id;
                                 obj.MaterialMasterId = $scope.mitemList[j].MaterialMasterId;
+                                obj.TotalQty = $scope.mitemList[j].TotalQty;
                                 $scope.itemList[i].TempList.push(obj);
                                 obj = {};
                             }
@@ -1703,15 +1711,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     // #region Sales Order
     $scope.JobWorkType = '';
     $scope.getSalesOrder = function (x, id, materialMasterId, mName, aName, hsnCodeId, BuyerReferenceNo) {
-      
-        if (baseService.isUndefinedOrNull($scope.JobWorkType)) {
-            $scope.JobWorkType = x.JobWorkType+'>> '+ x.EntityOrVendorName;
-        } else if (baseService.isUndefinedOrNull($scope.JobWorkType)) {
+        $scope.JobWorkType = baseService.isUndefinedOrNull(x.JobWorkType) ? x.JobWorkType : x.JobWorkType + '>> ' + baseService.isUndefinedOrNull(x.EntityOrVendorName) ? x.EntityOrVendorName : x.EntityOrVendorName;
 
-            $scope.JobWorkType = x.JobWorkType + '>> ' + x.EntityIdWithinGroup;
-        } else {
-            $scope.JobWorkType = x.JobWorkType + '>> ' + x.EntityIdWithinCompany;
-        }
 
         $scope.TotalProducedQty = 0;
         $scope.ProdBookedQty = 0;
@@ -4431,6 +4432,18 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.ShowSKUMapPopUp = function (data, MasterOrderItemId) {
         try {
             if (!baseService.isUndefinedOrNull(MasterOrderItemId)) {
+
+                for (var i = 0; i < $scope.itemList.length; i++) {
+                    for (var j = 0; j < $scope.itemList[i].TempList.length; j++) {
+                        if ($scope.itemList[i].TempList[j].MasterOrderItemId == MasterOrderItemId) {
+                            if (data.TotalQty > $scope.itemList[i].TempList[j].TotalQty) {
+                                throw "Destination Total Qty can't greater than Source Total Qty.";
+                            }
+                        }
+                    }
+                }
+
+
                 $scope.setTab3(1);
                 $scope.ToMasterOrderItemId = data.Id;
                 $scope.FromMasterOrderItemId = MasterOrderItemId;
@@ -4495,20 +4508,20 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     $scope.CopySObyMOI = function () {
         try {
-            //if (baseService.arrayLength($scope.FromSKU1List)>0) {
-            //    for (var i = 0; i < $scope.FromSKU1List.length; i++) {
-            //        if (baseService.isUndefinedOrNull($scope.FromSKU1List[i].ToSKU1Id)) {
-            //            throw "Select SKU1";
-            //        }
-            //    }
-            //}
-            //if (baseService.arrayLength($scope.FromSKU1List) > 0) {
-            //    for (var i = 0; i < $scope.FromSKU1List.length; i++) {
-            //        if (baseService.isUndefinedOrNull($scope.FromSKU1List[i].ToSKU2Id)) {
-            //            throw "Select SKU2";
-            //        }
-            //    }
-            //}
+            if (baseService.arrayLength($scope.FromSKU1List) > 0) {
+                for (var i = 0; i < $scope.FromSKU1List.length; i++) {
+                    if (baseService.isUndefinedOrNull($scope.FromSKU1List[i].ToSKU1Id)) {
+                        throw "Select SKU1";
+                    }
+                }
+            }
+            if (baseService.arrayLength($scope.FromSKU2List) > 0) {
+                for (var i = 0; i < $scope.FromSKU2List.length; i++) {
+                    if (baseService.isUndefinedOrNull($scope.FromSKU2List[i].ToSKU2Id)) {
+                        throw "Select SKU2";
+                    }
+                }
+            }
 
             $http({
                 method: 'POST',
