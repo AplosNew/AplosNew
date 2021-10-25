@@ -27,17 +27,17 @@ function PhysicalVerificationReportController($window, $timeout, cboService, com
         if ($scope.General.$valid) {
 
             var ColumnList = [
-                { field: 'Plant', width: 150, headerText: "Plant", type: "string" },
-                { field: 'Unit', width: 150, headerText: "Unit", type: "string" },
-                { field: 'EmployeeCode', width: 150, headerText: "EmpCode", type: "string" },
+                { field: 'EmployeeCode', width: 150, headerText: "EmployeeCode", type: "string" },
                 { field: 'EmployeeName', width: 150, headerText: "Employee Name", type: "string" },
                 { field: 'Department', width: 150, headerText: "Department", type: "string" },
                 { field: 'Section', width: 150, headerText: "Section", type: "string" },
                 { field: 'SubSection', width: 150, headerText: "SubSection", type: "string" },
-                { field: 'Designation', width: 150, headerText: "Designation", type: "string" },
-                { field: 'Date', width: 150, headerText: "Date", type: "string", allowFiltering: false },
-                { field: 'InTime', width: 150, headerText: "InTime", type: "string", allowFiltering: false },             
-                { field: 'OutTime', width: 150, headerText: "OutTime", type: "string", allowFiltering: false },  
+                { field: 'Unit', width: 150, headerText: "Unit", type: "string" },
+                { field: 'LegalDesignation', width: 150, headerText: "LegalDesignation", type: "string" },
+                { field: 'WorkDate', width: 150, headerText: "Date", type: "string" },
+                { field: 'InTime', width: 150, headerText: "InTime", type: "string" },             
+                { field: 'OutTime', width: 150, headerText: "OutTime", type: "string" },
+                { field: 'AddedBy', width: 150, headerText: "AddedBy", type: "string" }
             ];
            
             $http({
