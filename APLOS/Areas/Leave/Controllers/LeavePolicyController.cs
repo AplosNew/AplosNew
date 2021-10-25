@@ -70,7 +70,7 @@ namespace Aplos.Areas.Leave.Controllers
 
         #region Details Grid-------start
 
-        [HttpGet, Authorize] 
+        [HttpGet, Authorize]
         public ActionResult getdetailslist(string MasterId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -146,9 +146,17 @@ namespace Aplos.Areas.Leave.Controllers
         [HttpPost]
         public ActionResult SaveDetails(LeavePolicyDetails LeavePolicyDetails, string MasterId, string Id, List<LeavePolicyDayType> leavePolicyDayType)
         {
-           
+
             DataSet dsYrCalFromDate = null;
+            DataSet dsEarnType = null;
             GetCalendarYearStartDate(DateTime.Now.Year.ToString(), out dsYrCalFromDate);
+            GetLeaveType(LeavePolicyDetails.LTSystemID, out dsEarnType);
+
+            if (dsEarnType.Tables[0].Rows[0]["LeaveType"].ToString() == "Earn" && LeavePolicyDetails.CanAvailUOM == null)
+            {
+                throw new Exception("select Can Avail After dropdown Value");
+            }
+
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             clsLeavePolicy obj = new clsLeavePolicy();
             LeavePolicyDetails.AddedBy = identity.Name;
@@ -186,6 +194,27 @@ namespace Aplos.Areas.Leave.Controllers
             }
         }//End Function
 
+        public void GetLeaveType(string LeaveTypeId, out DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                strSQL = @"SELECT * FROM dbo.LeaveType
+                                WHERE ID = '" + LeaveTypeId + @"'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
 
         [HttpPost]
         public JsonResult Edit(MaternityLeavePolicy maternityLeavePolicy)
