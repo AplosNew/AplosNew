@@ -19,6 +19,7 @@ using System.IO;
 using Library.HumanResource.Attendance.Manual;
 using Library.Service.Helpers;
 using System.Data;
+using Library.OrderManagement.FabricRollClass;
 
 #endregion using
 
@@ -353,7 +354,7 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
 		#region Upload Roll Data
 
 		[HttpPost]
-		public JsonResult Create(FormCollection form)
+		public JsonResult CreateRollFile(FormCollection form)
 		{
 			var pre = form["FabricRollFile"];
 			var settings = new JsonSerializerSettings
@@ -361,7 +362,7 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
 				NullValueHandling = NullValueHandling.Ignore,
 				MissingMemberHandling = MissingMemberHandling.Ignore
 			};
-			var Manualfile = JsonConvert.DeserializeObject<ManualAttdnFile>(pre, settings);
+			var FabricRollFile = JsonConvert.DeserializeObject<FabricRollFile>(pre, settings);
 			var file = Request.Files["file"];
 			if (file != null)
 			{
@@ -372,9 +373,10 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
 				}
 
 
-				clsManualAttendanceFileUpload p = new clsManualAttendanceFileUpload();
-				p.Save(file.FileName, extension, Manualfile, out DataSet dsMaster);
-				var path = Path.Combine(ResourcesPathReader.GetManualAttendanceFilePath(), dsMaster.Tables[0].Rows[0]["FileId"].ToString());
+				FabricRollClass Clsss = new FabricRollClass();
+				//clsManualAttendanceFileUpload p = new clsManualAttendanceFileUpload();
+				Clsss.Save(file.FileName, extension, FabricRollFile, out DataSet dsMaster);
+				var path = Path.Combine(ResourcesPathReader.GetFabricRollFilePath(), dsMaster.Tables[0].Rows[0]["FileId"].ToString());
 
 				if (System.IO.File.Exists(path))
 				{

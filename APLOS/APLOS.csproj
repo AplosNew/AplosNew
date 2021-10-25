@@ -543,6 +543,7 @@
     <Compile Include="Areas\Farming\FarmingAreaRegistration.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\EntityFixedAssetsRegisterController.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\SubAssetTypeController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\PhysicalVerificationReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\JobCardReportNewController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeLeaveApprovalNewController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\LeaveApplicationNewController.cs" />
@@ -1818,6 +1819,7 @@
     <Content Include="Areas\FixedAssets\Scripts\entityFixedAssetsRegisterController.js" />
     <Content Include="Areas\FixedAssets\Scripts\SubAssetTypeController.js" />
     <Content Include="Areas\FixedAssets\Scripts\expensesCapitalizedController.js" />
+    <Content Include="Areas\HumanResource\Scripts\PhysicalVerificationReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeLeaveApplicationNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeLeaveApprovalNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\employeeLeaveDeleteApplicationNewController.js" />
@@ -3765,6 +3767,7 @@
     <Content Include="Areas\Employees\Views\CompensatoryOffNew\Aplos.cshtml" />
     <Content Include="Areas\Leave\Views\OnDutyApprovalNew\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\EntireYearPresentDaysSummary\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\PhysicalVerificationReport\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
