@@ -260,25 +260,7 @@ function FinishGoodsBookingController(cboService, commonMessage, $scope, $rootSc
 
     $scope.FGInventoryRegisterPoPUpList = [];
     $scope.GetRawMaterialDetail = function (obj) {
-
         $scope.getFGInventoryRegisterPopUpData(obj.data.Id)
-
-        //$scope.FinishGoodsBookingId = obj.data.Id;
-        //$scope.getFGInventoryRegisterPopUpData = function () {
-
-        //    $http({
-        //        method: "GET",
-        //        url: "Productions/FinishGoodsBooking/GetFGInventoryRegisterPoPUpListData?finishGoodsBookingId=" + FinishGoodsBookingId
-        //    }).then(function successCallback(response) {
-        //        $scope.FGInventoryRegisterPoPUpList = response.data;
-        //        //$scope.TotalDRAmount = Math.round($filter("sumByKey")($filter("filter")($scope.BankLedgerDetailLevelPoPUpList), "CompanyCurrencyDrAmount") * 100 + Number.EPSILON) / 100;
-        //        //$scope.TotalCRAmount = Math.round($filter("sumByKey")($filter("filter")($scope.BankLedgerDetailLevelPoPUpList), "CompanyCurrencyCrAmount") * 100 + Number.EPSILON) / 100;
-        //        //$scope.BankLedgerClosingBalance = Math.round(($scope.TotalDRAmount - $scope.TotalCRAmount) * 100 + Number.EPSILON) / 100;
-        //        //$scope.DRBalanceType = 'DR'
-        //    });
-        //    // $rootScope.openPopupAngular('TrialBLBankMasterLedgerPopUp');
-        //};
-
         angular.element(document.querySelector('#FGInventoryRegisterPopup')).modal('show');
     };
 
@@ -313,12 +295,7 @@ function FinishGoodsBookingController(cboService, commonMessage, $scope, $rootSc
             url: "Productions/FinishGoodsBooking/GetFGInventoryRegisterPoPUpListData?finishGoodsBookingId=" + id
         }).then(function successCallback(response) {
             $scope.FGInventoryRegisterPoPUpList = response.data;
-            //$scope.TotalDRAmount = Math.round($filter("sumByKey")($filter("filter")($scope.BankLedgerDetailLevelPoPUpList), "CompanyCurrencyDrAmount") * 100 + Number.EPSILON) / 100;
-            //$scope.TotalCRAmount = Math.round($filter("sumByKey")($filter("filter")($scope.BankLedgerDetailLevelPoPUpList), "CompanyCurrencyCrAmount") * 100 + Number.EPSILON) / 100;
-            //$scope.BankLedgerClosingBalance = Math.round(($scope.TotalDRAmount - $scope.TotalCRAmount) * 100 + Number.EPSILON) / 100;
-            //$scope.DRBalanceType = 'DR'
         });
-        // $rootScope.openPopupAngular('TrialBLBankMasterLedgerPopUp');
     };
 
     $scope.AllTabPrint = function (z) {

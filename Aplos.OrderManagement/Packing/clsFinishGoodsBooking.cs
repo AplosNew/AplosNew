@@ -5861,20 +5861,13 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 		{
 			try
 			{
-				
-					var sql = @"select * from TRN.InventoryReceive Where FinishGoodsBookingId='"+finishGoodsBookingId+@"' ";
+					var sql = @"SELECT Id,FORMAT(GRNDate,'dd-MMM-yyyy')GRNDate,DocRefNo,FORMAT(EntryDate,'dd-MMM-yyyy')EntryDate,FixedAssetOrInventory,[Status],GRNType FROM TRN.InventoryReceive WHERE FinishGoodsBookingId='" + finishGoodsBookingId+@"' ";
 					return _sqlRepository.GetDataCollection(sql);
-
-				
 			}
 			catch (Exception ex)
 			{
-
 				throw ex;
 			}
-
-
-
 		}
 
 

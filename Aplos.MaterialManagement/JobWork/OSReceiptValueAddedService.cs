@@ -4932,9 +4932,12 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
                             ,IR.IsApproved
                             ,IR.PartyType
                             ,EMPIN.EmployeeName
-                            ,Party.UserName VendorName
-                            ,Party.AddressMasterId VendorAddressMasterId
-                            ,Party.TINNO VendorGSTIN
+                              --,Party.UserName VendorName
+                            --,Party.AddressMasterId VendorAddressMasterId
+                            --,Party.TINNO VendorGSTIN
+							,VendorName=case when IR.PartyId is not null then Party.UserName else Pty.UserName End
+							,VendorAddressMasterId=case when IR.PartyId is not null then Party.AddressMasterId else Pty.AddressMasterId End
+							,VendorGSTIN=case when IR.PartyId is not null then Party.TINNO else Pty.TINNO End
                             ,Case When IR.IsNonCreditable = 1 then 'NonCreditable' when IR.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
                             ,IR.IsNonCreditable
                             ,IR.CurrencyId
@@ -5035,6 +5038,7 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
 							LEFT JOIN dbo.OSTransformationPODetail POD ON POD.Id = IRD.OSTransformationPODetailId
 	                    --    LEFT JOIN TRN.PurchaseOrder PO ON PO.Id = IRD.POId
 							 LEFT JOIN dbo.OSTransformationPO PO ON PO.Id = IRD.OSTransformationPOId
+                             left join HKP.Party Pty on Pty.Id=PO.PartyId
                             	LEFT JOIN (select Distinct PDAA.Id,AcceptanceDate,AcceptanceNo,ACMAP.GRNId from TRN.GRNAcceptanceMap ACMAP 
 									left Join trn.PurchaseDocAcceptance  PDAA ON PDAA.Id=ACMAP.PurchaseDocumentAcceptanceId
 									)PDA ON PDA.GRNId=IR.Id
@@ -5106,9 +5110,12 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
                             ,IR.IsApproved
                             ,IR.PartyType
                             ,EMPIN.EmployeeName
-                            ,Party.UserName VendorName
-                            ,Party.AddressMasterId VendorAddressMasterId
-                            ,Party.TINNO VendorGSTIN
+                              --,Party.UserName VendorName
+                            --,Party.AddressMasterId VendorAddressMasterId
+                            --,Party.TINNO VendorGSTIN
+							,VendorName=case when IR.PartyId is not null then Party.UserName else Pty.UserName End
+							,VendorAddressMasterId=case when IR.PartyId is not null then Party.AddressMasterId else Pty.AddressMasterId End
+							,VendorGSTIN=case when IR.PartyId is not null then Party.TINNO else Pty.TINNO End
                             ,Case When IR.IsNonCreditable = 1 then 'NonCreditable' when IR.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
                             ,IR.IsNonCreditable
                             ,IR.CurrencyId
@@ -5196,6 +5203,7 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
 							LEFT JOIN dbo.OSTransformationPODetail POD ON POD.Id = IRD.OSTransformationPODetailId
 	                    --    LEFT JOIN TRN.PurchaseOrder PO ON PO.Id = IRD.POId
 							 LEFT JOIN dbo.OSTransformationPO PO ON PO.Id = IRD.OSTransformationPOId
+                            left join HKP.Party Pty on Pty.Id=PO.PartyId
                             LEFT JOIN (select Distinct PDAA.Id,AcceptanceDate,AcceptanceNo,ACMAP.GRNId from TRN.GRNAcceptanceMap ACMAP 
 									left Join trn.PurchaseDocAcceptance  PDAA ON PDAA.Id=ACMAP.PurchaseDocumentAcceptanceId
 									)PDA ON PDA.GRNId=IR.Id

@@ -144,7 +144,7 @@
     <div class="row">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">FG GRN<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+                <div class="modal-header">FG Inventory<button type="button" class="close" data-dismiss="modal">&times;</button></div>
                 <div class="modal-body text-center">
                     <div style="color:black;" id="GridGRNID6" ej-grid e-datasource="FGInventoryRegisterPoPUpList" e-allowscrolling="true" e-allowResizing="true"
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowselection="true" e-filtersettings-filterType="excel">
@@ -152,15 +152,13 @@
                             <div e-column e-headertext="Actions" e-width="70">
                                 <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridGRNID6');" style="margin: -6px;"></i></button>
                             </div>
-                            <div e-column e-field="Id" e-headertext="GRN No." e-width="100" textAlign='Left'></div>
-                            <div e-column e-field="GRNDate" e-headertext="GRN Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
-                            <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="100"></div>
+                            <div e-column e-field="Id" e-headertext="FGInventory No." e-width="100" textAlign='Left'></div>
+                            <div e-column e-field="GRNDate" e-headertext="FGInventory Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
                             <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="100"></div>
-                            <div e-column e-field="DocDate" e-headertext="Doc Ref Date" e-width="100"></div>
                             <div e-column e-field="EntryDate" e-headertext="Entry Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
                             <div e-column e-field="FixedAssetOrInventory" e-headertext="FixedAssetOrInventory" e-width="100"></div>
                             <div e-column e-field="Status" e-headertext="Status" e-width="50"></div>
-                            <div e-column e-field="GRNType" e-headertext="GRN Type" e-width="50"></div>
+                            <div e-column e-field="GRNType" e-headertext="Type" e-width="50"></div>
                         </div>
                     </div>
                 </div>
