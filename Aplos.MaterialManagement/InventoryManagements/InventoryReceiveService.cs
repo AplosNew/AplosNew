@@ -4430,7 +4430,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					--              
 
 					left join (select IID.InventoryMaterialId,IRD.IsAsset--,IRD.MaterialStorageId,IR.GRNDate
-								, Sum(IH.Qty) IssueQty , sum(IH.TotalAmount) PolicyAmount--Sum(IH.TotalAmount) PolicyAmount--Sum(IID.TransactionQty) IssueQty , Sum(IID.PolicyAmount) PolicyAmount
+								, Sum(IH.Qty) IssueQty , sum(IH.TotalMaterialBooksCurrencyAmount) PolicyAmount--Sum(IH.TotalAmount) PolicyAmount--Sum(IID.TransactionQty) IssueQty , Sum(IID.PolicyAmount) PolicyAmount
 					FROM TRN.InventoryIssueDetail IID  
 					LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId=II.Id	 
 					LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryIssueDetailId=IID.Id
@@ -5566,7 +5566,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					--              
 
 					left join (select IID.InventoryMaterialId,IRD.IsAsset--,IRD.MaterialStorageId,IR.GRNDate
-								, Sum(IH.Qty) IssueQty , sum(IH.TotalAmount) PolicyAmount--Sum(IH.TotalAmount) PolicyAmount--Sum(IID.TransactionQty) IssueQty , Sum(IID.PolicyAmount) PolicyAmount
+								, Sum(IH.Qty) IssueQty , sum(IH.TotalMaterialBooksCurrencyAmount) PolicyAmount--Sum(IH.TotalAmount) PolicyAmount--Sum(IID.TransactionQty) IssueQty , Sum(IID.PolicyAmount) PolicyAmount
 					FROM TRN.InventoryIssueDetail IID  
 					LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId=II.Id	 
 					LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryIssueDetailId=IID.Id
@@ -6992,7 +6992,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					--              
 
 					left join (select IID.InventoryMaterialId,IRD.IsAsset--,IRD.MaterialStorageId,IR.GRNDate
-								, Sum(IH.Qty) IssueQty , sum(IH.Qty*IH.Rate) PolicyAmount--Sum(IH.TotalAmount) PolicyAmount--Sum(IID.TransactionQty) IssueQty , Sum(IID.PolicyAmount) PolicyAmount
+								, Sum(IH.Qty) IssueQty , sum(IH.TotalMaterialBooksCurrencyAmount) PolicyAmount--Sum(IH.TotalAmount) PolicyAmount--Sum(IID.TransactionQty) IssueQty , Sum(IID.PolicyAmount) PolicyAmount
 					FROM TRN.InventoryIssueDetail IID  
 					LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId=II.Id	 
 					LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryIssueDetailId=IID.Id
@@ -8062,7 +8062,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					--              
 
 					left join (select IID.InventoryMaterialId,IRD.IsAsset--,IRD.MaterialStorageId,IR.GRNDate
-								, Sum(IH.Qty) IssueQty , sum(IH.TotalAmount) PolicyAmount--Sum(IH.TotalAmount) PolicyAmount--Sum(IID.TransactionQty) IssueQty , Sum(IID.PolicyAmount) PolicyAmount
+								, Sum(IH.Qty) IssueQty , sum(IH.TotalMaterialBooksCurrencyAmount) PolicyAmount--Sum(IH.TotalAmount) PolicyAmount--Sum(IID.TransactionQty) IssueQty , Sum(IID.PolicyAmount) PolicyAmount
 					FROM TRN.InventoryIssueDetail IID  
 					LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId=II.Id	 
 					LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryIssueDetailId=IID.Id
@@ -9109,7 +9109,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					--              
 
 					left join (select IID.InventoryMaterialId,IRD.IsAsset--,IRD.MaterialStorageId,IR.GRNDate
-								, Sum(IH.Qty) IssueQty , sum(IH.Qty*IH.Rate) PolicyAmount--Sum(IH.TotalAmount) PolicyAmount--Sum(IID.TransactionQty) IssueQty , Sum(IID.PolicyAmount) PolicyAmount
+								, Sum(IH.Qty) IssueQty , sum(IH.TotalMaterialBooksCurrencyAmount) PolicyAmount--Sum(IH.TotalAmount) PolicyAmount--Sum(IID.TransactionQty) IssueQty , Sum(IID.PolicyAmount) PolicyAmount
 					FROM TRN.InventoryIssueDetail IID  
 					LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId=II.Id	 
 					LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryIssueDetailId=IID.Id
@@ -10142,7 +10142,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					--              
 
 					left join (select IID.InventoryMaterialId,IRD.IsAsset--,IRD.MaterialStorageId,IR.GRNDate
-								, Sum(IH.Qty) IssueQty , sum(IH.Qty*IH.Rate) PolicyAmount--Sum(IH.TotalAmount) PolicyAmount--Sum(IID.TransactionQty) IssueQty , Sum(IID.PolicyAmount) PolicyAmount
+								, Sum(IH.Qty) IssueQty , sum(IH.TotalMaterialBooksCurrencyAmount) PolicyAmount--Sum(IH.TotalAmount) PolicyAmount--Sum(IID.TransactionQty) IssueQty , Sum(IID.PolicyAmount) PolicyAmount
 					FROM TRN.InventoryIssueDetail IID  
 					LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId=II.Id	 
 					LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryIssueDetailId=IID.Id
@@ -12732,24 +12732,33 @@ namespace Library.MaterialManagement.InventoryManagements
 					sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 					sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-					sheet1headreColIndex++;
+					
 
 
 
-					sheet1.Range[_rowL, sheet1headreColIndex].Text = "Qty";
-					sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
-					sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-					sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-					sheet1headreColIndex++;
+					if (Country == "false")
+					{
+						//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Country Name");
+						//sheet1headreColIndex++;
+						sheet1headreColIndex++;
+						sheet1.Range[_rowL, sheet1headreColIndex].Text = "Qty";
+						sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+						sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+						sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+						sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+						sheet1headreColIndex++;
 
-					//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Amount");
+						//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Amount");
 
-					sheet1.Range[_rowL, sheet1headreColIndex].Text = "Amount";
-					sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-					sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-					sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+						sheet1.Range[_rowL, sheet1headreColIndex].Text = "Amount";
+						sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+						sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+						sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+						sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+
+
+					}
+					
 
 					sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
 					sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.Font.Size = 10;
@@ -18301,7 +18310,7 @@ And IR.IsApproved = 1 and IR.GRNType='GRNBYPO' AND IR.TransformationContractId='
                         LEFT JOIN HKP.CharacteristicsValue AS TCV ON IRD.ThirdCharacteristicsValueId=TCV.Id
                        -- JOIN [TRN].[PurchaseOrderDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
-                        LEFT JOIN [dbo].[OSTransformationPO] AS IR ON IRD.JWTransformationPurchaseOrderId=IR.Id
+                        LEFT JOIN [dbo].[JWTransformationPurchaseOrder] AS IR ON IRD.JWTransformationPurchaseOrderId=IR.Id
                         LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
                         --LEFT join [trn].MaterialRequsitionDetails MRD on MRD.Id=IRD.RequisitionDetailId
 						LEFT JOIN (SELECT POId,PODetailId,Sum(TransactionQty) AcptTransactionQty FROM TRN.PurchaseDocAcceptanceDetail GROUP BY POId,PODetailId) PAD ON PAD.POId=IRD.JWTransformationPurchaseOrderId AND PAD.PODetailId=IRD.Id

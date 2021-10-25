@@ -72,7 +72,7 @@
                         <div e-column e-type="string" e-field="UoM" e-headertext="UoM" e-width="120"></div>
                         <div e-column e-type="number" e-field="SplitCount" e-textalign="right" e-format="{0:N2}" e-headertext="Split Count" e-width="80"></div>
                         <div e-column e-type="number" e-field="TotalDistributeQty" e-textalign="right" e-format="{0:N2}" e-headertext="Total Distribute Qty" e-width="100"></div>
-                        <div e-column e-headertext=" Distribute " e-template="#distributeBTN" e-width="170"></div>
+                        <div e-column e-headertext=" Distribute " e-template="#distributeBTN" e-width="190"></div>
 
                     </div>
                     <script id="distributeBTN" type="text/template">
@@ -104,10 +104,14 @@
                                         <i class="glyphicon glyphicon-download-alt"></i>
                                     </button>
                                 </li>
-
                             </ul>
                         </div>
                     </script>
+                </div>
+                <div class="inputRollBtnSection common-btn">
+                    <label class="fileUpload col-sm-4 " style="padding: 0 0 0 0">
+                        <input id="uploadRollData" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
+                    </label>
                 </div>
             </div>
         </div>
@@ -584,7 +588,7 @@
                 </div>
                 <div class="modal-footer common-btn">
                     <button ng-click="Update();" class="btn"><i class=""></i> Update</button>
-                    <button ng-click="RR();" class="btn"><i class=""></i> Download</button>
+                    <button ng-click="POPupReport();" class="btn"><i class=""></i> Download</button>
                 </div>
             </div>
         </div>

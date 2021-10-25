@@ -42,7 +42,7 @@ namespace Library.Planning.LineDesign
                                         WHERE x.ProductionOrderId = po.id                                
                                             AND x.ProcessId = '" + processId + @"'                                
                                             AND x.WorkCenterMasterId = '" + SelectedLine["WorkCenterMasterId"] + @"'                                
-                                            AND x.TargetDate < LL.TargetDate                                
+                                            AND x.TargetDate < '" + ProductionDate + @"'                             
                                         ORDER BY x.TargetDate DESC
                                 		)
                                 	AND LLP.WorkCenterMasterId = '" + SelectedLine["WorkCenterMasterId"] + @"'
@@ -259,7 +259,7 @@ namespace Library.Planning.LineDesign
             SaveInfo.SaveDataSets(dsMaster, dsChild);
         }
 
-        public List<Dictionary<string,object>> SearchEmployee(string column, string value, string OperationId, string OperationVariationId)
+        public List<Dictionary<string, object>> SearchEmployee(string column, string value, string OperationId, string OperationVariationId, string TargetDate)
         {
 
             string strkey = "1=1";
@@ -267,8 +267,10 @@ namespace Library.Planning.LineDesign
                 strkey = column + " like '%" + value + "%'";
 
             string sql = @"
-                      select top 100 * from (  
-                        SELECT distinct Emp.SystemID AS Id,
+                      select top 10000 * from (  
+                        SELECT distinct Emp.SystemID AS Id,dt.WorkCenterMasterId,apd.DayStatus,ISNULL(dt2.ColorCode,'#000000') AS DayColor,
+CONVERT(BIT,CASE WHEN ISNULL(dtd.EmployeeSystemId,'')='' THEN 0 ELSE 1 END) AS IsAssigned,
+CASE WHEN ISNULL(dtd.EmployeeSystemId,'')='' THEN 'Unassigned' ELSE CONCAT('Assigned to ',wcm.UserName,' for ',ov.UserName) END AS AssignmentStatus,
                         EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,
 						isnull(D.UserName,'') Designation,
                                         OtherSkills =STUFF((select distinct ','+ovx.UserName 
@@ -279,6 +281,14 @@ namespace Library.Planning.LineDesign
                             EMP.SectionId,SS.UserName SubSection
                             ,PL.UserName Plant
                             FROM EmployeeInformation EMP
+                            join EmployeeOperation AS eo ON EO.EmpSystemId=EMP.SystemId --AND EO.OperationVariationId='" + OperationVariationId + @"'
+                            LEFT JOIN LineLayoutDailyTargetData AS DTD ON dtD.EmployeeSystemId=emp.SystemId 
+														AND dtD.LineLayoutDailyTargetId IN (SELECT Id FROM LineLayoutDailyTarget AS X Where x.TargetDate='" + TargetDate + @"')
+							LEFT JOIN LineLayoutDailyTarget		DT ON dt.Id=dtd.LineLayoutDailyTargetId		
+							LEFT JOIN scs.WorkCenterMaster AS wcm ON wcm.Id=dt.WorkCenterMasterId
+							LEFT JOIN mst.OperationVariation AS ov ON ov.Id=dtd.OperationVariationId
+							LEFT JOIN AttdnProcessData AS apd ON apd.EmpSystemID=emp.SystemId AND apd.WorkDate='" + TargetDate + @"'
+							LEFT JOIN DayType AS dt2 ON dt2.DayType=apd.DayStatus
                             LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                             LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                             LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
@@ -289,14 +299,106 @@ namespace Library.Planning.LineDesign
                             LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
                             LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
    
-                        WHERE emp.EmployeeStatus='Active' and EMP.OperationVariationId='" + OperationVariationId + @"'
-                ) AS TEMP where " + strkey + " Order By Id";
+                        WHERE emp.EmployeeStatus='Active'  
+                ) AS TEMP where " + strkey + " Order By IsAssigned,Id";
 
 
 
 
 
             return _sqlRepository.GetDataCollection(sql);
+        }
+        public List<Dictionary<string, object>> SearchFixedAsset(string column, string value, string ArticleId)
+        {
+
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            string sql = @"
+                      select top 100 * from (  
+                       SELECT far.Id,far.Model, far.SerialNo, far.CapitalizationDate,
+                           far.YearOfManufacture, far.YearOfInstallation, far.[Description],CONCAT(far.Id,'/',far.[Description]) AS FixedAssetDesc,
+                           far.AssetNo, far.[Status], far.Remarks,cm.UserName AS Vendor,B.UserName AS Brand,c.UserName AS CountryOfOrigin,FR.UserName FixedAssetMaster,
+                           A.UserName AS FixedAssetActivity
+                      FROM trn.FixedAssetRegister AS far
+                                LEFT JOIN hkp.Party AS cm ON cm.Id=far.VendorId
+                                LEFT JOIN SCS.Brand B ON b.Id=far.BrandId
+                                LEFT JOIN SCS.Country C ON c.Id=far.CountryOfOriginId
+                                LEFT JOIN MST.FixedAssetMaster FR ON fr.Id=far.FixedAssetMasterId
+                                LEFT JOIN HKP.Activity A ON A.Id=far.FAActivityId
+
+                                WHERE far.MaterialMasterArticleId='" + ArticleId + @"'
+                ) AS TEMP where " + strkey + " Order By SerialNo";
+
+
+
+
+
+            return _sqlRepository.GetDataCollection(sql);
+        }
+        public List<List<Dictionary<string, object>>> GetEmployeeCard(string EmployeeId, string OperationVariationId, string AssetRegisterId, string TargetDate)
+        {
+
+            List<List<Dictionary<string, object>>> data = new List<List<Dictionary<string, object>>>();
+            string sql = @"SELECT distinct Emp.SystemID AS Id,apd.DayStatus,ISNULL(dt2.ColorCode,'#000000') AS DayColor,
+
+                        EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,
+						isnull(D.UserName,'') Designation,
+                                        Skills =STUFF((select distinct ','+ovx.UserName 
+                                        FROM EmployeeOperation AS eox
+				                        JOIN mst.OperationVariation AS ovx ON ovx.Id=eox.OperationVariationId                                             
+			                            where eox.EmpSystemId=EMP.SystemId 	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+                            DEPT.UserName Department,S.UserName Section,
+                            EMP.SectionId,SS.UserName SubSection
+                            ,PL.UserName Plant
+                            FROM EmployeeInformation EMP
+                          	LEFT JOIN AttdnProcessData AS apd ON apd.EmpSystemID=emp.SystemId AND apd.WorkDate='" + TargetDate + @"'
+							LEFT JOIN DayType AS dt2 ON dt2.DayType=apd.DayStatus
+
+                            LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
+                            LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                            LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+                            LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
+                            LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                            LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=EMP.LegalDesignationId
+                            LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
+                            LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
+                            LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
+   
+                        WHERE emp.SystemId='" + EmployeeId + @"'";
+
+            data.Add(_sqlRepository.GetDataCollection(sql));
+
+            sql = @"SELECT o.UserName AS Operation,ov.UserName AS OperationVariation,mma.StandardName AS Article,s.UserName AS Skill,
+                        ov.SubOperationSAM, ov.AdditionalSAMSymbol, ov.AdditionalSAM, ov.Frequency,
+                        ov.MachineAllowance, ov.SPI, ov.Code, ov.TotalSAM, ov.AdditionalAllowance,
+                        ov.VASFINALSAM
+                          FROM mst.OperationVariation AS ov
+                        LEFT JOIN mst.Operation AS o ON o.Id=ov.OperationId
+                        LEFT JOIN mst.MaterialMasterArticle AS mma ON mma.Id=ov.ArticleId
+                        LEFT JOIN hkp.Skill AS s ON s.Id=ov.SkillId
+                        WHERE ov.Id='" + OperationVariationId + @"'";
+
+            data.Add(_sqlRepository.GetDataCollection(sql));
+
+
+            sql = @" SELECT far.Id,far.Model, far.SerialNo, far.CapitalizationDate,
+                           far.YearOfManufacture, far.YearOfInstallation, far.[Description],CONCAT(far.Id,'/',far.[Description]) AS FixedAssetDesc,
+                           far.AssetNo, far.[Status], far.Remarks,cm.UserName AS Vendor,B.UserName AS Brand,c.UserName AS CountryOfOrigin,FR.UserName FixedAssetMaster,
+                           A.UserName AS FixedAssetActivity
+                      FROM trn.FixedAssetRegister AS far
+                                LEFT JOIN hkp.Party AS cm ON cm.Id=far.VendorId
+                                LEFT JOIN SCS.Brand B ON b.Id=far.BrandId
+                                LEFT JOIN SCS.Country C ON c.Id=far.CountryOfOriginId
+                                LEFT JOIN MST.FixedAssetMaster FR ON fr.Id=far.FixedAssetMasterId
+                                LEFT JOIN HKP.Activity A ON A.Id=far.FAActivityId
+
+                                WHERE far.Id='" + AssetRegisterId + @"'";
+
+            data.Add(_sqlRepository.GetDataCollection(sql));
+
+            return data;
         }
     }
 }

@@ -1519,3 +1519,18 @@ LEFT OUTER JOIN MaterialGridMaster mgm ON mgm.SystemID=mm.materialGridMasterSyst
         }//end function
     }
 }
+public class FabricRollFile
+{
+    public string Id { get; set; }
+    public string FileId { get; set; }
+    public string FileName { get; set; }
+    public string FileStatus { get; set; }
+    public string PlantId { get; set; }
+    public string AddedBy { get; set; }
+    public string AddedDate { get; set; }
+    public string AddedFromIP { get; set; }
+    public string UpdatedBy { get; set; }
+    public string UpdatedDate { get; set; }
+    public string UpdatedFromIP { get; set; }
+
+}

@@ -9753,7 +9753,7 @@ ORDER BY tg.[Sequence]";
                                 	SELECT InventoryIssueDetailId
                                 		,Sum(Qty) Qty
                                 		,sum(qty * rate) / Sum(Qty) Rate
-                                		,sum(TotalAmount) TrnAmount
+                                		,sum(isnull(TotalMaterialBooksCurrencyAmount,0)) TrnAmount
                                 	FROM trn.InventoryIssueHistory
                                 	GROUP BY InventoryIssueDetailId
                                 	) IIH ON IIH.InventoryIssueDetailId = IRD.Id
