@@ -207,6 +207,7 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 			var PId = $scope.ModelNew.Id;
 			var TabType = $scope.ModelNew.TabType;
 			$scope.ReceiptVA.TransformationContractId = $scope.ModelNew.Id;
+			$scope.ReceiptVA.PartyId = $scope.ModelNew.PartyId;
 			$http({
 				method: 'POST',
 				url: $scope.path + "GetDataById",
@@ -364,7 +365,6 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 		var data = obj.data;
 	//	$scope.ReceiptVA.GateEntryNoId = data.Id;
 		$scope.ReceiptVA.GateEntryNo = data.Id;
-
 		$scope.ReceiptVA.PartyId = data.PartyId;
 		$scope.ReceiptVA.InvoicingPartyPlantId = data.InvoicingPartyPlantId;
 		$scope.ReceiptVA.InvoicingByAddress = data.InvoicingByAddress;
@@ -2193,6 +2193,8 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 					if ($scope.inventoryMaterialListPOnew1.length === 0) {
 						$scope.inventoryMaterialListPOnew1 = null;
 					}
+
+		//			$scope.ReceiptVA.PartyId = $scope.ModelNew.PartyId;
 
 					//debugger;
 					$http({
