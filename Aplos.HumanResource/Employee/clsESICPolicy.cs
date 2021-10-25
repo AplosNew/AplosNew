@@ -56,12 +56,23 @@ namespace Library.HumanResource.Employee
                 GetMonth(master.ID, out dsMonth);
                 _Month(ref dsMonth, master.ID, months);
 
-                DataSet dsLeave;
-                GetESICLeaveType(master.ID, out dsLeave);
-                _LeaveType(ref dsLeave, master.ID, LeaveList);
+                if (LeaveList == null)
+                {
+                    clsStaticInfo _infos = new clsStaticInfo();
+                    _infos.SaveDataSets(dsMaster, dsMonth);
+                }
+                else
+                {
+                    DataSet dsLeave;
+                    GetESICLeaveType(master.ID, out dsLeave);
+                    _LeaveType(ref dsLeave, master.ID, LeaveList);
+                    clsStaticInfo _info = new clsStaticInfo();
+                    _info.SaveDataSets(dsMaster, dsMonth, dsLeave);
+                }
+                
 
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster, dsMonth, dsLeave);
+                //clsStaticInfo _info = new clsStaticInfo();
+                //_info.SaveDataSets(dsMaster, dsMonth, dsLeave);
             }
             catch (Exception ex)
             {

@@ -207,6 +207,7 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 			var PId = $scope.ModelNew.Id;
 			var TabType = $scope.ModelNew.TabType;
 			$scope.ReceiptVA.TransformationContractId = $scope.ModelNew.Id;
+			$scope.ReceiptVA.PartyId = $scope.ModelNew.PartyId;
 			$http({
 				method: 'POST',
 				url: $scope.path + "GetDataById",
@@ -364,7 +365,6 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 		var data = obj.data;
 	//	$scope.ReceiptVA.GateEntryNoId = data.Id;
 		$scope.ReceiptVA.GateEntryNo = data.Id;
-
 		$scope.ReceiptVA.PartyId = data.PartyId;
 		$scope.ReceiptVA.InvoicingPartyPlantId = data.InvoicingPartyPlantId;
 		$scope.ReceiptVA.InvoicingByAddress = data.InvoicingByAddress;
@@ -1250,30 +1250,34 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 	});
 	$scope.getToCurrencyRate = function () {
 		if ($scope.ModelNew.TabType == "Transformation") {
-			if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.DocDate)) {
-				$scope.ReceiptTransformation.ToCurrencyRate = 1;
-				return;
-			}
-			$http.get('Products/InventoryReceive/GetToCurrencyRateForJWR?currencyId=' + $scope.ReceiptTransformation.CurrencyId + '&baseCurrencyId=' + $scope.ReceiptTransformation.BaseCurrencyId + '&docDate=' + $filter('dateFiltering')($scope.ReceiptTransformation.DocDate))
-				.then(function (response) {
-					if (parseFloat(response.data) === 0)
-						$scope.ReceiptTransformation.ToCurrencyRate = 1;
-					else
-						$scope.ReceiptTransformation.ToCurrencyRate = response.data;
-				});
+			//if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.DocDate)) {
+			//	$scope.ReceiptTransformation.ToCurrencyRate = 1;
+			//	return;
+			//}
+			//$http.get('Products/InventoryReceive/GetToCurrencyRateForJWR?currencyId=' + $scope.ReceiptTransformation.CurrencyId + '&baseCurrencyId=' + $scope.ReceiptTransformation.BaseCurrencyId + '&docDate=' + $filter('dateFiltering')($scope.ReceiptTransformation.DocDate))
+			//	.then(function (response) {
+			//		if (parseFloat(response.data) === 0)
+			//			$scope.ReceiptTransformation.ToCurrencyRate = 1;
+			//		else
+			//			$scope.ReceiptTransformation.ToCurrencyRate = response.data;
+			//	});
+
+			$scope.ReceiptTransformation.ToCurrencyRate = 1;
 		}
 		else {
-			if (baseService.isUndefinedOrNull($scope.ReceiptVA.DocDate)) {
-				$scope.ReceiptVA.ToCurrencyRate = 1;
-				return;
-			}
-			$http.get('Products/InventoryReceive/GetToCurrencyRateForJWR?currencyId=' + $scope.ReceiptVA.CurrencyId + '&baseCurrencyId=' + $scope.ReceiptVA.BaseCurrencyId + '&docDate=' + $filter('dateFiltering')($scope.ReceiptVA.DocDate))
-				.then(function (response) {
-					if (parseFloat(response.data) === 0)
-						$scope.ReceiptVA.ToCurrencyRate = 1;
-					else
-						$scope.ReceiptVA.ToCurrencyRate = response.data;
-				});
+			//if (baseService.isUndefinedOrNull($scope.ReceiptVA.DocDate)) {
+			//	$scope.ReceiptVA.ToCurrencyRate = 1;
+			//	return;
+			//}
+			//$http.get('Products/InventoryReceive/GetToCurrencyRateForJWR?currencyId=' + $scope.ReceiptVA.CurrencyId + '&baseCurrencyId=' + $scope.ReceiptVA.BaseCurrencyId + '&docDate=' + $filter('dateFiltering')($scope.ReceiptVA.DocDate))
+			//	.then(function (response) {
+			//		if (parseFloat(response.data) === 0)
+			//			$scope.ReceiptVA.ToCurrencyRate = 1;
+			//		else
+			//			$scope.ReceiptVA.ToCurrencyRate = response.data;
+			//	});
+
+			$scope.ReceiptVA.ToCurrencyRate = 1;
         }
 
 	};
@@ -2193,6 +2197,8 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 					if ($scope.inventoryMaterialListPOnew1.length === 0) {
 						$scope.inventoryMaterialListPOnew1 = null;
 					}
+
+		//			$scope.ReceiptVA.PartyId = $scope.ModelNew.PartyId;
 
 					//debugger;
 					$http({
