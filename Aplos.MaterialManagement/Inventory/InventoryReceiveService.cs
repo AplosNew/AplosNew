@@ -6157,8 +6157,7 @@ namespace Library.MaterialManagement.Inventory
                             ,IRD.TransactionUoMId
                             ,TUoM.ShortName  AS TransactionUoM
                             ,IRD.Id InventoryReceiveDetailId
-							--,IR.ProductionOrderId
-,''ProductionOrderId
+						    ,IR.ProductionOrderId
 
 							,MRD.MaterialDetail,POD.Description,IRD.Description AS GRDDescrition
                             ,CheckStatus= CASE when IR.CheckedByStatus='ForChecked' Then 'To be checked'
@@ -6350,9 +6349,7 @@ namespace Library.MaterialManagement.Inventory
                             ,IRD.TransactionUoMId
                             ,TUoM.ShortName  AS TransactionUoM
                             ,IRD.Id InventoryReceiveDetailId
-							--,IR.ProductionOrderId
-,''ProductionOrderId
-
+							,IR.ProductionOrderId
 							,MRD.MaterialDetail,POD.Description,IRD.Description AS GRDDescrition
                             ,PurOrCheckedStatus= CASE when IR.CheckedByStatus='ForChecked' Then 'To be checked'
                             when IR.CheckedByStatus='Hold' Then 'Hold'
@@ -25725,12 +25722,12 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 				//TROW.Cells[colQualityStatus].AddParagraph().AppendText(dsOrderMaster.Rows[i]["QualityStatus"].ToString().ToString());
 				//TROW.Cells[colGrossAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["GrossAmount"].ToString()).ToString("F2"));
 				//TROW.Cells[colDiscountAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["DiscountAmount"].ToString()).ToString("F2"));
-		//		TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("#,##0.00"));
+				TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("#,##0.00"));
 
-                TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["AverageAmount"].ToString()).ToString("#,##0.00"));
+          //      TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["AverageAmount"].ToString()).ToString("#,##0.00"));
 
-        //        totalValue += clsStdLib.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString());
-                totalValue += clsStdLib.dbl(dsOrderMaster.Rows[i]["AverageAmount"].ToString());
+               totalValue += clsStdLib.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString());
+                //totalValue += clsStdLib.dbl(dsOrderMaster.Rows[i]["AverageAmount"].ToString());
                 //TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(totalValue.ToString("F2"));
                 if (dv.Count > 0)
 				{
