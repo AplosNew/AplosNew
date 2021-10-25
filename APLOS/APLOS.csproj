@@ -574,6 +574,7 @@
     <Compile Include="Areas\HumanResource\Controllers\ManpowerBudgetDesignationReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\RosterPatternController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\RosterUpdatesController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\SalaryDisbursementReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ShiftChangeSectionWiseController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\PlantWiseHRMSSettingController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ManpowerBudgetDashboardController.cs" />
@@ -1857,6 +1858,7 @@
     <Content Include="Areas\HumanResource\Scripts\ArrearProcessedReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\RosterPatternController.js" />
     <Content Include="Areas\HumanResource\Scripts\RosterUpdatesController.js" />
+    <Content Include="Areas\HumanResource\Scripts\SalaryDisbursementReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryProcessedReportControllerNew.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryProcessedReportExtraOTCTCCompanyController.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryProcessedReportExtraOTCTCOriginalController.js" />
@@ -3768,6 +3770,7 @@
     <Content Include="Areas\Leave\Views\OnDutyApprovalNew\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\EntireYearPresentDaysSummary\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\PhysicalVerificationReport\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\SalaryDisbursementReport\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
