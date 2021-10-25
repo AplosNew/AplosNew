@@ -553,13 +553,13 @@ namespace Aplos.Areas.Attendances.Controllers
                     {
                         string minute = mm.ToString("F").TrimStart();
                         minute = minute.Substring(2, minute.Length - 2);
-                        OT_output = hh + ":" + minute;
+                        OT_output = hh + "." + minute;
                     }
                     else
                     {
-                        string minute = mm.ToString();
-                        minute = minute.Substring(0, 2);
-                        OT_output = hh + ":" + minute;
+                        decimal deciminute = Convert.ToDecimal((mm) / 60);
+                        string substringvalue = deciminute.ToString().Substring(2, 2);
+                        OT_output = hh + "." + substringvalue;
                     }
 
 

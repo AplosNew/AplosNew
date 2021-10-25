@@ -41,7 +41,8 @@ namespace Library.OrderManagement.FabricRollClass
             VendorPackingFormNo,
             StorageLocationName,
             BinSystemID,
-            Remarks
+            Remarks,
+            GRNMasterSystemID
         }
         enum dataType
         {
@@ -1124,6 +1125,7 @@ from GRNPackingList g where g.GRNMasterSystemID='" + grnSystemID + "' " + @"
 
         //        FabricRollClass.validateGRNTransfer(lblGRNSystemID.Text);
 
+        //       // makeDataTableFromExcel(lblGRNSystemID.Text, out dsServerDataHeader, out dsServerData);
         //        makeDataTableFromExcel(lblGRNSystemID.Text, out dsServerDataHeader, out dsServerData);
         //        if (dsServerData.Tables[0].Rows.Count == 0)
         //        {
@@ -1134,7 +1136,7 @@ from GRNPackingList g where g.GRNMasterSystemID='" + grnSystemID + "' " + @"
         //        objStatic.grnInternalControls(dsServerDataHeader.Tables[0].Rows[0][colIndex.BOMandSOWiseRMSystemID.ToString()].ToString(), lblPOSystemID.Text);
 
 
-        //        objStatic.GetGRNHeaderInfo_Report(dsServerDataHeader.Tables[0].Rows[0][colIndex.GRNMasterSystemID.ToString()].ToString(), out dsHeader);
+        //        objStatic.GetFabricRollHeaderInfo_Report(dsServerDataHeader.Tables[0].Rows[0][colIndex.GRNMasterSystemID.ToString()].ToString(), out dsHeader);
         //        if (dsHeader.Tables[0].Rows.Count == 0)
         //        {
         //            Exception ex = new Exception("No data found in the system according to uploaded file");
@@ -1400,6 +1402,12 @@ from GRNPackingList g where g.GRNMasterSystemID='" + grnSystemID + "' " + @"
         //    }
 
         //}
+
+        private static void validateGRNTransfer(object text)
+        {
+            throw new NotImplementedException();
+        }
+
         public static void validateGRNTransfer(string GrnMasterSystemID)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -1517,6 +1525,116 @@ LEFT OUTER JOIN MaterialGridMaster mgm ON mgm.SystemID=mm.materialGridMasterSyst
                 objCon = null;
             }
         }//end function
+        public void Save(string filename, string extension, FabricRollFile file, out DataSet dsMaster)
+        {
+            try
+            {
+
+                GetData(file.Id, out dsMaster);
+                _Save(ref dsMaster, filename, extension, file);
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void GetData(string FileId, out DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                strSQL = "select * from FabricRollFile where Id='" + FileId + "' ";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
+        void _Save(ref DataSet dsSaveBonusMaster, string filename, string extension, FabricRollFile ui_master)
+        {
+            DataView _dvSave = null;
+            //_masterpk = string.Empty;
+            try
+            {
+                _dvSave = new DataView(dsSaveBonusMaster.Tables[0]);
+                _dvSave.RowFilter = "Id ='" + ui_master.Id + "'";
+                if (_dvSave.Count == 0)
+                {
+                    DataRow dr = dsSaveBonusMaster.Tables[0].NewRow();
+                    _SaveCol("ADDNEW", filename, extension, ui_master, ref dr);
+                    dsSaveBonusMaster.Tables[0].Rows.Add(dr);
+                }
+                else
+                {
+                    DataRow dr = _dvSave[0].Row;
+                    dr.BeginEdit();
+                    _SaveCol("Edit", filename, extension, ui_master, ref dr);
+                    dr.EndEdit();
+                }
+            }
+
+
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        private void _SaveCol(string OPN_FLAG, string filename, string extension, FabricRollFile ui_master, ref DataRow drLocal)
+        {
+            bplib.clsGenID objGenID = null;
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string idFromDB = "";
+            string systemID = "";
+
+            try
+            {
+                if (OPN_FLAG == "ADDNEW")
+                {
+                    objGenID = new bplib.clsGenID();
+                    objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "File", out idFromDB);
+                    //systemID =  idFromDB;
+                    //ui_master.Id = systemID.Trim();
+                    drLocal["Id"] = bplib.clsWebLib.RetValidLen(idFromDB);
+                    drLocal["FileId"] = idFromDB + extension;
+                    drLocal["FileName"] = filename;
+                    drLocal["FileStatus"] = "Uploaded";
+                    drLocal["PlantId"] = ui_master.PlantId;
+
+                    drLocal["AddedBy"] = identity.Name;
+                    drLocal["AddedFromIP"] = identity.IPAddress;
+                    drLocal["AddedDate"] = bplib.clsWebLib.DateData_AppToDB(DateTime.Now.ToShortDateString().ToString(), bplib.clsWebLib.DB_DATE_FORMAT);
+
+                }
+                else
+                {
+                    drLocal["UpdatedBy"] = ui_master.AddedBy;
+                    drLocal["UpdatedFromIP"] = identity.IPAddress;
+                    drLocal["UpdatedDate"] = bplib.clsWebLib.DateData_AppToDB(DateTime.Now.ToShortDateString().ToString(), bplib.clsWebLib.DB_DATE_FORMAT);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                //
+            }
+        }//End Function
+
     }
 }
 public class FabricRollFile
