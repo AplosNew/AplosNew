@@ -39,6 +39,12 @@ function budgetMasterController(cboService, commonMessage, $scope, $rootScope, b
         });
     };
     // Combo list
+
+    $scope.ActivityOrderTypeList = [];
+    cboService.getEnumCbo("enum/GetActivityOrderTypeEnumCbo", function (result) {
+        $scope.ActivityOrderTypeList = result;
+    });
+
     cboService.getBudgetClassCbo(function (result) {
         $scope.BudgetClassList = result;
     });
