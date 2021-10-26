@@ -279,8 +279,21 @@ namespace Library.Accounting.FixedAssets
                                     , FAM.FixedAssetSubCategoryId, FAM.AssetType
                                     ,P.UserName Vendor
                                     ,c.Code TrnCurrency
-                                    , ISNULL(FR.Price,0) Price,ISNULL(SAR.subAssetAmount,0) SubAssetAmount, ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0) PurchasePrice,FR.FABaseAmount,FR.ADBaseAmount
-                                    , ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0)-ISNULL(FR.ADBaseAmount,0) NetBookValue , 0 NegotiationValue
+
+                                    , ISNULL(FR.Price,0) Price
+									,ISNULL(SAR.subAssetAmount,0) SubAssetAmount
+									, ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0) PurchasePrice
+									 ,ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0)-ISNULL(FR.ADBaseAmount,0) NetBookValue 
+								--	, 0 NegotiationValue
+
+								   , BC.Code BaseCurrency
+									,isnull(FR.FABaseAmount,0)FABaseAmount
+									,ISNULL(SAR.subAssetBaseAmount,0) SubAssetBaseAmount
+									,isnull(FR.FABaseAmount,0) + ISNULL(SAR.subAssetBaseAmount,0) PurchaseBaseAmount
+									,isnull( FR.ADBaseAmount,0)ADBaseAmount
+                                    , isnull(FR.FABaseAmount,0)+ISNULL(SAR.subAssetBaseAmount,0)-ISNULL(FR.ADBaseAmount,0) NetBaseBookValue 
+									, 0 NegotiationValue
+
                                     , MMA.StandardName Article, FR.IsFinancial,IsOBBalance=case when FR.IsOpeningBalance=0 then 'No' Else 'Yes' End
                                     , GL.AccountCode GLGeneralInfoCode,GL.UserName GLGeneralInfoName,GL.Id GLGeneralInfoId
 									, BM.Id BudgetMasterId,B.UserName BudgetName,BM.RefNo BudgetRefNo
@@ -307,11 +320,13 @@ namespace Library.Accounting.FixedAssets
 									left join trn.InventoryReceive IR on IR.Id =  IRD.InventoryReceiveId
 									LEFT JOIN TRN.Voucher V ON V.Id=VD.VoucherId 
                                     LEFT JOIN SCS.Currency C ON C.Id =FR.CurrencyId
+                                    LEFT JOIN SCS.Currency BC ON BC.Id =FR.FABaseCurrencyId
+
 	                                LEFT JOIN HKP.Party P ON P.Id = FR.VendorId
 								   LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=BM.GLGeneralInfoId
 								   LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
 								   LEFT JOIN HKP.Activity A ON A.Id=FR.FAActivityId
-								   LEFT JOIN ( SELECT FixedAssetRegisterId,ISNULL(Sum(Amount),0) subAssetAmount FROM TRN.SubFixedAssetRegister group by FixedAssetRegisterId) SAR ON SAR.FixedAssetRegisterId=FR.Id
+								   LEFT JOIN ( SELECT FixedAssetRegisterId,ISNULL(Sum(Amount),0) subAssetAmount,ISNULL(Sum(BaseAmount),0) subAssetBaseAmount FROM TRN.SubFixedAssetRegister group by FixedAssetRegisterId) SAR ON SAR.FixedAssetRegisterId=FR.Id
                                    WHERE FR.CompanyId= '" + companyId + @"'  and FR.Archive= 0 and FR.IsAUC= 0 AND FR.Status IS NULL ) AS TEMP WHERE " + strkey + " order by SerialNo ";
             return _sqlRepository.GetDataCollection(sql);
         }
