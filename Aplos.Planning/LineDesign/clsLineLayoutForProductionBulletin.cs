@@ -263,7 +263,7 @@ namespace Library.Planning.LineDesign
             {
                 DataTable dtBulletin = _sqlRepository.GetDataTable(@"SELECT  ROW_NUMBER() OVER(ORDER BY D.Sequence,d.id) AS SQ,d.Id,ov.Id AS OperationVariationId,ov.UserName AS OperationVariation,
                                             d.AllotedManpower,MM.Id MaterialMasterId,MM.UserName AS MaterialMasterDesc
-											,M.StandardName AS ArticleDesc,o.Id as OperationId,o.UserName as OperationDesc
+											,o.IsMachineRequired,M.StandardName AS ArticleDesc,o.Id as OperationId,o.UserName as OperationDesc
                                                 ,M.Id ArticleId    ,d.Sequence,NULL AS Designation,isnull(Ov.color,'#ffffff') AS Color,
                                             mv.Id AS MachineId,mv.UserName AS MachineDesc,d.AllotedWorkstation,d.RequiredManPower,
                                             '1800001.jpg' AS EmpPicPath
@@ -341,7 +341,7 @@ namespace Library.Planning.LineDesign
                         emp.addInfo = new addInfo
                         {
                             //EmployeeId = dtBulletin.Rows[i]["EmployeeId"].ToString(),
-                            //EmployeeName = dtBulletin.Rows[i]["EmployeeName"].ToString(),
+                            MachineOrHand = dtBulletin.Rows[i]["IsMachineRequired"].ToString(),
                             MaterialMasterId = dtBulletin.Rows[i]["MaterialMasterId"].ToString(),
                             MaterialMasterDesc = dtBulletin.Rows[i]["MaterialMasterDesc"].ToString(),
                             ArticleId = dtBulletin.Rows[i]["ArticleId"].ToString(),

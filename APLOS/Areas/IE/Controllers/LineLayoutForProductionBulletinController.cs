@@ -92,7 +92,7 @@ namespace Aplos.Areas.IE.Controllers
             string sql = "";
             sql = @"SELECT ov.ArticleId,m.MaterialMasterId,mm.UserName AS MachineMaster,M.StandardName MachineName,mm.UserName MaterialMasterDesc
 					,OV.Id OperationVariationId, OV.Code,OV.StandardName OperationVariationDesc, ISNULL(OV.Frequency,0)Frequency,ISNULL(OV.SPI,0)SPI
-					,O.Id OperationId,O.UserName OperationDesc,ps.UserName AS ProductionSystem,
+					,O.Id OperationId,O.UserName OperationDesc,ps.UserName AS ProductionSystem,O.IsMachineRequired,
                     ISNULL(O.PersonalAllowance,0)PersonalAllowance,ISNULL(OV.MachineAllowance,0)MachineAllowance
 					,ISNULL(OV.AdditionalAllowance,0) AdditionalAllowances,
                     ISNULL(M.RPM,0)RPM,OV.TotalSAM,O.IsMachineRequired
