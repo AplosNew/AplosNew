@@ -1072,6 +1072,7 @@ function InOutGatePassController(accountService, addressService, $location, $win
 		$scope.GetSenderName();
 		
 		if (data.GatePassFor === 'PurchaseReturn') {
+			$scope.TabName = 'Purchase Return';
 			$scope.SelectType = 'Select Purchase Return';
 			$scope.productNew.GatePassType = 'PurchaseReturn';
 			$scope.productNew.GatePassStatus = 'NonReturnable';
@@ -1087,23 +1088,26 @@ function InOutGatePassController(accountService, addressService, $location, $win
 			$scope.getPurchaseReturnDataDetails(data.ComId);
 		}
 		else if (data.GatePassFor === 'MaterialTransfer') {
+			$scope.TabName = 'Material Transfer';
 			$scope.SelectType = 'Select Material Transfer';
 			$scope.getMaterialTransferData();
 			$scope.productNew.ChallanItemTypeId = data.ComId;
 		}
 		else if (data.GatePassFor === 'InventorySales') {
+			$scope.TabName = 'Inventory Sales';
 			$scope.SelectType = 'Select Inventory Sales';
 			$scope.productNew.ChallanItemTypeId = data.ComId;
 			$scope.getInventorySalesData();
 
 		}
 		else if (data.GatePassFor === 'InventoryScrap') {
+			$scope.TabName = 'Inventory Scrap';
 			$scope.SelectType = 'Select Inventory Scrap';
 			$scope.productNew.ChallanItemTypeId = data.ComId;
 			$scope.getInventoryScrapData();
 		}
 		else if (data.GatePassFor === 'FixedAssetSales') {
-			$scope.TabName = 'Fixed Asset';
+			$scope.TabName = 'Fixed Asset Register';
 			$scope.SelectType = 'Select FixedAsset Sales';
 			$scope.productNew.GatePassType = 'FixedAssetSales';
 			$scope.productNew.GatePassStatus = 'NonReturnable';
@@ -1113,6 +1117,7 @@ function InOutGatePassController(accountService, addressService, $location, $win
 			$scope.GetFixedAssetRegisterElasticSearchData(data.ComId)
 		}
 		else if (data.GatePassFor === 'FixedAssetScrap') {
+			$scope.TabName = 'Fixed Asset Scrap';
 			$scope.SelectType = 'Select FixedAsset Scrap';
 			$scope.productNew.ChallanItemTypeId = data.ComId;
 			$scope.getFixedAssetScrapData();
