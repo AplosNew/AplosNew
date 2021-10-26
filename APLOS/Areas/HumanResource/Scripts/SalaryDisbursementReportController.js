@@ -171,10 +171,7 @@ function SalaryDisbursementReportController(commonMessage, $scope, $rootScope, b
             }).then(function successCallback(response) {
                 if (response.data.length > 0) {
                     $scope.empGrid = true;
-                    $scope.EmployeeListDefault = response.data.filter(d => d.isSelect == true);
-                    $scope.EmployeeList = $scope.EmployeeListDefault;
-                    $scope.EmployeeListTemp = $scope.EmployeeListDefault;
-
+                    $scope.EmployeeList = response.data;
                 }
                 else {
                     ShowResult("No Data Found", 'failure');
@@ -216,106 +213,66 @@ function SalaryDisbursementReportController(commonMessage, $scope, $rootScope, b
         gridObj.refreshContent();
     };
 
-    $scope.SalaryLock = function () {
+
+    $scope.GetEmployeeSalaryProcessedReportSalaryLogWise = function () {
         try {
-            var EmployeeListNew = [];
-            for (var i = 0; i < $scope.EmployeeListTemp.length; i++) {
-                EmployeeListNew.push($scope.EmployeeListTemp[i]);
+            var parameters = [];
+            var gridObj = $("#empInfoGrid").ejGrid("instance");
+            var filteredRecords = gridObj.getFilteredRecords();
+            /* if ($scope.isManualFilter == true) {*/
+            if (filteredRecords.length == 0) {
+                filteredRecords = $scope.EmployeeList;
+
+            }
+            //}
+            if (angular.isUndefinedOrNull(filteredRecords) === false) {
+                if (filteredRecords.length > 0) {
+                    parameters = [];
+                    parameters.push({ "Key": "EmpSystemId", "Value": getString(filteredRecords, "EmpSystemId") });
+                }
+            }
+            if (parameters.length === 0) {
+                parameters.push({ "Key": "", "Value": "" });
+
             }
 
-            if (EmployeeListNew.length == 0) {
-                throw "Please Select LeaveType";
-            }
-
-            var data = ej.DataManager(EmployeeListNew).executeLocal(ej.Query().select(["EmpSystemId", "PayableVoucherId", "DisbursementVoucherId", "Id", "Flag", "CheckBoxSelect", "SalaryStructureId", "EmployeeCode"]));
-
-            $scope.$broadcast('show-errors-check-validity');
             $http({
                 method: 'POST',
-                url: $scope.SaveSalaryLockUrl,
+                url: $scope.path + 'GetEmployeeSalaryProcessedReportSalLogWiseNew',
                 data: {
-                    'EmployeeList': data, 'Month': $scope.month, 'Year': $scope.year, 'isActive': $scope.isActive, 'isSeperated': $scope.isSeperated, 'isMaternity': $scope.isMaternity, 'SalaryStructureId': $scope.SalaryStructureId
-                },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                    //$scope.GetEmployeeInformation();
+                    'month': $scope.month,
+                    'year': $scope.year,
+                    'salaryProcessId': $scope.salaryProcessId,
+                    'payRollGroup': $scope.payGroupListSelected,
+                    'parameters': parameters,
+                    'isActive': $scope.isActive,
+                    'isSeperated': $scope.isSeperated,
+                    'isMaternity': $scope.isMaternity
                 }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.GetEmployeeInformation();
-                    var gridObj = $("#empInfoGrid").data("ejGrid");
-                    gridObj.refreshContent();
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-
-        } catch (e) {
-            ShowResult(e, "failure");
-        }
-    };
-
-    $scope.SalaryUnLock = function () {
-        try {
-            var EmployeeListNew = [];
-            for (var i = 0; i < $scope.EmployeeListTemp.length; i++) {
-                EmployeeListNew.push($scope.EmployeeListTemp[i]);
-            }
-
-            if (EmployeeListNew.length == 0) {
-                throw "Please Select LeaveType";
-            }
-
-            var data = ej.DataManager(EmployeeListNew).executeLocal(ej.Query().select(["EmpSystemId", "PayableVoucherId", "DisbursementVoucherId", "Id", "Flag", "CheckBoxSelect", "SalaryStructureId"]));
-
-            $scope.$broadcast('show-errors-check-validity');
-            $http({
-                method: 'POST',
-                url: $scope.SaveSalaryLockUrl,
-                data: {
-                    'EmployeeList': data, 'Month': $scope.month, 'Year': $scope.year, 'isActive': $scope.isActive, 'isSeperated': $scope.isSeperated, 'isMaternity': $scope.isMaternity, 'SalaryStructureId': $scope.SalaryStructureId
-                },
-                dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.GetEmployeeInformation();
-                    var gridObj = $("#empInfoGrid").data("ejGrid");
-                    gridObj.refreshContent();
+                    $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
                 }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-
+            });
         } catch (e) {
-            ShowResult(e, "failure");
+            ShowResult(e, 'failure');
         }
     };
-
-    $window.onresize = function (event) {
-        $scope.actionCompleteSelected();
-
-    };
-    $scope.actionCompleteSelected = function (args) {
-        try {
-            if (args.requestType === "refresh") {
-                var gridObj = $("#AttendanceBonusD").ejGrid("instance");
-                var scrollerwidth = $("#NewId").width();
-
-                $("#AttendanceBonusD").children('.e-grid.e-headercell').css('height', '120px');
-                gridObj.option({ allowScrolling: true, scrollSettings: { width: scrollerwidth - 20, height: 160 } });
-                gridObj.windowonresize();
+    var getString = function (data, column) {
+        var string = "''";
+        var collection = [];
+        for (var i = 0; i < data.length; i++) {
+            if (collection.includes(data[i][column]) === false) {
+                string += ",'" + data[i][column] + "'";
+                collection.push(data[i][column]);
             }
-        } catch (e) {
-
         }
-    };
 
+        return string;
+    };
 }
 
 
