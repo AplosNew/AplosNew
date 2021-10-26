@@ -33,7 +33,7 @@ function PhysicalVerificationReportController($window, $timeout, cboService, com
                 { field: 'Section', width: 150, headerText: "Section", type: "string" },
                 { field: 'SubSection', width: 150, headerText: "SubSection", type: "string" },
                 { field: 'Unit', width: 150, headerText: "Unit", type: "string" },
-                { field: 'LegalDesignation', width: 150, headerText: "LegalDesignation", type: "string" },
+                { field: 'LegalDesignation', width: 150, headerText: "Designation", type: "string" },
                 { field: 'WorkDate', width: 150, headerText: "Date", type: "string" },
                 { field: 'InTime', width: 150, headerText: "InTime", type: "string" },             
                 { field: 'OutTime', width: 150, headerText: "OutTime", type: "string" },

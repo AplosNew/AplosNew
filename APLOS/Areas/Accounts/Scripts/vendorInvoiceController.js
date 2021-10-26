@@ -1153,12 +1153,12 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         angular.element(document.querySelector("#confirmPostPopUp")).modal("show");
     };
 
-    $scope.delete = function (invoiceId, voucherId, type) {
+    $scope.delete = function (invoiceId, voucherId, type, tDSVoucherId, tDSVoucherNo) {
         $http({
             method: "POST",
             url: $scope.deleteUrl,
             data: {
-                "invoiceId": invoiceId, "voucherId": voucherId, "type": type
+                "invoiceId": invoiceId, "voucherId": voucherId, "type": type, "tDSVoucherId": tDSVoucherId, "tDSVoucherNo": tDSVoucherNo
             },
             dataType: "JSON"
         }).then(function successCallback(response) {
@@ -1180,10 +1180,12 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
     };
 
     $scope.invoiceId = null;
-    $scope.confirmDelete = function (invoiceId, voucherId, type) {
+    $scope.confirmDelete = function (invoiceId, voucherId, type, tDSVoucherId, tDSVoucherNo) {
         $scope.invoiceId = invoiceId;
         $scope.voucherId = voucherId;
         $scope.type = type;
+        $scope.tDSVoucherId = tDSVoucherId;
+        $scope.tDSVoucherNo = tDSVoucherNo;
         $scope.message_delete_confirmation = "Are you sure to Delete?";
         angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
     };

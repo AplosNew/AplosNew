@@ -5,6 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+//this crap has been coded by tarek talukder
+//tarektalukder@gmail.com
+//only god can answer your queries regarding this library
 namespace Library.Planning.LineDesign
 {
     //{       { name: "Rectangle", width: 100, height: 100, offsetX: 150, offsetY: 150, fillColor: "#fcbc7c",
@@ -27,6 +30,7 @@ namespace Library.Planning.LineDesign
     {
         public string OperationId { get; set; } = "";
         public string OperationDesc { get; set; } = "";
+        public string MachineOrHand { get; set; } = "H";
         public string OperationVariationId { get; set; } = "";
         public string OperationVariationDesc { get; set; } = "";
         public string MaterialMasterId { get; set; } = "";
@@ -40,7 +44,10 @@ namespace Library.Planning.LineDesign
         public string EmployeeCode { get; set; } = "";
         public string Designation { get; set; } = "";
         public string EmpPicPath { get; set; } = "";
+        public string DayStatus { get; set; } = "";
+        public string DayColor { get; set; } = "";
         public double Sequence { get; set; } = 0;
+        public double ProductionQuantity { get; set; } = 0;
         public double AllotedWorkstation { get; set; } = 0;
         public double RequiredManPower { get; set; } = 0;
 
