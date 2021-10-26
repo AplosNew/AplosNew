@@ -11,10 +11,13 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
     $scope.isDrBankAmount = false;
     $scope.currencyDisable = false;
     $scope.isAdvance = true;
+
+    
     $scope.partyType = "Customer";
     $scope.postUrl = "accounts/OpeningBalance/PostOBAdvanceJournal";
     $controller('employeeBaseController', { $scope: $scope, $http: $http });
     $controller("partyBaseController", { $scope: $scope, $http: $http });
+    $controller("currencyBaseController", { $scope: $scope, $http: $http });
 
     $scope.voucherDetailList = [];
     $scope.searchBy = "FARDisposeNo"; $scope.search = "";
@@ -63,7 +66,10 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
         DOJ: null,
         GivenDesignation: null,
         Department: null,
-        LegalDesignation: null
+        LegalDesignation: null,
+        CurrencyId: null,
+        PostingDate: $filter("dateFiltering")(Date.now()),
+
     };
 
     $scope.voucherDetail = {
@@ -394,7 +400,7 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
         $scope.voucher.PartyId = party.Id;
         $scope.voucher.PaymentTermId = party.PaymentTermId;
         $scope.voucher.CurrencyId = party.CurrencyId;
-        // $scope.GetCurrencyExchangeRateList();
+        $scope.GetCurrencyExchangeRateList();
         //  $scope.changePaymentTerm($scope.salesVM.PaymentTermId);
         $scope.partyPlantList = [];
         $scope.getCboPartyPlantList(party.Id, function (result) {
@@ -468,5 +474,24 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
             }
         }
     };
+
+    $scope.currencyExchangeRate = [];
+    $scope.GetCurrencyExchangeRateList = function () {
+        if (!baseService.isUndefinedOrNull($scope.voucher.PostingDate) && !baseService.isUndefinedOrNull($scope.voucher.CurrencyId)) {
+            $http({
+                method: "GET",
+                url: "currencies/ExchangeRate/GetCompanyCurrencyExchangeRate?fromdate=" + $scope.voucher.PostingDate + "&currencyId=" + $scope.voucher.CurrencyId
+            }).then(function successCallback(response) {
+                $scope.currencyExchangeRate = response.data;
+                $scope.voucher.CompanyCurrencyRate = $scope.currencyExchangeRate.ToCurrencyRate;
+            });
+        }
+        else {
+            $scope.currencyExchangeRate = [];
+        }
+    };
+
+
+
 
 }
