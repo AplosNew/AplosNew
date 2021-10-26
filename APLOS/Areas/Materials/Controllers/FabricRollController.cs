@@ -136,7 +136,7 @@ namespace Aplos.Areas.Materials.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT              IR.Id GRNNo
+            string sql = @"select top 100 * from (SELECT IR.Id GRNNo
                                     ,IR.Status GRNStatus
                                     ,FORMAT(IR.GRNDate,'dd-MMM-yyyy') GRNDate
                                     , IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName

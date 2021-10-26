@@ -1126,7 +1126,7 @@ from GRNPackingList g where g.GRNMasterSystemID='" + grnSystemID + "' " + @"
 
         //        FabricRollClass.validateGRNTransfer(lblGRNSystemID.Text);
 
-        //       // makeDataTableFromExcel(lblGRNSystemID.Text, out dsServerDataHeader, out dsServerData);
+        //        // makeDataTableFromExcel(lblGRNSystemID.Text, out dsServerDataHeader, out dsServerData);
         //        makeDataTableFromExcel(lblGRNSystemID.Text, out dsServerDataHeader, out dsServerData);
         //        if (dsServerData.Tables[0].Rows.Count == 0)
         //        {
@@ -1152,20 +1152,20 @@ from GRNPackingList g where g.GRNMasterSystemID='" + grnSystemID + "' " + @"
         //            clsStaticInfo.numericValidation(dsServerData.Tables[0].Rows[i][colIndex.PackingListQuantity.ToString()].ToString(), false, false, false, "Quantity");
 
 
-        //            //storage location
-        //            if (dsServerData.Tables[0].Rows[i][colIndex.StorageLocationName.ToString()].ToString() != "")
-        //            {
-        //                if (dsStorageLocation.Tables[0].Select("Code='" + dsServerData.Tables[0].Rows[i][colIndex.StorageLocationName.ToString()].ToString() + "'").Length != 1)
-        //                {
-        //                    Exception ex = new Exception("storage location [" + dsServerData.Tables[0].Rows[i][colIndex.StorageLocationName.ToString()].ToString() + "] not found in database!!!");
-        //                    throw (ex);
-        //                }
-        //            }
-        //            else
-        //            {
-        //                Exception ex = new Exception("Plase insert storage location for package no-[" + dsServerData.Tables[0].Rows[i][colIndex.RollControlNo.ToString()].ToString() + "]");
-        //                throw (ex);
-        //            }
+        //            ////storage location
+        //            //if (dsServerData.Tables[0].Rows[i][colIndex.StorageLocationName.ToString()].ToString() != "")
+        //            //{
+        //            //    if (dsStorageLocation.Tables[0].Select("Code='" + dsServerData.Tables[0].Rows[i][colIndex.StorageLocationName.ToString()].ToString() + "'").Length != 1)
+        //            //    {
+        //            //        Exception ex = new Exception("storage location [" + dsServerData.Tables[0].Rows[i][colIndex.StorageLocationName.ToString()].ToString() + "] not found in database!!!");
+        //            //        throw (ex);
+        //            //    }
+        //            //}
+        //            //else
+        //            //{
+        //            //    Exception ex = new Exception("Plase insert storage location for package no-[" + dsServerData.Tables[0].Rows[i][colIndex.RollControlNo.ToString()].ToString() + "]");
+        //            //    throw (ex);
+        //            //}
 
         //            ////BIN No
         //            //if (dsServerData.Tables[0].Rows[i][colIndex.BinSystemID.ToString()].ToString() != "")
@@ -1375,10 +1375,6 @@ from GRNPackingList g where g.GRNMasterSystemID='" + grnSystemID + "' " + @"
 
         //        //}
 
-
-
-
-
         //        //objStatic.SaveDataSets(dsAddItem, dsMaterial, dsGRNSKU);
 
         //        objStatic.SaveDataSets(dsAddItem, dsGRNSKU);
@@ -1392,10 +1388,6 @@ from GRNPackingList g where g.GRNMasterSystemID='" + grnSystemID + "' " + @"
         //        string successLog = updatedRollCount.ToString("F0") + "/" + dsServerData.Tables[0].Rows.Count.ToString() + " Updated successfully.\r\nMaterial Desc: " + dsServerDataHeader.Tables[0].Rows[0][colIndex.MaterialDesc.ToString()].ToString();
         //        ShowLog("Data uploaded successfully!!!");
         //        displayMsgs(successLog, "OK", "Save");
-
-
-
-
         //    }
         //    catch (Exception ex)
         //    {
@@ -1403,6 +1395,7 @@ from GRNPackingList g where g.GRNMasterSystemID='" + grnSystemID + "' " + @"
         //    }
 
         //}
+
 
         private static void validateGRNTransfer(object text)
         {
@@ -1673,7 +1666,7 @@ LEFT OUTER JOIN MaterialGridMaster mgm ON mgm.SystemID=mm.materialGridMasterSyst
                 if (docFile.Exists)
                 {
                     //exception += "\r\nTrying to delete";
-                    docFile.Delete();
+                    //docFile.Delete();
                 }
             }
             catch (Exception ex)
@@ -1800,9 +1793,9 @@ public class RollData
 {
     //public string InventoryReceiveId { get; set; } = "";
     //public string SystemID { get; set; } = "";
-    public string RollControlNo { get; set; } = "";
-    public string VendorRollNo { get; set; } = "";
-    public string VendorLotNo { get; set; } = "";
-    public string Quantity { get; set; } = "";
+    public string RollNo   { get; set; } = "";
+    public string SupplierRollNo { get; set; } = "";
+    public string LotNo { get; set; } = "";
+    public string RollWisePackingListQty { get; set; } = "";
    
 }
