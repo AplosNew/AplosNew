@@ -1622,6 +1622,10 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 GetLeaveData(empParameters, out DataSet LeaveData , FromDate , ToDate);
 
+                GetWeekOffDays(empParameters, objm, out DataSet WeekOffData);
+                DataView dvWeekOff = new DataView();
+                dvWeekOff.Table = WeekOffData.Tables[0];
+
                 string _FLAG = "DAYSTATUS";
 
                 if (DayStatus == "DAYSTATUS")
@@ -1786,6 +1790,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     int iEarlyOut = 0;
                     int iGender = 0;
                     int iEmpCategory = 0;
+                    int iWeekOffDays = 0;
                     #endregion
 
                     #region ------------------Column Header------------------
@@ -2037,6 +2042,15 @@ namespace Library.HumanResource.NewAttendanceProcess
                         }
 
                         xlsCol += 1;
+                        iWeekOffDays = xlsCol;
+                        sheet1.Range[xlsRow - 1, iWeekOffDays].Text = "WeekOff Days";
+                        sheet1.Range[xlsRow - 1, iWeekOffDays].ColumnWidth = 7.20;
+                        sheet1.Range[xlsRow - 1, iWeekOffDays].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow - 1, iWeekOffDays].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow - 1, iWeekOffDays, xlsRow, iWeekOffDays].Merge();
+
+
+                        xlsCol += 1;
                         iExtraAbs = xlsCol;
                         sheet1.Range[xlsRow - 1, iExtraAbs].Text = "Extra Absent";
                         sheet1.Range[xlsRow - 1, iExtraAbs].ColumnWidth = 7.20;
@@ -2275,7 +2289,16 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 sheet1.Range[xlsRow, iExtraAbs].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                 sheet1.Range[xlsRow, iExtraAbs].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                               
+                                dvWeekOff.RowFilter = "EmpSystemID='" + _SystemId + "' ";
+                                if (dvWeekOff.Count > 0)
+                                {
+                                    sheet1.Range[xlsRow, iWeekOffDays].Text = dvWeekOff[0]["WeekOffDays"].ToString();
+                                    //[i]["TotalProcDate"].ToString()
+                                    sheet1.Range[xlsRow, iWeekOffDays].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, iWeekOffDays].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                }
+
+
                                 sheet1.Range[xlsRow, iLateIn].Number = lateIn;
                                 sheet1.Range[xlsRow, iLateIn].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                 sheet1.Range[xlsRow, iLateIn].VerticalAlignment = ExcelVAlign.VAlignCenter;

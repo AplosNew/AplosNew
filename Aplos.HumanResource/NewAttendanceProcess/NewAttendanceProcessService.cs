@@ -143,14 +143,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     dr["ShiftInTime"] = ManualShiftIn;
                                     dr["ShiftOutTime"] = ManualShiftOut;
                                 }
-                                else if (RosterShift.ToString() != "")
-                                {
-                                    dr["ShiftSystemID"] = RosterShift;
-                                    dr["ShiftDuration"] = RosterShiftDurn;
-                                    dr["ShiftInTime"] = RosterShiftIn;
-                                    dr["ShiftOutTime"] = RosterShiftOut;
-
-                                }
                                 else if (ProfileShift.ToString() != "")
                                 {
                                     dr["ShiftSystemID"] = ProfileShift;
@@ -159,6 +151,15 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     dr["ShiftOutTime"] = ProfileShiftOut;
 
                                 }
+                                else if (RosterShift.ToString() != "")
+                                {
+                                    dr["ShiftSystemID"] = RosterShift;
+                                    dr["ShiftDuration"] = RosterShiftDurn;
+                                    dr["ShiftInTime"] = RosterShiftIn;
+                                    dr["ShiftOutTime"] = RosterShiftOut;
+
+                                }
+                               
                                 else if (BudgetShift.ToString() != "")
                                 {
                                     dr["ShiftSystemID"] = BudgetShift;
@@ -240,14 +241,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     dr["ShiftInTime"] = ManualShiftIn;
                                     dr["ShiftOutTime"] = ManualShiftOut;
                                 }
-                                else if (RosterShift.ToString() != "")
-                                {
-                                    dr["ShiftSystemID"] = RosterShift;
-                                    dr["ShiftDuration"] = RosterShiftDurn;
-                                    dr["ShiftInTime"] = RosterShiftIn;
-                                    dr["ShiftOutTime"] = RosterShiftOut;
-
-                                }
                                 else if (ProfileShift.ToString() != "")
                                 {
                                     dr["ShiftSystemID"] = ProfileShift;
@@ -256,6 +249,15 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     dr["ShiftOutTime"] = ProfileShiftOut;
 
                                 }
+                                else if (RosterShift.ToString() != "")
+                                {
+                                    dr["ShiftSystemID"] = RosterShift;
+                                    dr["ShiftDuration"] = RosterShiftDurn;
+                                    dr["ShiftInTime"] = RosterShiftIn;
+                                    dr["ShiftOutTime"] = RosterShiftOut;
+
+                                }
+                                
                                 else if (BudgetShift.ToString() != "")
                                 {
                                     dr["ShiftSystemID"] = BudgetShift;
