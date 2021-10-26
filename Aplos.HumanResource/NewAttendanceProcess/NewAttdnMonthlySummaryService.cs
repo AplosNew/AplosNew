@@ -875,7 +875,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                             if (dvWeekOff.Count > 0)
                             {
                                 sheet1.Range[xlsRow, iWeekOffDays].Text = dvWeekOff[0]["WeekOffDays"].ToString();
-                                //[i]["TotalProcDate"].ToString()
                                 sheet1.Range[xlsRow, iWeekOffDays].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                 sheet1.Range[xlsRow, iWeekOffDays].VerticalAlignment = ExcelVAlign.VAlignCenter;
                             }
@@ -2293,7 +2292,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 if (dvWeekOff.Count > 0)
                                 {
                                     sheet1.Range[xlsRow, iWeekOffDays].Text = dvWeekOff[0]["WeekOffDays"].ToString();
-                                    //[i]["TotalProcDate"].ToString()
                                     sheet1.Range[xlsRow, iWeekOffDays].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, iWeekOffDays].VerticalAlignment = ExcelVAlign.VAlignCenter;
                                 }
