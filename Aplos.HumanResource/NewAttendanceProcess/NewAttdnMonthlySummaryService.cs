@@ -455,10 +455,21 @@ namespace Library.HumanResource.NewAttendanceProcess
                     sheet1.Range[xlsRow, iLine].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet1.Range[xlsRow, iLine, xlsRow + 1, iLine].Merge();
 
+
+
+                    xlsCol += 1;
+                    int iContractor = xlsCol;
+                    sheet1.Range[xlsRow, iContractor].Text = "Contractor";
+                    sheet1.Range[xlsRow, iContractor].ColumnWidth = 15;
+                    sheet1.Range[xlsRow, iContractor].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, iContractor].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, iContractor, xlsRow + 1, iContractor].Merge();
+
+
                     xlsCol += 1;
                     iDesig = xlsCol;
                     sheet1.Range[xlsRow, iDesig].Text = "Designation";
-                    sheet1.Range[xlsRow, iDesig].ColumnWidth = 15;
+                    sheet1.Range[xlsRow, iDesig].ColumnWidth = 18;
                     sheet1.Range[xlsRow, iDesig].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 
                     sheet1.Range[xlsRow, iDesig, xlsRow + 1, iDesig].Merge();
@@ -588,36 +599,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                             LIdList[i] = dtLeaveList.Rows[i]["Id"].ToString();
                         }
-
-
-
-                        //iTtlLv = xlsCol;
-                        //sheet1.Range[xlsRow - 1, iTtlLv].Text = "Leave";
-                        //sheet1.Range[xlsRow - 1, iTtlLv].ColumnWidth = 7.20;
-                        //sheet1.Range[xlsRow - 1, iTtlLv].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        //sheet1.Range[xlsRow - 1, iTtlLv].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        //sheet1.Range[xlsRow - 1, iTtlLv, xlsRow, iTtlLv].Merge();
-
-
-                        //xlsCol += 1;
-                        //iTtlLWP = xlsCol;
-                        //sheet1.Range[xlsRow - 1, iTtlLWP].Text = "LWP";
-                        //sheet1.Range[xlsRow - 1, iTtlLWP].ColumnWidth = 7.20;
-                        //sheet1.Range[xlsRow - 1, iTtlLWP].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        //sheet1.Range[xlsRow - 1, iTtlLWP].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        //sheet1.Range[xlsRow - 1, iTtlLWP, xlsRow, iTtlLWP].Merge();
-
-
-                        //xlsCol += 1;
-                        //iTtlMLv = xlsCol;
-                        //sheet1.Range[xlsRow - 1, iTtlMLv].Text = "Maternity Leave";
-                        //sheet1.Range[xlsRow - 1, iTtlMLv].ColumnWidth = 15;
-                        //sheet1.Range[xlsRow - 1, iTtlMLv].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        //sheet1.Range[xlsRow - 1, iTtlMLv].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        //sheet1.Range[xlsRow - 1, iTtlMLv, xlsRow, iTtlMLv].Merge();
-
-
-
+                        
                         xlsCol += 1;
                         iExtraAbs = xlsCol;
                         sheet1.Range[xlsRow - 1, iExtraAbs].Text = "Extra Absent";
@@ -683,6 +665,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                         sheet1.Range[xlsRow, iSubSection].Text = dvMonthlyAttnSumm[i]["SubSection"].ToString().Trim();
                         sheet1.Range[xlsRow, iLine].Text = dvMonthlyAttnSumm[i]["Line"].ToString().Trim();
                         sheet1.Range[xlsRow, iPlant].Text = dvMonthlyAttnSumm[i]["PlantName"].ToString().Trim();
+                        sheet1.Range[xlsRow, iContractor].Text = dvMonthlyAttnSumm[i]["Contractor"].ToString().Trim();
 
                         sheet1.Range[xlsRow, iDesig].Text = dvMonthlyAttnSumm[i]["LegalDG"].ToString().Trim();
                         string _m = clsWebLib.GetMonthName(Month);
@@ -822,11 +805,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                             sheet1.Range[xlsRow, iWorkingCount].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
 
-                            //  var DaysInaMonth = bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalProcDate"].ToString().Trim());
-                           // var TotalAbsent = clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalAbsent"].ToString().Trim());
-                            //var TotalLWP = clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLWP"].ToString().Trim());
-                            //var DaysInaMonth = _ExtraAbsent;
-
                             double _pay_days = 0.00;
                             double ExtraAbsentWeekOFF = 0.00;
                             double ExtraAbsentHoliday = 0.00;
@@ -876,23 +854,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                             sheet1.Range[xlsRow, iTtlLte].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, iTtlLte].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                            //sheet1.Range[xlsRow, iTtlLWP].Number = Convert.ToDouble(clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLWP"].ToString().Trim()));
-                            //sheet1.Range[xlsRow, iTtlLWP].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            //sheet1.Range[xlsRow, iTtlLWP].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
                             sheet1.Range[xlsRow, iExtraAbs].Number = Convert.ToDouble(_ExtraAbsent);
                             sheet1.Range[xlsRow, iExtraAbs].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, iExtraAbs].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                            //sheet1.Range[xlsRow, iTtlLv].Number = Convert.ToDouble(clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLv"].ToString().Trim())); 
-                            //sheet1.Range[xlsRow, iTtlLv].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            //sheet1.Range[xlsRow, iTtlLv].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            //sheet1.Range[xlsRow, iTtlMLv].Number = Math.Abs(Convert.ToDouble(clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalMLv"].ToString().Trim())));
-                            //sheet1.Range[xlsRow, iTtlMLv].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            //sheet1.Range[xlsRow, iTtlMLv].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-
+                           
                             sheet1.Range[xlsRow, iLateIn].Number = lateIn;
                             sheet1.Range[xlsRow, iLateIn].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, iLateIn].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -1308,7 +1274,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 									REPLACE(CONVERT(VARCHAR(11), E.DOS, 113), ' ', '-') DOS, E.EmpType,
 									  ISNULL( Ld.UserName, '') LegalDG, Unit.UserName Unit,
 										   Division.UserName Division, Department.UserName Department,
-                                             ISNULL(EmpC.UserName,'') EmployeeCategory,											
+                                             ISNULL(EmpC.UserName,'') EmployeeCategory,cdata.UserName as Contractor,											
 											 Section.UserName Section, SubSection.UserName SubSection,Line.UserName Line,
 									Month(dd.FromDate)MonthNo,YEAR(dd.FromDate)YearNo,Plant.UserName PlantName from 
             (select p.EmpSystemID as EmployeePK,REPLACE(CONVERT(VARCHAR(11), MIN(p.WorkDate), 113), ' ', '-') FromDate,   
@@ -1320,9 +1286,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                ,isnull(SUM(p.LWPValue),'0')TotalLWP,isnull(SUM(p.PayDayValue),'0')TotalPayDay,isnull(SUM(p.ActualWorkingDayValue),'0')TotalActualDays
 			            from AttdnProcessData p
                         where isnull(p.DayStatus,'')!='' and WorkDate between '" + objm.FDate+@"'
-						 and '"+objm.TDate+@"' group BY EmpSystemID) as dd
+						 and '"+objm.TDate+ @"' group BY EmpSystemID) as dd
 						 join EmployeeInformation  e on e.SystemId=dd.EmployeePK	
                   LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
+                                    left join hkp.party cdata on cdata.id=e.VendorId
 									LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
                                     LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id
                                     LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
@@ -1338,7 +1305,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
                                     LEFT OUTER JOIN hkp.Designation dsg on dsg.id=PO.DesignationId
                              where
-							  (E.DOS IS NULL  OR E.DOS >= '"+objm.FDate+@"') 
+							  (E.DOS IS NULL  OR E.DOS >= '" + objm.FDate+@"') 
 									AND E.DOJ <= '"+objm.TDate+"'";
 
                
@@ -1756,12 +1723,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                     int iTtlWO = 0;
                     int iTtlPst = 0;
                     int iTtlAbs = 0;
-                    int iTtlLte = 0;
-                    int iTtlLv = 0;
-                    int iTtlLWP = 0;
+                    int iTtlLte = 0;                  
                     int ionlyP = 0;
-                    int iTsl = 0;
-                    int iTtlMLv = 0;
                     int iExtraAbs = 0;
                     int iLateIn = 0;
                     int iEarlyOut = 0;
@@ -1874,9 +1837,18 @@ namespace Library.HumanResource.NewAttendanceProcess
                     sheet1.Range[xlsRow, iLine, xlsRow + 1, iLine].Merge();
 
                     xlsCol += 1;
+                    int iContractor = xlsCol;
+                    sheet1.Range[xlsRow, iContractor].Text = "Contractor";
+                    sheet1.Range[xlsRow, iContractor].ColumnWidth = 15;
+                    sheet1.Range[xlsRow, iContractor].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, iContractor].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, iContractor, xlsRow + 1, iContractor].Merge();
+
+
+                    xlsCol += 1;
                     iDesig = xlsCol;
                     sheet1.Range[xlsRow, iDesig].Text = "Designation";
-                    sheet1.Range[xlsRow, iDesig].ColumnWidth = 15;
+                    sheet1.Range[xlsRow, iDesig].ColumnWidth = 18;
                     sheet1.Range[xlsRow, iDesig].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     //sheet1.Range[xlsRow, iDesig].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet1.Range[xlsRow, iDesig, xlsRow + 1, iDesig].Merge();
@@ -1991,31 +1963,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
 
 
-                        //xlsCol += 1;
-                        //iTtlLv = xlsCol;
-                        //sheet1.Range[xlsRow - 1, iTtlLv].Text = "Leave";
-                        //sheet1.Range[xlsRow - 1, iTtlLv].ColumnWidth = 7.20;
-                        //sheet1.Range[xlsRow - 1, iTtlLv].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        //sheet1.Range[xlsRow - 1, iTtlLv].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        //sheet1.Range[xlsRow - 1, iTtlLv, xlsRow, iTtlLv].Merge();
-
-                        //xlsCol += 1;
-                        //iTtlLWP = xlsCol;
-                        //sheet1.Range[xlsRow - 1, iTtlLWP].Text = "LWP";
-                        //sheet1.Range[xlsRow - 1, iTtlLWP].ColumnWidth = 7.20;
-                        //sheet1.Range[xlsRow - 1, iTtlLWP].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        //sheet1.Range[xlsRow - 1, iTtlLWP].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        //sheet1.Range[xlsRow - 1, iTtlLWP, xlsRow, iTtlLWP].Merge();
-
-
-                        //xlsCol += 1;
-                        //iTtlMLv = xlsCol;
-                        //sheet1.Range[xlsRow - 1, iTtlMLv].Text = "Maternity Leave";
-                        //sheet1.Range[xlsRow - 1, iTtlMLv].ColumnWidth = 15;
-                        //sheet1.Range[xlsRow - 1, iTtlMLv].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        //sheet1.Range[xlsRow - 1, iTtlMLv].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        //sheet1.Range[xlsRow - 1, iTtlMLv, xlsRow, iTtlMLv].Merge();
-
+                      
                         LeaveStartCol = xlsCol + 1;
 
                         // The Dynamic Columns for the Leave (LeaveCode)
@@ -2094,6 +2042,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                         sheet1.Range[xlsRow, iSec].Text = dvMonthlyAttnSumm[i]["Section"].ToString().Trim();
                         sheet1.Range[xlsRow, iSubSection].Text = dvMonthlyAttnSumm[i]["SubSection"].ToString().Trim();
                         sheet1.Range[xlsRow, iLine].Text = dvMonthlyAttnSumm[i]["Line"].ToString().Trim();
+                        sheet1.Range[xlsRow, iContractor].Text = dvMonthlyAttnSumm[i]["Contractor"].ToString().Trim();
 
                         sheet1.Range[xlsRow, iDesig].Text = dvMonthlyAttnSumm[i]["LegalDG"].ToString().Trim();
 
@@ -2227,11 +2176,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 sheet1.Range[xlsRow, iWorkingCount].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
 
-                               // var DaysInaMonth = clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalProcDate"].ToString().Trim());
-                               // var TotalAbsent = clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalAbsent"].ToString().Trim());
-                               // var TotalLWP = clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLWP"].ToString().Trim());
-                                //var DaysInaMonth = _ExtraAbsent;
-
                                 double _pay_days = 0.00;
 
                                 _pay_days = clsStaticInfo.dbl(dvMonthlyAttnSumm[i]["TotalPayDay"].ToString());
@@ -2271,23 +2215,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 sheet1.Range[xlsRow, iTtlLte].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                 sheet1.Range[xlsRow, iTtlLte].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                //sheet1.Range[xlsRow, iTtlLWP].Number = Convert.ToDouble(clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLWP"].ToString().Trim()));
-                                //sheet1.Range[xlsRow, iTtlLWP].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                                //sheet1.Range[xlsRow, iTtlLWP].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
                                 sheet1.Range[xlsRow, iExtraAbs].Number = Convert.ToDouble(_ExtraAbsent);
                                 sheet1.Range[xlsRow, iExtraAbs].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                 sheet1.Range[xlsRow, iExtraAbs].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                //sheet1.Range[xlsRow, iTtlLv].Number = Convert.ToDouble(clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLv"].ToString().Trim()));
-                                //sheet1.Range[xlsRow, iTtlLv].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                                //sheet1.Range[xlsRow, iTtlLv].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                                //sheet1.Range[xlsRow, iTtlMLv].Number = Math.Abs(Convert.ToDouble(clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalMLv"].ToString().Trim())));
-                                //sheet1.Range[xlsRow, iTtlMLv].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                                //sheet1.Range[xlsRow, iTtlMLv].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-
+                               
                                 sheet1.Range[xlsRow, iLateIn].Number = lateIn;
                                 sheet1.Range[xlsRow, iLateIn].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                 sheet1.Range[xlsRow, iLateIn].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2563,7 +2495,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 									REPLACE(CONVERT(VARCHAR(11), E.DOS, 113), ' ', '-') DOS, E.EmpType,
 									  ISNULL( Ld.UserName, '') LegalDG, Unit.UserName Unit,
 										   Division.UserName Division, Department.UserName Department,
-                                             ISNULL(EmpC.UserName,'') EmployeeCategory,											
+                                             ISNULL(EmpC.UserName,'') EmployeeCategory,cdata.UserName as Contractor,									
 											 Section.UserName Section, SubSection.UserName SubSection,Line.UserName Line,
 									Month(dd.FromDate)MonthNo,YEAR(dd.FromDate)YearNo,Plant.UserName PlantName from 
             (select p.EmpSystemID as EmployeePK,REPLACE(CONVERT(VARCHAR(11), MIN(p.WorkDate), 113), ' ', '-') FromDate,   
@@ -2578,6 +2510,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 						 and '" + objm.TDate + @"' group BY EmpSystemID) as dd
 						 join EmployeeInformation  e on e.SystemId=dd.EmployeePK	
                   LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
+                                    left join hkp.party cdata on cdata.id=e.VendorId									
 									LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
                                     LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id
                                     LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId

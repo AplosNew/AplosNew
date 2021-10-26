@@ -68,6 +68,7 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
         Department: null,
         LegalDesignation: null,
         CurrencyId: null,
+        CompanyCurrencyRate: null,
         PostingDate: $filter("dateFiltering")(Date.now()),
 
     };
@@ -222,7 +223,9 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
                         "fixedAssetRegister": $scope.voucherDetailList,
                         "partyId": $scope.voucher.PartyId,
                         "partyPlantId": $scope.voucher.InvoicingPartyPlantId,
-                        "remarks": $scope.voucher.Remarks
+                        "remarks": $scope.voucher.Remarks,
+                        "currencyId": $scope.voucher.CurrencyId,
+                        "toCurrencyRate": $scope.voucher.CompanyCurrencyRate 
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {

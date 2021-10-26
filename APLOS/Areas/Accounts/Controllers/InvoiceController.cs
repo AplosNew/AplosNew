@@ -301,8 +301,11 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public ActionResult DeleteVendorInvoice(string invoiceId, string voucherId, string type)
+        public ActionResult DeleteVendorInvoice(string invoiceId, string voucherId, string type, string tDSVoucherId, string tDSVoucherNo)
         {
+            if (tDSVoucherId != null)
+                throw new CustomException("TDS voucher no  " + tDSVoucherNo + "need to delete first!");
+
             if (type == NewBeneficiaryType.Vendor.ToString())
                 _invoiceService.DeleteInvoice(invoiceId, voucherId);
             if (type == NewBeneficiaryType.Employee.ToString())
