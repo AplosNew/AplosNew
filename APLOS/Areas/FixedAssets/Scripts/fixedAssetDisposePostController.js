@@ -123,6 +123,8 @@ function fixedAssetDisposePostController(accountService, cboService, commonMessa
         $scope.voucher.Designation = data.Designation;
         $scope.voucher.Department = data.Department;
         $scope.voucher.Status = data.Status;
+       // $scope.voucher.trnCurrency = data.TrnCurrency;
+
         $http({
             method: 'Post'
             , url: 'FixedAssets/FixedAssetRegister/GetFixedAssetLostByDisposeIdList?id=' + data.Id

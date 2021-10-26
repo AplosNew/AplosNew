@@ -651,6 +651,14 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanresource/WeekOffUpdates/EWeekUpdate',
             controller: 'EmployeeWeekOffUpdatesController'
         })
+        .when('/physical-verification-report', {
+            templateUrl: 'humanresource/PhysicalVerificationReport/Aplos',
+            controller: 'PhysicalVerificationReportController'
+        })
+        .when('/salary-disbursement-report', {
+            templateUrl: 'humanresource/SalaryDisbursementReport/Aplos',
+            controller: 'SalaryDisbursementReportController'
+        })
 ;
     
 

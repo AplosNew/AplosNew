@@ -277,6 +277,8 @@ namespace Library.Accounting.FixedAssets
                                     , FAM.UserName FixedAssetMasterName, FAC.UserName FixedAssetCategory
                                     , FASC.UserName FixedAssetSubCategory, FAM.FixedAssetCategoryId
                                     , FAM.FixedAssetSubCategoryId, FAM.AssetType
+                                    ,P.UserName Vendor
+                                    ,c.Code TrnCurrency
                                     , ISNULL(FR.Price,0) Price,ISNULL(SAR.subAssetAmount,0) SubAssetAmount, ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0) PurchasePrice,FR.FABaseAmount,FR.ADBaseAmount
                                     , ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0)-ISNULL(FR.ADBaseAmount,0) NetBookValue , 0 NegotiationValue
                                     , MMA.StandardName Article, FR.IsFinancial,IsOBBalance=case when FR.IsOpeningBalance=0 then 'No' Else 'Yes' End
@@ -304,8 +306,8 @@ namespace Library.Accounting.FixedAssets
 									LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
 									left join trn.InventoryReceive IR on IR.Id =  IRD.InventoryReceiveId
 									LEFT JOIN TRN.Voucher V ON V.Id=VD.VoucherId 
-
-
+                                    LEFT JOIN SCS.Currency C ON C.Id =FR.CurrencyId
+	                                LEFT JOIN HKP.Party P ON P.Id = FR.VendorId
 								   LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=BM.GLGeneralInfoId
 								   LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
 								   LEFT JOIN HKP.Activity A ON A.Id=FR.FAActivityId
@@ -321,7 +323,7 @@ namespace Library.Accounting.FixedAssets
                 , FR.SerialNo, FR.Id AssetNo, FR.InvoiceNo, MM.UserName MaterialMasterName
                 , FAM.UserName FixedAssetMasterName, FAC.UserName FixedAssetCategory
                 , FASC.UserName FixedAssetSubCategory, FAM.FixedAssetCategoryId
-                , FAM.FixedAssetSubCategoryId, FAM.AssetType
+                , FAM.FixedAssetSubCategoryId, FAM.AssetType	,c.Code TrnCurrency
                 , ISNULL(FR.Price,0) Price,ISNULL(SAR.subAssetAmount,0) SubAssetAmount, ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0) PurchasePrice,ISNULL(FR.ADBaseAmount,0) ADBaseAmount
                 , ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0)-ISNULL(FR.ADBaseAmount,0) NetBookValue , ISNULL(fr.NegotiationValue,0) NegotiationValue
                 , MMA.StandardName Article, FR.IsFinancial,IsOBBalance=case when FR.IsOpeningBalance=0 then 'No' Else 'Yes' End
@@ -341,6 +343,7 @@ namespace Library.Accounting.FixedAssets
 				 LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=BM.GLGeneralInfoId
 				 LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
 				 LEFT JOIN HKP.Activity A ON A.Id=FR.FAActivityId
+                LEFT JOIN SCS.Currency C ON C.Id =FR.CurrencyId
                 LEFT JOIN (SELECT FixedAssetRegisterId,ISNULL(Sum(Amount),0) subAssetAmount FROM TRN.SubFixedAssetRegister group by FixedAssetRegisterId) SAR ON SAR.FixedAssetRegisterId=FR.Id
                  where frd.Id='" + id+"'";
             return _sqlRepository.GetDataCollection(sql);
