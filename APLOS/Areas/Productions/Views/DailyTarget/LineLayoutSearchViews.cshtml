@@ -1,4 +1,84 @@
-﻿<ej-dialog id="dialogSearchEmployee" title="Employees" e-enablemodal="true" e-position-y="0" e-position-x="0" e-showoninit="false" e-target="#MainDivId" e-close="onDialogClose" e-width="900" e-open="enableBtn">
+﻿<ej-dialog id="dialogEmployeeReplace" title="Employee Assignment" e-enablemodal="true" e-position-y="0" e-position-x="0" e-showoninit="false" e-target="#MainDivId" e-close="onDialogClose" e-width="1000" e-open="enableBtn">
+
+    <div id="gridEmployeeReplace" ng-init="chkinit()" ej-grid e-datasource="ReplaceEmployeeList"
+         e-allowtextwrap="true" e-textwrapsettings.wrapmode="content"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel">
+        <div e-columns>
+            <div e-column e-headertext="" e-template="#empimageReplace" e-textalign="center" e-width="20"></div>
+
+            <div e-column e-field="OperationDesc" e-headertext="Operation" e-width="30"></div>
+            <div e-column e-field="OperationVariationDesc" e-headertext="Opn. Var" e-width="30"></div>
+            <div e-column e-field="MachineOrHand" e-headertext="M/H" e-width="30"></div>
+            <div e-column e-field="ArticleDesc" e-headertext="Machine" e-width="30"></div>
+            <div e-column e-field="MaterialMasterDesc" e-headertext="Material" e-width="30"></div>
+
+            <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="30"></div>
+            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="50"></div>
+            <div e-column e-field="Designation" e-headertext="Designation" e-width="30"></div>
+            <div e-column e-field="DayStatus" e-headertext="DayStatus" e-width="30"></div>
+            <div e-column e-headertext="" e-template="#templateselectEmployee" e-textalign="center" e-width="20"></div>
+
+        </div>
+    </div>
+    <script type="text/x-jsrender" id="empimageReplace">
+        <img onerror="$(arguments[0].currentTarget).attr('src','images/blankuser.png')"
+             src="POPResources/EmployeeProfiles/EmpPic/{{:EmpPicPath}}" style="height:40px;width:40px;border:2px solid #efefef; border-radius:50%;" />
+    </script>
+    <script type="text/x-template" id="templateselectEmployee">
+        <div class="common-btn">
+            <ul class="list-inline text-right small">
+
+                <li>
+                    <button ng-click="$parent.employeeButtonClick(null,'replace',data.name);" class="btn small" style="height: 32px;width: 32px; padding: 0px; margin: 0px;">
+                        <i class="glyphicon glyphicon-search"></i>
+                    </button>
+                </li>
+
+            </ul>
+        </div>
+    </script>
+
+</ej-dialog>
+<ej-dialog id="dialogProductionEntry" title="Employee Assignment" e-enablemodal="true" e-position-y="0" e-position-x="0" e-showoninit="false" e-target="#MainDivId" e-close="onDialogClose" e-width="1000" e-open="enableBtn">
+
+    <div id="gridProductionEntry" ng-init="chkinit()" ej-grid e-datasource="ProductionEntryList"
+         e-allowtextwrap="true" e-textwrapsettings.wrapmode="content"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel">
+        <div e-columns>
+            <div e-column e-headertext="" e-template="#empimageProduction" e-textalign="center" e-width="20"></div>
+
+            <div e-column e-field="OperationDesc" e-headertext="Operation" e-width="30"></div>
+            <div e-column e-field="OperationVariationDesc" e-headertext="Opn. Var" e-width="30"></div>
+            <div e-column e-field="MachineOrHand" e-headertext="M/H" e-width="10"></div>
+            <div e-column e-field="ArticleDesc" e-headertext="Machine" e-width="30"></div>
+            <div e-column e-field="MaterialMasterDesc" e-headertext="Material" e-width="30"></div>
+
+            <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="30"></div>
+            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="50"></div>
+            <div e-column e-field="Designation" e-headertext="Designation" e-width="30"></div>
+            <div e-column e-field="DayStatus" e-headertext="DayStatus" e-width="30"></div>
+            <div e-column e-field="ProductionQuantity" e-headertext="Quantity" e-width="30"></div>
+            <div e-column e-headertext="Current Entry" e-template="#templateproductionEntry" e-textalign="center" e-width="20"></div>
+
+        </div>
+    </div>
+    <script type="text/x-jsrender" id="empimageProduction">
+        <img onerror="$(arguments[0].currentTarget).attr('src','images/blankuser.png')"
+             src="POPResources/EmployeeProfiles/EmpPic/{{:EmpPicPath}}" style="height:40px;width:40px;border:2px solid #efefef; border-radius:50%;" />
+    </script>
+    <script type="text/x-template" id="templateproductionEntry">
+        <input type="text" ej-numerictextbox e-minvalue="0" e-decimalplaces="0" e-enablertl="false" e-value="data.CurrentQuantity" e-width="100" />
+
+    </script>
+    <div class="common-btn">
+        <button style="color: #f3f3ec;" class="btn">
+            <i class="glyphicon glyphicon-list" ng-click="SaveProductionQuantity();">Save</i>
+        </button>
+    </div>
+</ej-dialog>
+<ej-dialog id="dialogSearchEmployee" title="Employees" e-enablemodal="true" e-position-y="0" e-position-x="0" e-showoninit="false" e-target="#MainDivId" e-close="onDialogClose" e-width="900" e-open="enableBtn">
     <div class="col-xs-12" style="border:1px solid #dfdfdf">
         <div class="row text-right">
             <div class="col-xs-12 col-sm-12 col-sm-12">
