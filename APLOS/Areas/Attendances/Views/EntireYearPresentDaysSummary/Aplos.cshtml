@@ -2,15 +2,45 @@
     <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>  PresentDays Summary Report
 </h3>
 
-<div class="form-elements form-horizontal" ng-form name="PresentDaysSummaryForm">   
+<div class="form-elements form-horizontal" ng-form name="PresentDaysSummaryForm">
 
-    <div id="GridData" style="margin-top:30px;"></div>
+    <div class="row" ng-form name="General">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Select Year<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="YearId" required>
+                            <option value=""></option>
+                            <option ng-repeat="option in YearList" value="{{option.ID}}">{{option.YearNo}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <div class="common-btn" style="margin-top:20px;">
-        <ul class="list-inline text-left">
-            <li> <button id="but" ng-click="filteringData()" style="display:none;" class="btn" tabindex="6"><i class="glyphicon glyphicon-arrow-down"></i> Transfer to Excel</button></li>
-        </ul>
+        <br />
+
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="col-xs-12">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="loadGrid()" class="btn"><i class="glyphicon glyphicon-arrow-down"></i> Load Data</button></li>
+                        <li> <button ng-click="clearFliters()" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
+
+
+        <div id="GridData" style="margin-top:30px;"></div>
+
+        <div class="common-btn" style="margin-top:20px;">
+            <ul class="list-inline text-left">
+                <li> <button id="but" ng-click="filteringData()" style="display:none;" class="btn" tabindex="6"><i class="glyphicon glyphicon-arrow-down"></i> Transfer to Excel</button></li>
+            </ul>
+        </div>
+    </div>
 
 
