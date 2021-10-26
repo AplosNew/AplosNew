@@ -350,9 +350,12 @@ namespace Aplos.Areas.Productions.Controllers
 		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 		                                                    LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = XSO.CustomerPOId
 			                                                    where POD.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                                                    ,convert(bit, case when isnull(LLD.Id,'')<>'' then 1 else 0 end ) As HasLayout
+                                                    ,convert(bit, case when isnull(LLD.Id,'')<>'' then 1 else 0 end ) As HasLayout,
+prs.username as ProcessName,resp.EmployeeName as ResponsiblePersonName
 
                                 from SCS.WorkCenterMaster WCM 
+                                left join employeeinformation resp on resp.systemid=wcm.ResponsiblePersonId
+                                left join hkp.process prs on prs.id=wcm.processid
                                 left outer join  TRN.DailyProductionTarget DPT on dpt.WorkCenterMasterID=WCM.Id  and  DPT.TargetDate='" + ProductionDate + @"'
                                 left outer join  TRN.ProductionOrder PO on PO.Id=DPT.ProductionOrderId  
                                 left join trn.ProductionOrderDetail POD ON POD.ProductionOrderId=po.Id and pod.Id=(select TOP 1 Id from TRN.ProductionOrderDetail D where D.ProductionOrderId=PO.Id)
@@ -558,7 +561,7 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpPost]
-        public ActionResult SearchEmployee(string column, string value, string OperationId, string OperationVariationId,string TargetDate)
+        public ActionResult SearchEmployee(string column, string value, string OperationId, string OperationVariationId, string TargetDate)
         {
             return Json(DT.SearchEmployee(column, value, OperationId, OperationVariationId, TargetDate), JsonRequestBehavior.AllowGet);
         }
@@ -568,9 +571,14 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(DT.SearchFixedAsset(column, value, ArticleId), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpPost]
-        public ActionResult GetEmployeeCard(string EmployeeId, string OperationVariationId, string AssetRegisterId,string TargetDate)
+        public ActionResult GetEmployeeCard(string EmployeeId, string OperationVariationId, string AssetRegisterId, string TargetDate)
         {
             return Json(DT.GetEmployeeCard(EmployeeId, OperationVariationId, AssetRegisterId, TargetDate), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpPost]
+        public ActionResult UpdateEmployeeAttendanceAndProductionInfo(string EmployeeId, string TargetDate)
+        {
+            return Json(DT.UpdateEmployeeAttendanceAndProductionInfo(EmployeeId, TargetDate), JsonRequestBehavior.AllowGet);
         }
         #endregion
 

@@ -284,7 +284,7 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-                    ShowResult(response.data.Message, 'success');
+                    
                     $scope.GetLineLayout(data);
                 }
             }), function errorCallBack(response) {
@@ -316,6 +316,7 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
                 var diagram = $("#diagram").ejDiagram("instance");
                 diagram.clear();
                 diagram.add(response.data);
+                $scope.UpdateEmployeeAttendanceAndProductionInfo();
             });
         } catch (e) {
             ShowResult(e, "failure");
@@ -511,6 +512,8 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
             $scope.selectednode.items[0].addInfo.EmpPicPath = args.data.EmpPicPath;
             $scope.selectednode.items[0].addInfo.Designation = args.data.Designation;
             $scope.selectednode.items[0].addInfo.EmployeeCode = args.data.EmployeeCode;
+            $scope.selectednode.items[0].addInfo["DayStatus"] = args.data.DayStatus;
+            $scope.selectednode.items[0].addInfo["DayColor"] = args.data.DayColor;
 
             var eDialog = $("#dialogSearchEmployee").data("ejDialog");
             eDialog.close();
@@ -602,6 +605,7 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
         $scope.GetEmployeeCard();
     }
 
+
     $scope.SaveDiagram = function () {
         try {
 
@@ -621,7 +625,7 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-
+                 
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -633,8 +637,10 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
     }
     $scope.showCardIcons = false;
     $scope.EmployeeCard = [];
+    $scope.EmployeeCardSkills = [];
     $scope.GetEmployeeCard = function () {
         $scope.EmployeeCard = [];
+        $scope.EmployeeCardSkills = [];
         try {
             $http({
                 method: "POST",
@@ -649,7 +655,7 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
 
             }).then(function successCallback(response) {
                 $scope.EmployeeCard = response.data;
-
+                $scope.EmployeeCardSkills = response.data[0][0].SkillList;
             });
             var eDialog = $("#dialogEmployeeCard").data("ejDialog");
             eDialog.open();
@@ -657,4 +663,75 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
 
         }
     }
+
+    $scope.contextMenu = { items: [{ "id": "Properties", "name": "Properties", "text": "Properties", "image": "", "style": "" }] };
+    $scope.onDiagramContextMenuClick = function (args) {
+        if (args.text == 'Properties') {
+            $scope.selectednode = args;
+            $scope.ShowEditEmployeeCard();
+        }
+    }
+    $scope.UpdateColor = function (args) {
+        if (args.isInteraction == false)
+            return;
+        var diagram = $("#diagram").ejDiagram("instance");
+        $scope.selectednode.target[args.model.Field] = args.value;
+
+        var Property = args.model.Field;
+        try {
+            if ($scope.selectednode.target.hasOwnProperty('children')) {
+                for (var i = 0; i < $scope.selectednode.target.children.length; i++) {
+                    diagram.updateNode($scope.selectednode.target.children[i], { Property: args.value });
+                }
+            }
+            else {
+                diagram.updateNode($scope.selectednode.target.name, { Property: args.value });
+            }
+        } catch (e) { }
+    }
+    $scope.ShowEditEmployeeCard = function () {
+        try {
+
+            var eDialog = $("#dialogEditNode").data("ejDialog");
+            eDialog.open();
+        } catch (e) {
+
+        }
+    }
+
+    $scope.UpdateEmployeeAttendanceAndProductionInfo = function () {
+        try {
+
+            var empIds = "''";
+            for (var i = 0; i < $scope.nodes.length; i++) {
+                empIds += ",'" + $scope.nodes[i].addInfo.EmployeeId + "'";
+            }
+
+            $http({
+                method: "POST",
+                dataType: 'JSON',
+                data: {
+                    'EmployeeId': empIds,
+                    'TargetDate': $scope.DailyProductionTargetNew.ProductionDate
+                },
+                url: $scope.path + 'UpdateEmployeeAttendanceAndProductionInfo'
+
+            }).then(function successCallback(response) {
+                for (var i = 0; i < $scope.nodes.length; i++) {
+                    var exists = ej.DataManager(response.data).executeLocal(ej.Query().where("EmployeeId", "equal", $scope.nodes[i].addInfo.EmployeeId));
+                    if (exists.length > 0) {
+                        $scope.nodes[i].addInfo["DayStatus"] = exists[0].DayStatus;
+                        $scope.nodes[i].addInfo["DayColor"] = exists[0].DayColor;
+                        $scope.nodes[i].addInfo["ProductionQuantity"] = exists[0].ProductionQuantity;
+                    }
+                }
+
+                $scope.SaveDiagram();
+            });
+           
+        } catch (e) {
+
+        }
+    }
+
 }
