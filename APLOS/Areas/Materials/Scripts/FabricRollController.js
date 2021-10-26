@@ -674,8 +674,9 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
 
 
     $rootScope.title = 'Fabric Roll File Upload';
+ 
     $("#uploadRollData").change(function () {
-        $scope.Rolldata = this.files[0];
+        $scope.RollData = this.files[0];
     });
 
 
@@ -683,7 +684,7 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
 
     $scope.saveRollFile = function () {
         try {
-            if ($scope.Rolldata != null) {
+            if ($scope.RollData != null) {
                 var RollData = new FormData();
                 //if ($scope.Action == "Save") {
                 $http({
@@ -692,14 +693,14 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
                     headers: { 'Content-Type': undefined },
                     transformRequest: function (data) {
                         RollData.append("FabricRollFile", angular.toJson(data.FabricRollFile));
-                        if (baseService.isUndefinedOrNull($scope.Rolldata) === false) {
+                        if (baseService.isUndefinedOrNull($scope.RollData) === false) {
                             RollData.append('file', data.file);
                         }
                         return RollData;
                     },
                     data: {
                         'FabricRollFile': $scope.FabricRollFile,
-                        'file': $scope.Rolldata
+                        'file': $scope.RollData
                     }
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
@@ -737,8 +738,71 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
     $scope.getMaster();
     //EndFile Upload
 
+      //Import File
 
 
+    function GetShortList(list) {
+        var list2 = [];
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].EmployeeCode === null || list[i].EmployeeCode === '' || list[i].EmployeeCode === 'undefined') {
+
+            }
+            else {
+                list2.push(list[i]);
+            }
+        }
+        return list2;
+    }
+    $scope.buyerNew = {
+        FileName: null
+    }
+    $scope.ImportData = function () {
+        try {
+            $scope.msg = "";
+            //$scope.btnProcess = true;
+            $scope.$broadcast('show-errors-check-validity');
+            
+            if ($scope.buyerNewForm.$valid) {
+                var RollData = new FormData();
+                if (!baseService.isUndefinedOrNull($scope.RollData)) {
+                    $scope.buyerNew.FileName = $scope.RollData.name;
+                }
+                $http({
+                    method: 'POST',
+                    url: 'Materials/FabricRoll/ImportData',
+                    headers: { 'Content-Type': undefined },
+                    transformRequest: function (data) {
+                        RollData.append("buyerNew", angular.toJson(data.buyerNew));
+                        if (baseService.isUndefinedOrNull($scope.RollData) === false) {
+                            RollData.append('file', data.file);
+                        }
+                        return RollData;
+                    },
+                    data: { 'buyerNew': $scope.buyerNew, 'file': $scope.RollData }
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, "failure");
+
+                    }
+                    else {
+                        //$scope.AttdnManualData = response.data;
+
+                        $scope.A = [];
+                        var x = GetShortList(response.data);
+                        $scope.A = x;
+                    }
+                }, function errorCallback(response) {
+
+                });
+                return true;
+
+            }
+        } catch (e) {
+
+            ShowResult(e, "failure");
+        }
+    };
+      //End Import File
 
 
 

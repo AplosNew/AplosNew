@@ -1709,10 +1709,12 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     // #endregion value
 
     // #region Sales Order
+    $scope.TotalMOIQty = 0;
     $scope.JobWorkType = '';
-    $scope.getSalesOrder = function (x, id, materialMasterId, mName, aName, hsnCodeId, BuyerReferenceNo) {
-        $scope.JobWorkType = baseService.isUndefinedOrNull(x.JobWorkType) ? x.JobWorkType : x.JobWorkType + '>> ' + baseService.isUndefinedOrNull(x.EntityOrVendorName) ? x.EntityOrVendorName : x.EntityOrVendorName;
 
+    $scope.getSalesOrder = function (x, id, materialMasterId, mName, aName, hsnCodeId, BuyerReferenceNo) {
+        $scope.TotalMOIQty = x.TotalQty;
+        $scope.JobWorkType = baseService.isUndefinedOrNull(x.JobWorkType) ? x.JobWorkType : x.JobWorkType + '>> ' + baseService.isUndefinedOrNull(x.EntityOrVendorName) ? x.EntityOrVendorName : x.EntityOrVendorName;
 
         $scope.TotalProducedQty = 0;
         $scope.ProdBookedQty = 0;
@@ -4405,7 +4407,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.CopySO = function (data) {
         $http({
             method: 'POST',
-            url: $scope.path + 'CopySalesOrder?MasterId=' + data.Id + '&masterItemId=' + data.MasterOrderItemId,
+            url: $scope.path + 'CopySalesOrder?MasterId=' + data.Id + '&masterItemId=' + data.MasterOrderItemId + '&TotalMOIQty=' + $scope.TotalMOIQty,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {

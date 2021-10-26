@@ -500,6 +500,19 @@ namespace Library.Service.Helpers
 			}
 		}
 
+		public static string GetFabricRollData()
+		{
+			try
+			{
+				return ResolveFilePath(GetVirtualDirectory() + "/FabricRoll/");
+			}
+			catch
+			{
+				throw new CustomException(ServiceResources.FilePathNotFound);
+			}
+		}
+
+
 		public static string GetBOQUploadData()
 		{
 			try
