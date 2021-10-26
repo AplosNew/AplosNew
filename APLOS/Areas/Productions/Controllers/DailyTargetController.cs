@@ -553,6 +553,20 @@ prs.username as ProcessName,resp.EmployeeName as ResponsiblePersonName
         {
             return Json(DT.GetDesign(WorkCenterMasterId, ProductionOrderId, TargetDate), JsonRequestBehavior.AllowGet);
         }
+        [HttpPost, Authorize]
+        public JsonResult SaveProductionData(List<Dictionary<string, object>> ProductionData, string WorkCenterMasterId, string ProductionOrderId, string TargetDate)
+        {
+            try
+            {
+                DT.SaveProductionData(ProductionData, WorkCenterMasterId, ProductionOrderId, TargetDate);
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+
+        }
 
         [HttpPost]
         public ActionResult SaveDiagram(List<Html> Nodes, string Design, string WorkCenterMasterId, string ProductionOrderId, string TargetDate)
