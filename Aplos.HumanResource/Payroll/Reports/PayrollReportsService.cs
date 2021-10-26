@@ -9022,13 +9022,36 @@ namespace Library.HumanResource.Payroll
                         #region ******************Report Header******************
 
                         xlsCol = 1;
+
+                        Image companyLogo = null;
+                        string strPath = "";
+                        int additionalColumn = 1;
+
+                        strPath = Path.Combine(ResourcesPathReader.GetLogoOrImagePath(), dsCmp.Tables[0].Rows[0]["CompanyImage"].ToString());  // IDCardEng.xlsx
+                        companyLogo = Image.FromFile(strPath);
+                        additionalColumn = 3;
+
+                        if (companyLogo != null)
+                        {
+                            double totalWidth = sheet1.GetColumnWidth(1) + sheet1.GetColumnWidth(2);
+                            int totalWidthPixel = (int)(totalWidth * 5.0);
+                            int totalheight = 36;
+
+                            companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
+                            IPictureShape pic = null;
+
+                            pic = sheet1.Pictures.AddPicture(xlsRow, 1, companyLogo);
+
+                        }
+
+                        xlsCol = xlsCol + 2;
                         string FactoryAddress = string.Empty;
                         headerEndxlsCol = xlsCol + 14;
                         headerStartXlsRow = xlsRow;
 
                         sheet1.Range[xlsRow, xlsCol].Text = CmpName + "::" + FactoryName + ".";
                         sheet1.Range[xlsRow, xlsCol].WrapText = true;
-                        sheet1.Range[xlsRow, 1, xlsRow, xlsCol + 11].Merge();
+                        sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 11].Merge();
                         sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 12;
 
                         string strRptDateRange = "";

@@ -193,12 +193,12 @@ namespace Library.OrderManagement.Packing
 							FROM dbo.OrderCostingMasterTemplate CT
 							LEFT JOIN
 								( 
-								SELECT DM.Id,DM.CostingItemId,DM.OrderCostingMasterTemplateId,DM.GrossAmount,DM.GrossConsumption FROM [dbo].OrderPreCostingDirectMaterial DM
+								SELECT DM.Id,DM.CostingItemId,DM.OrderCostingMasterTemplateId,DM.GrossAmount,DM.GrossConsumption FROM [dbo].OrderProcurementCostingDirectMaterial DM
 								) 
 							A ON A.OrderCostingMasterTemplateId=CT.Id
 							LEFT JOIN [HKP].[CostingItem] CI ON CI.Id=A.CostingItemId 
 							LEFT JOIN [HKP].[CostingComponent] CC ON CC.Id=CI.CostingComponentId
-							WHERE CT.Id='"+ costingId + @"' AND ISNULL(CC.ConsiderForFGValuation,0)=1 
+							WHERE CT.Id='" + costingId + @"' AND ISNULL(CC.ConsiderForFGValuation,0)=1 
 							GROUP BY A.Id,CT.Id,A.GrossConsumption,CI.UserName, CC.UserName";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dsRef, false, "1");
@@ -1365,22 +1365,22 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 							FROM OrderCostingMasterTemplate CMT
 							JOIN (
 								SELECT DM.CostingItemId,DM.OrderCostingMasterTemplateId,DM.GrossAmount Rate
-								FROM [dbo].OrderPreCostingDirectMaterial DM				
+								FROM [dbo].OrderProcurementCostingDirectMaterial DM				
 								UNION				
 								SELECT DP.CostingItemId,DP.OrderCostingMasterTemplateId,DP.Amount Rate
-								FROM [dbo].OrderPreCostingDirectProcess DP				
+								FROM [dbo].OrderProcurementCostingDirectProcess DP				
 								UNION				
 								SELECT OP.CostingItemId,OP.OrderCostingMasterTemplateId,OP.[Value] Rate
-								FROM [dbo].OrderPreCostingOperation OP
+								FROM [dbo].OrderProcurementCostingOperation OP
 								UNION
 								SELECT P.CostingItemId,P.OrderCostingMasterTemplateId,P.[Value] Rate
-								FROM [dbo].OrderPreCostingProfit P
+								FROM [dbo].OrderProcurementCostingProfit P
 								UNION
 								SELECT SE.CostingItemId,SE.OrderCostingMasterTemplateId,SE.[Value] Rate
-								FROM [dbo].OrderPreCostingSalesExpense SE
+								FROM [dbo].OrderProcurementCostingSalesExpense SE
 								UNION
 								SELECT VL.CostingItemId,VL.OrderCostingMasterTemplateId,VL.[Value] Rate
-								FROM [dbo].OrderPreCostingValueLoss VL
+								FROM [dbo].OrderProcurementCostingValueLoss VL
 								) AS A ON A.OrderCostingMasterTemplateId = CMT.Id 
 							LEFT JOIN [HKP].[CostingItem] CI ON CI.Id = A.CostingItemId
 							LEFT JOIN [HKP].[CostingComponent] CC ON CC.Id = CI.CostingComponentId --AND ISNULL(CC.ConsiderForFGValuation,0)=1
@@ -1438,22 +1438,22 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 							FROM OrderCostingMasterTemplate CMT
 							JOIN (
 								SELECT DM.CostingItemId,DM.OrderCostingMasterTemplateId,DM.GrossAmount Rate
-								FROM [dbo].OrderPreCostingDirectMaterial DM				
+								FROM [dbo].OrderProcurementCostingDirectMaterial DM				
 								UNION				
 								SELECT DP.CostingItemId,DP.OrderCostingMasterTemplateId,DP.Amount Rate
-								FROM [dbo].OrderPreCostingDirectProcess DP				
+								FROM [dbo].OrderProcurementCostingDirectProcess DP				
 								UNION				
 								SELECT OP.CostingItemId,OP.OrderCostingMasterTemplateId,OP.[Value] Rate
-								FROM [dbo].OrderPreCostingOperation OP
+								FROM [dbo].OrderProcurementCostingOperation OP
 								UNION
 								SELECT P.CostingItemId,P.OrderCostingMasterTemplateId,P.[Value] Rate
-								FROM [dbo].OrderPreCostingProfit P
+								FROM [dbo].OrderProcurementCostingProfit P
 								UNION
 								SELECT SE.CostingItemId,SE.OrderCostingMasterTemplateId,SE.[Value] Rate
-								FROM [dbo].OrderPreCostingSalesExpense SE
+								FROM [dbo].OrderProcurementCostingSalesExpense SE
 								UNION
 								SELECT VL.CostingItemId,VL.OrderCostingMasterTemplateId,VL.[Value] Rate
-								FROM [dbo].OrderPreCostingValueLoss VL
+								FROM [dbo].OrderProcurementCostingValueLoss VL
 								) AS A ON A.OrderCostingMasterTemplateId = CMT.Id 
 							LEFT JOIN [HKP].[CostingItem] CI ON CI.Id = A.CostingItemId
 							LEFT JOIN [HKP].[CostingComponent] CC ON CC.Id = CI.CostingComponentId --AND ISNULL(CC.ConsiderForFGValuation,0)=1
@@ -1555,22 +1555,22 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 							FROM OrderCostingMasterTemplate CMT
 							JOIN (
 								SELECT DM.CostingItemId,DM.OrderCostingMasterTemplateId,DM.GrossAmount Rate
-								FROM [dbo].OrderPreCostingDirectMaterial DM				
+								FROM [dbo].OrderProcurementCostingDirectMaterial DM				
 								UNION				
 								SELECT DP.CostingItemId,DP.OrderCostingMasterTemplateId,DP.Amount Rate
-								FROM [dbo].OrderPreCostingDirectProcess DP				
+								FROM [dbo].OrderProcurementCostingDirectProcess DP				
 								UNION				
 								SELECT OP.CostingItemId,OP.OrderCostingMasterTemplateId,OP.[Value] Rate
-								FROM [dbo].OrderPreCostingOperation OP
+								FROM [dbo].OrderProcurementCostingOperation OP
 								UNION
 								SELECT P.CostingItemId,P.OrderCostingMasterTemplateId,P.[Value] Rate
-								FROM [dbo].OrderPreCostingProfit P
+								FROM [dbo].OrderProcurementCostingProfit P
 								UNION
 								SELECT SE.CostingItemId,SE.OrderCostingMasterTemplateId,SE.[Value] Rate
-								FROM [dbo].OrderPreCostingSalesExpense SE
+								FROM [dbo].OrderProcurementCostingSalesExpense SE
 								UNION
 								SELECT VL.CostingItemId,VL.OrderCostingMasterTemplateId,VL.[Value] Rate
-								FROM [dbo].OrderPreCostingValueLoss VL
+								FROM [dbo].OrderProcurementCostingValueLoss VL
 								) AS A ON A.OrderCostingMasterTemplateId = CMT.Id
 							LEFT JOIN [HKP].[CostingItem] CI ON CI.Id = A.CostingItemId
 							LEFT JOIN [HKP].[CostingComponent] CC ON CC.Id = CI.CostingComponentId --AND ISNULL(CC.ConsiderForFGValuation,0)=1
@@ -1618,22 +1618,22 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 								FROM OrderCostingMasterTemplate CMT
 								JOIN (
 								SELECT DM.CostingItemId,DM.OrderCostingMasterTemplateId,DM.GrossAmount Rate
-								FROM [dbo].OrderPreCostingDirectMaterial DM				
+								FROM [dbo].OrderProcurementCostingDirectMaterial DM				
 								UNION				
 								SELECT DP.CostingItemId,DP.OrderCostingMasterTemplateId,DP.Amount Rate
-								FROM [dbo].OrderPreCostingDirectProcess DP				
+								FROM [dbo].OrderProcurementCostingDirectProcess DP				
 								UNION				
 								SELECT OP.CostingItemId,OP.OrderCostingMasterTemplateId,OP.[Value] Rate
-								FROM [dbo].OrderPreCostingOperation OP
+								FROM [dbo].OrderProcurementCostingOperation OP
 								UNION
 								SELECT P.CostingItemId,P.OrderCostingMasterTemplateId,P.[Value] Rate
-								FROM [dbo].OrderPreCostingProfit P
+								FROM [dbo].OrderProcurementCostingProfit P
 								UNION
 								SELECT SE.CostingItemId,SE.OrderCostingMasterTemplateId,SE.[Value] Rate
-								FROM [dbo].OrderPreCostingSalesExpense SE
+								FROM [dbo].OrderProcurementCostingSalesExpense SE
 								UNION
 								SELECT VL.CostingItemId,VL.OrderCostingMasterTemplateId,VL.[Value] Rate
-								FROM [dbo].OrderPreCostingValueLoss VL
+								FROM [dbo].OrderProcurementCostingValueLoss VL
 								) AS A ON A.OrderCostingMasterTemplateId = CMT.Id
 								LEFT JOIN [HKP].[CostingItem] CI ON CI.Id = A.CostingItemId
 								LEFT JOIN [HKP].[CostingComponent] CC ON CC.Id = CI.CostingComponentId --AND ISNULL(CC.ConsiderForFGValuation,0)=1

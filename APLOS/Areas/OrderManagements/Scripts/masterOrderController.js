@@ -3063,7 +3063,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                     $scope.skuList = [];
                     $scope.closeCharPopUp();
                     showCharMessage(response.data.Message, 'success');
-                    $scope.getSalesOrder($scope.masterItemId, $scope.materialMasterId, $scope.mName, $scope.BuyerReferenceNo);
+                    //$scope.getSalesOrder($scope.masterItemId, $scope.materialMasterId, $scope.mName, $scope.BuyerReferenceNo);
                 }
 
             }
