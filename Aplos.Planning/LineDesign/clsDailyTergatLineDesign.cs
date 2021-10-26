@@ -438,7 +438,7 @@ CASE WHEN ISNULL(dtd.EmployeeSystemId,'')='' THEN 'Unassigned' ELSE CONCAT('Assi
                         WHERE emp.SystemId='" + EmployeeId + @"'";
 
             List<Dictionary<string, object>> _tempData = _sqlRepository.GetDataCollection(sql);
-            sql = @"select ovx.UserName  AS SkillName,eox.Sequence
+            sql = @"select ovx.UserName  AS SkillName,eox.Sequence,eox.CycleTime
                                         FROM EmployeeOperation AS eox
 				                        JOIN mst.OperationVariation AS ovx ON ovx.Id=eox.OperationVariationId                                             
 			                            where eox.EmpSystemId='" + EmployeeId + @"' ORDER BY eox.Sequence ";

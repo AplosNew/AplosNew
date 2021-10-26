@@ -1775,11 +1775,11 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpPost,Authorize]
-        public JsonResult CopySalesOrder(string MasterId, string masterItemId)
+        public JsonResult CopySalesOrder(string MasterId, string masterItemId,decimal TotalMOIQty)
         {
             try
             {
-                CopySalesOrderData(MasterId, masterItemId);
+                CopySalesOrderData(MasterId, masterItemId, TotalMOIQty);
                 return Json(new { Error = false, Message = AplosMessage.Insert });
 
             }
@@ -1794,7 +1794,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
             try
             {
-                string sql = @"SELECT ISNULL((MAX(Id)+1),0) Id FROM [TRN].[SalesOrder] WHERE MasterOrderItemId='" + masterItemId + "'";
+                string sql = @"SELECT ISNULL((MAX(Id)+1),0) Id,SUM(Qty)Qty FROM [TRN].[SalesOrder] WHERE MasterOrderItemId='" + masterItemId + "'";
                 Obj = new ConnectionManager.DAL.ConManager("1");
                 Obj.OpenDataSetThroughAdapter(sql, out dsRef, false, "1");
             }
@@ -1818,7 +1818,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 throw ex;
             }
         }
-        public void CopySalesOrderData(string MasterId, string masterItemId)
+        public void CopySalesOrderData(string MasterId, string masterItemId, decimal TotalMOIQty)
         {
             DataSet dsToSalesOrder;
             DataSet dsToFirstCharacteristics;
@@ -1830,6 +1830,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 DataSet dsSOId;
                 GetSalesOrderId(masterItemId, out dsSOId);
                 string NewId = dsSOId.Tables[0].Rows[0]["Id"].ToString();
+                decimal SOQty = Convert.ToDecimal(dsSOId.Tables[0].Rows[0]["Qty"].ToString());
+               
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
@@ -1842,6 +1844,11 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 DataTable dtFromFirstCharacteristics = _sqlRepository.GetDataTable("SELECT * FROM TRN.FirstCharacteristics WHERE SalesOrderId='" + MasterId + "'");
                 DataTable dtFromSecondCharacteristics = _sqlRepository.GetDataTable("SELECT * FROM TRN.SecondCharacteristics WHERE SalesOrderId='" + MasterId + "'");
                 DataTable dtFromThirdCharacteristics = _sqlRepository.GetDataTable("SELECT * FROM TRN.ThirdCharacteristics WHERE SalesOrderId='" + MasterId + "'");
+
+                if (TotalMOIQty< SOQty+Convert.ToDecimal(dtFromMaster.Rows[0]["Qty"].ToString()))
+                {
+                    throw new Exception("SO Qty can't greater than Line Item Qty.");
+                }
 
                 DataRow drSalesOrder = dsToSalesOrder.Tables[0].NewRow();
                 CopyRow(dtFromMaster.Rows[0], ref drSalesOrder);

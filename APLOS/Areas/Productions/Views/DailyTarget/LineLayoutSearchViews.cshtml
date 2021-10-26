@@ -57,10 +57,10 @@
 
             <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="30"></div>
             <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="50"></div>
+            <div e-column e-headertext="Current Prod" e-template="#templateproductionEntry" e-textalign="center" e-width="30"></div>
+            <div e-column e-field="ProductionQuantity" e-headertext="Quantity" e-width="30"></div>
             <div e-column e-field="Designation" e-headertext="Designation" e-width="30"></div>
             <div e-column e-field="DayStatus" e-headertext="DayStatus" e-width="30"></div>
-            <div e-column e-field="ProductionQuantity" e-headertext="Quantity" e-width="30"></div>
-            <div e-column e-headertext="Current Entry" e-template="#templateproductionEntry" e-textalign="center" e-width="20"></div>
 
         </div>
     </div>
@@ -69,12 +69,12 @@
              src="POPResources/EmployeeProfiles/EmpPic/{{:EmpPicPath}}" style="height:40px;width:40px;border:2px solid #efefef; border-radius:50%;" />
     </script>
     <script type="text/x-template" id="templateproductionEntry">
-        <input type="text" ej-numerictextbox e-minvalue="0" e-decimalplaces="0" e-enablertl="false" e-value="data.CurrentQuantity" e-width="100" />
+        <input type="text" ej-numerictextbox e-minvalue="0" e-decimalplaces="0" e-enablertl="false" e-value="data.CurrentQuantity" e-width="75" />
 
     </script>
     <div class="common-btn">
-        <button style="color: #f3f3ec;" class="btn">
-            <i class="glyphicon glyphicon-list" ng-click="SaveProductionQuantity();">Save</i>
+        <button  ng-click="SaveProductionQuantity();" style="color: #f3f3ec;" class="btn">
+            <i class="glyphicon glyphicon-list">Save</i>
         </button>
     </div>
 </ej-dialog>
@@ -227,50 +227,5 @@
         </div>
     </div>
 </div>
-<div class="modal site-modal" id="POItemPopup" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">Production Order<button type="button" class="close" data-dismiss="modal">&times;</button></div>
-            <div class="modal-body">
-                <div style="color:black;" id="Grid" ej-grid e-datasource="SOItemList" e-allowscrolling="true"
-                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="selectSOItem"
-                     e-allowselection="true" e-filtersettings-filterType="excel">
-                    <div e-columns>
 
-
-                        <div e-column e-type="string" e-field="Id" e-headertext="ID" e-width="80"></div>
-                        <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="80"></div>
-                        <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="80"></div>
-                        <div e-column e-type="string" e-field="MasterOrderId" e-headertext="Order#" e-width="80"></div>
-                        <div e-column e-type="string" e-field="BuyerRefNo" e-headertext="Customer Ord#" e-width="80"></div>
-                        <div e-column e-type="string" e-field="SODesc" e-headertext="So.Description" e-width="150"></div>
-                        <div e-column e-type="number" e-field="Qty" e-headertext="Qty" e-width="60"></div>
-                        <div e-column e-type="string" e-field="DeliveryDate" e-headertext="So.Delivery Date" e-width="80"></div>
-                        <div e-column e-type="string" e-field="Product" e-headertext="Product" e-width="150"></div>
-                        <div e-column e-type="string" e-field="ProductionStatus" e-headertext="Production Status" e-width="90"></div>
-                        <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="150"></div>
-                        <div e-column e-type="string" e-field="buyer" e-headertext="Buyer" e-width="100"></div>
-
-                        <div e-column e-type="string" e-field="OwnRefNo" e-headertext="Own Ord#" e-width="80"></div>
-                        <div e-column e-type="string" e-field="StyleNo" e-headertext="Customer Item#" e-width="80"></div>
-                        <div e-column e-type="string" e-field="OwnStyleNo" e-headertext="Own Item#" e-width="80"></div>
-
-                        <div e-column e-type="string" e-field="BuyerItemNo" e-headertext="Buyer Item No#" e-width="80"></div>
-                        <div e-column e-type="string" e-field="CustomerPONo" e-headertext="PO No#" e-width="80"></div>
-
-                        <div e-column e-type="string" e-field="EntityName" e-headertext="Entity" e-width="90"></div>
-                        <div e-column e-type="string" e-field="ProductionRemarks" e-headertext="Remarks" e-width="150"></div>
-
-                        <div e-column e-type="string" e-field="AddedBy" e-headertext="Created By" e-width="80"></div>
-                        <div e-column e-field="CreationDate" e-headertext="Creation Date" e-width="80" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
-                        <div e-column e-type="string" e-field="ProductCategory" e-headertext="Product Cat." e-width="130"></div>
-
-
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </div>
-</div>
 

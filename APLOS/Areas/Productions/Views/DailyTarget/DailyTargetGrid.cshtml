@@ -25,7 +25,7 @@
 
 <script type="text/ng-template" id="ShowButtons">
     <div class="common-btn">
-        <button style="color: #f3f3ec;background-color:{{data.HasLayout?'#00ff00':'#1c1f32'}};" title="Actions" class="btn">
+        <button ng-show="data.HasLayout" style="color: #f3f3ec;background-color:{{data.HasLayout?'#00ff00':'#1c1f32'}};" title="Actions" class="btn">
             <i class="glyphicon glyphicon-list" ng-click="$parent.AddLineItemG(this);"></i>
         </button>
     </div>
