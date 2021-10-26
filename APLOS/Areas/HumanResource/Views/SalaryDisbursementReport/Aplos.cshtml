@@ -56,32 +56,28 @@
     <div class="row" ng-show="empGrid">
         <div class="col-md-12" ng-show="empGrid">
             @*<div class="content-container-fluid" style="color:black;overflow:scroll">*@
-            <div id="empInfoGrid" ng-init="chkinit()" ej-grid e-datasource="EmployeeListTemp" e-recorddoubleclick="Get" e-allowscrolling="true" e-pageSettings-pageSize="15"
+            <div id="empInfoGrid" ng-init="chkinit()" ej-grid e-datasource="EmployeeList" e-recorddoubleclick="Get" e-allowscrolling="true" e-pageSettings-pageSize="15"
                  e-actioncomplete="actionCompleteSelected" e-templaterefresh="refreshTemplateemployee"
                  e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
                  e-allowselection="true" e-filtersettings-filterType="excel" style="margin-left:1%">
 
                 <div e-columns>
-                    <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
                     <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="80"></div>
                     <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="80"></div>
                     <div e-column e-field="Designation" e-headertext="Designation" e-allowediting="false" e-width="80"></div>
                     <div e-column e-field="Department" e-headertext="Department" e-allowediting="false" e-width="80"></div>
                     <div e-column e-field="Division" e-headertext="Division" e-allowediting="false" e-width="80"></div>
-                    <div e-column e-field="EmployeeCategory" e-headertext="Employee Category" e-allowediting="false" e-width="80"></div>
                     <div e-column e-field="Section" e-headertext="Section" e-allowediting="false" e-width="80"></div>
                     <div e-column e-field="SubSection" e-headertext="SubSection" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="Unit" e-headertext="Unit" e-allowediting="false" e-width="80"></div>
                     <div e-column e-field="Line" e-headertext="Line" e-allowediting="false" e-width="80"></div>
-                    <div e-column e-field="PayableVoucherNo" e-headertext="Payable Voucher No" e-allowediting="false" e-width="80"></div>
-                    <div e-column e-field="IsLock" e-headertext="Lock" e-allowediting="false" e-width="80"></div>
-                    <div e-column e-field="DisbursementVoucherNo" e-headertext="Disbursement Voucher No" e-allowediting="false" e-width="80"></div>
-                    <div e-column e-field="IsDisburse" e-headertext="Disbursed" e-allowediting="false" e-width="80"></div>
-                    <div e-column e-field="DOJ" e-headertext="DOJ" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="EmployeeCategory" e-headertext="Employee Category" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-format="{0:dd-MMM-yyyy}" e-type="date" e-field="DOJ" e-headertext="DOJ" e-allowediting="false" e-width="80"></div>
                     <div e-column e-field="PayRollGroup" e-headertext="PayRoll Gruop" e-allowediting="false" e-width="80"></div>
                     <div e-column e-field="JobLocation" e-headertext="Job Location" e-allowediting="false" e-width="80"></div>
                     <div e-column e-field="PaymentMode" e-headertext="Payment Mode" e-allowediting="false" e-width="80"></div>
                     <div e-column e-field="BankName" e-headertext="Bank Name" e-allowediting="false" e-width="80"></div>
-                    <div e-column e-field="DOS" e-headertext="DOS" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-format="{0:dd-MMM-yyyy}" e-type="date" e-field="DOS" e-headertext="DOS" e-allowediting="false" e-width="80"></div>
                     <div e-column e-field="SalaryProcFlag" e-headertext="EmployeeStatus" e-allowediting="false" e-width="80"></div>
                 </div>
             </div>
@@ -96,35 +92,12 @@
 
 
         </div>
-
-        @*<div class="col-sm-12">
-                <div class="col-sm-4">
-                    <br />
-                </div>
-
-                <div class="col-sm-4">
-                    <br />
-                </div>
-
-                <div class="col-sm-4">
-                    <br />
-                </div>
-
-                <div class="col-sm-4">
-                    <div class="common-btn">
-                        <ul>
-                            <li> <button ng-click="SalaryLock();" class="btn"><i class="glyphicon glyphicon-lock"></i> {{Action}}</button></li>
-                            <li> <button ng-click="SalaryUnLock();" class="btn"><i class="glyphicon glyphicon-lock"></i> Salary Unlock</button></li>
-                        </ul>
-                    </div>
-                </div>
-
-            </div>*@
+               
     </div>
     <br />
     <div class="common-btn" ng-show="empGrid">
-        <ul class="list-inline text-left">
-            <li><button ng-click="SalaryLock();" class="btn"> <i class="glyphicon glyphicon-lock"></i> {{Action}}</button></li>
+        <ul class="list-inline text-right">
+            <li><button ng-click="GetEmployeeSalaryProcessedReportSalaryLogWise();" class="btn"> <i class="glyphicon glyphicon-download-alt"></i> Report</button></li>
         </ul>
     </div>
 </div>
