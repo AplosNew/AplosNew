@@ -112,6 +112,7 @@
                     <label class="fileUpload col-sm-4 " style="padding: 0 0 0 0">
                         <input id="uploadRollData" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
                     </label>
+                    <input type="button" value="Import Data" class="btn btn-success" ng-click="ImportData()" />
                     <ul class="list-inline text-right">
                         <li> <button ng-click="saveRollFile();" class="btn"><i class="glyphicon glyphicon-check"></i> Save</button></li>
                     </ul>
