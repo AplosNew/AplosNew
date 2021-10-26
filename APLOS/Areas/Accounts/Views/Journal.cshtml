@@ -171,7 +171,9 @@
                 </tr>
             </thead>
             <tbody>
-                <tr dir-paginate="x in voucherList |itemsPerPage:voucherListParameters.pageSize" total-items="voucherListParameters.total_count" ng-dblclick="Clear();Get(x);">
+                @*<tr dir-paginate="x in invoiceList |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="getById(x.Id);">*@
+                <tr dir-paginate="x in voucherList |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Clear();Get(x);">
+
                     <td>{{x.VoucherNo}}</td>
                     <td>{{x.PostingDate | dateFiltering}}</td>
                     <td>{{x.DocRefNo}}</td>
@@ -190,7 +192,9 @@
                 </tr>
             </tbody>
         </table>
+        @*<dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>*@
         <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
+
     </div>
 </div>
 @Html.Partial("~/Areas/Accounts/Views/GLItem/_GLBudgetPopUp.cshtml")
