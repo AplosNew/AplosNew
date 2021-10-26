@@ -138,6 +138,10 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColDesg = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "Legal Designation", 13, ExcelHAlign.HAlignCenter);
+            int ColLDesg = COL;
+            COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "Budget Code", 15, ExcelHAlign.HAlignCenter);
             int ColBudCode = COL;
             COL++;
@@ -163,6 +167,10 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColEntity = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "Unit", 13, ExcelHAlign.HAlignCenter);
+            int ColUnit = COL;
+            COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "Plant", 13, ExcelHAlign.HAlignCenter);
             int ColPlant = COL;
             COL++;
@@ -185,12 +193,14 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet[ROW, ColITime].Text = dtData.Rows[i]["InTime"].ToString();
                 sheet[ROW, ColOTime].Text = dtData.Rows[i]["OutTime"].ToString();
                 sheet[ROW, ColDesg].Text = dtData.Rows[i]["Designation"].ToString();
+                sheet[ROW, ColLDesg].Text = dtData.Rows[i]["LDesignation"].ToString();
                 sheet[ROW, ColBudCode].Text = dtData.Rows[i]["BudgetCode"].ToString();
                 sheet[ROW, ColShift].Text = dtData.Rows[i]["Shift"].ToString();
                 sheet[ROW, ColSubSection].Text = dtData.Rows[i]["SubSection"].ToString();
                 sheet[ROW, ColSection].Text = dtData.Rows[i]["Section"].ToString();
                 sheet[ROW, ColDepartment].Text = dtData.Rows[i]["Department"].ToString();
                 sheet[ROW, ColEntity].Text = dtData.Rows[i]["Entity"].ToString();
+                sheet[ROW, ColUnit].Text = dtData.Rows[i]["Unit"].ToString();
                 sheet[ROW, ColPlant].Text = dtData.Rows[i]["Plant"].ToString();
 
 
