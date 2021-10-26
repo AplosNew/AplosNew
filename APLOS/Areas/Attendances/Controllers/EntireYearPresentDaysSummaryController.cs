@@ -39,11 +39,11 @@ namespace Aplos.Areas.Attendances.Controllers
              
 
         [HttpGet, Authorize]
-        public JsonResult GetSummaryData()
+        public JsonResult GetSummaryData(string Year)
         {
             try
             {
-                var jsondata = Json(new { Error = false, DATA = rep.GetData() }, JsonRequestBehavior.AllowGet);
+                var jsondata = Json(new { Error = false, DATA = rep.GetData(Year) }, JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
                 return jsondata;
             }
@@ -55,12 +55,12 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetPrintReport(string EmpId)
+        public ActionResult GetPrintReport(string EmpId,string Year)
         {
 
             try
             {
-                var workbook = GetFilterData(EmpId);
+                var workbook = GetFilterData(EmpId,Year);
 
                 var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "PresentDaysSummary.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
@@ -75,7 +75,7 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
 
-        private IWorkbook GetFilterData(string EmpId)
+        private IWorkbook GetFilterData(string EmpId,string Year)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
@@ -89,7 +89,7 @@ namespace Aplos.Areas.Attendances.Controllers
             int ROW = 6;
             int endCol = 1;
             int COL = 1;
-            DataTable data = rep.GetReportData(EmpId);
+            DataTable data = rep.GetReportData(EmpId,Year);
 
             #region Headers
 
