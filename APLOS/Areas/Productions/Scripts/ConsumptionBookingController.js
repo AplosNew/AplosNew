@@ -436,7 +436,7 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
     $scope.costingItemDetailDataList = [];
     $scope.GetCostingItemDetailData = function (obj) {
         $scope.costingItemDetailDataList = [];
-        $http.get("Productions/FinishGoodsBooking/GetCostingItemDetailData?costingId=" + obj.data.CostingMasterTemplateId)
+        $http.get("Productions/FinishGoodsBooking/GetCostingItemDetailData?costingId=" + obj.data.OrderCostingMasterTemplateId)
             .then(
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
