@@ -6,6 +6,20 @@ function EntireYearPresentDaysSummaryController($window, $timeout, cboService, c
 
     $scope.path = 'Attendances/EntireYearPresentDaysSummary/';
 
+
+    //#region Get year 
+    $scope.YearList = [];
+    $scope.getYear = function () {
+        $http({
+            method: 'GET',
+            url: 'Attendances/MonthlyAttendanceSummeryReport/GetYear',
+        }).then(function successCallback(response) {
+            $scope.YearList = response.data;
+        });
+    }
+    $scope.getYear();
+    //#endregion
+
     
     /// --- Grid Show
     $scope.MainData = [];
@@ -13,6 +27,10 @@ function EntireYearPresentDaysSummaryController($window, $timeout, cboService, c
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.MainData.length != 0) {
             $scope.destroy();
+        }
+        if ($scope.YearId == "" || $scope.YearId == null) {
+            ShowResult("Select Year");
+            throw "Select Year";
         }
             var ColumnList = [
                 { field: 'EmployeeCode', width: 150, headerText: "EmployeeCode", type: "string" },
@@ -22,7 +40,7 @@ function EntireYearPresentDaysSummaryController($window, $timeout, cboService, c
                 { field: 'SubSection', width: 150, headerText: "SubSection", type: "string" },
                 { field: 'DOJ', width: 150, headerText: "DOJ", type: "string" },
                 { field: 'Jan', width: 150, headerText: "January", type: "string" },
-                { field: 'Feb', width: 150, headerText: "Feburary", type: "string" },             
+                { field: 'Feb', width: 150, headerText: "Feburary", type: "string" },
                 { field: 'Mar', width: 150, headerText: "March", type: "string" },
                 { field: 'Apr', width: 150, headerText: "April", type: "string" },
                 { field: 'May', width: 150, headerText: "May", type: "string" },
@@ -35,10 +53,10 @@ function EntireYearPresentDaysSummaryController($window, $timeout, cboService, c
                 { field: 'Dec', width: 150, headerText: "December", type: "string" },
 
             ];
-           
+
             $http({
                 method: 'GET',
-                url: $scope.path + 'GetSummaryData',
+                url: $scope.path + 'GetSummaryData?Year=' + $scope.YearId,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error == true) {
@@ -68,16 +86,19 @@ function EntireYearPresentDaysSummaryController($window, $timeout, cboService, c
                         x.style.display = "none";
                     }
                 }
-            });
+            });       
 
 
     }
-    $scope.loadGrid();
 
     //Grid Destroy
     $scope.destroy = function () {
         var grid = $("#GridData").data("ejGrid");
         grid.destroy();
+    }
+
+    $scope.clearFliters = function () {
+        $scope.YearId = null;
     }
 
 
@@ -101,11 +122,16 @@ function EntireYearPresentDaysSummaryController($window, $timeout, cboService, c
 
     function applyFilters(parameters) {
 
+        if ($scope.YearId == "" || $scope.YearId == null) {
+            ShowResult("Select Year");
+            throw "Select Year";
+        }
+
         $http({
             method: 'POST',
             url: $scope.path + 'GetPrintReport',
             data: {
-                EmpId: parameters[0].Value,
+                EmpId: parameters[0].Value, Year: $scope.YearId
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {

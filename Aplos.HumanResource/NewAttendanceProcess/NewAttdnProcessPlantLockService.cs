@@ -9,6 +9,7 @@ using bplib;
 using Newtonsoft.Json;
 using Library.Crosscutting.Security;
 using System.Threading;
+using Library.Core;
 
 namespace Library.HumanResource.NewAttendanceProcess
 {
@@ -174,15 +175,35 @@ namespace Library.HumanResource.NewAttendanceProcess
             _sqlRepository = new SqlRepository();
             ConManager = new ConnectionManager.clsConnectionManager();
         }
-       
 
-        public IEnumerable<object> GetData()
+        public DataSet GetCalYearInfo(string CalYearId)
+        {
+            GridParameter parameters = null;
+            parameters = new GridParameter
+            {
+                ExportType = "DATASET",
+                CmdText = @"select * from YearlyCalendar WHERE ID='" + CalYearId + "'"
+            };
+
+            return _sqlRepository.GetGridData(parameters).Source;
+        }
+
+
+        public IEnumerable<object> GetData(string calYearId)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var plantId = identity.PlantId;
-                var date = DateTime.Now.ToString("dd-MMM-yyyy");
+                
+                string _FromDate = string.Empty;
+                string _ToDate = string.Empty;
+                var dsCalYear = GetCalYearInfo(calYearId);
+                if (dsCalYear.Tables[0].Rows.Count > 0)
+                {
+                    _FromDate = dsCalYear.Tables[0].Rows[0]["FromDate"].ToString();
+                    _ToDate = dsCalYear.Tables[0].Rows[0]["ToDate"].ToString();
+                }
 
                 var sql = @"select distinct SystemId as EmpId,EI.EmployeeCode
                         	,EI.EmployeeName
@@ -192,74 +213,74 @@ namespace Library.HumanResource.NewAttendanceProcess
                             , FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ,ei.SubSectionId,ei.DepartmentId,ei.SectionId
 							
                             ,Jan=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
-                            where MONTH(workdate)='1'
+                            where MONTH(workdate)='1' and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
                             and PlantID='" + plantId + @"'
                             and y.EmpSystemID=a.EmpSystemID
                             group by EmpSystemID),'0'),
                             
                             Feb=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
-                            where MONTH(workdate)='2'
+                            where MONTH(workdate)='2' and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
                             and PlantID='" + plantId + @"'
                             and y.EmpSystemID=a.EmpSystemID
                             group by EmpSystemID),'0'),
                             
                             Mar=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
-                            where MONTH(workdate)='3'
+                            where MONTH(workdate)='3' and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
                             and PlantID='" + plantId + @"'
                             and y.EmpSystemID=a.EmpSystemID
                             group by EmpSystemID),'0'),
     
                             Apr=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
-                            where MONTH(workdate)='4'
+                            where MONTH(workdate)='4' and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
                             and PlantID='" + plantId + @"'
                             and y.EmpSystemID=a.EmpSystemID
                             group by EmpSystemID),'0'),
                             
                             May=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
-                            where MONTH(workdate)='5'
+                            where MONTH(workdate)='5' and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
                             and PlantID='" + plantId + @"'
                             and y.EmpSystemID=a.EmpSystemID
                             group by EmpSystemID),'0')
 
 							,June=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
-                            where MONTH(workdate)='6'
+                            where MONTH(workdate)='6' and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
                             and PlantID='" + plantId + @"'
                             and y.EmpSystemID=a.EmpSystemID
                             group by EmpSystemID),'0')
 
 							,July=isnull((select SUM(presentvalue)+sum(latevalue)
                             from AttdnProcessData y
-                            where MONTH(workdate)='7'
+                            where MONTH(workdate)='7' and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
                             and PlantID='" + plantId + @"'
                             and y.EmpSystemID=a.EmpSystemID
                             group by EmpSystemID),'0')
 							                 
                             ,Aug=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
-                            where MONTH(workdate)='8'
+                            where MONTH(workdate)='8' and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
                             and PlantID='" + plantId + @"'
                             and y.EmpSystemID=a.EmpSystemID
                             group by EmpSystemID),'0'),
                             
                             Sep=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
-                            where MONTH(workdate)='9'
+                            where MONTH(workdate)='9' and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
                             and PlantID='" + plantId + @"' 
                             and y.EmpSystemID=a.EmpSystemID
                             group by EmpSystemID),'0'),
                             
                             Oct=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
-                            where MONTH(workdate)='10'
+                            where MONTH(workdate)='10' and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
                             and PlantID='" + plantId + @"'
                             and y.EmpSystemID=a.EmpSystemID
                             group by EmpSystemID),'0'),
                             
                             Nov=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
-                            where MONTH(workdate)='11'
+                            where MONTH(workdate)='11' and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
                             and PlantID='" + plantId + @"'
                             and y.EmpSystemID=a.EmpSystemID
                             group by EmpSystemID),'0'),
                             
                             Dec=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
-                            where MONTH(workdate)='12'
+                            where MONTH(workdate)='12' and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
                             and PlantID='" + plantId + @"'
                             and y.EmpSystemID=a.EmpSystemID
                             group by EmpSystemID),'0')
@@ -269,7 +290,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                                     LEFT JOIN ORG.Department DP ON DP.Id = EI.DepartmentId
                                                     LEFT JOIN ORG.Section AS Se ON Se.Id = EI.SectionID
                                                     LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = EI.SubSectionID                        
-                            where eI.PlantID='" + plantId+@"' and year(WorkDate)=year('"+date+@"')
+                            where eI.PlantID='" + plantId+@"' and WorkDate between '"+_FromDate+@"' and '"+_ToDate+@"'
                             AND (ei.EmployeeStatus='Active')";
 
                 return _sqlRepository.GetDataCollection(sql, null);
@@ -280,13 +301,21 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
-        public DataTable GetReportData(string EmpId)
+        public DataTable GetReportData(string EmpId,string calYearId)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var plantId = identity.PlantId;
-                var date = DateTime.Now.ToString("dd-MMM-yyyy");
+               
+                string _FromDate = string.Empty;
+                string _ToDate = string.Empty;
+                var dsCalYear = GetCalYearInfo(calYearId);
+                if (dsCalYear.Tables[0].Rows.Count > 0)
+                {
+                    _FromDate = dsCalYear.Tables[0].Rows[0]["FromDate"].ToString();
+                    _ToDate = dsCalYear.Tables[0].Rows[0]["ToDate"].ToString();
+                }
 
                 var sql = @"select distinct SystemId as EmpId,EI.EmployeeCode
                         	,EI.EmployeeName
@@ -296,74 +325,74 @@ namespace Library.HumanResource.NewAttendanceProcess
                             , FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ,ei.SubSectionId,ei.DepartmentId,ei.SectionId
 							
                             ,Jan=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
-                            where MONTH(workdate)='1'
+                            where MONTH(workdate)='1' and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
                             and PlantID='" + plantId + @"'
                             and y.EmpSystemID=a.EmpSystemID
                             group by EmpSystemID),'0'),
                             
                             Feb=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
-                            where MONTH(workdate)='2'
+                            where MONTH(workdate)='2' and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
                             and PlantID='" + plantId + @"'
                             and y.EmpSystemID=a.EmpSystemID
                             group by EmpSystemID),'0'),
                             
                             Mar=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
-                            where MONTH(workdate)='3'
+                            where MONTH(workdate)='3' and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
                             and PlantID='" + plantId + @"'
                             and y.EmpSystemID=a.EmpSystemID
                             group by EmpSystemID),'0'),
     
                             Apr=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
-                            where MONTH(workdate)='4'
+                            where MONTH(workdate)='4' and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
                             and PlantID='" + plantId + @"'
                             and y.EmpSystemID=a.EmpSystemID
                             group by EmpSystemID),'0'),
                             
                             May=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
-                            where MONTH(workdate)='5'
+                            where MONTH(workdate)='5' and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
                             and PlantID='" + plantId + @"'
                             and y.EmpSystemID=a.EmpSystemID
                             group by EmpSystemID),'0')
 
 							,June=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
-                            where MONTH(workdate)='6'
+                            where MONTH(workdate)='6' and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
                             and PlantID='" + plantId + @"'
                             and y.EmpSystemID=a.EmpSystemID
                             group by EmpSystemID),'0')
 
 							,July=isnull((select SUM(presentvalue)+sum(latevalue)
                             from AttdnProcessData y
-                            where MONTH(workdate)='7'
+                            where MONTH(workdate)='7' and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
                             and PlantID='" + plantId + @"'
                             and y.EmpSystemID=a.EmpSystemID
                             group by EmpSystemID),'0')
 							                 
                             ,Aug=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
-                            where MONTH(workdate)='8'
+                            where MONTH(workdate)='8' and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
                             and PlantID='" + plantId + @"'
                             and y.EmpSystemID=a.EmpSystemID
                             group by EmpSystemID),'0'),
                             
                             Sep=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
-                            where MONTH(workdate)='9'
+                            where MONTH(workdate)='9' and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
                             and PlantID='" + plantId + @"' 
                             and y.EmpSystemID=a.EmpSystemID
                             group by EmpSystemID),'0'),
                             
                             Oct=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
-                            where MONTH(workdate)='10'
+                            where MONTH(workdate)='10' and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
                             and PlantID='" + plantId + @"'
                             and y.EmpSystemID=a.EmpSystemID
                             group by EmpSystemID),'0'),
                             
                             Nov=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
-                            where MONTH(workdate)='11'
+                            where MONTH(workdate)='11' and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
                             and PlantID='" + plantId + @"'
                             and y.EmpSystemID=a.EmpSystemID
                             group by EmpSystemID),'0'),
                             
                             Dec=isnull((select SUM(presentvalue)+sum(latevalue) from AttdnProcessData y
-                            where MONTH(workdate)='12'
+                            where MONTH(workdate)='12' and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
                             and PlantID='" + plantId + @"'
                             and y.EmpSystemID=a.EmpSystemID
                             group by EmpSystemID),'0')
@@ -373,7 +402,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                                     LEFT JOIN ORG.Department DP ON DP.Id = EI.DepartmentId
                                                     LEFT JOIN ORG.Section AS Se ON Se.Id = EI.SectionID
                                                     LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = EI.SubSectionID                        
-                            where eI.PlantID='" + plantId + @"' and year(WorkDate)=year('" + date + @"')
+                            where eI.PlantID='" + plantId + @"' and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
                             AND (ei.EmployeeStatus='Active')
                             --- Filters
                             and isnull(ei.SystemId, '') IN(" + EmpId + @")";

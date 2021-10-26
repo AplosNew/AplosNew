@@ -114,7 +114,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             COL++;
 
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Legal Designation", 15, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "Designation", 15, ExcelHAlign.HAlignCenter);
             int ColLglDesgn = COL;
             COL++;
 
