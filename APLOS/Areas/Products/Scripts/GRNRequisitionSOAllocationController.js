@@ -33,8 +33,7 @@ function GRNRequisitionSOAllocationController(accountService, addressService, $w
 
 		$scope.tab = newTab;
 		$scope.GRN = 1;
-		$scope.getListForGRNCheckedList();
-		//alert('Checked Tab');
+		$scope.GetOutSourceGRData();
 	};
 	$scope.isSetpoa = function (tabNum) {
 		return $scope.tab === tabNum;
@@ -42,13 +41,12 @@ function GRNRequisitionSOAllocationController(accountService, addressService, $w
 	};
 	// End PO approve
 
-	$scope.setTabGRNRejectHoldList = function (newTab) {
+	$scope.setTabAllocatedList = function (newTab) {
 
 		$scope.tab = newTab;
-		//$scope.getListForGRNRejectHoldList();
-		//$scope.getListForGRNRejectHoldList();
+		$scope.GetOutSourceReceiptAllocatedData();
 	};
-	$scope.isSetGRNRejectHoldList = function (tabNum) {
+	$scope.isSetAllocatedList = function (tabNum) {
 		return $scope.tab === tabNum;
 
 	};
@@ -109,7 +107,17 @@ function GRNRequisitionSOAllocationController(accountService, addressService, $w
 	};
 	$scope.GetOutSourceGRData();
 
-
+	$scope.OutSourceReceiptAllocatedData = [];
+	$scope.GetOutSourceReceiptAllocatedData = function () {
+		//debugger;
+		$http({
+			method: 'GET',
+			dataType: 'JSON',
+			url: 'Products/GoodsReceiveNote/GetOutSourceReceiptAllocatedData',
+		}).then(function successCallback(response) {
+			$scope.OutSourceReceiptAllocatedData = response.data;
+		});
+	};
 
 
 	$scope.CalculateBaseQty = function (data) {
@@ -160,13 +168,31 @@ function GRNRequisitionSOAllocationController(accountService, addressService, $w
 
 	$scope.calculateAllocationQty = function (data) {
 		$scope.currentTransactionQty = $filter("sumByKey")($filter("filter")($scope.OutSourceReceiptDetailData), "TransactionQty");
-		if ($scope.GRNTrnQty < $scope.currentTransactionQty) {
-			ShowResult('Current Base Qty can not grater than Base Qty ', 'failure', 'ListOfSo');
+		$scope.currentAllocatedQty = $filter("sumByKey")($filter("filter")($scope.OutSourceReceiptDetailData), "AllocatedQty");
+		if ($scope.GRNTrnQty < (parseFloat($scope.currentTransactionQty) + parseFloat($scope.currentAllocatedQty))) {
+			data.TransactionQty = 0
+			ShowResult('Current  Qty can not grater than GRN Qty ', 'failure', 'ListOfSo');
+		}
+			data.BaseQty = data.TransactionQty * data.BaseUOMFactor
+	}
+
+	$scope.validation = function () {
+		if ($scope.detailListNew.length > 0) {
+			$scope.currentTransactionQty = $filter("sumByKey")($filter("filter")($scope.detailListNew), "TransactionQty");
+			$scope.currentAllocatedQty = $filter("sumByKey")($filter("filter")($scope.detailListNew), "AllocatedQty");
+			if ($scope.GRNTrnQty < (parseFloat($scope.currentTransactionQty) + parseFloat($scope.currentAllocatedQty))) {
+				ShowResult('Qty can not grater than GRN Qty ', 'failure', 'ListOfSo');
+				return true;
+			}
 		}
 		else {
-			data.BaseQty = data.TransactionQty * BaseUOMFactor
+			ShowResult('Please  ', 'failure', 'ListOfSo');
+			return true;
         }
-	}
+		
+		return false;
+	};
+
 	$scope.UpdateJWSOAllocation = function () {
 
 		$scope.detailListNew = [];
@@ -177,28 +203,31 @@ function GRNRequisitionSOAllocationController(accountService, addressService, $w
 				$scope.detailListNew.push($scope.OutSourceReceiptDetailData[i]);
 			}
 		}
-
-		if ($scope.Action === "Update") {
-			$http({
-				method: 'POST'
-				, url: 'Products/GoodsReceiveNote/CreateJWSOAllocation'
-				, data: { 'Data': $scope.detailListNew }
-				, dataType: 'JSON'
-			}).then(function (response) {
-				if (response.data.Error === true)
+		if (!$scope.validation()) {
+			if ($scope.Action === "Update") {
+				$http({
+					method: 'POST'
+					, url: 'Products/GoodsReceiveNote/CreateJWSOAllocation'
+					, data: { 'Data': $scope.detailListNew }
+					, dataType: 'JSON'
+				}).then(function (response) {
+					if (response.data.Error === true)
+						ShowResult(response.data.Message, 'failure');
+					else {
+						ShowResult(response.data.Message, 'success');
+						$scope.ClsoeListOfSo();
+						$scope.GetOutSourceGRData();
+						//$scope.Clear();
+						//$scope.getdataInventoryIssue();
+						//$scope.productNew.Id = response.data.inventoryIssue.Id;
+						//$scope.getData();
+						//$scope.GetDataList();
+					}
+				}), function (response) {
 					ShowResult(response.data.Message, 'failure');
-				else {
-					ShowResult(response.data.Message, 'success');
-					//$scope.Clear();
-					//$scope.getdataInventoryIssue();
-					//$scope.productNew.Id = response.data.inventoryIssue.Id;
-					//$scope.getData();
-					//$scope.GetDataList();
-				}
-			}), function (response) {
-				ShowResult(response.data.Message, 'failure');
-			};
+				};
+			}
+			else ShowResult('Please issue material', 'failure');
 		}
-		else ShowResult('Please issue material', 'failure');
 	};
 }

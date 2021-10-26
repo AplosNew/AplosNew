@@ -82,7 +82,79 @@ namespace Library.MaterialManagement.JobWork
 						  group by InventoryReceiveDetailId
 						  )AlreadyAllo ON AlreadyAllo.InventoryReceiveDetailId=IRD.Id
 				WHERE IR.GRNType='GRNBYPO' 
-				AND Boq.SalesOrderId IS NOT NULL 
+				AND Boq.SalesOrderId IS NOT NULL AND isnull(IRD.TransactionQty,0) > isnull(AlreadyAllo.TransactionQty,0)
+				Order by IRD.Id ASC";// ,MMAU.BaseUOMFactor
+				return _sqlRepository.GetDataCollection(sql);
+
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+			}
+		}
+		public IEnumerable<object> GetOutSourceReceiptAllocatedData()
+		{
+			try
+			{
+				var sql = "";
+				sql = @"SELECT DISTINCT
+				 IR.GRNType
+				, IRD.Id InventoryReceiveDetailId
+				,'' POReqDetailsId
+				,ISNULL(IRD.TransactionQty,0) TransactionQty1
+				,ISNULL(IRD.TransactionQty,0) TransactionQty
+	            ,ISNULL(AlreadyAllo.TransactionQty,0) AllocatedQty
+				,Isnull(IRD.TransactionUoMId,'') TransactionUoMId
+				,ISNULL(TUoM.UserName,'') TransactionUoM
+				,ISNULL(IRD.BaseQty,0) BaseQty1
+				,ISNULL(IRD.BaseQty,0) BaseQty
+				,ISNULL(IRD.BaseUOMId,'') BaseUoMId
+				,ISNULL(BUoM.UserName,'') BaseUoM
+				--,Isnull(POBOQMAP.POBOQQty,0) POBOQQty
+				--,ISNULL(PUoM.Id,'') POUoMId
+				--,ISNULL(PUoM.UserName,'') POUoM
+				--,ISNULL(Boq.SalesOrderId,'') SalesOrderId
+				,ISNULL(IRD.OSTransformationPOId,'') POId
+				,ISNULL(IRD.OSTransformationPODetailId,'') PODetailsId 
+
+				,IM.MaterialMasterId
+				,MM.UserName MaterialMasterName
+				, IM.ArticleId
+				, ART.StandardName ArticleName
+				,IsAsset=CASE WHEN MM.IsAsset=0 then 'No' else 'Yes' END
+				, IM.FirstCharacteristicsValueId
+				, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue
+				, IM.SecondCharacteristicsValueId
+				, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
+				, IM.ThirdCharacteristicsValueId
+				, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 
+				, BaseUOMFactor=CASE WHEN MaA.BaseUOMFactor IS null then 1 else MaA.BaseUOMFactor end
+				FROM trn.InventoryReceive IR
+				Left JOIN TRN.InventoryReceiveDetail IRD on IR.Id=IRD.InventoryReceiveId
+				left join [dbo].OSPOBOQMAP POBOQMAP ON POBOQMAP.OSTransformationPODetailId =IRD.OSTransformationPODetailId
+				left join BOQ Boq on Boq.Id=POBOQMAP.BOQDetailId
+				LEFT JOIN SCS.UnitOfMeasurement TUoM ON TUoM.Id=IRD.TransactionUoMId
+				LEFT JOIN SCS.UnitOfMeasurement BUoM ON BUoM.Id=IRD.BaseUOMId
+				--LEFT JOIN SCS.UnitOfMeasurement PUoM ON PUoM.Id=POBOQMAP.POUoMId
+				LEFT JOIN TRN.InventoryMaterial AS IM ON IM.Id=IRD.InventoryMaterialId
+				left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
+				LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
+				LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id
+				LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId=FC.Id
+				LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId=SC.Id
+				LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId=TC.Id
+				LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId=FCV.Id
+				LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
+				LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
+				left join [MST].[MaterialMasterAlternativeUOM] MaA ON MaA.MaterialMasterId=mm.Id
+				left join(select InventoryReceiveDetailId ,Sum(TransactionQty) TransactionQty 
+						  from trn.GRNPORequisitionAllocation 
+						  group by InventoryReceiveDetailId
+						  )AlreadyAllo ON AlreadyAllo.InventoryReceiveDetailId=IRD.Id
+				WHERE IR.GRNType='GRNBYPO' 
+				AND Boq.SalesOrderId IS NOT NULL AND isnull(IRD.TransactionQty,0) = isnull(AlreadyAllo.TransactionQty,0)
 				Order by IRD.Id ASC";// ,MMAU.BaseUOMFactor
 				return _sqlRepository.GetDataCollection(sql);
 
@@ -103,23 +175,22 @@ namespace Library.MaterialManagement.JobWork
 				sql = @"select Convert(bit, 'False') Active, '' Id
 				, IR.GRNType
 				, IRD.Id InventoryReceiveDetailId
-				, ISNULL(POBOQMAP.Id,'') POBOQMapId
-				,'' POReqDetailsId
-				,ISNULL(IRD.TransactionQty,0) TransactionQty1
-				,ISNULL(IRD.TransactionQty,0) TransactionQty
+				, ISNULL(POBOQMAP.Id,NULL) POBOQMapId
+				, NULL POReqDetailsId
+				,0 TransactionQty
 	            ,ISNULL(AlreadyAllo.TransactionQty,0) AllocatedQty
 				,Isnull(IRD.TransactionUoMId,'') TransactionUoMId
 				,ISNULL(TUoM.UserName,'') TransactionUoM
-				,ISNULL(IRD.BaseQty,0) BaseQty1
-				,ISNULL(IRD.BaseQty,0) BaseQty
-				,ISNULL(IRD.BaseUOMId,'') BaseUoMId
+				,ISNULL(AlreadyAllo.BaseQty,0) OtherBaseQty
+				,0 BaseQty
+				,ISNULL(IRD.BaseUOMId,NULL) BaseUoMId
 				,ISNULL(BUoM.UserName,'') BaseUoM
 				,Isnull(POBOQMAP.POBOQQty,0) POBOQQty
-				,ISNULL(PUoM.Id,'') POUoMId
+				,ISNULL(PUoM.Id,NULL) POUoMId
 				,ISNULL(PUoM.UserName,'') POUoM
-				,ISNULL(Boq.SalesOrderId,'') SalesOrderId
-				,ISNULL(IRD.OSTransformationPOId,'') POId
-				,ISNULL(IRD.OSTransformationPODetailId,'') PODetailsId 
+				,ISNULL(Boq.SalesOrderId,NULL) SalesOrderId
+				,ISNULL(IRD.OSTransformationPOId,NULL) POId
+				,ISNULL(IRD.OSTransformationPODetailId,NULL) PODetailsId 
 
 				,IM.MaterialMasterId
 				,MM.UserName MaterialMasterName
@@ -141,9 +212,9 @@ namespace Library.MaterialManagement.JobWork
 				, BaseUOMFactor=CASE WHEN MaA.BaseUOMFactor IS null then 1 else MaA.BaseUOMFactor end
 				FROM trn.InventoryReceive IR
 				Left JOIN TRN.InventoryReceiveDetail IRD on IR.Id=IRD.InventoryReceiveId
-				left join [dbo].OSPOBOQMAP SOBOQMAP ON SOBOQMAP.OSTransformationPODetailId =IRD.OSTransformationPODetailId
-				LEFT JOIN TRN.POBOQMAP POBOQMAP ON POBOQMAP.BOQDetailId=SOBOQMAP.BOQDetailId
-				left join BOQ Boq on Boq.Id=SOBOQMAP.BOQDetailId
+				left join [dbo].OSPOBOQMAP OSBOQMAP ON OSBOQMAP.OSTransformationPODetailId =IRD.OSTransformationPODetailId
+				LEFT JOIN TRN.POBOQMAP POBOQMAP ON POBOQMAP.BOQDetailId=OSBOQMAP.BOQDetailId
+				left join BOQ Boq on Boq.Id=OSBOQMAP.BOQDetailId
 				LEFT JOIN SCS.UnitOfMeasurement TUoM ON TUoM.Id=IRD.TransactionUoMId
 				LEFT JOIN SCS.UnitOfMeasurement BUoM ON BUoM.Id=IRD.BaseUOMId
 				LEFT JOIN SCS.UnitOfMeasurement PUoM ON PUoM.Id=POBOQMAP.POUoMId
@@ -158,11 +229,11 @@ namespace Library.MaterialManagement.JobWork
 				LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
 				LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
 				left join [MST].[MaterialMasterAlternativeUOM] MaA ON MaA.MaterialMasterId=mm.Id
-				left join(select InventoryReceiveDetailId ,Sum(TransactionQty) TransactionQty 
+				left join(select InventoryReceiveDetailId,SalesOrderId ,Sum(TransactionQty) TransactionQty,Sum(BaseQty) BaseQty 
 						  from trn.GRNPORequisitionAllocation 
-						  group by InventoryReceiveDetailId
-						  )AlreadyAllo ON AlreadyAllo.InventoryReceiveDetailId=IRD.Id
-				WHERE IR.GRNType='GRNBYPO' and ISNULL(Boq.SalesOrderId,'') IS NOT NULL  
+						  group by InventoryReceiveDetailId,SalesOrderId
+						  )AlreadyAllo ON AlreadyAllo.InventoryReceiveDetailId=IRD.Id AND AlreadyAllo.SalesOrderId=BOQ.SalesOrderId
+				WHERE IR.GRNType='GRNBYPO' and ISNULL(Boq.SalesOrderId,'') IS NOT NULL   
 				AND IRD.Id='" + inventoryReceiveDetailId + @"' 
 				Order by IRD.Id ASC";// ,MMAU.BaseUOMFactor
 				return _sqlRepository.GetDataCollection(sql);

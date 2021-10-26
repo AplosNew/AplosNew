@@ -171,6 +171,8 @@ namespace Library.Planning.LineDesign
                 throw ex;
             }
         }
+
+
         public void SaveData(List<Html> Nodes, string Design, string WorkCenterMasterId, string ProductionOrderId, string TargetDate)
         {
             bplib.clsGenID objGenID = null;
@@ -257,6 +259,68 @@ namespace Library.Planning.LineDesign
 
             OTSBD.clsStaticInfo SaveInfo = new OTSBD.clsStaticInfo();
             SaveInfo.SaveDataSets(dsMaster, dsChild);
+        }
+        public void SaveProductionData(List<Dictionary<string, object>> HtmlsInfo, string WorkCenterMasterId, string ProductionOrderId, string TargetDate)
+        {
+            bplib.clsGenID objGenID = null;
+            string idFromDBC = "";
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+
+            DataSet dsMaster, dsChild;
+            ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+            con.OpenDataSetThroughAdapter("SELECT * FROM trn.DailyProduction AS dp where 1=2", out dsChild, false, "1");
+
+            string ProductionTime = TargetDate + " " + System.DateTime.Now.ToString("hh:mm:ss tt");
+            string PeriodId = @"SELECT TOP 1 PX.Id
+                                                      FROM hkp.ProductionBookingPeriod PX WHERE CONVERT(DATETIME,FORMAT(CONVERT(DATETIME,'" + ProductionTime + @"'),'dd-MMM-yyyy hh:mm tt')) BETWEEN 
+                                CONVERT(DATETIME,CONCAT(FORMAT(CONVERT(DATETIME,'" + ProductionTime + @"'),'dd-MMM-yyyy'),' ',FORMAT(PX.StartTime,'hh:mm tt')))  AND
+                                CONVERT(DATETIME,CONCAT(FORMAT(CONVERT(DATETIME,'" + ProductionTime + @"'),'dd-MMM-yyyy'),' ',FORMAT(PX.EndTime,'hh:mm tt')))
+
+                                 ORDER BY px.StartTime ASC";
+            con = new ConnectionManager.DAL.ConManager("1");
+            con.OpenDataSetThroughAdapter(PeriodId, out DataSet dsPeriod, false, "1");
+            if (dsPeriod.Tables[0].Rows.Count > 0)
+                PeriodId = dsPeriod.Tables[0].Rows[0]["Id"].ToString();
+
+            string ChildPK = "";
+            for (int i = 0; i < HtmlsInfo.Count; i++)
+            {
+                if (OTSBD.clsStaticInfo.dbl(HtmlsInfo[i]["CurrentQuantity"]) <= 0)
+                    continue;
+
+                if (ChildPK == "")
+                {
+                    objGenID = new bplib.clsGenID();
+                    objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "DailyProduction", out idFromDBC);
+                    ChildPK = "DPD-" + idFromDBC;
+                }
+                DataRow dr = dsChild.Tables[0].NewRow();
+                dr["Id"] = ChildPK + "-" + (i + 1);
+
+                dr["PlantID"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(identity.PlantId));
+                dr["WorkCenterMasterID"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(WorkCenterMasterId));
+                dr["ResponsiblePersonID"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(HtmlsInfo[i]["EmployeeId"].ToString()));
+                dr["EmployeeInformationSystemID"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(HtmlsInfo[i]["EmployeeId"].ToString()));
+                dr["ProductionDate"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(TargetDate));
+                dr["Quantity"] = OTSBD.clsStaticInfo.dbl(HtmlsInfo[i]["CurrentQuantity"]);
+                dr["ProductionTime"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(ProductionTime));
+                dr["ProductionOrderId"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(ProductionOrderId));
+                dr["ProductionBookingPeriodId"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(PeriodId));
+                dr["OperationVariationId"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(HtmlsInfo[i]["OperationVariationId"].ToString()));
+
+                dr["AddedBy"] = identity.Name;
+                dr["AddedDate"] = DateTime.Now;
+               // dr["AddedFromIP"] = identity.IPAddress;
+
+                dr["UpdatedBy"] = identity.Name;
+                dr["UpdatedDate"] = DateTime.Now;
+                //dr["UpdatedFromIP"] = identity.IPAddress;
+                dsChild.Tables[0].Rows.Add(dr);
+            }
+
+            OTSBD.clsStaticInfo SaveInfo = new OTSBD.clsStaticInfo();
+            SaveInfo.SaveDataSets(dsChild);
         }
 
         public List<Dictionary<string, object>> SearchEmployee(string column, string value, string OperationId, string OperationVariationId, string TargetDate)
@@ -383,11 +447,12 @@ CASE WHEN ISNULL(dtd.EmployeeSystemId,'')='' THEN 'Unassigned' ELSE CONCAT('Assi
             data.Add(_tempData);
 
             sql = @"SELECT o.UserName AS Operation,ov.UserName AS OperationVariation,mma.StandardName AS Article,s.UserName AS Skill,o.IsMachineRequired,mma.RPM,sc.UserName AS StitchCode,
-                        ov.SubOperationSAM, ov.AdditionalSAMSymbol, ov.AdditionalSAM, ov.Frequency,
+                        ov.SubOperationSAM, ov.AdditionalSAMSymbol, ov.AdditionalSAM, ov.Frequency,oc.UserName AS OperationCategory,
                         ov.MachineAllowance, ov.SPI, ov.Code, ov.TotalSAM, ov.AdditionalAllowance,
                         ov.VASFINALSAM
                           FROM mst.OperationVariation AS ov
                         LEFT JOIN mst.Operation AS o ON o.Id=ov.OperationId
+                        LEFT JOIN hkp.OperationCategory AS oc ON oc.Id=o.OperationCategoryId
                         LEFT JOIN mst.MaterialMasterArticle AS mma ON mma.Id=ov.ArticleId
                         LEFT JOIN hkp.Skill AS s ON s.Id=ov.SkillId
                         LEFT JOIN hkp.StitchCode AS sc ON sc.Id=mma.StitchCodeId

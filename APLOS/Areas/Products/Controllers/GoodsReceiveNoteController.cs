@@ -4066,6 +4066,15 @@ UNION ALL
 		}
 
 		[Authorize, HttpGet]
+		public JsonResult GetOutSourceReceiptAllocatedData()
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			OutsourceReceiveAllocationService outsourceReceiveAllocationService = new OutsourceReceiveAllocationService();
+			//Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
+			return Json(outsourceReceiveAllocationService.GetOutSourceReceiptAllocatedData(), JsonRequestBehavior.AllowGet);
+		}
+
+		[Authorize, HttpGet]
 		public JsonResult GetOutSourceReceiptDetailDataForAllocation(string inventoryReceiveDetailId)
 		{
 			OutsourceReceiveAllocationService outsourceReceiveAllocationService = new OutsourceReceiveAllocationService();
@@ -4110,7 +4119,7 @@ UNION ALL
 					{
 						bplib.clsGenID genid = new bplib.clsGenID();
 						genid.GenID("trn.GRNPORequisitionAllocation", out _Id);
-						_Id = "JW" + _Id;
+						_Id = "OS" + _Id;
 						item["Id"] = _Id;
 
 						//Data["InventoryReceiveDetailId"] = _Id;

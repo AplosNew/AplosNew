@@ -284,7 +284,7 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-                    
+
                     $scope.GetLineLayout(data);
                 }
             }), function errorCallBack(response) {
@@ -515,6 +515,8 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
             $scope.selectednode.items[0].addInfo["DayStatus"] = args.data.DayStatus;
             $scope.selectednode.items[0].addInfo["DayColor"] = args.data.DayColor;
 
+            $scope.ConstructReplaceEmployee();
+
             var eDialog = $("#dialogSearchEmployee").data("ejDialog");
             eDialog.close();
         } catch (e) {
@@ -588,10 +590,18 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
             angular.element(document.querySelector("#modalOperationList")).modal("toggle");
         });
     }
+    $scope.EmployeeSearchFrom = 'card';
+    $scope.employeeButtonClick = function (args, source, nodename) {
+        $scope.EmployeeSearchFrom = source;
 
-    $scope.employeeButtonClick = function (args) {
-
-        $scope.selectednode = args;
+        if (angular.isUndefinedOrNull(nodename) == false) {
+            var exists = ej.DataManager($scope.nodes).executeLocal(ej.Query().where("name", "equal", nodename));
+            if (exists)
+                $scope.selectednode = { "items": exists };
+        }
+        else {
+            $scope.selectednode = args;
+        }
         $scope.OpenEmployeeSearchBox();
     }
     $scope.FixedAssetButtonClick = function (args) {
@@ -625,7 +635,7 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                 
+
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -728,10 +738,88 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
 
                 $scope.SaveDiagram();
             });
-           
+
         } catch (e) {
 
         }
     }
 
+
+    //chang employee
+    $scope.ReplaceEmployeeList = [];
+    $scope.GetListOfReplaceEmployees = function () {
+
+        $scope.ConstructReplaceEmployee();
+
+        var eDialog = $("#dialogEmployeeReplace").data("ejDialog");
+        eDialog.open();
+
+    }
+    $scope.ConstructReplaceEmployee = function () {
+        $scope.ReplaceEmployeeList = [];
+        for (var i = 0; i < $scope.nodes.length; i++) {
+            var model = Object.assign({}, $scope.nodes[i].addInfo);
+            if (model.hasOwnProperty('EmployeeId')) {
+                if (model.DayStatus == 'A' || model.DayStatus == 'LV' || angular.isUndefinedOrNull(model.DayStatus)) {
+                    model["name"] = $scope.nodes[i]["name"];
+                    $scope.ReplaceEmployeeList.push(model);
+                }
+            }
+        }
+
+        try {
+            var gridObj = $("#gridEmployeeReplace").data("ejGrid");
+            gridObj.refreshContent();
+        } catch (e) {
+
+        }
+
+    }
+
+    $scope.ProductionEntryList = [];
+    $scope.ConstructProductionEntry = function () {
+        $scope.ProductionEntryList = [];
+        for (var i = 0; i < $scope.nodes.length; i++) {
+            var model = Object.assign({}, $scope.nodes[i].addInfo);
+            if (model.hasOwnProperty('EmployeeId')) {
+                model["name"] = $scope.nodes[i]["name"];
+                model["CurrentQuantity"] = 0;
+                $scope.ProductionEntryList.push(model);
+            }
+        }
+
+        try {
+            var gridObj = $("#gridProductionEntry").data("ejGrid");
+            gridObj.refreshContent();
+
+            var eDialog = $("#dialogProductionEntry").data("ejDialog");
+            eDialog.open();
+        } catch (e) {
+
+        }
+
+    }
+
+
+    $scope.SaveProductionQuantity = function () {
+        try {
+          
+            $http({
+                method: "POST",
+                url: $scope.path + 'SaveProductionData',
+                data: {
+                    'ProductionData': $scope.ProductionEntryList,
+                    'ProductionOrderId': $scope.SelectedLineForPR.PRNo,
+                    'TargetDate': $scope.DailyProductionTargetNew.ProductionDate,
+                    'WorkCenterMasterId': $scope.SelectedLineForPR.WorkCenterMasterId
+                },
+                dataType: 'JSON',
+            }).then(function successCallback(response) {
+               
+                $scope.UpdateEmployeeAttendanceAndProductionInfo();
+            });
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
 }
