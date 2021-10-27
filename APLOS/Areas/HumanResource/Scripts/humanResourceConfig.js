@@ -354,6 +354,10 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanresource/AttendanceManagement/LeaveWithWagesRegisters',
             controller: 'leaveWithWagesRegistersController'
         })
+        .when('/leave-with-wages-registers-form-18', {
+            templateUrl: 'humanresource/LeaveWithWagesRegistersForm18/Aplos',
+            controller: 'leaveWithWagesRegistersForm18Controller'
+        })
         .when('/welfare-reports', {
             templateUrl: 'humanresource/WelfareReports/Aplos',
             controller: 'welfareReportsController'

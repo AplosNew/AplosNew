@@ -1929,10 +1929,9 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                                 decimal SalaryPerDay = DefCur / FixMonthDay;//per day
                                                                 if (dicLocal_Sub[i].RuleType == "Gen")
                                                                 {
-                                                                    if (IsRefAbsentism)
-                                                                    {
-                                                                        DisbCur = SalaryPerDay * TotalPayDays;
-                                                                    }
+
+                                                                    DisbCur = SalaryPerDay * TotalPayDays;
+
                                                                 }
                                                                 else if (dicLocal_Sub[i].RuleType == "Abs")
                                                                 {
@@ -1950,10 +1949,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                                 decimal SalaryPerDay = DefCur / DaysInMonth;
                                                                 if (dicLocal_Sub[i].RuleType == "Gen")
                                                                 {
-                                                                    if (IsRefAbsentism == true)
-                                                                    {
-                                                                        DisbCur = SalaryPerDay * TotalPayDays;
-                                                                    }
+                                                                    DisbCur = SalaryPerDay * TotalPayDays;
                                                                 }
                                                                 else if (dicLocal_Sub[i].RuleType == "Abs")
                                                                 {
@@ -1976,11 +1972,9 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                                 if (dicLocal_Sub[i].RuleType == "Gen")
                                                                 {
                                                                     //DisbCur = (DefCur / TotWorkingDay) * (TotalDaysSlr - (WkOFDay + HDDay));
-                                                                    if (IsRefAbsentism == true)
-                                                                    {
+                                                                    
                                                                         DisbCur = SalaryPerDay * TotalPayDays;
                                                                         //DisbCur = DisbCur - ((DefCur / (TotalDaysSlr - (WkOFDay + HDDay))) * AbsDay);
-                                                                    }
                                                                 }
                                                                 else if (dicLocal_Sub[i].RuleType == "Abs")
                                                                 {

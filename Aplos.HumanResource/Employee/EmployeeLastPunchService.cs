@@ -11,7 +11,7 @@ using Library.Crosscutting.Security;
 using System.Threading;
 using Library.Core;
 
-namespace Library.HumanResource.NewAttendanceProcess
+namespace Library.HumanResource.Employee
 {
     public class EmployeeLastPunchService
     {
@@ -33,13 +33,13 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 var sql = @"select SystemId as EmpId,EmployeeName,EmployeeCode,Format(DOJ,'dd-MMM-yyyy')DOJ,
                 TenureMonth=DATEDIFF(month,FORMAT(DOJ,'dd-MMM-yyyy'), FORMAT(GETDATE(),'dd-MMM-yyyy')),EmployeeStatus,
-                EmployeeCurrentStatus,LastPunch.InTime,LastPunch.WorkDate,s.UserName as Section,ss.UserName as SubSection,d.UserName as
+                EmployeeCurrentStatus,LastPunch.InTime as LastIn,FORMAT(LastPunch.WorkDate,'dd-MMM-yyyy') as LastWorkDate,s.UserName as Section,ss.UserName as SubSection,d.UserName as
                 Department,l.UserName as Designation from
                 (
                 select * from (
                 select dense_rank() over (partition by empsystemid order by workdate desc) as Rnk1,a.InTime,
                 a.EmpSystemID,a.WorkDate
-                from AttdnProcessData a where PlantId='"+plantId+@"' and (isnull(InTime,'') !='' or isnull(OutTime,'')!='')
+                from AttdnProcessData a where PlantId='" + plantId+@"' and (isnull(InTime,'') !='' or isnull(OutTime,'')!='')
                 )as LastPunch where rnk1=1)LastPunch 
                 left join EmployeeInformation e on e.systemid=lastpunch.empsystemid
                 left join org.Section s on s.Id=e.SectionId
@@ -67,7 +67,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 var sql = @"select SystemId as EmpId,EmployeeName,EmployeeCode,Format(DOJ,'dd-MMM-yyyy')DOJ,
                 TenureMonth=DATEDIFF(month,FORMAT(DOJ,'dd-MMM-yyyy'), FORMAT(GETDATE(),'dd-MMM-yyyy')),EmployeeStatus,
-                EmployeeCurrentStatus,LastPunch.InTime,LastPunch.WorkDate,s.UserName as Section,ss.UserName as SubSection,d.UserName as
+                EmployeeCurrentStatus,LastPunch.InTime as LastIn,FORMAT(LastPunch.WorkDate,'dd-MMM-yyyy') as LastWorkDate,s.UserName as Section,ss.UserName as SubSection,d.UserName as
                 Department,l.UserName as Designation from
                 (
                 select * from (
@@ -82,7 +82,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 left join hkp.LegalDesignation l on l.Id=e.LegalDesignationId
                 where EmpType <> 'Guest' 
                 and e.EmployeeStatus='Active'
-                AND e.PlantId='" + plantId + "' and isnull(ei.SystemId, '') IN(" + EmpId + @")";
+                AND e.PlantId='" + plantId + "' and isnull(e.SystemId, '') IN(" + EmpId + @")";
 
                 return _sqlRepository.GetDataTable(sql);
             }

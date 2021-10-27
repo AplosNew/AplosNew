@@ -576,6 +576,8 @@ var upanelApp = angular
     .controller('leavesChecklistReportController', leavesChecklistReportController)
 
     .controller('leaveWithWagesRegistersController', leaveWithWagesRegistersController)
+    .controller('leaveWithWagesRegistersFrom18Controller', leaveWithWagesRegistersFrom18Controller)
+
     .controller('LeaveYearEndProcessController', LeaveYearEndProcessController)
     .controller('loanInterestPayableController', loanInterestPayableController)
     .controller('loanInterestPayableReverseController', loanInterestPayableReverseController)
@@ -845,6 +847,7 @@ var upanelApp = angular
     .controller('monthlyAttendanceInformationDateRangeController', monthlyAttendanceInformationDateRangeController)
     .controller('MonthlyAttendanceInformationDateRangeNewController', MonthlyAttendanceInformationDateRangeNewController)
     .controller('AttendanceFromAppReportController', AttendanceFromAppReportController)
+    .controller('EmployeeLastPunchReportController', EmployeeLastPunchReportController)
     .controller('EntireYearPresentDaysSummaryController', EntireYearPresentDaysSummaryController)
     .controller('professionalTaxReportsController', professionalTaxReportsController)
     .controller("monthlyGoodWorkReportController", monthlyGoodWorkReportController)

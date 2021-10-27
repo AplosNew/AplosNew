@@ -215,11 +215,18 @@ namespace Library.OrderManagement.FabricRollClass
 
                 ROW = 12;
 
+                //sheet[ROW, (int)colIndex.Type].Text = dataType.MAINHEADER.ToString();
+                //sheet[ROW, (int)colIndex.USER].Text = identity.UserId;
+                //sheet[ROW, (int)colIndex.RerpotName].Text = reportScreenName;
+                //sheet[ROW, (int)colIndex.MaterialDesc].Text = dsItems.Tables[0].Rows[0]["MaterialDesc"].ToString();
+                //sheet[ROW, (int)colIndex.BOMandSOWiseRMSystemID].Text = dsItems.Tables[0].Rows[0]["BOMandSOWiseRMSystemID"].ToString();
+                //sheet[ROW, (int)colIndex.GRNMasterSystemID].Text = dsHeader.Tables[0].Rows[0]["GRNNO"].ToString();
+                //sheet[ROW, 1].RowHeight = 0;
+                //ROW++;
+
                 sheet[ROW, (int)colIndex.Type].Text = dataType.MAINHEADER.ToString();
                 sheet[ROW, (int)colIndex.USER].Text = identity.UserId;
-
                 sheet[ROW, (int)colIndex.RerpotName].Text = reportScreenName;
-
                 sheet[ROW, (int)colIndex.InventoryReceiveId].Text = dsHeader.Tables[0].Rows[0]["GRNNO"].ToString();
                 sheet[ROW, 1].RowHeight = 0;
                 ROW++;
@@ -230,9 +237,7 @@ namespace Library.OrderManagement.FabricRollClass
                 int colRollControlNo = (int)colIndex.RollControlNo;
                 COL++;
 
-
-
-                sheet[ROW, COL].Text = "Supplier Roll No";
+                sheet[ROW, COL].Text = "Supplier Roll No.";
                 sheet[ROW, COL].ColumnWidth = 18;
                 int colSupplierRollNo = (int)colIndex.VendorRollNo;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -288,10 +293,10 @@ namespace Library.OrderManagement.FabricRollClass
 
                     sheet.Range[ROW, colSupplierRollNo, ROW, endCol].CellStyle.Locked = false;
                     sheet[ROW, colSupplierRollNo].CellStyle.Locked = false;
-                    sheet.Range[ROW, colRollControlNo, ROW, colCurrentReceivedQty].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
+                    sheet.Range[ROW, colRollControlNo].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
+                    //sheet.Range[ROW, colRollControlNo, ROW, colCurrentReceivedQty].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
 
-
-                    //sheet[ROW, colStorageLocation].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    
                     sheet.Range[ROW, leftCOL, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, leftCOL, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                     sheet.Range[ROW, leftCOL, ROW, endCol].CellStyle.Font.Size = 8f;
@@ -300,7 +305,7 @@ namespace Library.OrderManagement.FabricRollClass
 
                 sheet.Range[1, leftCOL, ROW, endCol].WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-                //sheet.UsedRange.NumberFormat = clsGRNReports.NumberFormatStringFormulaTwoDecimal;
+                sheet.UsedRange.NumberFormat = clsStaticInfo.NumberFormat(2);
 
                 for (int i = 1; i < leftCOL; i++)
                 {
@@ -319,10 +324,6 @@ namespace Library.OrderManagement.FabricRollClass
                 }
                 //sheet.Range[startRow, colStorageLocation, ROW, colStorageLocation].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet.Range[startRow, colCurrentReceivedQty, ROW, colCurrentReceivedQty].NumberFormat = clsStaticInfo.NumberFormat(2);
-
-
-
-
                 sheet.Range[startRow, colCurrentReceivedQty, ROW - 1, colCurrentReceivedQty].DataValidation.IsEmptyCellAllowed = true;
                 sheet.Range[startRow, colCurrentReceivedQty, ROW - 1, colCurrentReceivedQty].DataValidation.AllowType = ExcelDataType.Decimal;
                 sheet.Range[startRow, colCurrentReceivedQty, ROW - 1, colCurrentReceivedQty].DataValidation.CompareOperator = ExcelDataValidationComparisonOperator.GreaterOrEqual;
@@ -980,421 +981,299 @@ from GRNPackingList g where g.GRNMasterSystemID='" + grnSystemID + "' " + @"
             }
         }//end function
 
-        //private void makeDataTableFromExcel(string GRNSystemID, out DataSet dsHeader, out DataSet dsData)
-        //{
-        //    dsHeader = new DataSet();
-        //    dsData = new DataSet();
-
-        //    try
-        //    {
-        //        if (ctrlFileUpload.HasFile)
-        //        {
-        //            string fileName =
-        //                Path.GetFileName(ctrlFileUpload.PostedFile.FileName);
-
-
-
-        //            string fileExtension =
-        //                Path.GetExtension(ctrlFileUpload.PostedFile.FileName);
-
-        //            string[] allowedExtenstions = new string[] { ".xls", ".xlsx" };
-        //            if (allowedExtenstions.Contains(fileExtension) == false)
-        //            {
-        //                Exception ex = new Exception("Only excel files are allowed");
-        //                throw (ex);
-        //            }
-
-
-        //            string fileLocation = Server.MapPath("~/DOC/" + fileName + Session.SessionID);
-        //            ctrlFileUpload.SaveAs(fileLocation);
-
-
-        //            string error_user = "";
-        //            try
-        //            {
-        //                ExcelEngine excelEngine = null;
-        //                IApplication application = null;
-        //                IWorkbook workbook = null;
-        //                IWorksheet sheet = null;
-
-
-        //                excelEngine = new ExcelEngine();
-        //                application = excelEngine.Excel;
-        //                workbook = excelEngine.Excel.Workbooks.Open(fileLocation, ExcelOpenType.Automatic);
-        //                sheet = workbook.Worksheets[0];
-
-        //                DataTable dtR = sheet.ExportDataTable(sheet.UsedRange, ExcelExportDataTableOptions.ColumnNames);
-
-        //                DataView dvSO = new DataView(dtR);
-
-        //                //checking user and other validations
-        //                dvSO.RowFilter = colIndex.Type.ToString() + "='" + dataType.MAINHEADER.ToString() + "'";
-        //                if (dvSO.Count > 0)
-        //                {
-        //                    if (reportScreenName.ToUpper() != dvSO[0][colIndex.RerpotName.ToString()].ToString().ToUpper())
-        //                    {
-        //                        error_user = "This file does not contain valid package data";
-        //                        Exception ex = new Exception(error_user);
-        //                        throw (ex);
-        //                    }
-        //                    if (identit.ToString().ToUpper() != dvSO[0][colIndex.USER.ToString()].ToString().ToUpper())
-        //                    {
-        //                        error_user = "login user does not match with file user [" + dvSO[0][1].ToString().ToUpper() + "]";
-        //                        Exception ex = new Exception(error_user);
-        //                        throw (ex);
-        //                    }
-        //                    if (GRNSystemID.ToUpper() != dvSO[0][colIndex.GRNMasterSystemID.ToString()].ToString().ToUpper())
-        //                    {
-        //                        error_user = "Selected GRN No does not match with uploaded GRN No.";
-        //                        Exception ex = new Exception(error_user);
-        //                        throw (ex);
-        //                    }
-
-        //                }
-        //                else
-        //                {
-        //                    error_user = "No valid data found in the file!!!";
-        //                    Exception ex = new Exception(error_user);
-        //                    throw (ex);
-        //                }
-
-        //                //header
-        //                dvSO.RowFilter = null;
-        //                dvSO.RowFilter = colIndex.Type.ToString() + "='" + dataType.MAINHEADER.ToString() + "'";
-        //                dsHeader.Tables.Add(dvSO.ToTable());
-
-        //                //data
-        //                dvSO.RowFilter = null;
-        //                dvSO.RowFilter = colIndex.Type.ToString() + "='" + dataType.DATA.ToString() + "'";
-        //                dsData.Tables.Add(dvSO.ToTable());
-
-        //                excelEngine.Dispose();
-        //                workbook.Close();
-        //                if (File.Exists(fileLocation))
-        //                {
-        //                    File.Delete(fileLocation);
-        //                }
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                if (ex.Message.ToUpper() != error_user.ToUpper())
-        //                    ex = new Exception("File does not contain valid upload data");
-        //                throw (ex);
-        //            }
-        //            finally
-        //            {
-
-        //                if (File.Exists(fileLocation))
-        //                    File.Delete(fileLocation);
-        //            }
-
-
-        //        }
-        //        else
-        //        {
-        //            Exception ex = new Exception("Please select a local file to upload");
-        //            throw (ex);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw (ex);
-        //    }
-
-        //}
-        //private void updatePackingListFromUploadedFile()
-        //{
-
-        //    DataRow dr = null;
-        //    DataRow[] drBIN = null;
-        //    DataRow[] drStorageLocation = null;
-
-        //    FabricRollClass objStatic = null;
-
-        //    DataSet dsServerDataHeader = null;
-        //    DataSet dsHeader = null;
-        //    DataSet dsServerData = null;
-        //    DataSet dsAddItem = null;
-        //    DataSet dsGRNSKU = null;
-        //    DataSet dsStorageLocation = null;
-        //    System.Data.DataSet dsBinNo = null;
-
-        //    try
-        //    {
-
-        //        objStatic = new FabricRollClass();
-
-        //        FabricRollClass.validateGRNTransfer(lblGRNSystemID.Text);
-
-        //        // makeDataTableFromExcel(lblGRNSystemID.Text, out dsServerDataHeader, out dsServerData);
-        //        makeDataTableFromExcel(lblGRNSystemID.Text, out dsServerDataHeader, out dsServerData);
-        //        if (dsServerData.Tables[0].Rows.Count == 0)
-        //        {
-        //            Exception ex = new Exception("No data found in uploaded file");
-        //            throw (ex);
-        //        }
-
-        //        objStatic.grnInternalControls(dsServerDataHeader.Tables[0].Rows[0][colIndex.BOMandSOWiseRMSystemID.ToString()].ToString(), lblPOSystemID.Text);
-
-
-        //        objStatic.GetFabricRollHeaderInfo_Report(dsServerDataHeader.Tables[0].Rows[0][colIndex.GRNMasterSystemID.ToString()].ToString(), out dsHeader);
-        //        if (dsHeader.Tables[0].Rows.Count == 0)
-        //        {
-        //            Exception ex = new Exception("No data found in the system according to uploaded file");
-        //            throw (ex);
-        //        }
-        //        objStatic.getStorageLocationForDdlByLocalPO(dsHeader.Tables[0].Rows[0]["POSystemID"].ToString(), dsHeader.Tables[0].Rows[0]["GRNNO"].ToString(), out dsStorageLocation);
-        //        objStatic.GetBinFromCompanyID(dsHeader.Tables[0].Rows[0]["POSystemID"].ToString(), out dsBinNo);
-
-
-        //        for (int i = 0; i < dsServerData.Tables[0].Rows.Count; i++)
-        //        {
-        //            clsStaticInfo.numericValidation(dsServerData.Tables[0].Rows[i][colIndex.PackingListQuantity.ToString()].ToString(), false, false, false, "Quantity");
-
-
-        //            ////storage location
-        //            //if (dsServerData.Tables[0].Rows[i][colIndex.StorageLocationName.ToString()].ToString() != "")
-        //            //{
-        //            //    if (dsStorageLocation.Tables[0].Select("Code='" + dsServerData.Tables[0].Rows[i][colIndex.StorageLocationName.ToString()].ToString() + "'").Length != 1)
-        //            //    {
-        //            //        Exception ex = new Exception("storage location [" + dsServerData.Tables[0].Rows[i][colIndex.StorageLocationName.ToString()].ToString() + "] not found in database!!!");
-        //            //        throw (ex);
-        //            //    }
-        //            //}
-        //            //else
-        //            //{
-        //            //    Exception ex = new Exception("Plase insert storage location for package no-[" + dsServerData.Tables[0].Rows[i][colIndex.RollControlNo.ToString()].ToString() + "]");
-        //            //    throw (ex);
-        //            //}
-
-        //            ////BIN No
-        //            //if (dsServerData.Tables[0].Rows[i][colIndex.BinSystemID.ToString()].ToString() != "")
-        //            //{
-        //            //    if (dsBinNo.Tables[0].Select("Code='" + dsServerData.Tables[0].Rows[i][colIndex.BinSystemID.ToString()].ToString() + "'").Length != 1)
-        //            //    {
-        //            //        Exception ex = new Exception("BIN [" + dsServerData.Tables[0].Rows[i][colIndex.BinSystemID.ToString()].ToString() + "] not found in database!!!");
-        //            //        throw (ex);
-        //            //    }
-        //            //}
-
-        //            #region bin and storage location validation
-
-        //            if (dsServerData.Tables[0].Rows[i][colIndex.BinSystemID.ToString()].ToString() != "")
-        //            {
-        //                //if (dsServerData.Tables[0].Rows[i][colIndex.StorageLocationName.ToString()].ToString()=="")
-        //                drBIN = dsBinNo.Tables[0].Select("Code='" + dsServerData.Tables[0].Rows[i][colIndex.BinSystemID.ToString()].ToString() + "'");
-        //                drStorageLocation = dsStorageLocation.Tables[0].Select("Code='" + dsServerData.Tables[0].Rows[i][colIndex.StorageLocationName.ToString()].ToString() + "'");
-
-        //                if (drBIN.Length > 0)
-        //                {
-        //                    if (drStorageLocation.Length > 0)
-        //                    {
-
-        //                        drBIN = dsBinNo.Tables[0].Select("Code='" + dsServerData.Tables[0].Rows[i][colIndex.BinSystemID.ToString()].ToString() + "' AND PlantID='" + drStorageLocation[0]["PlantID"].ToString() + "'");
-        //                        if (drBIN.Length == 0)
-        //                        {
-        //                            Exception ex = new Exception("BIN [" + dsServerData.Tables[0].Rows[i][colIndex.BinSystemID.ToString()].ToString() + "] not found in database!!!");
-        //                            throw (ex);
-        //                        }
-        //                        else
-        //                        {
-        //                            if (dsBinNo.Tables[0].Select("Code='" + dsServerData.Tables[0].Rows[i][colIndex.BinSystemID.ToString()].ToString() + "' AND PlantID='" + drStorageLocation[0]["PlantID"].ToString() + "'").Length != 1)
-        //                            {
-        //                                Exception ex = new Exception("Multiple BIN [" + dsServerData.Tables[0].Rows[i][colIndex.BinSystemID.ToString()].ToString() + "] found for same plant!!!");
-        //                                throw (ex);
-        //                            }
-
-
-        //                        }
-
-
-        //                    }
-        //                    else
-        //                    {
-        //                        Exception ex = new Exception("BIN [" + dsServerData.Tables[0].Rows[i][colIndex.BinSystemID.ToString()].ToString() + "] found but storage location is missing!!!");
-        //                        throw (ex);
-        //                    }
-        //                }
-        //                else
-        //                {
-        //                    Exception ex = new Exception("BIN [" + dsServerData.Tables[0].Rows[i][colIndex.BinSystemID.ToString()].ToString() + "] not found in database!!!");
-        //                    throw (ex);
-        //                }
-
-        //            }
-
-        //            #endregion bin and storage location validation
-
-        //        }
-
-
-
-        //        objStatic.getPOItemsSKUGRNPackingList_ByGRNMaterial(dsServerData.Tables[0].Rows[0][colIndex.GRNMaterialSystemID.ToString()].ToString(), out dsAddItem);
-        //        if (dsServerData.Tables[0].Rows.Count == 0)
-        //        {
-        //            Exception ex = new Exception("No data found in the system according to uploaded file");
-        //            throw (ex);
-        //        }
-
-
-        //        DataView dvLocal = new DataView();
-        //        dvLocal.Table = dsAddItem.Tables[0];
-        //        DataView dvLocalCopyForDelete = new DataView(dvLocal.ToTable());
-
-
-        //        objStatic.GetGRNSKU_ByGRNMaterialSystemID(dsServerData.Tables[0].Rows[0][colIndex.GRNMaterialSystemID.ToString()].ToString(), out dsGRNSKU);
-
-
-        //        clsUnitConversion objUnit = new clsUnitConversion();
-        //        DataSet dsUnits = null;
-        //        objUnit.GetConversionFactorByRMCode(dsServerData.Tables[0].Rows[0][colIndex.BOMandSOWiseRMSystemID.ToString()].ToString(), out dsUnits);
-        //        DataView dvUnits = new DataView();
-        //        dvUnits.Table = dsUnits.Tables[0];
-
-        //        double baseQuantityPL = 0;
-        //        double baseQuantityREC = 0;
-        //        double Quantity = 0;
-
-        //        int updatedRollCount = 0;
-
-        //        string sourceUOM = "";
-        //        string BaseUOM = "";
-
-        //        for (int i = 0; i < dsServerData.Tables[0].Rows.Count; i++)
-        //        {
-        //            dvLocal.RowFilter = "SystemID='" + dsServerData.Tables[0].Rows[i][colIndex.SystemID.ToString()].ToString() + "'";
-        //            if (dvLocal.Count > 0)
-        //            {
-        //                if (dvLocal[0]["BOMandSOwiseRMSystemID"].ToString().ToUpper() != dvLocal[0]["BOMandSOwiseRMSystemIDtransferred"].ToString().ToUpper()
-        //                    ||
-        //                    dvLocal[0]["MaterialMasterAttributeSystemID"].ToString().ToUpper() != dvLocal[0]["MaterialMasterAttributeSystemIDtransferred"].ToString().ToUpper()
-        //                     || dvLocal[0]["isLocationTransferred"].ToString().ToUpper() == "YES"
-        //                    )
-        //                {
-        //                    //that means, material has been transferred to another file or storage location
-        //                    continue;
-        //                }
-        //                updatedRollCount++;
-        //                //height = qualified quantity
-        //                sourceUOM = dsServerData.Tables[0].Rows[i][colIndex.UOMSystemID.ToString()].ToString();
-        //                BaseUOM = dsServerData.Tables[0].Rows[i][colIndex.UOMSystemIDBase.ToString()].ToString();
-        //                Quantity = Convert.ToDouble(bplib.clsWebLib.GetNumData(dsServerData.Tables[0].Rows[i][colIndex.PackingListQuantity.ToString()].ToString()));
-        //                baseQuantityPL = convertedUOM(sourceUOM, Quantity, 0, BaseUOM, 0, dvUnits);
+        private void makeDataTableFromExcel(string filePath,out DataSet dsHeader, out DataSet dsData)
+        {
+            dsHeader = new DataSet();
+            dsData = new DataSet();
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            try
+            {
+                if (string.IsNullOrEmpty(filePath) == false)
+                {
+                    string fileName =
+                        Path.GetFileName(filePath);
+
+
+
+                    string fileExtension =
+                        Path.GetExtension(filePath);
+
+                    string[] allowedExtenstions = new string[] { ".xls", ".xlsx" };
+                    if (allowedExtenstions.Contains(fileExtension) == false)
+                    {
+                        Exception ex = new Exception("Only excel files are allowed");
+                        throw (ex);
+                    }
+
+
+                    string fileLocation = filePath;
+
+
+                    string error_user = "";
+                    try
+                    {
+                        ExcelEngine excelEngine = null;
+                        IApplication application = null;
+                        IWorkbook workbook = null;
+                        IWorksheet sheet = null;
+
+
+                        excelEngine = new ExcelEngine();
+                        application = excelEngine.Excel;
+                        workbook = excelEngine.Excel.Workbooks.Open(fileLocation, ExcelOpenType.Automatic);
+                        sheet = workbook.Worksheets[0];
+
+                        DataTable dtR = sheet.ExportDataTable(sheet.UsedRange, ExcelExportDataTableOptions.ColumnNames);
+
+                        DataView dvSO = new DataView(dtR);
+
+                        //checking user and other validations
+                        dvSO.RowFilter = colIndex.Type.ToString() + "='" + dataType.MAINHEADER.ToString() + "'";
+                        if (dvSO.Count > 0)
+                        {
+                            if (reportScreenName.ToUpper() != dvSO[0][colIndex.RerpotName.ToString()].ToString().ToUpper())
+                            {
+                                error_user = "This file does not contain valid package data";
+                                Exception ex = new Exception(error_user);
+                                throw (ex);
+                            }
+                            if (identity.UserId.ToUpper() != dvSO[0][colIndex.USER.ToString()].ToString().ToUpper())
+                            {
+                                error_user = "login user does not match with file user [" + dvSO[0][1].ToString().ToUpper() + "]";
+                                Exception ex = new Exception(error_user);
+                                throw (ex);
+                            }
+                           
+
+                        }
+                        else
+                        {
+                            error_user = "No valid data found in the file!!!";
+                            Exception ex = new Exception(error_user);
+                            throw (ex);
+                        }
+
+                        //header
+                        dvSO.RowFilter = null;
+                        dvSO.RowFilter = colIndex.Type.ToString() + "='" + dataType.MAINHEADER.ToString() + "'";
+                        dsHeader.Tables.Add(dvSO.ToTable());
+
+                        //data
+                        dvSO.RowFilter = null;
+                        dvSO.RowFilter = colIndex.Type.ToString() + "='" + dataType.DATA.ToString() + "'";
+                        dsData.Tables.Add(dvSO.ToTable());
+
+                        excelEngine.Dispose();
+                        workbook.Close();
+                        if (File.Exists(fileLocation))
+                        {
+                            File.Delete(fileLocation);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        if (ex.Message.ToUpper() != error_user.ToUpper())
+                            ex = new Exception("File does not contain valid upload data");
+                        throw (ex);
+                    }
+                    finally
+                    {
+
+                        if (File.Exists(fileLocation))
+                            File.Delete(fileLocation);
+                    }
 
 
+                }
+                else
+                {
+                    Exception ex = new Exception("Please select a local file to upload");
+                    throw (ex);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
 
-        //                dr = dvLocal[0].Row;
-        //                dr.BeginEdit();
+        }
+        private void updatePackingListFromUploadedFile(string FilePath)
+        {
 
-        //                dr["VendorPackingFormNo"] = bplib.clsWebLib.RetValidLen(dsServerData.Tables[0].Rows[i][colIndex.VendorPackingFormNo.ToString()].ToString());
-        //                dr["VendorLotNo"] = bplib.clsWebLib.RetValidLen(dsServerData.Tables[0].Rows[i][colIndex.VendorLotNo.ToString()].ToString());
+            DataRow dr = null;
+            DataRow[] drBIN = null;
+            DataRow[] drStorageLocation = null;
 
-        //                //dr["StorageLocationID"] = DBNull.Value;
-        //                //if (dsStorageLocation.Tables[0].Select("Code='" + dsServerData.Tables[0].Rows[i][colIndex.StorageLocationName.ToString()].ToString() + "'").Length == 1)
-        //                //    dr["StorageLocationID"] = dsStorageLocation.Tables[0].Select("Code='" + dsServerData.Tables[0].Rows[i][colIndex.StorageLocationName.ToString()].ToString() + "'")[0]["StorageLocationID"].ToString();
-        //                string storageLocationPlantID = "";
-        //                drStorageLocation = dsStorageLocation.Tables[0].Select("Code='" + dsServerData.Tables[0].Rows[i][colIndex.StorageLocationName.ToString()].ToString() + "'");
-        //                if (drStorageLocation.Length > 0)
-        //                    storageLocationPlantID = drStorageLocation[0]["PlantID"].ToString();
-
-        //                dr["BINSystemID"] = DBNull.Value;
-        //                DataRow[] binNo = dsBinNo.Tables[0].Select("Code='" + dsServerData.Tables[0].Rows[i][colIndex.BinSystemID.ToString()].ToString() + "' AND PlantID='" + storageLocationPlantID + "'");
-        //                if (binNo.Length == 1)
-        //                    dr["BINSystemID"] = binNo[0]["SystemID"].ToString();
-
-        //                dr["PackingListQuantity"] = bplib.clsWebLib.GetNumData(dsServerData.Tables[0].Rows[i][colIndex.PackingListQuantity.ToString()].ToString());
-        //                dr["PackingListQuantityBase"] = baseQuantityPL;
-
-
-        //                if (dr["FLAGReceivedQty"].ToString() != "YES" && dr["IsIssued"].ToString().ToUpper() != "YES"
-        //                    && dr["IsLeftOverStock"].ToString() != "YES" && dr["isDisposed"].ToString().ToUpper() != "YES")
-        //                {
-        //                    dr["ReceivedQuantity"] = bplib.clsWebLib.GetNumData(dsServerData.Tables[0].Rows[i][colIndex.PackingListQuantity.ToString()].ToString());
-        //                    dr["ReceivedQuantityBase"] = baseQuantityPL;
-
-        //                    dr["BalanceQuantityReceived"] = bplib.clsWebLib.GetNumData(dr["ReceivedQuantity"].ToString());
-        //                    dr["BalanceQuantityReceivedBase"] = bplib.clsWebLib.GetNumData(dr["ReceivedQuantityBase"].ToString());
-
-        //                }
-        //                dr["Remarks"] = bplib.clsWebLib.RetValidLen(dsServerData.Tables[0].Rows[i][colIndex.Remarks.ToString()].ToString());
-
-        //                dr.EndEdit();
-
-
-        //            }
-        //        }
-
-
-        //        dvLocal = new DataView(dsAddItem.Tables[0].DefaultView.Table);
-
-        //        for (int i = 0; i < dsGRNSKU.Tables[0].Rows.Count; i++)
-        //        {
-        //            dvLocal.RowFilter = "GRNSKUSystemID='" + dsGRNSKU.Tables[0].Rows[i]["SystemID"].ToString() + "'";
-
-        //            dr = dsGRNSKU.Tables[0].Rows[i];
-        //            dr.BeginEdit();
-
-        //            dr["numberOfPackages"] = DBNull.Value;
-
-        //            if (dvLocal.Count > 0)
-        //            {
-        //                dr["numberOfPackages"] = bplib.clsWebLib.GetNumData(dvLocal.Count.ToString());
-
-        //            }
-        //            dr.EndEdit();
-        //        }
-
-        //        ////update quantity to SKU table
-        //        //for (int i = 0; i < dsGRNSKU.Tables[0].Rows.Count; i++)
-        //        //{
-
-        //        //    dr = dsGRNSKU.Tables[0].Rows[i];
-        //        //    dr.BeginEdit();
-        //        //    dr["PackingListQuantity"] = Convert.ToDouble(bplib.clsWebLib.GetNumData(dsAddItem.Tables[0].Compute("SUM(PackingListQuantity)", "GRNSKUSystemID='" + dsGRNSKU.Tables[0].Rows[i]["SystemID"].ToString() + "'").ToString()));
-        //        //    dr["PackingListQuantityBase"] = Convert.ToDouble(bplib.clsWebLib.GetNumData(dsAddItem.Tables[0].Compute("SUM(PackingListQuantityBase)", "GRNSKUSystemID='" + dsGRNSKU.Tables[0].Rows[i]["SystemID"].ToString() + "'").ToString()));
-
-        //        //    dr["ReceivedQuantity"] = Convert.ToDouble(bplib.clsWebLib.GetNumData(dsAddItem.Tables[0].Compute("SUM(PackingListQuantity)", "GRNSKUSystemID='" + dsGRNSKU.Tables[0].Rows[i]["SystemID"].ToString() + "'").ToString()));
-        //        //    dr["ReceivedQuantityBase"] = Convert.ToDouble(bplib.clsWebLib.GetNumData(dsAddItem.Tables[0].Compute("SUM(ReceivedQuantityBase)", "GRNSKUSystemID='" + dsGRNSKU.Tables[0].Rows[i]["SystemID"].ToString() + "'").ToString()));
-        //        //    dr.EndEdit();
-
-        //        //}
-
-        //        ////update quantity to material level
-        //        //DataSet dsMaterial = null;
-        //        //objStatic.GetGRNMaterialBySystemID(dsServerData.Tables[0].Rows[0][colIndex.GRNMaterialSystemID.ToString()].ToString(), out dsMaterial);
-        //        //for (int i = 0; i < dsMaterial.Tables[0].Rows.Count; i++)
-        //        //{
-        //        //    dr = dsMaterial.Tables[0].Rows[i];
-        //        //    dr.BeginEdit();
-        //        //    dr["PackingListQuantity"] = Convert.ToDouble(bplib.clsWebLib.GetNumData(dsGRNSKU.Tables[0].Compute("SUM(PackingListQuantity)", "GRNMaterialSystemID='" + dsMaterial.Tables[0].Rows[i]["SystemID"].ToString() + "'").ToString()));
-        //        //    dr["PackingListQuantityBase"] = Convert.ToDouble(bplib.clsWebLib.GetNumData(dsGRNSKU.Tables[0].Compute("SUM(PackingListQuantityBase)", "GRNMaterialSystemID='" + dsMaterial.Tables[0].Rows[i]["SystemID"].ToString() + "'").ToString()));
-
-        //        //    dr["ReceivedQuantity"] = Convert.ToDouble(bplib.clsWebLib.GetNumData(dsGRNSKU.Tables[0].Compute("SUM(ReceivedQuantity)", "GRNMaterialSystemID='" + dsMaterial.Tables[0].Rows[i]["SystemID"].ToString() + "'").ToString()));
-        //        //    dr["ReceivedQuantityBase"] = Convert.ToDouble(bplib.clsWebLib.GetNumData(dsGRNSKU.Tables[0].Compute("SUM(ReceivedQuantityBase)", "GRNMaterialSystemID='" + dsMaterial.Tables[0].Rows[i]["SystemID"].ToString() + "'").ToString()));
-        //        //    dr.EndEdit();
-
-        //        //}
-
-        //        //objStatic.SaveDataSets(dsAddItem, dsMaterial, dsGRNSKU);
-
-        //        objStatic.SaveDataSets(dsAddItem, dsGRNSKU);
-
-
-
-        //        string GRNMasterSystemID = lblGRNSystemID.Text;
-        //        clearFormMain("EDIT");
-        //        loadGRN(GRNMasterSystemID);
-
-        //        string successLog = updatedRollCount.ToString("F0") + "/" + dsServerData.Tables[0].Rows.Count.ToString() + " Updated successfully.\r\nMaterial Desc: " + dsServerDataHeader.Tables[0].Rows[0][colIndex.MaterialDesc.ToString()].ToString();
-        //        ShowLog("Data uploaded successfully!!!");
-        //        displayMsgs(successLog, "OK", "Save");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        displayMsgs(ex.Message, "ERROR", "Save");
-        //    }
-
-        //}
+            FabricRollClass objStatic = null;
+
+            DataSet dsServerDataHeader = null;
+            DataSet dsHeader = null;
+            DataSet dsServerData = null;
+            DataSet dsAddItem = null;
+            DataSet dsGRNSKU = null;
+            DataSet dsStorageLocation = null;
+            System.Data.DataSet dsBinNo = null;
+
+            try
+            {
+               
+                objStatic = new FabricRollClass();
+
+                // makeDataTableFromExcel(lblGRNSystemID.Text, out dsServerDataHeader, out dsServerData);
+                makeDataTableFromExcel(FilePath, out dsServerDataHeader, out dsServerData);
+                if (dsServerData.Tables[0].Rows.Count == 0)
+                {
+                    Exception ex = new Exception("No data found in uploaded file");
+                    throw (ex);
+                }
+
+
+
+                objStatic.GetFabricRollHeaderInfo_Report(dsServerDataHeader.Tables[0].Rows[0][colIndex.GRNMasterSystemID.ToString()].ToString(), out dsHeader);
+                if (dsHeader.Tables[0].Rows.Count == 0)
+                {
+                    Exception ex = new Exception("No data found in the system according to uploaded file");
+                    throw (ex);
+                }
+
+
+                for (int i = 0; i < dsServerData.Tables[0].Rows.Count; i++)
+                {
+                    clsStaticInfo.numericValidation(dsServerData.Tables[0].Rows[i][colIndex.PackingListQuantity.ToString()].ToString(), false, false, false, "Quantity");
+
+
+
+
+                }
+
+
+
+                //objStatic.getPOItemsSKUGRNPackingList_ByGRNMaterial(dsServerData.Tables[0].Rows[0][colIndex.GRNMaterialSystemID.ToString()].ToString(), out dsAddItem);
+                if (dsServerData.Tables[0].Rows.Count == 0)
+                {
+                    Exception ex = new Exception("No data found in the system according to uploaded file");
+                    throw (ex);
+                }
+
+
+                DataView dvLocal = new DataView();
+                dvLocal.Table = dsAddItem.Tables[0];
+                DataView dvLocalCopyForDelete = new DataView(dvLocal.ToTable());
+
+
+                //objStatic.GetGRNSKU_ByGRNMaterialSystemID(dsServerData.Tables[0].Rows[0][colIndex.GRNMaterialSystemID.ToString()].ToString(), out dsGRNSKU);
+
+
+                //clsUnitConversion objUnit = new clsUnitConversion();
+                DataSet dsUnits = null;
+                //objUnit.GetConversionFactorByRMCode(dsServerData.Tables[0].Rows[0][colIndex.BOMandSOWiseRMSystemID.ToString()].ToString(), out dsUnits);
+                DataView dvUnits = new DataView();
+                dvUnits.Table = dsUnits.Tables[0];
+
+                double baseQuantityPL = 0;
+                double baseQuantityREC = 0;
+                double Quantity = 0;
+
+                int updatedRollCount = 0;
+
+                string sourceUOM = "";
+                string BaseUOM = "";
+
+                for (int i = 0; i < dsServerData.Tables[0].Rows.Count; i++)
+                {
+                    dvLocal.RowFilter = "SystemID='" + dsServerData.Tables[0].Rows[i][colIndex.SystemID.ToString()].ToString() + "'";
+                    if (dvLocal.Count > 0)
+                    {
+                        if (dvLocal[0]["BOMandSOwiseRMSystemID"].ToString().ToUpper() != dvLocal[0]["BOMandSOwiseRMSystemIDtransferred"].ToString().ToUpper()
+                            ||
+                            dvLocal[0]["MaterialMasterAttributeSystemID"].ToString().ToUpper() != dvLocal[0]["MaterialMasterAttributeSystemIDtransferred"].ToString().ToUpper()
+                             || dvLocal[0]["isLocationTransferred"].ToString().ToUpper() == "YES"
+                            )
+                        {
+                            //that means, material has been transferred to another file or storage location
+                            continue;
+                        }
+                        updatedRollCount++;
+                        //height = qualified quantity
+                        //sourceUOM = dsServerData.Tables[0].Rows[i][colIndex.UOMSystemID.ToString()].ToString();
+                        //BaseUOM = dsServerData.Tables[0].Rows[i][colIndex.UOMSystemIDBase.ToString()].ToString();
+                        Quantity = Convert.ToDouble(bplib.clsWebLib.GetNumData(dsServerData.Tables[0].Rows[i][colIndex.PackingListQuantity.ToString()].ToString()));
+                        //baseQuantityPL = convertedUOM(sourceUOM, Quantity, 0, BaseUOM, 0, dvUnits);
+
+
+
+                        dr = dvLocal[0].Row;
+                        dr.BeginEdit();
+
+                        dr["VendorPackingFormNo"] = bplib.clsWebLib.RetValidLen(dsServerData.Tables[0].Rows[i][colIndex.VendorPackingFormNo.ToString()].ToString());
+                        dr["VendorLotNo"] = bplib.clsWebLib.RetValidLen(dsServerData.Tables[0].Rows[i][colIndex.VendorLotNo.ToString()].ToString());
+
+                        //dr["StorageLocationID"] = DBNull.Value;
+                        //if (dsStorageLocation.Tables[0].Select("Code='" + dsServerData.Tables[0].Rows[i][colIndex.StorageLocationName.ToString()].ToString() + "'").Length == 1)
+                        //    dr["StorageLocationID"] = dsStorageLocation.Tables[0].Select("Code='" + dsServerData.Tables[0].Rows[i][colIndex.StorageLocationName.ToString()].ToString() + "'")[0]["StorageLocationID"].ToString();
+                        string storageLocationPlantID = "";
+                        drStorageLocation = dsStorageLocation.Tables[0].Select("Code='" + dsServerData.Tables[0].Rows[i][colIndex.StorageLocationName.ToString()].ToString() + "'");
+                        if (drStorageLocation.Length > 0)
+                            storageLocationPlantID = drStorageLocation[0]["PlantID"].ToString();
+
+                        dr["BINSystemID"] = DBNull.Value;
+                        DataRow[] binNo = dsBinNo.Tables[0].Select("Code='" + dsServerData.Tables[0].Rows[i][colIndex.BinSystemID.ToString()].ToString() + "' AND PlantID='" + storageLocationPlantID + "'");
+                        if (binNo.Length == 1)
+                            dr["BINSystemID"] = binNo[0]["SystemID"].ToString();
+
+                        dr["PackingListQuantity"] = bplib.clsWebLib.GetNumData(dsServerData.Tables[0].Rows[i][colIndex.PackingListQuantity.ToString()].ToString());
+                        dr["PackingListQuantityBase"] = baseQuantityPL;
+
+
+                        if (dr["FLAGReceivedQty"].ToString() != "YES" && dr["IsIssued"].ToString().ToUpper() != "YES"
+                            && dr["IsLeftOverStock"].ToString() != "YES" && dr["isDisposed"].ToString().ToUpper() != "YES")
+                        {
+                            dr["ReceivedQuantity"] = bplib.clsWebLib.GetNumData(dsServerData.Tables[0].Rows[i][colIndex.PackingListQuantity.ToString()].ToString());
+                            dr["ReceivedQuantityBase"] = baseQuantityPL;
+
+                            dr["BalanceQuantityReceived"] = bplib.clsWebLib.GetNumData(dr["ReceivedQuantity"].ToString());
+                            dr["BalanceQuantityReceivedBase"] = bplib.clsWebLib.GetNumData(dr["ReceivedQuantityBase"].ToString());
+
+                        }
+                        dr["Remarks"] = bplib.clsWebLib.RetValidLen(dsServerData.Tables[0].Rows[i][colIndex.Remarks.ToString()].ToString());
+
+                        dr.EndEdit();
+
+
+                    }
+                }
+
+
+                dvLocal = new DataView(dsAddItem.Tables[0].DefaultView.Table);
+
+                for (int i = 0; i < dsGRNSKU.Tables[0].Rows.Count; i++)
+                {
+                    dvLocal.RowFilter = "GRNSKUSystemID='" + dsGRNSKU.Tables[0].Rows[i]["SystemID"].ToString() + "'";
+
+                    dr = dsGRNSKU.Tables[0].Rows[i];
+                    dr.BeginEdit();
+
+                    dr["numberOfPackages"] = DBNull.Value;
+
+                    if (dvLocal.Count > 0)
+                    {
+                        dr["numberOfPackages"] = bplib.clsWebLib.GetNumData(dvLocal.Count.ToString());
+
+                    }
+                    dr.EndEdit();
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsAddItem, dsGRNSKU);
+            }
+
+            catch (Exception ex)
+            {
+
+            }
+
+        }
 
 
         private static void validateGRNTransfer(object text)
@@ -1628,147 +1507,8 @@ LEFT OUTER JOIN MaterialGridMaster mgm ON mgm.SystemID=mm.materialGridMasterSyst
             }
         }//End Function
 
-        public List<RollData> ReadData(string plantid, string path)
-        {
-            List<RollData> data = null;
-            //string path = "";
-            DataSet dsExcel = null;
-            try
-            {
-                data = new List<RollData>();
-                //SaveFile(out path);
-                ReadFile(path, out dsExcel);
-                Validation(dsExcel, plantid);
-                data = dsExcel.Tables[0].ToList<RollData>();
-                return data;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        public void ReadFile(string path, out DataSet dsExcel)
-        {
-            FileInfo docFile;
-            dsExcel = null;
-            try
-            {
-                ExcelEngine excelEngine = null;
-                IApplication application = null;
-                IWorkbook workbook = null;
-                excelEngine = new ExcelEngine();
-                application = excelEngine.Excel;
-                workbook = excelEngine.Excel.Workbooks.Open(path);
-                DataTable dt = workbook.Worksheets[0].ExportDataTable(workbook.Worksheets[0].UsedRange, ExcelExportDataTableOptions.ColumnNames);
-                dsExcel = new DataSet();
-                dsExcel.Tables.Add(dt);
-                docFile = new FileInfo(path);
-                if (docFile.Exists)
-                {
-                    //exception += "\r\nTrying to delete";
-                    //docFile.Delete();
-                }
-            }
-            catch (Exception ex)
-            {
-                docFile = new FileInfo(path);
-                if (docFile.Exists)
-                {
-                    docFile.Delete();
-                }
-                throw (ex);
-            }
-        }
-        public void Validation(DataSet dsExcel, string plantid)
-        {
-            //DataSet dsEmpInfo = null;
-            //DataTable dtEmpInfo = null;
-            //DataView dvEmpInfo = null;
-            try
-            {
-                //GetEmployeeInfo(plantid,out dsEmpInfo);
-                //dtEmpInfo = dsEmpInfo.Tables[0];
-                //dvEmpInfo = new DataView();
-
-
-
-                if (dsExcel.Tables[0].Rows.Count > 0)
-                {
-                    //for (int i = 0; i < dsExcel.Tables[0].Rows.Count; i++)
-                    //{
-                    //    if(string.IsNullOrEmpty(dsExcel.Tables[0].Rows[i]["EmployeeCode"].ToString()))
-                    //        {
-                    //        DataRow dr = dsExcel.Tables[0].Rows[i];
-                    //        dr.BeginEdit();
-                    //        dr.Delete();
-                    //        dr.EndEdit();
-                    //        //dr.AcceptChanges();
-                    //    }
-                    //}
-                    if (false)
-                    {
-                        for (int i = 0; i < dsExcel.Tables[0].Rows.Count; i++)
-                        {
-                            string strTempPDate = "";
-                            string strTempPTimee = "";
-                            string strTempPType = "";
-                            //string strTempDefineAmt = "0.0";
-                            string _empEmpSystemId = Regex.Replace(dsExcel.Tables[0].Rows[i][0].ToString().Trim(), @"\s", "");
-                            //string _empCode = dsExcel.Tables[0].Rows[i]["EmployeeCode"].ToString().Trim();
-
-                            strTempPDate = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
-                            strTempPTimee = dsExcel.Tables[0].Rows[i][2].ToString().Trim();
-                            strTempPType = dsExcel.Tables[0].Rows[i][3].ToString().Trim().ToUpper();
-                            //strTempEntryAmt = dsExcel.Tables[0].Rows[i]["Amount"].ToString().Trim();
-                            //strTempEntryAmt = dsExcel.Tables[0].Rows[i]["F2"].ToString().Trim();
-
-
-                            //DateTime dtPDate;
-
-                            //bool isValidDate = DateTime.TryParseExact(
-                            //    strTempPDate,
-                            //    "dd-MMM-yyyy",
-                            //    CultureInfo.InvariantCulture,
-                            //    DateTimeStyles.None,
-                            //    out dtPDate);
-                            //DateTime dtPTime;
-
-                            //bool isValidDateTime = DateTime.TryParseExact(
-                            //    strTempPTimee,
-                            //    "dd-MMM-yyyy hh:mm:ss",
-                            //    CultureInfo.InvariantCulture,
-                            //    DateTimeStyles.None,
-                            //    out dtPTime);
-
-                            //if (_empEmpSystemId.Trim().Length > 0 && strTempPType.Trim().Length > 0)
-                            //{
-                            //    dvEmpInfo.Table = dtEmpInfo;
-                            //    dvEmpInfo.RowFilter = "SystemId = " + _empEmpSystemId;
-                            //    //if (dvEmpInfo.Count == 1)
-
-
-
-
-
-                            //}//blank checking
-
-                        }//for
-
-                    }
-
-                }
-                else
-                {
-                    throw new Exception("Please Select File");
-                }
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-        }
-
-
+       
+       
 
 
     }
@@ -1789,13 +1529,3 @@ public class FabricRollFile
 
 }
 
-public class RollData
-{
-    //public string InventoryReceiveId { get; set; } = "";
-    //public string SystemID { get; set; } = "";
-    public string RollNo   { get; set; } = "";
-    public string SupplierRollNo { get; set; } = "";
-    public string LotNo { get; set; } = "";
-    public string RollWisePackingListQty { get; set; } = "";
-   
-}
