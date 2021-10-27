@@ -11,10 +11,13 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
     $scope.isDrBankAmount = false;
     $scope.currencyDisable = false;
     $scope.isAdvance = true;
+
+    
     $scope.partyType = "Customer";
     $scope.postUrl = "accounts/OpeningBalance/PostOBAdvanceJournal";
     $controller('employeeBaseController', { $scope: $scope, $http: $http });
     $controller("partyBaseController", { $scope: $scope, $http: $http });
+    $controller("currencyBaseController", { $scope: $scope, $http: $http });
 
     $scope.voucherDetailList = [];
     $scope.searchBy = "FARDisposeNo"; $scope.search = "";
@@ -63,7 +66,11 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
         DOJ: null,
         GivenDesignation: null,
         Department: null,
-        LegalDesignation: null
+        LegalDesignation: null,
+        CurrencyId: null,
+        CompanyCurrencyRate: null,
+        PostingDate: $filter("dateFiltering")(Date.now()),
+
     };
 
     $scope.voucherDetail = {
@@ -216,7 +223,9 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
                         "fixedAssetRegister": $scope.voucherDetailList,
                         "partyId": $scope.voucher.PartyId,
                         "partyPlantId": $scope.voucher.InvoicingPartyPlantId,
-                        "remarks": $scope.voucher.Remarks
+                        "remarks": $scope.voucher.Remarks,
+                        "currencyId": $scope.voucher.CurrencyId,
+                        "toCurrencyRate": $scope.voucher.CompanyCurrencyRate 
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {
@@ -330,17 +339,38 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
                 $scope.voucherDetail.FixedAssetMasterId = data.FixedAssetMasterId;
                 $scope.voucherDetail.FixedAssetRegisterId = data.FixedAssetRegisterId;
                 $scope.voucherDetail.ParticularName = data.FixedAssetMasterName;
+
+                $scope.voucherDetail.Material = data.MaterialMasterName;
+                $scope.voucherDetail.Article = data.Article;
+                $scope.voucherDetail.CapitalizationDate = data.CapitalizationDate;
+                $scope.voucherDetail.PurchaseDate = data.PurchaseDate;
+                $scope.voucherDetail.IssueDate = data.IssueDate;
+                $scope.voucherDetail.TrnCurrency = data.TrnCurrency;
+                $scope.voucherDetail.baseCurrency = data.BaseCurrency;
+                
+                $scope.voucherDetail.isOB = data.IsOBBalance;
+                $scope.voucherDetail.vendor = data.Vendor;
+                
                 $scope.voucherDetail.FAType = $scope.voucher.FAType;
                 $scope.voucherDetail.DocDate = $filter("dateFiltering")($scope.voucher.DocDate);
                 $scope.voucherDetail.DocRefNo = $scope.voucher.DocRefNo;
                 $scope.voucherDetail.Narration = $scope.voucher.Narration;
                 $scope.voucherDetail.EntityId = $scope.voucher.EntityId;
                 $scope.voucherDetail.PlantId = $scope.voucher.PlantId;
+
+                $scope.voucherDetail.FABaseAmount = data.FABaseAmount;
+                $scope.voucherDetail.SubAssetBaseAmount = data.SubAssetBaseAmount;
+                $scope.voucherDetail.PurchaseBaseAmount = data.PurchaseBaseAmount;
+                $scope.voucherDetail.ADBaseAmount = data.ADBaseAmount;
+                $scope.voucherDetail.NetBaseBookValue = data.NetBaseBookValue;
+
                 $scope.voucherDetail.Price = data.Price;
                 $scope.voucherDetail.SubAssetAmount = data.SubAssetAmount;
                 $scope.voucherDetail.PurchasePrice = data.PurchasePrice;
                 $scope.voucherDetail.ADBaseAmount = data.ADBaseAmount;
                 $scope.voucherDetail.NetBookValue = data.NetBookValue;
+
+
                 if ($scope.voucher.Status == 'Scrap') {
                     $scope.voucherDetail.NegotiationValue = data.NetBookValue;
                 }
@@ -384,7 +414,7 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
         $scope.voucher.PartyId = party.Id;
         $scope.voucher.PaymentTermId = party.PaymentTermId;
         $scope.voucher.CurrencyId = party.CurrencyId;
-        // $scope.GetCurrencyExchangeRateList();
+        $scope.GetCurrencyExchangeRateList();
         //  $scope.changePaymentTerm($scope.salesVM.PaymentTermId);
         $scope.partyPlantList = [];
         $scope.getCboPartyPlantList(party.Id, function (result) {
@@ -458,5 +488,24 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
             }
         }
     };
+
+    $scope.currencyExchangeRate = [];
+    $scope.GetCurrencyExchangeRateList = function () {
+        if (!baseService.isUndefinedOrNull($scope.voucher.PostingDate) && !baseService.isUndefinedOrNull($scope.voucher.CurrencyId)) {
+            $http({
+                method: "GET",
+                url: "currencies/ExchangeRate/GetCompanyCurrencyExchangeRate?fromdate=" + $scope.voucher.PostingDate + "&currencyId=" + $scope.voucher.CurrencyId
+            }).then(function successCallback(response) {
+                $scope.currencyExchangeRate = response.data;
+                $scope.voucher.CompanyCurrencyRate = $scope.currencyExchangeRate.ToCurrencyRate;
+            });
+        }
+        else {
+            $scope.currencyExchangeRate = [];
+        }
+    };
+
+
+
 
 }

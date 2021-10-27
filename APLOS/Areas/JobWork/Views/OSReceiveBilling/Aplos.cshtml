@@ -256,7 +256,7 @@
                 </div>
                 <script type="text/template" id="BillingQty">
                     <div class="col-sm-10" style="padding:0px; width:100%;">
-                        <input type="text" style="text-align:right" class="form-control" @*n-decimals="4"*@ ng-model="data.BillingQty" ng-change="$parent.calculateBalance(data)" />
+                        <input type="text" style="text-align:right" class="form-control" @*n-decimals="4"*@ ng-model="data.BillingQty" ng-blur="$parent.calculateBalance(data)" />
 
                     </div>
                 </script>

@@ -22,7 +22,7 @@ namespace Library.Planning.LineDesign
 
             try
             {
-                string sql = @"SELECT PO.Id POId,PS.UserName ProductionStatus, PO.RequiredTimeUnit, PD.Qty,FORMAT(LSD,'dd-MMM-yyyy') LSD 
+                string sql = @"SELECT PO.Id POId,PS.UserName ProductionStatus, PO.RequiredTimeUnit, FORMAT(LSD,'dd-MMM-yyyy') LSD 
 								   ,FORMAT(CommitmentDate,'dd-MMM-yyyy') CommitmentDate, PD.Product, PD.ProductCategory,PD.Buyer,PD.Customer 
                                    ,PD.BuyerOrder,PD.OwnOrder,PD.BuyerItem,PD.OwnItem,PD.Description,PD.PONumber,PO.EntityId,E.UserName Entity
 									,SONo=STUFF((select distinct ','+XSO.Id from 
@@ -36,7 +36,7 @@ namespace Library.Planning.LineDesign
 								   LEFT JOIN ORG.Entity E ON E.Id=PO.EntityId
 								  
 								   LEFT JOIN 
-								   (select distinct POD.ProductionOrderId,PM.UserName AS Product,pc.UserName AS ProductCategory,SO.Qty
+								   (select distinct POD.ProductionOrderId,PM.UserName AS Product,pc.UserName AS ProductCategory
 								   
 								   ,Buyer=  REPLACE(REPLACE(
 										            STUFF((select distinct ','+XB.UserName from 
@@ -263,7 +263,7 @@ namespace Library.Planning.LineDesign
             {
                 DataTable dtBulletin = _sqlRepository.GetDataTable(@"SELECT  ROW_NUMBER() OVER(ORDER BY D.Sequence,d.id) AS SQ,d.Id,ov.Id AS OperationVariationId,ov.UserName AS OperationVariation,
                                             d.AllotedManpower,MM.Id MaterialMasterId,MM.UserName AS MaterialMasterDesc
-											,M.StandardName AS ArticleDesc,o.Id as OperationId,o.UserName as OperationDesc
+											,o.IsMachineRequired,M.StandardName AS ArticleDesc,o.Id as OperationId,o.UserName as OperationDesc
                                                 ,M.Id ArticleId    ,d.Sequence,NULL AS Designation,isnull(Ov.color,'#ffffff') AS Color,
                                             mv.Id AS MachineId,mv.UserName AS MachineDesc,d.AllotedWorkstation,d.RequiredManPower,
                                             '1800001.jpg' AS EmpPicPath
@@ -341,7 +341,7 @@ namespace Library.Planning.LineDesign
                         emp.addInfo = new addInfo
                         {
                             //EmployeeId = dtBulletin.Rows[i]["EmployeeId"].ToString(),
-                            //EmployeeName = dtBulletin.Rows[i]["EmployeeName"].ToString(),
+                            MachineOrHand = dtBulletin.Rows[i]["IsMachineRequired"].ToString(),
                             MaterialMasterId = dtBulletin.Rows[i]["MaterialMasterId"].ToString(),
                             MaterialMasterDesc = dtBulletin.Rows[i]["MaterialMasterDesc"].ToString(),
                             ArticleId = dtBulletin.Rows[i]["ArticleId"].ToString(),

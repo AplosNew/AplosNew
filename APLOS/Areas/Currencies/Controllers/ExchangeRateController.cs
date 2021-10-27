@@ -95,5 +95,7 @@ namespace Aplos.Areas.Currencies.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_exchangeRateService.GetCompanyCurrencyExchangeRate(identity.CompanyId, currencyId, fromdate), JsonRequestBehavior.AllowGet);
         }
+
+       
     }
 }

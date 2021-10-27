@@ -619,7 +619,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                 var str = @"Select ei.EmployeeCode , ei.EmployeeName , apd.DayStatus , apd.InStatus , 
                             FORMAT(CAST(apd.InTime AS DATETIME),'hh:mm tt') as InTime , FORMAT(CAST(apd.OutTime AS DATETIME),'hh:mm tt') as OutTime
                             ,desg.UserName as Designation ,ei.EmployeeCurrentStatus, plant.username as Plant , mb.Code as BudgetCode, shift.Username as Shift,
-                            subsection.Username as SubSection , section.UserName as Section , department.Username as Department, e.UserName as Entity
+                            subsection.Username as SubSection , section.UserName as Section , department.Username as Department, e.UserName as Entity,
+                            unit.UserName as Unit , dess.UserName as LDesignation
                             from dbo.AttdnProcessData apd
                              left join org.Plant plant on plant.Id = apd.PlantID
                             left join org.Company company on company.Id = plant.CompanyId
@@ -638,6 +639,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             left join hkp.Designation desg on desg.Id = dm.DesignationId
                             left join org.Department dept on dept.id = pos.DepartmentId
                             left join dbo.ShiftDefination shift on shift.SystemID = mb.ShiftDefinationId
+                            left join hkp.Designation dess on dess.Id = ei.LegalDesignationId
                             where company.CompanyGroupId = '" + companyGroupId + @"' and apd.WorkDate='" + date + @"' " + empStat + @" " + whereSt + @"  " + empCat + @" " + statP + @"
                             " + whereCol + @"
                             ";

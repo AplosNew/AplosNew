@@ -655,6 +655,10 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanresource/PhysicalVerificationReport/Aplos',
             controller: 'PhysicalVerificationReportController'
         })
+        .when('/salary-disbursement-report', {
+            templateUrl: 'humanresource/SalaryDisbursementReport/Aplos',
+            controller: 'SalaryDisbursementReportController'
+        })
 ;
     
 

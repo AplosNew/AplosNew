@@ -72,14 +72,31 @@
                         <input type="text" name="PartyName" ng-model="voucher.PartyName" class="form-control" readonly>
                         <span class="input-group-btn">
                             @*showPartyPopUp()*@
-                            <button ng-click="showPartyPopUpNew();" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
+                            <button ng-click="showPartyPopUpNew();" @*ng-disabled="voucher.IsSplit==true"*@  class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
                             <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
                         </span>
+                       
                     </div>
                 </div>
             </div>
 
         </div>
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-2 control-label">Currency<sup>*</sup></label>
+            <div class="col-sm-2 show-message" style="padding-right:0px;">
+                <div class="select-style">
+                    <select id="currencyId" class="form-control" tabindex="5" name="Currency" ng-model="voucher.CurrencyId" ng-change="GetCurrencyExchangeRateList();checkBankAmount();" required>
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in tranCurrencyList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-2 show-message" style="padding-left:0px;">
+                <input type="text" maxlength="50" id="Rate" name="Rate" ng-disabled="voucher.CurrencyId==companyCurrencyId" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" tabindex="5" required autocomplete="off">
+            </div>
+        </div>
+
         <div class="col-xs-12 col-sm-3 col-md-3">
 
         </div>
@@ -118,12 +135,22 @@
                             <th>Fixed Asset</th>
                             <th>Asset No</th>
                             <th>Serial No</th>
+                            <th>Vendor</th>
+                            <th>Material</th>
+                            <th>Article</th>
+                            <th>Capitalization Date</th>
+                            <th>Purchase Date</th>
+                            <th>Issue Date</th>
+                            <th class="text-center">Base Currency</th>
+
+                            @*<th></th>*@
                             <th class="text-center">Price</th>
                             <th class="text-center">Sub Asset</th>
-                            <th class="text-center">Total Value</th>
+                            <th style="width:100px">Total Value</th>
                             <th class="text-center">Depreciation</th>
                             <th class="text-center">Net Book Value</th>
                             <th class="text-center">Negotiation Value</th>
+                            <th class="text-center">OB</th>
                             <th class="text-right">Action</th>
                         </tr>
                     </thead>
@@ -132,12 +159,22 @@
                             <td>{{x.ParticularName}}</td>
                             <td>{{x.AssetNo}}</td>
                             <td>{{x.SerialNo}}</td>
-                            <td><input type="text" class="form-control text-right" ng-disabled="true" id="Price" ng-model="x.Price " n-decimals="2"></td>
-                            <td><input type="text" class="form-control text-right" ng-disabled="true" id="SubAssetAmount" ng-model="x.SubAssetAmount " n-decimals="2"></td>
-                            <td><input type="text" class="form-control text-right" ng-disabled="true" id="PurchasePrice" ng-model="x.PurchasePrice " n-decimals="2"></td>
+                            <td>{{x.vendor}}</td>
+                            <td>{{x.Material}}</td>
+                            <td>{{x.Article}}</td>
+                            <td>{{x.CapitalizationDate}}</td>
+                            <td>{{x.PurchaseDate}}</td>
+                            <td>{{x.IssueDate}}</td>
+                            <td>{{x.baseCurrency}}</td>
+
+                            <td><input type="text" class="form-control text-right" ng-disabled="true" id="Price" ng-model="x.FABaseAmount " n-decimals="2"></td>
+                            <td><input type="text" class="form-control text-right" ng-disabled="true" id="SubAssetAmount" ng-model="x.SubAssetBaseAmount " n-decimals="2"></td>
+                            <td><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="PurchasePrice" ng-model="x.PurchaseBaseAmount " n-decimals="2"></td>
                             <td><input type="text" class="form-control text-right" ng-disabled="true" id="ADBaseAmount" ng-model="x.ADBaseAmount " n-decimals="2"></td>
-                            <td><input type="text" class="form-control text-right" ng-disabled="true" id="NetBookValue" ng-model="x.NetBookValue " n-decimals="2"></td>
-                            <td><input type="text" class="form-control text-right" id="NegotiationValue" ng-disabled="voucher.Status == 'Scrap'" ng-model="x.NegotiationValue " n-decimals="2"></td>
+                            <td><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="NetBookValue" ng-model="x.NetBaseBookValue " n-decimals="2"></td>
+                            <td><input type="text" style="width:100px" class="form-control text-right" id="NegotiationValue" ng-disabled="voucher.Status == 'Scrap'" ng-model="x.NegotiationValue " n-decimals="2"></td>
+                            <td>{{x.isOB}}</td>
+
                             <td class="text-right">
                                 <button ng-click="removeRow($index)" data-toggle="modal" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
                                     <i class="glyphicon glyphicon-remove"></i>
@@ -147,7 +184,7 @@
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="3" class="text-right">Total</td>
+                            <td colspan="9" class="text-right">Total</td>
                             <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'Price' }}</b></td>
                             <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'SubAssetAmount' }}</b></td>
                             <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'PurchasePrice' }}</b></td>
@@ -201,14 +238,16 @@
         <div e-columns>
             <div e-column e-field="DisposeNo" e-headertext="Dispose No" e-width="80" e-filter="false"></div>
             <div e-column e-field="Status" e-headertext="Status" e-width="80"></div>
-            <div e-column e-field="EmployeeName" e-headertext="Employee" e-width="120"></div>
+            <div e-column e-field="CustomerName" e-headertext="Customer" e-width="120"></div>
+            @*<div e-column e-field="EmployeeName" e-headertext="Employee" e-width="120"></div>*@
+            <div e-column e-field="SalesCurrency" e-headertext="Currency" e-width="60"></div>
             <div e-column e-field="Price" e-headertext="Price" e-width="80"></div>
-            <div e-column e-field="SubAssetAmount" e-headertext="SubAssetAmount" e-width="80"></div>
-            <div e-column e-field="PurchasePrice" e-headertext="PurchasePrice" e-width="80"></div>
+            <div e-column e-field="SubAssetAmount" e-headertext="Sub Asset" e-width="80"></div>
+            <div e-column e-field="PurchasePrice" e-headertext="Total Value" e-width="80"></div>
             <div e-column e-field="ADBaseAmount" e-headertext="Depreciation" e-width="80"></div>
-            <div e-column e-field="NetBookValue" e-headertext="NetBookValue" e-width="80"></div>
-            <div e-column e-field="NegotiationValue" e-headertext="NegotiationValue" e-width="80"></div>
-            @*<div e-column e-field="IsPark" e-headertext="Status" e-width="80"></div>*@
+            <div e-column e-field="NetBookValue" e-headertext="Net Book Value" e-width="80"></div>
+            <div e-column e-field="NegotiationValue" e-headertext="Negotiation Value" e-width="80"></div>
+            <div e-column e-field="IsOBBalance" e-headertext="OB" e-width="80"></div>
         </div>
     </div>
 </div>
