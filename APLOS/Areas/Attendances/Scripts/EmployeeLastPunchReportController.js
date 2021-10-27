@@ -1,7 +1,7 @@
 ﻿'use strict';
 EmployeeLastPunchReportController.$inject = ['$window', '$timeout', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function EmployeeLastPunchReportController($window, $timeout, cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'Employee Last-Punch Report';
+    $rootScope.title = 'Employee Last Punch Report';
 
 
     $scope.path = 'Attendances/EmployeeLastPunchReport/';
@@ -18,28 +18,21 @@ function EmployeeLastPunchReportController($window, $timeout, cboService, common
             var ColumnList = [
                 { field: 'EmployeeCode', width: 150, headerText: "EmployeeCode", type: "string" },
                 { field: 'EmployeeName', width: 150, headerText: "Employee Name", type: "string" },
+                { field: 'DOJ', width: 150, headerText: "DOJ", type: "string" },
                 { field: 'Department', width: 150, headerText: "Department", type: "string" },
                 { field: 'Section', width: 150, headerText: "Section", type: "string" },
                 { field: 'SubSection', width: 150, headerText: "SubSection", type: "string" },
-                { field: 'DOJ', width: 150, headerText: "DOJ", type: "string" },
-                { field: 'Jan', width: 150, headerText: "January", type: "string" },
-                { field: 'Feb', width: 150, headerText: "Feburary", type: "string" },
-                { field: 'Mar', width: 150, headerText: "March", type: "string" },
-                { field: 'Apr', width: 150, headerText: "April", type: "string" },
-                { field: 'May', width: 150, headerText: "May", type: "string" },
-                { field: 'June', width: 150, headerText: "June", type: "string" },
-                { field: 'July', width: 150, headerText: "Ju;y", type: "string" },
-                { field: 'Aug', width: 150, headerText: "August", type: "string" },
-                { field: 'Sep', width: 150, headerText: "September", type: "string" },
-                { field: 'Oct', width: 150, headerText: "October", type: "string" },
-                { field: 'Nov', width: 150, headerText: "November", type: "string" },
-                { field: 'Dec', width: 150, headerText: "December", type: "string" },
-
+                { field: 'Designation', width: 150, headerText: "Designation", type: "string" },
+                { field: 'TenureMonth', width: 150, headerText: "Tenure (In Months)", type: "string" },
+                { field: 'EmployeeCurrentStatus', width: 150, headerText: "EmployeeCurrentStatus", type: "string" },
+                { field: 'LastWorkDate', width: 150, headerText: "LastPunch Date", type: "string" },
+                { field: 'LastIn', width: 150, headerText: "LastPunch Time", type: "string" },
+              
             ];
 
             $http({
                 method: 'GET',
-                url: $scope.path + 'GetSummaryData?Year=' + $scope.YearId,
+                url: $scope.path + 'GetSummaryData',
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error == true) {
@@ -106,7 +99,7 @@ function EmployeeLastPunchReportController($window, $timeout, cboService, common
             method: 'POST',
             url: $scope.path + 'GetPrintReport',
             data: {
-                EmpId: parameters[0].Value, Year: $scope.YearId
+                EmpId: parameters[0].Value
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
