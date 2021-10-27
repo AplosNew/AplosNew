@@ -229,7 +229,9 @@ namespace Library.OrderManagement.Production
 
                                 INNER JOIN trn.ProductionOrder AS po ON po.Id=d.ProductionOrderID
                                 INNER JOIN hkp.ProductionStatus AS ps ON ps.Id=po.ProductionStatusId
-                                WHERE ps.UserName<>'Closed'
+                                WHERE PO.Id IN (SELECT DISTINCT p.ProductionOrderId FROM trn.ProductionOrderDetail AS p
+                                            JOIN trn.SalesOrder AS so ON so.Id=p.SalesOrderId
+                                            WHERE so.OrderStatusId<>'Closed')
                                 ORDER BY D.ProductionOrderID,convert(date,D.ProductionDate)
 
                             ";
@@ -356,7 +358,9 @@ namespace Library.OrderManagement.Production
                             left outer join hkp.Season S on s.id=mo.SeasonId
                             left outer join EmployeeInformation EI on ei.SystemId= MO.ResponsiblePersonId
 
-                            WHERE ps.UserName<>'Closed' AND PO.EntityId IN (" + entityid + @")
+                            WHERE PO.Id IN (SELECT DISTINCT p.ProductionOrderId FROM trn.ProductionOrderDetail AS p
+                                            JOIN trn.SalesOrder AS so ON so.Id=p.SalesOrderId
+                                            WHERE so.OrderStatusId<>'Closed') AND PO.EntityId IN (" + entityid + @")
             ORDER BY trkp.UserName,trke.UserName,trke.Id, pod.ProductionOrderId,so.DeliveryDate,SO.ID";
 
             dtOrderMaster = _sqlRepository.GetDataTable(sql);

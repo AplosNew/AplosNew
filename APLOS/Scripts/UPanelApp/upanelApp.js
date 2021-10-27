@@ -845,6 +845,7 @@ var upanelApp = angular
     .controller('monthlyAttendanceInformationDateRangeController', monthlyAttendanceInformationDateRangeController)
     .controller('MonthlyAttendanceInformationDateRangeNewController', MonthlyAttendanceInformationDateRangeNewController)
     .controller('AttendanceFromAppReportController', AttendanceFromAppReportController)
+    .controller('EmployeeLastPunchReportController', EmployeeLastPunchReportController)
     .controller('EntireYearPresentDaysSummaryController', EntireYearPresentDaysSummaryController)
     .controller('professionalTaxReportsController', professionalTaxReportsController)
     .controller("monthlyGoodWorkReportController", monthlyGoodWorkReportController)
