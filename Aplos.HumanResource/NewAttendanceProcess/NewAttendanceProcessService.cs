@@ -149,10 +149,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     dr["ShiftDuration"] = ProfileShiftDurn;
                                     dr["ShiftInTime"] = ProfileShiftIn;
                                     dr["ShiftOutTime"] = ProfileShiftOut;
-                                    if (ProfileShiftDurn == "")
-                                    {
-
-                                    }
+                                   
                                 }
                                 else if (RosterShift.ToString() != "")
                                 {
