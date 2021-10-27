@@ -15002,11 +15002,11 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
             try
             {
 
-                string wcEmpStatus = " Where (1=0 ";
+                string wcEmpStatus = "  (1=0 ";
 
                 if (isActive == true && isSeperated == true && isMaternity == true)
                 {
-                    wcEmpStatus = " Where (1=1 ";
+                    wcEmpStatus = "  (1=1 ";
                 }
                 else
                 {
@@ -15037,7 +15037,7 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
 
                 wcEmpStatus += ")";
 
-                strSQL = @"SELECT EmpSlr.*,ISNULL(PSH.Sequence,99) Sequence,ISNULL(crc.IsDecimalInDisb,0) IsDecimalInDisb,ISNULL(CRC.IntegerInDisb,1) IntegerInDisb,ISNULL(CRC.DecimalNo,0) DecimalNo FROM(SELECT SPC.SystemID AS SlrProcChdSysID, SPC.SlrProcMstSystemID, SPM.SalaryProcID, SPM.FromDate, SPM.ToDate,
+                strSQL = @"Select * from (SELECT EmpSlr.*,ISNULL(PSH.Sequence,99) Sequence,ISNULL(crc.IsDecimalInDisb,0) IsDecimalInDisb,ISNULL(CRC.IntegerInDisb,1) IntegerInDisb,ISNULL(CRC.DecimalNo,0) DecimalNo FROM(SELECT SPC.SystemID AS SlrProcChdSysID, SPC.SlrProcMstSystemID, SPM.SalaryProcID, SPM.FromDate, SPM.ToDate,
                                                     SPC.EmpInfoSystemID , SPC.PlantID, SPM.UserGroupSystemID, SPM.MonthNo, SPM.YearNo, SPC.PayAbleShSystemID,
                                                     SPC.SalaryHeadID, SPC.EntryCurrencyID, SPC.EntryAmount, SPC.DefineCurrencyID, SPC.DefineAmount,
                                                     SPC.DisbusmentCurrencyID, SPC.DisbusmentAmount, SPC.AcltExcDisbSlrHDID, SPC.AcltExcDisbSlrHDAmt,
@@ -15059,7 +15059,7 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
                                                                                             AND SPC.PlantID = Exr.PlantID
                                                         LEFT JOIN SCS.Currency CRE ON EXR.FromCurrencyCode = CRE.Id
 
-                                                        WHERE ISNULL(SPC.SlrProcMstSystemID,'')  IN(" + inSalaryProcParam + @")) EmpSlr--ON EmpBasic.SystemID = EmpSlr.EmpInfoSystemID AND EmpBasic.PlantID = EmpSlr.PlantID
+                                                        WHERE ISNULL(SPC.SlrProcMstSystemID,'')  IN(" + inSalaryProcParam + @") ) EmpSlr--ON EmpBasic.SystemID = EmpSlr.EmpInfoSystemID AND EmpBasic.PlantID = EmpSlr.PlantID
 
                                             Inner join EmployeeInformation EEI ON EEI.SystemId = EmpSlr.EmpInfoSystemID
 
@@ -15080,7 +15080,8 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
                     }
                 }
 
-                strSQL += "ORDER BY EmpSlr.EmpInfoSystemID,Sequence";
+                strSQL += @") dd where "+ wcEmpStatus + @"";
+                strSQL += "ORDER BY dd.EmpInfoSystemID,Sequence";
 
                 ConnectionManager.clsConnectionManager con = new clsConnectionManager(600);
                 con.getDataSet(strSQL, out dsRef);
