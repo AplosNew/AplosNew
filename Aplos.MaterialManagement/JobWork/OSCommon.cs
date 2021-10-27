@@ -939,7 +939,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
             if (IsOwnVendor == "OwnVendor")
             {
-                if (POType == "Transformation")
+                if (POType == "OSTransformationPO")
                 {
                     try
                     {
