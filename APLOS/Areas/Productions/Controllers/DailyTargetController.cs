@@ -350,7 +350,10 @@ namespace Aplos.Areas.Productions.Controllers
 		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 		                                                    LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = XSO.CustomerPOId
 			                                                    where POD.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                                                    ,convert(bit, case when isnull(LLD.Id,'')<>'' then 1 else 0 end ) As HasLayout,
+                                                    ,convert(bit, case when isnull(LLD.Id,'')<>'' then 1 else 0 end ) As HasLayout
+                                                        ,convert(bit, case when isnull(LLD.Id,'')<>'' then 0 else 
+                                                     	CASE WHEN ISNULL(LLP.Id,'')<>'' OR ISNULL(l.Id,'')<>'' THEN 1 ELSE 0 END
+                                                     	 end ) As CanCopy,
 prs.username as ProcessName,resp.EmployeeName as ResponsiblePersonName
 
                                 from SCS.WorkCenterMaster WCM 
@@ -362,6 +365,24 @@ prs.username as ProcessName,resp.EmployeeName as ResponsiblePersonName
                                 left join trn.SalesOrder SO ON SO.Id=POD.SalesOrderId
                                 left join trn.MasterOrderItem MOI ON MOI.Id=so.MasterOrderItemId
                                 Left join LineLayoutDailyTarget LLD on LLD.WorkCenterMasterId=DPT.WorkCenterMasterId and LLD.TargetDate=DPT.TargetDate and LLD.ProductionOrderId=DPT.ProductionOrderId
+                                
+                                LEFT JOIN LineLayoutDailyTarget LLP ON LLP.ProcessId = '" + ProcessId + @"'                                
+                                    AND LLP.ProductionOrderId = po.Id                                
+                                    AND LLP.TargetDate = (
+                                        SELECT TOP 1 X.TargetDate
+                                        FROM LineLayoutDailyTarget x                                
+                                        WHERE x.ProductionOrderId = po.id                                
+                                            AND x.ProcessId = '" + ProcessId + @"'                                
+                                            AND x.WorkCenterMasterId = dpt.WorkCenterMasterID                                
+                                            AND x.TargetDate < '"+ ProductionDate + @"'                             
+                                        ORDER BY x.TargetDate DESC
+                                		)
+                                	AND LLP.WorkCenterMasterId = dpt.WorkCenterMasterID
+                                LEFT JOIN LineLayoutByProductionBulletin l ON l.ProcessId = '" + ProcessId + @"'
+                                  AND l.ProductionOrderId = po.Id
+
+
+
                                 left join mst.MaterialMaster MM ON MM.Id=MOI.MaterialMasterId
                                 left join mst.MaterialMasterArticle MMA ON MMA.Id=MOI.ArticleId                               
                                 where WCM.EntityId='" + EntityId + @"' AND WCM.ProcessId='" + ProcessId + @"' ORDER BY WCM.Sequence ";
