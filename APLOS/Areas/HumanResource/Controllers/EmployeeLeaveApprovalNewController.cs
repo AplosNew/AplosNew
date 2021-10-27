@@ -302,6 +302,13 @@ namespace Aplos.Areas.HumanResource.Controllers
                         string newformat = Convert.ToDateTime(Ftd).ToString("yyyyMMdd");
                         if (Ftd <= DateTime.Now.Date)
                         {
+                            // If Item is noBnefit is  1  then LeaveCode + WOB (MLWOB)
+
+                            if (item.isNoBenefit == true && (string)bplib.clsWebLib.RetValidLen(item.MPolicyId) != ""  )
+                            {
+                                LeaveCode = LeaveCode + "WOB";
+                            }
+
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + item.EmployeeID + "' ";
                             RowsEdited = RowsEdited + ",'" + newformat + item.EmployeeID + "'";
                             DataRow dr = dsRef.Tables[0].DefaultView[0].Row;

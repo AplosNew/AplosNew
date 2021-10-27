@@ -608,11 +608,11 @@ function employeeInformationController(addressService, fileReader, cboService, c
                 $scope.LocalLabel = response.data;
 
                 if (!baseService.isUndefinedOrNull($scope.LocalLabel.NameLabel)) $scope.NameLabel = $scope.LocalLabel.NameLabel; else $scope.NameLabel = "Employee Name";
-                if (!baseService.isUndefinedOrNull($scope.LocalLabel.FatherNameLabel)) $scope.FatherNameLabel = $scope.LocalLabel.FatherNameLabel; else $scope.FatherNameLabel = "Father Name";
+                if (!baseService.isUndefinedOrNull($scope.LocalLabel.FatherNameLabel)) $scope.FatherNameLabel = $scope.LocalLabel.FatherNameLabel; else $scope.FatherNameLabel = "Father's Name";
                 if (!baseService.isUndefinedOrNull($scope.LocalLabel.IdentificationMarksLabel)) $scope.IdentificationMarksLabel = $scope.LocalLabel.IdentificationMarksLabel; else $scope.IdentificationMarksLabel = "Identification Marks";
                 if (!baseService.isUndefinedOrNull($scope.LocalLabel.PAddressLabel)) $scope.PAddressLabel = $scope.LocalLabel.PAddressLabel; else $scope.PAddressLabel = "Present Address";
                 if (!baseService.isUndefinedOrNull($scope.LocalLabel.SpouseNameLabel)) $scope.SpouseNameLabel = $scope.LocalLabel.SpouseNameLabel; else $scope.SpouseNameLabel = "Spouse Name";
-                if (!baseService.isUndefinedOrNull($scope.LocalLabel.MotherNameLabel)) $scope.MotherNameLabel = $scope.LocalLabel.MotherNameLabel; else $scope.MotherNameLabel = "Mother Name";
+                if (!baseService.isUndefinedOrNull($scope.LocalLabel.MotherNameLabel)) $scope.MotherNameLabel = $scope.LocalLabel.MotherNameLabel; else $scope.MotherNameLabel = "Mother's Name";
                 if (!baseService.isUndefinedOrNull($scope.LocalLabel.PermanentLabel)) $scope.PermanentLabel = $scope.LocalLabel.PermanentLabel + " " + $scope.LocalLabel.AddressLabel; else $scope.PermanentLabel = "Permanent Address";
                 if (!baseService.isUndefinedOrNull($scope.LocalLabel.AddressLabel)) $scope.AddressLabel = $scope.LocalLabel.AddressLabel; else $scope.AddressLabel = "Address";
                 if (!baseService.isUndefinedOrNull($scope.LocalLabel.DependantLabel)) $scope.DependantLabel = $scope.LocalLabel.DependantLabel; else $scope.DependantLabel = "Dependant";
@@ -1791,7 +1791,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
                 throw "Present Address 1 is required";
             }
             if (baseService.isUndefinedOrNull($scope.employeeInformation.ParmanentAddress1)) {
-                throw "Parmanent Address 1 is required";
+                throw "Permanent Address 1 is required";
             }
             if (!baseService.isUndefinedOrNull($scope.employeeInformation.EmrCntPer1CellNo)) {
                 if (isNaN($scope.employeeInformation.EmrCntPer1CellNo)) {
