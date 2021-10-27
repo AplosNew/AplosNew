@@ -1229,8 +1229,8 @@ namespace Library.OrderManagement.Packing
 									) 
 								A ON A.OrderCostingMasterTemplateId=CT.Id
 								left JOIN [HKP].[CostingItem] CI ON CI.Id=A.CostingItemId 
-								left JOIN [HKP].[CostingComponent] CC ON CC.Id=CI.CostingComponentId --AND ISNULL(CC.ConsiderForFGValuation,0)=1 
-								WHERE CT.Id='" + costingId + @"' AND ISNULL(CC.ConsiderForFGValuation,0)=1 
+								left JOIN [HKP].[CostingComponent] CC ON CC.Id=CI.CostingComponentId
+								WHERE CT.Id='" + costingId + @"'
 								GROUP BY A.GrossConsumption, CC.UserName,CI.UserName,A.Rate";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -1383,8 +1383,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 								FROM [dbo].OrderProcurementCostingValueLoss VL
 								) AS A ON A.OrderCostingMasterTemplateId = CMT.Id 
 							LEFT JOIN [HKP].[CostingItem] CI ON CI.Id = A.CostingItemId
-							LEFT JOIN [HKP].[CostingComponent] CC ON CC.Id = CI.CostingComponentId --AND ISNULL(CC.ConsiderForFGValuation,0)=1
-							WHERE ISNULL(CC.ConsiderForFGValuation,0)=1
+							LEFT JOIN [HKP].[CostingComponent] CC ON CC.Id = CI.CostingComponentId
 							GROUP BY a.OrderCostingMasterTemplateId
 							) AS COST
 						) B ON B.OrderCostingMasterTemplateId = CT.Id
@@ -1456,8 +1455,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 								FROM [dbo].OrderProcurementCostingValueLoss VL
 								) AS A ON A.OrderCostingMasterTemplateId = CMT.Id 
 							LEFT JOIN [HKP].[CostingItem] CI ON CI.Id = A.CostingItemId
-							LEFT JOIN [HKP].[CostingComponent] CC ON CC.Id = CI.CostingComponentId --AND ISNULL(CC.ConsiderForFGValuation,0)=1
-							WHERE ISNULL(CC.ConsiderForFGValuation,0)=1
+							LEFT JOIN [HKP].[CostingComponent] CC ON CC.Id = CI.CostingComponentId
 							GROUP BY a.OrderCostingMasterTemplateId
 							) AS COST
 						) B ON B.OrderCostingMasterTemplateId = CT.Id
@@ -1573,8 +1571,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 								FROM [dbo].OrderProcurementCostingValueLoss VL
 								) AS A ON A.OrderCostingMasterTemplateId = CMT.Id
 							LEFT JOIN [HKP].[CostingItem] CI ON CI.Id = A.CostingItemId
-							LEFT JOIN [HKP].[CostingComponent] CC ON CC.Id = CI.CostingComponentId --AND ISNULL(CC.ConsiderForFGValuation,0)=1
-							WHERE ISNULL(CC.ConsiderForFGValuation,0)=1
+							LEFT JOIN [HKP].[CostingComponent] CC ON CC.Id = CI.CostingComponentId 
 							GROUP BY a.OrderCostingMasterTemplateId
 							) AS COST
 						) B ON B.OrderCostingMasterTemplateId = CT.Id
@@ -1636,8 +1633,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 								FROM [dbo].OrderProcurementCostingValueLoss VL
 								) AS A ON A.OrderCostingMasterTemplateId = CMT.Id
 								LEFT JOIN [HKP].[CostingItem] CI ON CI.Id = A.CostingItemId
-								LEFT JOIN [HKP].[CostingComponent] CC ON CC.Id = CI.CostingComponentId --AND ISNULL(CC.ConsiderForFGValuation,0)=1
-								WHERE ISNULL(CC.ConsiderForFGValuation,0)=1
+								LEFT JOIN [HKP].[CostingComponent] CC ON CC.Id = CI.CostingComponentId 
 								GROUP BY a.OrderCostingMasterTemplateId
 								) AS COST
 								) B ON B.OrderCostingMasterTemplateId = CT.Id

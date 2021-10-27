@@ -113,24 +113,6 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 		ContractType: null,
 		MSIdInventory: null,
 		OrderRefNo: null,
-
-		//Id: null,
-		//IssueDate: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
-		//EmployeeId: null,
-		//Types: 'InventoryJWIssue',
-		//MaterialStorageId: null,
-		//Remarks: null,
-		//EmployeeStatus: null,
-		//EmployeeCode: null,
-		//ResponsiblePerson: null,
-		//IsConfirmed: false,
-		//EntityId: null,
-		//IssueType: 'Revenue',
-		//JWContractId: null,
-		//ContractType: null,
-		//MaterialStorageIdInventory: null,
-		//RefferenceNo: null,
-		//OrderRefNo: null,
 	};
 	$scope.Issue = Object.assign({}, $scope.IssueModelTemp);
 
@@ -1442,10 +1424,11 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 		};
 	};
 
-
+	$scope.GRNRowIdList = [];
 	$scope.materialStockList = [];
 	$scope.specificStockList = [];
 	$scope.getSpecificMaterialStockForSlipIssueVA = function (data, index) {
+		$scope.InventoryIssueDetailId = data.InventoryIssueDetailId;
 
 		for (var i = 0; i < $scope.IssueChildList.length; i++) {
 			if ($scope.IssueChildList[i].isSelectedOM == true && !baseService.isUndefinedOrNull($scope.IssueChildList[i].ArticleId)) {
@@ -1497,6 +1480,32 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 				}
 			//	angular.element(document.querySelector('#stockPopUp')).modal('show');
 				angular.element(document.querySelector('#stockPopUpValAdded')).modal('show');
+
+					if ($scope.Action == "Update") {
+						$http({
+							method: 'GET',
+							url: $scope.path + 'GetGRNRowId?InventoryIssueDetailId=' + $scope.InventoryIssueDetailId
+						}).then(function successCallback(response) {
+							$scope.GRNRowIdList = response.data;
+							if ($scope.GRNRowIdList.length > 0) {
+								for (var i = 0; i < $scope.GRNRowIdList.length; i++) {
+									//var getRow = $filter("filter")($scope.materialStockList, { "InventoryReceiveDetailId": $scope.GRNRowIdList[i].InventoryReceiveDetailId });
+									//if (getRow.length === 1) {
+
+         //                           }
+
+									for (var j = 0; j < $scope.materialStockList.length; j++) {
+										if ($scope.GRNRowIdList[i].InventoryReceiveDetailId == $scope.materialStockList[j].InventoryReceiveDetailId) {
+											$scope.materialStockList[j].RequisitionQty = $scope.GRNRowIdList[i].Qty;
+											$scope.materialStockList[j].Flag = true;
+                                        }
+                                    }
+                                }
+								
+							}
+						});
+					}
+
 			}
 
 		}), function (response) {
@@ -2346,7 +2355,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 							, TabType: $scope.ModelNew.TabType
 
 						}
-					//	, dataType: 'JSON'
+						, dataType: 'JSON'
 					}).then(function (response) {
 						if (response.data.Error === true)
 							ShowResult(response.data.Message, 'failure');
@@ -2450,6 +2459,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 
 	// Transformation Stock Wise Status
 
+	
 	$scope.GetShowStorageLocationList = [];
 	$scope.stockwisestatus = function (RowData, index) {
 		if ($scope.ModelNew.TabType == "Transformation") {
@@ -2482,6 +2492,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 					$scope.MatMstId = $scope.IssueChildList[i].MaterialMasterId;
 					// $scope.SelectedArticleId = $scope.IssueChildList[i].MaterialMasterArticleId;
 					$scope.SelectedArticleId = $scope.IssueChildList[i].ArticleId;
+					$scope.InventoryIssueDetailId = $scope.IssueChildList[i].InventoryIssueDetailId;
 					$scope.a = i;
 				}
 			}
@@ -2850,32 +2861,35 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 		$scope.Action = 'Update';
 		//ClearFields();		
 		$scope.Issue = x.data;
+		$scope.Issue.StorageLocation = x.data.StorageLocation;
 		ValAddedMaterialStorageForEdit(Id, MaterialStorageId);
 		JWOutPutQuery(Id, JWContractId, IssueDate, MaterialStorageId);
 		$scope.CostCenterLoad();
 
 	//	JWByProductQuery(Id);
-		if (baseService.isUndefinedOrNull(x.data.CheckedBy) && !baseService.isUndefinedOrNull(x.data.AuthorizedBy)) {
-			$scope.CheckedByStatusForNoti = false;
-			$scope.ApprovedByStatusForNoti = true;
-			$scope.Issue.CheckedBy = x.data.ApprovedById;
-		}
-		else if (!baseService.isUndefinedOrNull(x.data.CheckedBy) && !baseService.isUndefinedOrNull(x.data.AuthorizedBy)) {
-			$scope.CheckedByStatusForNoti = true;
-			$scope.ApprovedByStatusForNoti = true;
-			$scope.Issue.CheckedBy = x.data.CheckedById;
-		}
+
+		//if (baseService.isUndefinedOrNull(x.data.CheckedBy) && !baseService.isUndefinedOrNull(x.data.AuthorizedBy)) {
+		//	$scope.CheckedByStatusForNoti = false;
+		//	$scope.ApprovedByStatusForNoti = true;
+		//	$scope.Issue.CheckedBy = x.data.ApprovedById;
+		//}
+		//else if (!baseService.isUndefinedOrNull(x.data.CheckedBy) && !baseService.isUndefinedOrNull(x.data.AuthorizedBy)) {
+		//	$scope.CheckedByStatusForNoti = true;
+		//	$scope.ApprovedByStatusForNoti = true;
+		//	$scope.Issue.CheckedBy = x.data.CheckedById;
+		//}
 	//	$scope.GetCheckedByAndApprovedBy1();
-		if (baseService.isUndefinedOrNull(x.data.CheckedById) && !baseService.isUndefinedOrNull(x.data.ApprovedById)) {
+		//if (baseService.isUndefinedOrNull(x.data.CheckedById) && !baseService.isUndefinedOrNull(x.data.ApprovedById)) {
 
-			$scope.Issue.CheckedBy = x.data.ApprovedById;
-			$scope.Issue.labelCheckAndApproved = 'To be approved by';
-		}
-		else if (!baseService.isUndefinedOrNull(x.data.CheckedById) && baseService.isUndefinedOrNull(x.data.ApprovedById)) {
+		//	$scope.Issue.CheckedBy = x.data.ApprovedById;
+		//	$scope.Issue.labelCheckAndApproved = 'To be approved by';
+		//}
+		//else if (!baseService.isUndefinedOrNull(x.data.CheckedById) && baseService.isUndefinedOrNull(x.data.ApprovedById)) {
 
-			$scope.Issue.CheckedBy = x.data.CheckedById;
-			$scope.Issue.labelCheckAndApproved = 'To be checked by';
-		}
+		//	$scope.Issue.CheckedBy = x.data.CheckedById;
+		//	$scope.Issue.labelCheckAndApproved = 'To be checked by';
+		//}
+
 		if (!$rootScope.isCollapsed) $rootScope.toggle();
 	}
 
@@ -2918,13 +2932,13 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 					$scope.Issue.MaterialStorageId = $scope.ValAddedJobWorkLocList[0].Value;
 					$scope.Issue.StorageLocation = $scope.ValAddedJobWorkLocList[0].StorageLocation;
 					$scope.Issue.MSIdInventory = $scope.ValAddedJobWorkLocList[0].Value;
-					$scope.Issue.IssueType = $scope.ValAddedJobWorkLocList[0].IssueType;
-					$scope.Issue.OrderRefNo = $scope.ValAddedJobWorkLocList[0].OrderRefNo;
-					$scope.Issue.RefferenceNo = $scope.ValAddedJobWorkLocList[0].RefferenceNo;
+					//$scope.Issue.IssueType = $scope.ValAddedJobWorkLocList[0].IssueType;
+					//$scope.Issue.OrderRefNo = $scope.ValAddedJobWorkLocList[0].OrderRefNo;
+					//$scope.Issue.RefferenceNo = $scope.ValAddedJobWorkLocList[0].RefferenceNo;
 
-					$scope.Issue.EmployeeCode = $scope.ValAddedJobWorkLocList[0].EmployeeCode;
-					$scope.Issue.ResponsiblePerson = $scope.ValAddedJobWorkLocList[0].ResponsiblePerson;
-					$scope.Issue.EmployeeId = $scope.ValAddedJobWorkLocList[0].EmployeeId;
+					//$scope.Issue.EmployeeCode = $scope.ValAddedJobWorkLocList[0].EmployeeCode;
+					//$scope.Issue.ResponsiblePerson = $scope.ValAddedJobWorkLocList[0].ResponsiblePerson;
+					//$scope.Issue.EmployeeId = $scope.ValAddedJobWorkLocList[0].EmployeeId;
 				}
 			});
 	}

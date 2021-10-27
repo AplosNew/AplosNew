@@ -141,7 +141,7 @@
                             <th>Capitalization Date</th>
                             <th>Purchase Date</th>
                             <th>Issue Date</th>
-                            <th class="text-center">Trn Currency</th>
+                            <th class="text-center">Base Currency</th>
 
                             @*<th></th>*@
                             <th class="text-center">Price</th>
@@ -165,14 +165,14 @@
                             <td>{{x.CapitalizationDate}}</td>
                             <td>{{x.PurchaseDate}}</td>
                             <td>{{x.IssueDate}}</td>
-                            <td>{{x.TrnCurrency}}</td>
+                            <td>{{x.baseCurrency}}</td>
 
-                            <td><input type="text" class="form-control text-right" ng-disabled="true" id="Price" ng-model="x.Price " n-decimals="2"></td>
-                            <td><input type="text" class="form-control text-right" ng-disabled="true" id="SubAssetAmount" ng-model="x.SubAssetAmount " n-decimals="2"></td>
-                            <td><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="PurchasePrice" ng-model="x.PurchasePrice " n-decimals="2"></td>
+                            <td><input type="text" class="form-control text-right" ng-disabled="true" id="Price" ng-model="x.FABaseAmount " n-decimals="2"></td>
+                            <td><input type="text" class="form-control text-right" ng-disabled="true" id="SubAssetAmount" ng-model="x.SubAssetBaseAmount " n-decimals="2"></td>
+                            <td><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="PurchasePrice" ng-model="x.PurchaseBaseAmount " n-decimals="2"></td>
                             <td><input type="text" class="form-control text-right" ng-disabled="true" id="ADBaseAmount" ng-model="x.ADBaseAmount " n-decimals="2"></td>
-                            <td><input type="text" class="form-control text-right" ng-disabled="true" id="NetBookValue" ng-model="x.NetBookValue " n-decimals="2"></td>
-                            <td><input type="text" class="form-control text-right" id="NegotiationValue" ng-disabled="voucher.Status == 'Scrap'" ng-model="x.NegotiationValue " n-decimals="2"></td>
+                            <td><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="NetBookValue" ng-model="x.NetBaseBookValue " n-decimals="2"></td>
+                            <td><input type="text" style="width:100px" class="form-control text-right" id="NegotiationValue" ng-disabled="voucher.Status == 'Scrap'" ng-model="x.NegotiationValue " n-decimals="2"></td>
                             <td>{{x.isOB}}</td>
 
                             <td class="text-right">
@@ -238,9 +238,9 @@
         <div e-columns>
             <div e-column e-field="DisposeNo" e-headertext="Dispose No" e-width="80" e-filter="false"></div>
             <div e-column e-field="Status" e-headertext="Status" e-width="80"></div>
-            <div e-column e-field="Vendor" e-headertext="Vendor" e-width="120"></div>
-            <div e-column e-field="EmployeeName" e-headertext="Employee" e-width="120"></div>
-            <div e-column e-field="TrnCurrency" e-headertext="Trn Curr" e-width="60"></div>
+            <div e-column e-field="CustomerName" e-headertext="Customer" e-width="120"></div>
+            @*<div e-column e-field="EmployeeName" e-headertext="Employee" e-width="120"></div>*@
+            <div e-column e-field="SalesCurrency" e-headertext="Currency" e-width="60"></div>
             <div e-column e-field="Price" e-headertext="Price" e-width="80"></div>
             <div e-column e-field="SubAssetAmount" e-headertext="Sub Asset" e-width="80"></div>
             <div e-column e-field="PurchasePrice" e-headertext="Total Value" e-width="80"></div>
