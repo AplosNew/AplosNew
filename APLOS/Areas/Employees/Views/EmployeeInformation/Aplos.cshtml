@@ -135,6 +135,13 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
+                                    <label class="col-sm-4 control-label" style="color: blue;">{{NameLabel}}</label>
+                                    <div class="col-sm-7">
+                                        <input type="text" name="EmployeeNameLocal" ng-model="employeeInformation.EmployeeNameLocal" class="form-control" maxlength="100" tabindex="2">
+                                    </div>
+                                    <label class="col-sm-1 control-label" style="color: blue;font-size: 11px;padding-left: 0px;">[Local]</label>
+                                </div>
+                                <div class="form-group">
                                     <label class="col-sm-4 control-label">Nick Name</label>
                                     <div class="col-sm-8">
                                         <input type="text" name="Nick Name" ng-model="employeeInformation.NickName" class="form-control" maxlength="100" tabindex="5">
@@ -278,7 +285,6 @@
                                     <li role="presentation" ng-class="{ active: isSet2(13) }"><a ng-click="setTab2(13)" href="" aria-controls="NomineeInfo" role="tab" data-toggle="tab">Nominee Info</a></li>
                                     <li role="presentation" ng-class="{ active: isSet2(14) }"><a ng-click="setTab2(14)" href="" aria-controls="LandLordInfo" role="tab" data-toggle="tab">LandLord Info</a></li>
                                     <li role="presentation" ng-class="{ active: isSet2(15) }"><a ng-click="setTab2(15)" href="" aria-controls="RelativeInfo" role="tab" data-toggle="tab">Relative Info</a></li>
-                                    <li role="presentation" ng-class="{ active: isSet2(16) }"><a ng-click="setTab2(16)" href="" aria-controls="LocalLanguage" role="tab" data-toggle="tab">Local Language</a></li>
                                     @*<li role="presentation" ng-class="{ active: isSet2(17) }"><a ng-click="setTab2(17)" href="" aria-controls="FingerPrint" role="tab" data-toggle="tab">Finger Print</a></li>*@
                                     <li role="presentation" ng-class="{ active: isSet2(18) }"><a ng-click="setTab2(18)" href="" aria-controls="Advance" role="tab" data-toggle="tab">Advance</a></li>
                                     <li role="presentation" ng-class="{ active: isSet2(19) }"><a ng-click="setTab2(19)" href="" aria-controls="Operation" role="tab" data-toggle="tab">Operation</a></li>
@@ -298,6 +304,13 @@
                                             <div class="col-sm-8">
                                                 <input type="text" name="Father’s Name" ng-model="employeeInformation.FatherName" ng-disabled="employeeInformation.IsApproved" class="form-control" maxlength="100" tabindex="12">
                                             </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label" style="color: blue;">{{FatherNameLabel}}</label>
+                                            <div class="col-sm-7">
+                                                <input type="text" name="FatherNameLocal" ng-model="employeeInformation.FatherNameLocal" class="form-control" maxlength="100" tabindex="2">
+                                            </div>
+                                            <label class="col-sm-1 control-label" style="color: blue;font-size: 11px;padding-left: 0px;">[Local]</label>
                                         </div>
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label">Religion </label>
@@ -341,6 +354,13 @@
                                             </div>
                                         </div>
                                         <div class="form-group">
+                                            <label class="col-sm-4 control-label" style="color: blue;">{{IdentificationMarksLabel}}</label>
+                                            <div class="col-sm-7">
+                                                <input type="text" name="IdentificationMark" ng-model="employeeInformation.LocalIdentificationMark" class="form-control" maxlength="30" tabindex="2">
+                                            </div>
+                                            <label class="col-sm-1 control-label" style="color: blue;font-size: 11px;padding-left: 0px;">[Local]</label>
+                                        </div>
+                                        <div class="form-group">
                                             <label class="col-sm-4 control-label">Marital Status<sup>*</sup></label>
                                             <div class="col-sm-8">
                                                 <div class="select-style">
@@ -356,6 +376,13 @@
                                             <div class="col-sm-8">
                                                 <input type="text" name="Spouse Name" ng-model="employeeInformation.SpouseName" class="form-control" maxlength="100" tabindex="19">
                                             </div>
+                                        </div>
+                                        <div class="form-group" ng-show="celebrationType">
+                                            <label class="col-sm-4 control-label" style="color: blue;">{{SpouseNameLabel}}</label>
+                                            <div class="col-sm-7">
+                                                <input type="text" name="SpouseNameLocal" ng-model="employeeInformation.SpouseNameLocal" class="form-control" maxlength="100" tabindex="2">
+                                            </div>
+                                            <label class="col-sm-1 control-label" style="color: blue;font-size: 11px;padding-left: 0px;">[Local]</label>
                                         </div>
                                         <div class="form-group" ng-show="celebrationType">
                                             <label class="col-sm-4 control-label">Spouse Occupation</label>
@@ -377,6 +404,13 @@
                                             <div class="col-sm-8">
                                                 <input type="text" name="Mother’s Name" ng-model="employeeInformation.MotherName" ng-disabled="employeeInformation.IsApproved" class="form-control" maxlength="100" tabindex="13">
                                             </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label" style="color: blue;">{{MotherNameLabel}}</label>
+                                            <div class="col-sm-7">
+                                                <input type="text" name="MotherNameLocal" ng-model="employeeInformation.MotherNameLocal" class="form-control" maxlength="100" tabindex="2">
+                                            </div>
+                                            <label class="col-sm-1 control-label" style="color: blue;font-size: 11px;padding-left: 0px;">[Local]</label>
                                         </div>
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label">Citizen<sup>*</sup></label>
@@ -458,14 +492,28 @@
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label">Present Address Line1<sup>*</sup></label>
                                             <div class="col-sm-8">
-                                                <input type="text" name="Present Address1" ng-model="employeeInformation.PresentAddress1" class="form-control" maxlength="200">
+                                                <textarea name="ParmanentAddress1" class="form-control" rows="2" ng-model="employeeInformation.PresentAddress1" tabindex="7" maxlength="200"></textarea>
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label">Present Address Line2</label>
                                             <div class="col-sm-8">
-                                                <input type="text" name="Present Address2" ng-model="employeeInformation.PresentAddress2" class="form-control" maxlength="200">
+                                                <textarea name="ParmanentAddress2" class="form-control" rows="2" ng-model="employeeInformation.PresentAddress2" tabindex="7" maxlength="200"></textarea>
                                             </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label" style="color: blue;">{{PAddressLabel}}Line1</label>
+                                            <div class="col-sm-7">
+                                                <textarea class="form-control" rows="2" ng-model="employeeInformation.PresentAddress1Local" tabindex="7" maxlength="200"></textarea>
+                                            </div>
+                                            <label class="col-sm-1 control-label" style="color: blue;font-size: 11px;padding-left: 0px;">[Local]</label>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label" style="color: blue;">Line2</label>
+                                            <div class="col-sm-7">
+                                                <textarea class="form-control" rows="2" ng-model="employeeInformation.PresentAddress2Local" tabindex="7" maxlength="200"></textarea>
+                                            </div>
+                                            <label class="col-sm-1 control-label" style="color: blue;font-size: 11px;padding-left: 0px;">[Local]</label>
                                         </div>
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label">Country</label>
@@ -544,11 +592,11 @@
                                             <div class="col-sm-8">
                                                 <input type="text" name="Present Area" ng-model="employeeInformation.PresentArea" class="form-control" maxlength="50" />
                                                 @*<div class="select-style">
-                                                        <select id="PresAreaID" class="form-control" name="Present Area" ng-model="employeeInformation.PresAreaID">
-                                                            <option value="">--Select--</option>
-                                                            <option ng-repeat="option in AreaList" value="{{option.Value}}">{{option.Text}}</option>
-                                                        </select>
-                                                    </div>*@
+                    <select id="PresAreaID" class="form-control" name="Present Area" ng-model="employeeInformation.PresAreaID">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in AreaList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>*@
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -586,16 +634,31 @@
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            <label class="col-sm-4 control-label">Parmanent Address Line1<sup>*</sup></label>
+                                            <label class="col-sm-4 control-label">Permanent Address Line1<sup>*</sup></label>
                                             <div class="col-sm-8">
-                                                <input type="text" name="ParmanentAddress1" ng-model="employeeInformation.ParmanentAddress1" class="form-control" maxlength="200">
+                                                <textarea  name="Permanent Address1" class="form-control" rows="2" ng-model="employeeInformation.ParmanentAddress1" tabindex="7" maxlength="200"></textarea>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Permanent Address Line2</label>
+                                            <div class="col-sm-8">
+                                                <textarea name="Permanent Address2" class="form-control" rows="2" ng-model="employeeInformation.ParmanentAddress2" tabindex="7" maxlength="200"></textarea>
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            <label class="col-sm-4 control-label">Parmanent Address Line2</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" name="ParmanentAddress2" ng-model="employeeInformation.ParmanentAddress2" class="form-control" maxlength="200">
+                                            <label class="col-sm-4 control-label" style="color: blue;">{{PermanentLabel}}Line1</label>
+                                            <div class="col-sm-7">
+                                                <textarea class="form-control" rows="2" ng-model="employeeInformation.ParmanentAddress1Local" tabindex="7" maxlength="200"></textarea>
                                             </div>
+                                            <label class="col-sm-1 control-label" style="color: blue;font-size: 11px;padding-left: 0px;">[Local]</label>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label" style="color: blue;">Line2</label>
+                                            <div class="col-sm-7">
+                                                <textarea class="form-control" rows="2" ng-model="employeeInformation.ParmanentAddress2Local" tabindex="7" maxlength="200"></textarea>
+                                            </div>
+                                            <label class="col-sm-1 control-label" style="color: blue;font-size: 11px;padding-left: 0px;">[Local]</label>
                                         </div>
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label">Country</label>
@@ -675,11 +738,11 @@
                                             <div class="col-sm-8">
                                                 <input type="text" name="Parmanent Area" ng-model="employeeInformation.ParmanentArea" class="form-control" maxlength="50" />
                                                 @*<div class="select-style">
-                                                        <select id="ParmAreaID" class="form-control" name="Parmanent Area" ng-model="employeeInformation.ParmAreaID">
-                                                            <option value="">--Select--</option>
-                                                            <option ng-repeat="option in AreaList" value="{{option.Value}}">{{option.Text}}</option>
-                                                        </select>
-                                                    </div>*@
+                    <select id="ParmAreaID" class="form-control" name="Parmanent Area" ng-model="employeeInformation.ParmAreaID">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in AreaList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>*@
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -1954,71 +2017,7 @@
                                         </table>
                                     </div>
                                 </div>
-                                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(16), active: isSet2(16) }">
-                                    <div class="col-xs-12 col-sm-6 col-md-6">
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label" style="color: blue;">{{NameLabel}}</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" name="EmployeeNameLocal" ng-model="employeeInformation.EmployeeNameLocal" class="form-control" maxlength="100" tabindex="2">
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label" style="color: blue;">{{FatherNameLabel}}</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" name="FatherNameLocal" ng-model="employeeInformation.FatherNameLocal" class="form-control" maxlength="100" tabindex="2">
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label" style="color: blue;">{{IdentificationMarksLabel}}</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" name="IdentificationMark" ng-model="employeeInformation.LocalIdentificationMark" class="form-control" maxlength="30" tabindex="2">
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label" style="color: blue;">{{PAddressLabel}}</label>
-                                            <div class="col-sm-8">
-                                                <textarea class="form-control" rows="3" ng-model="employeeInformation.PresentAddress1Local" tabindex="7" maxlength="200"></textarea>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label" style="color: blue;"></label>
-                                            <div class="col-sm-8">
-                                                <textarea class="form-control" rows="3" ng-model="employeeInformation.PresentAddress2Local" tabindex="7" maxlength="200"></textarea>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-xs-12 col-sm-6 col-md-6">
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label" style="color: blue;">{{SpouseNameLabel}}</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" name="SpouseNameLocal" ng-model="employeeInformation.SpouseNameLocal" class="form-control" maxlength="100" tabindex="2">
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label" style="color: blue;">{{MotherNameLabel}}</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" name="MotherNameLocal" ng-model="employeeInformation.MotherNameLocal" class="form-control" maxlength="100" tabindex="2">
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label" style="color: blue;">{{PermanentLabel}}</label>
-                                            <div class="col-sm-8">
-                                                <textarea class="form-control" rows="3" ng-model="employeeInformation.ParmanentAddress1Local" tabindex="7" maxlength="200"></textarea>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label" style="color: blue;"></label>
-                                            <div class="col-sm-8">
-                                                <textarea class="form-control" rows="3" ng-model="employeeInformation.ParmanentAddress2Local" tabindex="7" maxlength="200"></textarea>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="common-btn">
-                                        <ul class="list-inline text-right">
-                                            <li> <button ng-click="SaveLocalInfo();" ng-disabled="employeeInformation.SystemId===null" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{employeeInformation.SystemId==null?'Save':'Update'}}</button></li>
-                                        </ul>
-                                    </div>
-                                </div>
+                                
                                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(17), active: isSet2(17) }">
 
                                 </div>
