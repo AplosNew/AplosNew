@@ -539,6 +539,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 		$scope.materialStockList = [];
 		$scope.specificStockList = [];
 		$scope.getData();
+		$scope.Action = 'Save';
 
 	}
 
@@ -1941,7 +1942,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 				if (!baseService.isUndefinedOrNull($scope.IssueChildList[i].ArticleId) && $scope.IssueChildList[i].isSelectedOM == true) {
 					var T1 = $scope.IssueChildList[i].TransactionQty;
 					var T2 = T1 + T2;
-					$scope.selectedRowQty1 = parseFloat(T2);
+					$scope.selectedRowQty1 = parseFloat(T2).toFixed(4);
 	
                 }
 			}
