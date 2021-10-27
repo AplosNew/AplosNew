@@ -170,6 +170,7 @@
     <Compile Include="Attendance\DailyAttandanceSummeryReport.cs" />
     <Compile Include="Attendance\DailyAttendanceReport.cs" />
     <Compile Include="Attendance\DownloadApi.cs" />
+    <Compile Include="Employee\EmployeeLastPunchService.cs" />
     <Compile Include="Leave\clsLeaveBalanceToDate.cs" />
     <Compile Include="NewAttendanceProcess\ILeaveTransactionNewService.cs" />
     <Compile Include="NewAttendanceProcess\LeaveTransactionNewService.cs" />
