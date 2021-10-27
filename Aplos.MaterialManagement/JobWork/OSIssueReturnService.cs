@@ -1520,7 +1520,8 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             try
             {
                 string sql = @"select II.Id,IID.OSTransformationPOId,IID.InventoryMaterialId,IM.MaterialMasterId,mm.UserName as MaterialName, IM.ArticleId,mma.StandardName as Article,Tuom.UserName as TransactionUoM
-                                ,IID.TransactionUoMId,IID.TransactionQty,IM.FirstCharacteristicsId
+                                ,IID.TransactionUoMId--,IID.TransactionQty
+                                ,IIH.Qty as TransactionQty,IM.FirstCharacteristicsId
                                 ,FC.UserName AS FirstChaName,IM.FirstCharacteristicsValueId,FCV.UserName AS SKU1
                                 ,IM.SecondCharacteristicsId,SC.UserName AS SecondChaName,IM.SecondCharacteristicsValueId,SCV.UserName AS SKU2
                                 ,IM.ThirdCharacteristicsId,TC.UserName AS ThirdChaName,IM.ThirdCharacteristicsValueId,TCV.UserName AS SKU3
