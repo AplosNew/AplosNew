@@ -5117,7 +5117,7 @@ namespace Library.HumanResource.Payroll
                 int ColSr = 0, ColIDNo = 0, ColName = 0, ColDOJ = 0, ColDOS = 0, cDept = 0, cSec = 0, cSubSec = 0, cLine = 0, cPayrollGroup = 0, cJobLocation = 0, cGender = 0,
                     cGrade = 0, ColGVDG = 0, ColGrs = 0, colPayDays = 0, ColPdDy = 0, ColLate = 0, ColAbDy = 0, ColHlDy = 0, ColWkOf = 0, ColLv = 0, ColMLv = 0
                    , ColLWP = 0, colBank = 0, cDMP = 0, colBankAccountNo = 0, colEmpCurrentStat = 0, colEmpStatus = 0, cPaymentMode = 0, cUnit = 0, ColTotalOTHR = 0, colDirectManpowerCost = 0;
-                int npstruct = 0, ColTotalWorkingDay = 0, ColActualWorkingDay = 0, ColLatePresent = 0;
+                int npstruct = 0, ColTotalWorkingDay = 0, ColActualWorkingDay = 0, ColLatePresent = 0 , ColContractor = 0;
 
                 #endregion
 
@@ -5131,6 +5131,7 @@ namespace Library.HumanResource.Payroll
                 SetCellValue("EmployeeSatatus", sheet1, xlsRow, ref xlsCol, out colEmpStatus, 12);
                 SetCellValue("Gender", sheet1, xlsRow, ref xlsCol, out cGender, 12);
                 SetCellValue("Designation", sheet1, xlsRow, ref xlsCol, out ColGVDG, 25);
+                SetCellValue("Contractor", sheet1, xlsRow, ref xlsCol, out ColContractor, 25);
                 SetCellValue("Employee Category", sheet1, xlsRow, ref xlsCol, out int colEmpCategory, 25);
                 SetCellValue("Department", sheet1, xlsRow, ref xlsCol, out cDept, 25);
                 SetCellValue("Section", sheet1, xlsRow, ref xlsCol, out cSec, 25);
@@ -5377,6 +5378,11 @@ namespace Library.HumanResource.Payroll
                             sheet1.Range[xlsRow, ColGVDG].Text = dtEmployees.Rows[i]["LegalDesignation"].ToString();
                         sheet1.Range[xlsRow, ColGVDG].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, ColGVDG].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        //
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["Contractor"].ToString()) == false)
+                            sheet1.Range[xlsRow, colEmpCategory].Text = dtEmployees.Rows[i]["Contractor"].ToString();
+                        sheet1.Range[xlsRow, colEmpCategory].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, colEmpCategory].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                         if (string.IsNullOrEmpty(dtEmployees.Rows[i]["EmpCategoryName"].ToString()) == false)// EmployeeCategory Need to Make Correct
                             sheet1.Range[xlsRow, colEmpCategory].Text = dtEmployees.Rows[i]["EmpCategoryName"].ToString();
@@ -9035,7 +9041,7 @@ namespace Library.HumanResource.Payroll
                         {
                             double totalWidth = sheet1.GetColumnWidth(1) + sheet1.GetColumnWidth(2);
                             int totalWidthPixel = (int)(totalWidth * 5.0);
-                            int totalheight = 36;
+                            int totalheight = (int)((sheet1.GetRowHeight(1) + sheet1.GetRowHeight(2) )*1.5);
 
                             companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
                             IPictureShape pic = null;
@@ -13432,7 +13438,7 @@ INNER JOIN
                 strSQL = @"SELECT EmpBasic.*,MMDSA.*,ISNULL(MW.Grade,'') Grade,ISNULL(MW.SalaryHeadValue,0) MinimumWage
                             FROM
                                     (
-									SELECT DISTINCT E.SystemID EmpSystemId,ISNULL(EmployeeCodePreFix,'') EmployeeCodePreFix,ISNULL(EmployeeCodeNumeric,0) EmployeeCodeNumeric,E.GroupID CompanyGroupId,E.CompanyId, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus EmployeeStatusReal,E.EmployeeCurrentStatus
+									SELECT DISTINCT E.SystemID EmpSystemId, isnull(E.VendorId,'') as Vendor , isnull(p.UserName,'') as Contractor ,ISNULL(EmployeeCodePreFix,'') EmployeeCodePreFix,ISNULL(EmployeeCodeNumeric,0) EmployeeCodeNumeric,E.GroupID CompanyGroupId,E.CompanyId, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus EmployeeStatusReal,E.EmployeeCurrentStatus
 											, DG.UserName DesignationGroupName, E.DesignationSystemID, DE.UserName DesignationName,
 											'' UserGroupSystemID,  F.Id PlantID, F.UserName PlantName, 
 											FU.UserName UnitName,  DV.UserName DivisionName,  DP.UserName DepartmentName,
@@ -13454,6 +13460,7 @@ INNER JOIN
                                     ,CASE WHEN ISNULL(PO.DirectManpowerCost,0) = 0 THEN 'No' ELSE 'Yes' END DirectManpowerCost
 
                                      FROM EmployeeInformation E
+                                     left join hkp.Party p on p.Id = E.VendorId
                                           Left JOIN (
                                     SELECT DISTINCT EmpInfoSystemID,SlrProcMstSystemID,PlantID ,m.Description,m.SalaryProcFlag
                                     FROM SalaryProcChild c

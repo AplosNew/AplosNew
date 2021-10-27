@@ -68,6 +68,7 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
         Department: null,
         LegalDesignation: null,
         CurrencyId: null,
+        CompanyCurrencyRate: null,
         PostingDate: $filter("dateFiltering")(Date.now()),
 
     };
@@ -222,7 +223,9 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
                         "fixedAssetRegister": $scope.voucherDetailList,
                         "partyId": $scope.voucher.PartyId,
                         "partyPlantId": $scope.voucher.InvoicingPartyPlantId,
-                        "remarks": $scope.voucher.Remarks
+                        "remarks": $scope.voucher.Remarks,
+                        "currencyId": $scope.voucher.CurrencyId,
+                        "toCurrencyRate": $scope.voucher.CompanyCurrencyRate 
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {
@@ -343,6 +346,8 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
                 $scope.voucherDetail.PurchaseDate = data.PurchaseDate;
                 $scope.voucherDetail.IssueDate = data.IssueDate;
                 $scope.voucherDetail.TrnCurrency = data.TrnCurrency;
+                $scope.voucherDetail.baseCurrency = data.BaseCurrency;
+                
                 $scope.voucherDetail.isOB = data.IsOBBalance;
                 $scope.voucherDetail.vendor = data.Vendor;
                 
@@ -352,11 +357,20 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
                 $scope.voucherDetail.Narration = $scope.voucher.Narration;
                 $scope.voucherDetail.EntityId = $scope.voucher.EntityId;
                 $scope.voucherDetail.PlantId = $scope.voucher.PlantId;
+
+                $scope.voucherDetail.FABaseAmount = data.FABaseAmount;
+                $scope.voucherDetail.SubAssetBaseAmount = data.SubAssetBaseAmount;
+                $scope.voucherDetail.PurchaseBaseAmount = data.PurchaseBaseAmount;
+                $scope.voucherDetail.ADBaseAmount = data.ADBaseAmount;
+                $scope.voucherDetail.NetBaseBookValue = data.NetBaseBookValue;
+
                 $scope.voucherDetail.Price = data.Price;
                 $scope.voucherDetail.SubAssetAmount = data.SubAssetAmount;
                 $scope.voucherDetail.PurchasePrice = data.PurchasePrice;
                 $scope.voucherDetail.ADBaseAmount = data.ADBaseAmount;
                 $scope.voucherDetail.NetBookValue = data.NetBookValue;
+
+
                 if ($scope.voucher.Status == 'Scrap') {
                     $scope.voucherDetail.NegotiationValue = data.NetBookValue;
                 }

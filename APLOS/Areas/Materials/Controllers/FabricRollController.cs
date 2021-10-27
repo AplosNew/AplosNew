@@ -136,7 +136,7 @@ namespace Aplos.Areas.Materials.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT              IR.Id GRNNo
+            string sql = @"select top 100 * from (SELECT IR.Id GRNNo
                                     ,IR.Status GRNStatus
                                     ,FORMAT(IR.GRNDate,'dd-MMM-yyyy') GRNDate
                                     , IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
@@ -391,7 +391,6 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
 			return Json(new { Message = AplosMessage.Success });
 		}
 
-
 		[HttpGet, Authorize]
 		public ActionResult GetMaster()
 		{
@@ -407,7 +406,40 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
 			}
 		}
 		#endregion
-
+		public void SaveFile(out string path)
+		{
+			path = "";
+			try
+			{
+				var file = Request.Files["file"];
+				if (file != null)
+				{
+					var extension = Path.GetExtension(file.FileName);
+					if (extension.ToLower() == ".xlsx" || extension.ToLower() == ".xls")
+					{
+					}
+					else
+						throw new CustomException(Resources.ExcelUploadError);
+				}
+				if (file != null)
+				{
+					path = Path.Combine(ResourcesPathReader.GetFabricRollData(), file.FileName);
+					if (System.IO.File.Exists(path))
+					{
+						System.IO.File.Delete(path);
+						file.SaveAs(path);
+					}
+					else
+					{
+						file.SaveAs(path);
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
 
 
 	}

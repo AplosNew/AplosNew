@@ -4223,7 +4223,7 @@ namespace Library.Service.FixedAssets
 
         #endregion
         #region FixedAsset Sales
-        public string InsertFixedAssetSales(string status, IEnumerable<FixedAssetRegister> fixedAssetRegister, string partyId,string partyPlantId, string remarks)
+        public string InsertFixedAssetSales(string status, IEnumerable<FixedAssetRegister> fixedAssetRegister, string partyId,string partyPlantId, string remarks, string currencyId, decimal toCurrencyRate)
         {
             var flag = false;
             try
@@ -4243,6 +4243,8 @@ namespace Library.Service.FixedAssets
                     PartyPlantId = partyPlantId,
                     Id = "RD" + _id,
                     IsPark = true,
+                   ToCurrencyRate = toCurrencyRate,
+                   CurrencyId = currencyId
                 };
                 AuditService.AddedLog(fixedAssetDispose);
                 _fixedAssetRegisterDisposedRepository.Insert(fixedAssetDispose);

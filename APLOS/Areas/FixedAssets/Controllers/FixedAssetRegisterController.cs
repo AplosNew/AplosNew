@@ -905,9 +905,9 @@ namespace Aplos.Areas.FixedAssets.Controllers
         }
 
         [HttpPost]
-        public JsonResult CreateFixedAssetSales(string status, IEnumerable<FixedAssetRegister> fixedAssetRegister, string partyId, string partyPlantId, string remarks)
+        public JsonResult CreateFixedAssetSales(string status, IEnumerable<FixedAssetRegister> fixedAssetRegister, string partyId, string partyPlantId, string remarks, string currencyId,decimal toCurrencyRate)
         {
-            _fixedAssetRegisterService.InsertFixedAssetSales(status, fixedAssetRegister, partyId, partyPlantId, remarks);
+            _fixedAssetRegisterService.InsertFixedAssetSales(status, fixedAssetRegister, partyId, partyPlantId, remarks, currencyId, toCurrencyRate);
             return Json(new { Message = AplosMessage.Insert });
         }
 

@@ -5,7 +5,7 @@
         <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="5"></div>
         <div e-column e-field="Line" e-headertext="Work Center" e-width="15"></div>
         <div e-column e-field="PRNo" e-headertext="PR No" e-width="12"></div>
-        <div e-column e-template="#templateSearchPR" e-headertext="" e-width="6"></div>
+        <div e-column e-template="#templateSearchPR" e-headertext="" e-width="8"></div>
         <div e-column e-field="Material" e-headertext="Material" e-width="20"></div>
         <div e-column e-field="Article" e-headertext="Article" e-width="20"></div>
         <div e-column e-field="CustomerPONo" e-headertext="PO No." e-width="20"></div>
@@ -18,15 +18,15 @@
         <div e-column e-template="#templateQuantity" e-headertext="Target Per Hour" e-width="15"></div>
         <div e-column e-field="Quantity" e-headertext="Quantity" e-width="10"></div>
 
-        <div e-column e-headertext="Actions" e-template="#ShowButtons" e-width="10"></div>
+        <div e-column e-headertext="Actions" e-template="#ShowButtons" e-width="8"></div>
 
     </div>
 </div>
 
 <script type="text/ng-template" id="ShowButtons">
     <div class="common-btn">
-        <button style="color: #f3f3ec;background-color:{{data.HasLayout?'#00ff00':'#1c1f32'}};" title="Actions" class="btn">
-            <i class="glyphicon glyphicon-list" ng-click="$parent.AddLineItemG(this);"></i>
+        <button ng-click="$parent.AddLineItemG(this);" ng-show="data.CanCopy||data.HasLayout" style="color: #f3f3ec; height: 28px; width: 28px; padding: 0px; margin: 0px; background-color:{{data.HasLayout?'#00ff00':'#ffd800'}}; " title="Actions" class="btn">
+            <i class="glyphicon glyphicon-list" ></i>
         </button>
     </div>
 </script>

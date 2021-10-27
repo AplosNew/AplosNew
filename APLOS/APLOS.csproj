@@ -378,6 +378,7 @@
       <DependentUpon>AccountsDataSet.xsd</DependentUpon>
     </Compile>
     <Compile Include="Areas\Attendances\Controllers\AdditionalPayDayController.cs" />
+    <Compile Include="Areas\Attendances\Controllers\EmployeeLastPunchReportController.cs" />
     <Compile Include="Areas\Attendances\Controllers\EntireYearPresentDaysSummaryController.cs" />
     <Compile Include="Areas\Attendances\Controllers\MonthlyAttendanceInformationNewController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AttendanceRawDataFromAppController.cs" />
@@ -588,6 +589,7 @@
     <Compile Include="Areas\HumanResource\Controllers\RestTypeController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ShiftSummaryController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\TablesUploadController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\LeaveWithWagesRegistersForm18Controller.cs" />
     <Compile Include="Areas\HumanResource\Controllers\WeeklyOffController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\WeekOffUpdatesController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\WelFareReportsController.cs" />
@@ -1613,6 +1615,7 @@
     <Content Include="Areas\Accounts\Scripts\vendorTranTypeController.js" />
     <Content Include="Areas\Accounts\Scripts\taxPayableReportController.js" />
     <Content Include="Areas\Accounts\Scripts\invoiceChargeWriteOffController.js" />
+    <Content Include="Areas\Attendances\Scripts\EmployeeLastPunchReportController.js" />
     <Content Include="Areas\Attendances\Scripts\EntireYearPresentDaysSummaryController.js" />
     <Content Include="Areas\Attendances\Scripts\AttendanceRawDataFromAppController.js" />
     <Content Include="Areas\Attendances\Scripts\AttendanceDashboardController.js" />
@@ -1820,6 +1823,7 @@
     <Content Include="Areas\FixedAssets\Scripts\entityFixedAssetsRegisterController.js" />
     <Content Include="Areas\FixedAssets\Scripts\SubAssetTypeController.js" />
     <Content Include="Areas\FixedAssets\Scripts\expensesCapitalizedController.js" />
+    <Content Include="Areas\HumanResource\Scripts\leaveWithWagesRegistersFrom18Controller.js" />
     <Content Include="Areas\HumanResource\Scripts\PhysicalVerificationReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeLeaveApplicationNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeLeaveApprovalNewController.js" />
@@ -3775,6 +3779,8 @@
     <Content Include="Areas\Productions\Views\DailyTarget\DailyTargetGrid.cshtml" />
     <Content Include="Areas\HumanResource\Views\PhysicalVerificationReport\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\SalaryDisbursementReport\Aplos.cshtml" />
+    <Content Include="Areas\Attendances\Views\EmployeeLastPunchReport\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\LeaveWithWagesRegistersForm18\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

@@ -2046,7 +2046,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
             //						 ,vcc.FirstCharacteristicsId,vcc.FirstCharacteristicsValueId,vcc.SecondCharacteristicsId,vcc.SecondCharacteristicsValueId
             //						 ,vcc.ThirdCharacteristicsId,vcc.ThirdCharacteristicsValueId";
 
-            sql = @"select vcc.Id as OSTransformationPOId,vcc.OSTransformationPOId,vcc.MaterialMasterId,vcc.ArticleId,vcc.Quantity as VCCQuantity, jwi.UserName as JWOutputItem,jwa.UserName as JobWorkActivity
+            sql = @"select vcc.Id as OSTransformationPODetailId,vcc.OSTransformationPOId,vcc.MaterialMasterId,vcc.ArticleId,vcc.Quantity as VCCQuantity, jwi.UserName as JWOutputItem,jwa.UserName as JobWorkActivity
                                 , uom.UserName as OutputUnit,OMM.UserName as MaterialMaster, mma.StandardName as ArticleName
 							   , c.Code as Currency, emp.EmployeeName as ResponsiblePerson
 							   , MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,moi.BuyerReferenceNo,moi.OwnReferenceNo,mo.BuyerReferenceNo BuyerOrderNo,mo.OwnReferenceNo AS OwnOrderNo
@@ -3115,6 +3115,22 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             }
 
         }
+
+        [Authorize, HttpGet]
+        public JsonResult GetGRNRowId(string InventoryIssueDetailId)
+        {
+            try
+            {
+
+                return Json(JWTIR.GetGRNRowId(InventoryIssueDetailId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
 
         //private string GetTransformationPK()
         //{

@@ -84,7 +84,7 @@
                 <div e-column e-type="string" e-field="ProductionOrderId" e-headertext="PrO" e-width="50"></div>
                 <div e-column e-type="string" e-field="ProductCode" e-headertext="ProductCode" e-width="80"></div>
                 <div e-column e-type="string" e-field="MasterOrderItemId" e-headertext="MasterOrderItemId" e-width="80"></div>
-                <div e-column e-type="string" e-field="SoNo" e-headertext="SoNo" e-width="80"></div>
+                <div e-column e-type="string" e-field="SONO" e-headertext="SoNo" e-width="80"></div>
                 <div e-column e-type="string" e-field="MaterialMaster" e-headertext="Material Master" e-width="150"></div>
                 <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="150"></div>
                 <div e-column e-type="string" e-field="OrderCostingMasterTemplateId" e-headertext="CostingId" e-width="80"></div>
@@ -174,14 +174,17 @@
         <div class="modal-content" ng-form="CostingItemDetailDataForm">
             <div class="modal-header">Costing Item Detail<button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body">
+                <p style="color:blue;font-size:11px">Only Direct Material will save.</p>
                 <div style="color:black;" id="CostingItemDetailDataGrid" ej-grid e-datasource="costingItemDetailDataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                      e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true" e-summaryrows="SummaryRows">
                     <div e-columns>
+                        <div e-column e-field="CostingSegment" e-headertext="Costing Segment" e-width="80"></div>
                         <div e-column e-field="CostingComponent" e-headertext="Costing Component" e-width="80"></div>
                         <div e-column e-field="CostingItem" e-headertext="Costing Item" e-width="80"></div>
                         <div e-column e-field="GrossConsumption" e-headertext="Gross Consumption" e-textalign="right" e-format="{0:0.0000}" e-width="50"></div>
                         <div e-column e-field="Rate" e-headertext="Rate" e-textalign="right" e-width="50" e-format="{0:0.0000}"></div>
                         <div e-column e-field="GrossAmount" e-headertext="Gross Amount" e-textalign="right" e-width="50" e-format="{0:0.0000}"></div>
+                        <div e-column e-field="ConsiderForFGValuation" e-headertext="FG Valuation" e-width="50"></div>
                     </div>
                 </div>
             </div>

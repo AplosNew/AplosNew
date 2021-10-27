@@ -284,7 +284,10 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-
+                    $scope.SelectedLineForPR.HasLayout = true;
+                    $scope.SelectedLineForPR.CanCopy = false;
+                    var gridObj = $("#gridEmployeeReplace").data("ejGrid");
+                    gridObj.refreshContent();
                     $scope.GetLineLayout(data);
                 }
             }), function errorCallBack(response) {
