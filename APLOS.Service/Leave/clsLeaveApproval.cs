@@ -88,7 +88,7 @@ namespace Library.Service.Leave
                             , CASE WHEN ISNULL(lvt.FirstApprovingStatus,0) = 1 THEN 'Approved' ELSE 'Not Approved' END FirstApprovingStatus
                             , LVT.FirstApprovingAuthority,ISNULL(EEEI.EmployeeName,'') FAEmployeeName,
                              REPLACE(CONVERT(VARCHAR(11), LvT.FromDate, 113), ' ', '-') FromDate,
-                             REPLACE(CONVERT(VARCHAR(11), LvT.ToDate, 113), ' ', '-') ToDate, LvT.LeaveDays, LvT.LvReason AS Reason, LvT.ComAssignLvSystemID,LVT.LTSystemID,LVT.SystemID LvTransSystemID
+                             REPLACE(CONVERT(VARCHAR(11), LvT.ToDate, 113), ' ', '-') ToDate, LvT.LeaveDays, LvT.LvReason AS Reason, LvT.ComAssignLvSystemID,LVT.LTSystemID,LVT.SystemID LvTransSystemID , MP.isNoBenefit , MP.Id as MPolicyId
                         ,(SELECT YearlyCalendar.Id
                                  FROM YearlyCalendar WHERE LvT.FromDate BETWEEN FromDate AND ToDate AND PlantId='" + plantId + @"' ) CalanderYearID
                              FROM
@@ -102,6 +102,7 @@ namespace Library.Service.Leave
                              LEFT outer JOIN dbo.LeaveType LT ON LvT.LTSystemID = LT.Id
 							 LEFT outer JOIN [HKP].Designation AS Dsg ON Dsg.ID = Emp.DesignationSystemID
 							 LEFT outer JOIN [HKP].Designation AS Dsgg ON Dsgg.ID = Emp.GivenDesignationID
+							 LEFT JOIN [MST].[MaternityLeavePolicy] MP ON MP.Id=LvT.MaternityLeavePolicyId
                              WHERE  IsNull(Lvt.IsApproved,0) = 0
 							 AND ISNULL(LvT.SystemID,'')<> ''
                              AND LvT.IsCancel=0
@@ -1235,6 +1236,7 @@ namespace Library.Service.Leave
     }
     public class LeaveVM
     {
+        public bool isNoBenefit { get; set; }
 
         public bool CheckBoxSelect { get; set; }
         public string EmployeeID { get; set; }
@@ -1257,6 +1259,6 @@ namespace Library.Service.Leave
         public string LTSystemID { get; set; }
         public string LvTransSystemID { get; set; }
         public string CalanderYearID { get; set; }
-
+        public bool MPolicyId { get; set; }
     }
 }
