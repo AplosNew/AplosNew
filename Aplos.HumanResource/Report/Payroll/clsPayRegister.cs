@@ -10860,6 +10860,7 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
                         SL = 0.00;
                         SLESIC = 0.00;
                         LWP = 0.00;
+                        int _maxRow = 0;
                         if (dicLeaveEmp.ContainsKey(dtEmpInfo.Rows[i]["EmpSystemID"].ToString()))
                         {
                             drLeaveEmp = dicLeaveEmp[dtEmpInfo.Rows[i]["EmpSystemID"].ToString()];
@@ -11128,7 +11129,27 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
                             _x++;
                             sheet1.Range[xlsRow + _x, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.LeaveInformation.ToString(), "Leave");//"Leave";
                             sheet1.Range[xlsRow + _x, xlsCol + 1].Number = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalLv"].ToString());
+                            _x++;
+                            //decimal totalOT = Convert.ToDecimal(dtEmpInfo.Rows[i]["TotalOTHr"].ToString()) / 60;
 
+                            sheet1.Range[xlsRow + _x, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.OTHours.ToString(), "Total OTHr");//"OTHr";
+                            if (dtEmpInfo.Rows[i]["TotalOTHr"].ToString() == "0.00")
+                            {
+                                sheet1.Range[xlsRow + _x, xlsCol + 1].Text = "";
+                                //sheet1[xlsRow + _x, xlsCol + 1].NumberFormat = clsStaticInfo.NumberFormat(2);
+                            }
+                            else
+                            {
+                                sheet1.Range[xlsRow + _x, xlsCol + 1].Number = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalOTHr"].ToString()) / 60;
+                                sheet1[xlsRow + _x, xlsCol + 1].NumberFormat = clsStaticInfo.NumberFormat(2);
+                            }
+                            _x++;
+                            _x++;
+
+                            if (_x > _maxRow)
+                                _maxRow = _x;
+
+                          
 
                             sheet1.Range[xlsRow + _x, xlsCol + 1].CellStyle.Font.Size = 10;
                             //GetEarningDays(ref EarningDays, _ld);
@@ -11190,7 +11211,7 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
 
 
 
-                        int _maxRow = 0;
+
                         int _startRow = xlsRow;
                         LoadSalaryHead_CurrLess(ref sheet1, dtSalaryHeadSheet, xlsRow, xlsColEarning, out _maxRow, out _Total_Earning, "E", localLanguage, drSalaryHeadCollection);
 
@@ -11228,6 +11249,7 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
                             _netPay = clsStaticInfo.dbl(result["DisbusmentAmount"].ToString());
                         }
 
+                        _maxRow++;
                         _maxRow++;
 
                         sheet1.Range[_maxRow + 1, xlsColDeduc + 4].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.NetPayable.ToString(), "Net Pay");//"Net Disb. :";
@@ -11306,7 +11328,7 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
                         //info
 
                         //ATTENDANCE
-
+                        _maxRow += 2;
 
                         sheet1.Range[xlsRow - 2, 1, _maxRow, xlsColTot + 1].WrapText = true;
                         #endregion
@@ -15080,7 +15102,7 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
                     }
                 }
 
-                strSQL += @") dd where "+ wcEmpStatus + @"";
+                strSQL += @") dd where " + wcEmpStatus + @"";
                 strSQL += "ORDER BY dd.EmpInfoSystemID,Sequence";
 
                 ConnectionManager.clsConnectionManager con = new clsConnectionManager(600);
@@ -15786,7 +15808,7 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
                                                                                             AND SPC.PlantID = Exr.PlantID
                                                         LEFT JOIN SCS.Currency CRE ON EXR.FromCurrencyCode = CRE.Id
 
-                                                        WHERE ISNULL(SPC.SlrProcMstSystemID,'')  IN(" + inSalaryProcParam + @")  "+ paymentMode + @" ) EmpSlr 
+                                                        WHERE ISNULL(SPC.SlrProcMstSystemID,'')  IN(" + inSalaryProcParam + @")  " + paymentMode + @" ) EmpSlr 
 
                                             INNER JOIN EmployeeInformation EEI ON EEI.SystemId = EmpSlr.EmpInfoSystemID
 
@@ -15797,7 +15819,7 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
                                                                        ON PSH.SalaryHeadId = EmpSlr.SalaryHeadID
                                         LEFT JOIN CurrencyRuleChild CRC ON CRC.MstSystemID = srm.CurrencyRuleSystemID AND CRC.SalaryHeadID = EmpSlr.SalaryHeadID
 
-                                                WHERE EEI.GroupID = '" + companyGroupId + @"' AND  EmpSlr.PlantId = '" + plantId + @"' " + _wcPayrollGroup  + @" ";
+                                                WHERE EEI.GroupID = '" + companyGroupId + @"' AND  EmpSlr.PlantId = '" + plantId + @"' " + _wcPayrollGroup + @" ";
                 if (parameters != null)
                 {
                     if (parameters.Count > 0)
