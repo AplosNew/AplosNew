@@ -119,13 +119,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 {
                                     dr["ManualInTime"] = clsWebLib.RetValidLen(ManualInTime);
                                     dr["IsManualInTime"] = clsWebLib.GetBoolData(IsManualInTime);
-                                    dr["OriginalManualInTime"]= clsWebLib.RetValidLen(ManualInTime);
+                                    dr["OriginalManualInTime"] = clsWebLib.RetValidLen(ManualInTime);
                                 }
                                 if (clsWebLib.RetValidLen(ManualOutTime).ToString() != "")
                                 {
                                     dr["ManualOutTime"] = clsWebLib.RetValidLen(ManualOutTime);
                                     dr["IsManualOutTime"] = clsWebLib.GetBoolData(IsManualOutTime);
-                                    dr["OriginalManualOutTime"]= clsWebLib.RetValidLen(ManualOutTime);
+                                    dr["OriginalManualOutTime"] = clsWebLib.RetValidLen(ManualOutTime);
                                 }
                                 if (clsWebLib.RetValidLen(ManualDayStatus).ToString() != "")
                                 {
@@ -149,7 +149,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     dr["ShiftDuration"] = ProfileShiftDurn;
                                     dr["ShiftInTime"] = ProfileShiftIn;
                                     dr["ShiftOutTime"] = ProfileShiftOut;
+                                    if (ProfileShiftDurn == "")
+                                    {
 
+                                    }
                                 }
                                 else if (RosterShift.ToString() != "")
                                 {
@@ -159,7 +162,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     dr["ShiftOutTime"] = RosterShiftOut;
 
                                 }
-                               
+
                                 else if (BudgetShift.ToString() != "")
                                 {
                                     dr["ShiftSystemID"] = BudgetShift;
@@ -257,7 +260,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     dr["ShiftOutTime"] = RosterShiftOut;
 
                                 }
-                                
+
                                 else if (BudgetShift.ToString() != "")
                                 {
                                     dr["ShiftSystemID"] = BudgetShift;
@@ -276,10 +279,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr.EndEdit();
 
                             }
-                          
+
                         }
                         SaveDataSets(dsRef);
-                       
+
                     }
                     #endregion
 
@@ -451,6 +454,45 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         #region Update in LeaveTransactionDetail
                         LeaveAvailUpdate(Date, PlantValue);
                         #endregion
+                    }
+                    #endregion
+
+                    #region Maternity LeaveData Flagging
+                    DataSet MaternityLeavedata;
+                    MaternityLeaveData(Date, out MaternityLeavedata, PlantValue); // Building Maternity Leave DataSet of Employees 
+                    if (MaternityLeavedata.Tables[0].Rows.Count > 0)
+                    {
+                        string WorkDate = MaternityLeavedata.Tables[0].Rows[0][@"WorkDate"].ToString();
+
+                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                        var sqlx = @"select * from AttdnProcessData where WorkDate='" + WorkDate + "' and PlantID ='" + PlantValue + "' ";
+
+                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+
+                        for (int i = 0; i < MaternityLeavedata.Tables[0].Rows.Count; i++)
+                        {
+                            string RowId = MaternityLeavedata.Tables[0].Rows[i][@"RowId"].ToString();
+                            string LTSystemID = MaternityLeavedata.Tables[0].Rows[i][@"LTSystemID"].ToString();
+                            decimal LeaveDuration = Convert.ToDecimal(MaternityLeavedata.Tables[0].Rows[i][@"LeaveDuration"].ToString());
+                            string LeaveStatus = MaternityLeavedata.Tables[0].Rows[i][@"Code"].ToString();
+
+                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
+
+                            if (dsRef.Tables[0].DefaultView.Count > 0)
+                            {
+                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                dr.BeginEdit();
+                                // Updations in APD Table
+                                dr["LeaveDuration"] = LeaveDuration;
+                                dr["LTSystemID"] = clsWebLib.RetValidLen(LTSystemID);
+                                dr["LeaveStatus"] = clsWebLib.RetValidLen(LeaveStatus);
+                                dr["UpdatedBy"] = "Schedule";
+                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                dr.EndEdit();
+                            }
+                        }
+                        SaveDataSets(dsRef);
+                        
                     }
                     #endregion
 
@@ -932,6 +974,31 @@ namespace Library.HumanResource.NewAttendanceProcess {
 					left join LeaveType ltp on ltp.Id=LT.LTSystemID
                     WHERE LT.PlantID = '" + PlantId + @"' AND D.WorkDate='" + Date + @"'
                     and LT.IsApproved=1";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public void MaternityLeaveData(string Date, out DataSet ds, string PlantId)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"select distinct FORMAT(D.WorkDate,'yyyy-MMM-dd')WorkDate,
+                    LT.PlantID,LT.EmpSystemID,
+                    Format(D.WorkDate,'yyyyMMdd')+LT.EmpSystemID AS RowId, 
+                    D.LeaveDuration,lt.LTSystemID,(LTP.Code+'WOB') AS Code
+                    from LeaveTransactionDetails D 
+                    LEFT JOIN LeaveTransaction LT ON LT.SystemID=D.LvTrnsSystemID
+					left join LeaveType ltp on ltp.Id=LT.LTSystemID
+					LEFT JOIN [MST].[MaternityLeavePolicy] MP ON MP.Id=LT.MaternityLeavePolicyId
+                    WHERE LT.PlantID = '"+PlantId+@"' AND ISNULL(MP.IsNoBenefit,'')='1'
+					AND D.WorkDate='"+Date+@"' 
+                    and LT.IsApproved=1";
+
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }

@@ -589,6 +589,7 @@
     <Compile Include="Areas\HumanResource\Controllers\RestTypeController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ShiftSummaryController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\TablesUploadController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\LeaveWithWagesRegistersForm18Controller.cs" />
     <Compile Include="Areas\HumanResource\Controllers\WeeklyOffController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\WeekOffUpdatesController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\WelFareReportsController.cs" />
@@ -1823,6 +1824,7 @@
     <Content Include="Areas\FixedAssets\Scripts\entityFixedAssetsRegisterController.js" />
     <Content Include="Areas\FixedAssets\Scripts\SubAssetTypeController.js" />
     <Content Include="Areas\FixedAssets\Scripts\expensesCapitalizedController.js" />
+    <Content Include="Areas\HumanResource\Scripts\leaveWithWagesRegistersFrom18Controller.js" />
     <Content Include="Areas\HumanResource\Scripts\PhysicalVerificationReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeLeaveApplicationNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeLeaveApprovalNewController.js" />
@@ -3781,6 +3783,7 @@
     <Content Include="Areas\HumanResource\Views\SalaryDisbursementReport\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\EmployeeLastPunchReport\Aplos.cshtml" />
     <Content Include="Areas\Payrolls\Views\OTFormula\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\LeaveWithWagesRegistersForm18\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
