@@ -1018,7 +1018,7 @@ namespace Library.HumanResource.Report.OT
                 xlsCol = 1;
 
                 #region Column Variables
-                int ColSr = 0, ColIDNo = 0, ColName = 0, ColDOJ = 0, ColDOS = 0, ColPlantName = 0, cDept = 0, cSec = 0, cSubSec = 0, cLine = 0, cPayrollGroup = 0, cJobLocation = 0, cGender = 0,
+                int ColSr = 0, ColIDNo = 0, ColName = 0, ColDOJ = 0, ColContractor = 0 ,ColDOS = 0, ColPlantName = 0, cDept = 0, cSec = 0, cSubSec = 0, cLine = 0, cPayrollGroup = 0, cJobLocation = 0, cGender = 0,
                     cGrade = 0, ColGVDG = 0, ColGrs = 0, colPayDays = 0, ColPdDy = 0, ColLate = 0, ColAbDy = 0, ColHlDy = 0, ColWkOf = 0, ColLv = 0, ColMLv = 0, colBank = 0, colBankAccountNo = 0
                    , ColLWP = 0, cDMP = 0, colEmpCurrentStat = 0, colEmpStatus = 0, cPaymentMode = 0, cUnit = 0, ColTotalOTHR = 0, colDirectManpowerCost = 0, colBasic = 0, colGross = 0, colCTC = 0, ColTotalWorkingDay = 0, ColActualWorkingDay = 0, ColLatePresent = 0;
                 int npstruct = 0;
@@ -1036,6 +1036,7 @@ namespace Library.HumanResource.Report.OT
                 SetCellValue("EmployeeSatatus", sheet1, xlsRow, ref xlsCol, out colEmpStatus, 12);
                 SetCellValue("Gender", sheet1, xlsRow, ref xlsCol, out cGender, 12);
                 SetCellValue("Designation", sheet1, xlsRow, ref xlsCol, out ColGVDG, 25);
+                SetCellValue("Contractor", sheet1, xlsRow, ref xlsCol, out ColContractor, 17);
                 SetCellValue("Employee Category", sheet1, xlsRow, ref xlsCol, out int colEmpCategory, 25);
                 SetCellValue("Department", sheet1, xlsRow, ref xlsCol, out cDept, 25);
                 SetCellValue("Section", sheet1, xlsRow, ref xlsCol, out cSec, 25);
@@ -1378,6 +1379,11 @@ namespace Library.HumanResource.Report.OT
                             sheet1.Range[xlsRow, ColDOS].Text = dtEmployees.Rows[i]["DOS"].ToString();
                         sheet1.Range[xlsRow, ColDOS].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, ColDOS].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["Contractor"].ToString()) == false)
+                            sheet1.Range[xlsRow, ColContractor].Text = dtEmployees.Rows[i]["Contractor"].ToString();
+                        sheet1.Range[xlsRow, ColContractor].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, ColContractor].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                         if (string.IsNullOrEmpty(dtEmployees.Rows[i]["EmployeeCurrentStatus"].ToString()) == false)
                             sheet1.Range[xlsRow, colEmpCurrentStat].Text = dtEmployees.Rows[i]["EmployeeCurrentStatus"].ToString();
@@ -4283,7 +4289,7 @@ namespace Library.HumanResource.Report.OT
                 strSQL = @"SELECT EmpBasic.*,MMDSA.*,ISNULL(MW.Grade,'') Grade,ISNULL(MW.SalaryHeadValue,0) MinimumWage
                             FROM
                                     (
-									SELECT DISTINCT E.SystemID EmpSystemId,AP.WorkDays,ISNULL(EmployeeCodePreFix,'') EmployeeCodePreFix,ISNULL(EmployeeCodeNumeric,0) EmployeeCodeNumeric,E.GroupID CompanyGroupId,E.CompanyId, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus EmployeeStatusReal,E.EmployeeCurrentStatus
+									SELECT DISTINCT E.SystemID EmpSystemId, isnull(E.VendorId,'') as ContractorId , isnull(P.UserName,'') as Contractor ,AP.WorkDays,ISNULL(EmployeeCodePreFix,'') EmployeeCodePreFix,ISNULL(EmployeeCodeNumeric,0) EmployeeCodeNumeric,E.GroupID CompanyGroupId,E.CompanyId, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus EmployeeStatusReal,E.EmployeeCurrentStatus
 											, DG.UserName DesignationGroupName, E.DesignationSystemID, DE.UserName DesignationName,
 											'' UserGroupSystemID,  F.Id PlantID, F.UserName PlantName, 
 											FU.UserName UnitName,  DV.UserName DivisionName,  DP.UserName DepartmentName,
@@ -4321,7 +4327,7 @@ namespace Library.HumanResource.Report.OT
 								LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = SPLD.BudgetCode
 								LEFT OUTER JOIN [ORG].[Position] AS PO ON PO.Id = MB.PositionId
                                 LEFT OUTER JOIN [ORG].[Entity] AS ENT ON ENT.Id = MB.EntityId
-
+                                LEFT JOIN [HKP].[PARTY] P ON P.ID = E.VendorId
 												LEFT JOIN [ORG].[Line] ON Line.Id = MB.LineId
 												  LEFT JOIN [dbo].[JobLocation] jl on jl.SystemID = E.JobLocationID
 												  LEFT JOIN [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=e.SystemId

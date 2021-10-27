@@ -11640,7 +11640,7 @@ namespace Library.MaterialManagement.Inventory
                                         {
                                             // start
 
-                                            var historyId = _issueHistoryRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[InventoryIssueHistory] WHERE InventoryIssueDetailId='{issueDetail.Id}'").First();
+                                           // var historyId = _issueHistoryRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[InventoryIssueHistory] WHERE InventoryIssueDetailId='{issueDetail.Id}'").First();
                                             foreach (var item in stockList)
                                             {
                                                 var IRHUPId = _issueHistoryRepository.SqlQuery<string>($"SELECT Id FROM [TRN].[InventoryIssueHistory] WHERE InventoryIssueDetailId='{issueDetail.Id}' and InventoryReceiveDetailId='{item.InventoryReceiveDetailId}'").First();
@@ -11651,35 +11651,35 @@ namespace Library.MaterialManagement.Inventory
                                                     totalReqQty = Convert.ToDecimal(item.RequisitionQty * item.BaseUoMFactor);
                                                 else
                                                     totalReqQty = item.RequisitionQty;
-                                                historyId++;
+                                               // historyId++;
                                                 var SelectedGRN = GRNCalculateList.Where(r => r.InventoryReceiveDetailId == item.InventoryReceiveDetailId).FirstOrDefault();
                                                 if (IRHUPId == null)
                                                 {
-                                                var history = new InventoryIssueHistory
-                                                {
+          //                                      var history = new InventoryIssueHistory
+          //                                      {
 
-                                                    Id = MakePK(issueDetail.Id, historyId, 2),
-                                                    InventoryIssueDetailId = issueDetail.Id,
-                                                    InventoryReceiveDetailId = item.InventoryReceiveDetailId,
-                                                    Qty = totalReqQty, //item.RequisitionQty,
-                                                                       //Rate = Convert.ToDecimal(item.BaseRate),
-                                                                       //Rate = Math.Round((SelectedGRN.TotalAmount / item.RequisitionQty), 4),
-                                                                       //TotalAmount = Math.Round(SelectedGRN.TotalAmount, 2),//Convert.ToDecimal(detailtrnAmount),
-                                                    Rate = Math.Round((SelectedGRN.TotalAmount / totalReqQty), 4),//totalGRNQty
-                                                    TotalAmount = Math.Round(SelectedGRN.TotalAmount, 2),//Convert.ToDecimal(detailtrnAmount),
-                                                    IssueRequestDetailId = item.IssueRequest,
-                                                    IssueReturnQty = 0,
-                                                    BooksCurrencyBaseRate = Math.Round(Convert.ToDecimal(item.BooksCurrencyBaseRate), 4),
-                                                    TotalMaterialBooksCurrencyAmount = Math.Round(Convert.ToDecimal(item.RequisitionQty * item.BooksCurrencyBaseRate), 2)
-                                                };
-                                                    //policyAmmount += history.Qty * history.Rate;
+          //                                          Id = MakePK(issueDetail.Id, historyId, 2),
+          //                                          InventoryIssueDetailId = issueDetail.Id,
+          //                                          InventoryReceiveDetailId = item.InventoryReceiveDetailId,
+          //                                          Qty = totalReqQty, //item.RequisitionQty,
+          //                                                             //Rate = Convert.ToDecimal(item.BaseRate),
+          //                                                             //Rate = Math.Round((SelectedGRN.TotalAmount / item.RequisitionQty), 4),
+          //                                                             //TotalAmount = Math.Round(SelectedGRN.TotalAmount, 2),//Convert.ToDecimal(detailtrnAmount),
+          //                                          Rate = Math.Round((SelectedGRN.TotalAmount / totalReqQty), 4),//totalGRNQty
+          //                                          TotalAmount = Math.Round(SelectedGRN.TotalAmount, 2),//Convert.ToDecimal(detailtrnAmount),
+          //                                          IssueRequestDetailId = item.IssueRequest,
+          //                                          IssueReturnQty = 0,
+          //                                          BooksCurrencyBaseRate = Math.Round(Convert.ToDecimal(item.BooksCurrencyBaseRate), 4),
+          //                                          TotalMaterialBooksCurrencyAmount = Math.Round(Convert.ToDecimal(item.RequisitionQty * item.BooksCurrencyBaseRate), 2)
+          //                                      };
+          //                                          //policyAmmount += history.Qty * history.Rate;
 
-                                                    builderSql = @"UPDATE [TRN].[InventoryReceiveDetail] SET IssueQty='" + Convert.ToDecimal(item.RequisitionQty + item.IssueQty) + @"' 
-										,BaseIssueQty = '" + (Convert.ToDecimal(Convert.ToDecimal(item.BaseIssueQty) + Convert.ToDecimal(totalReqQty))) + "' WHERE Id = '" + item.InventoryReceiveDetailId + "'";
+          //                                          builderSql = @"UPDATE [TRN].[InventoryReceiveDetail] SET IssueQty='" + Convert.ToDecimal(item.RequisitionQty + item.IssueQty) + @"' 
+										//,BaseIssueQty = '" + (Convert.ToDecimal(Convert.ToDecimal(item.BaseIssueQty) + Convert.ToDecimal(totalReqQty))) + "' WHERE Id = '" + item.InventoryReceiveDetailId + "'";
 
-                                                    rdBuilder.Append(builderSql);
-                                                    AuditService.AddedLog(history);
-                                                    _issueHistoryRepository.Insert(history);
+          //                                          rdBuilder.Append(builderSql);
+          //                                          AuditService.AddedLog(history);
+          //                                          _issueHistoryRepository.Insert(history);
 
                                                     //AuditService.UpdatedLog(history);
                                                     //_issueHistoryRepository.Update(history);
