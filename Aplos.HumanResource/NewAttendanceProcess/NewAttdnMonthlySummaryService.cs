@@ -4,15 +4,11 @@ using System.Linq;
 using System.Data;
 using Library.Data.Sql;
 using OTSBD;
-using Library.Service.EmployeeServices;
 using bplib;
-using Newtonsoft.Json;
 using Library.Service.Helpers;
 using System.IO;
 using Syncfusion.XlsIO;
 using System.Drawing;
-using ConnectionManager;
-using Library.Model.Enums;
 
 namespace Library.HumanResource.NewAttendanceProcess
 {
@@ -84,10 +80,10 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 #region Validation
 
-                string m = bplib.clsWebLib.GetMonthName(Month);
+                string m = clsWebLib.GetMonthName(Month);
                 dtFrmDt = Convert.ToDateTime("01-" + m + "-" + Year);
                 string monthName = dtFrmDt.ToString("MMMM");
-                string month = bplib.clsWebLib.GetMonthName(Month);
+                string month = clsWebLib.GetMonthName(Month);
                 DateTime dateForTheMonth = Convert.ToDateTime("01-" + m + "-" + Year);
 
                 if (Convert.ToInt32(DateTime.Now.Month) == Convert.ToInt32(Month))
@@ -174,6 +170,9 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 GetLeaveData(empParameters,objm, out DataSet LeaveData);
 
+                GetWeekOffDays(empParameters, objm, out DataSet WeekOffData);
+                DataView dvWeekOff= new DataView();
+                dvWeekOff.Table = WeekOffData.Tables[0];
 
                 string _FLAG = "DAYSTATUS";
 
@@ -335,6 +334,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     int iTsl = 0;
                     int iTtlMLv = 0;
                     int iExtraAbs = 0;
+                    int iWeekOffDays = 0;
                     int iLateIn = 0;
                     int iEarlyOut = 0;
                     int iGender = 0;
@@ -599,7 +599,17 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                             LIdList[i] = dtLeaveList.Rows[i]["Id"].ToString();
                         }
-                        
+
+                        xlsCol += 1;
+                        iWeekOffDays= xlsCol;
+                        sheet1.Range[xlsRow - 1, iWeekOffDays].Text = "WeekOff Days";
+                        sheet1.Range[xlsRow - 1, iWeekOffDays].ColumnWidth = 7.20;
+                        sheet1.Range[xlsRow - 1, iWeekOffDays].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow - 1, iWeekOffDays].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow - 1, iWeekOffDays, xlsRow, iWeekOffDays].Merge();
+
+
+
                         xlsCol += 1;
                         iExtraAbs = xlsCol;
                         sheet1.Range[xlsRow - 1, iExtraAbs].Text = "Extra Absent";
@@ -793,6 +803,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                             dvExtraAbsent.RowFilter = "EmpSystemID='" + _SystemId + "' ";
                             _ExtraAbsent = dvExtraAbsent.Count;
 
+                            
+
 
                             ReportUtility ru = new ReportUtility();
                             sheet1.Range[xlsRow, iTtlAPD].Text = dvMonthlyAttnSumm[i]["TotalProcDate"].ToString().Trim();
@@ -858,7 +870,15 @@ namespace Library.HumanResource.NewAttendanceProcess
                             sheet1.Range[xlsRow, iExtraAbs].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, iExtraAbs].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                           
+
+                            dvWeekOff.RowFilter= "EmpSystemID='" + _SystemId + "' ";
+                            if (dvWeekOff.Count > 0)
+                            {
+                                sheet1.Range[xlsRow, iWeekOffDays].Text = dvWeekOff[0]["WeekOffDays"].ToString();
+                                sheet1.Range[xlsRow, iWeekOffDays].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                sheet1.Range[xlsRow, iWeekOffDays].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            }
+
                             sheet1.Range[xlsRow, iLateIn].Number = lateIn;
                             sheet1.Range[xlsRow, iLateIn].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, iLateIn].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -1410,6 +1430,41 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
+        public void GetWeekOffDays(Dictionary<string, string> empParameters, ParaMontlyAttendance objm, out DataSet ds)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                string empStr = "";
+                if (empParameters.Count > 0)
+                {
+                    if (empParameters.Keys.ElementAt(0) != "")
+                    {
+                        empStr = @" AND EmpSystemID IN(" + empParameters["EmpSystemId"] + ")";
+                    }
+                }
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                var sql = @"SELECT EmpSystemID,
+                WeekOffDays = STUFF((
+                SELECT '-' + format(WorkDate,'dd') as FF
+                FROM AttdnProcessData ap
+                WHERE ap.EmpSystemID = p.EmpSystemID and ap.WeekOffValue = '1' 
+                and WorkDate between '" + objm.FDate+"' and '"+objm.TDate+"' "+empStr+@"
+                FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 1, '')
+                FROM AttdnProcessData p
+                where WorkDate between '"+objm.FDate+"' and '"+objm.TDate+"' "+empStr+@"
+                group by EmpSystemID";
+
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+                
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
 
     }
 
@@ -1565,6 +1620,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                 string[] LIdList = new string[dtLeaveList.Rows.Count];
 
                 GetLeaveData(empParameters, out DataSet LeaveData , FromDate , ToDate);
+
+                GetWeekOffDays(empParameters, objm, out DataSet WeekOffData);
+                DataView dvWeekOff = new DataView();
+                dvWeekOff.Table = WeekOffData.Tables[0];
 
                 string _FLAG = "DAYSTATUS";
 
@@ -1730,6 +1789,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     int iEarlyOut = 0;
                     int iGender = 0;
                     int iEmpCategory = 0;
+                    int iWeekOffDays = 0;
                     #endregion
 
                     #region ------------------Column Header------------------
@@ -1981,6 +2041,15 @@ namespace Library.HumanResource.NewAttendanceProcess
                         }
 
                         xlsCol += 1;
+                        iWeekOffDays = xlsCol;
+                        sheet1.Range[xlsRow - 1, iWeekOffDays].Text = "WeekOff Days";
+                        sheet1.Range[xlsRow - 1, iWeekOffDays].ColumnWidth = 7.20;
+                        sheet1.Range[xlsRow - 1, iWeekOffDays].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow - 1, iWeekOffDays].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow - 1, iWeekOffDays, xlsRow, iWeekOffDays].Merge();
+
+
+                        xlsCol += 1;
                         iExtraAbs = xlsCol;
                         sheet1.Range[xlsRow - 1, iExtraAbs].Text = "Extra Absent";
                         sheet1.Range[xlsRow - 1, iExtraAbs].ColumnWidth = 7.20;
@@ -2219,7 +2288,15 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 sheet1.Range[xlsRow, iExtraAbs].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                 sheet1.Range[xlsRow, iExtraAbs].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                               
+                                dvWeekOff.RowFilter = "EmpSystemID='" + _SystemId + "' ";
+                                if (dvWeekOff.Count > 0)
+                                {
+                                    sheet1.Range[xlsRow, iWeekOffDays].Text = dvWeekOff[0]["WeekOffDays"].ToString();
+                                    sheet1.Range[xlsRow, iWeekOffDays].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, iWeekOffDays].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                }
+
+
                                 sheet1.Range[xlsRow, iLateIn].Number = lateIn;
                                 sheet1.Range[xlsRow, iLateIn].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                 sheet1.Range[xlsRow, iLateIn].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2658,6 +2735,42 @@ namespace Library.HumanResource.NewAttendanceProcess
             else
                 d = 255; // dark colors - white font
             return Color.FromArgb(d, d, d);
+        }
+
+        public void GetWeekOffDays(Dictionary<string, string> empParameters, ParaMontlyAttendance objm, out DataSet ds)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                string empStr = "";
+                if (empParameters.Count > 0)
+                {
+                    if (empParameters.Keys.ElementAt(0) != "")
+                    {
+                        empStr = @" AND EmpSystemID IN(" + empParameters["EmpSystemId"] + ")";
+                    }
+                }
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                var sql = @"SELECT EmpSystemID,
+                WeekOffDays = STUFF((
+                SELECT '-' + format(WorkDate,'dd') as FF
+                FROM AttdnProcessData ap
+                WHERE ap.EmpSystemID = p.EmpSystemID and ap.WeekOffValue = '1' 
+                and WorkDate between '" + objm.FDate + "' and '" + objm.TDate + "' " + empStr + @"
+                FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 1, '')
+                FROM AttdnProcessData p
+                where WorkDate between '" + objm.FDate + "' and '" + objm.TDate + "' " + empStr + @"
+                group by EmpSystemID";
+
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
         }
 
     }

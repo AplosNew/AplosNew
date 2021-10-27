@@ -49,7 +49,52 @@
 <div class="table-responsive aplos-grid-toggle">
     @Html.Partial("~/Areas/Productions/Views/DailyTarget/DailyTargetGrid.cshtml")
 </div>
+<div class="modal site-modal" id="POItemPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Production Order<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div style="color:black;" id="Grid" ej-grid e-datasource="SOItemList" e-allowscrolling="true"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="selectSOItem"
+                     e-allowselection="true" e-filtersettings-filterType="excel">
+                    <div e-columns>
 
+
+                        <div e-column e-type="string" e-field="Id" e-headertext="ID" e-width="80"></div>
+                        <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="80"></div>
+                        <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="80"></div>
+                        <div e-column e-type="string" e-field="MasterOrderId" e-headertext="Order#" e-width="80"></div>
+                        <div e-column e-type="string" e-field="BuyerRefNo" e-headertext="Customer Ord#" e-width="80"></div>
+                        <div e-column e-type="string" e-field="SODesc" e-headertext="So.Description" e-width="150"></div>
+                        <div e-column e-type="number" e-field="Qty" e-headertext="Qty" e-width="60"></div>
+                        <div e-column e-type="string" e-field="DeliveryDate" e-headertext="So.Delivery Date" e-width="80"></div>
+                        <div e-column e-type="string" e-field="Product" e-headertext="Product" e-width="150"></div>
+                        <div e-column e-type="string" e-field="ProductionStatus" e-headertext="Production Status" e-width="90"></div>
+                        <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="150"></div>
+                        <div e-column e-type="string" e-field="buyer" e-headertext="Buyer" e-width="100"></div>
+
+                        <div e-column e-type="string" e-field="OwnRefNo" e-headertext="Own Ord#" e-width="80"></div>
+                        <div e-column e-type="string" e-field="StyleNo" e-headertext="Customer Item#" e-width="80"></div>
+                        <div e-column e-type="string" e-field="OwnStyleNo" e-headertext="Own Item#" e-width="80"></div>
+
+                        <div e-column e-type="string" e-field="BuyerItemNo" e-headertext="Buyer Item No#" e-width="80"></div>
+                        <div e-column e-type="string" e-field="CustomerPONo" e-headertext="PO No#" e-width="80"></div>
+
+                        <div e-column e-type="string" e-field="EntityName" e-headertext="Entity" e-width="90"></div>
+                        <div e-column e-type="string" e-field="ProductionRemarks" e-headertext="Remarks" e-width="150"></div>
+
+                        <div e-column e-type="string" e-field="AddedBy" e-headertext="Created By" e-width="80"></div>
+                        <div e-column e-field="CreationDate" e-headertext="Creation Date" e-width="80" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                        <div e-column e-type="string" e-field="ProductCategory" e-headertext="Product Cat." e-width="130"></div>
+
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
 
 <confirm-modal></confirm-modal>
 <confirm-archive-generic modalid="removePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="Delete();"></confirm-archive-generic>
@@ -59,7 +104,7 @@
 
 
 <ej-dialog id="graph" title=" Product Plan Quantity Distribution" e-enablemodal="true" e-position-y="0" e-showoninit="false"
-           e-width="900" e-target="#MainDIV" e-open="enableBtn">
+           e-width="900" e-target="#MainDivId" e-open="enableBtn">
     <div class="common-btn">
         <ul class="list-inline text-left">
             <li> <button ng-click="printChart('chartContainer');" class="btn">Print</button></li>
@@ -91,7 +136,7 @@
 
 </ej-dialog>
 
-<ej-dialog id="dialogWorkCenterParameters" title=" Product Parameters" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#MainDIV" e-minwidth="900" e-open="enableBtn">
+<ej-dialog id="dialogWorkCenterParameters" title=" Product Parameters" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#MainDivId" e-minwidth="900" e-open="enableBtn">
     @*<div class="form-element-ctrl form-horizontal">*@
     @Html.Partial("~/Areas/OrderManagements/Views/productionOrderSchedulingParametersType1/workCenterParameters.cshtml")
     @*</div>*@

@@ -59,7 +59,7 @@
                      style="height: 160px; width: 160px; border: 2px solid #efefef;" />
 
             </div>
-            <div class="col-xs-12 col-sm-6 col-sm-6">
+            <div class="col-xs-12 col-sm-5 col-sm-5">
                 <div class="col-xs-12 col-sm-4 col-sm-4">Code </div><div class="col-xs-12 col-sm-8 col-sm-8">: {{EmployeeCard[0][0].EmployeeCode}} </div>
                 <div class="col-xs-12 col-sm-4 col-sm-4">Name </div><div class="col-xs-12 col-sm-8 col-sm-8">: {{EmployeeCard[0][0].EmployeeName}} </div>
                 <div class="col-xs-12 col-sm-4 col-sm-4">Designation </div><div class="col-xs-12 col-sm-8 col-sm-8">: {{EmployeeCard[0][0].Designation}} </div>
@@ -78,7 +78,9 @@
                      e-allowfiltering="true" e-allowpaging="false" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                      e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                     <div e-columns>
+                        <div e-column e-field="Sequence" e-headertext="Seq" e-width="20"></div>
                         <div e-column e-field="SkillName" e-headertext="Skill Name" e-width="100"></div>
+                        <div e-column e-type="number" e-format="{0:N2}" e-field="CycleTime" e-headertext="Cycle Time" e-width="30"></div>
                     </div>
                 </div>
             </div>
