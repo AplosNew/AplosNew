@@ -1,0 +1,145 @@
+﻿<togglable name="OT Formula"></togglable>
+
+<div class="row">
+    <div id="main" ng-form name="OTFormulaForm">
+        <div class="form-element-ctrl form-horizontal">
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Company<sup>*</sup></label>
+                    <div class="col-sm-8">
+                        <div class="select-style">
+                            <select id="CompanyId" class="form-control" ng-model="OTFormulaNew.CompanyId" name="Company" ng-change="getPlant();" tabindex="1">
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in companyList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        <div class="form-horizontal form-elements">
+            <div class="col-sm-12" style="margin-left:-29px">
+                <fieldset class="scheduler-border" style="width:1076px">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Salary Head</label>
+                            <div class="col-sm-6">
+                                <div class="select-style">
+                                    <select ng-model="OTFormulaNew.SalaryHeadIdFormula" id="SalaryHeadFormula" class="form-control" name="Salary Head" ng-options="item.Value as item.Text for item in salaryHeadList" tabindex="5">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-2">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li> <button ng-click="SetFormula('SHead');" class="btn" tabindex="9"><i class="glyphicon glyphicon-forward"></i></button></li>
+                                    </ul>
+                                </div>
+                                @*<button style="color: #f3f3ec;background-color: #1c1f32;" class="btn"><i class="glyphicon glyphicon-forward" ng-click="SetFormula('SHead');" style="margin: -4px;"></i></button>*@
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Operator</label>
+                            <div class="col-sm-6">
+                                <div class="select-style">
+                                    <select ng-model="OTFormulaNew.Operator" id="Operator" class="form-control" name="Operator" ng-options="item.Value as item.Text for item in OperatorList" tabindex="5">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+
+                            </div>
+                            <div class="col-sm-2">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li> <button ng-click="SetFormula('Operator');" class="btn" tabindex="9"><i class="glyphicon glyphicon-forward"></i></button></li>
+                                    </ul>
+                                </div>
+                                @*<button style="color: #f3f3ec;background-color: #1c1f32;" class="btn"><i class="glyphicon glyphicon-forward" ng-click="SetFormula('Operator');" style="margin: -4px;"></i></button>*@
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Precedence</label>
+                            <div class="col-sm-6">
+                                <div class="select-style">
+                                    <select ng-model="OTFormulaNew.Precedence" class="form-control" name="Precedence" tabindex="5">
+                                        <option value=""></option>
+                                        <option value="(">(</option>
+                                        <option value=")">)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-2">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li> <button ng-click="SetFormula('Precedence');" class="btn" tabindex="9"><i class="glyphicon glyphicon-forward"></i></button></li>
+                                    </ul>
+                                </div>
+                                @*<button style="color: #f3f3ec;background-color: #1c1f32;" class="btn"><i class="glyphicon glyphicon-forward" ng-click="SetFormula('Precedence');" style="margin: -4px;"></i></button>*@
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Value</label>
+                            <div class="col-sm-6">
+                                <input type="text" name="Value" ng-model="OTFormulaNew.Value" class="form-control" required tabindex="2" maxlength="50">
+                            </div>
+                            <div class="col-sm-2">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li> <button ng-click="SetFormula('Value');" class="btn" tabindex="9"><i class="glyphicon glyphicon-forward"></i></button></li>
+                                    </ul>
+                                </div>
+                                @*<button style="color: #f3f3ec;background-color: #1c1f32;" class="btn"><i class="glyphicon glyphicon-forward" ng-click="SetFormula('Value');" style="margin: -4px;"></i></button>*@
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        @*<div class="form-group" style="margin-top: -8px;">
+                                <button style="color: #f3f3ec;background-color: #1c1f32;margin-top: 8px;" class="btn"><i class="glyphicon glyphicon-backward" ng-click="RemoveFormula();" style="margin: -4px;"></i></button>
+                            </div>*@
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li> <button ng-click="RemoveFormula();" class="btn" tabindex="9"><i class="glyphicon glyphicon-backward"></i></button></li>
+                            </ul>
+                        </div>
+                        <div class="form-group">
+                            {{OTFormulaNew.FormulaDescription}}
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="clearfix"></div>
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                    <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                    <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="aplos-grid-toggle">
+    <div class="table-responsive modal-table">
+        <div class="content-container-fluid" style="color:black;overflow:scroll">
+            <div style="color:black;" id="Grid" ej-grid e-datasource="OTFormulaList" e-recorddoubleclick="Get"
+                 e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
+                 e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                <div e-columns>
+                    @*<div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="10"></div>*@
+                    <div e-column e-field="Id" e-headertext="Id" e-width="20" e-visible="false"></div>
+                    <div e-column e-field="Company" e-headertext="Company" e-width="80"></div>
+                    <div e-column e-field="FormulaDes" e-headertext="Formula Des." e-width="80"></div>
+                    <div e-column e-field="FormulaDesID" e-headertext="Formula Des.ID" e-width="80"></div>
+
+                </div>
+            </div>
+            @*<script type="text/template" id="ShowActionButtonsBOM">
+                    <button style="color: #f3f3ec;background-color: #1c1f32;" title="Edit" ng-disabled="data.Version!=1" class="btn"><i class="glyphicon glyphicon-pencil" ng-click="$parent.Get(this);" style="margin: -6px;"></i></button>
+                </script>*@
+        </div>
+    </div>
+</div>
+<confirm-modal></confirm-modal>

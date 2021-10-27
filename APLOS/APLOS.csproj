@@ -753,6 +753,7 @@
     <Compile Include="Areas\Payrolls\Controllers\IncrementReportController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\LateDeductionController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\EmployeeServiceVariableController.cs" />
+    <Compile Include="Areas\Payrolls\Controllers\OTFormulaController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\NoticePeriodSettingController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\CompanyProvidentFundStatementReportController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\EmployeeAdvanceDeductionController.cs" />
@@ -1987,6 +1988,7 @@
     <Content Include="Areas\Payrolls\Scripts\IncrementReportController.js" />
     <Content Include="Areas\Payrolls\Scripts\LateDeductionController.js" />
     <Content Include="Areas\Payrolls\Scripts\EmployeeServiceVariableController.js" />
+    <Content Include="Areas\Payrolls\Scripts\OTFormulaController.js" />
     <Content Include="Areas\Payrolls\Scripts\NoticePeriodSettingController.js" />
     <Content Include="Areas\Payrolls\Scripts\paySlipsContractorController.js" />
     <Content Include="Areas\Payrolls\Scripts\CompanyProvidentFundStatementReportController.js" />
@@ -3778,6 +3780,7 @@
     <Content Include="Areas\HumanResource\Views\PhysicalVerificationReport\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\SalaryDisbursementReport\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\EmployeeLastPunchReport\Aplos.cshtml" />
+    <Content Include="Areas\Payrolls\Views\OTFormula\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
