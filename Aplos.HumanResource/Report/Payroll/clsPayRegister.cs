@@ -11777,9 +11777,6 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
             }
         }//End Function
 
-
-
-
         public void GetPayRegisgeterConfig(string companyId, string plantId, out bool ExcludeFatherName, out bool ExcludeNonpayable_Notional, out bool ExcludeTotalGross, out bool ExcludeCTC)
         {
             ExcludeFatherName = false;
