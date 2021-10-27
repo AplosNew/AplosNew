@@ -327,7 +327,7 @@ namespace Library.MaterialManagement.JobWork
                     //                 ,t.BaseUoMFactor, t.ApprovedQty";
 
                     sql = @"select --mi.Id,
-                            mi.OSTransformationPODetailId OSTransformationPOId
+                            mi.OSTransformationPODetailId --mi.OSTransformationPODetailId OSTransformationPOId
 ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode,mma.StandardName ArticleName,mma.Id ArticleId ,uom.UserName as MMUnit
 ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
 ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
@@ -1124,7 +1124,8 @@ group by uom.Id --,mi.Id
 // ";
 
 
-                    sql = @"select mi.OSTransformationPODetailId OSTransformationPOId, jwi.UserName as JWOutputItem,jwii.Id as JWInputItemId,jwii.UserName as JWInputItem
+                    sql = @"select mi.OSTransformationPODetailId --mi.OSTransformationPODetailId OSTransformationPOId
+, jwi.UserName as JWOutputItem,jwii.Id as JWInputItemId,jwii.UserName as JWInputItem
 ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode,mma.StandardName ArticleName,mma.Id ArticleId, uom.UserName as MMUnit
 ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
 --,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
@@ -1550,6 +1551,22 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             }
         }
 
+        public IEnumerable<object> GetGRNRowId(string InventoryIssueDetailId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string sql = @"select Id,InventoryIssueDetailId,InventoryReceiveDetailId,Qty from TRN.InventoryIssueHistory 
+                               where InventoryIssueDetailId='"+ InventoryIssueDetailId + @"' ";
+
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         private string GetTransformationPK()
         {
             string sID = string.Empty;
@@ -1802,17 +1819,18 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                 if(GRNbyPOCheckStatus == "ForChecked")
                 {
                      sql = @"SELECT E.UserName AS Entity 
-							,isnull(II.IssueType,'') issuetype
+							,isnull(II.IssueType,'') IssueType
 							, II.Id, II.CompanyGroupId
 							, II.CompanyId, II.PlantId
 							, II.EntityId, II.MaterialStorageId
 							,FORMAT(II.IssueDate, 'dd-MMM-yyyy') IssueDate
 							, MS.UserName AS MaterialStorage 
 							,EI.EmployeeCode + ' - ' + EI.EmployeeName EmployeeName
+                            ,EI.EmployeeName as ResponsiblePerson,EI.EmployeeCode,II.EmployeeId,II.RefferenceNo
 							,SUM(IIH.qty) Qty
 							--,SUM(Round(IIH.qty*IIH.Rate,2)) Amount
 							,Amount=isnull(round( Sum((IRD.MaterialTranRate * IR.ToCurrencyRate) * isnull(IIH.Qty,'0')),2),'0')
-							,II.Remarks,II.Id AS IssueId
+							,II.Remarks--,II.Id AS IssueId
 							,II.OrderRefNo
 							--,C.Id CountryId,c.UserName CountryName
 							,II.ContractId,II.ProductionOrderId,Con.ContractNo
@@ -1839,19 +1857,20 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 						--,C.Id ,c.UserName 
                         ,II.ContractId 
                         ,II.ProductionOrderId,Con.ContractNo,II.Types, II.JWContractId,Tuom.UserName
+                        ,II.EmployeeId,II.RefferenceNo
 						Order BY II.IssueDate DESC";
                 }
 
                 if(GRNbyPOCheckStatus == "Posted")
                 {
                     sql = @"SELECT E.UserName AS Entity 
-							,isnull(II.IssueType,'') issuetype
+							,isnull(II.IssueType,'') IssueType
 							, II.Id, II.CompanyGroupId
 							, II.CompanyId, II.PlantId
 							, II.EntityId, II.MaterialStorageId
 							,FORMAT(II.IssueDate, 'dd-MMM-yyyy') IssueDate
 							, MS.UserName AS MaterialStorage 
-							,EI.EmployeeCode + ' - ' + EI.EmployeeName EmployeeName
+							,EI.EmployeeCode + ' - ' + EI.EmployeeName EmployeeName 
 							,SUM(IIH.qty) Qty
 							--,SUM(Round(IIH.qty*IIH.Rate,2)) Amount
 							,Amount=isnull(round( Sum((IRD.MaterialTranRate * IR.ToCurrencyRate) * isnull(IIH.Qty,'0')),2),'0')
@@ -2003,7 +2022,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                string sql = @"select II.Id as IssueId,IID.TransactionQty,IID.CostCenterId, vcc.Id as OSTransformationPOId,vcc.OSTransformationPOId,vcc.MaterialMasterId,vcc.ArticleId,vcc.Quantity as VCCQuantity, jwi.UserName as JWOutputItem,jwa.UserName as JobWorkActivity
+                string sql = @"select IID.Id as InventoryIssueDetailId, II.Id as IssueId,IID.TransactionQty,IID.CostCenterId, vcc.Id as OSTransformationPODetailId,vcc.OSTransformationPOId,vcc.MaterialMasterId,vcc.ArticleId,vcc.Quantity as VCCQuantity, jwi.UserName as JWOutputItem,jwa.UserName as JobWorkActivity
                                 , uom.UserName as OutputUnit,OMM.UserName as MaterialMaster, mma.StandardName as ArticleName
 							   , c.Code as Currency, emp.EmployeeName as ResponsiblePerson
 							   , MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,moi.BuyerReferenceNo,moi.OwnReferenceNo,mo.BuyerReferenceNo BuyerOrderNo,mo.OwnReferenceNo AS OwnOrderNo
@@ -2253,7 +2272,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                                 ,FChar.UserName,FCharValue.UserName,SChar.UserName,SCharValue.UserName ,TChar.UserName,TCharValue.UserName
 						 ,vcc.FirstCharacteristicsId,vcc.FirstCharacteristicsValueId,vcc.SecondCharacteristicsId,vcc.SecondCharacteristicsValueId
 						 ,vcc.ThirdCharacteristicsId,vcc.ThirdCharacteristicsValueId
-                         ,II.Id,IID.TransactionQty,IID.CostCenterId";
+                         ,II.Id,IID.TransactionQty,IID.CostCenterId,IID.Id";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }

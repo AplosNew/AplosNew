@@ -562,9 +562,9 @@ namespace Library.Accounting.FixedAssets
             var sql = @"select top 100 * from (select frd.Id,frd.Id DisposeNo,fr.Remarks,fr.[Status],frd.EmployeeId,ei.EmployeeName,D.UserName Department,DG.UserName Designation,frd.IsPark
                 , SUM(ISNULL(FR.Price,0)) Price,SUM(ISNULL(SAR.subAssetAmount,0)) SubAssetAmount, SUM(ISNULL(FR.Price,0))+SUM(ISNULL(SAR.subAssetAmount,0)) PurchasePrice,SUM(ISNULL(FR.ADBaseAmount,0)) ADBaseAmount
                 , SUM(ISNULL(FR.Price,0))+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(ISNULL(FR.ADBaseAmount,0)) NetBookValue , SUM(ISNULL(fr.NegotiationValue,0)) NegotiationValue
-				,P.UserName CustomerName,frd.PartyId,frd.PartyPlantId ,c.Code TrnCurrency
+				,P.UserName CustomerName,frd.PartyId,frd.PartyPlantId ,c.Code TrnPurchaseCurrency,c1.Code SalesCurrency
                 ,IsOBBalance=case when FR.IsOpeningBalance=0 then 'No' Else 'Yes' End
-                ,P.UserName Vendor
+                --,P.UserName Vendor
                 from TRN.FixedAssetRegisterDisposed frd 
 				join TRN.FixedAssetRegisterDisposedDetail rdd ON rdd.FixedAssetRegisterDisposedId=frd.Id
                 left join TRN.FixedAssetRegister FR on FR.Id=rdd.FixedAssetRegisterId
@@ -574,10 +574,12 @@ namespace Library.Accounting.FixedAssets
 				LEFT JOIN HKP.Party P ON P.Id=FRD.PartyId
 				LEFT JOIN HKP.PartyPlant PP ON PP.Id=FRD.PartyPlantId
 	            LEFT JOIN SCS.Currency C ON C.Id =FR.CurrencyId
+	            LEFT JOIN SCS.Currency C1 ON C1.Id =frd.CurrencyId
+
                 --LEFT JOIN HKP.Party P ON P.Id = FR.VendorId
                 LEFT JOIN ( SELECT FixedAssetRegisterId,ISNULL(Sum(Amount),0) subAssetAmount FROM TRN.SubFixedAssetRegister group by FixedAssetRegisterId) SAR ON SAR.FixedAssetRegisterId=FR.Id
                     where fr.CompanyId='" + companyId + @"' AND frd.DisposedVoucherId IS NULL
-                     group by fr.Remarks,fr.[Status],ei.EmployeeName,frd.IsPark,frd.Id,D.UserName ,DG.UserName,frd.EmployeeId,P.UserName ,frd.PartyId,frd.PartyPlantId,c.Code,FR.IsOpeningBalance ,P.UserName) AS TEMP WHERE " + strkey + " order by DisposeNo ";
+                     group by fr.Remarks,fr.[Status],ei.EmployeeName,frd.IsPark,frd.Id,D.UserName ,DG.UserName,frd.EmployeeId,P.UserName ,frd.PartyId,frd.PartyPlantId,c.Code,FR.IsOpeningBalance ,P.UserName,c1.Code) AS TEMP WHERE " + strkey + " order by DisposeNo ";
             return _sqlRepository.GetDataCollection(sql);
         }
         public List<Dictionary<string, object>> GetFixedAssetDisposePostedList(string column, string value, string companyId)

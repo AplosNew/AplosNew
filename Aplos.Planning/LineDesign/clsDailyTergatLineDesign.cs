@@ -280,13 +280,14 @@ namespace Library.Planning.LineDesign
                                  ORDER BY px.StartTime ASC";
             con = new ConnectionManager.DAL.ConManager("1");
             con.OpenDataSetThroughAdapter(PeriodId, out DataSet dsPeriod, false, "1");
+            string ProductionPeriodId = "";
             if (dsPeriod.Tables[0].Rows.Count > 0)
-                PeriodId = dsPeriod.Tables[0].Rows[0]["Id"].ToString();
+                ProductionPeriodId = dsPeriod.Tables[0].Rows[0]["Id"].ToString();
 
             string ChildPK = "";
             for (int i = 0; i < HtmlsInfo.Count; i++)
             {
-                if (OTSBD.clsStaticInfo.dbl(HtmlsInfo[i]["CurrentQuantity"]) <= 0)
+                if (OTSBD.clsStaticInfo.dbl(HtmlsInfo[i]["CurrentQuantity"]) == 0)
                     continue;
 
                 if (ChildPK == "")
@@ -306,7 +307,7 @@ namespace Library.Planning.LineDesign
                 dr["Quantity"] = OTSBD.clsStaticInfo.dbl(HtmlsInfo[i]["CurrentQuantity"]);
                 dr["ProductionTime"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(ProductionTime));
                 dr["ProductionOrderId"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(ProductionOrderId));
-                dr["ProductionBookingPeriodId"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(PeriodId));
+                dr["ProductionBookingPeriodId"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(ProductionPeriodId));
                 dr["OperationVariationId"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(HtmlsInfo[i]["OperationVariationId"].ToString()));
 
                 dr["AddedBy"] = identity.Name;
