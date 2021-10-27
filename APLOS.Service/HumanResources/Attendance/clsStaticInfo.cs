@@ -2507,6 +2507,70 @@ namespace OTSBD
             {
             }
         }
+        public static void numericValidation(string Value, bool isMandatory, bool isInteger, bool negativeAllowed, string fieldName)
+        {
+            try
+            {
+                if (isMandatory == true)
+                {
+                    if (Value.Trim() == "")
+                    {
+                        Exception ex = new Exception("please insert [" + fieldName + "]");
+                        
+                        throw (ex);
+                    }
+                    if (Convert.ToDouble(bplib.clsWebLib.GetNumData(Value.Trim())) == 0)
+                    {
+                        Exception ex = new Exception("please insert [" + fieldName + "]");
+                       
+                        throw (ex);
+                    }
+
+                    if (Value.Trim() != "")
+                    {
+                        if (bplib.clsWebLib.IsNumeric(Value.Trim()) == false)
+                        {
+                            Exception ex = new Exception("Invalid numeric value");
+                            throw (ex);
+                        }
+                    }
+                }
+
+                if (Value.Trim() != "")
+                {
+                    if (bplib.clsWebLib.IsNumeric(Value.Trim()) == false)
+                    {
+                        Exception ex = new Exception("Invalid numeric value");
+                        
+                        throw (ex);
+                    }
+                    if (isInteger == true)
+                    {
+                        if (isInt(Value.Trim()) == false)
+                        {
+                            Exception ex = new Exception("Number must be integer");
+                           
+                            throw (ex);
+                        }
+                    }
+                    if (negativeAllowed == false)
+                    {
+                        if (Convert.ToDouble(bplib.clsWebLib.GetNumData(Value.Trim())) < 0)
+                        {
+                            Exception ex = new Exception("Negative values are not allowed");
+                            throw (ex);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+            }
+        }
 
         public static int getColumnIndex(string columnName, ref DataGrid dg)
         {

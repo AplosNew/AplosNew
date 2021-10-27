@@ -391,7 +391,6 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
 			return Json(new { Message = AplosMessage.Success });
 		}
 
-
 		[HttpGet, Authorize]
 		public ActionResult GetMaster()
 		{
@@ -407,30 +406,6 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
 			}
 		}
 		#endregion
-
-
-
-		[HttpPost, Authorize]
-		public JsonResult ImportData()
-		{
-			string path;
-			FabricRollClass objR = null;
-			try
-			{
-				objR = new FabricRollClass();
-				var file = Request.Files["file"];
-				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				SaveFile(out path);
-				var data = objR.ReadData(identity.PlantId, path);
-				JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
-				json.MaxJsonLength = int.MaxValue;
-				return json;
-			}
-			catch (Exception ex)
-			{
-				return Json(new { Error = true, Message = ex.Message });
-			}
-		}
 		public void SaveFile(out string path)
 		{
 			path = "";
