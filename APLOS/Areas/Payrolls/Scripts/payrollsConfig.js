@@ -364,6 +364,10 @@
             templateUrl: 'Payrolls/CompanyWiseBankSheet/Aplos',
             controller: 'CompanyWiseBankSheetController'
         })
+        .when('/ot-formula', {
+            templateUrl: 'Payrolls/OTFormula/Aplos',
+            controller: 'OTFormulaController'
+        })
         ;
 
 

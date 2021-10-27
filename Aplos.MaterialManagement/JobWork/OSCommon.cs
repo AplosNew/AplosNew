@@ -939,12 +939,10 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
             if (IsOwnVendor == "OwnVendor")
             {
-                if (POType == "Transformation")
+                if (POType == "OSTransformationPO")
                 {
                     try
                     {
-
-
 
                         var sql = "";
                         sql = @"SELECT NULL AS uoMList, NULL as BOQserviceCboList, b.Id BOQId,b.Sequence Sequence1

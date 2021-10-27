@@ -257,21 +257,39 @@ namespace Library.Service.Employees
                     {
                         entity.SystemID = "Q" + GetAutoNumber(nameof(EmpAcademicQualificationInformation), PKGeneratorEnum.Auto, null, DateTime.Now);
                         //var complianceDocumentid = _complianceDocumentService.Query(r => r.ProfileType == "Qualification" && r.QualificationLevelId == entity.EductLevelSystemID).Select(r => r.Id).FirstOrDefault();
-
-                        var d = (from a in _complianceDocumentService.Query(r => r.ProfileType == "Qualification" && r.QualificationLevelId == entity.EductLevelSystemID).Select()
-                                 join t in _empDocumentService.Query().Select() on a.Id equals t.ComplianceDocumentId
-                                 select new { complianceDocumentid = a.Id }).FirstOrDefault();
-
-                        if (d == null)
+                        var empdoc= _empDocumentService.Query(t => t.EmpSystemID == entity.EmpSystemID).Select().FirstOrDefault();
+                        if (empdoc!=null)
                         {
-                            //complianceDocumentid = _complianceDocumentService.Query(r => r.ProfileType == "Qualification" && r.QualificationLevelId == null).Select(r => r.Id).FirstOrDefault();
-                            var c = (from a in _complianceDocumentService.Query(r => r.ProfileType == "Qualification" && r.QualificationLevelId == null).Select()
+                            var d = (from a in _complianceDocumentService.Query(r => r.ProfileType == "Qualification" && r.QualificationLevelId == entity.EductLevelSystemID).Select()
                                      join t in _empDocumentService.Query().Select() on a.Id equals t.ComplianceDocumentId
                                      select new { complianceDocumentid = a.Id }).FirstOrDefault();
-                            entity.ComplianceDocumentId = c.complianceDocumentid;
+
+                            if (d == null)
+                            {
+                                //complianceDocumentid = _complianceDocumentService.Query(r => r.ProfileType == "Qualification" && r.QualificationLevelId == null).Select(r => r.Id).FirstOrDefault();
+                                var c = (from a in _complianceDocumentService.Query(r => r.ProfileType == "Qualification" && r.QualificationLevelId == null).Select()
+                                         join t in _empDocumentService.Query().Select() on a.Id equals t.ComplianceDocumentId
+                                         select new { complianceDocumentid = a.Id }).FirstOrDefault();
+                                if (c!=null)
+                                {
+                                    entity.ComplianceDocumentId = c.complianceDocumentid; 
+                                }
+                            }
+                            else
+                                entity.ComplianceDocumentId = d.complianceDocumentid;
+
+                            var predocdata = _empDocumentService.Query(t => t.EmpSystemID == entity.EmpSystemID && t.ComplianceDocumentId == entity.ComplianceDocumentId).Select().FirstOrDefault();
+                            if (predocdata != null)
+                            {
+                                predocdata.FileId = entity.FileId;
+                                predocdata.FileName = entity.FileName;
+                                predocdata.UpdatedDate = entity.DateAdded;
+
+                                _empDocumentService.Update(predocdata);
+                            } 
                         }
-                        else
-                            entity.ComplianceDocumentId = d.complianceDocumentid;
+
+
                         entity.FileId = entity.SystemID;
                         if (string.IsNullOrEmpty(entity.FileName))
                         {
@@ -281,15 +299,7 @@ namespace Library.Service.Employees
 
                         Insert(entity);
 
-                        var predocdata = _empDocumentService.Query(t => t.EmpSystemID == entity.EmpSystemID && t.ComplianceDocumentId == entity.ComplianceDocumentId).Select().FirstOrDefault();
-                        if (predocdata != null)
-                        {
-                            predocdata.FileId = entity.FileId;
-                            predocdata.FileName = entity.FileName;
-                            predocdata.UpdatedDate = entity.DateAdded;
-
-                            _empDocumentService.Update(predocdata);
-                        }
+                        
                     }
                     else
                     {
@@ -297,20 +307,36 @@ namespace Library.Service.Employees
                         if (dbdata == null || string.IsNullOrEmpty(dbdata.SystemID))
                             throw new CustomException("The record no longer exists.");
                         //var complianceDocumentid = _complianceDocumentService.Query(r => r.ProfileType == "Qualification" && r.QualificationLevelId == entity.EductLevelSystemID).Select(r => r.Id).FirstOrDefault();
+                        var empdoc = _empDocumentService.Query(t => t.EmpSystemID == entity.EmpSystemID).Select().FirstOrDefault();
 
-                        var d = (from a in _complianceDocumentService.Query(r => r.ProfileType == "Qualification" && r.QualificationLevelId == entity.EductLevelSystemID).Select()
-                                 join t in _empDocumentService.Query().Select() on a.Id equals t.ComplianceDocumentId
-                                 select new { complianceDocumentid = a.Id }).FirstOrDefault();
-                        if (d == null)
+                        if (empdoc!=null)
                         {
-                            //complianceDocumentid = _complianceDocumentService.Query(r => r.ProfileType == "Qualification" && r.QualificationLevelId == null).Select(r => r.Id).FirstOrDefault();
-                            var c = (from a in _complianceDocumentService.Query(r => r.ProfileType == "Qualification" && r.QualificationLevelId == null).Select()
+                            var d = (from a in _complianceDocumentService.Query(r => r.ProfileType == "Qualification" && r.QualificationLevelId == entity.EductLevelSystemID).Select()
                                      join t in _empDocumentService.Query().Select() on a.Id equals t.ComplianceDocumentId
                                      select new { complianceDocumentid = a.Id }).FirstOrDefault();
-                            entity.ComplianceDocumentId = c.complianceDocumentid;
+                            if (d == null)
+                            {
+                                //complianceDocumentid = _complianceDocumentService.Query(r => r.ProfileType == "Qualification" && r.QualificationLevelId == null).Select(r => r.Id).FirstOrDefault();
+                                var c = (from a in _complianceDocumentService.Query(r => r.ProfileType == "Qualification" && r.QualificationLevelId == null).Select()
+                                         join t in _empDocumentService.Query().Select() on a.Id equals t.ComplianceDocumentId
+                                         select new { complianceDocumentid = a.Id }).FirstOrDefault();
+                                if (c!=null)
+                                {
+                                    entity.ComplianceDocumentId = c.complianceDocumentid; 
+                                }
+                            }
+                            else
+                                entity.ComplianceDocumentId = d.complianceDocumentid;
+
+                            var predocdata = _empDocumentService.Query(t => t.EmpSystemID == entity.EmpSystemID && t.ComplianceDocumentId == entity.ComplianceDocumentId).Select().FirstOrDefault();
+                            if (predocdata != null)
+                            {
+                                predocdata.FileId = entity.FileId;
+                                predocdata.FileName = entity.FileName;
+                                predocdata.UpdatedDate = entity.DateUpdated;
+                                _empDocumentService.Update(predocdata);
+                            } 
                         }
-                        else
-                            entity.ComplianceDocumentId = d.complianceDocumentid;
 
                         entity.FileId = entity.SystemID;
                         if (string.IsNullOrEmpty(entity.FileName))
@@ -320,14 +346,7 @@ namespace Library.Service.Employees
                         entity.DateUpdated = DateTime.Now;
                         Update(entity);
 
-                        var predocdata = _empDocumentService.Query(t => t.EmpSystemID == entity.EmpSystemID && t.ComplianceDocumentId == entity.ComplianceDocumentId).Select().FirstOrDefault();
-                        if (predocdata != null)
-                        {
-                            predocdata.FileId = entity.FileId;
-                            predocdata.FileName = entity.FileName;
-                            predocdata.UpdatedDate = entity.DateUpdated;
-                            _empDocumentService.Update(predocdata);
-                        }
+                        
                     }
                 }
 
