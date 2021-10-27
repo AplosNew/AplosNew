@@ -3780,7 +3780,7 @@
     <Content Include="Areas\HumanResource\Views\PhysicalVerificationReport\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\SalaryDisbursementReport\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\EmployeeLastPunchReport\Aplos.cshtml" />
-    <Content Include="Areas\HumanResource\Views\LeaveWithWeagesRegistersForm18\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\LeaveWithWagesRegistersForm18\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
