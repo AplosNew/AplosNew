@@ -634,10 +634,9 @@ function ServicePOByRequisitionController(accountService, addressService, $windo
 		angular.element(document.querySelector('#partyPopUp')).modal('show');
 		$scope.getPartyList();
 	};
-	$scope.closePartyPopUp = function () {
+	$scope.closePartyPopUp = function (x) {
 
-		if ($scope.partyIndex !== -1) {
-			var party = $scope.partyList[$scope.partyIndex];
+		var party = x.data;
 			$scope.productNew.PartyCode = party.Code;
 			$scope.productNew.PartyName = party.UserName;
 			$scope.productNew.PartyId = party.Id;
@@ -659,7 +658,6 @@ function ServicePOByRequisitionController(accountService, addressService, $windo
 				$scope.changePaymentTerm();
 			getPartyPlantList();
 			$scope.hidePartyPopUp();
-		}
 	};
 	$scope.GetCurrencyExchangeRateList = function () {
 
