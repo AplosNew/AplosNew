@@ -47,7 +47,12 @@ namespace Aplos.Areas.IE.Controllers
 
             return Json(_diagram.AllShapesForJson, JsonRequestBehavior.AllowGet);
         }
-
+        [Authorize, HttpPost]
+        public ActionResult GetOperationVariationCard(string OperationVariationId)
+        {
+            clsDailyTergatLineDesign DT = new clsDailyTergatLineDesign();
+            return Json(DT.GetOperationVariationCard(OperationVariationId), JsonRequestBehavior.AllowGet);
+        }
         [Authorize, HttpPost]
         public ActionResult SearchEmployee(string column, string value)
         {
@@ -95,7 +100,7 @@ namespace Aplos.Areas.IE.Controllers
 					,O.Id OperationId,O.UserName OperationDesc,ps.UserName AS ProductionSystem,O.IsMachineRequired,
                     ISNULL(O.PersonalAllowance,0)PersonalAllowance,ISNULL(OV.MachineAllowance,0)MachineAllowance
 					,ISNULL(OV.AdditionalAllowance,0) AdditionalAllowances,
-                    ISNULL(M.RPM,0)RPM,OV.TotalSAM,O.IsMachineRequired
+                    ISNULL(M.RPM,0)RPM,OV.TotalSAM,O.IsMachineRequired,ov.TotalSAM AS TotalSPT
                     ,M.StandardName AS ArticleDesc
                     FROM [MST].[OperationVariation] OV
                     LEFT JOIN [MST].[MaterialMasterArticle] M ON M.Id = OV.ArticleId
