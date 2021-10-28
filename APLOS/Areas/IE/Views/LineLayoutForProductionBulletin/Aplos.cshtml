@@ -103,7 +103,7 @@
      style="background-color: #ebeced; border-bottom-color: #bbbbbb; border-top-style: none; border-left-style: none; border-right-style: none">
 </div>
 <div>
-    <ej-diagram id="diagram" e-height="400px" e-itemclick="itemClick" e-nodecollectionchange="nodeCollectionChange" e-width="100%">
+    <ej-diagram id="diagram" e-contextmenu="contextMenu" e-contextmenuclick="onDiagramContextMenuClick" e-height="400px" e-itemclick="itemClick" e-nodecollectionchange="nodeCollectionChange" e-width="100%">
     </ej-diagram>
 </div>
 
@@ -114,68 +114,75 @@
 </div>
 
 <script id="htmlTemplate" type="text/template">
-    @*<div class="row">
-        <div class="col-xs-12 col-sm-4 col-md-4">
-            <input type="button" value="{{this.items[0].addInfo.Sequence}}" style="color: #000; width:100%; background-color: #fbfb00; border-color: #f89b1c" />
-        </div>
-        <div class="col-xs-12 col-sm-4 col-md-4">
-            <input type="button" value="{{this.items[0].addInfo.RequiredManPower}}" style="color: #ffffff; width:100%; background-color: #3900e8; border-color: #f89b1c" />
-        </div>
-        <div class="col-xs-12 col-sm-4 col-md-4">
-            <input type="button" value="{{this.items[0].addInfo.AllotedWorkstation}}" style="color: #ffffff; width:100%; background-color: #009400; border-color: #f89b1c" />
-        </div>
-    </div>*@
+
+    <span ng-mouseover="showCardIcons=true;" ng-mouseleave="showCardIcons=false;">
 
 
-    <div class="row" style="margin-top: 15px;">
-        <div class="col-xs-12 col-sm-7 col-md-7" style="white-space: nowrap; overflow: hidden; font-size:10px;color:{{this.items[0].fontColor}};">
-            <span title="{{this.items[0].addInfo.OperationDesc?this.items[0].addInfo.OperationDesc:'[select operation]'}}">
-                {{this.items[0].addInfo.OperationDesc?this.items[0].addInfo.OperationDesc+'('+  this.items[0].addInfo.MachineOrHand+')':'[select operation]'}}
-            </span>
+        <div class="row" style="margin-top: 15px;">
+            <div class="col-xs-12 col-sm-9 col-md-9" style="white-space: nowrap; overflow: hidden; font-size:10px;color:{{this.items[0].fontColor}};">
+                <span title="{{this.items[0].addInfo.OperationDesc?this.items[0].addInfo.OperationDesc:'[select operation]'}}">
+                    {{this.items[0].addInfo.OperationDesc?this.items[0].addInfo.OperationDesc:'[Missing Operation]'}}
+                </span>
+            </div>
+            <div class="col-xs-12  col-sm-2 col-md-2">
+                <div class="common-btn" ng-show="showCardIcons" style="position:fixed;top:0;left:140px;float:right;">
+                    <ul class="list-inline text-right small">
+                        <li>
+                            <button ng-click="$parent.ViewOperationVariationCard(this);" class="btn small" style="height: 20px; width: 20px; padding: 0px; margin: 0px;">
+                                <i class="glyphicon glyphicon-th-list"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            @*<div class="col-xs-12 col-sm-5 col-md-5">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right small">
+                            <li>
+                                <button ng-click="$parent.operationButtonClick(this);" class="btn small" style="height: 20px; width: 20px; padding: 0px; margin: 0px;">
+                                    <i class="glyphicon glyphicon-search"></i>
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>*@
         </div>
-        <div class="col-xs-12 col-sm-5 col-md-5">
-            <div class="common-btn">
-                <ul class="list-inline text-right small">
-                    <li>
-                        <button ng-click="$parent.operationButtonClick(this);" class="btn small" style="height: 20px; width: 20px; padding: 0px; margin: 0px;">
-                            <i class="glyphicon glyphicon-search"></i>
-                        </button>
-                    </li>
-                </ul>
+        <div class="row" style="padding-top:4px;">
+            <div class="col-xs-12 col-sm-12 col-md-12" style="white-space: nowrap; overflow: hidden; font-size: 10px;color:{{this.items[0].fontColor}};">
+                <span title=" {{this.items[0].addInfo.ArticleId?this.items[0].addInfo.ArticleDesc:'[select machine]'}}">
+                    {{this.items[0].addInfo.ArticleId?this.items[0].addInfo.ArticleDesc:'[Missing Machine]'}}
+                </span>
+            </div>
+            @*<div class="col-xs-12 col-sm-5 col-md-5">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right small">
+                            <li>
+                                <button ng-click="$parent.machineButtonClick(this);" class="btn small" style="height: 20px; width: 20px; padding: 0px; margin: 0px;">
+                                    <i class="glyphicon glyphicon-search"></i>
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>*@
+        </div>
+        <div class="col-xs-12" style="padding:0px;margin:0px;font-size:6pt; font-weight: bolder;  position: absolute; bottom: 0px; left: 0px; float: left;">
+            <div class="col-xs-12  col-sm-2 col-md-2 center-block" style="padding-left:2px; border: 1px solid #ffffff; background-color: yellow; color: blue;">
+                S{{this.items[0].addInfo.Sequence}}
+            </div>
+            <div class="col-xs-12  col-sm-2 col-md-2 center-block" style="padding-left: 2px; border: 1px solid #ffffff; background-color: blue; color: white; ">
+                M{{this.items[0].addInfo.RequiredManPower}}
+            </div>
+            <div class="col-xs-12  col-sm-2 col-md-2 center-block" style="padding-left: 2px; border: 1px solid #ffffff; background-color: #015a20; color: white;">
+                W{{this.items[0].addInfo.AllotedWorkstation}}
+            </div>
+            <div class="col-xs-12  col-sm-2 col-md-2 center-block" style="padding-left: 2px; border: 1px solid #ffffff; background-color: #e89800; color: white;">
+                T{{this.items[0].addInfo.TotalSPT}}
+            </div>
+            <div class="col-xs-12  col-sm-1 col-md-1 center-block" style="padding-left: 2px; border: 1px solid #ffffff; background-color: #015a20; color: white;">
+                {{this.items[0].addInfo.MachineOrHand}}
             </div>
         </div>
-    </div>
-    <div class="row" style="padding-top:4px;">
-        <div class="col-xs-12 col-sm-7 col-md-7" style="white-space: nowrap; overflow: hidden; font-size: 10px;color:{{this.items[0].fontColor}};">
-            <span title=" {{this.items[0].addInfo.ArticleId?this.items[0].addInfo.ArticleDesc:'[select machine]'}}">
-                {{this.items[0].addInfo.ArticleId?this.items[0].addInfo.ArticleDesc:'[select machine]'}}
-            </span>
-        </div>
-        <div class="col-xs-12 col-sm-5 col-md-5">
-            <div class="common-btn">
-                <ul class="list-inline text-right small">
-                    <li>
-                        <button ng-click="$parent.machineButtonClick(this);" class="btn small" style="height: 20px; width: 20px; padding: 0px; margin: 0px;">
-                            <i class="glyphicon glyphicon-search"></i>
-                        </button>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
-    <div class="col-xs-12" style="padding:0px;margin:0px;font-size:8pt; font-weight: bolder;  position: absolute; bottom: 0px; left: 0px; float: left;">
-        <div class="col-xs-12  col-sm-3 col-md-3 center-block" style="padding-left:4px; border: 1px solid #ffffff; background-color: yellow; color: blue;">
-            S{{this.items[0].addInfo.Sequence}}
-        </div>
-        <div class="col-xs-12  col-sm-3 col-md-3 center-block" style="padding-left: 4px; border: 1px solid #ffffff; background-color: blue; color: white; ">
-            M{{this.items[0].addInfo.RequiredManPower}}
-        </div>
-        <div class="col-xs-12  col-sm-3 col-md-3 center-block" style="padding-left: 4px; border: 1px solid #ffffff; background-color: #015a20; color: white;">
-            W[{{this.items[0].addInfo.AllotedWorkstation}}]
-        </div>
-
-    </div>
-
+    </span>
 </script>
 
 
@@ -189,7 +196,53 @@
     </svg>
 </script>
 
+<ej-dialog id="dialogEditNode" title="Color" e-enablemodal="true" e-position-y="0" e-position-x="0" e-showoninit="false" e-target="#MainDIV" e-close="onDialogClose" e-width="500" e-open="enableBtn">
+    <div class="row">
+        <div class="col-sm-12 col-sm-2 col-sm-2" ng-show="selectednode.target.hasOwnProperty('fontColor')"> Font</div>
+        <div class="col-sm-12 col-sm-2 col-sm-2" ng-show="selectednode.target.hasOwnProperty('fontColor')">
+            <input ej-colorpicker e-field="fontColor" e-change="UpdateColor" e-value="selectednode.target.fontColor" e-modeltype="palette" />
+        </div>
+        <div class="col-sm-12 col-sm-2 col-sm-2"> Back</div>
+        <div class="col-sm-12 col-sm-2 col-sm-2">
+            <input ej-colorpicker e-field="fillColor" e-change="UpdateColor" e-value="selectednode.target.fillColor" e-modeltype="palette" />
+        </div>
+        <div class="col-sm-12 col-sm-2 col-sm-2"> Border</div>
+        <div class="col-sm-12 col-sm-2 col-sm-2">
+            <input ej-colorpicker e-field="borderColor" e-change="UpdateColor" e-value="selectednode.target.borderColor" e-modeltype="palette" />
+        </div>
 
+
+    </div>
+</ej-dialog>
+<ej-dialog id="dialogOperationVariationCard" title="Operation Info" e-enablemodal="true" e-position-y="0" e-position-x="0" e-showoninit="false" e-target="#MainDIV" e-close="onDialogClose" e-width="900" e-open="enableBtn">
+
+    <div class="row">
+        <div class="col-xs-12">
+            <h6 class="site-heading">Operation Detail</h6>
+        </div>
+        <div class="col-xs-12">
+            <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Operation </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{OperationVariationCard[0][0].Operation}} </div>
+            <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Opn Var. </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{OperationVariationCard[0][0].OperationVariation}} </div>
+            <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Code </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{OperationVariationCard[0][0].Code}} </div>
+            <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Category </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{OperationVariationCard[0][0].OperationCategory}} </div>
+            <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Material </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{OperationVariationCard[0][0].Material}} </div>
+            <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Article </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{OperationVariationCard[0][0].Article}} </div>
+            <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">RPM </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{OperationVariationCard[0][0].RPM}} </div>
+            <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">StitchCode </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{OperationVariationCard[0][0].StitchCode}} </div>
+            <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Machine Req. </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{OperationVariationCard[0][0].IsMachineRequired}} </div>
+            <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Skill </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{OperationVariationCard[0][0].Skill}} </div>
+            <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Sub Opn.SPT </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{OperationVariationCard[0][0].SubOperationSAM}} </div>
+            <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Add. SPT </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{OperationVariationCard[0][0].AdditionalSAM}} </div>
+            <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Freq </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{OperationVariationCard[0][0].Frequency}} </div>
+            <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Mac.Alw </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{OperationVariationCard[0][0].MachineAllowance}} </div>
+            <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">SPI </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{OperationVariationCard[0][0].SPI}} </div>
+            <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Total SPT </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{OperationVariationCard[0][0].TotalSAM}} </div>
+            <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Add.Alw </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{OperationVariationCard[0][0].AdditionalAllowance}} </div>
+            <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">VAS SPT </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{OperationVariationCard[0][0].VASFINALSAM}} </div>
+        </div>
+    </div>
+
+</ej-dialog>
 <ej-dialog id="dialogSearchEmployee" title="Employees" e-enablemodal="true" e-position-y="0" e-position-x="0" e-showoninit="false" e-target="#mainContent" e-close="onDialogClose" e-width="900" e-open="enableBtn">
     <div class="col-xs-12" style="border:1px solid #dfdfdf">
         <div class="row text-right">

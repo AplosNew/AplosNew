@@ -804,7 +804,7 @@ function ESICPolicyController($window, cboService, commonMessage, $scope, $rootS
             var newObj = Object.assign({}, $scope.ESICPolicyMonthNo);
             $scope.MonthList.push(newObj);
         } catch (e) {
-            ShowResult(e.Message, 'info');
+            ShowResult(e, 'info');
         }
     };
 

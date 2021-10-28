@@ -7,9 +7,11 @@ function PFPolicyController($window, cboService, commonMessage, $scope, $rootSco
     $scope.saveDetailsUrl = $scope.path + 'SaveDetails';
     $scope.saveMUrl = $scope.path + 'SaveM';
     $scope.deleteUrl = $scope.path + 'Delete';
+    $scope.Action = 'Save';
     $scope.EmployerList = [];
     $scope.ModelList = [];
     $scope.EmployeeList = [];
+    $scope.HeadList = [];
     $scope.getData = function () {
         $scope.ModelList = [];
         $http({
@@ -119,7 +121,7 @@ function PFPolicyController($window, cboService, commonMessage, $scope, $rootSco
             $http({
                 method: 'POST',
                 url: $scope.saveMUrl,
-                data: { 'Master': $scope.PFPolicyMaster },
+                data: { 'Master': $scope.PFPolicyMaster, 'PFPolicySalaryHeadList': $scope.HeadList },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -201,6 +203,7 @@ function PFPolicyController($window, cboService, commonMessage, $scope, $rootSco
     $scope.recorddoubleclick = function () {
         var gridObj = $("#GridPFPolicy").data("ejGrid");
         $scope.PFPolicyMaster = gridObj.getSelectedRecords()[0];
+        $scope.GetHeadList($scope.PFPolicyMaster.ID);
         try {
             if (!$rootScope.isCollapsed) {
                 $rootScope.toggle();
@@ -213,6 +216,12 @@ function PFPolicyController($window, cboService, commonMessage, $scope, $rootSco
         $http.get('Attendances/PFPolicy/GetDetailsListM?MasterId=' + $scope.PFPolicyMaster.ID)
             .then(function (response) {
                 $scope.PFPolicyDetailsList = response.data;
+            });
+    };
+    $scope.GetHeadList = function (MasterId) {
+        $http.get('Attendances/PFPolicy/GetHeadList?MasterId=' + MasterId)
+            .then(function (response) {
+                $scope.HeadList = response.data;
             });
     };
     $scope.recorddoubleclickDetails = function () {
@@ -355,6 +364,13 @@ function PFPolicyController($window, cboService, commonMessage, $scope, $rootSco
         };
         //$scope.PFPolicyMasterModel = Object.assign({}, $scope.PFPolicyMaster);
         $scope.PFPolicyDetailsList = [];
+        $scope.PFPolicyHead = {
+            Id: null,
+            PFPolicyMasterID: $scope.PFPolicyMaster.ID,
+            SalaryHeadID: null,
+            SalaryHeadName: null,
+        }
+        $scope.HeadList = [];
     }
 
     $scope.Clear = function () {
@@ -1486,4 +1502,63 @@ function PFPolicyController($window, cboService, commonMessage, $scope, $rootSco
         $scope.PFPolicyDetailsMaster.EmployeeResidualValueSlrHdID = null;
 
     };
+
+    //#region Update 
+
+    
+    $scope.PFPolicyHead = {
+        Id: null,
+        PFPolicyMasterID: $scope.PFPolicyMaster.ID,
+        SalaryHeadID: null,
+        SalaryHeadName: null,
+    }
+    $scope.SubmitHeads = function () {
+        try {
+            for (var i = 0; i < $scope.HeadList.length; i++) {
+                if ($scope.HeadList[i].SalaryHeadID == $scope.PFPolicyHead.SalaryHeadID) {
+                    throw "This Salary head already Exist";
+                }
+            }
+            for (var i = 0; i < $scope.salaryHeadList.length; i++) {
+                if ($scope.salaryHeadList[i].Id == $scope.PFPolicyHead.SalaryHeadID) {
+                    $scope.PFPolicyHead.SalaryHeadName = $scope.salaryHeadList[i].UserName;
+                    break;
+                }
+            }
+            var newObj = Object.assign({}, $scope.PFPolicyHead);
+            $scope.HeadList.push(newObj);
+        } catch (e) {
+            ShowResult(e, 'info');
+        }
+    };
+        
+    $scope.message_confirmation = null;
+    $scope.RemoveHead = function (obj) {
+        $scope.PFPolicyHead = Object.assign({}, obj.data);
+        if (!baseService.isUndefinedOrNull($scope.PFPolicyHead.Id))
+            $scope.message_confirmation = 'Are you sure want to delete permanently ?';
+        angular.element(document.querySelector('#confirmPopUpHead')).modal('show');
+    }
+    $scope.DeleteHeadList = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'DeleteHeadMaster?ID=' + $scope.PFPolicyHead.Id,
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult("Invalid Head ");
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetHeadList($scope.PFPolicyHead.PFPolicyMasterID);
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+    };
+
+    //#endregion
+
+
+
 }

@@ -87,6 +87,15 @@ namespace Aplos.Areas.Attendances.Controllers
             return Json(data, JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
+        public ActionResult GetHeadList(string MasterId)
+        {
+            string sql = @"select p.*,s.SalaryHead SalaryHeadName from PFPolicySalaryHead p
+                                left join SalaryHead s on s.SalaryHeadID=p.SalaryHeadID
+                                where PFPolicyMasterID='" + MasterId + @"' Order By Sequence";
+            var data = _sqlRepository.GetDataCollection(sql);
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
         public ActionResult GetEmloyeeDetails(string Details)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -138,12 +147,12 @@ namespace Aplos.Areas.Attendances.Controllers
 
 
         [HttpPost]
-        public ActionResult SaveM(PFPolicyMaster Master)
+        public ActionResult SaveM(PFPolicyMaster Master, List<PFPolicySalaryHead> PFPolicySalaryHeadList)
         {
             try
             {
                 string MasterId = string.Empty;
-                MasterId = SaveMaster(Master);
+                MasterId = SaveMaster(Master, PFPolicySalaryHeadList);
                 return Json(new { MasterId, Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception)
@@ -153,7 +162,7 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
         [HttpPost, Authorize]
-        public string SaveMaster(PFPolicyMaster Master)
+        public string SaveMaster(PFPolicyMaster Master, List<PFPolicySalaryHead> PFPolicySalaryHeadList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
@@ -242,11 +251,110 @@ namespace Aplos.Areas.Attendances.Controllers
 
                     dr.EndEdit();
                 }
+
+                #region Save PFPolicySalaryHead Part
+                DeleteHead(Id);
+                DataSet dsHead;
+                GetHead(Id, out dsHead);
+                _Head(ref dsHead, Id, PFPolicySalaryHeadList);
+
+                #endregion
+
                 clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster);
+                obj.SaveDataSets(dsMaster, dsHead);
                 return Id;
             }
 
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public void DeleteHead(string sMstID)
+        {
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(@"DELETE FROM PFPolicySalaryHead WHERE PFPolicyMasterID = '" + sMstID + "'", true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                objCon.RollBack();
+                throw (ex);
+            }
+            finally
+            {
+                objCon.CloseConnection();
+                objCon = null;
+            }
+        }//End Function
+        public void GetHead(string sMstID, out DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                if (sMstID != "")
+                {
+                    strSQL = "SELECT * FROM PFPolicySalaryHead WHERE PFPolicyMasterID = '" + sMstID + "'";
+                }
+                else
+                {
+                    strSQL = "SELECT * FROM PFPolicySalaryHead ";
+                }
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
+
+        void _Head(ref DataSet dsSaveBonusMonths, string MasterID, List<PFPolicySalaryHead> HeadList)
+        {
+
+            DataView dvMSave = null;
+            DataTable dtMSave = null;
+            DataRow drMSave = null;
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                dtMSave = dsSaveBonusMonths.Tables[0];
+                int count = 0;
+                foreach (var item in HeadList)
+                {
+                    dvMSave = new DataView();
+                    dvMSave.Table = dtMSave;
+                    dvMSave.RowFilter = "PFPolicyMasterId ='" + item.PFPolicyMasterId + "' and SalaryHeadID='" + item.SalaryHeadID + "'";
+                    if (dvMSave.Count == 0)
+                    {
+                        count++;
+                        drMSave = dtMSave.NewRow();
+                        drMSave["Id"] = MasterID + count;
+                        drMSave["PFPolicyMasterId"] = MasterID;
+                        drMSave["SalaryHeadID"] = item.SalaryHeadID;
+                        drMSave["SalaryHeadID"] = item.SalaryHeadID;
+                        drMSave["Sequence"] = count;
+                        drMSave["AddedBy"] = identity.Name;
+                        drMSave["AddedDate"] = DateTime.Now;
+                        drMSave["AddedFromIP"] = identity.IPAddress;
+                        drMSave["UpdatedBy"] = identity.Name;
+                        drMSave["UpdatedDate"] = System.DateTime.Now.ToString();
+                        drMSave["UpdatedFromIP"] = identity.IPAddress;
+                        dtMSave.Rows.Add(drMSave);
+                    }
+                }
+            }
             catch (Exception ex)
             {
                 throw ex;
@@ -258,6 +366,10 @@ namespace Aplos.Areas.Attendances.Controllers
         {
             try
             {
+                if (Employer == null)
+                    throw new Exception("Insert Employer Contribution Part ");
+                if (Employee == null)
+                    throw new Exception("Insert Employee Contribution Part ");
                 string DetailsId = string.Empty;
                 DetailsId = SaveDetailsMaster(Details, Master);
                 SaveEmployeeDetails(Details, DetailsId, Employee);
@@ -580,6 +692,26 @@ namespace Aplos.Areas.Attendances.Controllers
             return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost, Authorize]
+        public ActionResult DeleteHeadMaster(string ID)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(ID))
+                    throw new Exception("Select Id first");
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from PFPolicySalaryHead where Id='" + ID + "'");
+                con.CommitTransaction();
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+        }
+
         public class PFPolicyMaster : BaseModel
         {
             #region Scalar Properties            
@@ -600,6 +732,29 @@ namespace Aplos.Areas.Attendances.Controllers
 
             public int MaturityTimeLenghtMonth { get; set; }
             public int MaturityTimeLenghtYear { get; set; }
+            #endregion Scalar Properties
+
+            #region Audit Properties
+            [NeverUpdate]
+            public string AddedBy { get; set; }
+            [NeverUpdate]
+            public DateTime? AddedDate { get; set; }
+            [NeverUpdate]
+            public string AddedFromIP { get; set; }
+
+            public string UpdatedBy { get; set; }
+            public DateTime? UpdatedDate { get; set; }
+            public string UpdatedFromIP { get; set; }
+
+            #endregion Audit Properties
+        }
+
+        public class PFPolicySalaryHead
+        {
+            #region Scalar Properties            
+            public string Id { get; set; }
+            public string PFPolicyMasterId { get; set; }
+            public string SalaryHeadID { get; set; }
             #endregion Scalar Properties
 
             #region Audit Properties

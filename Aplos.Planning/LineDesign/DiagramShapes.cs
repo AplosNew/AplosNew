@@ -33,6 +33,8 @@ namespace Library.Planning.LineDesign
         public string MachineOrHand { get; set; } = "H";
         public string OperationVariationId { get; set; } = "";
         public string OperationVariationDesc { get; set; } = "";
+        public double TotalSPT { get; set; } = 0;
+
         public string MaterialMasterId { get; set; } = "";
         public string MaterialMasterDesc { get; set; } = "";
         public string FixedAssetRegisterId { get; set; } = "";
