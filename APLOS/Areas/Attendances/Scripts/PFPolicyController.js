@@ -466,9 +466,8 @@ function PFPolicyController($window, cboService, commonMessage, $scope, $rootSco
         $scope.salaryRuleGeneralEmployee.Precedence = null;
         $scope.salaryRuleGeneralEmployee.Value = null;
 
-
-
-
+        $scope.EmployeeList = [];
+        $scope.EmployerList = [];
         $scope.FormulaArray = [];
         $scope.FormulaIdArray = [];
         $scope.FormulaArrayEmployee = [];
