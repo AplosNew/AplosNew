@@ -576,7 +576,7 @@ var upanelApp = angular
     .controller('leavesChecklistReportController', leavesChecklistReportController)
 
     .controller('leaveWithWagesRegistersController', leaveWithWagesRegistersController)
-    .controller('leaveWithWagesRegistersFrom18Controller', leaveWithWagesRegistersFrom18Controller)
+    .controller('leaveWithWagesRegistersForm18Controller', leaveWithWagesRegistersForm18Controller)
 
     .controller('LeaveYearEndProcessController', LeaveYearEndProcessController)
     .controller('loanInterestPayableController', loanInterestPayableController)
