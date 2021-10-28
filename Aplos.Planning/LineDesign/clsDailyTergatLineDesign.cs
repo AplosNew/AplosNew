@@ -290,6 +290,12 @@ namespace Library.Planning.LineDesign
                 if (OTSBD.clsStaticInfo.dbl(HtmlsInfo[i]["CurrentQuantity"]) == 0)
                     continue;
 
+                if (OTSBD.clsStaticInfo.nullrecorder(HtmlsInfo[i]["EmployeeId"]) == "")
+                    continue;
+
+                if (OTSBD.clsStaticInfo.nullrecorder(HtmlsInfo[i]["OperationVariationId"]) == "")
+                    continue;
+
                 if (ChildPK == "")
                 {
                     objGenID = new bplib.clsGenID();
@@ -312,7 +318,7 @@ namespace Library.Planning.LineDesign
 
                 dr["AddedBy"] = identity.Name;
                 dr["AddedDate"] = DateTime.Now;
-                // dr["AddedFromIP"] = identity.IPAddress;
+                //dr["AddedFromIP"] = identity.IPAddress;
 
                 dr["UpdatedBy"] = identity.Name;
                 dr["UpdatedDate"] = DateTime.Now;
@@ -456,7 +462,7 @@ CASE WHEN ISNULL(dtd.EmployeeSystemId,'')='' THEN 'Unassigned' ELSE CONCAT('Assi
                         SELECT far.Id,far.Model,mma.StandardName AS Article,mm.UserName AS Material, far.SerialNo, format(far.CapitalizationDate,'dd-MMM-yyyyy') CapitalizationDate,format(far.InvoiceDate,'dd-MMM-yyyyy') InvoiceDate,
                            far.YearOfManufacture, far.YearOfInstallation, far.[Description],CONCAT(far.Id,'/',far.[Description]) AS FixedAssetDesc,
                            far.AssetNo, far.[Status], far.Remarks,cm.UserName AS Vendor,B.UserName AS Brand,c.UserName AS CountryOfOrigin,FR.UserName FixedAssetMaster,
-                           A.UserName AS FixedAssetActivity
+                           A.UserName AS FixedAssetActivity,mma.ShortName AS ArticleShortName
                       FROM 
                             mst.operationvariation ov
                          left join   trn.FixedAssetRegister AS far on far.MaterialMasterArticleId=ov.ArticleId and far.Id='" + AssetRegisterId + @"'
@@ -511,7 +517,7 @@ CASE WHEN ISNULL(dtd.EmployeeSystemId,'')='' THEN 'Unassigned' ELSE CONCAT('Assi
             string sql = @"SELECT o.UserName AS Operation,ov.UserName AS OperationVariation,mma.StandardName AS Article,s.UserName AS Skill,mm.UserName AS Material,o.IsMachineRequired,mma.RPM,sc.UserName AS StitchCode,
                         ov.SubOperationSAM, ov.AdditionalSAMSymbol, ov.AdditionalSAM, ov.Frequency,oc.UserName AS OperationCategory,
                         ov.MachineAllowance, ov.SPI, ov.Code, ov.TotalSAM, ov.AdditionalAllowance,
-                        ov.VASFINALSAM
+                        ov.VASFINALSAM,mma.ShortName AS ArticleShortName
                           FROM mst.OperationVariation AS ov
                         LEFT JOIN mst.Operation AS o ON o.Id=ov.OperationId
                         LEFT JOIN hkp.OperationCategory AS oc ON oc.Id=o.OperationCategoryId

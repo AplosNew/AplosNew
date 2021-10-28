@@ -36,6 +36,12 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
+        public IEnumerable<object> getOTRateList()
+        {
+            var str = @"Select Username+ ' - '+ FormulaDes as Text , Id as Value , FormulaDes as Formula from dbo.OTFormula ";
+            return _sqlRepository.GetDataCollection(str);
+        }
+
         public IEnumerable<object> getEmployees()
         {
             try
@@ -386,7 +392,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
         // Saving the Day Type With Values
 
-        public Dictionary<string, object> saveDayTypeChild(Dictionary<string, object> Header)
+        public Dictionary<string, object> saveDayTypeChild(Dictionary<string, object> Header , List<Dictionary<string,object>> Leave)
         {
             try
             {
@@ -420,8 +426,53 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 #endregion data update
 
+
+                //Leave Day Type Code
+
+                DataSet dsMaster1;
+                ConnectionManager.DAL.ConManager con1 = new ConnectionManager.DAL.ConManager("1");
+                con1.OpenDataSetThroughAdapter("select * from dbo.LeaveDayType where DayTypeWithValuesId='" + Header["Id"] + @"'", out dsMaster1, false, "1");
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                for (int i = 0; i < Leave.Count; i++)
+                {
+                    //Data[i]["LDTId"].ToString();
+                    dsMaster1.Tables[0].DefaultView.RowFilter = @"Id = '" + bplib.clsWebLib.RetValidLen(Leave[i]["LDTId"]).ToString() + "'";
+                    if (dsMaster1.Tables[0].DefaultView.Count > 0)
+                    {
+                        DataRow dr = dsMaster1.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+                        dr["EarnValue"] = clsStaticInfo.dbl(Leave[i]["EarnValue"].ToString());
+                        dr["AvailedValue"] = clsStaticInfo.dbl(Leave[i]["AvailedValue"].ToString());
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+                        dr.EndEdit();
+                    }
+                    else
+                    {
+                        DataRow dr = dsMaster1.Tables[0].NewRow();
+                        string _Id1 = "";
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("dbo.LeaveDayType", out _Id1);
+                        dr["Id"] = "LVDT-" + _Id1;
+                        dr["DayTypeWithValuesId"] = Header["Id"];
+                        dr["EarnValue"] = clsStaticInfo.dbl(Leave[i]["EarnValue"].ToString());
+                        dr["AvailedValue"] = clsStaticInfo.dbl(Leave[i]["AvailedValue"].ToString());
+                        dr["LeaveTypeId"] = Leave[i]["LTId"].ToString();
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+                        dsMaster1.Tables[0].Rows.Add(dr);
+                    }
+                }
+                //
+
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
+                _info.SaveDataSets(dsMaster, dsMaster1);
                 return Header;
             }
             catch (Exception e)

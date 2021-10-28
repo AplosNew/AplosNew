@@ -130,107 +130,6 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
 
  
 
-    //**********  Operations for the Child Tab  ********************\\
-    //$scope.PlantList = [];
-    //$scope.EmpTypeList = [];
-
-    ////Filling of the Plant And Employee Type List
-
-    //$scope.fillPlantsEmps = function () {
-    //    $http({
-    //        method: 'POST',
-    //        url: $scope.path + 'getPlants',
-            
-    //    }).then(function success(response) {
-    //        $scope.PlantList = [];
-    //        $scope.PlantList = response.data;
-    //    })
-
-    //    $http({
-    //        method: 'POST',
-    //        url: $scope.path + 'getEmpType',
-
-    //    }).then(function success(response) {
-    //        $scope.EmpTypeList = [];
-    //        $scope.EmpTypeList = response.data;
-    //    })
-
-    //}
-
-    //$scope.fillPlantsEmps();
-
-    //// Refreshing The Child Table
-    //$scope.childDataList = [];
-    //function updateChild() {
-    //    $http({
-    //        method: 'POST',
-    //        url: $scope.path + 'getChildData',
-    //        data: { 'MasterId': $scope.Master.Id }
-    //    }).then(function success(resp) {
-    //        $scope.childDataList = [];
-    //        $scope.childDataList = resp.data;
-    //    });
-    //}
-
-
-    ////Deleting the Child Table
-    //$scope.DeleteChildData = [];
-    //$scope.confirmModal = function (data) {
-    //    $scope.DeleteChildData = [];
-    //    $scope.DeleteChildData = data;
-    //    angular.element(document.querySelector('#confirmPOPUPD')).modal('show');
-    //}
-
-    //$scope.DeleteChild = function () {
-
-    //    var obj = $scope.DeleteChildData;
-    //    if (!baseService.isUndefinedOrNull(obj.Id)) {
-    //        $http({
-    //            method: 'POST',
-    //            url: $scope.path + 'DeleteChild',
-    //            data: { 'id': obj.Id },
-    //            dataType: 'JSON'
-    //        }).then(function successCallback(response) {
-    //            if (response.data.Error === true) {
-    //                ShowResult(response.data.Message, 'failure');
-    //            }
-    //            else {
-    //                ShowResult(response.data.Message, 'success');
-    //                updateChild();
-    //            }
-    //            function errorCallBack(response) {
-    //                ShowResult(response.data.Message, 'failure');
-    //            }
-    //        });
-    //    }
-    //};
-
-
-
-    ////Save The Child Data
-
-    //$scope.saveChild = function () {
-    //    $scope.$broadcast('show-errors-check-validity');
-    //    if ($scope.ChildForm.$valid) {
-    //        $http({
-    //            method: 'POST',
-    //            url: $scope.path + 'saveChild',
-    //            data: { 'Child': $scope.Child }
-    //        }).then(function successCallback(response) {
-    //            if (response.data.Error === true) {
-    //                ShowResult(response.data.Message, 'failure');
-    //            }
-    //            else {
-    //                ShowResult(response.data.Message, 'success');
-    //                console.log(response.data.Data);
-    //                updateChild();
-    //            }
-    //        }), function errorCallBack(response) {
-    //            ShowResult(response.data.Message, 'failure');
-    //        }
-    //    }
-    //}
-
     //All the Validation Funcitons
 
   
@@ -570,7 +469,37 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
         EarnedPL: 0,
         EarnedCL: 0,
         IsCreditLimitAllowed: 0,
+        DayLimit :0,
+        Week1Limit: 0,
+        Week2Limit: 0,
+        Week3Limit: 0,
+        Week4Limit: 0,
+        MonthlyLimit: 0,
+        ApplicableWM: null,
+        OTMultiplingFactor: 0,
+        OTRateLegal: null,
+        OTRateExtra: null,
+        OTConfirmation: null,
+        isOTConfirmationAuto: false,
+        DisplayInOutTime: null,
+        AttnBonusAbsent: 0,
+        AttnBonusLate: 0,
+        AttnBonusLeave: 0,
     };
+
+    //Getting the OTRate List
+    $scope.OTRateList = [];
+
+    $scope.getOTRateList = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'getOTRateList',
+        }).then(function succ(resp) {
+            $scope.OTRateList = resp.data;
+        });
+    }
+
+    $scope.getOTRateList();
 
     //Seleting the Current Day Status Starts
     $scope.selectCurrDayStatus = function () {
@@ -605,7 +534,7 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
             $http({
                 method: 'POST',
                 url: $scope.path + 'saveDayTypeChild',
-                data: { 'DayTypeChild': $scope.DayChild }
+                data: { 'DayTypeChild': $scope.DayChild , 'Leave' : $scope.LeaveList }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
@@ -724,6 +653,22 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
             EarnedPL: 0,
             EarnedCL: 0,
             IsCreditLimitAllowed: 0,
+            DayLimit: 0,
+            Week1Limit: 0,
+            Week2Limit: 0,
+            Week3Limit: 0,
+            Week4Limit: 0,
+            MonthlyLimit: 0,
+            ApplicableWM: null,
+            OTMultiplingFactor: 0,
+            OTRateLegal: null,
+            OTRateExtra: null,
+            OTConfirmation: null,
+            isOTConfirmationAuto: false,
+            DisplayInOutTime: null,
+            AttnBonusAbsent: 0,
+            AttnBonusLate: 0,
+            AttnBonusLeave: 0,
         };
         $scope.DayChild.HeaderId = $scope.Header.Id;
     }
@@ -1024,27 +969,37 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
     };
 
     //Getting the DayTypeWithValues
-    $scope.selectLeaveDayType = function () {
-        angular.element(document.querySelector('#LeaveDayType')).modal('show');
-    }
-
     $scope.LeaveList = [];
-
-    $scope.doubleLeaveDayType = function (e) {
-        $scope.LeaveDt.DayTypeWithValue = e.data.DayType;
-        $scope.LeaveDt.DayTypeWithValuesId = e.data.Id;
+    $scope.selectLeaveDayType = function () {
 
         $http({
             method: 'POST',
             url: $scope.path + 'getleaveDayTypes',
-            data: { 'DayTypeWithValuesId': $scope.LeaveDt.DayTypeWithValuesId }
+            data: { 'DayTypeWithValuesId': $scope.DayChild.Id }
         }).then(function succ(resp) {
             $scope.LeaveList = [];
             $scope.LeaveList = resp.data;
         });
-
-        angular.element(document.querySelector('#LeaveDayType')).modal('hide');
+        angular.element(document.querySelector('#LeaveDayType')).modal('show');
     }
+
+    
+
+    //$scope.doubleLeaveDayType = function (e) {
+    //    $scope.LeaveDt.DayTypeWithValue = e.data.DayType;
+    //    $scope.LeaveDt.DayTypeWithValuesId = e.data.Id;
+
+    //    $http({
+    //        method: 'POST',
+    //        url: $scope.path + 'getleaveDayTypes',
+    //        data: { 'DayTypeWithValuesId': $scope.LeaveDt.DayTypeWithValuesId }
+    //    }).then(function succ(resp) {
+    //        $scope.LeaveList = [];
+    //        $scope.LeaveList = resp.data;
+    //    });
+
+    //    angular.element(document.querySelector('#LeaveDayType')).modal('hide');
+    //}
 
     $scope.saveLeaveDayType = function ()
     {

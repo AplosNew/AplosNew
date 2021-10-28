@@ -199,11 +199,11 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
         // Saving the Day Type With Values
         [HttpPost]
-        public ActionResult saveDayTypeChild(Dictionary<string, object> DayTypeChild)
+        public ActionResult saveDayTypeChild(Dictionary<string, object> DayTypeChild , List<Dictionary<string,object>> Leave)
         {
             try
             {
-                var id = ds.saveDayTypeChild(DayTypeChild);
+                var id = ds.saveDayTypeChild(DayTypeChild , Leave);
                 return Json(new { Error = false, Data = id, Message = AplosMessage.Success });
 
             }
@@ -251,6 +251,12 @@ namespace Aplos.Areas.HumanResource.Controllers
         public ActionResult getleaveDayTypes(string DayTypeWithValuesId)
         {
             return Json(ds.getleaveDayTypes(DayTypeWithValuesId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult getOTRateList()
+        {
+            return Json(ds.getOTRateList(), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
