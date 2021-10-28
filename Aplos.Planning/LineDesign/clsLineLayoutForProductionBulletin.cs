@@ -111,7 +111,7 @@ namespace Library.Planning.LineDesign
 									LEFT JOIN [TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = PO.Id and POSP.IsBaseProcess=1
 									join trn.ProductionBulletinTemplate pbt on pbt.ProductionOrderId = PO.Id 
 									Join TRN.ProductionBulletinTemplateMaster pbtm on pbtm.ProductionBulletinTemplateId = pbt.Id and pbtm.ProcessId=posp.ProcessId
-								    WHERE  E.Id='" + entityId + "'";
+								    WHERE  E.Id='" + entityId + "' AND ISNULL(ps.StandardName,'')<>'Closed'";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }
