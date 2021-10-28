@@ -560,9 +560,26 @@ namespace Library.Accounting.FixedAssets
             if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                 strkey = column + " like '%" + value + "%'";
             var sql = @"select top 100 * from (select frd.Id,frd.Id DisposeNo,fr.Remarks,fr.[Status],frd.EmployeeId,ei.EmployeeName,D.UserName Department,DG.UserName Designation,frd.IsPark
-                , SUM(ISNULL(FR.Price,0)) Price,SUM(ISNULL(SAR.subAssetAmount,0)) SubAssetAmount, SUM(ISNULL(FR.Price,0))+SUM(ISNULL(SAR.subAssetAmount,0)) PurchasePrice,SUM(ISNULL(FR.ADBaseAmount,0)) ADBaseAmount
-                , SUM(ISNULL(FR.Price,0))+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(ISNULL(FR.ADBaseAmount,0)) NetBookValue , SUM(ISNULL(fr.NegotiationValue,0)) NegotiationValue
-				,P.UserName CustomerName,frd.PartyId,frd.PartyPlantId ,c.Code TrnPurchaseCurrency,c1.Code SalesCurrency
+
+                                ,c.Code TrnCurrency
+,                               c.Id trnCurrencyId
+                                    ,sum( ISNULL(FR.Price,0)) Price
+									,sum( ISNULL(SAR.subAssetAmount,0) )SubAssetAmount
+									,sum( ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0)) PurchasePrice
+									 ,sum( ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0)-ISNULL(FR.ADBaseAmount,0)) NetBookValue 
+								--	, 0 NegotiationValue
+
+								   , BC.Code BaseCurrency
+                                       ,sum(isnull( frd.ToCurrencyRate,0))ToCurrencyRate
+									,sum( isnull(FR.FABaseAmount,0))FABaseAmount
+									,sum(ISNULL(SAR.subAssetBaseAmount,0) )SubAssetBaseAmount
+									,sum(isnull(FR.FABaseAmount,0) + ISNULL(SAR.subAssetBaseAmount,0)) PurchaseBaseAmount
+									,sum(isnull( FR.ADBaseAmount,0))ADBaseAmount
+                                    ,sum( isnull(FR.FABaseAmount,0)+ISNULL(SAR.subAssetBaseAmount,0)-ISNULL(FR.ADBaseAmount,0) )NetBaseBookValue 
+										,sum(isnull( rdd.NegotiationValue,0))NegotiationValue
+                                    ,sum(isnull( rdd.NagotiationBooksValue,0))NagotiationBooksValue
+
+				,P.UserName CustomerName,frd.PartyId,frd.PartyPlantId ,c.Code TrnPurchaseCurrency
                 ,IsOBBalance=case when FR.IsOpeningBalance=0 then 'No' Else 'Yes' End
                 --,P.UserName Vendor
                 from TRN.FixedAssetRegisterDisposed frd 
@@ -573,13 +590,13 @@ namespace Library.Accounting.FixedAssets
 				left join HKP.Designation DG ON DG.Id=ei.DesignationSystemID
 				LEFT JOIN HKP.Party P ON P.Id=FRD.PartyId
 				LEFT JOIN HKP.PartyPlant PP ON PP.Id=FRD.PartyPlantId
-	            LEFT JOIN SCS.Currency C ON C.Id =FR.CurrencyId
-	            LEFT JOIN SCS.Currency C1 ON C1.Id =frd.CurrencyId
+	            LEFT JOIN SCS.Currency C ON C.Id =frd.CurrencyId
+	            LEFT JOIN SCS.Currency BC ON BC.Id =FR.FABaseCurrencyId
 
                 --LEFT JOIN HKP.Party P ON P.Id = FR.VendorId
-                LEFT JOIN ( SELECT FixedAssetRegisterId,ISNULL(Sum(Amount),0) subAssetAmount FROM TRN.SubFixedAssetRegister group by FixedAssetRegisterId) SAR ON SAR.FixedAssetRegisterId=FR.Id
-                    where fr.CompanyId='" + companyId + @"' AND frd.DisposedVoucherId IS NULL
-                     group by fr.Remarks,fr.[Status],ei.EmployeeName,frd.IsPark,frd.Id,D.UserName ,DG.UserName,frd.EmployeeId,P.UserName ,frd.PartyId,frd.PartyPlantId,c.Code,FR.IsOpeningBalance ,P.UserName,c1.Code) AS TEMP WHERE " + strkey + " order by DisposeNo ";
+                LEFT JOIN ( SELECT FixedAssetRegisterId,ISNULL(Sum(Amount),0) subAssetAmount ,ISNULL(Sum(BaseAmount),0) subAssetBaseAmount FROM TRN.SubFixedAssetRegister group by FixedAssetRegisterId) SAR ON SAR.FixedAssetRegisterId=FR.Id
+                    where fr.CompanyId='C20171' AND frd.DisposedVoucherId IS NULL
+                     group by fr.Remarks,fr.[Status],ei.EmployeeName,frd.IsPark,frd.Id,D.UserName ,DG.UserName,frd.EmployeeId,P.UserName ,frd.PartyId,frd.PartyPlantId,c.Code,FR.IsOpeningBalance ,P.UserName , BC.Code,c.Id ) AS TEMP WHERE " + strkey+" order by DisposeNo ";
             return _sqlRepository.GetDataCollection(sql);
         }
         public List<Dictionary<string, object>> GetFixedAssetDisposePostedList(string column, string value, string companyId)
@@ -588,20 +605,40 @@ namespace Library.Accounting.FixedAssets
             if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                 strkey = column + " like '%" + value + "%'";
             var sql = @"select top 100 * from (select frd.Id DisposeNo,V.VoucherNo,V.PostingDate,V.Id,fr.Remarks,fr.[Status],ei.EmployeeName,D.UserName Department,DG.UserName Designation,frd.IsPark
-                    ,c.Code TrnCurrency
-                , SUM(ISNULL(FR.Price,0)) Price,SUM(ISNULL(SAR.subAssetAmount,0)) SubAssetAmount, SUM(ISNULL(FR.Price,0))+SUM(ISNULL(SAR.subAssetAmount,0)) PurchasePrice,SUM(ISNULL(FR.ADBaseAmount,0)) ADBaseAmount
-                , SUM(ISNULL(FR.Price,0))+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(ISNULL(FR.ADBaseAmount,0)) NetBookValue , SUM(ISNULL(fr.NegotiationValue,0)) NegotiationValue
+
+
+			,P.UserName CustomerName
+			,C.Code TrnCurrency
+        ,sum( ISNULL(FR.Price,0)) Price
+									,sum( ISNULL(SAR.subAssetAmount,0) )SubAssetAmount
+									,sum( ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0)) PurchasePrice
+									 ,sum( ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0)-ISNULL(FR.ADBaseAmount,0)) NetBookValue 
+								--	, 0 NegotiationValue
+
+								   , BC.Code BaseCurrency
+									,sum( isnull(FR.FABaseAmount,0))FABaseAmount
+									,sum(ISNULL(SAR.subAssetBaseAmount,0) )SubAssetBaseAmount
+									,sum(isnull(FR.FABaseAmount,0) + ISNULL(SAR.subAssetBaseAmount,0)) PurchaseBaseAmount
+									,sum(isnull( FR.ADBaseAmount,0))ADBaseAmount
+                                    ,sum( isnull(FR.FABaseAmount,0)+ISNULL(SAR.subAssetBaseAmount,0)-ISNULL(FR.ADBaseAmount,0) )NetBaseBookValue 
+										,sum(isnull( rdd.NegotiationValue,0))NegotiationValue
+										,sum(isnull( rdd.NagotiationBooksValue,0))NagotiationBooksValue
+
                 from TRN.FixedAssetRegisterDisposed frd 
 				join TRN.FixedAssetRegisterDisposedDetail rdd ON rdd.FixedAssetRegisterDisposedId=frd.Id
                 left join TRN.FixedAssetRegister FR on FR.Id=rdd.FixedAssetRegisterId
                 left join dbo.EmployeeInformation ei on ei.SystemId=frd.EmployeeId
 				left join ORG.Department D on D.Id=ei.DepartmentId
 				left join HKP.Designation DG ON DG.Id=ei.DesignationSystemID
+					LEFT JOIN HKP.Party P ON P.Id=FRD.PartyId
+				LEFT JOIN HKP.PartyPlant PP ON PP.Id=FRD.PartyPlantId
 				 JOIN TRN.Voucher V ON V.Id=frd.DisposedVoucherId
-                LEFT JOIN SCS.Currency C ON C.Id =FR.CurrencyId
-                LEFT JOIN ( SELECT FixedAssetRegisterId,ISNULL(Sum(Amount),0) subAssetAmount FROM TRN.SubFixedAssetRegister group by FixedAssetRegisterId) SAR ON SAR.FixedAssetRegisterId=FR.Id
-                    where fr.CompanyId='" + companyId + @"'
-                    group by fr.Remarks,fr.[Status],ei.EmployeeName,frd.IsPark,frd.Id,D.UserName ,DG.UserName,V.VoucherNo,V.PostingDate,V.Id,c.Code ) AS TEMP WHERE " + strkey + " order by DisposeNo ";
+                     LEFT JOIN SCS.Currency C ON C.Id =frd.CurrencyId
+                     LEFT JOIN SCS.Currency BC ON BC.Id =FR.FABaseCurrencyId
+                LEFT JOIN ( SELECT FixedAssetRegisterId,ISNULL(Sum(Amount),0) subAssetAmount ,ISNULL(Sum(BaseAmount),0) subAssetBaseAmount FROM TRN.SubFixedAssetRegister group by FixedAssetRegisterId) SAR ON SAR.FixedAssetRegisterId=FR.Id
+                    where fr.CompanyId='" + companyId+@"'
+                    group by fr.Remarks,fr.[Status],ei.EmployeeName,frd.IsPark,frd.Id,D.UserName 
+					,DG.UserName,V.VoucherNo,V.PostingDate,V.Id,c.Code ,P.UserName , BC.Code ) AS TEMP WHERE "+strkey+" order by DisposeNo ";
             return _sqlRepository.GetDataCollection(sql);
         }
 

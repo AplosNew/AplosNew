@@ -98,11 +98,20 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
         BankAmount: null
     };
     $scope.Get = function (data) {
-        $scope.voucher.Id = data.Id;
+        $scope.voucher.Id = data.rowData.Id;
+        //$scope.voucher.ParticularName = data.rowData.Id;
+        //$scope.voucher.Material = data.MaterialMasterName;
+        //$scope.voucher.Article = data.Article;
+        //$scope.voucher.CapitalizationDate = data.CapitalizationDate;
+        //$scope.voucher.PurchaseDate = data.PurchaseDate;
+        //$scope.voucher.IssueDate = data.IssueDate;
+        //$scope.voucher.TrnCurrency = data.TrnCurrency;
+        //$scope.voucher.baseCurrency = data.BaseCurrency;
         $scope.Action = "Update";
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
+
 
     };
 
@@ -225,7 +234,8 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
                         "partyPlantId": $scope.voucher.InvoicingPartyPlantId,
                         "remarks": $scope.voucher.Remarks,
                         "currencyId": $scope.voucher.CurrencyId,
-                        "toCurrencyRate": $scope.voucher.CompanyCurrencyRate 
+                        "toCurrencyRate": $scope.voucher.CompanyCurrencyRate,
+                        
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {
@@ -357,7 +367,8 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
                 $scope.voucherDetail.Narration = $scope.voucher.Narration;
                 $scope.voucherDetail.EntityId = $scope.voucher.EntityId;
                 $scope.voucherDetail.PlantId = $scope.voucher.PlantId;
-
+                
+                
                 $scope.voucherDetail.FABaseAmount = data.FABaseAmount;
                 $scope.voucherDetail.SubAssetBaseAmount = data.SubAssetBaseAmount;
                 $scope.voucherDetail.PurchaseBaseAmount = data.PurchaseBaseAmount;
@@ -369,7 +380,7 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
                 $scope.voucherDetail.PurchasePrice = data.PurchasePrice;
                 $scope.voucherDetail.ADBaseAmount = data.ADBaseAmount;
                 $scope.voucherDetail.NetBookValue = data.NetBookValue;
-
+                $scope.voucherDetail.InvoiceNo = data.InvoiceNo;
 
                 if ($scope.voucher.Status == 'Scrap') {
                     $scope.voucherDetail.NegotiationValue = data.NetBookValue;
@@ -503,6 +514,11 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
         else {
             $scope.currencyExchangeRate = [];
         }
+    };
+
+    $scope.DisposeTpye = function () {
+        //$scope.removeRow();
+        $scope.voucherDetailList = [];
     };
 
 

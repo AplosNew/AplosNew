@@ -4245,6 +4245,8 @@ namespace Library.Service.FixedAssets
                     IsPark = true,
                    ToCurrencyRate = toCurrencyRate,
                    CurrencyId = currencyId
+
+                  
                 };
                 AuditService.AddedLog(fixedAssetDispose);
                 _fixedAssetRegisterDisposedRepository.Insert(fixedAssetDispose);
@@ -4266,6 +4268,7 @@ namespace Library.Service.FixedAssets
                         NegotiationValue = item.NegotiationValue,
                         FixedAssetRegisterDisposedId = fixedAssetDispose.Id,
                         Id = "D" + fixedAssetDispose.Id + detailId,
+                        NagotiationBooksValue = item.NegotiationValue * toCurrencyRate
                     };
                     AuditService.AddedLog(fixedAssetDisposeDetail);
                     _fixedAssetRegisterDisposedDetailRepository.Insert(fixedAssetDisposeDetail);

@@ -83,7 +83,11 @@ function fixedAssetDisposePostController(accountService, cboService, commonMessa
         ProfitRate: null,
         NoOfInstallmentPerYear: null,
         ProfitAmount: null,
-        TotalNoOfInstallment: null
+        TotalNoOfInstallment: null,
+        PaymentTermId: null,
+        BaseOnDueDate: null,
+        BaseNoOfDays: null,
+        MatureDate: null
     };
 
     $scope.voucherDetail = {
@@ -123,7 +127,10 @@ function fixedAssetDisposePostController(accountService, cboService, commonMessa
         $scope.voucher.Designation = data.Designation;
         $scope.voucher.Department = data.Department;
         $scope.voucher.Status = data.Status;
-       // $scope.voucher.trnCurrency = data.TrnCurrency;
+        if ($scope.voucher.Status =='Sales')
+          $scope.paymentTerm();
+        $scope.voucher.CurrencyId = data.trnCurrencyId;
+        $scope.voucher.CompanyCurrencyRate = data.ToCurrencyRate;
 
         $http({
             method: 'Post'
@@ -420,11 +427,23 @@ function fixedAssetDisposePostController(accountService, cboService, commonMessa
         $scope.voucherDetail.Narration = $scope.voucher.Narration;
         $scope.voucherDetail.EntityId = $scope.voucher.EntityId;
         $scope.voucherDetail.PlantId = $scope.voucher.PlantId;
+        $scope.voucherDetail.BaseCurrency = $scope.voucher.BaseCurrency;
+        
+
         $scope.voucherDetail.Price = data.Price;
         $scope.voucherDetail.SubAssetAmount = data.SubAssetAmount;
         $scope.voucherDetail.PurchasePrice = data.PurchasePrice;
         $scope.voucherDetail.ADBaseAmount = data.ADBaseAmount;
         $scope.voucherDetail.NetBookValue = data.NetBookValue;
+
+        $scope.voucherDetail.FABaseAmount = data.FABaseAmount;
+        $scope.voucherDetail.SubAssetBaseAmount = data.SubAssetBaseAmount;
+        $scope.voucherDetail.PurchaseBaseAmount = data.PurchaseBaseAmount;
+        $scope.voucherDetail.ADBaseAmount = data.ADBaseAmount;
+        $scope.voucherDetail.NetBaseBookValue = data.NetBaseBookValue;
+        $scope.voucherDetail.NegotiationValue = data.NegotiationValue;
+        $scope.voucherDetail.isOB = data.IsOpeningBalance;
+
         $scope.voucherDetail.SerialNo = data.SerialNo;
         $scope.voucherDetail.AssetNo = data.AssetNo;
         $scope.voucherDetail.Id = data.Id;
@@ -645,4 +664,51 @@ function fixedAssetDisposePostController(accountService, cboService, commonMessa
         } catch (e) {
 
         }    };
+
+    $scope.paymentTerm = function () {
+  
+            $scope.paymenttermUrl = "accounts/PaymentTerm/getcustomercbo";
+       
+        $http({
+            method: "GET",
+            url: $scope.paymenttermUrl
+        }).then(function successCallback(response) {
+            $scope.paymentTermList = response.data;
+        });
+    };
+    //
+
+    $scope.changePaymentTerm = function (id) {
+        if (!baseService.isUndefinedOrNull(id)) {
+            var paymentTerm = $.grep($scope.paymentTermList, function (item) {
+                return item.Value === id;
+            })[0];
+            $scope.voucher.PaymentTermCode = paymentTerm.PaymentTermCode;
+            $scope.voucher.BaseNoOfDays = paymentTerm.NoOfDay;
+            if (paymentTerm.BaseLineDate !== null)
+                if (paymentTerm.BaseLineDate === "documentdate") {
+                    $scope.voucher.BaseOnDueDate = $scope.voucher.DocDate;
+                    $scope.IsBaseOnDueDateEnable = true;
+                } else if (paymentTerm.BaseLineDate === "postingdate") {
+                    $scope.voucher.BaseOnDueDate = $scope.voucher.PostingDate;
+                    $scope.IsBaseOnDueDateEnable = true;
+                }
+                else if (paymentTerm.BaseLineDate === "voucherdate") {
+                    $scope.voucher.BaseOnDueDate = $filter("dateFiltering")(Date.now());
+                    $scope.IsBaseOnDueDateEnable = true;
+                }
+                else {
+                    $scope.IsBaseOnDueDateEnable = false;
+                    $scope.voucher.BaseOnDueDate = $filter("dateFiltering")(Date.now());
+                }
+            $scope.getMatureDate($scope.voucher.BaseOnDueDate, $scope.voucher.BaseNoOfDays);
+        }
+    };
+
+    $scope.getMatureDate = function (date, days) {
+        date = new Date(date);
+        date.setDate(date.getDate() + days);
+        $scope.voucher.MatureDate = $filter("date")(date, "dd-MMM-yyyy");
+    };
+
 }
