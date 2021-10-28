@@ -37,6 +37,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         #endregion Constructor
+
         #region -- Pages
 
         [Authorize]
@@ -571,6 +572,26 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
 
         }
+
+
+        [HttpGet, Authorize]
+        public ActionResult Form18(string empid, string CalendarYear)
+        {
+            try
+            {
+
+
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Message = ex.Message, Error = true, }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
 
         #endregion -- Operations
     }
