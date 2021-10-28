@@ -805,6 +805,9 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
         for (var i = 0; i < $scope.nodes.length; i++) {
             var model = Object.assign({}, $scope.nodes[i].addInfo);
             if (model.hasOwnProperty('EmployeeId')) {
+                if (angular.isUndefinedOrNull($scope.nodes[i]["EmployeeId"]))
+                    continue;
+
                 model["name"] = $scope.nodes[i]["name"];
                 model["CurrentQuantity"] = 0;
                 $scope.ProductionEntryList.push(model);

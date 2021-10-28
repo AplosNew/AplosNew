@@ -263,10 +263,11 @@ namespace Library.Planning.LineDesign
             {
                 DataTable dtBulletin = _sqlRepository.GetDataTable(@"SELECT  ROW_NUMBER() OVER(ORDER BY D.Sequence,d.id) AS SQ,d.Id,ov.Id AS OperationVariationId,ov.UserName AS OperationVariation,
                                             d.AllotedManpower,MM.Id MaterialMasterId,MM.UserName AS MaterialMasterDesc
-											,o.IsMachineRequired,M.StandardName AS ArticleDesc,o.Id as OperationId,o.UserName as OperationDesc
+											,o.IsMachineRequired,M.StandardName AS ArticleDesc,M.ShortName AS ArticleShortName,o.Id as OperationId,o.UserName as OperationDesc
                                                 ,M.Id ArticleId    ,d.Sequence,NULL AS Designation,isnull(Ov.color,'#ffffff') AS Color,
                                             mv.Id AS MachineId,mv.UserName AS MachineDesc,d.AllotedWorkstation,d.RequiredManPower,d.TotalSPT,
-                                            '1800001.jpg' AS EmpPicPath
+                                            '1800001.jpg' AS EmpPicPath,D.OperationTargetPerHr,CONVERT(INT,D.OperationTargetPerHr/CASE WHEN D.RequiredManPower>0 THEN D.RequiredManPower ELSE 1 END) AS WorkstationTargetPerHour
+                                               
                                                 FROM trn.ProductionBulletinTemplateDetail D
                                             INNER JOIN mst.OperationVariation AS ov ON ov.Id=d.OperationVariationId
                                             LEFT JOIN [MST].[MaterialMasterArticle] M ON M.Id = OV.ArticleId
@@ -346,12 +347,13 @@ namespace Library.Planning.LineDesign
                             MaterialMasterDesc = dtBulletin.Rows[i]["MaterialMasterDesc"].ToString(),
                             ArticleId = dtBulletin.Rows[i]["ArticleId"].ToString(),
                             ArticleDesc = dtBulletin.Rows[i]["ArticleDesc"].ToString(),
+                            ArticleShortName = dtBulletin.Rows[i]["ArticleShortName"].ToString(),
                             OperationId = dtBulletin.Rows[i]["OperationId"].ToString(),
                             OperationDesc = dtBulletin.Rows[i]["OperationDesc"].ToString(),
                             OperationVariationId = dtBulletin.Rows[i]["OperationVariationId"].ToString(),
                             OperationVariationDesc = dtBulletin.Rows[i]["OperationVariation"].ToString(),
                             TotalSPT = OTSBD.clsStaticInfo.dbl(dtBulletin.Rows[i]["TotalSPT"].ToString()),
-                            //Designation = dtBulletin.Rows[i]["Designation"].ToString(),
+                            WorkstationTargetPerHour = OTSBD.clsStaticInfo.dbl(dtBulletin.Rows[i]["WorkstationTargetPerHour"].ToString()),
                             //EmpPicPath = dtBulletin.Rows[i]["EmpPicPath"].ToString(),
                             Sequence = OTSBD.clsStaticInfo.dbl(dtBulletin.Rows[i]["Sequence"].ToString()),
                             RequiredManPower = OTSBD.clsStaticInfo.dbl(dtBulletin.Rows[i]["RequiredManPower"].ToString()),
