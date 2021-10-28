@@ -880,10 +880,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 string newformat = Convert.ToDateTime(Date).ToString("yyyyMMdd");
 
                 var sql = @"select TobeAdded=case When isnull(p.EmpSystemID,'') ='' then 'true' 
-                else 'false' end ,e.SystemId,'" + Date + @"' as WorkDate,
-                convert(varchar(30),'" + newformat + @"' )+convert(varchar(30), e.SystemId)RowId,e.PlantId,e.GroupID,
-                m.ShiftSystemId 
-                as ManualShift,sd.InTime as ManualShiftIn,sd.OutTime as ManualShiftOut,sd.ShiftDuration as ManualDuration,
+                else 'false' end ,e.SystemId,'"+Date+@"' as WorkDate,
+                convert(varchar(30),'" + newformat + @"' )+convert(varchar(30), e.SystemId)RowId,
+				e.PlantId,e.GroupID,
+                isnull(m.ShiftSystemId,p.ManualShiftID) 
+                as ManualShift,ISNULL(sd.InTime,p.ShiftInTime) as ManualShiftIn,
+				isnull(sd.OutTime,p.ShiftOutTime) as ManualShiftOut,isnull(sd.ShiftDuration,p.ShiftDuration)
+				as ManualDuration,
                 e.ProfileShiftId as ProfileShift,sdx.InTime as ProfileShiftIn,sdx.OutTime as ProfileShiftOut,
                 sdx.ShiftDuration as ProfileDuration,
                 mb.ShiftDefinationId as BudgetedShift,sdy.InTime as BudgetShiftIn,sdy.OutTime as BudgetShiftOut,
@@ -893,27 +896,30 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 else 'true' end,IsManualInTime=case When isnull(m.InTime,'') ='' then 'false' 
                 else 'true' end,IsManualOutTime=case When isnull(m.OutTime,'') ='' then 'false' 
                 else 'true' end,mb.Id as BudgetId,rh.Id as RosterId,Op.InPunchStartTime as PlantInPunchStartTime, 
-                FullDayDuration=isnull(isnull(sd.FullDayDuration,sdz.FullDayDuration),
-                isnull(sdx.FullDayDuration,sdy.FullDayDuration)),HalfDayDuration=isnull(isnull(sd.HalfDayDuration,sdz.HalfDayDuration),
-                isnull(sdx.HalfDayDuration,sdy.HalfDayDuration)),ShortDuration=isnull(isnull(sd.ShortDuration,sdz.ShortDuration),
-                isnull(sdx.ShortDuration,sdy.ShortDuration)),HoursWithoutOT=isnull(isnull(sd.HoursWithoutOT,sdz.HoursWithoutOT),
+                FullDayDuration=isnull(isnull(isnull(sd.FullDayDuration,p.ShiftFullDayDuration),sdz.FullDayDuration),
+                isnull(sdx.FullDayDuration,sdy.FullDayDuration)),				
+				HalfDayDuration=isnull(isnull(isnull(sd.HalfDayDuration,p.ShiftHalfDayDuration),sdz.HalfDayDuration),
+                isnull(sdx.HalfDayDuration,sdy.HalfDayDuration)),
+				ShortDuration=isnull(isnull(isnull(sd.ShortDuration,p.ShiftShortDuration),sdz.ShortDuration),
+                isnull(sdx.ShortDuration,sdy.ShortDuration)),
+				HoursWithoutOT=isnull(isnull(isnull(sd.HoursWithoutOT,p.ShiftHoursWithoutOT),sdz.HoursWithoutOT),
                 isnull(sdx.HoursWithoutOT,sdy.HoursWithoutOT))
                 from EmployeeInformation e 
                 left join ShiftDefination sdx on sdx.SystemID=e.ProfileShiftId
-                left outer join AttndManualDataFromApp m on e.SystemId=m.EmpSystemID and m.WorkDate='" + Date + @"'
+                left outer join AttndManualDataFromApp m on e.SystemId=m.EmpSystemID and m.WorkDate='"+Date+@"'
                 left join ShiftDefination sd on sd.SystemID=m.ShiftSystemId
-                left join AttdnProcessData p on p.EmpSystemID=e.SystemId and p.WorkDate='" + Date + @"'
+                left join AttdnProcessData p on p.EmpSystemID=e.SystemId and p.WorkDate='"+Date+@"'
                 left join mst.ManpowerBudget mb on mb.Id=e.BudgetCode
                 left join ShiftDefination sdy on sdy.SystemID=mb.ShiftDefinationId
                 left join dbo.RosterBudget rb on rb.BudgetId=mb.Id 
                 left join RosterPatternHeader rh on rh.Id=rb.RosterId
-                left join dbo.RosterPatternProcess rp on rp.RPHeaderId=rh.Id and rp.WorkDate='" + Date + @"'
+                left join dbo.RosterPatternProcess rp on rp.RPHeaderId=rh.Id and rp.WorkDate='"+Date+@"'
                 left join ShiftDefination sdz on sdz.SystemID=rp.ShiftDefinationID
                 left join org.Plant pl on pl.Id=e.PlantId
                 left join OutPunchConfigurationHeader Op on OP.PlantId=pl.Id
-                where e.EmpType!='Guest' and e.PlantId='" + PlantId + @"' and
-				E.DOJ <= '"+Date+"' AND (E.DOS >= '"+Date+"' OR ISNULL(E.DOS,'') = '' OR E.DOS = '01/01/1901') ";
-
+                where e.EmpType!='Guest' and e.PlantId='"+PlantId+@"' and
+				E.DOJ <= '"+Date+@"' AND (E.DOS >= '"+Date+@"' OR ISNULL(E.DOS,'') = '' 
+				OR E.DOS = '01/01/1901')";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
