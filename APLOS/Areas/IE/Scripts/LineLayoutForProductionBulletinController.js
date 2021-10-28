@@ -307,12 +307,14 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
             $scope.selectednode.items[0].addInfo.MaterialMasterDesc = args.data.MaterialMasterDesc;
             $scope.selectednode.items[0].addInfo.ArticleId = args.data.ArticleId;
             $scope.selectednode.items[0].addInfo.ArticleDesc = args.data.ArticleDesc;
+            $scope.selectednode.items[0].addInfo.ArticleShortName = args.data.ArticleShortName;
             $scope.selectednode.items[0].addInfo.OperationId = args.data.OperationId;
             $scope.selectednode.items[0].addInfo.OperationDesc = args.data.OperationDesc;
             $scope.selectednode.items[0].addInfo.OperationVariationId = args.data.OperationVariationId;
             $scope.selectednode.items[0].addInfo.OperationVariationDesc = args.data.OperationVariationDesc;
             $scope.selectednode.items[0].addInfo.MachineOrHand = args.data.IsMachineRequired;
             $scope.selectednode.items[0].addInfo.TotalSPT = args.data.TotalSPT;
+            //$scope.selectednode.items[0].addInfo.WorkstationTargetPerHour = args.data.WorkstationTargetPerHour;
 
             angular.element(document.querySelector("#modalOperationList")).modal("hide");
         } catch (e) {
