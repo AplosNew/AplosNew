@@ -109,10 +109,10 @@ namespace Aplos.Areas.Attendances.Controllers
             string _id = string.Empty;
             try
             {
-                if (LeaveList == null)
-                {
-                    throw new Exception("Select Leave Type Applicable for ESIC Policy");
-                }
+                //if (LeaveList == null)
+                //{
+                //    throw new Exception("Select Leave Type Applicable for ESIC Policy");
+                //}
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 master.GroupID = identity.CompanyGroupId;
                 master.AddedBy = identity.Name;

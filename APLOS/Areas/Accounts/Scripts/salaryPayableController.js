@@ -485,13 +485,19 @@ function salaryPayableController(cboService, commonMessage, $scope, $rootScope, 
         $scope.voucher.PlantId = entityrowdata[0].PlantId;
     };
 
-   
+    $scope.validation = function () {
+        if ($scope.salaryLockPayableGLDataList.length == 0 && $scope.salaryLockInDirectPayableGLDataList.length == 0) {
+                ShowResult("Direct and Indirect JV is missing!.", "failure");
+                return true;
+            }
+        return false;
+    };
 
     $scope.Save = function () {
         $scope.DiffrenceAmountProcess();
         $scope.$broadcast("show-errors-check-validity");
         try {
-            if ($scope.form0.$valid ) {
+            if ($scope.form0.$valid && !$scope.validation()) {
                 if ($scope.Action === "Save") {
                     $http({
                         method: "POST",
