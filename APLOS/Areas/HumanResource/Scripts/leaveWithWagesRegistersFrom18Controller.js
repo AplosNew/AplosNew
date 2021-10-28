@@ -1,6 +1,6 @@
 ﻿'use strict';
-leaveWithWagesRegistersFrom18Controller.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'toaster', 'cboService', '$controller', '$window'];
-function leaveWithWagesRegistersFrom18Controller(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, toaster, cboService, $controller, $window) {
+leaveWithWagesRegistersForm18Controller.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'toaster', 'cboService', '$controller', '$window'];
+function leaveWithWagesRegistersForm18Controller(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, toaster, cboService, $controller, $window) {
 
     $rootScope.title = 'Leave With Wages Registers Report';
     $controller('employeeBaseController', { $scope: $scope, $http: $http });

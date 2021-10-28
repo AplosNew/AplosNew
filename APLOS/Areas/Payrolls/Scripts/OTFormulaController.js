@@ -8,16 +8,49 @@ function OTFormulaController(commonMessage, $scope, $rootScope, baseService, $ro
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
 
+
     $scope.OTFormulaNew = {
-        Id: null, CompanyId: null, FormulaDes: null, FormulaDesID: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, SalaryHeadID: null
+        Id: null
+        , CompanyId: null
+        , Sequence: null
+        , Code: null
+        , ShortName: null
+        , StandardName: null
+        , UserName: null
+        , Description: null
+        , Remarks: null
+        , FormulaDes: null
+        , FormulaDesID: null
+        , Active: true
+        , AddedBy: null
+        , AddedDate: null
+        , AddedFromIP: null
+        , UpdatedBy: null
+        , UpdatedDate: null
+        , UpdatedFromIP: null
+        , SalaryHeadID: null
     }
+
+    $scope.GetSequence = function () {
+        $http.get("payrolls/OTFormula/GetSequence?CompanyId=" + $scope.OTFormulaNew.CompanyId)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.OTFormulaNew.Sequence = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    };
+   
 
     $scope.companyList = [];
     cboService.getCompanyGroupCompanyCbo(null, function (result) {
         $scope.companyList = result;
     });
 
-    
+
     $scope.salaryHeadList = [];
     cboService.getSlrHeadCbo(function (result) {
         $scope.salaryHeadList = result;
@@ -119,7 +152,7 @@ function OTFormulaController(commonMessage, $scope, $rootScope, baseService, $ro
 
                             $scope.OTFormulaNew.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
                             $scope.OTFormulaNew.FormulaDesID += ' ' + ($scope.FormulaDetails[i].SalaryHeadID == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].SalaryHeadID);
-                          
+
                         }
 
                         $scope.OTFormulaNew.FormulaDescription = $scope.OTFormulaNew.FormulaDes;
@@ -204,7 +237,7 @@ function OTFormulaController(commonMessage, $scope, $rootScope, baseService, $ro
     }
 
     $scope.RemoveFormula = function () {
-       
+
         var maxseq = Math.max.apply(Math, $scope.FormulaDetails.map(function (o) { return o.Sequence; }))
 
         for (var i = 0; i < $scope.FormulaDetails.length; i++) {
@@ -257,10 +290,10 @@ function OTFormulaController(commonMessage, $scope, $rootScope, baseService, $ro
                 $scope.OTFormulaNew.FormulaDesID = '';
 
                 for (var i = 0; i < $scope.FormulaDetails.length; i++) {
-                    
+
                     if (!baseService.isUndefinedOrNull($scope.OTFormulaNew.FormulaDes)) {
                         $scope.OTFormulaNew.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
-                        
+
                         $scope.OTFormulaNew.FormulaDesID += ' ' + ($scope.FormulaDetails[i].SalaryHeadID == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].SalaryHeadID);
                     } else {
                         $scope.OTFormulaNew.FormulaDes = $scope.FormulaDetails[i].SalaryHead;
@@ -329,6 +362,7 @@ function OTFormulaController(commonMessage, $scope, $rootScope, baseService, $ro
         $scope.CompanyId = $scope.OTFormulaNew.CompanyId;
         $scope.OTFormulaNew = {};
         $scope.OTFormulaNew.CompanyId = $scope.CompanyId;
+        $scope.OTFormulaNew.Active = true;
         $scope.Action = 'Save';
         $scope.OTFormulaNew.FormulaDescription = null;
         $scope.OTFormulaNew.FormulaIDDescription = null;
@@ -351,7 +385,7 @@ function OTFormulaController(commonMessage, $scope, $rootScope, baseService, $ro
             if (baseService.isUndefinedOrNull($scope.OTFormulaNew.CompanyId)) {
                 throw "Company is required.";
             }
-            
+
             $scope.AddEditRow();
             $http({
                 method: 'POST',
