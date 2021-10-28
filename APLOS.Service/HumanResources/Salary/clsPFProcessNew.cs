@@ -47,8 +47,7 @@ namespace OTSBD
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                strSQL = @"SELECT *
-                                FROM [dbo].[PFPolicyDetails] WHERE PFPolicyMasterID = '" + sPFMstSystemID + @"'";
+                strSQL = @"SELECT * FROM [dbo].[PFPolicyDetails] WHERE PFPolicyMasterID = '" + sPFMstSystemID + @"'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
@@ -68,8 +67,7 @@ namespace OTSBD
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                strSQL = @"SELECT * FROM PFEmployeeDistribution
-                              WHERE PFPolicyDetailsID IN (SELECT ID FROM [dbo].[PFPolicyDetails] WHERE PFPolicyMasterID = '" + sPFMstSystemID + @"')";
+                strSQL = @"SELECT * FROM PFEmployeeDistribution WHERE PFPolicyDetailsID IN (SELECT ID FROM [dbo].[PFPolicyDetails] WHERE PFPolicyMasterID = '" + sPFMstSystemID + @"')";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
@@ -89,8 +87,7 @@ namespace OTSBD
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                strSQL = @"SELECT * FROM PFEmployerDistribution
-                              WHERE PFPolicyDetailsID IN (SELECT ID FROM [dbo].[PFPolicyDetails] WHERE PFPolicyMasterID = '" + sPFMstSystemID + @"')";
+                strSQL = @"SELECT * FROM PFEmployerDistribution WHERE PFPolicyDetailsID IN (SELECT ID FROM [dbo].[PFPolicyDetails] WHERE PFPolicyMasterID = '" + sPFMstSystemID + @"')";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
@@ -3255,10 +3252,17 @@ namespace OTSBD
                                             sFormulaResult = Evaluate(sFormulaValue.Trim()).ToString();
                                             decEarningValueRangeFrom = Convert.ToDecimal(dsPFPolicyDtl.Tables[0].Rows[iPFDtl]["EarningValueRangeFrom"].ToString().Trim());
                                             decEarningValueRangeTo = Convert.ToDecimal(dsPFPolicyDtl.Tables[0].Rows[iPFDtl]["EarningValueRangeTo"].ToString().Trim());
-
-                                            if (Convert.ToDecimal(sFormulaResult) > decEarningValueRangeFrom && Convert.ToDecimal(sFormulaResult) <= decEarningValueRangeTo)
+                                            if (!Double.IsNaN(Convert.ToDouble(sFormulaResult)))
                                             {
-                                                bMaturity = Convert.ToBoolean(dsPFPolicyDtl.Tables[0].Rows[iPFDtl]["IsMandatory"].ToString().Trim());
+
+                                                if (Convert.ToDecimal(sFormulaResult) > decEarningValueRangeFrom && Convert.ToDecimal(sFormulaResult) <= decEarningValueRangeTo)
+                                                {
+                                                    bMaturity = Convert.ToBoolean(dsPFPolicyDtl.Tables[0].Rows[iPFDtl]["IsMandatory"].ToString().Trim());
+                                                }
+                                                else
+                                                {
+                                                    bMaturity = false;
+                                                } 
                                             }
                                             else
                                             {
