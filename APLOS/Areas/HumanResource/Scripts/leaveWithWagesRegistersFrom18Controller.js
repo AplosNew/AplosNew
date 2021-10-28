@@ -3,6 +3,7 @@ leaveWithWagesRegistersForm18Controller.$inject = ['commonMessage', '$scope', '$
 function leaveWithWagesRegistersForm18Controller(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, toaster, cboService, $controller, $window) {
 
     $rootScope.title = 'Leave With Wages Registers Report';
+    $scope.path = 'HumanResource/LeaveWithWagesRegistersForm18/';
     $controller('employeeBaseController', { $scope: $scope, $http: $http });
     var date = new Date(), y = date.getFullYear(), m = date.getMonth();
     var firstDay = new Date(y, 1, 1);
@@ -27,7 +28,7 @@ function leaveWithWagesRegistersForm18Controller(commonMessage, $scope, $rootSco
     $scope.GetEmployeeInformation = function () {
         var DropDownActivityListObj = $("#ddlYearList").data("ejDropDownList");
         $scope.year = DropDownActivityListObj.getSelectedValue();
-        var firstDay = new Date($scope.year , 1, 1);
+        var firstDay = new Date($scope.year, 1, 1);
         var lastDay = new Date($scope.year, 12, 31);
         lastDay = lastDay.setDate(lastDay.getDate() - 1);
         $scope.LeaveWagesRegisters = {
@@ -238,22 +239,42 @@ function leaveWithWagesRegistersForm18Controller(commonMessage, $scope, $rootSco
 
     }
     $scope.refreshTemplateemployee = function (args) {
-        //if (args.rowIndex === 0) {
-        //    $("#headchk").ejCheckBox({ "change": headCheckChangeemployee });
-        //}
-
-        //var valobj = $($("#Grid .rowCheckbox")[args.rowIndex]).ejCheckBox()[0];
-        ////var val = $($("#Grid .rowCheckbox")[args.rowIndex]).ejCheckBox()[0].defaultValue;
-
-        //$($("#Grid .rowCheckbox")[args.rowIndex]).ejCheckBox({ "change": null });
-        //var row = $filter('filter')($scope.EmployeeList, { 'EmpSystemId': val });
-        //if (!baseService.isUndefinedOrNull(row) && row.length > 0) {
-        //    if (row[0].CheckBoxSelect === true)
-        //        $($("#Grid .rowCheckbox")[args.rowIndex]).ejCheckBox({ "checked": true });
-        //    else
-        //        $($("#Grid .rowCheckbox")[args.rowIndex]).ejCheckBox({ "checked": false });
-
-        //}
-        //$($("#Grid .rowCheckbox")[args.rowIndex]).ejCheckBox({ "change": checkChangeemployee });
     }
+
+    $scope.SalaryHeadList = [];
+    $scope.LeaveTypeList = [];
+    $scope.GetSettings = function () {
+        var eDialog = $("#dialogSettingsEntry").data("ejDialog");
+        eDialog.open();
+        try {
+            $scope.SalaryHeadList = [];
+            $scope.LeaveTypeList = [];
+            $http({
+                method: "POST",
+                url: $scope.path + 'GetSettings',
+                dataType: 'JSON',
+            }).then(function successCallback(response) {
+                $scope.SalaryHeadList = response.data.SalaryHeadList;
+                $scope.LeaveTypeList = response.data.LeaveTypeList;
+            });
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+    $scope.SaveSettings = function () {
+        try {
+            $http({
+                method: "POST",
+                url: $scope.path + 'SaveSettings',
+                data: { salaryHeads: $scope.SalaryHeadList, LeaveTypes: $scope.LeaveTypeList },
+                dataType: 'JSON',
+            }).then(function successCallback(response) {
+                ShowResult(response.data.Message, "success");
+                var eDialog = $("#dialogSettingsEntry").data("ejDialog");
+                eDialog.close();
+            });
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
 }

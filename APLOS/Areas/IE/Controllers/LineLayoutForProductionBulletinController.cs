@@ -101,7 +101,7 @@ namespace Aplos.Areas.IE.Controllers
                     ISNULL(O.PersonalAllowance,0)PersonalAllowance,ISNULL(OV.MachineAllowance,0)MachineAllowance
 					,ISNULL(OV.AdditionalAllowance,0) AdditionalAllowances,
                     ISNULL(M.RPM,0)RPM,OV.TotalSAM,O.IsMachineRequired,ov.TotalSAM AS TotalSPT
-                    ,M.StandardName AS ArticleDesc
+                    ,M.StandardName AS ArticleDesc,M.ShortName AS ArticleShortName
                     FROM [MST].[OperationVariation] OV
                     LEFT JOIN [MST].[MaterialMasterArticle] M ON M.Id = OV.ArticleId
                     LEFT JOIN mst.MaterialMaster AS mm ON mm.Id=m.MaterialMasterId

@@ -1548,7 +1548,7 @@ function PFPolicyController($window, cboService, commonMessage, $scope, $rootSco
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                $scope.GetHeadList($scope.PFPolicyHead.PFPolicyMasterID);
+                $scope.GetHeadList($scope.PFPolicyMaster.ID);
             }
         }, function () {
             ShowResult(commonMessage.NetworkError, 'failure');
