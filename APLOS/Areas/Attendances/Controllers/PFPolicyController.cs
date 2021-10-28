@@ -366,6 +366,10 @@ namespace Aplos.Areas.Attendances.Controllers
         {
             try
             {
+                if (Employer == null)
+                    throw new Exception("Insert Employer Contribution Part ");
+                if (Employee == null)
+                    throw new Exception("Insert Employee Contribution Part ");
                 string DetailsId = string.Empty;
                 DetailsId = SaveDetailsMaster(Details, Master);
                 SaveEmployeeDetails(Details, DetailsId, Employee);
