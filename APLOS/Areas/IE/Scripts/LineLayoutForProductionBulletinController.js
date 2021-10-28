@@ -312,18 +312,83 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
             $scope.selectednode.items[0].addInfo.OperationVariationId = args.data.OperationVariationId;
             $scope.selectednode.items[0].addInfo.OperationVariationDesc = args.data.OperationVariationDesc;
             $scope.selectednode.items[0].addInfo.MachineOrHand = args.data.IsMachineRequired;
-            
+            $scope.selectednode.items[0].addInfo.TotalSPT = args.data.TotalSPT;
+
             angular.element(document.querySelector("#modalOperationList")).modal("hide");
         } catch (e) {
 
         }
     }
-
     $scope.selectarticle = function (args) {
         try {
             $scope.selectednode.items[0].addInfo.ArticleId = args.Id;
             $scope.selectednode.items[0].addInfo.ArticleDesc = args.StandardName;
             angular.element(document.querySelector('#articleSearchPop')).modal('hide');
+        } catch (e) {
+
+        }
+    }
+
+    $scope.contextMenu = { items: [{ "id": "Properties", "name": "Properties", "text": "Properties", "image": "", "style": "" }] };
+    $scope.onDiagramContextMenuClick = function (args) {
+        if (args.text == 'Properties') {
+            $scope.selectednode = args;
+            $scope.ShowEditOperationVariationCard();
+        }
+    }
+    $scope.UpdateColor = function (args) {
+        if (args.isInteraction == false)
+            return;
+        var diagram = $("#diagram").ejDiagram("instance");
+        $scope.selectednode.target[args.model.Field] = args.value;
+
+        var Property = args.model.Field;
+        try {
+            if ($scope.selectednode.target.hasOwnProperty('children')) {
+                for (var i = 0; i < $scope.selectednode.target.children.length; i++) {
+                    diagram.updateNode($scope.selectednode.target.children[i], { Property: args.value });
+                }
+            }
+            else {
+                diagram.updateNode($scope.selectednode.target.name, { Property: args.value });
+            }
+        } catch (e) { }
+    }
+    $scope.ShowEditOperationVariationCard = function () {
+        try {
+
+            var eDialog = $("#dialogEditNode").data("ejDialog");
+            eDialog.open();
+        } catch (e) {
+
+        }
+    }
+
+    $scope.showCardIcons = false;
+    $scope.OperationVariationCard = [];
+    $scope.OperationVariationCardSkills = [];
+    $scope.ViewOperationVariationCard = function (args) {
+
+        $scope.selectednode = args;
+        $scope.GetOperationVariationCard();
+    }
+    $scope.GetOperationVariationCard = function () {
+        $scope.OperationVariationCard = [];
+        $scope.OperationVariationCardSkills = [];
+        try {
+            $http({
+                method: "POST",
+                dataType: 'JSON',
+                data: {
+                    'OperationVariationId': $scope.selectednode.items[0].addInfo.OperationVariationId
+                },
+                url: $scope.path + 'GetOperationVariationCard'
+
+            }).then(function successCallback(response) {
+                $scope.OperationVariationCard = response.data;
+            });
+            var eDialog = $("#dialogOperationVariationCard").data("ejDialog");
+            eDialog.open();
         } catch (e) {
 
         }
@@ -451,7 +516,7 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
     }
     $scope.Save = function () {
         try {
-          
+
             $http({
                 method: 'POST',
                 url: $scope.path + "Save",
@@ -468,7 +533,7 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    
+
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');

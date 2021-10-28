@@ -354,7 +354,7 @@ namespace Aplos.Areas.Productions.Controllers
                                                         ,convert(bit, case when isnull(LLD.Id,'')<>'' then 0 else 
                                                      	CASE WHEN ISNULL(LLP.Id,'')<>'' OR ISNULL(l.Id,'')<>'' THEN 1 ELSE 0 END
                                                      	 end ) As CanCopy,
-prs.username as ProcessName,resp.EmployeeName as ResponsiblePersonName
+prs.username as ProcessName,resp.EmployeeName as ResponsiblePersonName,pbt.Id ProductionBulletinId
 
                                 from SCS.WorkCenterMaster WCM 
                                 left join employeeinformation resp on resp.systemid=wcm.ResponsiblePersonId
@@ -365,7 +365,8 @@ prs.username as ProcessName,resp.EmployeeName as ResponsiblePersonName
                                 left join trn.SalesOrder SO ON SO.Id=POD.SalesOrderId
                                 left join trn.MasterOrderItem MOI ON MOI.Id=so.MasterOrderItemId
                                 Left join LineLayoutDailyTarget LLD on LLD.WorkCenterMasterId=DPT.WorkCenterMasterId and LLD.TargetDate=DPT.TargetDate and LLD.ProductionOrderId=DPT.ProductionOrderId
-                                
+                                LEFT JOIN trn.ProductionBulletinTemplate AS pbt on pbt.ProductionOrderId=PO.Id 
+                                LEFT JOIN trn.ProductionBulletinTemplateMaster AS M ON m.ProductionBulletinTemplateId=pbt.Id AND m.ProcessId=WCM.ProcessId
                                 LEFT JOIN LineLayoutDailyTarget LLP ON LLP.ProcessId = '" + ProcessId + @"'                                
                                     AND LLP.ProductionOrderId = po.Id                                
                                     AND LLP.TargetDate = (
