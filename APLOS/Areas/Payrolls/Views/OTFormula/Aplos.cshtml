@@ -45,7 +45,7 @@
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Code<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" name="Code" ng-model="OTFormulaNew.Code" class="form-control" required tabindex="10" maxlength="10">
+                    <input type="text" name="Code" ng-model="OTFormulaNew.Code" class="form-control" required tabindex="2" maxlength="10">
                 </div>
             </div>
             <div class="form-group" show-errors>
@@ -81,7 +81,7 @@
                         <label class="col-sm-4 control-label">Salary Head</label>
                         <div class="col-sm-6">
                             <div class="select-style">
-                                <select ng-model="OTFormulaNew.SalaryHeadIdFormula" id="SalaryHeadFormula" class="form-control" name="Salary Head" ng-options="item.Value as item.Text for item in salaryHeadList" tabindex="5">
+                                <select ng-model="OTFormulaNew.SalaryHeadIdFormula" id="SalaryHeadFormula" class="form-control" name="Salary Head" ng-options="item.Value as item.Text for item in salaryHeadList" tabindex="10">
                                     <option value=""></option>
                                 </select>
                             </div>
@@ -89,7 +89,7 @@
                         <div class="col-sm-2">
                             <div class="common-btn">
                                 <ul class="list-inline text-left">
-                                    <li> <button ng-click="SetFormula('SHead');" class="btn" tabindex="9"><i class="glyphicon glyphicon-forward"></i></button></li>
+                                    <li> <button ng-click="SetFormula('SHead');" class="btn" tabindex="11"><i class="glyphicon glyphicon-forward"></i></button></li>
                                 </ul>
                             </div>
                             @*<button style="color: #f3f3ec;background-color: #1c1f32;" class="btn"><i class="glyphicon glyphicon-forward" ng-click="SetFormula('SHead');" style="margin: -4px;"></i></button>*@
@@ -99,7 +99,7 @@
                         <label class="col-sm-4 control-label">Operator</label>
                         <div class="col-sm-6">
                             <div class="select-style">
-                                <select ng-model="OTFormulaNew.Operator" id="Operator" class="form-control" name="Operator" ng-options="item.Value as item.Text for item in OperatorList" tabindex="5">
+                                <select ng-model="OTFormulaNew.Operator" id="Operator" class="form-control" name="Operator" ng-options="item.Value as item.Text for item in OperatorList" tabindex="12">
                                     <option value=""></option>
                                 </select>
                             </div>
@@ -108,17 +108,16 @@
                         <div class="col-sm-2">
                             <div class="common-btn">
                                 <ul class="list-inline text-left">
-                                    <li> <button ng-click="SetFormula('Operator');" class="btn" tabindex="9"><i class="glyphicon glyphicon-forward"></i></button></li>
+                                    <li> <button ng-click="SetFormula('Operator');" class="btn" tabindex="13"><i class="glyphicon glyphicon-forward"></i></button></li>
                                 </ul>
                             </div>
-                            @*<button style="color: #f3f3ec;background-color: #1c1f32;" class="btn"><i class="glyphicon glyphicon-forward" ng-click="SetFormula('Operator');" style="margin: -4px;"></i></button>*@
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-sm-4 control-label">Precedence</label>
                         <div class="col-sm-6">
                             <div class="select-style">
-                                <select ng-model="OTFormulaNew.Precedence" class="form-control" name="Precedence" tabindex="5">
+                                <select ng-model="OTFormulaNew.Precedence" class="form-control" name="Precedence" tabindex="14">
                                     <option value=""></option>
                                     <option value="(">(</option>
                                     <option value=")">)</option>
@@ -128,21 +127,20 @@
                         <div class="col-sm-2">
                             <div class="common-btn">
                                 <ul class="list-inline text-left">
-                                    <li> <button ng-click="SetFormula('Precedence');" class="btn" tabindex="9"><i class="glyphicon glyphicon-forward"></i></button></li>
+                                    <li> <button ng-click="SetFormula('Precedence');" class="btn"><i class="glyphicon glyphicon-forward"></i></button></li>
                                 </ul>
                             </div>
-                            @*<button style="color: #f3f3ec;background-color: #1c1f32;" class="btn"><i class="glyphicon glyphicon-forward" ng-click="SetFormula('Precedence');" style="margin: -4px;"></i></button>*@
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-sm-4 control-label">Value</label>
                         <div class="col-sm-6">
-                            <input type="text" name="Value" ng-model="OTFormulaNew.Value" class="form-control" required tabindex="2" maxlength="50">
+                            <input type="text" name="Value" ng-model="OTFormulaNew.Value" class="form-control" tabindex="16" maxlength="50">
                         </div>
                         <div class="col-sm-2">
                             <div class="common-btn">
                                 <ul class="list-inline text-left">
-                                    <li> <button ng-click="SetFormula('Value');" class="btn" tabindex="9"><i class="glyphicon glyphicon-forward"></i></button></li>
+                                    <li> <button ng-click="SetFormula('Value');" class="btn"><i class="glyphicon glyphicon-forward"></i></button></li>
                                 </ul>
                             </div>
                         </div>
@@ -152,7 +150,7 @@
 
                     <div class="common-btn">
                         <ul class="list-inline text-left">
-                            <li> <button ng-click="RemoveFormula();" class="btn" tabindex="9"><i class="glyphicon glyphicon-backward"></i></button></li>
+                            <li> <button ng-click="RemoveFormula();" class="btn"><i class="glyphicon glyphicon-backward"></i></button></li>
                         </ul>
                     </div>
                     <div class="form-group">

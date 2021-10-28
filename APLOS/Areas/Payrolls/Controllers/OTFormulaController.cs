@@ -126,7 +126,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                         DataRow dr = dsMaster.Tables[0].NewRow();
 
-                        dr["Id"] = GetPK();
+                        dr["Id"] = "OTF" + GetPK();
                         dr["CompanyId"] = data.CompanyId;
                         dr["Sequence"] = data.Sequence;
                         dr["Code"] = data.Code;
@@ -153,6 +153,16 @@ namespace Aplos.Areas.Payrolls.Controllers
                         dr.BeginEdit();
 
                         dr["CompanyId"] = data.CompanyId;
+
+                        dr["Sequence"] = data.Sequence;
+                        dr["Code"] = data.Code;
+                        dr["ShortName"] = data.ShortName;
+                        dr["StandardName"] = data.StandardName;
+                        dr["UserName"] = data.UserName;
+                        dr["Description"] = data.Description;
+                        dr["Remarks"] = data.Remarks;
+                        dr["Active"] = data.Active;
+
                         dr["FormulaDes"] = data.FormulaDes;
                         dr["FormulaDesID"] = data.FormulaDesID;
 
