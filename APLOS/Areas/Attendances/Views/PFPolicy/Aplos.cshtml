@@ -186,7 +186,7 @@
                         <div e-columns>
                             <div e-column e-field="PFPolicyMasterID" e-headertext="ID" e-width="3" e-isprimarykey="true" e-visible="false"></div>
                             <div e-column e-field="SalaryHeadName" e-headertext="Salary Head" e-width="3"></div>
-                            <div e-column e-headertext="Delete" e-width="3"><button data-toggle="modal" class="btn" ng-click="$parent.RemoveMonth(this);" tabindex="10"><i class="glyphicon glyphicon-trash"></i></button></div>
+                            <div e-column e-headertext="Delete" e-width="3"><button data-toggle="modal" class="btn" ng-click="$parent.RemoveHead(this);" tabindex="10"><i class="glyphicon glyphicon-trash"></i></button></div>
                         </div>
                     </div>
                 </div>
@@ -227,7 +227,7 @@
     </div>
 </div>
 
-
+<confirm-archive-generic modalid="confirmPopUpHead" title="Confirmation" message="{{message_confirmation}}" data-ng-click-right-button="DeleteHeadList();"></confirm-archive-generic>
 <ej-dialog id="dialogPFSetting"
            title="PF Bonus Policy Details"
            e-enablemodal="true"

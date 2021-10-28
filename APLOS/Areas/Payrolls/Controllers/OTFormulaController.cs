@@ -43,8 +43,21 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         #region -- Operations
 
+        [HttpGet, Authorize]
+        public JsonResult GetAutoSequence(string CompanyId)
+        {
+            return Json(GetSequence(CompanyId), JsonRequestBehavior.AllowGet);
+        }
 
-       
+        private double GetSequence(string CompanyId)
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM dbo.OTFormula Where CompanyId='"+ CompanyId + "'");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+            return 1;
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetList(string CompanyId)
         {
@@ -113,8 +126,17 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                         DataRow dr = dsMaster.Tables[0].NewRow();
 
-                        dr["Id"] = GetPK();
+                        dr["Id"] = "OTF" + GetPK();
                         dr["CompanyId"] = data.CompanyId;
+                        dr["Sequence"] = data.Sequence;
+                        dr["Code"] = data.Code;
+                        dr["ShortName"] = data.ShortName;
+                        dr["StandardName"] = data.StandardName;
+                        dr["UserName"] = data.UserName;
+                        dr["Description"] = data.Description;
+                        dr["Remarks"] = data.Remarks;
+                        dr["Active"] = data.Active;
+
                         dr["FormulaDes"] = data.FormulaDes;
                         dr["FormulaDesID"] = data.FormulaDesID;
 
@@ -131,6 +153,16 @@ namespace Aplos.Areas.Payrolls.Controllers
                         dr.BeginEdit();
 
                         dr["CompanyId"] = data.CompanyId;
+
+                        dr["Sequence"] = data.Sequence;
+                        dr["Code"] = data.Code;
+                        dr["ShortName"] = data.ShortName;
+                        dr["StandardName"] = data.StandardName;
+                        dr["UserName"] = data.UserName;
+                        dr["Description"] = data.Description;
+                        dr["Remarks"] = data.Remarks;
+                        dr["Active"] = data.Active;
+
                         dr["FormulaDes"] = data.FormulaDes;
                         dr["FormulaDesID"] = data.FormulaDesID;
 
@@ -233,7 +265,16 @@ namespace Aplos.Areas.Payrolls.Controllers
         public string CompanyId { get; set; }
         public string FormulaDes { get; set; }
         public string FormulaDesID { get; set; }
-       
+
+        public decimal Sequence { get; set; }
+        public string Code { get; set; }
+        public string ShortName { get; set; }
+        public string StandardName { get; set; }
+        public string UserName { get; set; }
+        public string Description { get; set; }
+        public string Remarks { get; set; }
+        public bool Active { get; set; }
+
         public string AddedBy { get; set; }
         public DateTime AddedDate { get; set; }
         public string AddedFromIP { get; set; }
@@ -243,13 +284,5 @@ namespace Aplos.Areas.Payrolls.Controllers
 
     }
 
-    //public class NoticePeriodFormulaDetail
-    //{
-    //    public string Id { get; set; }
-    //    public decimal Sequence { get; set; }
-    //    public string OTFormulaId { get; set; }
-    //    public string SalaryHeadID { get; set; }
-    //    public string Component { get; set; }
-    //}
 
 }

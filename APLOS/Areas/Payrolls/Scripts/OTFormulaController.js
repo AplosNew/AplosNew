@@ -8,16 +8,50 @@ function OTFormulaController(commonMessage, $scope, $rootScope, baseService, $ro
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
 
-    $scope.OTFormulaNew = {
-        Id: null, CompanyId: null, FormulaDes: null, FormulaDesID: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, SalaryHeadID: null
+
+    $scope.OTFormula = {
+        Id: null
+        , CompanyId: null
+        , Sequence: 0
+        , Code: null
+        , ShortName: null
+        , StandardName: null
+        , UserName: null
+        , Description: null
+        , Remarks: null
+        , FormulaDes: null
+        , FormulaDesID: null
+        , Active: true
+        , AddedBy: null
+        , AddedDate: null
+        , AddedFromIP: null
+        , UpdatedBy: null
+        , UpdatedDate: null
+        , UpdatedFromIP: null
+        , SalaryHeadID: null
+        , FormulaDescription: null
+        , FormulaIDDescription: null
     }
+    $scope.OTFormulaNew = Object.assign({}, $scope.OTFormula);
+
+    $scope.GetSequence = function () {
+        $http.get("payrolls/OTFormula/GetAutoSequence?CompanyId=" + $scope.OTFormulaNew.CompanyId)
+            .then(
+                function successCallback(response) {
+                    $scope.OTFormulaNew.Sequence = response.data;
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    };
+
 
     $scope.companyList = [];
     cboService.getCompanyGroupCompanyCbo(null, function (result) {
         $scope.companyList = result;
     });
 
-    
+
     $scope.salaryHeadList = [];
     cboService.getSlrHeadCbo(function (result) {
         $scope.salaryHeadList = result;
@@ -119,7 +153,7 @@ function OTFormulaController(commonMessage, $scope, $rootScope, baseService, $ro
 
                             $scope.OTFormulaNew.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
                             $scope.OTFormulaNew.FormulaDesID += ' ' + ($scope.FormulaDetails[i].SalaryHeadID == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].SalaryHeadID);
-                          
+
                         }
 
                         $scope.OTFormulaNew.FormulaDescription = $scope.OTFormulaNew.FormulaDes;
@@ -204,7 +238,7 @@ function OTFormulaController(commonMessage, $scope, $rootScope, baseService, $ro
     }
 
     $scope.RemoveFormula = function () {
-       
+
         var maxseq = Math.max.apply(Math, $scope.FormulaDetails.map(function (o) { return o.Sequence; }))
 
         for (var i = 0; i < $scope.FormulaDetails.length; i++) {
@@ -237,14 +271,13 @@ function OTFormulaController(commonMessage, $scope, $rootScope, baseService, $ro
 
     $scope.Get = function (obj) {
         $scope.FormulaDetails = [];
-        //$scope.CompanyId = $scope.OTFormulaNew.CompanyId;
+        $scope.CompanyId = $scope.OTFormulaNew.CompanyId;
         $scope.OTFormulaNew.SalaryHeadIdFormula = null;
         $scope.OTFormulaNew.Operator = null;
         $scope.OTFormulaNew.Precedence = null;
         $scope.OTFormulaNew.Value = null;
-
-        $scope.objectData = obj.data;
-        $scope.OTFormulaNew = Object.assign({}, $scope.objectData);
+       
+        $scope.OTFormulaNew = Object.assign({}, obj.data);
 
         $http({
             method: 'GET',
@@ -257,10 +290,10 @@ function OTFormulaController(commonMessage, $scope, $rootScope, baseService, $ro
                 $scope.OTFormulaNew.FormulaDesID = '';
 
                 for (var i = 0; i < $scope.FormulaDetails.length; i++) {
-                    
+
                     if (!baseService.isUndefinedOrNull($scope.OTFormulaNew.FormulaDes)) {
                         $scope.OTFormulaNew.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
-                        
+
                         $scope.OTFormulaNew.FormulaDesID += ' ' + ($scope.FormulaDetails[i].SalaryHeadID == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].SalaryHeadID);
                     } else {
                         $scope.OTFormulaNew.FormulaDes = $scope.FormulaDetails[i].SalaryHead;
@@ -274,7 +307,6 @@ function OTFormulaController(commonMessage, $scope, $rootScope, baseService, $ro
 
             }
         });
-
 
         var value = null;
 
@@ -300,11 +332,6 @@ function OTFormulaController(commonMessage, $scope, $rootScope, baseService, $ro
 
     $scope.AddEditRow = function () {
         try {
-
-            // ValidationRuleGeneral();
-
-            // CheckDuplicate($scope.OTFormulaNew);
-
             $scope.OTFormulaNew.FormulaDes = $scope.OTFormulaNew.FormulaDescription;
             $scope.OTFormulaNew.FormulaDesID = $scope.OTFormulaNew.FormulaIDDescription;
             $scope.OTFormulaNew.SalaryHead = $("#SH option:selected").text();
@@ -327,13 +354,35 @@ function OTFormulaController(commonMessage, $scope, $rootScope, baseService, $ro
 
     $scope.Clear = function () {
         $scope.CompanyId = $scope.OTFormulaNew.CompanyId;
-        $scope.OTFormulaNew = {};
+        $scope.OTFormula = {
+            Id: null
+            , CompanyId: null
+            , Sequence: 0
+            , Code: null
+            , ShortName: null
+            , StandardName: null
+            , UserName: null
+            , Description: null
+            , Remarks: null
+            , FormulaDes: null
+            , FormulaDesID: null
+            , Active: true
+            , AddedBy: null
+            , AddedDate: null
+            , AddedFromIP: null
+            , UpdatedBy: null
+            , UpdatedDate: null
+            , UpdatedFromIP: null
+            , SalaryHeadID: null
+            , FormulaDescription: null
+            , FormulaIDDescription: null
+        }
+        $scope.OTFormulaNew = Object.assign({}, $scope.OTFormula);
         $scope.OTFormulaNew.CompanyId = $scope.CompanyId;
         $scope.Action = 'Save';
-        $scope.OTFormulaNew.FormulaDescription = null;
-        $scope.OTFormulaNew.FormulaIDDescription = null;
         $scope.FormulaArray = [];
         $scope.FormulaIdArray = [];
+        $scope.GetSequence();
     }
 
     function CheckField(fieldValue, fieldName) {
@@ -348,30 +397,33 @@ function OTFormulaController(commonMessage, $scope, $rootScope, baseService, $ro
 
     $scope.Save = function () {
         try {
-            if (baseService.isUndefinedOrNull($scope.OTFormulaNew.CompanyId)) {
-                throw "Company is required.";
-            }
-            
-            $scope.AddEditRow();
-            $http({
-                method: 'POST',
-                url: $scope.saveUrl,
-                data: { 'data': $scope.OTFormulaNew, 'details': $scope.FormulaDetails },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.OTFormulaForm.$valid) {
+                if (baseService.arrayLength($scope.FormulaDetails) == 0) {
+                    throw "Formula is required.";
+                }
+                $scope.AddEditRow();
+                $http({
+                    method: 'POST',
+                    url: $scope.saveUrl,
+                    data: { 'data': $scope.OTFormulaNew, 'details': $scope.FormulaDetails },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.GetData();
+                        $scope.Clear();
+                        $scope.FormulaDetails = [];
+                        $scope.GetSequence();
+                    }
+                }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.GetData();
-                    $scope.Clear();
-                    $scope.FormulaDetails = [];
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            };
+                };
 
+            }
         } catch (e) {
             ShowResult(e, "failure");
         }
@@ -391,6 +443,7 @@ function OTFormulaController(commonMessage, $scope, $rootScope, baseService, $ro
                     ShowResult(response.data.Message, 'success');
                     $scope.GetData();
                     $scope.Clear();
+                    $scope.GetSequence();
                 }
             }, function () {
                 ShowResult(commonMessage.NetworkError, 'failure');
