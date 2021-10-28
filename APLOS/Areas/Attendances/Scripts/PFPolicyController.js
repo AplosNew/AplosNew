@@ -364,6 +364,13 @@ function PFPolicyController($window, cboService, commonMessage, $scope, $rootSco
         };
         //$scope.PFPolicyMasterModel = Object.assign({}, $scope.PFPolicyMaster);
         $scope.PFPolicyDetailsList = [];
+        $scope.PFPolicyHead = {
+            Id: null,
+            PFPolicyMasterID: $scope.PFPolicyMaster.ID,
+            SalaryHeadID: null,
+            SalaryHeadName: null,
+        }
+        $scope.HeadList = [];
     }
 
     $scope.Clear = function () {
@@ -459,9 +466,8 @@ function PFPolicyController($window, cboService, commonMessage, $scope, $rootSco
         $scope.salaryRuleGeneralEmployee.Precedence = null;
         $scope.salaryRuleGeneralEmployee.Value = null;
 
-
-
-
+        $scope.EmployeeList = [];
+        $scope.EmployerList = [];
         $scope.FormulaArray = [];
         $scope.FormulaIdArray = [];
         $scope.FormulaArrayEmployee = [];
@@ -1500,7 +1506,8 @@ function PFPolicyController($window, cboService, commonMessage, $scope, $rootSco
 
     
     $scope.PFPolicyHead = {
-        PFPolicyMasterID: null,
+        Id: null,
+        PFPolicyMasterID: $scope.PFPolicyMaster.ID,
         SalaryHeadID: null,
         SalaryHeadName: null,
     }
@@ -1522,6 +1529,31 @@ function PFPolicyController($window, cboService, commonMessage, $scope, $rootSco
         } catch (e) {
             ShowResult(e, 'info');
         }
+    };
+        
+    $scope.message_confirmation = null;
+    $scope.RemoveHead = function (obj) {
+        $scope.PFPolicyHead = Object.assign({}, obj.data);
+        if (!baseService.isUndefinedOrNull($scope.PFPolicyHead.Id))
+            $scope.message_confirmation = 'Are you sure want to delete permanently ?';
+        angular.element(document.querySelector('#confirmPopUpHead')).modal('show');
+    }
+    $scope.DeleteHeadList = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'DeleteHeadMaster?ID=' + $scope.PFPolicyHead.Id,
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult("Invalid Head ");
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetHeadList($scope.PFPolicyHead.PFPolicyMasterID);
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
     };
 
     //#endregion
