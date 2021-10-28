@@ -366,14 +366,25 @@ namespace Aplos.Areas.Attendances.Controllers
         {
             try
             {
-                if (Employer == null)
-                    throw new Exception("Insert Employer Contribution Part ");
-                if (Employee == null)
-                    throw new Exception("Insert Employee Contribution Part ");
+                if (Details.IsDistributionEmployer)
+                {
+                    if (Employer == null)
+                        throw new Exception("Insert Employer Contribution Part ");
+                    
+                }
+                if (Details.IsDistributionEmp)
+                {
+                    if (Employee == null)
+                        throw new Exception("Insert Employee Contribution Part ");
+                }
+                
+                
                 string DetailsId = string.Empty;
                 DetailsId = SaveDetailsMaster(Details, Master);
-                SaveEmployeeDetails(Details, DetailsId, Employee);
-                SaveEmployerDetails(Details, DetailsId, Employer);
+                if (Details.IsDistributionEmp)
+                    SaveEmployeeDetails(Details, DetailsId, Employee);
+                if (Details.IsDistributionEmployer)
+                    SaveEmployerDetails(Details, DetailsId, Employer);
                 return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception)
@@ -680,10 +691,15 @@ namespace Aplos.Areas.Attendances.Controllers
                     Exception ex = new Exception("Please Delete Details First....");
                     throw (ex);
                 }
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                strMasterSQL = "DELETE FROM [dbo].[PFPolicyMaster] WHERE ID='" + ID + "'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(strMasterSQL, out dsExceptionEmployeeList, false, "1");
+                //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                //strMasterSQL = "DELETE FROM [dbo].[PFPolicyMaster] WHERE ID='" + ID + "'";
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(strMasterSQL, out dsExceptionEmployeeList, false, "1");
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from PFPolicySalaryHead where PFPolicyMasterID='" + ID + "'");
+                con.executeQuery("DELETE FROM [dbo].[PFPolicyMaster] WHERE ID='" + ID + "'");
+                con.CommitTransaction();
             }
             catch (Exception ex)
             {
