@@ -5117,7 +5117,7 @@ namespace Library.HumanResource.Payroll
                 int ColSr = 0, ColIDNo = 0, ColName = 0, ColDOJ = 0, ColDOS = 0, cDept = 0, cSec = 0, cSubSec = 0, cLine = 0, cPayrollGroup = 0, cJobLocation = 0, cGender = 0,
                     cGrade = 0, ColGVDG = 0, ColGrs = 0, colPayDays = 0, ColPdDy = 0, ColLate = 0, ColAbDy = 0, ColHlDy = 0, ColWkOf = 0, ColLv = 0, ColMLv = 0
                    , ColLWP = 0, colBank = 0, cDMP = 0, colBankAccountNo = 0, colEmpCurrentStat = 0, colEmpStatus = 0, cPaymentMode = 0, cUnit = 0, ColTotalOTHR = 0, colDirectManpowerCost = 0;
-                int npstruct = 0, ColTotalWorkingDay = 0, ColActualWorkingDay = 0, ColLatePresent = 0 , ColContractor = 0;
+                int npstruct = 0, ColTotalWorkingDay = 0, ColActualWorkingDay = 0, ColLatePresent = 0, ColContractor = 0;
 
                 #endregion
 
@@ -9041,7 +9041,7 @@ namespace Library.HumanResource.Payroll
                         {
                             double totalWidth = sheet1.GetColumnWidth(1) + sheet1.GetColumnWidth(2);
                             int totalWidthPixel = (int)(totalWidth * 5.0);
-                            int totalheight = (int)((sheet1.GetRowHeight(1) + sheet1.GetRowHeight(2) )*1.5);
+                            int totalheight = (int)((sheet1.GetRowHeight(1) + sheet1.GetRowHeight(2)) * 1.5);
 
                             companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
                             IPictureShape pic = null;
@@ -16704,7 +16704,95 @@ INNER JOIN
         }
         #endregion Employee Salary Payable
 
+        #region form 18
+
+        public void GetSettingsForForm18(out List<Dictionary<string, object>> salaryHeads, out List<Dictionary<string, object>> LeaveTypes)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT H.SalaryHeadId, H.SalaryHead, H.[Description], H.HeadType, H.HeadCategory,
+                        CONVERT(BIT,CASE WHEN ISNULL(d.Id,'')='' THEN 0 ELSE 1 END) AS isSelect, D.Sequence
+                          FROM SalaryHead H
+                        LEFT JOIN LeaveWithWagesRegisterSalaryHeads D ON d.SalaryHeadID=h.SalaryHeadID AND d.CompanyId='" + identity.CompanyId + @"'
+                        where H.HeadType='E'";
+            salaryHeads = _sqlRepository.GetDataCollection(sql);
+
+
+            sql = @"SELECT  H.Id AS LeaveTypeId,H.LeaveType, H.Code, H.UserName, H.[Description],
+                        CONVERT(BIT,CASE WHEN ISNULL(d.Id,'')='' THEN 0 ELSE 1 END) AS isSelect, ISNULL(D.Sequence,h.Sequence) AS Sequence
+                          FROM LeaveType H
+                        LEFT JOIN LeaveWithWagesRegisterLeaveTypes D ON d.LeaveTypeId=h.Id AND d.CompanyId='" + identity.CompanyId + @"'";
+            LeaveTypes = _sqlRepository.GetDataCollection(sql);
+        }
+
+        public void SaveSettingsForForm18(List<Dictionary<string, object>> salaryHeads, List<Dictionary<string, object>> LeaveTypes)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+
+
+            ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+            con.OpenDataSetThroughAdapter("SELECT * FROM LeaveWithWagesRegisterSalaryHeads AS dp where CompanyId='" + identity.CompanyId + @"'", out DataSet dsSalaryHead, false, "1");
+            con.OpenDataSetThroughAdapter("SELECT * FROM LeaveWithWagesRegisterLeaveTypes AS dp where CompanyId='" + identity.CompanyId + @"'", out DataSet dsLeaveTypes, false, "1");
+
+            while (dsSalaryHead.Tables[0].DefaultView.Count > 0)
+                dsSalaryHead.Tables[0].DefaultView[0].Delete();
+
+            while (dsLeaveTypes.Tables[0].DefaultView.Count > 0)
+                dsLeaveTypes.Tables[0].DefaultView[0].Delete();
+
+
+            for (int i = 0; i < salaryHeads.Count; i++)
+            {
+                if (bplib.clsWebLib.GetBoolData(salaryHeads[i]["isSelect"].ToString()) == false)
+                    continue;
+
+                DataRow dr = dsSalaryHead.Tables[0].NewRow();
+
+                dr["CompanyId"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(identity.CompanyId));
+                dr["SalaryHeadId"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(salaryHeads[i]["SalaryHeadId"]));
+                dr["Sequence"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(salaryHeads[i]["Sequence"]));
+
+                dr["AddedBy"] = identity.Name;
+                dr["AddedDate"] = DateTime.Now;
+                dr["AddedFromIP"] = identity.IPAddress;
+
+                dr["UpdatedBy"] = identity.Name;
+                dr["UpdatedDate"] = DateTime.Now;
+                dr["UpdatedFromIP"] = identity.IPAddress;
+                dsSalaryHead.Tables[0].Rows.Add(dr);
+            }
+
+
+            for (int i = 0; i < LeaveTypes.Count; i++)
+            {
+                if (bplib.clsWebLib.GetBoolData(LeaveTypes[i]["isSelect"].ToString()) == false)
+                    continue;
+
+                DataRow dr = dsLeaveTypes.Tables[0].NewRow();
+
+                dr["CompanyId"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(identity.CompanyId));
+                dr["LeaveTypeId"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(LeaveTypes[i]["LeaveTypeId"]));
+                dr["Sequence"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(LeaveTypes[i]["Sequence"]));
+
+                dr["AddedBy"] = identity.Name;
+                dr["AddedDate"] = DateTime.Now;
+                dr["AddedFromIP"] = identity.IPAddress;
+
+                dr["UpdatedBy"] = identity.Name;
+                dr["UpdatedDate"] = DateTime.Now;
+                dr["UpdatedFromIP"] = identity.IPAddress;
+                dsLeaveTypes.Tables[0].Rows.Add(dr);
+            }
+
+            OTSBD.clsStaticInfo SaveInfo = new OTSBD.clsStaticInfo();
+            SaveInfo.SaveDataSets(dsSalaryHead, dsLeaveTypes);
+        }
+
+        #endregion form18
+
     }
+
     public class ReportLeaveInfo
     {
         public string EmpSystemID { get; set; }
