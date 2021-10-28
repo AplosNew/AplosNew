@@ -290,6 +290,12 @@ namespace Library.Planning.LineDesign
                 if (OTSBD.clsStaticInfo.dbl(HtmlsInfo[i]["CurrentQuantity"]) == 0)
                     continue;
 
+                if (OTSBD.clsStaticInfo.nullrecorder(HtmlsInfo[i]["EmployeeId"]) == "")
+                    continue;
+
+                if (OTSBD.clsStaticInfo.nullrecorder(HtmlsInfo[i]["OperationVariationId"]) == "")
+                    continue;
+
                 if (ChildPK == "")
                 {
                     objGenID = new bplib.clsGenID();
@@ -312,7 +318,7 @@ namespace Library.Planning.LineDesign
 
                 dr["AddedBy"] = identity.Name;
                 dr["AddedDate"] = DateTime.Now;
-               // dr["AddedFromIP"] = identity.IPAddress;
+                //dr["AddedFromIP"] = identity.IPAddress;
 
                 dr["UpdatedBy"] = identity.Name;
                 dr["UpdatedDate"] = DateTime.Now;
@@ -346,7 +352,7 @@ CASE WHEN ISNULL(dtd.EmployeeSystemId,'')='' THEN 'Unassigned' ELSE CONCAT('Assi
                             EMP.SectionId,SS.UserName SubSection
                             ,PL.UserName Plant
                             FROM EmployeeInformation EMP
-                            join EmployeeOperation AS eo ON EO.EmpSystemId=EMP.SystemId --AND EO.OperationVariationId='" + OperationVariationId + @"'
+                            join EmployeeOperation AS eo ON EO.EmpSystemId=EMP.SystemId AND EO.OperationVariationId='" + OperationVariationId + @"'
                             LEFT JOIN LineLayoutDailyTargetData AS DTD ON dtD.EmployeeSystemId=emp.SystemId 
 														AND dtD.LineLayoutDailyTargetId IN (SELECT Id FROM LineLayoutDailyTarget AS X Where x.TargetDate='" + TargetDate + @"')
 							LEFT JOIN LineLayoutDailyTarget		DT ON dt.Id=dtd.LineLayoutDailyTargetId		
@@ -447,29 +453,21 @@ CASE WHEN ISNULL(dtd.EmployeeSystemId,'')='' THEN 'Unassigned' ELSE CONCAT('Assi
             _tempData[0]["SkillList"] = _sqlRepository.GetDataCollection(sql);
             data.Add(_tempData);
 
-            sql = @"SELECT o.UserName AS Operation,ov.UserName AS OperationVariation,mma.StandardName AS Article,s.UserName AS Skill,o.IsMachineRequired,mma.RPM,sc.UserName AS StitchCode,
-                        ov.SubOperationSAM, ov.AdditionalSAMSymbol, ov.AdditionalSAM, ov.Frequency,oc.UserName AS OperationCategory,
-                        ov.MachineAllowance, ov.SPI, ov.Code, ov.TotalSAM, ov.AdditionalAllowance,
-                        ov.VASFINALSAM
-                          FROM mst.OperationVariation AS ov
-                        LEFT JOIN mst.Operation AS o ON o.Id=ov.OperationId
-                        LEFT JOIN hkp.OperationCategory AS oc ON oc.Id=o.OperationCategoryId
-                        LEFT JOIN mst.MaterialMasterArticle AS mma ON mma.Id=ov.ArticleId
-                        LEFT JOIN hkp.Skill AS s ON s.Id=ov.SkillId
-                        LEFT JOIN hkp.StitchCode AS sc ON sc.Id=mma.StitchCodeId
-                        WHERE ov.Id='" + OperationVariationId + @"'";
 
-            data.Add(_sqlRepository.GetDataCollection(sql));
+
+            data.Add(_sqlRepository.GetDataCollection(GetOperationVariationSql(OperationVariationId)));
 
 
             sql = @"    
                         SELECT far.Id,far.Model,mma.StandardName AS Article,mm.UserName AS Material, far.SerialNo, format(far.CapitalizationDate,'dd-MMM-yyyyy') CapitalizationDate,format(far.InvoiceDate,'dd-MMM-yyyyy') InvoiceDate,
                            far.YearOfManufacture, far.YearOfInstallation, far.[Description],CONCAT(far.Id,'/',far.[Description]) AS FixedAssetDesc,
                            far.AssetNo, far.[Status], far.Remarks,cm.UserName AS Vendor,B.UserName AS Brand,c.UserName AS CountryOfOrigin,FR.UserName FixedAssetMaster,
-                           A.UserName AS FixedAssetActivity
-                      FROM trn.FixedAssetRegister AS far
-                          LEFT JOIN MST.MaterialMaster MM ON far.MaterialMasterId= MM.Id
-                                   LEFT JOIN MST.MaterialMasterArticle MMA ON far.MaterialMasterArticleId= MMA.Id
+                           A.UserName AS FixedAssetActivity,mma.ShortName AS ArticleShortName
+                      FROM 
+                            mst.operationvariation ov
+                         left join   trn.FixedAssetRegister AS far on far.MaterialMasterArticleId=ov.ArticleId and far.Id='" + AssetRegisterId + @"'
+                                   LEFT JOIN MST.MaterialMasterArticle MMA ON ov.ArticleId= MMA.Id
+                          LEFT JOIN MST.MaterialMaster MM ON mma.MaterialMasterId= MM.Id
 
                                 LEFT JOIN hkp.Party AS cm ON cm.Id=far.VendorId
                                 LEFT JOIN SCS.Brand B ON b.Id=far.BrandId
@@ -477,9 +475,21 @@ CASE WHEN ISNULL(dtd.EmployeeSystemId,'')='' THEN 'Unassigned' ELSE CONCAT('Assi
                                 LEFT JOIN MST.FixedAssetMaster FR ON fr.Id=far.FixedAssetMasterId
                                 LEFT JOIN HKP.Activity A ON A.Id=far.FAActivityId
 
-                                WHERE far.Id='" + AssetRegisterId + @"'";
+                                WHERE ov.Id='" + OperationVariationId + @"'";
 
             data.Add(_sqlRepository.GetDataCollection(sql));
+
+            return data;
+        }
+        public List<List<Dictionary<string, object>>> GetOperationVariationCard(string OperationVariationId)
+        {
+
+            List<List<Dictionary<string, object>>> data = new List<List<Dictionary<string, object>>>();
+
+
+            data.Add(_sqlRepository.GetDataCollection(GetOperationVariationSql(OperationVariationId)));
+
+
 
             return data;
         }
@@ -488,21 +498,37 @@ CASE WHEN ISNULL(dtd.EmployeeSystemId,'')='' THEN 'Unassigned' ELSE CONCAT('Assi
         {
 
 
-            string sql = @"SELECT ei.SystemId AS EmployeeId,apd.DayStatus,dt.ColorCode AS DayColor,CONVERT(INT,SUM(ISNULL(dp.Quantity,0))) AS ProductionQuantity
+            string sql = @"SELECT ei.SystemId AS EmployeeId,apd.DayStatus,dt.ColorCode AS DayColor,ISNULL(dp.Quantity,0) AS ProductionQuantity
                                   FROM EmployeeInformation AS ei
-                                LEFT JOIN LineLayoutDailyTargetData AS D ON d.EmployeeSystemId=ei.SystemId 
-                                LEFT JOIN LineLayoutDailyTarget AS T ON t.Id=d.LineLayoutDailyTargetId AND T.TargetDate='" + TargetDate + @"'
                                 LEFT JOIN AttdnProcessData AS apd ON apd.EmpSystemID=ei.SystemId AND apd.WorkDate='" + TargetDate + @"'
-                                LEFT JOIN trn.DailyProduction AS dp ON dp.ProductionDate='" + TargetDate + @"' AND dp.EmployeeInformationSystemID=ei.SystemId
+                                LEFT JOIN (SELECT dp.EmployeeInformationSystemID,SUM(dp.Quantity) AS Quantity
+                                             from trn.DailyProduction AS dp 
+                                           WHERE  dp.ProductionDate='" + TargetDate + @"' AND dp.EmployeeInformationSystemID IN(" + EmployeeId + @")
+                                           GROUP BY dp.EmployeeInformationSystemID) AS dp ON dp.EmployeeInformationSystemID=ei.SystemId
                                 LEFT JOIN DayType AS dt ON dt.DayType=apd.DayStatus
-                                WHERE ei.SystemId IN (" + EmployeeId + @") 
-
-                                GROUP BY ei.SystemId,apd.DayStatus,dt.ColorCode";
+                                WHERE ei.SystemId IN (" + EmployeeId + @") ";
 
             return _sqlRepository.GetDataCollection(sql);
         }
 
+        private string GetOperationVariationSql(string OperationVariationId)
+        {
 
+            string sql = @"SELECT o.UserName AS Operation,ov.UserName AS OperationVariation,mma.StandardName AS Article,s.UserName AS Skill,mm.UserName AS Material,o.IsMachineRequired,mma.RPM,sc.UserName AS StitchCode,
+                        ov.SubOperationSAM, ov.AdditionalSAMSymbol, ov.AdditionalSAM, ov.Frequency,oc.UserName AS OperationCategory,
+                        ov.MachineAllowance, ov.SPI, ov.Code, ov.TotalSAM, ov.AdditionalAllowance,
+                        ov.VASFINALSAM,mma.ShortName AS ArticleShortName
+                          FROM mst.OperationVariation AS ov
+                        LEFT JOIN mst.Operation AS o ON o.Id=ov.OperationId
+                        LEFT JOIN hkp.OperationCategory AS oc ON oc.Id=o.OperationCategoryId
+                        LEFT JOIN mst.MaterialMasterArticle AS mma ON mma.Id=ov.ArticleId
+                        LEFT JOIN mst.MaterialMaster AS mm ON mm.Id=mma.MaterialMasterId
+                        LEFT JOIN hkp.Skill AS s ON s.Id=ov.SkillId
+                        LEFT JOIN hkp.StitchCode AS sc ON sc.Id=mma.StitchCodeId
+                        WHERE ov.Id='" + OperationVariationId + @"'";
+
+            return sql;
+        }
     }
 }
 

@@ -512,6 +512,7 @@ namespace Library.Service.Leave
         public bool IsActive { get; set; }
 
         public string GroupID { get; set; }
+        public string EncasementEndDate { get; set; }
         public string PlantID { get; set; }
 
         public string AddedBy { get; set; }

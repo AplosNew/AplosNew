@@ -10,34 +10,17 @@
                 </div>
             </div>
             <div class="col-md-4">
-                @*<div class="form-group" show-errors id="div_ToDate">
-                        <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
-                        <div class="col-sm-7 show-message">
-                            <input type="text" name="To Date" ng-model="LeaveWagesRegisters.ToDate" datepicker class="form-control">
-                        </div>
-                    </div>*@
             </div>
             <div class="col-md-4">
                 <div class="common-btn">
                     <ul class="list-inline text-left">
                         <li><button ng-click="GetEmployeeInformation();" class="btn"><i class="glyphicon glyphicon-search"></i> Load Employee </button></li>
+                        <li><button ng-click="GetSettings();" class="btn"><i class="glyphicon glyphicon-search"></i> View Settings </button></li>
                     </ul>
                 </div>
             </div>
 
         </div>
-
-        @*<div class="form-group">
-                <label class="col-sm-4 control-label">Year<sup>*</sup></label>
-                <div class="col-sm-6">
-                    <div class="select-style">
-                        <select id="Year" class="form-control" ng-model="salaryProcessModel.YearId" name="Year" required tabindex="1" ng-change="getData();">
-                            <option value="">--Select--</option>
-                            <option ng-repeat="option in yearList" value="{{option.Text}}">{{option.Text}}</option>
-                        </select>
-                    </div>
-                </div>
-            </div>*@
 
 
         <div class="col-xs-12">
@@ -68,10 +51,7 @@
                 </div>
             </div>
             <script type="text/template" id="reportButton">
-                @*<a style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="fa fa-file-pdf-o" ng-click="$parent.report(this);" style="margin: -6px;">View</i></a>*@
                 <a class="btn" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" href="HumanResource/LeaveWithWeagesRegisters/GetLeaveWithWeagesRegisters?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&year={{$parent.year}}&empId={{data.EmpSystemId}}" target="_blank"><i class="fa fa-eye" style="margin: -6px;"></i></a>
-                @*<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="fa fa-file-pdf-o" ng-click="$parent.report(this);" style="margin: -6px;"></i></button>*@
-
             </script>
         </div>
 
@@ -79,4 +59,56 @@
 
     </div>
 </div>
+
+<ej-dialog id="dialogSettingsEntry" title="Settings" e-enablemodal="true" e-showoninit="false" e-width="1000">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            Salary Heads
+            <div id="gridSalaryHead" ng-init="chkinit()" ej-grid e-datasource="SalaryHeadList"
+                 e-allowtextwrap="true" e-textwrapsettings.wrapmode="content"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-template="#TemplateCheckBoxSalaryHead" e-width="10"></div>
+                    <div e-column e-field="SalaryHead" e-headertext="Salary Head" e-width="100"></div>
+                    <div e-column e-template="#TemplateTextBoxSequence" e-width="30"  e-headertext="Sequence"></div>
+                </div>
+            </div>
+            <script type="text/template" id="TemplateCheckBoxSalaryHead">
+                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelect" />
+            </script>
+            <script type="text/template" id="TemplateTextBoxSequence">
+                <input type="text" ej-numerictextbox e-decimalplaces="0" e-min="1" e-enablertl="false" e-value="data.Sequence" e-width="75" />
+            </script>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            Leave Types
+            <div id="gridLeaveType" ng-init="chkinit()" ej-grid e-datasource="LeaveTypeList"
+                 e-allowtextwrap="true" e-textwrapsettings.wrapmode="content"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-template="#TemplateCheckBoxLeaveType" e-width="10"></div>
+                    <div e-column e-field="LeaveType" e-headertext="Leave Type" e-width="100" ></div>
+                    <div e-column e-template="#TemplateTextBoxSequence" e-width="30"  e-headertext="Sequence"></div>
+                </div>
+            </div>
+            <script type="text/template" id="TemplateCheckBoxLeaveType">
+                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelect" />
+            </script>
+            <script type="text/template" id="TemplateTextBoxSequence">
+                <input type="text" ej-numerictextbox e-decimalplaces="0" e-min="1" e-enablertl="false" e-value="data.Sequence" e-width="75" />
+            </script>
+        </div>
+
+        <div class="col-md-4">
+            <div class="common-btn">
+                <ul class="list-inline text-left">
+                     <li><button ng-click="SaveSettings();" class="btn"><i class="glyphicon glyphicon-save"></i> Save </button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</ej-dialog>
 

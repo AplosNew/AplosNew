@@ -119,13 +119,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 {
                                     dr["ManualInTime"] = clsWebLib.RetValidLen(ManualInTime);
                                     dr["IsManualInTime"] = clsWebLib.GetBoolData(IsManualInTime);
-                                    dr["OriginalManualInTime"]= clsWebLib.RetValidLen(ManualInTime);
+                                    dr["OriginalManualInTime"] = clsWebLib.RetValidLen(ManualInTime);
                                 }
                                 if (clsWebLib.RetValidLen(ManualOutTime).ToString() != "")
                                 {
                                     dr["ManualOutTime"] = clsWebLib.RetValidLen(ManualOutTime);
                                     dr["IsManualOutTime"] = clsWebLib.GetBoolData(IsManualOutTime);
-                                    dr["OriginalManualOutTime"]= clsWebLib.RetValidLen(ManualOutTime);
+                                    dr["OriginalManualOutTime"] = clsWebLib.RetValidLen(ManualOutTime);
                                 }
                                 if (clsWebLib.RetValidLen(ManualDayStatus).ToString() != "")
                                 {
@@ -149,7 +149,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     dr["ShiftDuration"] = ProfileShiftDurn;
                                     dr["ShiftInTime"] = ProfileShiftIn;
                                     dr["ShiftOutTime"] = ProfileShiftOut;
-
+                                   
                                 }
                                 else if (RosterShift.ToString() != "")
                                 {
@@ -159,7 +159,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     dr["ShiftOutTime"] = RosterShiftOut;
 
                                 }
-                               
+
                                 else if (BudgetShift.ToString() != "")
                                 {
                                     dr["ShiftSystemID"] = BudgetShift;
@@ -257,7 +257,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     dr["ShiftOutTime"] = RosterShiftOut;
 
                                 }
-                                
+
                                 else if (BudgetShift.ToString() != "")
                                 {
                                     dr["ShiftSystemID"] = BudgetShift;
@@ -276,10 +276,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr.EndEdit();
 
                             }
-                          
+
                         }
                         SaveDataSets(dsRef);
-                       
+
                     }
                     #endregion
 
@@ -451,6 +451,45 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         #region Update in LeaveTransactionDetail
                         LeaveAvailUpdate(Date, PlantValue);
                         #endregion
+                    }
+                    #endregion
+
+                    #region Maternity LeaveData Flagging
+                    DataSet MaternityLeavedata;
+                    MaternityLeaveData(Date, out MaternityLeavedata, PlantValue); // Building Maternity Leave DataSet of Employees 
+                    if (MaternityLeavedata.Tables[0].Rows.Count > 0)
+                    {
+                        string WorkDate = MaternityLeavedata.Tables[0].Rows[0][@"WorkDate"].ToString();
+
+                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                        var sqlx = @"select * from AttdnProcessData where WorkDate='" + WorkDate + "' and PlantID ='" + PlantValue + "' ";
+
+                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+
+                        for (int i = 0; i < MaternityLeavedata.Tables[0].Rows.Count; i++)
+                        {
+                            string RowId = MaternityLeavedata.Tables[0].Rows[i][@"RowId"].ToString();
+                            string LTSystemID = MaternityLeavedata.Tables[0].Rows[i][@"LTSystemID"].ToString();
+                            decimal LeaveDuration = Convert.ToDecimal(MaternityLeavedata.Tables[0].Rows[i][@"LeaveDuration"].ToString());
+                            string LeaveStatus = MaternityLeavedata.Tables[0].Rows[i][@"Code"].ToString();
+
+                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
+
+                            if (dsRef.Tables[0].DefaultView.Count > 0)
+                            {
+                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                dr.BeginEdit();
+                                // Updations in APD Table
+                                dr["LeaveDuration"] = LeaveDuration;
+                                dr["LTSystemID"] = clsWebLib.RetValidLen(LTSystemID);
+                                dr["LeaveStatus"] = clsWebLib.RetValidLen(LeaveStatus);
+                                dr["UpdatedBy"] = "Schedule";
+                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                dr.EndEdit();
+                            }
+                        }
+                        SaveDataSets(dsRef);
+                        
                     }
                     #endregion
 
@@ -841,10 +880,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 string newformat = Convert.ToDateTime(Date).ToString("yyyyMMdd");
 
                 var sql = @"select TobeAdded=case When isnull(p.EmpSystemID,'') ='' then 'true' 
-                else 'false' end ,e.SystemId,'" + Date + @"' as WorkDate,
-                convert(varchar(30),'" + newformat + @"' )+convert(varchar(30), e.SystemId)RowId,e.PlantId,e.GroupID,
-                m.ShiftSystemId 
-                as ManualShift,sd.InTime as ManualShiftIn,sd.OutTime as ManualShiftOut,sd.ShiftDuration as ManualDuration,
+                else 'false' end ,e.SystemId,'"+Date+@"' as WorkDate,
+                convert(varchar(30),'" + newformat + @"' )+convert(varchar(30), e.SystemId)RowId,
+				e.PlantId,e.GroupID,
+                isnull(m.ShiftSystemId,p.ManualShiftID) 
+                as ManualShift,ISNULL(sd.InTime,p.ShiftInTime) as ManualShiftIn,
+				isnull(sd.OutTime,p.ShiftOutTime) as ManualShiftOut,isnull(sd.ShiftDuration,p.ShiftDuration)
+				as ManualDuration,
                 e.ProfileShiftId as ProfileShift,sdx.InTime as ProfileShiftIn,sdx.OutTime as ProfileShiftOut,
                 sdx.ShiftDuration as ProfileDuration,
                 mb.ShiftDefinationId as BudgetedShift,sdy.InTime as BudgetShiftIn,sdy.OutTime as BudgetShiftOut,
@@ -854,27 +896,30 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 else 'true' end,IsManualInTime=case When isnull(m.InTime,'') ='' then 'false' 
                 else 'true' end,IsManualOutTime=case When isnull(m.OutTime,'') ='' then 'false' 
                 else 'true' end,mb.Id as BudgetId,rh.Id as RosterId,Op.InPunchStartTime as PlantInPunchStartTime, 
-                FullDayDuration=isnull(isnull(sd.FullDayDuration,sdz.FullDayDuration),
-                isnull(sdx.FullDayDuration,sdy.FullDayDuration)),HalfDayDuration=isnull(isnull(sd.HalfDayDuration,sdz.HalfDayDuration),
-                isnull(sdx.HalfDayDuration,sdy.HalfDayDuration)),ShortDuration=isnull(isnull(sd.ShortDuration,sdz.ShortDuration),
-                isnull(sdx.ShortDuration,sdy.ShortDuration)),HoursWithoutOT=isnull(isnull(sd.HoursWithoutOT,sdz.HoursWithoutOT),
+                FullDayDuration=isnull(isnull(isnull(sd.FullDayDuration,p.ShiftFullDayDuration),sdz.FullDayDuration),
+                isnull(sdx.FullDayDuration,sdy.FullDayDuration)),				
+				HalfDayDuration=isnull(isnull(isnull(sd.HalfDayDuration,p.ShiftHalfDayDuration),sdz.HalfDayDuration),
+                isnull(sdx.HalfDayDuration,sdy.HalfDayDuration)),
+				ShortDuration=isnull(isnull(isnull(sd.ShortDuration,p.ShiftShortDuration),sdz.ShortDuration),
+                isnull(sdx.ShortDuration,sdy.ShortDuration)),
+				HoursWithoutOT=isnull(isnull(isnull(sd.HoursWithoutOT,p.ShiftHoursWithoutOT),sdz.HoursWithoutOT),
                 isnull(sdx.HoursWithoutOT,sdy.HoursWithoutOT))
                 from EmployeeInformation e 
                 left join ShiftDefination sdx on sdx.SystemID=e.ProfileShiftId
-                left outer join AttndManualDataFromApp m on e.SystemId=m.EmpSystemID and m.WorkDate='" + Date + @"'
+                left outer join AttndManualDataFromApp m on e.SystemId=m.EmpSystemID and m.WorkDate='"+Date+@"'
                 left join ShiftDefination sd on sd.SystemID=m.ShiftSystemId
-                left join AttdnProcessData p on p.EmpSystemID=e.SystemId and p.WorkDate='" + Date + @"'
+                left join AttdnProcessData p on p.EmpSystemID=e.SystemId and p.WorkDate='"+Date+@"'
                 left join mst.ManpowerBudget mb on mb.Id=e.BudgetCode
                 left join ShiftDefination sdy on sdy.SystemID=mb.ShiftDefinationId
                 left join dbo.RosterBudget rb on rb.BudgetId=mb.Id 
                 left join RosterPatternHeader rh on rh.Id=rb.RosterId
-                left join dbo.RosterPatternProcess rp on rp.RPHeaderId=rh.Id and rp.WorkDate='" + Date + @"'
+                left join dbo.RosterPatternProcess rp on rp.RPHeaderId=rh.Id and rp.WorkDate='"+Date+@"'
                 left join ShiftDefination sdz on sdz.SystemID=rp.ShiftDefinationID
                 left join org.Plant pl on pl.Id=e.PlantId
                 left join OutPunchConfigurationHeader Op on OP.PlantId=pl.Id
-                where e.EmpType!='Guest' and e.PlantId='" + PlantId + @"' and
-				E.DOJ <= '"+Date+"' AND (E.DOS >= '"+Date+"' OR ISNULL(E.DOS,'') = '' OR E.DOS = '01/01/1901') ";
-
+                where e.EmpType!='Guest' and e.PlantId='"+PlantId+@"' and
+				E.DOJ <= '"+Date+@"' AND (E.DOS >= '"+Date+@"' OR ISNULL(E.DOS,'') = '' 
+				OR E.DOS = '01/01/1901')";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
@@ -932,6 +977,31 @@ namespace Library.HumanResource.NewAttendanceProcess {
 					left join LeaveType ltp on ltp.Id=LT.LTSystemID
                     WHERE LT.PlantID = '" + PlantId + @"' AND D.WorkDate='" + Date + @"'
                     and LT.IsApproved=1";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public void MaternityLeaveData(string Date, out DataSet ds, string PlantId)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"select distinct FORMAT(D.WorkDate,'yyyy-MMM-dd')WorkDate,
+                    LT.PlantID,LT.EmpSystemID,
+                    Format(D.WorkDate,'yyyyMMdd')+LT.EmpSystemID AS RowId, 
+                    D.LeaveDuration,lt.LTSystemID,(LTP.Code+'WOB') AS Code
+                    from LeaveTransactionDetails D 
+                    LEFT JOIN LeaveTransaction LT ON LT.SystemID=D.LvTrnsSystemID
+					left join LeaveType ltp on ltp.Id=LT.LTSystemID
+					LEFT JOIN [MST].[MaternityLeavePolicy] MP ON MP.Id=LT.MaternityLeavePolicyId
+                    WHERE LT.PlantID = '"+PlantId+@"' AND ISNULL(MP.IsNoBenefit,'')='1'
+					AND D.WorkDate='"+Date+@"' 
+                    and LT.IsApproved=1";
+
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }

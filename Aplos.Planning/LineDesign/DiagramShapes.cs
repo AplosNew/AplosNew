@@ -33,12 +33,16 @@ namespace Library.Planning.LineDesign
         public string MachineOrHand { get; set; } = "H";
         public string OperationVariationId { get; set; } = "";
         public string OperationVariationDesc { get; set; } = "";
+        public double TotalSPT { get; set; } = 0;
+
         public string MaterialMasterId { get; set; } = "";
         public string MaterialMasterDesc { get; set; } = "";
         public string FixedAssetRegisterId { get; set; } = "";
         public string FixedAssetRegisterDesc { get; set; } = "";
         public string ArticleId { get; set; } = "";
         public string ArticleDesc { get; set; } = "";
+        public string ArticleShortName { get; set; } = "";
+        
         public string EmployeeId { get; set; } = "";
         public string EmployeeName { get; set; } = "";
         public string EmployeeCode { get; set; } = "";
@@ -49,6 +53,7 @@ namespace Library.Planning.LineDesign
         public double Sequence { get; set; } = 0;
         public double ProductionQuantity { get; set; } = 0;
         public double AllotedWorkstation { get; set; } = 0;
+        public double WorkstationTargetPerHour { get; set; } = 0;
         public double RequiredManPower { get; set; } = 0;
 
     }

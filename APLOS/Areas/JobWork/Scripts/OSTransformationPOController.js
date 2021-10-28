@@ -1121,7 +1121,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     //#region Save Update Delete Function
 
     $scope.Save = function () {
-        $scope.$broadcast('show-errors-check-validity');
+      //  $scope.$broadcast('show-errors-check-validity');
         try {
             $scope.dbval = $scope.StateData;
             $scope.UIval = $scope.productNew.InvoicingState;
