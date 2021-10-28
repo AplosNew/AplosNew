@@ -230,7 +230,7 @@ namespace OTSBD
 
 
                     //Calculate Gratuity
-                    if (isGratuityApplicable || IsNetPayWithFinalSattlement == false)
+                    if (isGratuityApplicable )
                     {
                         string _formulaValueG = "0";
                         int GratuityNumberOfYears = 0;
@@ -358,7 +358,7 @@ namespace OTSBD
                             dvSPAprovedData.RowFilter = "IsLocked=" + true;
                             if (dvSPAprovedData.Count == 0)
                             {
-                                throw new Exception("Salary [ of" + Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOS"]).ToString("MMMM") + "] is not Locked.");
+                                throw new Exception("Salary of [" + Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOS"]).ToString("MMMM") + "] is not Locked.");
                             }
 
 
