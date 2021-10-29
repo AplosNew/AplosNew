@@ -849,42 +849,88 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 			if ($scope.IssueTransformationChildList[i].isSelected == true)
 				SelectedData.push($scope.IssueTransformationChildList[i]);
 		}
-		
 
-		$http({
-			method: 'POST',
-			data: { SelectedMaterialPlanningData: SelectedData, OrderSpecific: $scope.Transformation.OrderSpecific, MaterialStorageIdInventory: $scope.IssueTransformation.MaterialStorageIdInventory, IssueDate: $scope.IssueTransformation.IssueDate },
-			url: $scope.path + 'GetMaterialInputData'
-		}).then(function successCallback(response) {
-			$scope.MaterialInputList = response.data;
-			$scope.MatInputListLocal = response.data;
-			if ($scope.MaterialInputList.length > 0) {
-				for (var a = 0; a < $scope.MaterialInputList.length; a++) {
-					var Id = $scope.MaterialInputList[a].OSTransformationPOId;
-					var ArticleId = $scope.MaterialInputList[a].ArticleId;
+		if (baseService.isUndefinedOrNull($scope.IssueTransformation.Id)) {
+			$http({
+				method: 'POST',
+				data: { SelectedMaterialPlanningData: SelectedData, OrderSpecific: $scope.Transformation.OrderSpecific, MaterialStorageIdInventory: $scope.IssueTransformation.MaterialStorageIdInventory, IssueDate: $scope.IssueTransformation.IssueDate },
+				url: $scope.path + 'GetMaterialInputData'
+			}).then(function successCallback(response) {
+				$scope.MaterialInputList = response.data;
+				$scope.MatInputListLocal = response.data;
+				if ($scope.MaterialInputList.length > 0) {
+					for (var a = 0; a < $scope.MaterialInputList.length; a++) {
+						var Id = $scope.MaterialInputList[a].OSTransformationPOId;
+						var ArticleId = $scope.MaterialInputList[a].ArticleId;
 
-					for (var b = 0; b < $scope.MatInputListLocal.length; b++) {
-						if ($scope.MatInputListLocal[b].OSTransformationPOId != Id) {
-							if ($scope.MatInputListLocal[b].ArticleId == ArticleId) {
-								ShowResult("Common Input Material is there");
-								return false;
-                            }
-                        }
-                    }
-                }
-            }
-			
-			$scope.detailList = response.data;
-			for (var i = 0; i < $scope.detailList.length; i++) {
-				$scope.detailList[i].MaterialStorageId = $scope.IssueTransformation.MaterialStorageIdInventory;
-			}
-			
-			if ($scope.MaterialInputList.length > 0 && $scope.detailList.length > 0) {
-				$scope.CostCenterLoadNew();
-			}
+						for (var b = 0; b < $scope.MatInputListLocal.length; b++) {
+							if ($scope.MatInputListLocal[b].OSTransformationPOId != Id) {
+								if ($scope.MatInputListLocal[b].ArticleId == ArticleId) {
+									ShowResult("Common Input Material is there");
+									return false;
+								}
+							}
+						}
+					}
+				}
 
-			//   $scope.detailList = response.data;
-		});
+				$scope.detailList = response.data;
+				for (var i = 0; i < $scope.detailList.length; i++) {
+					$scope.detailList[i].MaterialStorageId = $scope.IssueTransformation.MaterialStorageIdInventory;
+				}
+
+				if ($scope.MaterialInputList.length > 0 && $scope.detailList.length > 0) {
+					$scope.CostCenterLoadNew();
+				}
+
+				//   $scope.detailList = response.data;
+			});
+		}
+		else {
+			$http({
+				method: 'POST',
+				data: { SelectedMaterialPlanningData: SelectedData, OrderSpecific: $scope.Transformation.OrderSpecific, MaterialStorageIdInventory: $scope.IssueTransformation.MaterialStorageIdInventory, IssueDate: $scope.IssueTransformation.IssueDate, TransIssueId: $scope.TransIssueId },
+				url: $scope.path + 'GetMaterialInputData'
+			}).then(function successCallback(response) {
+				$scope.MaterialInputList = response.data;
+				$scope.MatInputListLocal = response.data;
+				if ($scope.MaterialInputList.length > 0) {
+					for (var a = 0; a < $scope.MaterialInputList.length; a++) {
+						var Id = $scope.MaterialInputList[a].OSTransformationPOId;
+						var ArticleId = $scope.MaterialInputList[a].ArticleId;
+
+						for (var b = 0; b < $scope.MatInputListLocal.length; b++) {
+							if ($scope.MatInputListLocal[b].OSTransformationPOId != Id) {
+								if ($scope.MatInputListLocal[b].ArticleId == ArticleId) {
+									ShowResult("Common Input Material is there");
+									return false;
+								}
+							}
+						}
+					}
+				}
+
+				$scope.detailList = response.data;
+				for (var i = 0; i < $scope.detailList.length; i++) {
+					$scope.detailList[i].MaterialStorageId = $scope.IssueTransformation.MaterialStorageIdInventory;
+					$scope.detailList[i].isSelectedMatInput = true;
+				}
+
+				if ($scope.MaterialInputList.length > 0 && $scope.detailList.length > 0) {
+					$scope.CostCenterLoadNew();
+				}
+
+				//if ($scope.detailList.length > 0) {
+				//	for (var i = 0; i < $scope.detailList.length; i++) {
+				//		$scope.detailList[i].isSelectedMatInput = true;
+				//	}
+				//}
+
+				//   $scope.detailList = response.data;
+			});
+        }
+
+
 
 	}
 	$scope.GetRate = [];
@@ -1418,6 +1464,33 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 					//$scope.materialStockList[i1].BaseUoMFactor = data.BaseUoMFactor;
 				}
 				angular.element(document.querySelector('#stockPopUp')).modal('show');
+
+				if ($scope.Action == "Update") {
+					$scope.InventoryIssueDetailId = data.InventoryIssueDetailId;
+					$http({
+						method: 'GET',
+						url: $scope.path + 'GetGRNRowId?InventoryIssueDetailId=' + $scope.InventoryIssueDetailId
+					}).then(function successCallback(response) {
+						$scope.GRNRowIdList = response.data;
+						if ($scope.GRNRowIdList.length > 0) {
+							for (var i = 0; i < $scope.GRNRowIdList.length; i++) {
+								//var getRow = $filter("filter")($scope.materialStockList, { "InventoryReceiveDetailId": $scope.GRNRowIdList[i].InventoryReceiveDetailId });
+								//if (getRow.length === 1) {
+
+								//                           }
+
+								for (var j = 0; j < $scope.materialStockList.length; j++) {
+									if ($scope.GRNRowIdList[i].InventoryReceiveDetailId == $scope.materialStockList[j].InventoryReceiveDetailId) {
+										$scope.materialStockList[j].RequisitionQty = $scope.GRNRowIdList[i].Qty;
+										$scope.materialStockList[j].Flag = true;
+									}
+								}
+							}
+
+						}
+					});
+				}
+
 			}
 
 		}), function (response) {
@@ -1429,7 +1502,6 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 	$scope.materialStockList = [];
 	$scope.specificStockList = [];
 	$scope.getSpecificMaterialStockForSlipIssueVA = function (data, index) {
-		$scope.InventoryIssueDetailId = data.InventoryIssueDetailId;
 
 		for (var i = 0; i < $scope.IssueChildList.length; i++) {
 			if ($scope.IssueChildList[i].isSelectedOM == true && !baseService.isUndefinedOrNull($scope.IssueChildList[i].ArticleId)) {
@@ -1482,7 +1554,8 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 			//	angular.element(document.querySelector('#stockPopUp')).modal('show');
 				angular.element(document.querySelector('#stockPopUpValAdded')).modal('show');
 
-					if ($scope.Action == "Update") {
+				if ($scope.Action == "Update") {
+					$scope.InventoryIssueDetailId = data.InventoryIssueDetailId;
 						$http({
 							method: 'GET',
 							url: $scope.path + 'GetGRNRowId?InventoryIssueDetailId=' + $scope.InventoryIssueDetailId
@@ -2270,7 +2343,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 							ShowResult(response.data.Message, 'success');
 							$scope.ClearIssueChildTab();
 							$scope.IssueChildList = [];
-					//		$scope.getdataInventoryIssue();
+							$scope.getdataInventoryIssue();
 							//$scope.Clear();
 							// $scope.getData();
 							//$scope.productNew.Id = response.data.inventoryIssue.Id;
@@ -2426,7 +2499,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 
 			location.href = "Products/InventoryIssue/JWValAddedIssueReport?grnId=" + data.Id;
         }
-	
+		$scope.getdataInventoryIssue();
 	
 
 	};
@@ -2450,7 +2523,8 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 				$scope.IssueId = data.Id;
 				var reportFormat = "Excel";
 				window.open('JobWork/OSIssueReturn/GetValueAddedReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
-            }
+			}
+			$scope.getdataInventoryIssue();
 
 
 		} catch (e) {
@@ -2854,18 +2928,40 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 
 	$scope.recorddoubleclickFromMasterGrid = function ($event) {
 		//debugger;
-		var x = $event;
-		var Id = x.data.Id;
-		var JWContractId = x.data.JWContractId;
-		var IssueDate = x.data.IssueDate;
-		var MaterialStorageId = x.data.MaterialStorageId;
-		$scope.Action = 'Update';
-		//ClearFields();		
-		$scope.Issue = x.data;
-		$scope.Issue.StorageLocation = x.data.StorageLocation;
-		ValAddedMaterialStorageForEdit(Id, MaterialStorageId);
-		JWOutPutQuery(Id, JWContractId, IssueDate, MaterialStorageId);
-		$scope.CostCenterLoad();
+		if ($scope.ModelNew.TabType == "Transformation") {
+
+			var x = $event;
+			var Id = x.data.Id;
+			$scope.TransIssueId = x.data.Id;
+			var JWContractId = x.data.JWContractId;
+			var IssueDate = x.data.IssueDate;
+			var MaterialStorageId = x.data.MaterialStorageId;
+			$scope.Action = 'Update';
+			//ClearFields();		
+			$scope.IssueTransformation = x.data;
+			$scope.IssueTransformation.StorageLocation = x.data.StorageLocation;
+			$scope.IssueTransformation.EmpCode = x.data.EmployeeCode;
+			$scope.IssueTransformation.EmpName = x.data.ResponsiblePerson;
+			ValAddedMaterialStorageForEdit(Id, MaterialStorageId);
+		//	JWOutPutQuery(Id, JWContractId, IssueDate, MaterialStorageId);
+		//	$scope.CostCenterLoad();
+
+	//	JWByProductQuery(Id);
+
+		}
+		else {
+			var x = $event;
+			var Id = x.data.Id;
+			var JWContractId = x.data.JWContractId;
+			var IssueDate = x.data.IssueDate;
+			var MaterialStorageId = x.data.MaterialStorageId;
+			$scope.Action = 'Update';
+			//ClearFields();		
+			$scope.Issue = x.data;
+			$scope.Issue.StorageLocation = x.data.StorageLocation;
+			ValAddedMaterialStorageForEdit(Id, MaterialStorageId);
+			JWOutPutQuery(Id, JWContractId, IssueDate, MaterialStorageId);
+			$scope.CostCenterLoad();
 
 	//	JWByProductQuery(Id);
 
@@ -2890,6 +2986,9 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 		//	$scope.Issue.CheckedBy = x.data.CheckedById;
 		//	$scope.Issue.labelCheckAndApproved = 'To be checked by';
 		//}
+        }
+
+	
 
 		if (!$rootScope.isCollapsed) $rootScope.toggle();
 	}
@@ -2923,7 +3022,23 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 		});
 	}
 
-		function ValAddedMaterialStorageForEdit(IssueId, MaterialStorageId) {
+	function ValAddedMaterialStorageForEdit(IssueId, MaterialStorageId) {
+
+		if ($scope.ModelNew.TabType == "Transformation") {
+			$http({
+				method: 'GET',
+				url: 'JobWork/OSIssueReturn/ValAddedMaterialStorageForEdit?IssueId=' + IssueId + '&MaterialStorageIdInventory=' + MaterialStorageId,
+			}).then(function successCallback(response) {
+				$scope.JobWorkLocList = response.data;
+				if ($scope.JobWorkLocList.length > 0) {
+					$scope.IssueTransformation.MaterialStorageId = $scope.JobWorkLocList[0].Value;
+					$scope.IssueTransformation.StorageLocation = $scope.JobWorkLocList[0].StorageLocation;
+					$scope.IssueTransformation.MaterialStorageIdInventory = $scope.JobWorkLocList[0].Value;
+				}
+			});
+
+		}
+		else {
 			$http({
 				method: 'GET',
 				url: 'JobWork/OSIssueReturn/ValAddedMaterialStorageForEdit?IssueId=' + IssueId + '&MaterialStorageIdInventory=' + MaterialStorageId,
@@ -2933,14 +3048,9 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 					$scope.Issue.MaterialStorageId = $scope.ValAddedJobWorkLocList[0].Value;
 					$scope.Issue.StorageLocation = $scope.ValAddedJobWorkLocList[0].StorageLocation;
 					$scope.Issue.MSIdInventory = $scope.ValAddedJobWorkLocList[0].Value;
-					//$scope.Issue.IssueType = $scope.ValAddedJobWorkLocList[0].IssueType;
-					//$scope.Issue.OrderRefNo = $scope.ValAddedJobWorkLocList[0].OrderRefNo;
-					//$scope.Issue.RefferenceNo = $scope.ValAddedJobWorkLocList[0].RefferenceNo;
-
-					//$scope.Issue.EmployeeCode = $scope.ValAddedJobWorkLocList[0].EmployeeCode;
-					//$scope.Issue.ResponsiblePerson = $scope.ValAddedJobWorkLocList[0].ResponsiblePerson;
-					//$scope.Issue.EmployeeId = $scope.ValAddedJobWorkLocList[0].EmployeeId;
 				}
 			});
+        }
+
 	}
 }
