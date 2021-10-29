@@ -367,6 +367,10 @@ function employeeConfig($routeProvider, $locationProvider, $windowProvider) {
             templateUrl: 'employees/EmpActiveInActive/aplos',
             controller: 'empActiveInActiveController'
         })
+        .when('/emp-ActiveInActive-new', {
+            templateUrl: 'employees/EmpActiveInActiveNew/aplos',
+            controller: 'empActiveInActiveNewController'
+        })
         .when('/compensatory-off', {
             templateUrl: 'Employees/CompensatoryOff/aplos',
             controller: 'CompensatoryOffController'

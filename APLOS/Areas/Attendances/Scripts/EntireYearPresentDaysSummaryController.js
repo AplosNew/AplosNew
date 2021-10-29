@@ -38,6 +38,7 @@ function EntireYearPresentDaysSummaryController($window, $timeout, cboService, c
                 { field: 'Department', width: 150, headerText: "Department", type: "string" },
                 { field: 'Section', width: 150, headerText: "Section", type: "string" },
                 { field: 'SubSection', width: 150, headerText: "SubSection", type: "string" },
+                { field: 'LegalDesignation', width: 150, headerText: "Designation", type: "string" },
                 { field: 'DOJ', width: 150, headerText: "DOJ", type: "string" },
                 { field: 'Jan', width: 150, headerText: "January", type: "string" },
                 { field: 'Feb', width: 150, headerText: "Feburary", type: "string" },
