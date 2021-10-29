@@ -4698,14 +4698,14 @@ namespace Library.HumanResource.NewAttendanceProcess {
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                var sql = @"select distinct Format(WorkDate,'yyyy-MMM-dd')WorkDate,EmpSystemID,
+                var sql = @"select Format(WorkDate,'yyyy-MMM-dd')WorkDate,EmpSystemID,
                 Format(ap.InTime,'yyyy-MMM-dd HH:mm:ss')InTime,				
 				Format(ap.ShiftInTime,'yyyy-MMM-dd HH:mm:ss')ShiftInTime,  
                 sd.ShiftEarlyInMargin,sd.ShiftLateInMargin                
                 from Attdnprocessdata  ap
                 left join ShiftDefination sd on sd.SystemID=ap.ShiftSystemID
                 where ManualFlag=1
-				and ap.PlantID='"+Plant+"'";
+				and ap.PlantID='"+Plant+ "' order by ap.WorkDate asc";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -4723,7 +4723,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 var sql = @"select EmpsystemId,Format(WorkDate,'yyyy-MMM-dd')WorkDate,
 				 InTime=ISNULL(ManualInTime,PunchInTime),OutTime=
 				 ISNULL(ManualOutTime,PunchOutTime) from  AttdnProcessData
-				 WHERE ManualFlag=1 and PlantID='" + Plant + "'";
+				 WHERE ManualFlag=1 and PlantID='" + Plant + "' order by WorkDate asc";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -4751,7 +4751,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 left join ShiftDefination sd on sd.SystemID=ap.ShiftSystemID
                 where ap.ManualFlag=1 and ap.PlantID='" + Plant + @"' and isnull(ap.InTime,'')!='' 
 				and isnull(ap.OutTime,'')!='') as dd
-				where dd.CalDuration>=0";
+				where dd.CalDuration>=0 order by WorkDate asc";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -4773,7 +4773,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 (ap.Duration-isnull(ap.ShiftHoursWithoutOT,'0'))OverUnderStay
                 from attdnprocessdata ap
                 where Duration >0 and ap.PlantID='" + Plant + @"'
-				AND ManualFlag=1";
+				AND ManualFlag=1 order by WorkDate asc";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -4793,7 +4793,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 ,p.ShiftHalfDayDuration,p.ShiftFullDayDuration,p.InTime,p.OutTime,
                 p.ShiftShortDuration from AttdnProcessData p 
                 where ManualFlag=1 
-                and p.PlantID='" + Plant + "'";
+                and p.PlantID='" + Plant + "' order by WorkDate asc";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
@@ -4859,7 +4859,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 									        left join DayStatus ds on ds.headerId=dh.Id
 											left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId
 									        where ManualFlag=1 and ds.Code=p.DayStatusCode
-									        and ei.PlantId='" + Plant + "'";
+									        and ei.PlantId='" + Plant + "' order by workdate asc";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
@@ -4894,7 +4894,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 						left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId									       
 						where ManualFlag=1 						
 						and dt.DayType=ISNULL(ISNULL(p.ManualDayStatus,p.SandwichStatus),p.ProcessDayStatus)
-						and ei.PlantId='" + Plant+"'";
+						and ei.PlantId='" + Plant+ "' order by WorkDate asc";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -4905,6 +4905,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             }
         }
         public void ManualsandwichLogic(out DataSet ds, string Plant)
+
         {
             ConnectionManager.DAL.ConManager objCon;
             try
@@ -4923,7 +4924,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 				and PlantID='" + Plant + @"'
 				)PrevWorkDate
 				from AttdnProcessData p
-                where ManualFlag=1 and PlantID='" + Plant + "'";
+                where ManualFlag=1 and PlantID='" + Plant + "' order by WorkDate asc";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
@@ -4990,7 +4991,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 left join OTPerMinutePolicy ot on ot.PlantId=pl.Id
                         where ManualFlag=1 and p.IsOTEntitled='1'
 						and p.DayTypeOTApplicable != 0 and p.Duration>0
-						and p.PlantId='" + Plant + "'";
+						and p.PlantId='" + Plant + "' order by WorkDate asc";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -5034,33 +5035,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 objCone.ExecuteNonQueryWrapper(sql, true, "1");
                 objCone.CommitTransaction();
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
-        public void ManualEarnedLeave(out DataSet ds, string Plant)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-                var sql = @"select distinct p.RowId,dt.DayType, dt.EarnedPL,dt.EarnedCL,
-                        format(p.WorkDate,'yyyy-MMM-dd')WorkDate from AttdnProcessData p
-                        join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
-                        left join mst.DesignationMasterLegalDesignation ddm on 
-                        ddm.LegalDesignationId = ei.LegalDesignationId
-                        left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
-						left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
-						and dc.PlantId=ei.PlantId
-						left join DayStatusHeader dh on dh.Id=dc.headerId
-						left join DayStatus ds on ds.headerId=dh.Id
-						left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId									       
-						where p.ManualFlag=1 
-						and dt.DayType=p.DayStatus and (dt.EarnedCL>0 or dt.EarnedPL>0)
-						and ei.PlantId='" + Plant + "'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
             catch (Exception ex)
             {

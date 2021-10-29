@@ -443,10 +443,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             {
                 clsGenID genid = new clsGenID();
                 genid.GenID("EmployeeReactivation", out string Id);
-
-                // PoValue = "0";
-               // var Id = GetPK();
-
+    
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var AddedFromIp = identity.IPAddress;
                 var updatedDate = Convert.ToDateTime(DateTime.Now).ToString();
@@ -458,7 +455,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 var EmployeeId = SystemId;
                 var Reason = reason;
 
-                //Lock
+                
                 DataTable dt = GetEffectiveDateForAttdn(SystemId);
                 DateTime FromDate = Convert.ToDateTime(dt.Rows[0]["ApprovedEffectiveDate"].ToString());
                 FromDate = FromDate.AddDays(1);
@@ -472,6 +469,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
                 else
                 {
+                    #region SqlCommands Region
+
                     string _sql = "Update dbo.EmployeeInformation set DOS=null,DOSBy=null,DOSDate=null,EmployeeStatus='Active' where SystemId='" + SystemId + "'";
                     _sqlRepository.ExecuteSqlCommand(_sql);
                     string _sql1 = "Insert into EmployeeReactivation(Id," +
@@ -499,18 +498,22 @@ namespace Library.HumanResource.NewAttendanceProcess
                     "'" + AddedDate + "'," +
                       "'" + AddedFromIp + "')";
                     _sqlRepository.ExecuteSqlCommand(_sql1);
+
+                    #endregion
+
                     #region Attendance process
-                    clsAttendance.AttendanceProcessAplos obj = new clsAttendance.AttendanceProcessAplos();
+
+                    //clsAttendance.AttendanceProcessAplos obj = new clsAttendance.AttendanceProcessAplos();
                     //DataTable dt = GetEffectiveDateForAttdn(SystemId);
 
                     //DateTime FromDate = Convert.ToDateTime(dt.Rows[0]["ApprovedEffectiveDate"].ToString());
-                    DateTime ToDate = DateTime.Now;
-                    while (FromDate <= ToDate)
-                    {
-                        AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
-                        obj.SaveTotal(identity.PlantId, FromDate.ToString("dd-MMM-yyyy"), SystemId, false, true);//Main Function for attendace Process
-                        FromDate = FromDate.AddDays(1);
-                    }
+                    //DateTime ToDate = DateTime.Now;
+                    //while (FromDate <= ToDate)
+                    //{
+                    //    AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
+                    //    obj.SaveTotal(identity.PlantId, FromDate.ToString("dd-MMM-yyyy"), SystemId, false, true);//Main Function for attendace Process
+                    //    FromDate = FromDate.AddDays(1);
+                    //}
 
 
                     #endregion
@@ -525,7 +528,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                 ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
-
 
         public DataTable GetEffectiveDateForAttdn(string EmpSystemId)
         {
@@ -542,10 +544,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                 throw;
             }
         }
-
-
-
-
 
     }
 }
