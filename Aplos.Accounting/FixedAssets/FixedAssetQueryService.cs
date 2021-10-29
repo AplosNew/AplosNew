@@ -338,9 +338,28 @@ namespace Library.Accounting.FixedAssets
                 , FR.SerialNo, FR.Id AssetNo, FR.InvoiceNo, MM.UserName MaterialMasterName
                 , FAM.UserName FixedAssetMasterName, FAC.UserName FixedAssetCategory
                 , FASC.UserName FixedAssetSubCategory, FAM.FixedAssetCategoryId
-                , FAM.FixedAssetSubCategoryId, FAM.AssetType	,c.Code TrnCurrency
-                , ISNULL(FR.Price,0) Price,ISNULL(SAR.subAssetAmount,0) SubAssetAmount, ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0) PurchasePrice,ISNULL(FR.ADBaseAmount,0) ADBaseAmount
-                , ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0)-ISNULL(FR.ADBaseAmount,0) NetBookValue , ISNULL(fr.NegotiationValue,0) NegotiationValue
+                , FAM.FixedAssetSubCategoryId, FAM.AssetType	
+                ,P.UserName Vendor
+                       		,format( FR.CapitalizationDate,'dd-MMM-yyyy')CapitalizationDate
+									,format(IR.GRNDate,'dd-MMM-yyyy') PurchaseDate
+									,format( ii.IssueDate,'dd-MMM-yyyy')IssueDate
+			               ,c.Code TrnCurrency
+
+                                    , ISNULL(FR.Price,0) Price
+									,ISNULL(SAR.subAssetAmount,0) SubAssetAmount
+									, ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0) PurchasePrice
+									 ,ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0)-ISNULL(FR.ADBaseAmount,0) NetBookValue 
+								--	, 0 NegotiationValue
+
+								   , BC.Code BaseCurrency
+									,isnull(FR.FABaseAmount,0)FABaseAmount
+									,ISNULL(SAR.subAssetBaseAmount,0) SubAssetBaseAmount
+									,isnull(FR.FABaseAmount,0) + ISNULL(SAR.subAssetBaseAmount,0) PurchaseBaseAmount
+									,isnull( FR.ADBaseAmount,0)ADBaseAmount
+                                    , isnull(FR.FABaseAmount,0)+ISNULL(SAR.subAssetBaseAmount,0)-ISNULL(FR.ADBaseAmount,0) NetBaseBookValue 
+										,isnull( rdd.NegotiationValue,0)NegotiationValue
+                               	,isnull( rdd.NagotiationBooksValue,0)NagotiationBooksValue
+
                 , MMA.StandardName Article, FR.IsFinancial,IsOBBalance=case when FR.IsOpeningBalance=0 then 'No' Else 'Yes' End
                 , GL.AccountCode GLGeneralInfoCode,GL.UserName GLGeneralInfoName,GL.Id GLGeneralInfoId
                 , BM.Id BudgetMasterId,B.UserName BudgetName,BM.RefNo BudgetRefNo
@@ -355,11 +374,21 @@ namespace Library.Accounting.FixedAssets
                  LEFT JOIN [MST].[FixedAssetMaster] FAM ON FR.FixedAssetMasterId= FAM.Id
                  LEFT JOIN HKP.FixedAssetCategory FAC ON FAM.FixedAssetCategoryId= FAC.Id
                  LEFT JOIN HKP.FixedAssetSubCategory FASC ON FAM.FixedAssetSubCategoryId= FASC.Id
+
+				  LEFT JOIN TRN.FixedAssetRegisterDetail FARD ON FARD.CapitalizeRegisterNo=FR.CapitalizeRegisterNo
+									LEFT JOIN TRN.InventoryIssueHistory IIH ON IIH.Id=FARD.InventoryIssueHistoryId
+									LEFT JOIN TRN.VoucherDetail VD ON VD.Id=IIH.CapitalizeVoucherDetailId
+									LEFT JOIN TRN.InventoryIssueDetail IID ON IID.Id=IIH.InventoryIssueDetailId
+									left join trn.InventoryIssue II on ii.Id = iid.InventoryIssueId
+									LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
+									left join trn.InventoryReceive IR on IR.Id =  IRD.InventoryReceiveId
+                                     LEFT JOIN HKP.Party P ON P.Id = FR.VendorId
 				 LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=BM.GLGeneralInfoId
 				 LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
 				 LEFT JOIN HKP.Activity A ON A.Id=FR.FAActivityId
-                LEFT JOIN SCS.Currency C ON C.Id =FR.CurrencyId
-                LEFT JOIN (SELECT FixedAssetRegisterId,ISNULL(Sum(Amount),0) subAssetAmount FROM TRN.SubFixedAssetRegister group by FixedAssetRegisterId) SAR ON SAR.FixedAssetRegisterId=FR.Id
+                      LEFT JOIN SCS.Currency C ON C.Id =frd.CurrencyId
+                     LEFT JOIN SCS.Currency BC ON BC.Id =FR.FABaseCurrencyId
+                LEFT JOIN (SELECT FixedAssetRegisterId,ISNULL(Sum(Amount),0) subAssetAmount ,ISNULL(Sum(BaseAmount),0) subAssetBaseAmount FROM TRN.SubFixedAssetRegister group by FixedAssetRegisterId) SAR ON SAR.FixedAssetRegisterId=FR.Id
                  where frd.Id='" + id+"'";
             return _sqlRepository.GetDataCollection(sql);
         }

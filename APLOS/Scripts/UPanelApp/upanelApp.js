@@ -496,6 +496,7 @@ var upanelApp = angular
     .controller('disciplinaryActionCriticalityController', disciplinaryActionCriticalityController)
     .controller('EarnLeavePaySlipController', EarnLeavePaySlipController)
     .controller('empActiveInActiveController', empActiveInActiveController)
+    .controller('empActiveInActiveNewController', empActiveInActiveNewController)
     .controller('EmployeeBankInfoInformationController', EmployeeBankInfoInformationController)
     .controller('employeeBankInformationController', employeeBankInformationController)
     .controller('employeeDeleteController', employeeDeleteController)

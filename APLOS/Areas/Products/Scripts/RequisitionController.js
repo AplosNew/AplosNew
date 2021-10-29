@@ -3691,7 +3691,7 @@ function RequisitionController(accountService, addressService, $window, cboServi
 	baseService.getCompanyConfiguration(function (result) {
 		$scope.companyConfig = result;
 	});
-	cboService.getCboEntityByPlant(null, null, '', function (result) {
+	cboService.getCboEntityByPlant($window.companyGroupId, $window.companyId, '', function (result) {
 		$scope.EntityList = result;
 	});
 	$scope.ReqList = [];
