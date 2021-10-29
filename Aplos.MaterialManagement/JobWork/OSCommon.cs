@@ -1013,22 +1013,22 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId
 						--LEFT JOIN(Select  BOQDetailId,sum(TransactionQty) TransactionQty from [TRN].[POBOQMAP] group by BOQDetailId)POMAP ON POMAP.BOQDetailId=b.Id
 						LEFT JOIN (SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.TransactionQty) TransactionQty 
-									FROM JWPOBOQMAP POBOQMAP1
-									LEFT JOIN dbo.OSTransformationPODetail POD ON POD.Id=POBOQMAP1.JWPODetailId
+									FROM OSPOBOQMAP POBOQMAP1
+									LEFT JOIN dbo.OSTransformationPODetail POD ON POD.Id=POBOQMAP1.OSTransformationPODetailId
 									LEFT JOIN OSTransformationPO POM ON POM.Id=POD.OSTransformationPOId
 									WHERE POM.Id ='" + JWPOId + @"'
 									GROUP by POBOQMAP1.BOQDetailId								
 									)POMAP ON POMAP.BOQDetailId=b.Id
 						LEFT JOIN(SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.POBOQQty) TransactionQty 
-									FROM JWPOBOQMAP POBOQMAP1
-									LEFT JOIN  dbo.OSTransformationPODetail POD ON POD.Id=POBOQMAP1.JWPODetailId
+									FROM OSPOBOQMAP POBOQMAP1
+									LEFT JOIN  dbo.OSTransformationPODetail POD ON POD.Id=POBOQMAP1.OSTransformationPODetailId
 									LEFT JOIN OSTransformationPO POM ON POM.Id=POD.OSTransformationPOId
 									WHERE POM.Id !='" + JWPOId + @"'
 									GROUP by POBOQMAP1.BOQDetailId
 								) OtherPOData ON OtherPOData.BOQDetailId=b.Id
                                     left join (select Sum(boqmap.TransactionQty) as OtherPOQuantity,B.MaterialMasterId,B.ArticleId,SO.Id as SalesOrderId,B.FirstCharacteristicsValueId,B.SecondCharacteristicsValueId
                                           ,B.ThirdCharacteristicsValueId,boqmap.BOQDetailId
-                                          from dbo.JWPOBOQMAP boqmap left join dbo.OSTransformationPODetail om on om.Id=boqmap.JWPODetailId
+                                          from dbo.OSPOBOQMAP boqmap left join dbo.OSTransformationPODetail om on om.Id=boqmap.OSTransformationPODetailId
                                           left join dbo.BOQ B on B.Id=boqmap.BOQDetailId
                                           left join trn.SalesOrder SO on SO.Id=B.SalesOrderId
                                           left join dbo.OSTransformationPO po on po.Id=om.OSTransformationPOId
@@ -1186,22 +1186,22 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId
 						--LEFT JOIN(Select  BOQDetailId,sum(TransactionQty) TransactionQty from [TRN].[POBOQMAP] group by BOQDetailId)POMAP ON POMAP.BOQDetailId=b.Id
 						LEFT JOIN (SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.TransactionQty) TransactionQty 
-									FROM JWPOBOQMAP POBOQMAP1
-									LEFT JOIN dbo.OSTransformationPODetail POD ON POD.Id=POBOQMAP1.JWPODetailId
+									FROM OSPOBOQMAP POBOQMAP1
+									LEFT JOIN dbo.OSTransformationPODetail POD ON POD.Id=POBOQMAP1.OSTransformationPODetailId
 									LEFT JOIN OSTransformationPO POM ON POM.Id=POD.OSTransformationPOId
 									WHERE POM.Id ='" + JWPOId + @"'
 									GROUP by POBOQMAP1.BOQDetailId								
 									)POMAP ON POMAP.BOQDetailId=b.Id
 						LEFT JOIN(SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.POBOQQty) TransactionQty 
-									FROM JWPOBOQMAP POBOQMAP1
-									LEFT JOIN  dbo.OSTransformationPODetail POD ON POD.Id=POBOQMAP1.JWPODetailId
+									FROM OSPOBOQMAP POBOQMAP1
+									LEFT JOIN  dbo.OSTransformationPODetail POD ON POD.Id=POBOQMAP1.OSTransformationPODetailId
 									LEFT JOIN OSTransformationPO POM ON POM.Id=POD.OSTransformationPOId
 									WHERE POM.Id !='" + JWPOId + @"'
 									GROUP by POBOQMAP1.BOQDetailId
 								) OtherPOData ON OtherPOData.BOQDetailId=b.Id
                                     left join (select Sum(boqmap.TransactionQty) as OtherPOQuantity,B.MaterialMasterId,B.ArticleId,SO.Id as SalesOrderId,B.FirstCharacteristicsValueId,B.SecondCharacteristicsValueId
                                           ,B.ThirdCharacteristicsValueId,boqmap.BOQDetailId
-                                          from dbo.JWPOBOQMAP boqmap left join dbo.OSTransformationPODetail om on om.Id=boqmap.JWPODetailId
+                                          from dbo.OSPOBOQMAP boqmap left join dbo.OSTransformationPODetail om on om.Id=boqmap.OSTransformationPODetailId
                                           left join dbo.BOQ B on B.Id=boqmap.BOQDetailId
                                           left join trn.SalesOrder SO on SO.Id=B.SalesOrderId
                                           left join dbo.OSTransformationPO po on po.Id=om.OSTransformationPOId

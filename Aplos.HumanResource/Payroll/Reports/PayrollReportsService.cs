@@ -16723,7 +16723,6 @@ INNER JOIN
                         LEFT JOIN LeaveWithWagesRegisterLeaveTypes D ON d.LeaveTypeId=h.Id AND d.CompanyId='" + identity.CompanyId + @"'";
             LeaveTypes = _sqlRepository.GetDataCollection(sql);
         }
-
         public void SaveSettingsForForm18(List<Dictionary<string, object>> salaryHeads, List<Dictionary<string, object>> LeaveTypes)
         {
 
@@ -16787,6 +16786,118 @@ INNER JOIN
 
             OTSBD.clsStaticInfo SaveInfo = new OTSBD.clsStaticInfo();
             SaveInfo.SaveDataSets(dsSalaryHead, dsLeaveTypes);
+        }
+
+
+        //report
+
+        private void GetCalendarYear(string CalendarYearId, out DataTable dtCalendar)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select * from YearlyCalendar where id='" + CalendarYearId + @"'";
+            dtCalendar = _sqlRepository.GetDataTable(sql);
+        }
+
+        private void GetEmployeeSalary(string EmployeeId, string FromDate, string ToDate, out DataTable dtEmployeeSalary)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"
+                            SELECT Ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ATT.MonthDesc, ATT.MonthNo,
+                                   ATT.YearNo, ATT.TotalActualWorkingDays, ATT.TotalPayDaysValue,sal.DisbusmentAmount,sala.DisbusmentAmount AS TotalForLeaveAmount
+                              FROM EmployeeInformation AS ei
+                            LEFT JOIN 
+                            (
+
+                            SELECT apd.EmpSystemID, Format(apd.WorkDate,'MMM-yy') AS MonthDesc,Month(apd.WorkDate)MonthNo,Year(apd.WorkDate)YearNo,SUM(apd.ActualWorkingDayValue) AS TotalActualWorkingDays,
+                            SUM(apd.PayDayValue) AS TotalPayDaysValue
+                            FROM AttdnProcessData AS apd Where apd.EmpSystemID='" + EmployeeId + @"' AND apd.WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'
+                            GROUP BY  apd.EmpSystemID, Format(apd.WorkDate,'MMM-yy'),Month(apd.WorkDate),Year(apd.WorkDate)
+
+                            ) AS ATT ON ATT.EmpSystemID=ei.SystemId
+
+                            LEFT JOIN 
+                            (
+		                            SELECT spm.MonthNo,spm.YearNo,spc.EmpInfoSystemID,spc.DisbusmentAmount
+		                            FROM SalaryProcChild AS spc
+		                            JOIN SalaryProcMaster AS spm ON spm.SystemID=spc.SlrProcMstSystemID
+		                            JOIN SalaryHead AS sh ON sh.SalaryHeadID=spc.SalaryHeadID
+		                            JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.MonthNo=spm.MonthNo AND sl.YearNo=spm.YearNo
+		                            WHERE spc.EmpInfoSystemID='" + EmployeeId + @"' AND spm.FromDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'
+		                            AND sh.HeadCategory='Gross'
+		                            AND spm.ToDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'  AND sl.IsLocked=1
+                            ) AS SAL ON SAL.EmpInfoSystemID=ei.SystemId AND sal.MonthNo=att.MonthNo AND sal.YearNo=att.YearNo
+                            LEFT JOIN 
+                            (
+		                            SELECT spm.MonthNo,spm.YearNo,spc.EmpInfoSystemID,SUM(spc.DisbusmentAmount) AS DisbusmentAmount
+		                            FROM SalaryProcChild AS spc
+		                            JOIN SalaryProcMaster AS spm ON spm.SystemID=spc.SlrProcMstSystemID
+		                            JOIN SalaryHead AS sh ON sh.SalaryHeadID=spc.SalaryHeadID
+		                            JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.MonthNo=spm.MonthNo AND sl.YearNo=spm.YearNo
+		                            WHERE spc.EmpInfoSystemID='" + EmployeeId + @"' AND spm.FromDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'
+		                            AND sh.SalaryHeadID IN (SELECT  S.SalaryHeadID FROM LeaveWithWagesRegisterSalaryHeads AS S)
+		                            AND spm.ToDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'  AND sl.IsLocked=1
+		                            GROUP BY spm.MonthNo,spm.YearNo,spc.EmpInfoSystemID
+                            ) AS SALA ON SALA.EmpInfoSystemID=ei.SystemId AND SALA.MonthNo=att.MonthNo AND SALA.YearNo=att.YearNo
+
+
+                            WHERE ei.SystemId='" + EmployeeId + @"'
+
+                            ORDER BY att.MonthNo, YearNo";
+            dtEmployeeSalary = _sqlRepository.GetDataTable(sql);
+        }
+        private void GetLeaveBalances(string EmployeeId, string FromDate, string ToDate, out DataTable dtLeaveBalance)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"Select L.LeaveTypeId,ISNULL(l.BroughtForward,0)+ ISNULL(L.CarryForwardOpeningBalance,0) AS LeaveCount,'OB' AS TransactionType
+                                  from 
+                                YearlyCalendar AS C
+                                JOIN trn.EmployeeLeaveSummary L ON l.CalanderYearId=c.Id
+                                WHERE L.EmployeeId='" + EmployeeId + @"' AND '" + FromDate + @"' BETWEEN c.FromDate AND c.ToDate AND l.LeaveTypeId IN (SELECT LeaveTypeId FROM LeaveWithWagesRegisterLeaveTypes where CompanyId='" + identity.CompanyId + @"') 
+                                
+                                UNION ALL
+
+                                SELECT l.LeaveTypeId,
+                                CASE WHEN EncashWorkingDaysQty>0 THEN CONVERT(DECIMAL(18,4), EncashEarnLeaveQty)/CONVERT(DECIMAL(18,4),EncashWorkingDaysQty) ELSE 0 END * SUM(l.EarnValue) ActualEarnedLeave,
+                                'CUR' AS TransactionType
+                                 FROM AttdnProcessData AS apd
+
+                                LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=apd.EmpSystemID
+                                LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
+                                LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
+                                LEFT JOIN mst.DesignationMaster AS dm ON dm.Id=dmc.DesignationMasterId
+                                LEFT JOIN DayStatusPlantChild PC ON pc.PlantId=ei.PlantId AND pc.EmpTypeId=dm.EmployeeCategoryId
+                                JOIN DayTypeWithValues AS ds ON ds.code=apd.DayStatus AND ds.HeaderId=pc.HeaderId
+                                JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id 
+
+                                 LEFT JOIN LeavePolicyDetail AS lpd ON lpd.LPMSystemID=dmc.LeavePolicyMasterId AND lpd.LTSystemID=l.LeaveTypeId
+                                WHERE apd.EmpSystemID='" + EmployeeId + @"' AND 
+                                apd.WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'
+                                AND L.LeaveTypeId IN (SELECT LeaveTypeId FROM LeaveWithWagesRegisterLeaveTypes where CompanyId='" + identity.CompanyId + @"') 
+                                GROUP BY l.LeaveTypeId,EncashWorkingDaysQty,EncashEarnLeaveQty
+
+                                ";
+            dtLeaveBalance = _sqlRepository.GetDataTable(sql);
+        }
+        private void GetLeaveTransaction(string EmployeeId, string FromDate, string ToDate, out DataTable dtLeaveTransaction)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT FORMAT(workdate,'dd-MMM-yy') WorkDate,FORMAT(workdate,'MMM-yy') AS MonthDef,l.LeaveTypeId,l.AvailedValue
+                                 FROM AttdnProcessData AS apd
+
+                                  LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=apd.EmpSystemID
+                                 LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
+                                 LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
+                                 LEFT JOIN mst.DesignationMaster AS dm ON dm.Id=dmc.DesignationMasterId
+                                 LEFT JOIN DayStatusPlantChild PC ON pc.PlantId=ei.PlantId AND pc.EmpTypeId=dm.EmployeeCategoryId
+                                  JOIN DayTypeWithValues AS ds ON ds.code=apd.DayStatus AND ds.HeaderId=pc.HeaderId
+                                 JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id 
+
+                                 LEFT JOIN LeavePolicyDetail AS lpd ON lpd.LPMSystemID=dmc.LeavePolicyMasterId AND lpd.LTSystemID=l.LeaveTypeId
+                                WHERE apd.EmpSystemID='" + EmployeeId + @"' AND l.AvailedValue>0 AND
+                                apd.WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'
+                                AND L.LeaveTypeId IN (SELECT LeaveTypeId FROM LeaveWithWagesRegisterLeaveTypes where CompanyId='" + identity.CompanyId + @"') 
+                                ";
+            dtLeaveTransaction = _sqlRepository.GetDataTable(sql);
         }
 
         #endregion form18
