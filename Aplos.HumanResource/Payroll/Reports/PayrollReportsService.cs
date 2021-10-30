@@ -5380,9 +5380,9 @@ namespace Library.HumanResource.Payroll
                         sheet1.Range[xlsRow, ColGVDG].VerticalAlignment = ExcelVAlign.VAlignCenter;
                         //
                         if (string.IsNullOrEmpty(dtEmployees.Rows[i]["Contractor"].ToString()) == false)
-                            sheet1.Range[xlsRow, colEmpCategory].Text = dtEmployees.Rows[i]["Contractor"].ToString();
-                        sheet1.Range[xlsRow, colEmpCategory].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        sheet1.Range[xlsRow, colEmpCategory].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            sheet1.Range[xlsRow, ColContractor].Text = dtEmployees.Rows[i]["Contractor"].ToString();
+                        sheet1.Range[xlsRow, ColContractor].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, ColContractor].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                         if (string.IsNullOrEmpty(dtEmployees.Rows[i]["EmpCategoryName"].ToString()) == false)// EmployeeCategory Need to Make Correct
                             sheet1.Range[xlsRow, colEmpCategory].Text = dtEmployees.Rows[i]["EmpCategoryName"].ToString();
