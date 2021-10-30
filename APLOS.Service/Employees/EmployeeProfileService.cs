@@ -471,6 +471,8 @@ namespace Library.Service.Employees
                 dblist.PaymentModeEffectiveDate = entity.PaymentModeEffectiveDate;
                 dblist.CardNumber = entity.CardNumber;
                 dblist.IsEntryComplete = entity.IsEntryComplete;
+                dblist.ResidenceGroupId = entity.ResidenceGroupId;
+                dblist.TransportGroupId = entity.TransportGroupId;
                 if (!string.IsNullOrEmpty(entity.OperationMasterID))
                 {
                     dblist.OperationMasterID = entity.OperationMasterID;
