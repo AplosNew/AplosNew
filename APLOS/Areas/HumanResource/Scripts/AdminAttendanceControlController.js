@@ -785,7 +785,7 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
     //Save the File Data
     $scope.saveFileList = function () {
 
-        if (angular.isUndefinedOrNull($scope.RemarksUpload)) {
+        if (angular.isUndefinedOrNull($scope.RemarksUpload) || $scope.RemarksUpload.length < 0 ) {
             ShowResult("Filling the Remarks are mandatory!!");
             throw ("Invalid Request!!");
         }

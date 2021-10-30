@@ -206,6 +206,23 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         });
     }
 
+    $scope.GetRateToEdit = function () {
+        $scope.RateList = [];
+        $http({
+            method: 'GET',
+            url: $scope.pathJWCBO + 'gettransformationrateapplylist?JobWorkItemId=' + $scope.detailModel.JobWorkItemMasterId + '&ActivityId=' + $scope.detailModel.JobActivityId + '&ContractType=' + $scope.productNew.POType,
+        }).then(function successCallback(response) {
+            $scope.RateList = response.data;
+            if ($scope.RateList.length > 0) {
+                $scope.detailModel.RateApplyId = $scope.RateList[0].Value;
+                //$scope.detailModel.RatePerUnit = $scope.RateList[0].MinRate;
+                //$scope.detailModel.MaxRate = $scope.RateList[0].MaxRate;
+                //$scope.detailModel.ServiceId = $scope.RateList[0].ServiceId;
+                //$scope.changeService($scope.detailModel.ServiceId);
+            }
+        });
+    }
+
     $scope.ValidateRate = function () {
         try {
             var MinimumRate = parseFloat($scope.detailModel.RatePerUnit);
@@ -318,6 +335,124 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         angular.element(document.querySelector('#MaterialArticlePopUp')).modal('hide');
     };
     // Material and Article
+
+
+    // SKU1
+
+    $scope.SKU1List = [];
+    $scope.SKU1PopUp = function () {
+        angular.element(document.querySelector("#SKU1PopUp")).modal("show");
+        $scope.getsku1Data();
+
+    }
+    $scope.getsku1Data = function () {
+        $scope.SKU1List = [];
+        $http({
+            method: 'POST',
+            data: { MaterialMstId: $scope.detailModel.MaterialMasterId },
+            url: $scope.path + 'LoadAllSKU'
+        }).then(function successCallback(response) {
+            $scope.SKU1List = response.data;
+        });
+    }
+
+    $scope.SKU1Clear = function () {
+        $scope.detailModel.UserName1 = null;
+        $scope.detailModel.Code1 = null;
+        $scope.detailModel.FirstCharacteristicsId = null;
+        $scope.detailModel.FirstCharacteristicsValueId = null;
+
+    };
+    //$scope.closeMaterialArticlePopUp = function (popupName) {
+    //    angular.element(document.querySelector("#" + popupName + "")).modal("hide");
+
+    //}
+    $scope.setSKU1Data = function (obj) {
+        var data = obj.data;
+        $scope.detailModel.Code1 = data.Code;
+        $scope.detailModel.UserName1 = data.UserName;
+        $scope.detailModel.FirstCharacteristicsId = data.CharacteristicsId;
+        $scope.detailModel.FirstCharacteristicsValueId = data.Id;
+        angular.element(document.querySelector('#SKU1PopUp')).modal('hide');
+    };
+
+    // SKU 2
+
+    $scope.SKU2List = [];
+    $scope.SKU2PopUp = function () {
+        angular.element(document.querySelector("#SKU2PopUp")).modal("show");
+        $scope.getsku2Data();
+
+    }
+    $scope.getsku2Data = function () {
+        $scope.SKU2List = [];
+        $http({
+            method: 'POST',
+            data: { MaterialMstId: $scope.detailModel.MaterialMasterId },
+            url: $scope.path + 'LoadAllSKU'
+        }).then(function successCallback(response) {
+            $scope.SKU2List = response.data;
+        });
+    }
+
+    $scope.SKU2Clear = function () {
+        $scope.detailModel.UserName2 = null;
+        $scope.detailModel.Code2 = null;
+        $scope.detailModel.SecondCharacteristicsId = null;
+        $scope.detailModel.SecondCharacteristicsValueId = null;
+
+    };
+    //$scope.closeMaterialArticlePopUp = function (popupName) {
+    //    angular.element(document.querySelector("#" + popupName + "")).modal("hide");
+
+    //}
+    $scope.setSKU2Data = function (obj) {
+        var data = obj.data;
+        $scope.detailModel.Code2 = data.Code;
+        $scope.detailModel.UserName2 = data.UserName;
+        $scope.detailModel.SecondCharacteristicsId = data.CharacteristicsId;
+        $scope.detailModel.SecondCharacteristicsValueId = data.Id;
+        angular.element(document.querySelector('#SKU2PopUp')).modal('hide');
+    };
+
+    // SKU 3
+
+    $scope.SKU3List = [];
+    $scope.SKU3PopUp = function () {
+        angular.element(document.querySelector("#SKU3PopUp")).modal("show");
+        $scope.getsku3Data();
+
+    }
+    $scope.getsku3Data = function () {
+        $scope.SKU3List = [];
+        $http({
+            method: 'POST',
+            data: { MaterialMstId: $scope.detailModel.MaterialMasterId },
+            url: $scope.path + 'LoadAllSKU'
+        }).then(function successCallback(response) {
+            $scope.SKU3List = response.data;
+        });
+    }
+
+    $scope.SKU3Clear = function () {
+        $scope.detailModel.UserName3 = null;
+        $scope.detailModel.Code3 = null;
+        $scope.detailModel.ThirdCharacteristicsId = null;
+        $scope.detailModel.ThirdCharacteristicsValueId = null;
+
+    };
+    //$scope.closeMaterialArticlePopUp = function (popupName) {
+    //    angular.element(document.querySelector("#" + popupName + "")).modal("hide");
+
+    //}
+    $scope.setSKU3Data = function (obj) {
+        var data = obj.data;
+        $scope.detailModel.Code3 = data.Code;
+        $scope.detailModel.UserName3 = data.UserName;
+        $scope.detailModel.ThirdCharacteristicsId = data.CharacteristicsId;
+        $scope.detailModel.ThirdCharacteristicsValueId = data.Id;
+        angular.element(document.querySelector('#SKU3PopUp')).modal('hide');
+    };
 
 
     //---Shahshank
@@ -1836,11 +1971,19 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
             $scope.GetJWItemsToEdit();         
             $scope.GetJWitemDataFromTrans();
             //$scope.GetRate();
+            $scope.GetRateToEdit();
             $scope.GetCurrencyyy();
             $scope.GetJWLocation();
             $scope.productNew.TaxOptionServiceTPO = "Yes";
        //   $scope.detailModel.ServiceId = $scope.detailModel.ServiceId;
             //$scope.detailModel.ValueLoss = $scope.detailModel.ValueLoss;
+
+            //if ($scope.detailModel.RateApplyId == "Input") {
+            //    $scope.detailModel.RateApplyId = 'Input';
+            //}
+            //else {
+            //    $scope.detailModel.RateApplyId = 'Output';
+            //}
 
             $scope.rmchar1 = {};
             $scope.rmchar2 = {};
@@ -1859,6 +2002,10 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
                 $scope.rmchar1.Name = $scope.detailModel.FirstCharacteristics;
                 $scope.rmchar1.FreeText = $scope.detailModel.FirstCharacteristicsValue;
+
+                $scope.detailModel.Code1 = $scope.detailModel.SKU1ValueCode;
+                $scope.detailModel.UserName1 = $scope.detailModel.FirstCharacteristicsValue;
+
             }
             if (!baseService.isUndefinedOrNull($scope.detailModel.SecondCharacteristicsId)) {
                 $scope.rmchar2.CharacteristicsId = $scope.detailModel.SecondCharacteristicsId;
@@ -1866,6 +2013,9 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
                 $scope.rmchar2.Name = $scope.detailModel.SecondCharacteristics;
                 $scope.rmchar2.FreeText = $scope.detailModel.SecondCharacteristicsValue;
+
+                $scope.detailModel.Code2 = $scope.detailModel.SKU2ValueCode;
+                $scope.detailModel.UserName2 = $scope.detailModel.SecondCharacteristicsValue;
             }
             if (!baseService.isUndefinedOrNull($scope.detailModel.ThirdCharacteristicsId)) {
                 $scope.rmchar3.CharacteristicsId = $scope.detailModel.ThirdCharacteristicsId;
@@ -1873,6 +2023,9 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
                 $scope.rmchar3.Name = $scope.detailModel.ThirdCharacteristics;
                 $scope.rmchar3.FreeText = $scope.detailModel.ThirdCharacteristicsValue;
+
+                $scope.detailModel.Code3 = $scope.detailModel.SKU3ValueCode;
+                $scope.detailModel.UserName3 = $scope.detailModel.ThirdCharacteristicsValue;
             }
 
             getDetailTaxCategoryList($scope.detailModel);
@@ -2036,10 +2189,15 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                 $scope.detailModel.SecondCharacteristicsId = $scope.rmchar2.CharacteristicsId;
                 $scope.detailModel.SecondCharacteristicsValueId = $scope.rmchar2.CharacteristicsValueId;
             }
-            if (!baseService.isUndefinedOrNull($scope.rmchar3)) {
-                $scope.detailModel.ThirdCharacteristicsId = $scope.rmchar3.CharacteristicsId;
-                $scope.detailModel.ThirdCharacteristicsValueId = $scope.rmchar3.CharacteristicsValueId;
-            }
+            //if (!baseService.isUndefinedOrNull($scope.rmchar3)) {
+            //    $scope.detailModel.ThirdCharacteristicsId = $scope.rmchar3.CharacteristicsId;
+            //    $scope.detailModel.ThirdCharacteristicsValueId = $scope.rmchar3.CharacteristicsValueId;
+            //    }
+
+                if (!baseService.isUndefinedOrNull($scope.rmchar3.CharacteristicsId)) {
+                    $scope.detailModel.ThirdCharacteristicsId = $scope.rmchar3.CharacteristicsId;
+                    $scope.detailModel.ThirdCharacteristicsValueId = $scope.rmchar3.CharacteristicsValueId;
+                }
         }
        
         //try {

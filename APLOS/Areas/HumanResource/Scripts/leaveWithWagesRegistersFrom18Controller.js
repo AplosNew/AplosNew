@@ -117,57 +117,18 @@ function leaveWithWagesRegistersForm18Controller(commonMessage, $scope, $rootSco
         });
     }
 
+    $scope.getForm18 = function (data) {
 
-
-
-    $scope.report = function (obj) {
         try {
-            var datum = obj.data;
-            var DropDownActivityListObj = $("#ddlYearList").data("ejDropDownList");
-            $scope.year = DropDownActivityListObj.getSelectedValue();
-            if (baseService.isUndefinedOrNull($scope.year)) {
-                manualValidation('div_Year', true, "From Date is required.");
-            }
-            else {
-                var url = 'HumanResource/LeaveWithWeagesRegisters/GetLeaveWithWeagesRegisters?reportFormat=Pdf&year=' + $scope.year + '&empId=' + datum.EmpSystemId;
-                $rootScope.report(url);
 
-            }
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-    };
-    $scope.tempList = [];
-
-    $scope.selectChValueId = function () {
-        try {
-            $scope.tempList = [];
-            for (var di = 0; di < $scope.EmployeeList.length; di++) {
-                if ($scope.EmployeeList[di].CheckBoxSelect) {
-                    $scope.tempList.push($scope.EmployeeList[di]);
-                }
-
-            }
-            if ($scope.tempList.length > 50) {
-                //manualValidation('div_FromDate', true, "Maximaum 50 'Job card' can be downloded at a time");
-                ShowResult("Maximaum 50 'Leave With Wages Registers' can be downloded at a time", 'failure');
-            }
-            else {
-                var uniqueEmpSystemId = removeDuplicates($scope.tempList, 'EmpSystemId');
-                var wcEmpCode = "";
-                if (uniqueEmpSystemId.length > 0) {
-                    wcEmpCode = "IN(";
-                    wcEmpCode += Array.prototype.map.call(uniqueEmpSystemId, function (item) { return "'" + item.EmpSystemId + "'"; }).join(",") + ")";
-                }
-                sqlInStatement = wcEmpCode;
-            }
-            //var filtereddata = gridObj.getFilteredRecords();
+            var file_src = 'HumanResource/LeaveWithWagesRegistersForm18/Form18?year=' + $scope.year + '&empId=' + data.EmpSystemId;
+            $rootScope.report(file_src);
 
         } catch (e) {
-            event.currentTarget.checked = false;
-            ShowResult(e, "failure");
+
         }
-    };
+    }
+
 
 
     function checkChangeemployee(e) {

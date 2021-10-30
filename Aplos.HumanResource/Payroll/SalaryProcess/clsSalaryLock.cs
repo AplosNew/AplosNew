@@ -231,80 +231,28 @@ namespace Library.HumanResource.Payroll.SalaryProcess
         {
             try
             {
+                bool sa = _identity.IsSysAdmin;
+                bool ca = _identity.IsControlAdmin;
+                string userId = _identity.UserId;
+                string plantId = _identity.PlantId;
+                string companyGroupId = _identity.CompanyGroupId;
                 var wcPayrollGroup = "";
-                var wcSalaryProcess = "";
-                var salaryProcessJoin = "";
-                var salaryProcessColumn = "";
-                var strDOJ = "";
-                string salaryProcessFlag = "";
                 string wcEmpStatus = " Where (1=0 ";
-                //string salaryProcessID = "";
 
-                if (_identity.IsSysAdmin == true || _identity.IsControlAdmin == true)
+                if (sa == true || ca == true)
                 {
                     wcPayrollGroup = @"";
                 }
                 else
                 {
-                    string inPayrollGroup = "''";
-                    DataTable dtPayRollGrpEmpId = _sqlRepository.GetDataTable("SELECT employeeid FROM MST.PayrollGroupMaster WHERE PayrollGroupId IN (SELECT PayrollGroupId FROM SEC.UserPayrollGroup where UserId = '" + _identity.UserId + @"') AND PlantID IN (" + _identity.PlantId + @")");
-                    DataTable dtNotPayRollGrpEmpId = _sqlRepository.GetDataTable(@"SELECT SystemId FROM EmployeeInformation E 
-                    WHERE SystemId NOT IN (SELECT employeeid from MST.PayrollGroupMaster where PlantID in(" + _identity.PlantId + @")  AND E.PlantID in(" + _identity.PlantId + @"))");
-
-
-                    for (int i = 0; i < dtPayRollGrpEmpId.Rows.Count; i++)
-                        inPayrollGroup += ",'" + dtPayRollGrpEmpId.Rows[i]["employeeid"].ToString() + "'";
-
-
-                    for (int i = 0; i < dtNotPayRollGrpEmpId.Rows.Count; i++)
-                        inPayrollGroup += ",'" + dtNotPayRollGrpEmpId.Rows[i]["SystemId"].ToString() + "'";
-
-                    wcPayrollGroup = @" AND E.SystemId  IN (" + inPayrollGroup + @")";
-                }
-                if (salaryProcessId == "STRUCTURE")
-                {
-                    salaryProcessColumn = "";
-                    salaryProcessJoin = "";
-                    wcSalaryProcess = "";
-                    strDOJ = "AND DOJ<='" + effectiveDate + @"' AND (DOS is null OR DOS>= '" + effectiveDate + @"')";
-
-
-                }
-                else if (!string.IsNullOrEmpty(salaryProcessId))
-                {
-                    salaryProcessColumn = ",ISNULL(SPM.Description,'') SalaryProcess";
-                    salaryProcessJoin = @"  LEFT OUTER JOIN SalaryProcChild SPC ON SPC.EmpInfoSystemID = E.SystemId
-                                    LEFT OUTER JOIN SalaryProcMaster SPM ON SPM.SystemID = spc.SlrProcMstSystemID and spm.MonthNo = Month('" + effectiveDate + @"') and spm.YearNo = Year('" + effectiveDate + @"')";
-                    wcSalaryProcess = @"AND SPC.SlrProcMstSystemID IN('" + salaryProcessId + @"')";
-
-                }
-                else if (string.IsNullOrEmpty(salaryProcessId) == true && salaryProcessId != "STRUCTURE")
-                {
-                    salaryProcessColumn = ",ISNULL(SPM.Description,'') SalaryProcess";
-                    salaryProcessJoin = @"  LEFT OUTER JOIN SalaryProcChild SPC ON SPC.EmpInfoSystemID = E.SystemId
-                                    LEFT OUTER JOIN SalaryProcMaster SPM ON SPM.SystemID = spc.SlrProcMstSystemID and spm.MonthNo = Month('" + effectiveDate + @"') and spm.YearNo = Year('" + effectiveDate + @"')";
-
-                    string strSql = @"SELECT SystemID FROM SalaryProcMaster
-                                      WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
-                                                        WHERE PlantID  in(" + _identity.PlantId + @")  GROUP BY SlrProcMstSystemID)
-                                        AND MonthNo =  MONTH('" + effectiveDate + @"') AND YearNo =  YEAR('" + effectiveDate + @"')";
-
-                    DataTable dtSalPrcId = _sqlRepository.GetDataTable(strSql);
-                    salaryProcessId = "''";
-                    for (int si = 0; si < dtSalPrcId.Rows.Count; si++)
-                    {
-                        salaryProcessId += ",'" + dtSalPrcId.Rows[si]["SystemID"].ToString() + "'";
-                    }
-                    wcSalaryProcess = @" AND SPC.SlrProcMstSystemID IN( " + salaryProcessId + @"  )";
+                    wcPayrollGroup = @"AND E.SystemId  IN (SELECT employeeid from MST.PayrollGroupMaster where PayrollGroupId IN (SELECT PayrollGroupId FROM SEC.UserPayrollGroup where UserId = '" + userId + @"'))";
                 }
                 if (salaryProcessId == "STRUCTURE")
                 {
                     wcEmpStatus = " Where (1=1 ";
-                    salaryProcessFlag = "";
                 }
                 else
                 {
-                    salaryProcessFlag = ", Case when Isnull(SPM.SalaryProcFlag,'') = '' THen 'Regular' else SalaryProcFlag end SalaryProcFlag";
                     wcEmpStatus = " Where (1=0 ";
 
                     if (isActive == true && isSeperated == true && isMaternity == true)
@@ -331,26 +279,20 @@ namespace Library.HumanResource.Payroll.SalaryProcess
 
                 wcEmpStatus += ")";
 
-                var cListOId = string.Empty; var cList = string.Empty; ; var cListId = string.Empty; var Join = string.Empty;
-                var param = string.Empty;
-                if (!string.IsNullOrEmpty(_identity.CompanyGroupId) && !string.IsNullOrEmpty(_identity.PlantId))
-                    param = "E.GroupID='" + _identity.CompanyGroupId + "' AND E.PlantId in(" + _identity.PlantId + @") ";
-                else if (!string.IsNullOrEmpty(_identity.CompanyGroupId) && string.IsNullOrEmpty(_identity.PlantId))
-                    param = "E.GroupID='" + _identity.CompanyGroupId + "'";
-
-                var cmdText = @"SELECT * FROM (  SELECT   dISTINCT   
+                string sql = @"select [isSelect] = Convert(bit, 'True'),[isToBeSelect] = Convert(bit, 'False'),* FROM (  SELECT   dISTINCT   
                                      isnull(e.SystemId,'') EmpSystemId
-									,ISNULL(e.EmployeeId,'')  EmployeeId                                     
+									,ISNULL(e.EmployeeId,'')  EmployeeId 
+	                                ,sl.Id,CheckBoxSelect=case when  sl.Id is null then  CONVERT(bit,0) when sl.IsDisbursed <> 1  then CONVERT(bit,0) else  CONVERT(bit,1) end   
+									,SPM.MonthNo,SPM.YearNo ,sl.IsLocked AS Lock
                                     ,ISNULL(e.EmployeeCode,'') EmployeeCode
                                     ,ISNULL(e.EmployeeName,'') EmployeeName								
                                     ,ISNULL(mpb.EntityId,'') EntityId
 									,ISNULL(mpb.PositionId,'') PositionId                                     
-                                    ,isnull(ld.UserName,'') Designation                                       
+                                    ,isnull(ISNULL(egdsg.UserName,ld.UserName),'') Designation                                       
 									,ISNULL(Department.UserName,'') Department 
 									,ISNULL(Division.UserName,'') Division 
 									,ISNULL(EmpC.UserName,'') EmployeeCategory
 									,ISNULL(Plant.UserName,'') Plant 
-                                    ,ISNULL(Plant.Id,'') PlantID 
 									,ISNULL(Section.UserName,'') Section 
 									,ISNULL(SubSection.UserName,'') SubSection 
 									,ISNULL(Unit.UserName,'') Unit 
@@ -359,58 +301,53 @@ namespace Library.HumanResource.Payroll.SalaryProcess
                                     ,ISNULL(REPLACE(CONVERT(VARCHAR(11), e.DOS, 106), ' ', '-'),'') DOS
                                     , CASE WHEN MONTH(DOS) =  MONTH('" + effectiveDate + @"')  AND YEAR(DOS) = YEAR('" + effectiveDate + @"') then 'Separated' else 'Active' end CurrentMonthEmployeeStatus
                                     ,ISNULL(e.EmployeeStatus,'') EmployeeStatus
-                                    " + salaryProcessFlag + @"
-                                    " + salaryProcessColumn + @"
+                                    , Case when Isnull(SPM.SalaryProcFlag,'') = '' THen 'Regular' else SalaryProcFlag end SalaryProcFlag
 									,ISNULL(PG.UserName,'') PayRollGroup
                                     ,e.EmployeeCodePreFix,e.EmployeeCodeNumeric
                                     ,ISNULL(jl.JobLocation, '') JobLocation
-									,ISNULL(SPLD.PaymentMode,'') PaymentMode
+									,ISNULL(e.PaymentMode,'') PaymentMode
 									,ISNULL(bb.UserName,'') BankName
-
-                                     FROM EmployeeInformation e
-                                
-                                    JOIN (
-                                     SELECT DISTINCT EmpInfoSystemID,SlrProcMstSystemID,PlantID ,m.Description,m.SalaryProcFlag
-                                    FROM SalaryProcChild c
-                                   INNER JOIN SalaryProcMaster m on M.MonthNo= MONTH('" + effectiveDate + @"') AND M.YearNo=YEAR('" + effectiveDate + @"') AND M.SystemID=C.SlrProcMstSystemID
-                                    left join SalaryLock sl on sl.MonthNo = m.MonthNo and sl.YearNo = m.YearNo and c.EmpInfoSystemID = sl.EmpSystemId 
-								   where sl.IsDisbursed=0 and sl.IsLocked=1 and isnull(PayableVoucherId,'')<>'' 
-                                   
-                                    ) SPM ON spm.EmpInfoSystemID=e.SystemId and " + param + @"
-									  JOIN SalaryProcessLogDetail SPLD ON 
-								
-									  SPLD.SalaryProcessId=SPM.SlrProcMstSystemID
-									 AND SPM.EmpInfoSystemID = SPLD.EmpSystemId 
-
-                                    LEFT OUTER JOIN HKP.LegalDesignation  ld on ld.Id=SPLD.LegalDesignationId
-                                   
-                                    LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=SPLD.BudgetCode
-									LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
+                                    ,ISNULL(v.VoucherNo,'' ) VoucherNo
+                                    ,ISNULL(sl.PayableVoucherId,'') PayableVoucherId
+                                    ,ISNULL(sl.DisbursementVoucherId,'') DisbursementVoucherId
+                                    ,ISNULL(v.VoucherNo,'') as PayableVoucherNo
+                                    ,ISNULL(vl.VoucherNo,'') as DisbursementVoucherNo
+                                    ,sl.IsDisbursed
+                                    ,IsLock = case when sl.IsLocked = 1 then 'Locked' else 'Unlocked' end
+                                  ,IsDisburse = case when sl.IsDisbursed = 1 then 'Disbursed' else 'Not Disbursed' end 
+                                    from SalaryProcessLogDetail s
+                                    JOIN SalaryProcMaster SPM ON SPM.SystemID = s.SalaryProcessId and spm.MonthNo = Month('" + effectiveDate + @"') and spm.YearNo = Year('" + effectiveDate + @"')
+                                    left join EmployeeInformation e on e.SystemId= s.EmpSystemId
+                                    LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=s.DesignationId
+                                    LEFT OUTER JOIN HKP.LegalDesignation  ld on ld.Id=s.LegalDesignationId
+                                    LEFT OUTER JOIN (select dm.DesignationGroupId,dm.DesignationId,dm.EmployeeCategoryId
+                                    ,dg.UserName GivenDesignationGroup
+                                    FROM mst.DesignationMaster dm
+                                    LEFT OUTER JOIN HKP.DesignationGroup dg on dg.Id=dm.DesignationGroupId
+                                    ) egdsgg on egdsgg.DesignationId=e.GivenDesignationId
+                                    AND egdsgg.EmployeeCategoryId=s.EmployeeCategoryId
+                                    LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=s.BudgetCode
+                                    LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
                                     LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id
                                     LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
                                     LEFT JOIN [ORG].[Division] ON Division.Id = EN.DivisionId
                                     LEFT JOIN [ORG].[Plant] ON Plant.Id = EN.PlantId
                                     LEFT JOIN [ORG].[Section] ON Section.Id = PO.SectionId
                                     LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
-                                    LEFT JOIN [ORG].[Unit] ON Unit.Id = EN.UnitId
-                                    
-                                    LEFT OUTER JOIN ORG.Line eL on eL.id=mpb.LineId
-
-                                    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = SPLD.EmployeeCategoryId
-			                                       
-                                    LEFT OUTER JOIN hkp.Designation dsg on dsg.id=PO.DesignationId
+                                    LEFT JOIN [ORG].[Unit] ON Unit.Id = EN.UnitId                                   
+                                    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
+                                    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId			                                       
+                                    LEFT JOIN ORG.Line AS eL ON eL.Id= mpb.LineId
                                     Left outer join MST.PayrollGroupMaster PGM ON PGM.employeeid = E.SystemId
-									Left outer join HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
-                                    
-								    Left Join [dbo].[JobLocation] jl on jl.SystemID = E.JobLocationID
-									left join [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=e.SystemId
-									left join [HKP].[Bank] bb on bb.Id = SPLD.BankSystemID
-									left join [HKP].[BankBranch] bbranch on bbranch.Id = SPLD.BankBranchId
-   
-                                     WHERE 1=1 " + strDOJ + @"
-                                            " + wcPayrollGroup + @"                                
-                                     ) DD " + wcEmpStatus + @" ORDER BY ISNULL(EmployeeCodePreFix,''),ISNULL(EmployeeCodeNumeric,0)";
-                return _sqlRepository.GetDataCollection(cmdText);
+                                    Left outer join HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
+                                    Left Join [dbo].[JobLocation] jl on jl.SystemID = E.JobLocationID
+                                    left join [HKP].[Bank] bb on bb.Id = s.BankSystemID
+                                    Left join SalaryLock sl on sl.EmpSystemId=e.SystemId and sl.YearNo=YEAR('" + effectiveDate + @"') AND SL.MonthNo=Month('" + effectiveDate + @"')
+                                    LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
+                                    LEFT JOIN TRN.Voucher  Vl ON Vl.Id=sl.DisbursementVoucherId 
+                                    WHERE  s.CompanyGroupId='" + _identity.CompanyGroupId + "' AND s.PlantId='" + _identity.PlantId + "' and sl.islocked=1 and  sl.IsDisbursed=0  " + wcPayrollGroup + @" 
+                                    ) DD " + wcEmpStatus + @" ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
+                return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception)
             {

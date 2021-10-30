@@ -1013,22 +1013,22 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId
 						--LEFT JOIN(Select  BOQDetailId,sum(TransactionQty) TransactionQty from [TRN].[POBOQMAP] group by BOQDetailId)POMAP ON POMAP.BOQDetailId=b.Id
 						LEFT JOIN (SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.TransactionQty) TransactionQty 
-									FROM JWPOBOQMAP POBOQMAP1
-									LEFT JOIN dbo.OSTransformationPODetail POD ON POD.Id=POBOQMAP1.JWPODetailId
+									FROM OSPOBOQMAP POBOQMAP1
+									LEFT JOIN dbo.OSTransformationPODetail POD ON POD.Id=POBOQMAP1.OSTransformationPODetailId
 									LEFT JOIN OSTransformationPO POM ON POM.Id=POD.OSTransformationPOId
 									WHERE POM.Id ='" + JWPOId + @"'
 									GROUP by POBOQMAP1.BOQDetailId								
 									)POMAP ON POMAP.BOQDetailId=b.Id
 						LEFT JOIN(SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.POBOQQty) TransactionQty 
-									FROM JWPOBOQMAP POBOQMAP1
-									LEFT JOIN  dbo.OSTransformationPODetail POD ON POD.Id=POBOQMAP1.JWPODetailId
+									FROM OSPOBOQMAP POBOQMAP1
+									LEFT JOIN  dbo.OSTransformationPODetail POD ON POD.Id=POBOQMAP1.OSTransformationPODetailId
 									LEFT JOIN OSTransformationPO POM ON POM.Id=POD.OSTransformationPOId
 									WHERE POM.Id !='" + JWPOId + @"'
 									GROUP by POBOQMAP1.BOQDetailId
 								) OtherPOData ON OtherPOData.BOQDetailId=b.Id
                                     left join (select Sum(boqmap.TransactionQty) as OtherPOQuantity,B.MaterialMasterId,B.ArticleId,SO.Id as SalesOrderId,B.FirstCharacteristicsValueId,B.SecondCharacteristicsValueId
                                           ,B.ThirdCharacteristicsValueId,boqmap.BOQDetailId
-                                          from dbo.JWPOBOQMAP boqmap left join dbo.OSTransformationPODetail om on om.Id=boqmap.JWPODetailId
+                                          from dbo.OSPOBOQMAP boqmap left join dbo.OSTransformationPODetail om on om.Id=boqmap.OSTransformationPODetailId
                                           left join dbo.BOQ B on B.Id=boqmap.BOQDetailId
                                           left join trn.SalesOrder SO on SO.Id=B.SalesOrderId
                                           left join dbo.OSTransformationPO po on po.Id=om.OSTransformationPOId
@@ -1186,22 +1186,22 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId
 						--LEFT JOIN(Select  BOQDetailId,sum(TransactionQty) TransactionQty from [TRN].[POBOQMAP] group by BOQDetailId)POMAP ON POMAP.BOQDetailId=b.Id
 						LEFT JOIN (SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.TransactionQty) TransactionQty 
-									FROM JWPOBOQMAP POBOQMAP1
-									LEFT JOIN dbo.OSTransformationPODetail POD ON POD.Id=POBOQMAP1.JWPODetailId
+									FROM OSPOBOQMAP POBOQMAP1
+									LEFT JOIN dbo.OSTransformationPODetail POD ON POD.Id=POBOQMAP1.OSTransformationPODetailId
 									LEFT JOIN OSTransformationPO POM ON POM.Id=POD.OSTransformationPOId
 									WHERE POM.Id ='" + JWPOId + @"'
 									GROUP by POBOQMAP1.BOQDetailId								
 									)POMAP ON POMAP.BOQDetailId=b.Id
 						LEFT JOIN(SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.POBOQQty) TransactionQty 
-									FROM JWPOBOQMAP POBOQMAP1
-									LEFT JOIN  dbo.OSTransformationPODetail POD ON POD.Id=POBOQMAP1.JWPODetailId
+									FROM OSPOBOQMAP POBOQMAP1
+									LEFT JOIN  dbo.OSTransformationPODetail POD ON POD.Id=POBOQMAP1.OSTransformationPODetailId
 									LEFT JOIN OSTransformationPO POM ON POM.Id=POD.OSTransformationPOId
 									WHERE POM.Id !='" + JWPOId + @"'
 									GROUP by POBOQMAP1.BOQDetailId
 								) OtherPOData ON OtherPOData.BOQDetailId=b.Id
                                     left join (select Sum(boqmap.TransactionQty) as OtherPOQuantity,B.MaterialMasterId,B.ArticleId,SO.Id as SalesOrderId,B.FirstCharacteristicsValueId,B.SecondCharacteristicsValueId
                                           ,B.ThirdCharacteristicsValueId,boqmap.BOQDetailId
-                                          from dbo.JWPOBOQMAP boqmap left join dbo.OSTransformationPODetail om on om.Id=boqmap.JWPODetailId
+                                          from dbo.OSPOBOQMAP boqmap left join dbo.OSTransformationPODetail om on om.Id=boqmap.OSTransformationPODetailId
                                           left join dbo.BOQ B on B.Id=boqmap.BOQDetailId
                                           left join trn.SalesOrder SO on SO.Id=B.SalesOrderId
                                           left join dbo.OSTransformationPO po on po.Id=om.OSTransformationPOId
@@ -3094,13 +3094,13 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                 {
                     if (!string.IsNullOrEmpty(id))
                     {
-                        con2.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild2 where JobWorkTransformationContractChildMasterId='" + id + "' ", out dsMaster, false, "1");
+                        con2.OpenDataSetThroughAdapter("select * from dbo.OSTransformationPOMasterOrderItem where OSTransformationPODetailId='" + id + "' ", out dsMaster, false, "1");
                         if (dsMaster.Tables[0].Rows.Count > 0)
                         {
                             throw new Exception("First Delete Order Wise Data");
                         }
 
-                        con2.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild3 where JobWorkTransformationContractChildMasterId='" + id + "' ", out dsMaster, false, "1");
+                        con2.OpenDataSetThroughAdapter("select * from dbo.OSTransformationPOInputMaterial where OSTransformationPODetailId='" + id + "' ", out dsMaster, false, "1");
                         if (dsMaster.Tables[0].Rows.Count > 0)
                         {
                             throw new Exception("First Delete Material Input Data");
@@ -3124,7 +3124,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                 else
                 {
                     con.executeQuery("delete from dbo.JWPOBOQMAP where JWPODetailId='" + id + @"' ");
-                    con.executeQuery("delete from dbo.JobWorkTransformationContractChild3 where JobWorkTransformationContractChildMasterId='" + id + @"' ");
+                    con.executeQuery("delete from dbo.OSTransformationPOInputMaterial where OSTransformationPODetailId='" + id + @"' ");
                     con.executeQuery("delete from dbo.OSTransformationPOTax where OSTransformationPODetailId='" + id + @"' ");
                     con.executeQuery("delete from dbo.OSTransformationPODetail where Id='" + id + "' ");
                 }
@@ -4694,9 +4694,9 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						   ,ISNULL(MM.UserName,'') MaterialMasterName
                             --,MMA.Id ArticleId
 							,ISNULL(MMA.ShortName,'') ArticleName, MMA.Code as ArticleCode
-                            ,ISNULL(FChar.UserName,'') FirstCharacteristics,ISNULL(FCharValue.UserName,'') FirstCharacteristicsValue
-                                ,ISNULL(SChar.UserName,'') SecondCharacteristics,ISNULL(SCharValue.UserName,'') SecondCharacteristicsValue
-                                ,ISNULL(TChar.UserName,'') ThirdCharacteristics,ISNULL(TCharValue.UserName,'') ThirdCharacteristicsValue
+                            ,ISNULL(FChar.UserName,'') FirstCharacteristics,ISNULL(FCharValue.UserName,'') FirstCharacteristicsValue,ISNULL(FCharValue.Code,'') SKU1ValueCode
+                                ,ISNULL(SChar.UserName,'') SecondCharacteristics,ISNULL(SCharValue.UserName,'') SecondCharacteristicsValue,ISNULL(SCharValue.Code,'') SKU2ValueCode
+                                ,ISNULL(TChar.UserName,'') ThirdCharacteristics,ISNULL(TCharValue.UserName,'') ThirdCharacteristicsValue,ISNULL(TCharValue.Code,'') SKU3ValueCode
                                 ,ISNULL(BaseUOM.Code,'') BaseUOM,ISNULL(TransactionUoM.Code,'') TransactionUoM
                                 ,ISNULL(Country.UserName,'') Country
                                 --JWTransfromation Detail 
@@ -6820,6 +6820,25 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                        LEFT JOIN dbo.[Contract] AS CN ON CN.Id=MOI.ContractId
                        LEFT JOIN dbo.MasterLC AS MLC ON MLC.Id=CN.MasterLCId
 					   left join SCS.UnitOfMeasurement Uom on Uom.Id=MO.TotalQtyUOMId ";
+
+                return _sqlRepository.GetDataCollection(_sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+
+        public IEnumerable<object> LoadAllSKU(string MaterialMstId)
+        {
+            try
+            {
+                var _sql = @"select cv.Id,cv.Sequence,cv.Code,cv.ShortName,cv.StandardName,cv.UserName,cv.CharacteristicsId,C.UserName as FirstCharacteristics,cv.MaterialMasterId,mm.UserName as MaterialMst
+                                from HKP.CharacteristicsValue cv left join HKP.Characteristics C on cv.CharacteristicsId=C.Id
+                                left join MST.MaterialMaster mm on mm.Id=cv.MaterialMasterId
+                                where MaterialMasterId='"+ MaterialMstId + @"' order by cv.Sequence ";
 
                 return _sqlRepository.GetDataCollection(_sql);
             }
