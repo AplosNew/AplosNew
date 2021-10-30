@@ -646,7 +646,12 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
                 templateUrl: 'humanresource/PayrollReports/SalaryStructureAndProcessedReportNew',
                 controller: 'salaryStructureAndProcessedReportNewController'
             })
-
+        .when('/salary-integration-with-thirdparty',
+            {
+                templateUrl: 'humanresource/PayrollReports/SalaryIntegrationWithThirdParty',
+                controller: 'SalaryIntegrationWithThirdPartyController'
+            })
+    
         .when('/leave-delete-new', {
             templateUrl: 'humanresource/LeaveApplicationNew/LeaveDelete',
             controller: 'employeeLeaveDeleteApplicationNewController'

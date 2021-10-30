@@ -9,6 +9,7 @@ var upanelApp = angular
     .controller("MachineMapController", MachineMapController)
     .controller("SkillMapController", SkillMapController)
     .controller("specialUnlockController", specialUnlockController)
+    .controller("SalaryIntegrationWithThirdPartyController", SalaryIntegrationWithThirdPartyController)
     .controller("accessControllerEmployeeTagController", accessControllerEmployeeTagController)
     .controller("AdminAttendanceControlController", AdminAttendanceControlController)
     .controller("accountDashboardController", accountDashboardController)
@@ -271,6 +272,7 @@ var upanelApp = angular
     .controller("nonFinancialMaterialOpeningBalancePostController", nonFinancialMaterialOpeningBalancePostController)
     .controller("normalJournalController", normalJournalController)
     .controller("oDDeleteController", oDDeleteController)
+    .controller("oDDeleteNewController", oDDeleteNewController)
     .controller("onDutyApprovalController", onDutyApprovalController)
     .controller("onDutyApprovalNewController", onDutyApprovalNewController)
     .controller("onDutyTransactionController", onDutyTransactionController)
@@ -952,6 +954,7 @@ var upanelApp = angular
     .controller('employeeLeaveDeleteApplicationNewController', employeeLeaveDeleteApplicationNewController)
     .controller('ProductionTargetReportController', ProductionTargetReportController)
     .controller('FabricRollController', FabricRollController)
+    .controller('FinalDeductionReportController', FinalDeductionReportController)
 
 
     .controller("PostInvoiceController", PostInvoiceController)

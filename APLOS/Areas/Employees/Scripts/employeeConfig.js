@@ -411,6 +411,10 @@ function employeeConfig($routeProvider, $locationProvider, $windowProvider) {
             templateUrl: 'employees/ODDelete/ODDelete',
             controller: 'oDDeleteController'
         })
+        .when('/od-delete-new', {
+            templateUrl: 'employees/ODDeleteNew/Aplos',
+            controller: 'oDDeleteNewController'
+        })
         .when('/exception-employee', {
             templateUrl: 'employees/ExceptionEmployee/Aplos',
             controller: 'exceptionEmployeeController'
@@ -490,6 +494,14 @@ function employeeConfig($routeProvider, $locationProvider, $windowProvider) {
         .when('/contractual-employeecode', {
             templateUrl: 'Employees/ContractualEmployeeCode/Aplos',
             controller: 'ContractualEmployeeCodeController'
+        })
+        .when('/residence-group', {
+            templateUrl: 'Employees/ResidenceGroup/Aplos',
+            controller: 'ResidenceGroupController'
+        })
+        .when('/transport-group', {
+            templateUrl: 'Employees/TransportGroup/Aplos',
+            controller: 'TransportGroupController'
         })
         ;
 } 
