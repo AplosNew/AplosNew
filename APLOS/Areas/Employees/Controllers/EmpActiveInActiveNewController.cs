@@ -32,7 +32,6 @@ namespace Aplos.Areas.Employees.Controllers
         }
 
         #endregion Constructor
-        [Authorize]
         public ActionResult Aplos()
         {
             return View();
@@ -90,7 +89,7 @@ namespace Aplos.Areas.Employees.Controllers
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
-        [HttpGet]
+        [HttpGet, Authorize]
         public JsonResult GetListForActive()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -103,8 +102,7 @@ namespace Aplos.Areas.Employees.Controllers
             //return Json(_empService.GetListForActive(identity.PlantId, identity.CompanyId), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost]
-        //string InventoryReceiveDetailId, string TransactionQty, string TransactionRate, string TrnAmount,string BaseTaxAmount,string BaseAmount,
+        [HttpPost, Authorize]
         public JsonResult InActiveToActive(string SystemId,string reason)
         {
             ActiveInActiveEmpNewProcessService rep = new ActiveInActiveEmpNewProcessService();

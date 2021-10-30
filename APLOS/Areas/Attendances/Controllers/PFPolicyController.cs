@@ -169,6 +169,7 @@ namespace Aplos.Areas.Attendances.Controllers
             DataSet dsMaster;
             try
             {
+                DataSet dsHead;
                 if (Master.EligibilityBaseOn == "DAY" && Master.EligibilityTimeLenghtDay > 0)
                 {
                     Master.EligibilityTimeLenght = Master.EligibilityTimeLenghtDay;
@@ -253,15 +254,26 @@ namespace Aplos.Areas.Attendances.Controllers
                 }
 
                 #region Save PFPolicySalaryHead Part
-                DeleteHead(Id);
-                DataSet dsHead;
-                GetHead(Id, out dsHead);
-                _Head(ref dsHead, Id, PFPolicySalaryHeadList);
-
+                
+                    
+                
                 #endregion
 
-                clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster, dsHead);
+                //clsStaticInfo obj = new clsStaticInfo();
+                if (PFPolicySalaryHeadList != null)
+                {
+                    DeleteHead(Id);
+                    GetHead(Id, out dsHead);
+                    _Head(ref dsHead, Id, PFPolicySalaryHeadList);
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMaster, dsHead);
+                }
+                else
+                {
+                    clsStaticInfo objs = new clsStaticInfo();
+                    objs.SaveDataSets(dsMaster);
+                }
                 return Id;
             }
 
@@ -370,15 +382,15 @@ namespace Aplos.Areas.Attendances.Controllers
                 {
                     if (Employer == null)
                         throw new Exception("Insert Employer Contribution Part ");
-                    
+
                 }
                 if (Details.IsDistributionEmp)
                 {
                     if (Employee == null)
                         throw new Exception("Insert Employee Contribution Part ");
                 }
-                
-                
+
+
                 string DetailsId = string.Empty;
                 DetailsId = SaveDetailsMaster(Details, Master);
                 if (Details.IsDistributionEmp)

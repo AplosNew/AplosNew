@@ -777,5 +777,21 @@ namespace Aplos.Areas.JobWork.Controllers
 
         }
 
+        [HttpPost, Authorize]
+        public JsonResult LoadAllSKU(string MaterialMstId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
+                return Json(JobWorkCommon.LoadAllSKU(MaterialMstId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
     }
 }

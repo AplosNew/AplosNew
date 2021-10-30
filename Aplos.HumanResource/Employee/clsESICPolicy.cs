@@ -40,11 +40,12 @@ namespace Library.HumanResource.Employee
 
         }//End Function
 
-        public void SaveMaster(ESICPolicyMaster master, List<ESICPolicyMonthNo> months, List<ESICPolicyLeaveType> LeaveList)
+        public void SaveMaster(ESICPolicyMaster master, List<ESICPolicyMonthNo> months, List<ESICPolicyLeaveType> LeaveList, List<ESICPolicySalaryHead> HeadList)
         {
 
             try
             {
+                DataSet dsHead;
                 //---------------------
                 DeleteMonth(master.ID);
                 //---------------------
@@ -56,10 +57,18 @@ namespace Library.HumanResource.Employee
                 GetMonth(master.ID, out dsMonth);
                 _Month(ref dsMonth, master.ID, months);
 
+                #region Save ESICPolicySalaryHead Part
+
+                DeleteHead(master.ID);
+                GetHead(master.ID, out dsHead);
+                _Head(ref dsHead, master.ID, HeadList);
+
+                #endregion
+
                 if (LeaveList == null)
                 {
                     clsStaticInfo _infos = new clsStaticInfo();
-                    _infos.SaveDataSets(dsMaster, dsMonth);
+                    _infos.SaveDataSets(dsMaster, dsMonth, dsHead);
                 }
                 else
                 {
@@ -67,9 +76,9 @@ namespace Library.HumanResource.Employee
                     GetESICLeaveType(master.ID, out dsLeave);
                     _LeaveType(ref dsLeave, master.ID, LeaveList);
                     clsStaticInfo _info = new clsStaticInfo();
-                    _info.SaveDataSets(dsMaster, dsMonth, dsLeave);
+                    _info.SaveDataSets(dsMaster, dsMonth, dsLeave, dsHead);
                 }
-                
+
 
                 //clsStaticInfo _info = new clsStaticInfo();
                 //_info.SaveDataSets(dsMaster, dsMonth, dsLeave);
@@ -86,9 +95,9 @@ namespace Library.HumanResource.Employee
             try
             {
                 DataSet dsMaster;
-                GetDetails(details.ID,details.ESICPolicyMasterID, out dsMaster);
+                GetDetails(details.ID, details.ESICPolicyMasterID, out dsMaster);
                 _Details(ref dsMaster, details);
-                
+
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
             }
@@ -147,10 +156,10 @@ namespace Library.HumanResource.Employee
                     drLocal["ID"] = bplib.clsWebLib.RetValidLen(ui_master.ID);
                     drLocal["ESICPolicyName"] = ui_master.ESICPolicyName;
                     drLocal["ESICPolicyDescription"] = ui_master.ESICPolicyDescription;
-                    
+
                     drLocal["PlantID"] = ui_master.PlantID;
                     drLocal["GroupID"] = ui_master.GroupID;
-                    
+
                     drLocal["AddedBy"] = ui_master.AddedBy;
                     drLocal["AddedDate"] = bplib.clsWebLib.DateData_AppToDB(DateTime.Now.ToShortDateString().ToString(), bplib.clsWebLib.DB_DATE_FORMAT);
                     drLocal["AddedFromIP"] = ui_master.AddedFromIP;
@@ -388,7 +397,7 @@ namespace Library.HumanResource.Employee
                     drLocal["FormulaDesEmployer"] = ui_master.FormulaDesEmployer;
                     drLocal["FormulaDesIDEmployer"] = ui_master.FormulaDesIDEmployer;
                     drLocal["SalaryHeadIDEmployer"] = ui_master.SalaryHeadIDEmployer;
-                    
+
                 }
                 else
                 {
@@ -589,7 +598,7 @@ namespace Library.HumanResource.Employee
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                strSQL = "SELECT * FROM ESICPolicyDetails WHERE ESICPolicyMasterID = '" + masterID + @"' and ID='"+ID+"'";
+                strSQL = "SELECT * FROM ESICPolicyDetails WHERE ESICPolicyMasterID = '" + masterID + @"' and ID='" + ID + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
             }
@@ -629,6 +638,24 @@ namespace Library.HumanResource.Employee
 
                 strSQL = @"select *  from [dbo].[ESICPolicyMonthNo]
                             where ESICPolicyMasterID ='" + MasterID + "' ";
+                return _sqlRepository.GetDataCollection(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }//End Function
+
+        public IEnumerable<object> GetHeadList(string MasterID)
+        {
+            try
+            {
+                string strSQL = string.Empty;
+
+                strSQL = @"select p.*,s.SalaryHead SalaryHeadName from ESICPolicySalaryHead p
+                                left join SalaryHead s on s.SalaryHeadID=p.SalaryHeadID
+                            where ESICPolicyMasterID ='" + MasterID + "' Order By Sequence";
                 return _sqlRepository.GetDataCollection(strSQL);
             }
             catch (Exception ex)
@@ -688,6 +715,7 @@ namespace Library.HumanResource.Employee
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
                 con.executeQuery("delete from ESICPolicyLeaveType where ESICPolicyMasterID = '" + ID + "'");
+                con.executeQuery("delete from ESICPolicySalaryHead where ESICPolicyMasterID = '" + ID + "'");
                 con.executeQuery("delete from ESICPolicyMaster where ID='" + ID + "'");
 
                 con.CommitTransaction();
@@ -719,7 +747,95 @@ namespace Library.HumanResource.Employee
                 throw ex;
             }
         }
+        public void DeleteHead(string sMstID)
+        {
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(@"DELETE FROM ESICPolicySalaryHead WHERE ESICPolicyMasterID = '" + sMstID + "'", true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                objCon.RollBack();
+                throw (ex);
+            }
+            finally
+            {
+                objCon.CloseConnection();
+                objCon = null;
+            }
+        }//End Function
+        public void GetHead(string sMstID, out DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                if (sMstID != "")
+                {
+                    strSQL = "SELECT * FROM ESICPolicySalaryHead WHERE ESICPolicyMasterID = '" + sMstID + "'";
+                }
+                else
+                {
+                    strSQL = "SELECT * FROM ESICPolicySalaryHead ";
+                }
 
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
+        void _Head(ref DataSet dsSaveBonusMonths, string MasterID, List<ESICPolicySalaryHead> HeadList)
+        {
+
+            DataView dvMSave = null;
+            DataTable dtMSave = null;
+            DataRow drMSave = null;
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                dtMSave = dsSaveBonusMonths.Tables[0];
+                int count = 0;
+                foreach (var item in HeadList)
+                {
+                    dvMSave = new DataView();
+                    dvMSave.Table = dtMSave;
+                    dvMSave.RowFilter = "ESICPolicyMasterId ='" + item.ESICPolicyMasterId + "' and SalaryHeadID='" + item.SalaryHeadID + "'";
+                    if (dvMSave.Count == 0)
+                    {
+                        count++;
+                        drMSave = dtMSave.NewRow();
+                        drMSave["Id"] = MasterID + count;
+                        drMSave["ESICPolicyMasterId"] = MasterID;
+                        drMSave["SalaryHeadID"] = item.SalaryHeadID;
+                        drMSave["SalaryHeadID"] = item.SalaryHeadID;
+                        drMSave["Sequence"] = count;
+                        drMSave["AddedBy"] = identity.Name;
+                        drMSave["AddedDate"] = DateTime.Now;
+                        drMSave["AddedFromIP"] = identity.IPAddress;
+                        drMSave["UpdatedBy"] = identity.Name;
+                        drMSave["UpdatedDate"] = System.DateTime.Now.ToString();
+                        drMSave["UpdatedFromIP"] = identity.IPAddress;
+                        dtMSave.Rows.Add(drMSave);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }
 
@@ -753,6 +869,28 @@ public class ESICPolicyLeaveType
     public bool IsSelectESICLeaveType { get; set; }
 }
 
+public class ESICPolicySalaryHead
+{
+    #region Scalar Properties            
+    public string Id { get; set; }
+    public string ESICPolicyMasterId { get; set; }
+    public string SalaryHeadID { get; set; }
+    #endregion Scalar Properties
+
+    #region Audit Properties
+
+    public string AddedBy { get; set; }
+
+    public DateTime? AddedDate { get; set; }
+
+    public string AddedFromIP { get; set; }
+
+    public string UpdatedBy { get; set; }
+    public DateTime? UpdatedDate { get; set; }
+    public string UpdatedFromIP { get; set; }
+
+    #endregion Audit Properties
+}
 
 public class ESICPolicyDetails
 {
