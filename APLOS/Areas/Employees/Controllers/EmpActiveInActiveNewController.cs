@@ -104,7 +104,6 @@ namespace Aplos.Areas.Employees.Controllers
         }
 
         [HttpPost]
-        //string InventoryReceiveDetailId, string TransactionQty, string TransactionRate, string TrnAmount,string BaseTaxAmount,string BaseAmount,
         public JsonResult InActiveToActive(string SystemId,string reason)
         {
             ActiveInActiveEmpNewProcessService rep = new ActiveInActiveEmpNewProcessService();

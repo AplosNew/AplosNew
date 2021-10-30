@@ -491,11 +491,11 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
                         dr["AddedBy"] = identity.Name;
                         dr["AddedDate"] = DateTime.Now;
-                        dr["AddedFromIP"] = identity.Name;
+                        dr["AddedFromIP"] = identity.IPAddress;
 
                         dr["UpdatedBy"] = identity.Name;
                         dr["UpdatedDate"] = DateTime.Now;
-                        dr["UpdatedFromIP"] = identity.Name;
+                        dr["UpdatedFromIP"] = identity.IPAddress;
 
                         dsMaster.Tables[0].Rows.Add(dr);
                     }
@@ -512,7 +512,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
                         dr["UpdatedBy"] = identity.Name;
                         dr["UpdatedDate"] = DateTime.Now;
-                        dr["UpdatedFromIP"] = identity.Name;
+                        dr["UpdatedFromIP"] = identity.IPAddress;
 
                         dr.EndEdit();
                     }
