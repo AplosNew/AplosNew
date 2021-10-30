@@ -254,30 +254,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
         }
 
-        [HttpGet, Authorize]
-        public ActionResult MonthlySummary(string Date)
-        {
-            try
-            {
-               rep.MonthlySummary(Date);
-            }
-            catch (Exception ex)
-            {
-                string ErrorlineNo, Errormsg, extype, ErrorLocation;
-
-                ErrorlineNo = ex.StackTrace.ToString();
-                Errormsg = ex.GetType().Name.ToString();
-                extype = ex.GetType().ToString();
-                ErrorLocation = ex.Message.ToString();
-                string error = "Error Line No :" + " " + ErrorlineNo + " Error Message:" + " " + Errormsg + "Exception Type:" + " " + extype + "Error Location :" + " " + ErrorLocation;
-
-                NewAttendanceProcessService.SaveLog(error,"MonthlySummary", true);
-            }
-            return Json(new { Error = false, Message = "MonthlySummary Process Triggered Successfully..." }, JsonRequestBehavior.AllowGet);
-
-
-        }
-
+       
         [HttpGet, Authorize]
         public ActionResult RunRoster(string Date)
         {
