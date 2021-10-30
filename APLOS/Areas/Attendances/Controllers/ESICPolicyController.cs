@@ -88,6 +88,20 @@ namespace Aplos.Areas.Attendances.Controllers
             }
         }
         [HttpGet, Authorize]
+        public ActionResult GetHeads(string masterID)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                clsESICPolicy ep = new clsESICPolicy();
+                return Json(ep.GetHeadList(masterID), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+        [HttpGet, Authorize]
         public ActionResult GetDetails(string masterID)
         {
             try
@@ -104,21 +118,21 @@ namespace Aplos.Areas.Attendances.Controllers
 
 
         [HttpPost]
-        public JsonResult Create(ESICPolicyMaster master, List<ESICPolicyMonthNo> months, List<ESICPolicyLeaveType> LeaveList)
+        public JsonResult Create(ESICPolicyMaster master, List<ESICPolicyMonthNo> months, List<ESICPolicyLeaveType> LeaveList,List<ESICPolicySalaryHead> HeadList)
         {
             string _id = string.Empty;
             try
             {
-                if (LeaveList == null)
+                if (HeadList == null)
                 {
-                    throw new Exception("Select Leave Type Applicable for ESIC Policy");
+                    throw new Exception("Select Salaryhead for report");
                 }
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 master.GroupID = identity.CompanyGroupId;
                 master.AddedBy = identity.Name;
                 master.AddedFromIP = identity.IPAddress;
                 clsESICPolicy ep = new clsESICPolicy();
-                ep.SaveMaster(master, months, LeaveList);
+                ep.SaveMaster(master, months, LeaveList, HeadList);
                 return Json(new { Error = false, Data = master.ID, Message = AplosMessage.Updated });
             }
             catch (Exception ex)
@@ -190,7 +204,25 @@ namespace Aplos.Areas.Attendances.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+        [HttpPost, Authorize]
+        public ActionResult DeleteHeadMaster(string ID)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(ID))
+                    throw new Exception("Select Id first");
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from ESICPolicySalaryHead where Id='" + ID + "'");
+                con.CommitTransaction();
 
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+        }
         #endregion
     }
 }

@@ -379,6 +379,7 @@
     </Compile>
     <Compile Include="Areas\Attendances\Controllers\AdditionalPayDayController.cs" />
     <Compile Include="Areas\Attendances\Controllers\EmployeeLastPunchReportController.cs" />
+    <Compile Include="Areas\Attendances\Controllers\BalanceOTReportController.cs" />
     <Compile Include="Areas\Attendances\Controllers\EntireYearPresentDaysSummaryController.cs" />
     <Compile Include="Areas\Attendances\Controllers\MonthlyAttendanceInformationNewController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AttendanceRawDataFromAppController.cs" />
@@ -490,9 +491,11 @@
     <Compile Include="Areas\EmployeeServices\Controllers\EmployeeServicesRateController.cs" />
     <Compile Include="Areas\EmployeeServices\Controllers\EmployeeServiceTypeController.cs" />
     <Compile Include="Areas\EmployeeServices\EmployeeServicesAreaRegistration.cs" />
+    <Compile Include="Areas\Employees\Controllers\ContractualEmployeeCodeController.cs" />
     <Compile Include="Areas\Employees\Controllers\AccountsGroupController.cs" />
     <Compile Include="Areas\Employees\Controllers\AllowanceDailyController.cs" />
     <Compile Include="Areas\Employees\Controllers\CompensatoryOffNewController.cs" />
+    <Compile Include="Areas\Employees\Controllers\EmpActiveInActiveNewController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmployeeInFoReportController.cs" />
     <Compile Include="Areas\Employees\Controllers\CompanyWiseEmployeePlantTransferController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmployeePlantTransferNewController.cs" />
@@ -502,6 +505,7 @@
     <Compile Include="Areas\Employees\Controllers\HRDashboardtrController.cs" />
     <Compile Include="Areas\Employees\Controllers\LeaveDeleteSingleDayNewController.cs" />
     <Compile Include="Areas\Employees\Controllers\LeaveDeleteSingleDayController.cs" />
+    <Compile Include="Areas\Employees\Controllers\ODDeleteNewController.cs" />
     <Compile Include="Areas\Employees\Controllers\SpecialUnlockController.cs" />
     <Compile Include="Areas\Employees\Controllers\ProfileFromExcelController.cs" />
     <Compile Include="Areas\Employees\Controllers\ExceptionForHolidayController.cs" />
@@ -1618,6 +1622,7 @@
     <Content Include="Areas\Accounts\Scripts\taxPayableReportController.js" />
     <Content Include="Areas\Accounts\Scripts\invoiceChargeWriteOffController.js" />
     <Content Include="Areas\Attendances\Scripts\EmployeeLastPunchReportController.js" />
+    <Content Include="Areas\Attendances\Scripts\BalanceOTReportController.js" />
     <Content Include="Areas\Attendances\Scripts\EntireYearPresentDaysSummaryController.js" />
     <Content Include="Areas\Attendances\Scripts\AttendanceRawDataFromAppController.js" />
     <Content Include="Areas\Attendances\Scripts\AttendanceDashboardController.js" />
@@ -1755,14 +1760,17 @@
     <Content Include="Areas\EmployeeServices\Scripts\EmployeeServicesConfig.js" />
     <Content Include="Areas\EmployeeServices\Scripts\EmployeeServicesRateController.js" />
     <Content Include="Areas\EmployeeServices\Scripts\EmployeeServiceTypeController.js" />
+    <Content Include="Areas\Employees\Scripts\ContractualEmployeeCodeController.js" />
     <Content Include="Areas\Employees\Scripts\AccountsGroupController.js" />
     <Content Include="Areas\Employees\Scripts\CompensatoryOffNewController.js" />
+    <Content Include="Areas\Employees\Scripts\empActiveInActiveNewController.js" />
     <Content Include="Areas\Employees\Scripts\employeeBaseMultipleController.js" />
     <Content Include="Areas\Employees\Scripts\CompanyWiseEmployeePlantTransferController.js" />
     <Content Include="Areas\Employees\Scripts\EmployeePlantTransferNewController.js" />
     <Content Include="Areas\Employees\Scripts\hrDashboardtrController.js" />
     <Content Include="Areas\Employees\Scripts\LeaveDeleteSingleDayNewController.js" />
     <Content Include="Areas\Employees\Scripts\LeaveDeleteSingleDayController.js" />
+    <Content Include="Areas\Employees\Scripts\oDDeleteNewController.js" />
     <Content Include="Areas\Employees\Scripts\specialUnlockController.js" />
     <Content Include="Areas\Employees\Scripts\employeeInformationNewController.js" />
     <Content Include="Areas\Employees\Scripts\EmployeeProfileUnApprovalController.js" />
@@ -3786,6 +3794,10 @@
     <Content Include="Areas\Attendances\Views\EmployeeLastPunchReport\Aplos.cshtml" />
     <Content Include="Areas\Payrolls\Views\OTFormula\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\LeaveWithWagesRegistersForm18\Aplos.cshtml" />
+    <Content Include="Areas\Employees\Views\EmpActiveInActiveNew\Aplos.cshtml" />
+    <Content Include="Areas\Employees\Views\ContractualEmployeeCode\Aplos.cshtml" />
+    <Content Include="Areas\Attendances\Views\BalanceOTReport\Aplos.cshtml" />
+    <Content Include="Areas\Employees\Views\ODDeleteNew\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\FinalDeductionReport\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />

@@ -262,14 +262,18 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.AddLineItemG = function (obj) {
         $scope.SelectedLine = obj.data;
         $scope.ShowDiv = true;
-        var eDialog = $("#LineDesign").data("ejDialog");
+        var eDialog = $("#dialogLineDesign").data("ejDialog");
+        $("#dialogLineDesign").ejDialog({ actionButtons: ["close", "minimize", "maximize"] });
+        $("#dialogLineDesign").ejDialog("refresh");
+
+        eDialog.open();
         if (obj.data.HasLayout == false) {
             $scope.CopyTable(obj.data);
         }
         else {
             $scope.GetLineLayout(obj.data);
         }
-        eDialog.open();
+       
     };
     $scope.CopyTable = function (data) {
         try {
@@ -452,6 +456,9 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
     }
     $scope.OpenEmployeeSearchBox = function () {
         var eDialog = $("#dialogSearchEmployee").data("ejDialog");
+        $("#dialogSearchEmployee").ejDialog({ actionButtons: ["close", "minimize", "maximize"] });
+        $("#dialogSearchEmployee").ejDialog("refresh");
+
         eDialog.open();
 
         $scope.getEmployeeData();
@@ -531,6 +538,9 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
     //////////////////////////////////////////
     $scope.OpenFixedAssetSearchBox = function () {
         var eDialog = $("#dialogSearchFixedAsset").data("ejDialog");
+        $("#dialogSearchFixedAsset").ejDialog({ actionButtons: ["close", "minimize", "maximize"] });
+        $("#dialogSearchFixedAsset").ejDialog("refresh");
+
         eDialog.open();
 
         $scope.getFixedAssetData();
@@ -618,8 +628,10 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
         $scope.GetEmployeeCard();
     }
 
-
+    $scope.ExplicitSave = false;
     $scope.SaveDiagram = function () {
+        var _explicitSave = $scope.ExplicitSave;
+        $scope.ExplicitSave = false;
         try {
 
             $http({
@@ -637,6 +649,7 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
+                    if (_explicitSave)
                     ShowResult(response.data.Message, 'success');
 
                 }
@@ -671,6 +684,8 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
                 $scope.EmployeeCardSkills = response.data[0][0].SkillList;
             });
             var eDialog = $("#dialogEmployeeCard").data("ejDialog");
+            $("#dialogEmployeeCard").ejDialog({ actionButtons: ["close", "minimize", "maximize"] });
+            $("#dialogEmployeeCard").ejDialog("refresh");
             eDialog.open();
         } catch (e) {
 
@@ -706,6 +721,9 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
         try {
 
             var eDialog = $("#dialogEditNode").data("ejDialog");
+            $("#dialogEditNode").ejDialog("refresh");
+            $("#dialogEditNode").ejDialog("refresh");
+
             eDialog.open();
         } catch (e) {
 
@@ -755,6 +773,8 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
         $scope.ConstructReplaceEmployee();
 
         var eDialog = $("#dialogEmployeeReplace").data("ejDialog");
+        $("#dialogEmployeeReplace").ejDialog({ actionButtons: ["close", "minimize", "maximize"] });
+        $("#dialogEmployeeReplace").ejDialog("refresh");
         eDialog.open();
 
     }
@@ -785,6 +805,9 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
         for (var i = 0; i < $scope.nodes.length; i++) {
             var model = Object.assign({}, $scope.nodes[i].addInfo);
             if (model.hasOwnProperty('EmployeeId')) {
+                if (angular.isUndefinedOrNull(model["EmployeeId"]))
+                    continue;
+
                 model["name"] = $scope.nodes[i]["name"];
                 model["CurrentQuantity"] = 0;
                 $scope.ProductionEntryList.push(model);
@@ -796,6 +819,8 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
             gridObj.refreshContent();
 
             var eDialog = $("#dialogProductionEntry").data("ejDialog");
+            $("#dialogProductionEntry").ejDialog({ actionButtons: ["close", "minimize", "maximize"] });
+            $("#dialogProductionEntry").ejDialog("refresh");
             eDialog.open();
         } catch (e) {
 
@@ -818,7 +843,8 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
                 },
                 dataType: 'JSON',
             }).then(function successCallback(response) {
-               
+                var eDialog = $("#dialogProductionEntry").data("ejDialog");
+                eDialog.close();
                 $scope.UpdateEmployeeAttendanceAndProductionInfo();
             });
         } catch (e) {

@@ -169,6 +169,7 @@ namespace Aplos.Areas.Attendances.Controllers
             DataSet dsMaster;
             try
             {
+                DataSet dsHead;
                 if (Master.EligibilityBaseOn == "DAY" && Master.EligibilityTimeLenghtDay > 0)
                 {
                     Master.EligibilityTimeLenght = Master.EligibilityTimeLenghtDay;
@@ -253,15 +254,26 @@ namespace Aplos.Areas.Attendances.Controllers
                 }
 
                 #region Save PFPolicySalaryHead Part
-                DeleteHead(Id);
-                DataSet dsHead;
-                GetHead(Id, out dsHead);
-                _Head(ref dsHead, Id, PFPolicySalaryHeadList);
-
+                
+                    
+                
                 #endregion
 
-                clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster, dsHead);
+                //clsStaticInfo obj = new clsStaticInfo();
+                if (PFPolicySalaryHeadList != null)
+                {
+                    DeleteHead(Id);
+                    GetHead(Id, out dsHead);
+                    _Head(ref dsHead, Id, PFPolicySalaryHeadList);
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMaster, dsHead);
+                }
+                else
+                {
+                    clsStaticInfo objs = new clsStaticInfo();
+                    objs.SaveDataSets(dsMaster);
+                }
                 return Id;
             }
 
@@ -366,10 +378,25 @@ namespace Aplos.Areas.Attendances.Controllers
         {
             try
             {
+                if (Details.IsDistributionEmployer)
+                {
+                    if (Employer == null)
+                        throw new Exception("Insert Employer Contribution Part ");
+
+                }
+                if (Details.IsDistributionEmp)
+                {
+                    if (Employee == null)
+                        throw new Exception("Insert Employee Contribution Part ");
+                }
+
+
                 string DetailsId = string.Empty;
                 DetailsId = SaveDetailsMaster(Details, Master);
-                SaveEmployeeDetails(Details, DetailsId, Employee);
-                SaveEmployerDetails(Details, DetailsId, Employer);
+                if (Details.IsDistributionEmp)
+                    SaveEmployeeDetails(Details, DetailsId, Employee);
+                if (Details.IsDistributionEmployer)
+                    SaveEmployerDetails(Details, DetailsId, Employer);
                 return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception)
@@ -676,10 +703,35 @@ namespace Aplos.Areas.Attendances.Controllers
                     Exception ex = new Exception("Please Delete Details First....");
                     throw (ex);
                 }
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                strMasterSQL = "DELETE FROM [dbo].[PFPolicyMaster] WHERE ID='" + ID + "'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(strMasterSQL, out dsExceptionEmployeeList, false, "1");
+                //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                //strMasterSQL = "DELETE FROM [dbo].[PFPolicyMaster] WHERE ID='" + ID + "'";
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(strMasterSQL, out dsExceptionEmployeeList, false, "1");
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from PFPolicySalaryHead where PFPolicyMasterID='" + ID + "'");
+                con.executeQuery("DELETE FROM [dbo].[PFPolicyMaster] WHERE ID='" + ID + "'");
+                con.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult DeleteHeadMaster(string ID)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(ID))
+                    throw new Exception("Select Id first");
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from PFPolicySalaryHead where Id='" + ID + "'");
+                con.CommitTransaction();
+
             }
             catch (Exception ex)
             {

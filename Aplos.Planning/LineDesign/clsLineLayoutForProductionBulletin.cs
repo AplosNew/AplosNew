@@ -111,7 +111,7 @@ namespace Library.Planning.LineDesign
 									LEFT JOIN [TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = PO.Id and POSP.IsBaseProcess=1
 									join trn.ProductionBulletinTemplate pbt on pbt.ProductionOrderId = PO.Id 
 									Join TRN.ProductionBulletinTemplateMaster pbtm on pbtm.ProductionBulletinTemplateId = pbt.Id and pbtm.ProcessId=posp.ProcessId
-								    WHERE  E.Id='" + entityId + "'";
+								    WHERE  E.Id='" + entityId + "' AND ISNULL(ps.StandardName,'')<>'Closed'";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -155,7 +155,7 @@ namespace Library.Planning.LineDesign
                     if (TempHtml.addInfo == null)
                         continue;
 
-                    if (string.IsNullOrEmpty( TempHtml.addInfo.OperationVariationId))
+                    if (string.IsNullOrEmpty(TempHtml.addInfo.OperationVariationId))
                         continue;
 
                     HtmlsInfo.Add(TempHtml.addInfo);
@@ -175,7 +175,7 @@ namespace Library.Planning.LineDesign
             if (dsMaster.Tables[0].Rows.Count == 0)
             {
                 //create PK
-               
+
                 objGenID = new bplib.clsGenID();
                 objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "LineLayoutByProductionBulletin", out idFromDB);
                 DataRow dr = dsMaster.Tables[0].NewRow();
@@ -224,7 +224,7 @@ namespace Library.Planning.LineDesign
                     ChildPK = "LD-" + idFromDBC;
                 }
                 DataRow dr = dsChild.Tables[0].NewRow();
-                dr["Id"] = ChildPK +"-"+ (i+1);
+                dr["Id"] = ChildPK + "-" + (i + 1);
                 dr["LineLayoutByProductionBulletinId"] = PrimaryKey;
                 dr["OperationId"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(HtmlsInfo[i].OperationId));
                 dr["MaterialMasterId"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(HtmlsInfo[i].MaterialMasterId));
@@ -263,10 +263,11 @@ namespace Library.Planning.LineDesign
             {
                 DataTable dtBulletin = _sqlRepository.GetDataTable(@"SELECT  ROW_NUMBER() OVER(ORDER BY D.Sequence,d.id) AS SQ,d.Id,ov.Id AS OperationVariationId,ov.UserName AS OperationVariation,
                                             d.AllotedManpower,MM.Id MaterialMasterId,MM.UserName AS MaterialMasterDesc
-											,o.IsMachineRequired,M.StandardName AS ArticleDesc,o.Id as OperationId,o.UserName as OperationDesc
+											,o.IsMachineRequired,M.StandardName AS ArticleDesc,M.ShortName AS ArticleShortName,o.Id as OperationId,o.UserName as OperationDesc
                                                 ,M.Id ArticleId    ,d.Sequence,NULL AS Designation,isnull(Ov.color,'#ffffff') AS Color,
-                                            mv.Id AS MachineId,mv.UserName AS MachineDesc,d.AllotedWorkstation,d.RequiredManPower,
-                                            '1800001.jpg' AS EmpPicPath
+                                            mv.Id AS MachineId,mv.UserName AS MachineDesc,d.AllotedWorkstation,d.RequiredManPower,d.TotalSPT,
+                                            '1800001.jpg' AS EmpPicPath,D.OperationTargetPerHr,CONVERT(INT,D.OperationTargetPerHr/CASE WHEN D.RequiredManPower>0 THEN D.RequiredManPower ELSE 1 END) AS WorkstationTargetPerHour
+                                               
                                                 FROM trn.ProductionBulletinTemplateDetail D
                                             INNER JOIN mst.OperationVariation AS ov ON ov.Id=d.OperationVariationId
                                             LEFT JOIN [MST].[MaterialMasterArticle] M ON M.Id = OV.ArticleId
@@ -346,11 +347,13 @@ namespace Library.Planning.LineDesign
                             MaterialMasterDesc = dtBulletin.Rows[i]["MaterialMasterDesc"].ToString(),
                             ArticleId = dtBulletin.Rows[i]["ArticleId"].ToString(),
                             ArticleDesc = dtBulletin.Rows[i]["ArticleDesc"].ToString(),
+                            ArticleShortName = dtBulletin.Rows[i]["ArticleShortName"].ToString(),
                             OperationId = dtBulletin.Rows[i]["OperationId"].ToString(),
                             OperationDesc = dtBulletin.Rows[i]["OperationDesc"].ToString(),
                             OperationVariationId = dtBulletin.Rows[i]["OperationVariationId"].ToString(),
                             OperationVariationDesc = dtBulletin.Rows[i]["OperationVariation"].ToString(),
-                            //Designation = dtBulletin.Rows[i]["Designation"].ToString(),
+                            TotalSPT = OTSBD.clsStaticInfo.dbl(dtBulletin.Rows[i]["TotalSPT"].ToString()),
+                            WorkstationTargetPerHour = OTSBD.clsStaticInfo.dbl(dtBulletin.Rows[i]["WorkstationTargetPerHour"].ToString()),
                             //EmpPicPath = dtBulletin.Rows[i]["EmpPicPath"].ToString(),
                             Sequence = OTSBD.clsStaticInfo.dbl(dtBulletin.Rows[i]["Sequence"].ToString()),
                             RequiredManPower = OTSBD.clsStaticInfo.dbl(dtBulletin.Rows[i]["RequiredManPower"].ToString()),

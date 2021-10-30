@@ -367,6 +367,10 @@ function employeeConfig($routeProvider, $locationProvider, $windowProvider) {
             templateUrl: 'employees/EmpActiveInActive/aplos',
             controller: 'empActiveInActiveController'
         })
+        .when('/emp-ActiveInActive-new', {
+            templateUrl: 'employees/EmpActiveInActiveNew/aplos',
+            controller: 'empActiveInActiveNewController'
+        })
         .when('/compensatory-off', {
             templateUrl: 'Employees/CompensatoryOff/aplos',
             controller: 'CompensatoryOffController'
@@ -406,6 +410,10 @@ function employeeConfig($routeProvider, $locationProvider, $windowProvider) {
         .when('/od-delete', {
             templateUrl: 'employees/ODDelete/ODDelete',
             controller: 'oDDeleteController'
+        })
+        .when('/od-delete-new', {
+            templateUrl: 'employees/ODDeleteNew/Aplos',
+            controller: 'oDDeleteNewController'
         })
         .when('/exception-employee', {
             templateUrl: 'employees/ExceptionEmployee/Aplos',
@@ -482,6 +490,10 @@ function employeeConfig($routeProvider, $locationProvider, $windowProvider) {
         .when('/accounts-group', {
             templateUrl: 'Employees/AccountsGroup/Aplos',
             controller: 'AccountsGroupController'
+        })
+        .when('/contractual-employeecode', {
+            templateUrl: 'Employees/ContractualEmployeeCode/Aplos',
+            controller: 'ContractualEmployeeCodeController'
         })
         ;
 } 

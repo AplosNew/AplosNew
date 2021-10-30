@@ -25,6 +25,7 @@ var upanelApp = angular
     .controller("assetItemController", AssetItemController)
     .controller("CurrencyExchangeController", CurrencyExchangeController)
     .controller("BOMReportsController", BOMReportsController)
+    .controller("BalanceOTReportController", BalanceOTReportController)
     .controller("attendanceManagementController", attendanceManagementController)
     .controller("attendanceProcessDataController", attendanceProcessDataController)
     .controller("attendanceProcessDataNewController", attendanceProcessDataNewController)
@@ -270,6 +271,7 @@ var upanelApp = angular
     .controller("nonFinancialMaterialOpeningBalancePostController", nonFinancialMaterialOpeningBalancePostController)
     .controller("normalJournalController", normalJournalController)
     .controller("oDDeleteController", oDDeleteController)
+    .controller("oDDeleteNewController", oDDeleteNewController)
     .controller("onDutyApprovalController", onDutyApprovalController)
     .controller("onDutyApprovalNewController", onDutyApprovalNewController)
     .controller("onDutyTransactionController", onDutyTransactionController)
@@ -496,6 +498,7 @@ var upanelApp = angular
     .controller('disciplinaryActionCriticalityController', disciplinaryActionCriticalityController)
     .controller('EarnLeavePaySlipController', EarnLeavePaySlipController)
     .controller('empActiveInActiveController', empActiveInActiveController)
+    .controller('empActiveInActiveNewController', empActiveInActiveNewController)
     .controller('EmployeeBankInfoInformationController', EmployeeBankInfoInformationController)
     .controller('employeeBankInformationController', employeeBankInformationController)
     .controller('employeeDeleteController', employeeDeleteController)
@@ -576,7 +579,7 @@ var upanelApp = angular
     .controller('leavesChecklistReportController', leavesChecklistReportController)
 
     .controller('leaveWithWagesRegistersController', leaveWithWagesRegistersController)
-    .controller('leaveWithWagesRegistersFrom18Controller', leaveWithWagesRegistersFrom18Controller)
+    .controller('leaveWithWagesRegistersForm18Controller', leaveWithWagesRegistersForm18Controller)
 
     .controller('LeaveYearEndProcessController', LeaveYearEndProcessController)
     .controller('loanInterestPayableController', loanInterestPayableController)

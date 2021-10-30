@@ -16,6 +16,7 @@ using System.Threading;
 using System.Data;
 using OTSBD;
 using System.Linq;
+using Syncfusion.XlsIO;
 
 #endregion Using
 
@@ -32,11 +33,12 @@ namespace Aplos.Areas.HumanResource.Controllers
         public LeaveWithWagesRegistersForm18Controller(ISqlRepository R)
         {
 
-           
+
             _sqlRepository = R;
         }
 
         #endregion Constructor
+
         #region -- Pages
 
         [Authorize]
@@ -326,12 +328,12 @@ namespace Aplos.Areas.HumanResource.Controllers
 
 
 
- 
+
                 #region DA
                 string DAIds = "''";
 
-                
-                foreach (TBSUnAssignModel item in empids.Where(x=>x.IsFromDA=true))
+
+                foreach (TBSUnAssignModel item in empids.Where(x => x.IsFromDA = true))
                 {
                     DAIds += ",'" + item.CaseNo + "'";
                 }
@@ -348,18 +350,18 @@ namespace Aplos.Areas.HumanResource.Controllers
                 {
                     DataView dv = new DataView(dsDA.Tables[0]);
                     dv.RowFilter = "Id='" + item.CaseNo + "'";
-                    if (dv.Count==0)
+                    if (dv.Count == 0)
                     {
 
                     }
                     else
-                    {  
+                    {
                         DataRow dr = dsDA.Tables[0].DefaultView[0].Row;
-                        dr.BeginEdit();                      
-                        dr["DACompeletionRemark"] = item.Remarks;                        
+                        dr.BeginEdit();
+                        dr["DACompeletionRemark"] = item.Remarks;
                         dr["IsDACompleted"] = true;
                         dr["DACompeletedBy"] = identity.Name;
-                        dr["DACompeletionDate"] = System.DateTime.Now.ToString();                     
+                        dr["DACompeletionDate"] = System.DateTime.Now.ToString();
 
                         dr.EndEdit();
                     }
@@ -377,7 +379,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
                 DataSet dsRef;
                 string strSql = @"select * from employeeinformation where systemid in (" + ids + ")";
-                 objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, "1");
 
 
@@ -399,7 +401,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
                     if (flag.ToUpper() == "ACTIVE")
                     {
-                        
+
                         dsRef.Tables[0].Rows[i]["EmployeeDisciplinaryActionIdForLA"] = DBNull.Value;
                         dsRef.Tables[0].Rows[i]["EmployeeCurrentStatusEffectiveDate"] = DBNull.Value;
                         dsRef.Tables[0].Rows[i]["EmployeeCurrentStatus"] = DBNull.Value;
@@ -410,7 +412,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
                 clsStaticInfo obj = new clsStaticInfo();
                 obj.SaveDataSets(dsRef, dsDA);
-             
+
 
                 return Json(new { Message = "Data updated successfully", Error = false, }, JsonRequestBehavior.AllowGet);
             }
@@ -500,6 +502,41 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         }
 
+        [HttpPost, Authorize]
+        public ActionResult GetSettings()
+        {
+            try
+            {
+                Library.HumanResource.Payroll.PayrollReportsService service = new Library.HumanResource.Payroll.PayrollReportsService();
+                service.GetSettingsForForm18(out List<Dictionary<string, object>> salaryHeads, out List<Dictionary<string, object>> LeaveTypes);
+
+                return Json(new { SalaryHeadList = salaryHeads, LeaveTypeList = LeaveTypes, Message = "Data updated successfully", Error = false, }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Message = ex.Message, Error = true, }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+        [HttpPost, Authorize]
+        public ActionResult SaveSettings(List<Dictionary<string, object>> salaryHeads, List<Dictionary<string, object>> LeaveTypes)
+        {
+            try
+            {
+                Library.HumanResource.Payroll.PayrollReportsService service = new Library.HumanResource.Payroll.PayrollReportsService();
+                service.SaveSettingsForForm18(salaryHeads, LeaveTypes);
+
+                return Json(new { Message = "Data updated successfully", Error = false, }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Message = ex.Message, Error = true, }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
 
         [HttpPost, Authorize]
         public ActionResult ViewEmployeeStatus(string empid, string firstabsentdate)
@@ -537,7 +574,33 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         }
 
+
+       
+        [HttpGet, Authorize]
+        public ActionResult Form18(string year, string empid)
+        {
+            try
+            {
+                ExcelEngine excelEngine = new ExcelEngine();
+
+                Library.HumanResource.Payroll.PayrollReportsService service = new Library.HumanResource.Payroll.PayrollReportsService();
+                IWorkbook workbook = service.Form18Xls(empid, year, excelEngine);
+
+                string strFileName = "Form18.xlsx";
+                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                workbook.Close();
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+            }
+
+            return null;
+        }
+
         #endregion -- Operations
     }
-   
+
 }
