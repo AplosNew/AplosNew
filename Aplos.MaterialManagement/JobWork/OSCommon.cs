@@ -3449,6 +3449,22 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
         //    }
         //}
 
+        private string GetOSoutputmatPK()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "OSTransformationPODetail", out sID);
+            return sID;
+        }
+
+        private string GetOSPOTaxPK()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "OSTransformationPOTax", out sID);
+            return sID;
+        }
+
         public List<Dictionary<string, object>> detailcreate(List<Dictionary<string, object>> data, string JWPurchaseOrderId, string JWActivityId, string userName, string IPAddress, string OrderSpecific, string type, List<Dictionary<string, object>> taxCategoryList, string JWPOToCurrencyRate, string JWPOIsNonCreditable, string JWPODate, string JWPOType)
         {
             string  JWOutId = " ";
@@ -3726,7 +3742,8 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
                             bplib.clsGenID genid = new bplib.clsGenID();
                             genid.GenID("OSTransformationPODetail", out _Id);
-                            data[i]["Id"] = "JWPD" + _Id;
+                          //   data[i]["Id"] = "JWPD" + _Id;
+                            data[i]["Id"] = "JWPD" + GetOSoutputmatPK();
                             JWPODId = data[i]["Id"].ToString();
                             //data[i]["OSTransformationPOId"] = JWPurchaseOrderId;
                             data[i]["TransactionUoMId"] = data[i]["OutputMaterialUOMId"];
@@ -3806,10 +3823,11 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
                                 bplib.clsGenID genid = new bplib.clsGenID();
                                 genid.GenID("OSTransformationPOTax", out _Id);
-                                taxCategoryList[i1]["Id"] = "JWPDT" + _Id;
-                                //JWPODId = taxCategoryList[i1]["Id"].ToString();
-                                //data[i]["OSTransformationPOId"] = JWPurchaseOrderId;
-                                taxCategoryList[i1]["OSTransformationPOId"] = JWPurchaseOrderId;
+                               //  taxCategoryList[i1]["Id"] = "JWPDT" + _Id;
+                                    taxCategoryList[i1]["Id"] = "JWPDT" + GetOSPOTaxPK();
+                                    //JWPODId = taxCategoryList[i1]["Id"].ToString();
+                                    //data[i]["OSTransformationPOId"] = JWPurchaseOrderId;
+                                    taxCategoryList[i1]["OSTransformationPOId"] = JWPurchaseOrderId;
                                 taxCategoryList[i1]["OSTransformationPODetailId"] = DetailIdid;
                                 //data[i]["Quantity"] = data[i]["TransactionQty"];
 
@@ -5457,7 +5475,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                 //               where jwi.Id='" + JobWorkItemId + @"' ";
 
                 sql = @"select --mm.BaseUOMId UoMId,mmuom.UserName UoM
-                        mm.Id, mm.Code, mm.UserName as Material,jwi.UOMId, uom.UserName as JWIUom
+                        mm.Id, mm.Code, mm.UserName as Material,mm.WithSKU,jwi.UOMId, uom.UserName as JWIUom
                          ,Value=case when jwi.MaterialMasterId is not null then mm.BaseUOMId else jwi.UOMId End
                          ,Text=case when jwi.MaterialMasterId is not null then mmuom.UserName else uom.UserName End
                         -- ,AlternateUoM=case when jwi.MaterialMasterId is not null then U.UserName End
@@ -5471,7 +5489,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                          UNION ALL
                         select
                         --mauom.AlternativeUOMId UoMId,uom1.UserName UoM
-                        mm.Id, mm.Code, mm.UserName as Material,jwi.UOMId, uom.UserName as JWIUom
+                        mm.Id, mm.Code, mm.UserName as Material,mm.WithSKU,jwi.UOMId, uom.UserName as JWIUom
                          ,Value=case when jwi.MaterialMasterId is not null then mauom.AlternativeUOMId else jwi.UOMId End
                          ,Text=case when jwi.MaterialMasterId is not null then uom1.UserName else uom.UserName End
                         -- -- ,AlternateUoM=case when jwi.MaterialMasterId is not null then uom1.UserName End
@@ -6831,14 +6849,24 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
             }
         }
 
-        public IEnumerable<object> LoadAllSKU(string MaterialMstId)
+        public IEnumerable<object> LoadAllSKU(string MaterialMstId, string assignment, string charId)
         {
             try
             {
-                var _sql = @"select cv.Id,cv.Sequence,cv.Code,cv.ShortName,cv.StandardName,cv.UserName,cv.CharacteristicsId,C.UserName as FirstCharacteristics,cv.MaterialMasterId,mm.UserName as MaterialMst
-                                from HKP.CharacteristicsValue cv left join HKP.Characteristics C on cv.CharacteristicsId=C.Id
-                                left join MST.MaterialMaster mm on mm.Id=cv.MaterialMasterId
-                                where MaterialMasterId='"+ MaterialMstId + @"' order by cv.Sequence ";
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var _sql = "";
+                //var _sql = @"select cv.Id,cv.Sequence,cv.Code,cv.ShortName,cv.StandardName,cv.UserName,cv.CharacteristicsId,C.UserName as FirstCharacteristics,cv.MaterialMasterId,mm.UserName as MaterialMst
+                //                from HKP.CharacteristicsValue cv left join HKP.Characteristics C on cv.CharacteristicsId=C.Id
+                //                left join MST.MaterialMaster mm on mm.Id=cv.MaterialMasterId
+                //                where MaterialMasterId='"+ MaterialMstId + @"' order by cv.Sequence ";
+
+                if (assignment == ValueAssignmentEnum.General.ToString())
+                    _sql = @"SELECT Id AS CharacteristicsValueId, CompanyGroupId, CharacteristicsId, MaterialMasterId, SourceType, Code, [Sequence], ShortName, StandardName, UserName, IsDefault, Remarks, [Description], Active
+                    FROM HKP.CharacteristicsValue WHERE CompanyGroupId='" + identity.CompanyGroupId + @"' AND CharacteristicsId='" + charId + "' AND SourceType='" + assignment + "'";
+                else
+                    _sql = @"SELECT Id AS CharacteristicsValueId, CompanyGroupId, CharacteristicsId, MaterialMasterId, SourceType, Code, [Sequence], ShortName, StandardName, UserName, IsDefault, Remarks, [Description], Active
+                    FROM HKP.CharacteristicsValue WHERE CompanyGroupId='" + identity.CompanyGroupId + @"' AND CharacteristicsId='" + charId + "' AND MaterialMasterId='" + MaterialMstId + "' AND SourceType='" + assignment + "'";
+          //      return _sqlRepository.GetGridData(parameters);
 
                 return _sqlRepository.GetDataCollection(_sql);
             }
