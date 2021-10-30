@@ -2641,6 +2641,10 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                         getSkuMatrix(secondtData, thirdData);
                         $scope.rowName = $scope.characteristicsList[1].Text;
                         $scope.columnName = $scope.characteristicsList[2].Text;
+
+                        $scope.char1Id = $scope.characteristicsList[1].Value;
+                        $scope.char2Id = $scope.characteristicsList[2].Value;
+
                         angular.element(document.querySelector('#firstPopup')).modal('hide');
                         angular.element(document.querySelector('#secondPopup')).modal('hide');
                         angular.element(document.querySelector('#thirdPopup')).modal('show');
