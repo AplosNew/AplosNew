@@ -173,7 +173,13 @@ function debitNoteController(accountService, cboService, commonMessage, $scope, 
         $scope.voucherTypeList = result;
         if ($scope.voucherTypeList.length === 1) {
             $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
-            $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
+            if ($scope.voucherTypeList[0].LastPostingDate != null) {
+                $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
+            }
+            else {
+                $scope.voucher.PostingDate = $filter("dateFiltering")($filter("dateFiltering")(Date.now()));
+
+            }
             $scope.voucher.DocDate = $scope.voucher.PostingDate;
             $scope.GetCurrencyExchangeRateList();
             $scope.getTaxCodeByTaxYear($scope.voucher.PostingDate);

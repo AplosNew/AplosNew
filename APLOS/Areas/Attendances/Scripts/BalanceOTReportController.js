@@ -7,57 +7,17 @@ function BalanceOTReportController($window, $timeout, cboService, commonMessage,
     $scope.path = 'Attendances/BalanceOTReport/';
 
 
-    //#region Get year 
-    $scope.YearList = [];
-    $scope.getYear = function () {
-        $http({
-            method: 'GET',
-            url: 'Attendances/MonthlyAttendanceSummeryReport/GetYear',
-        }).then(function successCallback(response) {
-            $scope.YearList = response.data;
-        });
-    }
-    $scope.getYear();
-    //#endregion
+  
 
     
     /// --- Grid Show
     $scope.MainData = [];
     $scope.loadGrid = function () {
-        $scope.$broadcast('show-errors-check-validity');
-        if ($scope.MainData.length != 0) {
-            $scope.destroy();
-        }
-        if ($scope.YearId == "" || $scope.YearId == null) {
-            ShowResult("Select Year");
-            throw "Select Year";
-        }
-            var ColumnList = [
-                { field: 'EmployeeCode', width: 150, headerText: "EmployeeCode", type: "string" },
-                { field: 'EmployeeName', width: 150, headerText: "Employee Name", type: "string" },
-                { field: 'Department', width: 150, headerText: "Department", type: "string" },
-                { field: 'Section', width: 150, headerText: "Section", type: "string" },
-                { field: 'SubSection', width: 150, headerText: "SubSection", type: "string" },
-                { field: 'LegalDesignation', width: 150, headerText: "Designation", type: "string" },
-                { field: 'DOJ', width: 150, headerText: "DOJ", type: "string" },
-                { field: 'Jan', width: 150, headerText: "January", type: "string" },
-                { field: 'Feb', width: 150, headerText: "Feburary", type: "string" },
-                { field: 'Mar', width: 150, headerText: "March", type: "string" },
-                { field: 'Apr', width: 150, headerText: "April", type: "string" },
-                { field: 'May', width: 150, headerText: "May", type: "string" },
-                { field: 'June', width: 150, headerText: "June", type: "string" },
-                { field: 'July', width: 150, headerText: "Ju;y", type: "string" },
-                { field: 'Aug', width: 150, headerText: "August", type: "string" },
-                { field: 'Sep', width: 150, headerText: "September", type: "string" },
-                { field: 'Oct', width: 150, headerText: "October", type: "string" },
-                { field: 'Nov', width: 150, headerText: "November", type: "string" },
-                { field: 'Dec', width: 150, headerText: "December", type: "string" },
-
-            ];
+           
 
             $http({
                 method: 'GET',
-                url: $scope.path + 'GetSummaryData?Year=' + $scope.YearId,
+                url: $scope.path + 'GetBalanceData',
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error == true) {
@@ -65,19 +25,6 @@ function BalanceOTReportController($window, $timeout, cboService, commonMessage,
                 }
                 else {
                     $scope.MainData = response.data.DATA;
-
-                    $("#GridData").ejGrid({
-                        dataSource: $scope.MainData,
-                        minWidth: 450, minHeight: 400,
-                        allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
-                        filterSettings: { filterType: "excel" },
-                        columns: ColumnList
-                    });
-
-
-                    var gridObj = $("#GridData").data("ejGrid");
-                    gridObj.refreshContent(true);
-                    gridObj.refreshTemplate();
 
                     var x = document.getElementById("but");
                     if ($scope.MainData.length != 0) {
@@ -123,16 +70,12 @@ function BalanceOTReportController($window, $timeout, cboService, commonMessage,
 
     function applyFilters(parameters) {
 
-        if ($scope.YearId == "" || $scope.YearId == null) {
-            ShowResult("Select Year");
-            throw "Select Year";
-        }
-
+       
         $http({
             method: 'POST',
             url: $scope.path + 'GetPrintReport',
             data: {
-                EmpId: parameters[0].Value, Year: $scope.YearId
+                EmpId: parameters[0].Value
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {

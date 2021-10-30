@@ -294,7 +294,7 @@ namespace Library.Accounting.FixedAssets
                                     , isnull(FR.FABaseAmount,0)+ISNULL(SAR.subAssetBaseAmount,0)-ISNULL(FR.ADBaseAmount,0) NetBaseBookValue 
 									, 0 NegotiationValue
 
-                                    , MMA.StandardName Article, FR.IsFinancial,IsOBBalance=case when FR.IsOpeningBalance=0 then 'No' Else 'Yes' End
+                                    , MMA.StandardName Article, FR.IsFinancial,IsOpeningBalance=case when FR.IsOpeningBalance=0 then 'No' Else 'Yes' End
                                     , GL.AccountCode GLGeneralInfoCode,GL.UserName GLGeneralInfoName,GL.Id GLGeneralInfoId
 									, BM.Id BudgetMasterId,B.UserName BudgetName,BM.RefNo BudgetRefNo
 									, A.UserName ActivityName, FR.FAActivityId ActivityId
@@ -330,7 +330,79 @@ namespace Library.Accounting.FixedAssets
                                    WHERE FR.CompanyId= '" + companyId + @"'  and FR.Archive= 0 and FR.IsAUC= 0 AND FR.Status IS NULL ) AS TEMP WHERE " + strkey + " order by SerialNo ";
             return _sqlRepository.GetDataCollection(sql);
         }
-       
+
+        public List<Dictionary<string, object>> GetFixedAssetRegisterDisposeEditList(string fixedAssetRegisterDisposeId, string companyId)
+        {
+            //string strkey = "1=1";
+            //if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+            //    strkey = column + " like '%" + value + "%'";
+
+            var sql = @"select top 300 * from (SELECT FR.Id,FR.Id AS FixedAssetRegisterId, FR.MaterialMasterArticleId, FR.MaterialMasterId,FR.FixedAssetMasterId
+                                    , FR.SerialNo, FR.Id AssetNo, FR.InvoiceNo, MM.UserName MaterialMasterName
+                                    , FAM.UserName FixedAssetMasterName, FAC.UserName FixedAssetCategory
+                                    , FASC.UserName FixedAssetSubCategory, FAM.FixedAssetCategoryId
+                                    , FAM.FixedAssetSubCategoryId, FAM.AssetType
+                                    ,P.UserName Vendor
+                                    ,c.Code TrnCurrency
+
+                                    , ISNULL(FR.Price,0) Price
+									,ISNULL(SAR.subAssetAmount,0) SubAssetAmount
+									, ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0) PurchasePrice
+									 ,ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0)-ISNULL(FR.ADBaseAmount,0) NetBookValue 
+								--	, 0 NegotiationValue
+
+								   , BC.Code BaseCurrency
+									,isnull(FR.FABaseAmount,0)FABaseAmount
+									,ISNULL(SAR.subAssetBaseAmount,0) SubAssetBaseAmount
+									,isnull(FR.FABaseAmount,0) + ISNULL(SAR.subAssetBaseAmount,0) PurchaseBaseAmount
+									,isnull( FR.ADBaseAmount,0)ADBaseAmount
+                                    , isnull(FR.FABaseAmount,0)+ISNULL(SAR.subAssetBaseAmount,0)-ISNULL(FR.ADBaseAmount,0) NetBaseBookValue 
+									,FARD.NagotiationBooksValue, FARD.NegotiationValue
+
+                                    , MMA.StandardName Article, FR.IsFinancial,IsOpeningBalance=case when FR.IsOpeningBalance=0 then 'No' Else 'Yes' End
+                                    , GL.AccountCode GLGeneralInfoCode,GL.UserName GLGeneralInfoName,GL.Id GLGeneralInfoId
+									, BM.Id BudgetMasterId,B.UserName BudgetName,BM.RefNo BudgetRefNo
+									, A.UserName ActivityName, FR.FAActivityId ActivityId
+                                   		,format( FR.CapitalizationDate,'dd-MMM-yyyy')CapitalizationDate
+									,format(IR.GRNDate,'dd-MMM-yyyy') PurchaseDate
+									,format( ii.IssueDate,'dd-MMM-yyyy')IssueDate
+		                            ,FAD.Remarks
+
+                                    FROM[TRN].[FixedAssetRegister] FR
+                                   LEFT JOIN MST.MaterialMaster MM ON FR.MaterialMasterId= MM.Id
+                                   LEFT JOIN MST.MaterialMasterArticle MMA ON FR.MaterialMasterArticleId= MMA.Id
+                                   LEFT JOIN MST.BudgetMaster BM ON FR.FABudgetMasterId = BM.Id
+                                   LEFT JOIN [MST].[FixedAssetMaster] FAM ON FR.FixedAssetMasterId= FAM.Id
+                                   LEFT JOIN HKP.FixedAssetCategory FAC ON FAM.FixedAssetCategoryId= FAC.Id
+                                   LEFT JOIN HKP.FixedAssetSubCategory FASC ON FAM.FixedAssetSubCategoryId= FASC.Id
+
+	                                LEFT JOIN TRN.FixedAssetRegisterDetail FRD ON FRD.CapitalizeRegisterNo=FR.CapitalizeRegisterNo
+									LEFT JOIN TRN.InventoryIssueHistory IIH ON IIH.Id=FRD.InventoryIssueHistoryId
+									LEFT JOIN TRN.VoucherDetail VD ON VD.Id=IIH.CapitalizeVoucherDetailId
+									LEFT JOIN TRN.InventoryIssueDetail IID ON IID.Id=IIH.InventoryIssueDetailId
+									left join trn.InventoryIssue II on ii.Id = iid.InventoryIssueId
+									LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
+									left join trn.InventoryReceive IR on IR.Id =  IRD.InventoryReceiveId
+									LEFT JOIN TRN.Voucher V ON V.Id=VD.VoucherId 
+                                    LEFT JOIN SCS.Currency C ON C.Id =FR.CurrencyId
+                                    LEFT JOIN SCS.Currency BC ON BC.Id =FR.FABaseCurrencyId
+
+	                                LEFT JOIN HKP.Party P ON P.Id = FR.VendorId
+								   LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=BM.GLGeneralInfoId
+								   LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
+								   LEFT JOIN HKP.Activity A ON A.Id=FR.FAActivityId
+								   LEFT JOIN ( SELECT FixedAssetRegisterId,ISNULL(Sum(Amount),0) subAssetAmount,ISNULL(Sum(BaseAmount),0) subAssetBaseAmount FROM TRN.SubFixedAssetRegister group by FixedAssetRegisterId) SAR ON SAR.FixedAssetRegisterId=FR.Id
+                                    LEFT JOIN TRN.FixedAssetRegisterDisposedDetail FARD ON FARD.FixedAssetRegisterId=FR.Id
+                                    LEFT JOIN TRN.FixedAssetRegisterDisposed FAD ON FAD.Id=FARD.FixedAssetRegisterDisposedId
+                                   WHERE FR.CompanyId= '" + companyId + @"'  and FR.Archive= 0 and FR.IsAUC= 0 
+                                    AND FARD.FixedAssetRegisterDisposedId='"+ fixedAssetRegisterDisposeId +@"'
+                                       ) AS TEMP 
+                                    --WHERE FR.Id= order by SerialNo 
+                                        ";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
+
         public List<Dictionary<string, object>> GetFixedAssetLostByDisposeIdList(string id)
         {
             

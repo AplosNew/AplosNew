@@ -428,6 +428,153 @@ namespace Library.HumanResource.NewAttendanceProcess
         }
 
 
+        public IEnumerable<object> GetBalanceData()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var plantId = identity.PlantId;
+
+                string Today = DateTime.Now.ToString("dd-MMM-yyyy");
+
+                int Month = DateTime.Now.Month;
+                int Year = DateTime.Now.Year;
+                int Day = DateTime.Now.Day;
+
+                string week = "";
+                int Fd = 0;
+                int Td = 0;
+
+                if(Day >= 1 && Day<=8)
+                {
+                    week = "OT Time Setting (W-1)";
+                    Fd = 1;
+                    Td = 8;
+                }
+                else if(Day >=9 && Day<=16)
+                {
+                    week = "OT Time Setting (W-2)";
+                    Fd = 9;
+                    Td = 16;
+                }
+                else if (Day >= 17 && Day <= 24)
+                {
+                    week = "OT Time Setting (W-3)";
+                    Fd = 17;
+                    Td = 24;
+                }
+                else
+                {
+                    week = "OT Time Setting (W-4)";
+                    Fd = 24;
+                    Td = DateTime.DaysInMonth(Year, Month); ;
+                }
+
+                string FDt = (new DateTime(Year, Month, Fd)).ToString("dd-MMM-yyyy");
+                string TDt = (new DateTime(Year, Month, Td)).ToString("dd-MMM-yyyy");
+
+                var str = @"Select Pos.Code as PositionCode, mb.Code as BudgetCode, l.UserName as LegalDesg, U.UserName as Unit , s.UserName as Section , ss.UserName as SubSection,
+                            ei.EmployeeCode ,ei.EmployeeName , ei.CellPhnNo , ei.PresentAddress1,
+                            sum(apd.processedot) as ProcessedOT,
+                            ((select isnull(MaxOTLimitParWeek,'0') as NormalDayOT from OTLimitSetting ol
+                            where ol.PlantID='"+plantId+@"' AND ol.UserName='"+week+ @"') - sum(apd.ProcessedOT) ) as BalanceOT
+                            from AttdnProcessData apd
+                            left join EmployeeInformation ei on ei.SystemId = apd.EmpSystemID
+                            left join mst.ManpowerBudget mb on mb.Id = ei.BudgetCode
+                            left join org.Position pos on pos.Id = mb.PositionId
+                            left join org.Section s on s.Id=ei.SectionId
+                            left join ORG.SubSection ss on ss.Id=ei.SubSectionId
+                            left join org.Unit u on u.Id=ei.UnitId
+                            left join hkp.LegalDesignation l on l.Id=ei.LegalDesignationId
+                            where apd.WorkDate between '"+FDt+@"' and '"+TDt+@"' and ei.PlantId = '" + plantId + @"'
+                            and apd.IsOTEntitled=1
+                            and apd.EmpSystemID IN(SELECT EmpSystemID FROM AttdnProcessData WHERE PlantId='" + plantId + @"'
+                            AND WorkDate='"+Today+@"' AND InStatus='IM' )
+                            group by pos.Code , mb.Code , l.UserName , u.UserName , s.UserName , ss.UserName,ei.EmployeeCode ,ei.EmployeeName , ei.CellPhnNo ,ei.PresentAddress1
+                            order by pos.Code desc, BalanceOT desc";
+
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public DataTable GetBalanceDataReport(string EmpSystemId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var plantId = identity.PlantId;
+
+                string Today = DateTime.Now.ToString("dd-MMM-yyyy");
+
+                int Month = DateTime.Now.Month;
+                int Year = DateTime.Now.Year;
+                int Day = DateTime.Now.Day;
+
+                string week = "";
+                int Fd = 0;
+                int Td = 0;
+
+                if (Day >= 1 && Day <= 8)
+                {
+                    week = "OT Time Setting (W-1)";
+                    Fd = 1;
+                    Td = 8;
+                }
+                else if (Day >= 9 && Day <= 16)
+                {
+                    week = "OT Time Setting (W-2)";
+                    Fd = 9;
+                    Td = 16;
+                }
+                else if (Day >= 17 && Day <= 24)
+                {
+                    week = "OT Time Setting (W-3)";
+                    Fd = 17;
+                    Td = 24;
+                }
+                else
+                {
+                    week = "OT Time Setting (W-4)";
+                    Fd = 24;
+                    Td = DateTime.DaysInMonth(Year, Month); ;
+                }
+
+                string FDt = (new DateTime(Year, Month, Fd)).ToString("dd-MMM-yyyy");
+                string TDt = (new DateTime(Year, Month, Td)).ToString("dd-MMM-yyyy");
+
+                var str = @"Select Pos.Code as PositionCode, mb.Code as BudgetCode, l.UserName as LegalDesg, U.UserName as Unit , s.UserName as Section , ss.UserName as SubSection,
+                            ei.EmployeeCode ,ei.EmployeeName , ei.CellPhnNo , ei.PresentAddress1,
+                            sum(apd.processedot) as ProcessedOT,
+                            ((select isnull(MaxOTLimitParWeek,'0') as NormalDayOT from OTLimitSetting ol
+                            where ol.PlantID='" + plantId + @"' AND ol.UserName='" + week + @"') - sum(apd.ProcessedOT) ) as BalanceOT
+                            from AttdnProcessData apd
+                            left join EmployeeInformation ei on ei.SystemId = apd.EmpSystemID
+                            left join mst.ManpowerBudget mb on mb.Id = ei.BudgetCode
+                            left join org.Position pos on pos.Id = mb.PositionId
+                            left join org.Section s on s.Id=ei.SectionId
+                            left join ORG.SubSection ss on ss.Id=ei.SubSectionId
+                            left join org.Unit u on u.Id=ei.UnitId
+                            left join hkp.LegalDesignation l on l.Id=ei.LegalDesignationId
+                            where apd.WorkDate between '" + FDt + @"' and '" + TDt + @"' and ei.PlantId = '" + plantId + @"'
+                            and apd.IsOTEntitled=1
+                            and apd.EmpSystemID IN(SELECT EmpSystemID FROM AttdnProcessData WHERE PlantId='" + plantId + @"'
+                            AND WorkDate='" + Today + @"' AND InStatus='IM' )
+                            group by pos.Code , mb.Code , l.UserName , u.UserName , s.UserName , ss.UserName,ei.EmployeeCode ,ei.EmployeeName , ei.CellPhnNo ,ei.PresentAddress1
+                            order by pos.Code desc, BalanceOT desc";
+
+                return _sqlRepository.GetDataTable(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+
     }
 
     public class ActiveInActiveEmpNewProcessService
