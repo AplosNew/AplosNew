@@ -127,6 +127,10 @@ function customerInvoiceBanksReceiptController(bankService, cboService, commonMe
             "Value": "PostingDate"
         },
         {
+            "Text": "Doc Ref No",
+            "Value": "DocRefNo"
+        },
+        {
             "Text": "Currency Code",
             "Value": "CurrencyCode"
         },

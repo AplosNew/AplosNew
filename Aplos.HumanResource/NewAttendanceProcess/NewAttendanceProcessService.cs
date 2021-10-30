@@ -2784,7 +2784,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 left join ShiftDefination sd on sd.SystemID=ap.ShiftSystemID
                 where workdate='" + Today + @"' and ap.PlantID='" + Plant + @"' 
                 and isnull(ap.InTime,'')!='' and isnull(ap.OutTime,'')!='') as dd
-				where dd.CalDuration>0";
+				where dd.CalDuration>=0";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -3128,50 +3128,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             }
         }
 
-        #endregion
-
-        #region Monthly Summary Source Data
-
-        public void MonthlySummarySource(string Date, out DataSet ds)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-
-                var sql = @"select dd.*,Month(dd.FromDate)Month,YEAR(dd.FromDate)Year from (select distinct p.EmpSystemID,MIN(p.WorkDate) FromDate,
-                MAX(p.WorkDate) ToDate,(select PlantID
-                from EmployeeInformation where SystemId=p.EmpSystemID)PlantId,(select GroupID
-                from EmployeeInformation where SystemId=p.EmpSystemID)GroupID,
-                COUNT(p.WorkDate) TotalProcDate,
-                isnull(SUM(dt.PresentValuePD),'0')TotalPresent,isnull(SUM(dt.LateValueLV),'0')TotalLate,isnull(SUM(dt.AbsentValueAB),'0')TotalAbsent,
-                isnull(SUM(dt.LeaveValueLP),'0')TotalLv,isnull(SUM(dt.MaternityLeaveValueMLV),'0')TotalMlv,isnull(SUM(dt.CompAssignLv),'0')TotalCompAssignLv,
-                isnull(SUM(dt.WeeklyOffWO),'0')TotalWeekOff,isnull(SUM(dt.HolidayH),'0')TotalHoliDay,isnull(SUM(dt.WeekOffHoliDayWOH),'0')TotalWeekOffHoliDay,
-                SUM(ISNULL(p.OTHr, 0)) TotalOTHr,isnull(SUM(dt.LeaveValueLWP),'0')TotalLWP,isnull(SUM(dt.CasualLeaveValueCV),'0')TotalCasualLeave,
-                isnull(SUM(dt.PriviledgeLeavePL),'0')TotalPriviledgeLeave,isnull(SUM(dt.MedicalLeaveValueMV),'0')TotalMedicalLeave,isnull(SUM(dt.TotalWorkingDay),'0')TotalWorkingDay,
-				isnull(SUM(dt.ActualWorkingDay),'0')ActualWorkingDay,isnull(SUM(dt.PayDay),'0')TotalPayDay,isnull(SUM(dt.NonPayDay),'0')TotalNonPayDay
-                        from AttdnProcessData p
-                        join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
-                        left join mst.DesignationMasterLegalDesignation ddm on
-                        ddm.LegalDesignationId = ei.LegalDesignationId
-                        left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
-                        left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
-                        and dc.PlantId=ei.PlantId
-                        left join DayStatusHeader dh on dh.Id=dc.headerId
-                        left join DayTypeWithValues dt on dt.HeaderId=dh.Id                                          
-                        where dt.DayType=p.DayStatus AND  isnull(p.DayStatus,'')!='' and		
-                        MONTH(WorkDate) = MONTH('" + Date + @"') AND 
-						YEAR(WorkDate) = YEAR('" + Date + @"')                       					
-                        GROUP BY EmpSystemID) as dd";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
-
-        #endregion
+        #endregion            
 
         #region OT DayLimit Process SourceData
         public void OTDayLimitRowCreation(string Date, out DataSet ds, string PlantId)
@@ -5982,148 +5939,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw ex;
             }
         }
-        #endregion
-
-        #region MonthlyData Summary Process           
-        // This Table is used as a Base in Salary Process
-        public void MonthlySummary(string Date)
-        {
-            try
-            {
-                // DataSet Generation on Commpany Group Level for Particular Month
-                string Day = Convert.ToDateTime(Date).AddDays(-1).ToString("dd-MMM-yyyy");
-                DataSet MonthlyData;
-                MonthlySummarySource(Day, out MonthlyData);
-                if (MonthlyData.Tables[0].Rows.Count > 0)
-                {
-                    var Year = MonthlyData.Tables[0].Rows[0][@"Year"].ToString();
-                    var GpId = MonthlyData.Tables[0].Rows[0][@"GroupID"].ToString();
-                    var Month = MonthlyData.Tables[0].Rows[0][@"Month"].ToString();
-
-                    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                    objCon.OpenDataSetThroughAdapter("select * from AttdnDataMonthlySummary where YearNo='" + Year + "' and MonthNo='" + Month + "' and GroupID='" + GpId + "'", out DataSet dsRef, false, false, "", "1");
-
-
-                    for (int i = 0; i < MonthlyData.Tables[0].Rows.Count; i++)
-                    {
-                        string EmpId = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
-                        string PlantId = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"PlantId"]).ToString();
-                        string FromDate = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"FromDate"]).ToString();
-                        string ToDate = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"ToDate"]).ToString();
-                        string TotalProcDate = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"TotalProcDate"]).ToString();
-                        string TotalPresent = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"TotalPresent"]).ToString();
-                        string TotalLate = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"TotalLate"]).ToString();
-                        string TotalAbsent = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"TotalAbsent"]).ToString();
-                        string TotalLv = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"TotalLv"]).ToString();
-                        string TotalMlv = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"TotalMlv"]).ToString();
-                        string TotalCompAssignLv = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"TotalCompAssignLv"]).ToString();
-                        string TotalWeekOff = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"TotalWeekOff"]).ToString();
-                        string TotalHoliDay = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"TotalHoliDay"]).ToString();
-                        string TotalWeekOffHoliDay = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"TotalWeekOffHoliDay"]).ToString();
-                        string TotalOTHr = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"TotalOTHr"]).ToString();
-                        string TotalLWP = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"TotalLWP"]).ToString();
-                        string TotalCasualLeave = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"TotalCasualLeave"]).ToString();
-                        string TotalPriviledgeLeave = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"TotalPriviledgeLeave"]).ToString();
-                        string TotalMedicalLeave = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"TotalMedicalLeave"]).ToString();
-                        string TotalPayDay = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"TotalPayDay"]).ToString();
-                        string TotalNonPayDay = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"TotalNonPayDay"]).ToString();
-                        string TotalWorkingDay = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"TotalWorkingDay"]).ToString();
-                        string ActualWorkingDay = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"ActualWorkingDay"]).ToString();
-
-                       
-                        dsRef.Tables[0].DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' ";
-
-                        // Saving & Updating the Records in AttdnDataMonthlySummary
-
-                        if (dsRef.Tables[0].DefaultView.Count == 0)
-                        {
-                            DataRow dr = dsRef.Tables[0].NewRow();
-                            dr["EmpSystemID"] = EmpId;
-                            dr["FromDate"] = FromDate;
-                            dr["ToDate"] = ToDate;
-                            dr["YearNo"] = Year;
-                            dr["MonthNo"] = Month;
-                            dr["GroupID"] = GpId;
-                            dr["PlantID"] = PlantId;
-                            dr["TotalProcDate"] = TotalProcDate;
-                            dr["TotalPresent"] = TotalPresent;
-                            dr["TotalLate"] = TotalLate;
-                            dr["TotalAbsent"] = TotalAbsent;
-                            dr["TotalLv"] = TotalLv;
-                            dr["TotalMlv"] = TotalMlv;
-                            dr["TotalCompAssignLv"] = TotalCompAssignLv;
-                            dr["TotalWeekOff"] = TotalWeekOff;
-                            dr["TotalWeekOffHoliDay"] = TotalWeekOffHoliDay;
-                            dr["TotalHoliDay"] = TotalHoliDay;
-                            dr["TotalOTHr"] = TotalOTHr;
-                            dr["TotalLWP"] = TotalLWP;
-                            dr["TotalCasualLeave"] = TotalCasualLeave;
-                            dr["TotalPriviledgeLeave"] = TotalPriviledgeLeave;
-                            dr["TotalMedicalLeave"] = TotalMedicalLeave;
-                            dr["TotalPayDay"] = TotalPayDay;
-                            dr["TotalNonPayDay"] = TotalNonPayDay;
-                            dr["TotalWorkingDay"] = TotalWorkingDay;
-                            dr["ActualWorkingDay"] = ActualWorkingDay;
-                            dr["TotalNormalOTHr"] = 0;
-                            dr["TotalExtraOTHr"] = 0;
-                            dr["IsDisbusted"] = false;
-                            dr["AddedBy"] = "Schedule";
-                            dr["DateAdded"] = Convert.ToDateTime(DateTime.Now);
-
-                            dsRef.Tables[0].Rows.Add(dr);
-
-                        }
-                        else
-                        {
-
-                            DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                            dr.BeginEdit();
-                            dr["FromDate"] = FromDate;
-                            dr["ToDate"] = ToDate;
-                            dr["PlantID"] = PlantId;
-                            dr["TotalProcDate"] = TotalProcDate;
-                            dr["TotalPresent"] = TotalPresent;
-                            dr["TotalLate"] = TotalLate;
-                            dr["TotalAbsent"] = TotalAbsent;
-                            dr["TotalLv"] = TotalLv;
-                            dr["TotalMlv"] = TotalMlv;
-                            dr["TotalCompAssignLv"] = TotalCompAssignLv;
-                            dr["TotalWeekOff"] = TotalWeekOff;
-                            dr["TotalWeekOffHoliDay"] = TotalWeekOffHoliDay;
-                            dr["TotalHoliDay"] = TotalHoliDay;
-                            dr["TotalOTHr"] = TotalOTHr;
-                            dr["TotalNonPayDay"] = TotalNonPayDay;
-                            dr["TotalLWP"] = TotalLWP;
-                            dr["TotalWorkingDay"] = TotalWorkingDay;
-                            dr["TotalPayDay"] = TotalPayDay;
-                            dr["TotalCasualLeave"] = TotalCasualLeave;
-                            dr["TotalPriviledgeLeave"] = TotalPriviledgeLeave; 
-                            dr["ActualWorkingDay"] = ActualWorkingDay;
-                            dr["TotalMedicalLeave"] = TotalMedicalLeave;
-                            dr["TotalNormalOTHr"] = 0;
-                            dr["TotalExtraOTHr"] = 0;
-                            dr["IsDisbusted"] = false;
-                            dr["UpdatedBy"] = "Schedule";
-                            dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-
-                            dr.EndEdit();
-
-                        }
-
-                    }
-
-                    SaveDataSets(dsRef);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-
-
-
-        }
-
         #endregion
 
         #region Roster Process
