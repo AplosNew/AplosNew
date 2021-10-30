@@ -482,6 +482,8 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller('EmployeeServiceBookingController', EmployeeServiceBookingController)
     .controller('EmployeeServicesRateController', EmployeeServicesRateController)
     .controller('OTFormulaController', OTFormulaController)
+    .controller('ResidenceGroupController', ResidenceGroupController)
+    .controller('TransportGroupController', TransportGroupController)
    
 
 
