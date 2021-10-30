@@ -117,7 +117,17 @@ function leaveWithWagesRegistersForm18Controller(commonMessage, $scope, $rootSco
         });
     }
 
+    $scope.getForm18 = function (data) {
 
+        try {
+
+            var file_src = 'HumanResource/LeaveWithWagesRegistersForm18/Form18?year=' + $scope.year + '&empId=' + data.EmpSystemId;
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
 
 
     $scope.report = function (obj) {
@@ -129,7 +139,7 @@ function leaveWithWagesRegistersForm18Controller(commonMessage, $scope, $rootSco
                 manualValidation('div_Year', true, "From Date is required.");
             }
             else {
-                var url = 'HumanResource/LeaveWithWeagesRegisters/GetLeaveWithWeagesRegisters?reportFormat=Pdf&year=' + $scope.year + '&empId=' + datum.EmpSystemId;
+                var url = 'HumanResource/LeaveWithWagesRegistersForm18/GetLeaveWithWeagesRegisters?reportFormat=Pdf&year=' + $scope.year + '&empId=' + datum.EmpSystemId;
                 $rootScope.report(url);
 
             }
