@@ -52,24 +52,24 @@ namespace Aplos.Areas.Accounts.Controllers
             _sqlRepository = sqlRepository;
         }
         #region SalaryPayable
-        
+
         public ActionResult SalaryPayable()
         {
             return View("~/Areas/Accounts/Views/SalaryDisbursement/SalaryPayable.cshtml");
         }
-       
+
         public ActionResult SalaryPayableDisbursement()
         {
             return View("~/Areas/Accounts/Views/SalaryDisbursement/SalaryPayableDisbursement.cshtml");
         }
-        
-       
+
+
         public ActionResult Aplos()
         {
             return View();
         }
 
-       
+
         [Authorize, HttpGet]
         public JsonResult GetSalaryLockDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity)
         {
@@ -110,7 +110,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(accountsSalaryPayableService.GetSalaryLockInDirectCTCDataList(yearNo, monthNo, employeeId, isActive, isSeperated, isMaternity, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
-      
+
         [Authorize, HttpGet]
         public JsonResult GetSalaryLockInDirectDataGLList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity)
         {
@@ -142,11 +142,11 @@ namespace Aplos.Areas.Accounts.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsSalaryPayableService accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
             return Json(accountsSalaryPayableService.GetInDirectSalaryLockSalarySheetData(yearNo, monthNo, isActive, isSeperated, isMaternity, identity.PlantId), JsonRequestBehavior.AllowGet);
-        
+
         }
 
         [HttpPost]
-        public JsonResult ParkSalaryPayable(VoucherViewModel voucherVM,string yearNo,string monthNo,string monthName
+        public JsonResult ParkSalaryPayable(VoucherViewModel voucherVM, string yearNo, string monthNo, string monthName
             , IEnumerable<VoucherDetailViewModel> directJVList, IEnumerable<VoucherDetailViewModel> inDirectJVList
             , IEnumerable<VoucherDetailViewModel> directSalaryLockList, IEnumerable<VoucherDetailViewModel> indirectSalaryLockList)
         {
@@ -162,17 +162,17 @@ namespace Aplos.Areas.Accounts.Controllers
             DateTime dt = new DateTime(year, month, 1);
             dt = dt.AddDays(monthdays - 1);
             if (voucherVM.PostingDate > dt)
-                throw new CustomException("Posting Date must in the selected month of "+ monthName);
+                throw new CustomException("Posting Date must in the selected month of " + monthName);
 
             voucherVM.SourceType = SourceType.SalaryPayable.ToString();
-            if (directJVList!=null && directJVList.Sum(r=>r.DrAmount) != directJVList.Sum(r => r.CrAmount))
+            if (directJVList != null && directJVList.Sum(r => r.DrAmount) != directJVList.Sum(r => r.CrAmount))
                 throw new CustomException("Direct Salary Dr and Cr Amount not match!");
             if (inDirectJVList != null && inDirectJVList.Sum(r => r.DrAmount) != inDirectJVList.Sum(r => r.CrAmount))
                 throw new CustomException("InDirect Salary Dr and Cr Amount not match!");
 
             return Json(new { Message = string.Format(AplosMessage.VoucherSave, _salaryDisbursementService.ParkSalaryPayable(voucherVM, yearNo, monthNo, monthName, directJVList, inDirectJVList, directSalaryLockList, indirectSalaryLockList)) });
         }
-        
+
         [HttpGet, Authorize]
         public JsonResult GetSalaryPayableVoucherList(GridParameter parameters)
         {
@@ -181,7 +181,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
 
         [HttpPost]
-        public ActionResult DeleteSalaryPayable(string voucherId,string monthNo,string yearNo)
+        public ActionResult DeleteSalaryPayable(string voucherId, string monthNo, string yearNo)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -238,7 +238,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetEmployeeSalaryProcessedReportSalaryLogWiseSalaryPayableInVoucher(string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, string voucherId,string Mode,string EmpBank)
+        public ActionResult GetEmployeeSalaryProcessedReportSalaryLogWiseSalaryPayableInVoucher(string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, string voucherId, string Mode, string EmpBank)
         {
             try
             {
@@ -250,8 +250,8 @@ namespace Aplos.Areas.Accounts.Controllers
                 string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
 
 
-               // var workbook = _salaryDisbursementService.GetEmployeeSalaryProcessedReportSalaryLogWiseSalaryPayableInVoucher(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, isMaternity, false, voucherId);
-                var workbook = accountsSalaryPayableService.GetEmployeeSalaryProcessedReportSalaryLogWiseSalaryPayableInVoucher(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, isMaternity, false, voucherId,Mode,EmpBank);
+                // var workbook = _salaryDisbursementService.GetEmployeeSalaryProcessedReportSalaryLogWiseSalaryPayableInVoucher(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, isMaternity, false, voucherId);
+                var workbook = accountsSalaryPayableService.GetEmployeeSalaryProcessedReportSalaryLogWiseSalaryPayableInVoucher(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, isMaternity, false, voucherId, Mode, EmpBank);
 
                 workbook.Version = ExcelVersion.Excel97to2003;
                 workbook.SaveAs(fullPath);
@@ -393,12 +393,12 @@ namespace Aplos.Areas.Accounts.Controllers
                         X.GLName,X.BudgetName,X.ActivityName,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId
                         ORDER BY 5";
                 }
-                
+
             }
             else
             {
 
-                 sql = @"SELECT
+                sql = @"SELECT
                         X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAmount) CrAmount,SUM(X.DisbusmentAmount) DisbusmentAmount,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId
                         FROM
                         (
@@ -446,15 +446,15 @@ namespace Aplos.Areas.Accounts.Controllers
             }
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
-     
+
         [Authorize, HttpGet]
-        public JsonResult GetEmployeeDisbursementDataList(string yearNo, string monthNo,string pMode,string bankId)
+        public JsonResult GetEmployeeDisbursementDataList(string yearNo, string monthNo, string pMode, string bankId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = null;
             if (string.IsNullOrEmpty(bankId))
             {
-                 sql = @" select sl.YearNo,sl.MonthNo,ei.EmployeeCode,ei.EmployeeName,d.UserName Designation,spd.PaymentMode,spd.BankAccNo
+                sql = @" select sl.YearNo,sl.MonthNo,ei.EmployeeCode,ei.EmployeeName,d.UserName Designation,spd.PaymentMode,spd.BankAccNo
                         ,DirectManpowerCost=case when po.DirectManpowerCost=0 then 'No' when po.DirectManpowerCost=1 then 'Yes' end ,b.UserName Bank,v.VoucherNo PayableVoucherNo
                         ,spc.DisbusmentAmount Amount,spd.Id
 						,Department.UserName Department,Department.Id DepartmentId
@@ -501,7 +501,7 @@ namespace Aplos.Areas.Accounts.Controllers
             }
             else
             {
-                 sql = @" select sl.YearNo,sl.MonthNo,ei.EmployeeCode,ei.EmployeeName,d.UserName Designation,spd.PaymentMode,spd.BankAccNo
+                sql = @" select sl.YearNo,sl.MonthNo,ei.EmployeeCode,ei.EmployeeName,d.UserName Designation,spd.PaymentMode,spd.BankAccNo
                         ,DirectManpowerCost=case when po.DirectManpowerCost=0 then 'No' when po.DirectManpowerCost=1 then 'Yes' end ,b.UserName Bank,v.VoucherNo PayableVoucherNo
                         ,spc.DisbusmentAmount Amount,spd.Id
 						,Department.UserName Department,Department.Id DepartmentId
@@ -542,17 +542,17 @@ namespace Aplos.Areas.Accounts.Controllers
 						left join trn.Voucher v on v.Id=sl.PayableVoucherId
                         LEFT JOIN TRN.Voucher  Vl ON Vl.Id=sl.DisbursementVoucherId 
                         where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL and sl.IsDisbursed=1 
-                        and spd.PaymentMode='" + pMode + "' and spd.BankSystemID='"+bankId+@"'
+                        and spd.PaymentMode='" + pMode + "' and spd.BankSystemID='" + bankId + @"'
                          and spc.DisbusmentAmount!=0  
                         and spd.PlantId='" + identity.PlantId + @"' 
 						 and ISNULL(sh.SalaryHead, '')  in ('Net Pay')";
             }
-            
+
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
-        
+
         [HttpGet, Authorize]
-        public JsonResult GetBankList(string yearNo,string monthNo)
+        public JsonResult GetBankList(string yearNo, string monthNo)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var sql = @"select Id Value, UserName Text from hkp.bank where Id IN(
@@ -566,7 +566,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
 
         }
-       
+
         [HttpGet, Authorize]
         public JsonResult GetBankMasterList(GridParameter parameters, BankACType bankACType, string bankId)
         {
@@ -575,8 +575,8 @@ namespace Aplos.Areas.Accounts.Controllers
         }
         private GridModel GetBankMasterData(GridParameter parameters, string companyGroupId, string companyId, string plantId, string bankId, BankACType type)
         {
-            
-                parameters.CmdText = @"SELECT BM.Id AS BankMasterId, BM.AccountTitle, BM.AccountNumber, BM.GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
+
+            parameters.CmdText = @"SELECT BM.Id AS BankMasterId, BM.AccountTitle, BM.AccountNumber, BM.GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
                                     , BM.BudgetMasterId, BU.Code AS BudgetCode, BU.UserName AS BudgetName, BM.ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
                                     , ACT.UserName AS BankAccountTypeName, BM.BankId, BM.Code AS BankCode, B.UserName AS BankName, BM.BankBranchId, BB.Code AS BankBranchCode, BB.UserName AS BankBranchName
                                     , BM.CurrencyId, C.Code AS CurrencyCode, C.[Name] AS CurrencyName, BM.EntityId
@@ -590,8 +590,8 @@ namespace Aplos.Areas.Accounts.Controllers
                                     LEFT JOIN [HKP].[BankBranch] AS BB ON BB.Id=BM.BankBranchId
                                     LEFT JOIN [SCS].Currency AS C ON C.Id=BM.CurrencyId
                                     WHERE BM.Archive=0 AND BM.Active=1 AND BM.CompanyGroupId='" + companyGroupId + "' AND BM.CompanyId='" + companyId + "' AND BM.PlantId='" + plantId + @"'" +
-                                    " AND BM.AccountType='" + type + "' AND ISNULL(BM.BankId,'')='" + bankId + "' OR BM.BankId<>''";
-                return _sqlRepository.GetGridData(parameters);
+                                " AND BM.AccountType='" + type + "' AND ISNULL(BM.BankId,'')='" + bankId + "' OR BM.BankId<>''";
+            return _sqlRepository.GetGridData(parameters);
         }
 
         [HttpGet, Authorize]
@@ -618,7 +618,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 throw new CustomException("Posting Date must in the selected month of " + monthName);
             voucherVM.Amount = directJVList.Sum(r => r.CrAmount);
             voucherVM.SourceType = SourceType.SalaryDisbursement.ToString();
-            
+
             return Json(new { Message = string.Format(AplosMessage.VoucherSave, _salaryDisbursementService.ParkSalaryPayableDisbursement(voucherVM, yearNo, monthNo, monthName, pMode, directJVList)) });
         }
 
@@ -661,13 +661,7 @@ namespace Aplos.Areas.Accounts.Controllers
             string userId = identity.UserId;
             string plantId = identity.PlantId;
             string companyGroupId = identity.CompanyGroupId;
-
             var wcPayrollGroup = "";
-            var wcSalaryProcess = "";
-            var salaryProcessJoin = "";
-            var salaryProcessColumn = "";
-            var strDOJ = "";
-            string salaryProcessFlag = "";
             string wcEmpStatus = " Where (1=0 ";
 
             if (sa == true || ca == true)
@@ -680,40 +674,10 @@ namespace Aplos.Areas.Accounts.Controllers
             }
             if (salaryProcessId == "STRUCTURE")
             {
-                salaryProcessColumn = "";
-                salaryProcessJoin = "";
-                wcSalaryProcess = "";
-                strDOJ = "AND DOJ<='" + effectiveDate + @"' AND (DOS is null OR DOS>= '" + effectiveDate + @"')";
-
-
-            }
-            else if (!string.IsNullOrEmpty(salaryProcessId))
-            {
-                salaryProcessColumn = ",ISNULL(SPM.Description,'') SalaryProcess";
-                salaryProcessJoin = @"  LEFT OUTER JOIN SalaryProcChild SPC ON SPC.EmpInfoSystemID = E.SystemId
-                                    LEFT OUTER JOIN SalaryProcMaster SPM ON SPM.SystemID = spc.SlrProcMstSystemID and spm.MonthNo = Month('" + effectiveDate + @"') and spm.YearNo = Year('" + effectiveDate + @"')";
-                wcSalaryProcess = @"AND SPC.SlrProcMstSystemID IN('" + salaryProcessId + @"')";
-
-            }
-            else if (string.IsNullOrEmpty(salaryProcessId) == true && salaryProcessId != "STRUCTURE")
-            {
-                salaryProcessColumn = ",ISNULL(SPM.Description,'') SalaryProcess";
-                salaryProcessJoin = @"  LEFT OUTER JOIN SalaryProcChild SPC ON SPC.EmpInfoSystemID = E.SystemId
-                                    LEFT OUTER JOIN SalaryProcMaster SPM ON SPM.SystemID = spc.SlrProcMstSystemID and spm.MonthNo = Month('" + effectiveDate + @"') and spm.YearNo = Year('" + effectiveDate + @"')";
-
-                wcSalaryProcess = @" AND SPC.SlrProcMstSystemID IN( SELECT SystemID FROM SalaryProcMaster
-                                      WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
-                                                        WHERE PlantID = '" + plantId + @"' GROUP BY SlrProcMstSystemID)
-                                        AND MonthNo =  MONTH('" + effectiveDate + @"') AND YearNo =  YEAR('" + effectiveDate + @"')  )";
-            }
-            if (salaryProcessId == "STRUCTURE")
-            {
                 wcEmpStatus = " Where (1=1 ";
-                salaryProcessFlag = "";
             }
             else
             {
-                salaryProcessFlag = ", Case when Isnull(SPM.SalaryProcFlag,'') = '' THen 'Regular' else SalaryProcFlag end SalaryProcFlag";
                 wcEmpStatus = " Where (1=0 ";
 
                 if (isActive == true && isSeperated == true && isMaternity == true)
@@ -740,14 +704,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
             wcEmpStatus += ")";
 
-            var cListOId = string.Empty; var cList = string.Empty; ; var cListId = string.Empty; var Join = string.Empty;
-            var param = string.Empty;
-            if (!string.IsNullOrEmpty(companyGroupId) && !string.IsNullOrEmpty(plantId))
-                param = "E.GroupID='" + companyGroupId + "' AND E.PlantId='" + plantId + "'";
-            else if (!string.IsNullOrEmpty(companyGroupId) && string.IsNullOrEmpty(plantId))
-                param = "E.GroupID='" + companyGroupId + "'";
-
-            string sql = @"SELECT [isSelect] = Convert(bit, 'True'),[isToBeSelect] = Convert(bit, 'False'),* FROM (  SELECT   dISTINCT   
+            string sql = @"select [isSelect] = Convert(bit, 'True'),[isToBeSelect] = Convert(bit, 'False'),* FROM (  SELECT   dISTINCT   
                                      isnull(e.SystemId,'') EmpSystemId
 									,ISNULL(e.EmployeeId,'')  EmployeeId 
 	                                ,sl.Id,CheckBoxSelect=case when  sl.Id is null then  CONVERT(bit,0) when sl.IsDisbursed <> 1  then CONVERT(bit,0) else  CONVERT(bit,1) end   
@@ -769,8 +726,7 @@ namespace Aplos.Areas.Accounts.Controllers
                                     ,ISNULL(REPLACE(CONVERT(VARCHAR(11), e.DOS, 106), ' ', '-'),'') DOS
                                     , CASE WHEN MONTH(DOS) =  MONTH('" + effectiveDate + @"')  AND YEAR(DOS) = YEAR('" + effectiveDate + @"') then 'Separated' else 'Active' end CurrentMonthEmployeeStatus
                                     ,ISNULL(e.EmployeeStatus,'') EmployeeStatus
-                                    " + salaryProcessFlag + @"
-                                    " + salaryProcessColumn + @"
+                                    , Case when Isnull(SPM.SalaryProcFlag,'') = '' THen 'Regular' else SalaryProcFlag end SalaryProcFlag
 									,ISNULL(PG.UserName,'') PayRollGroup
                                     ,e.EmployeeCodePreFix,e.EmployeeCodeNumeric
                                     ,ISNULL(jl.JobLocation, '') JobLocation
@@ -783,29 +739,20 @@ namespace Aplos.Areas.Accounts.Controllers
                                     ,ISNULL(vl.VoucherNo,'') as DisbursementVoucherNo
                                     ,sl.IsDisbursed
                                     ,IsLock = case when sl.IsLocked = 1 then 'Locked' else 'Unlocked' end
-                                  ,IsDisburse = case when sl.IsDisbursed = 1 then 'Disbursed' else 'Not Disbursed' end
-                                    FROM EmployeeInformation e
-                                    LEFT OUTER JOIN ORG.Department edept on edept.id=e.DepartmentId
-                                    LEFT OUTER JOIN ORG.Line eL on eL.id=e.LineId
-                                    LEFT OUTER JOIN ORG.Division ediv on ediv.id=e.DivisionId
-                                    LEFT OUTER JOIN ORG.SubDivision esdiv on esdiv.id=e.SubDivisionId
-                                    LEFT OUTER JOIN ORG.Section es on es.id=e.SectionId
-                                    LEFT OUTER JOIN ORG.SubSection ess on ess.id=e.SubSectionId
-                                    LEFT OUTER JOIN ORG.Plant ep on ep.id=e.PlantId
-                                    LEFT OUTER JOIN ORG.Unit eu on eu.id=e.UnitId
-                                    LEFT OUTER JOIN HKP.Designation edsg on edsg.id=e.DesignationSystemID
-                                    LEFT OUTER JOIN HKP.DesignationGroup edsgg on edsgg.id=e.DesignationGroupId
-									LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=e.GivenDesignationId
-                                    LEFT OUTER JOIN HKP.LegalDesignation  ld on ld.Id=e.LegalDesignationId
-
+                                  ,IsDisburse = case when sl.IsDisbursed = 1 then 'Disbursed' else 'Not Disbursed' end 
+                                    from SalaryProcessLogDetail s
+                                    JOIN SalaryProcMaster SPM ON SPM.SystemID = s.SalaryProcessId and spm.MonthNo = Month('" + effectiveDate + @"') and spm.YearNo = Year('" + effectiveDate + @"')
+                                    left join EmployeeInformation e on e.SystemId= s.EmpSystemId
+                                    LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=s.DesignationId
+                                    LEFT OUTER JOIN HKP.LegalDesignation  ld on ld.Id=s.LegalDesignationId
                                     LEFT OUTER JOIN (select dm.DesignationGroupId,dm.DesignationId,dm.EmployeeCategoryId
-									,dg.UserName GivenDesignationGroup
-									FROM mst.DesignationMaster dm
-									LEFT OUTER JOIN HKP.DesignationGroup dg on dg.Id=dm.DesignationGroupId
-									) egdsgg on egdsgg.DesignationId=e.GivenDesignationId
-									AND egdsgg.EmployeeCategoryId=e.EmployeeCategorySystemID
-                                    LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
-									LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
+                                    ,dg.UserName GivenDesignationGroup
+                                    FROM mst.DesignationMaster dm
+                                    LEFT OUTER JOIN HKP.DesignationGroup dg on dg.Id=dm.DesignationGroupId
+                                    ) egdsgg on egdsgg.DesignationId=e.GivenDesignationId
+                                    AND egdsgg.EmployeeCategoryId=s.EmployeeCategoryId
+                                    LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=s.BudgetCode
+                                    LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
                                     LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id
                                     LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
                                     LEFT JOIN [ORG].[Division] ON Division.Id = EN.DivisionId
@@ -815,20 +762,16 @@ namespace Aplos.Areas.Accounts.Controllers
                                     LEFT JOIN [ORG].[Unit] ON Unit.Id = EN.UnitId                                   
                                     LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
                                     LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId			                                       
-                                    LEFT OUTER JOIN hkp.Designation dsg on dsg.id=PO.DesignationId
+                                    LEFT JOIN ORG.Line AS eL ON eL.Id= mpb.LineId
                                     Left outer join MST.PayrollGroupMaster PGM ON PGM.employeeid = E.SystemId
-									Left outer join HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
-                                    " + salaryProcessJoin + @"
+                                    Left outer join HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
                                     Left Join [dbo].[JobLocation] jl on jl.SystemID = E.JobLocationID
-									left join [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=e.SystemId
-									left join [HKP].[Bank] bb on bb.Id = ebi.BankSystemID
-									Left join SalaryLock sl on sl.EmpSystemId=e.SystemId and sl.YearNo=YEAR('" + effectiveDate + @"') AND SL.MonthNo=Month('" + effectiveDate + @"')
+                                    left join [HKP].[Bank] bb on bb.Id = s.BankSystemID
+                                    Left join SalaryLock sl on sl.EmpSystemId=e.SystemId and sl.YearNo=YEAR('" + effectiveDate + @"') AND SL.MonthNo=Month('" + effectiveDate + @"')
                                     LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
                                     LEFT JOIN TRN.Voucher  Vl ON Vl.Id=sl.DisbursementVoucherId 
-
-                                     WHERE " + param + @" " + strDOJ + @" and sl.islocked=1 and sl.PayableVoucherId is not null
-                                            " + wcPayrollGroup + @"  " + wcSalaryProcess + @"                                       
-                                     ) DD " + wcEmpStatus + @" ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
+                                    WHERE  s.CompanyGroupId='" + identity.CompanyGroupId + "' AND s.PlantId='" + identity.PlantId + "' and sl.islocked=1  " + wcPayrollGroup + @" 
+                                    ) DD " + wcEmpStatus + @" ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
 
             JsonResult json = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
@@ -889,7 +832,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
                 foreach (var item in EmployeeList)
                 {
-                    DvMaster.RowFilter = "EmpSystemId='"+ item.EmpSystemId+@"'";
+                    DvMaster.RowFilter = "EmpSystemId='" + item.EmpSystemId + @"'";
 
                     if (DvMaster.Count == 0)
                     {

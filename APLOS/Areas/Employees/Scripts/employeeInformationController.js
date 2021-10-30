@@ -164,10 +164,30 @@ function employeeInformationController(addressService, fileReader, cboService, c
         FirstTimeLock: false,
         Ref1CellPhnNo: null,
         Ref1Name: null,
-        ApprovalAuthorityId: null
+        ApprovalAuthorityId: null,
+        TransportGroupId: null,
+        ResidenceGroupId:null
     };
     $scope.employeeNew = Object.assign({}, $scope.model);
     $scope.employeeInformation = Object.assign({}, $scope.model);
+
+    $scope.ResidenceGroupList = [];
+    $scope.ResidenceGroupCbo = function () {
+        $http.get('employees/ResidenceGroup/GetCbo')
+            .then(function (response) {
+                $scope.ResidenceGroupList = response.data;
+            });
+    }
+    $scope.ResidenceGroupCbo();
+
+    $scope.TransportGroupList = [];
+    $scope.TransportGroupCbo = function () {
+        $http.get('employees/TransportGroup/GetCbo')
+            .then(function (response) {
+                $scope.TransportGroupList = response.data;
+            });
+    }
+    $scope.TransportGroupCbo();
 
     $scope.AddNewEmpPopUp = function () {
         $scope.Clean();
@@ -248,6 +268,8 @@ function employeeInformationController(addressService, fileReader, cboService, c
             $scope.IsEmployeeCodeOpenField = response.data[0].IsEmployeeCodeOpenField;
             $scope.EmployeeCodeCheckLevel = response.data[0].EmployeeCodeCheckLevel;
             $scope.IsReferenceRequired = response.data[0].IsReferenceRequired;
+            $scope.IsTransportGroupMandatory = response.data[0].IsTransportGroupMandatory;
+            $scope.IsTransportGroupMandatory = response.data[0].IsResidenceGroupMandatory;
 
 
             $scope.Tin = response.data[0].TINCaption;
@@ -1591,6 +1613,13 @@ function employeeInformationController(addressService, fileReader, cboService, c
         }
         if ($scope.IsReferenceRequired === true && baseService.isUndefinedOrNull($scope.empReferenceInformation.Ref1CellPhnNo)) {
             throw "Reference Employee cell is required.";
+        }
+
+        if ($scope.IsResidenceGroupMandatory === true && baseService.isUndefinedOrNull($scope.employeeNew.ResidenceGroupId)) {
+            throw "Residence Group is required.";
+        }
+        if ($scope.IsTransportGroupMandatory === true && baseService.isUndefinedOrNull($scope.employeeNew.TransportGroupId)) {
+            throw "Transport Group is required.";
         }
     }
 
