@@ -14,20 +14,7 @@ function ContractualEmployeeCodeController(cboService, commonMessage, $scope, $r
     $scope.searchBy = "UserName"; $scope.search = "";
     $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
 
-    $scope.ModelList = [];
-    $scope.getData = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + "GetList",
-            data: {  },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.ModelList = response.data;
-            //ClearFields(response.data.Sequence);
-            $scope.GetSequence();
-        });
-    }
-    $scope.getData();
+ 
     $scope.ModelTemp = {
         Id: null,
         Sequence: 0,
@@ -37,26 +24,22 @@ function ContractualEmployeeCodeController(cboService, commonMessage, $scope, $r
         UserName: null,
         Description: null,
         Remarks: null,
-        Active: true
+        Active: true,
+        EmployeeCodeLevel: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
-    $scope.GetSequence = function () {
-        cboService.getSequence($scope.getSeqUrl, function (data) {
-            $scope.ModelTemp.Sequence = data;
-            $scope.ModelNew.Sequence = data;
-        });
-    };
-    $scope.GetSequence();
+    $scope.dataList = [];
 
-    $scope.Get = function (args) {
+    $scope.LoadData = function () {
+        $http.get('employees/ContractualEmployeeCode/GetContractCodeList?Level=' + $scope.ModelNew.EmployeeCodeLevel)
+            .then(function (response) {
+                $scope.dataList = [];
+                $scope.dataList = response.data;
+            });
+    }
 
-        $scope.ModelNew = Object.assign({}, args.data);
-        $scope.Action = 'Update';
-        if (!$rootScope.isCollapsed) {
-            $rootScope.toggle();
-        }
-    };
+
 
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
@@ -64,7 +47,7 @@ function ContractualEmployeeCodeController(cboService, commonMessage, $scope, $r
         $http({
             method: 'POST',
             url: $scope.saveUrl,
-            data: { 'data': $scope.ModelNew },
+            data: { 'data': $scope.dataList, 'Level': $scope.ModelNew.EmployeeCodeLevel},
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -72,9 +55,7 @@ function ContractualEmployeeCodeController(cboService, commonMessage, $scope, $r
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                ClearFields(response.data.Sequence);
-                $scope.getData();
-
+                $scope.LoadData();
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
