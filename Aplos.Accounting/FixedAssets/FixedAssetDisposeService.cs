@@ -563,6 +563,11 @@ namespace Library.Accounting.FixedAssets
 
                                 ,c.Code TrnCurrency
 ,                               c.Id trnCurrencyId
+
+		                       -- , FR.AssetNo
+                               -- ,rdd.FixedAssetRegisterId
+								--,FR.SerialNo
+
                                     ,sum( ISNULL(FR.Price,0)) Price
 									,sum( ISNULL(SAR.subAssetAmount,0) )SubAssetAmount
 									,sum( ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0)) PurchasePrice
@@ -596,7 +601,8 @@ namespace Library.Accounting.FixedAssets
                 --LEFT JOIN HKP.Party P ON P.Id = FR.VendorId
                 LEFT JOIN ( SELECT FixedAssetRegisterId,ISNULL(Sum(Amount),0) subAssetAmount ,ISNULL(Sum(BaseAmount),0) subAssetBaseAmount FROM TRN.SubFixedAssetRegister group by FixedAssetRegisterId) SAR ON SAR.FixedAssetRegisterId=FR.Id
                     where fr.CompanyId='C20171' AND frd.DisposedVoucherId IS NULL
-                     group by fr.Remarks,fr.[Status],ei.EmployeeName,frd.IsPark,frd.Id,D.UserName ,DG.UserName,frd.EmployeeId,P.UserName ,frd.PartyId,frd.PartyPlantId,c.Code,FR.IsOpeningBalance ,P.UserName , BC.Code,c.Id ) AS TEMP WHERE " + strkey+" order by DisposeNo ";
+                     group by fr.Remarks,fr.[Status],ei.EmployeeName,frd.IsPark,frd.Id,D.UserName ,DG.UserName,frd.EmployeeId,P.UserName ,frd.PartyId,frd.PartyPlantId,c.Code,FR.IsOpeningBalance ,P.UserName , BC.Code,c.Id 
+								) AS TEMP WHERE " + strkey+" order by DisposeNo ";
             return _sqlRepository.GetDataCollection(sql);
         }
         public List<Dictionary<string, object>> GetFixedAssetDisposePostedList(string column, string value, string companyId)

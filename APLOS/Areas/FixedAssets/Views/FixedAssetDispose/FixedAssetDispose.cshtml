@@ -159,9 +159,9 @@
                         <tr ng-repeat="x in voucherDetailList">
                             <td>{{x.AssetNo}}</td>
                             <td>{{x.SerialNo}}</td>
-                            <td>{{x.Material}}</td>
+                            <td>{{x.FixedAssetMasterName}}</td>
                             <td>{{x.Article}}</td>
-                            <td>{{x.ParticularName}}</td>
+                            <td>{{x.FixedAssetMasterName}}</td>
                             <td>{{x.PurchaseDate}}</td>
                             <td>{{x.CapitalizationDate}}</td>
 
@@ -175,7 +175,7 @@
                             <td>{{x.vendor}}</td>
                             <td>{{x.InvoiceNo}}</td>
                             <td>{{x.TrnCurrency}}</td>
-                            <td>{{x.isOB}}</td>
+                            <td>{{x.IsOpeningBalance}}</td>
 
                             <td class="text-right">
                                 <button ng-click="removeRow($index)" data-toggle="modal" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
