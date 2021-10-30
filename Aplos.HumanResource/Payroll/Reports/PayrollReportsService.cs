@@ -16812,7 +16812,7 @@ INNER JOIN
         private void GetLeaveHeads(out DataTable dtLeaveInfo)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT LeaveTypeId,lt.UserName AS LeaveType FROM LeaveWithWagesRegisterLeaveTypes LTS 
+            string sql = @"SELECT LeaveTypeId,lt.LeaveType,lt.UserName AS LeaveDesc FROM LeaveWithWagesRegisterLeaveTypes LTS 
                                 LEFT JOIN LeaveType AS lt ON lt.Id=lts.LeaveTypeId
                                 where LTS.CompanyId='" + identity.CompanyId + @"'
                                 ORDER BY lts.Sequence";
@@ -16824,7 +16824,7 @@ INNER JOIN
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"
                             SELECT Ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ATT.MonthDesc, ATT.MonthNo,
-                                   ATT.YearNo, ATT.TotalActualWorkingDays, ATT.TotalPayDaysValue,sal.DisbusmentAmount,sala.DisbusmentAmount AS TotalForLeaveAmount
+                                   ATT.YearNo, ATT.TotalActualWorkingDays, ATT.TotalPayDaysValue,sal.DisbusmentAmount
                               FROM EmployeeInformation AS ei
                             LEFT JOIN 
                             (
@@ -16847,24 +16847,42 @@ INNER JOIN
 		                            AND sh.HeadCategory='Gross'
 		                            AND spm.ToDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'  AND sl.IsLocked=1
                             ) AS SAL ON SAL.EmpInfoSystemID=ei.SystemId AND sal.MonthNo=att.MonthNo AND sal.YearNo=att.YearNo
-                            LEFT JOIN 
-                            (
-		                            SELECT spm.MonthNo,spm.YearNo,spc.EmpInfoSystemID,SUM(spc.DisbusmentAmount) AS DisbusmentAmount
-		                            FROM SalaryProcChild AS spc
-		                            JOIN SalaryProcMaster AS spm ON spm.SystemID=spc.SlrProcMstSystemID
-		                            JOIN SalaryHead AS sh ON sh.SalaryHeadID=spc.SalaryHeadID
-		                            JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.MonthNo=spm.MonthNo AND sl.YearNo=spm.YearNo
-		                            WHERE spc.EmpInfoSystemID='" + EmployeeId + @"' AND spm.FromDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'
-		                            AND sh.SalaryHeadID IN (SELECT  S.SalaryHeadID FROM LeaveWithWagesRegisterSalaryHeads AS S)
-		                            AND spm.ToDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'  AND sl.IsLocked=1
-		                            GROUP BY spm.MonthNo,spm.YearNo,spc.EmpInfoSystemID
-                            ) AS SALA ON SALA.EmpInfoSystemID=ei.SystemId AND SALA.MonthNo=att.MonthNo AND SALA.YearNo=att.YearNo
-
+                           
 
                             WHERE ei.SystemId='" + EmployeeId + @"'
 
                             ORDER BY att.MonthNo, YearNo";
             dtEmployeeSalary = _sqlRepository.GetDataTable(sql);
+        }
+        private void GetEmployeeSalaryStructureForPL(string EmployeeId, string FromDate, string ToDate, out DataTable dtEmployeeSalaryPL)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT E.SystemID EmpSystemID,FORMAT(apd.MonthDate,'MMM-yy') AS MonthDesc,SUM(SDM.DefineAmount) AS Amount
+									    FROM EmployeeInformation E
+										    INNER JOIN  (SELECT DISTINCT apd.EmpSystemID, EOMONTH(APD.WorkDate) AS MonthDate
+										                   FROM AttdnProcessData AS apd WHERE apd.EmpSystemID='" + EmployeeId + @"' AND apd.WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' ) 
+										                   AS APD ON apd.EmpSystemID=e.SystemId
+											LEFT JOIN  (  
+														SELECT  *, DENSE_RANK() OVER (PARTITION BY SDM.EmpInfoSystemID ORDER BY SDM.EffectiveDate DESC) AS RNK
+
+			                                                from (
+							                                                SELECT SD.SystemID,SDM.PlantID, EmpInfoSystemID, SalaryIncrementSystemID, SalaryRuleMasterSystemID, EffectiveDate,IsApproved, DateApproved,sd.SequenceNo,sd.SalaryCategory,
+								                                                SalaryID, SalaryHeadID, EntryCurrencyID, EntryAmount, DefineCurrencyID, DefineAmount, AmtDefinitionCurrencyID, AmtDefinitionRate  
+								                                                from SalaryInfoDefineMaster SDM
+								                                                JOIN SalaryInfoDefine AS SD ON sdm.SystemID=SD.SalaryID 
+                                                                                WHERE sdm.EmpInfoSystemID IN ('" + EmployeeId + @"') AND SDM.IsApproved=1 AND SD.SalaryHeadID IN (SELECT  S.SalaryHeadID FROM LeaveWithWagesRegisterSalaryHeads AS S WHERE CompanyId='" + identity.CompanyId + @"')
+								                                                union ALL
+								                                                select SD.SystemID,SDM.PlantID,EmpInfoSystemID, SalaryIncrementSystemID, SalaryRuleMasterSystemID, EffectiveDate,IsApproved, DateApproved,sd.SequenceNo,sd.SalaryCategory,
+								                                                SalaryID, SalaryHeadID, EntryCurrencyID, EntryAmount, DefineCurrencyID, DefineAmount, AmtDefinitionCurrencyID, AmtDefinitionRate  
+								                                                 from SalaryInfoBackMaster SDM
+								                                                JOIN SalaryInfoBack AS SD ON sdm.SystemID=SD.SalaryID 
+				                                                                 WHERE sdm.EmpInfoSystemID IN ('" + EmployeeId + @"') AND SDM.IsApproved=1 AND SD.SalaryHeadID IN (SELECT  S.SalaryHeadID FROM LeaveWithWagesRegisterSalaryHeads AS S WHERE CompanyId='" + identity.CompanyId + @"')
+			                                                ) AS SDM
+			
+			                                        ) AS SDM ON SDM.EmpInfoSystemID=APD.EmpSystemID AND ISNULL(sdm.IsApproved,'')=1 AND EffectiveDate <=APD.MonthDate AND rnk=1 
+			                                        
+									    GROUP BY E.SystemID,apd.MonthDate";
+            dtEmployeeSalaryPL = _sqlRepository.GetDataTable(sql);
         }
         private void GetLeaveBalances(string EmployeeId, string FromDate, string ToDate, out DataTable dtLeaveBalance)
         {
@@ -17004,6 +17022,7 @@ INNER JOIN
                 GetLeaveHeads(out DataTable dtLeaveInfo);
                 GetEmployeeInformation(EmployeeId, out DataTable dtEmployeeInformation);
                 GetEmployeeSalary(EmployeeId, FromDate, ToDate, out DataTable dtEmployeeSalary);
+                GetEmployeeSalaryStructureForPL(EmployeeId, FromDate, ToDate, out DataTable dtEmployeeSalaryPL);
                 GetLeaveBalances(EmployeeId, FromDate, ToDate, out DataTable dtLeaveBalance);
                 GetLeaveTransaction(EmployeeId, FromDate, ToDate, out DataTable dtLeaveTransaction);
                 GetMaternityLeave(EmployeeId, FromDate, ToDate, out DataTable dtMaternityLeaveTransaction);
@@ -17054,12 +17073,12 @@ INNER JOIN
                 sheet[ROW, COL].ColumnWidth = 8;
                 int colMonth = COL; COL++;
 
-                sheet[ROW, COL].Text = "Working Days";
+                sheet[ROW, COL].Text = "No.Of Working Days";
                 sheet[ROW, COL].ColumnWidth = 8;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colActualWorkingDays = COL; COL++;
 
-                sheet[ROW, COL].Text = "Pay Days";
+                sheet[ROW, COL].Text = "Actual No Of Days Work Performed";
                 sheet[ROW, COL].ColumnWidth = 8;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colPayDays = COL; COL++;
@@ -17070,12 +17089,12 @@ INNER JOIN
                 int colGross = COL; COL++;
 
 
-                sheet[ROW, COL].Text = "MLV with Pay";
+                sheet[ROW, COL].Text = "No. Of Days Maternity Leave With Wages";
                 sheet[ROW, COL].ColumnWidth = 8;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colMLV = COL; COL++;
 
-                sheet[ROW, COL].Text = "Layoff Days";
+                sheet[ROW, COL].Text = "No. Of Days Layoff";
                 sheet[ROW, COL].ColumnWidth = 8;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colLayoffDays = COL; COL++;
@@ -17085,7 +17104,7 @@ INNER JOIN
                 {
                     dicLeaveColIndex.Add(dtLeaveInfo.Rows[i]["LeaveTypeId"].ToString(), COL);
 
-                    sheet[ROW - 1, COL].Text = dtLeaveInfo.Rows[i]["LeaveType"].ToString();
+                    sheet[ROW - 1, COL].Text = dtLeaveInfo.Rows[i]["LeaveDesc"].ToString();
                     sheet.Range[ROW - 1, COL, ROW - 1, COL + 2].Merge();
                     sheet.Range[ROW - 1, COL, ROW - 1, COL + 2].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet.Range[ROW - 1, COL, ROW - 1, COL + 2].CellStyle.Interior.Color = System.Drawing.Color.FromArgb(0, 0, 0);
@@ -17107,7 +17126,7 @@ INNER JOIN
                     sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                     COL++;
                 }
-                sheet[ROW, COL].Text = "Total Wages Paid(EL)";
+                sheet[ROW, COL].Text = "Total Wages Paid For Leave";
                 sheet[ROW, COL].ColumnWidth = 8;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colTotalWagesPaidForEL = COL;
@@ -17165,14 +17184,27 @@ INNER JOIN
                     sheet[ROW, colGross].Number = clsStaticInfo.dbl(dtEmployeeSalary.Rows[i]["DisbusmentAmount"].ToString());
                     sheet[ROW, colLayoffDays].Text = "";
 
-                    if (clsStaticInfo.dbl(dtEmployeeSalary.Rows[i]["TotalActualWorkingDays"].ToString()) > 0)
-                        sheet[ROW, colTotalWagesPaidForEL].Number = clsStaticInfo.dbl(dtEmployeeSalary.Rows[i]["totalForLeaveAmount"].ToString())
-                                                                    /
-                                                                    clsStaticInfo.dbl(dtEmployeeSalary.Rows[i]["TotalActualWorkingDays"].ToString());
+                    dtLeaveInfo.DefaultView.RowFilter = "LeaveType='Earn'";
 
+                    if (dtLeaveInfo.DefaultView.Count > 0)
+                    {
+                        if (clsStaticInfo.dbl(dtEmployeeSalary.Rows[i]["TotalActualWorkingDays"].ToString()) > 0)
+                        {
+                            double StructureSalary = 0;
+                            double TotalPL = clsStaticInfo.dbl(dtLeaveTransaction.Compute("SUM(AvailedValue)", "MonthDesc='" + dtEmployeeSalary.Rows[i]["MonthDesc"].ToString() + "' AND LeaveTypeId='" + dtLeaveInfo.DefaultView[0]["LeaveTypeId"].ToString() + @"'"));
+                            dtEmployeeSalaryPL.DefaultView.RowFilter = "MonthDesc='" + dtEmployeeSalary.Rows[i]["MonthDesc"].ToString() + "'";
+                            if (dtEmployeeSalaryPL.DefaultView.Count > 0)
+                                StructureSalary = clsStaticInfo.dbl(dtEmployeeSalaryPL.DefaultView[0]["Amount"].ToString());
+
+
+                            sheet[ROW, colTotalWagesPaidForEL].Formula = StructureSalary + "/" + clsStaticInfo.dbl(dtEmployeeSalary.Rows[i]["TotalActualWorkingDays"].ToString()) + "*" + TotalPL;
+
+                        }
+
+                    }
 
                     dtMaternityLeaveTransaction.DefaultView.RowFilter = "MonthDesc='" + dtEmployeeSalary.Rows[i]["MonthDesc"].ToString() + "'";
-                    if (dtMaternityLeaveTransaction.DefaultView.Count>0)
+                    if (dtMaternityLeaveTransaction.DefaultView.Count > 0)
                         sheet[ROW, colMLV].Number = clsStaticInfo.dbl(dtMaternityLeaveTransaction.DefaultView[0]["AvailedValueMaternityLeave"].ToString());
 
 
