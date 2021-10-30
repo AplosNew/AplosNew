@@ -953,6 +953,7 @@ var upanelApp = angular
     .controller('employeeLeaveDeleteApplicationNewController', employeeLeaveDeleteApplicationNewController)
     .controller('ProductionTargetReportController', ProductionTargetReportController)
     .controller('FabricRollController', FabricRollController)
+    .controller('FinalDeductionReportController', FinalDeductionReportController)
 
 
     .controller("PostInvoiceController", PostInvoiceController)
