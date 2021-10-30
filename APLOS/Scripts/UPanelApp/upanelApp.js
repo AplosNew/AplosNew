@@ -25,6 +25,7 @@ var upanelApp = angular
     .controller("assetItemController", AssetItemController)
     .controller("CurrencyExchangeController", CurrencyExchangeController)
     .controller("BOMReportsController", BOMReportsController)
+    .controller("BalanceOTReportController", BalanceOTReportController)
     .controller("attendanceManagementController", attendanceManagementController)
     .controller("attendanceProcessDataController", attendanceProcessDataController)
     .controller("attendanceProcessDataNewController", attendanceProcessDataNewController)
