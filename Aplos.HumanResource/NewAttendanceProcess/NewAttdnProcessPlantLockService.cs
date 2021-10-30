@@ -299,7 +299,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                                     LEFT JOIN ORG.Department DP ON DP.Id = EI.DepartmentId
                                                     LEFT JOIN ORG.Section AS Se ON Se.Id = EI.SectionID
                                                     LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = EI.SubSectionID 
-                                                    left join hkp.LegalDesignation ld on ld.Id=e.LegalDesignationId
+                                                    left join hkp.LegalDesignation ld on ld.Id=ei.LegalDesignationId
                             where eI.PlantID='" + plantId+@"' and WorkDate between '"+_FromDate+@"' and '"+_ToDate+@"'
                             AND (ei.EmployeeStatus='Active')";
 
@@ -413,7 +413,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                                     LEFT JOIN ORG.Department DP ON DP.Id = EI.DepartmentId
                                                     LEFT JOIN ORG.Section AS Se ON Se.Id = EI.SectionID
                                                     LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = EI.SubSectionID    
-                                                    left join hkp.LegalDesignation ld on ld.Id=e.LegalDesignationId
+                                                    left join hkp.LegalDesignation ld on ld.Id=ei.LegalDesignationId
                             where eI.PlantID='" + plantId + @"' and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
                             AND (ei.EmployeeStatus='Active')
                             --- Filters
@@ -461,7 +461,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                 var EmployeeId = SystemId;
                 var Reason = reason;
 
-                
+                #region Current Month Finding
+
                 DataTable dt = GetEffectiveDateForAttdn(SystemId);
                 DateTime FromDate = Convert.ToDateTime(dt.Rows[0]["ApprovedEffectiveDate"].ToString());
               
@@ -482,6 +483,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                     FromDate = FromDate.AddDays(1);
                 }
 
+                #endregion
+
+                #region Plant Lock Checking
+
                 DataSet PlantLock;
                 PlantLockCheck(StartDate, Today, out PlantLock, identity.PlantId);
                 string pl = "";
@@ -494,6 +499,8 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                     throw new Exception("The Plant is Locked for - " + pl);
                 }
+
+                #endregion
 
                 if (reason == null)
                 {
@@ -517,7 +524,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     "UpdatedBy," +
                     "UpdatedDate," +
                     "UpdatedFromIp) " +
-                    "values ('" + Id + "'," +
+                    "values ('" + "ER"+Id + "'," +
                     "'" + CompanyGroupId + "'," +
                     "'" + CompanyId + "'," +
                     "'" + PlantId + "'," +
@@ -629,7 +636,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                         dr["OTOuttime"] = "0";
                                         dr["LeaveDuration"] = "0";
                                         dr["ToReprocess"] = "No";
-                                        dr["AddedBy"] = "DOJProcess";
+                                        dr["AddedBy"] = "ReActivationProcess";
                                         dr["DateAdded"] = Convert.ToDateTime(DateTime.Now);
 
                                         #endregion
@@ -662,18 +669,18 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                         #region Individual WeekOff Setting
                         // New Entry of Employees and Fetching from Range
-                        DataSet IndividualWeekOfDOJ;
+                        DataSet IndividualWeekOfEmps;
 
-                        IndividualWeekOffDataSet(out IndividualWeekOfDOJ, StartDate, Today, SystemId);
-                        if (IndividualWeekOfDOJ.Tables[0].Rows.Count > 0)
+                        IndividualWeekOffDataSet(out IndividualWeekOfEmps, StartDate, Today, SystemId);
+                        if (IndividualWeekOfEmps.Tables[0].Rows.Count > 0)
                         {
                             ConnectionManager.DAL.ConManager conx = new ConnectionManager.DAL.ConManager("1");
-                            conx.OpenDataSetThroughAdapter("select * from AttdnProcessData where RowId in (" + CreatedEmpIds + ")", out DataSet dsMaster, false, false, "", "1");
+                            conx.OpenDataSetThroughAdapter("select * from AttdnProcessData where EmpSystemID = '" + SystemId + "'and month(WorkDate) = '" + Month + "'", out DataSet dsMaster, false, false, "", "1");
 
-                            for (int i = 0; i < IndividualWeekOfDOJ.Tables[0].Rows.Count; i++)
+                            for (int i = 0; i < IndividualWeekOfEmps.Tables[0].Rows.Count; i++)
                             {
-                                string RowId = IndividualWeekOfDOJ.Tables[0].Rows[i][@"RowId"].ToString();
-                                string DayType = clsWebLib.RetValidLen(IndividualWeekOfDOJ.Tables[0].Rows[i][@"DayType"]).ToString();
+                                string RowId = IndividualWeekOfEmps.Tables[0].Rows[i][@"RowId"].ToString();
+                                string DayType = clsWebLib.RetValidLen(IndividualWeekOfEmps.Tables[0].Rows[i][@"DayType"]).ToString();
 
                                 dsMaster.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
 
@@ -684,7 +691,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     drx.BeginEdit();
                                     drx["WeeklyStatus"] = DayType;
                                     drx["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                    drx["UpdatedBy"] = "DOJProcess";
+                                    drx["UpdatedBy"] = "ReActivationProcess";
                                     drx.EndEdit();
                                 }
                             }
@@ -699,9 +706,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                         OTEligibleEmpSet(StartDate, Today, out OTElgbEmp, identity.PlantId, SystemId); // OT Eligible DataSet Generation
                         if (OTElgbEmp.Tables[0].Rows.Count > 0)
                         {
-                            // Chosen From & ToDate to get RowIds 
+                            // Start Date of Month & Today to get RowIds 
                             ConnectionManager.DAL.ConManager newcon = new ConnectionManager.DAL.ConManager("1");
-                            newcon.OpenDataSetThroughAdapter("select * from AttdnProcessData where RowId in (" + CreatedEmpIds + ")", out DataSet dsOt, false, false, "", "1");
+                            newcon.OpenDataSetThroughAdapter("select * from AttdnProcessData where EmpSystemID = '"+SystemId+"'and month(WorkDate) = '"+Month+"'", out DataSet dsOt, false, false, "", "1");
 
                             for (int i = 0; i < OTElgbEmp.Tables[0].Rows.Count; i++)
                             {
@@ -717,7 +724,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     dr.BeginEdit();
 
                                     dr["IsOTEntitled"] = clsWebLib.GetBoolData(IsOTEntitled);
-                                    dr["UpdatedBy"] = "Schedule";
+                                    dr["UpdatedBy"] = "ReActivationProcess";
                                     dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                     dr.EndEdit();
                                 }
@@ -741,6 +748,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                 ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
+
+        #region DataSet Region
 
         public void RowCreation(out DataSet ds, string Plant, string WkDate,string SystemId)
         {
@@ -893,7 +902,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                                     and wcc.WOHeaderId = jj.WeekOffHeaderId) 
                                                     as DayType , ap.RowId , (Case when 
 													ap.RowId = jj.MyRowId then 1 else 0 end) as Checks
-                                        from
+                                                    from
                                                     (Select ap.WorkDate, ap.EmpSystemID, format(ap.WorkDate,'yyyyMMdd')+ap.EmpSystemID as MyRowId,
                                                     (Select distinct
                                                     (DATEDIFF(DAY, (Select top 1 ed.EffectiveDate from
@@ -922,12 +931,12 @@ namespace Library.HumanResource.NewAttendanceProcess
                                                     order by ex.EffectiveDate desc) WeekOffHeaderId 
                                         from AttdnProcessData ap 
 
-                                        where ap.EmpSystemID='"+ EmpMaster +@"') and WorkDate 
+                                        where ap.EmpSystemID='"+ EmpMaster +@"' and WorkDate 
 										between '" + FromDate + @"' and '" + ToDate + @"'
                                         )as jj
                                         left join AttdnProcessData ap on
 										ap.WorkDate = jj.WorkDate and 
-										ap.EmpSystemID='"+ EmpMaster + @"') and ap.WorkDate 
+										ap.EmpSystemID='"+ EmpMaster + @"' and ap.WorkDate 
 										between '" + FromDate + @"' and '" + ToDate + @"'
 										)as dd where dd.Checks=1 and isnull(dd.DayType,'')!=''";
 
@@ -975,6 +984,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                 throw (ex);
             }
         }
+
+        #endregion
 
     }
 }
