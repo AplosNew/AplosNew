@@ -51,7 +51,7 @@
                 </div>
             </div>
             <script type="text/template" id="reportButton">
-                <a class="btn" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" href="HumanResource/LeaveWithWeagesRegisters/GetLeaveWithWeagesRegisters?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&year={{$parent.year}}&empId={{data.EmpSystemId}}" target="_blank"><i class="fa fa-eye" style="margin: -6px;"></i></a>
+                <a class="btn" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" ng-click="$parent.getForm18(data);"><i class="fa fa-eye" style="margin: -6px;"></i></a>
             </script>
         </div>
 
@@ -89,8 +89,9 @@
                  e-allowselection="true" e-filtersettings-filterType="excel">
                 <div e-columns>
                     <div e-column e-template="#TemplateCheckBoxLeaveType" e-width="10"></div>
-                    <div e-column e-field="LeaveType" e-headertext="Leave Type" e-width="100" ></div>
-                    <div e-column e-template="#TemplateTextBoxSequence" e-width="30"  e-headertext="Sequence"></div>
+                    <div e-column e-field="LeaveType" e-headertext="Leave Type" e-width="100"></div>
+                    <div e-column e-field="UserName" e-headertext="User Name" e-width="100"></div>
+                    <div e-column e-template="#TemplateTextBoxSequence" e-width="30" e-headertext="Sequence"></div>
                 </div>
             </div>
             <script type="text/template" id="TemplateCheckBoxLeaveType">

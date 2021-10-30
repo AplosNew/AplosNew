@@ -88,6 +88,7 @@ angular.module('cpanelApp', ['ngRoute', 'ngCookies', 'angularUtils.directives.di
     .controller("companyParallelCurrencyController", CompanyParallelCurrencyController)
     .controller("syncURLController", syncURLController)
     .controller("LabelListController", LabelListController)
+    .controller("ContractualEmployeeCodeController", ContractualEmployeeCodeController)
 
 
     .config(accountConfig)

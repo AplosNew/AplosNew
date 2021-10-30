@@ -1,10 +1,10 @@
 ﻿'use strict';
-EntireYearPresentDaysSummaryController.$inject = ['$window', '$timeout', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function EntireYearPresentDaysSummaryController($window, $timeout, cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'PresentDays Summary Report';
+BalanceOTReportController.$inject = ['$window', '$timeout', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
+function BalanceOTReportController($window, $timeout, cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+    $rootScope.title = 'Balance OT Report ';
 
 
-    $scope.path = 'Attendances/EntireYearPresentDaysSummary/';
+    $scope.path = 'Attendances/BalanceOTReport/';
 
 
     //#region Get year 

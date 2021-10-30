@@ -85,21 +85,7 @@ function NewAttendanceProcessController($window, $timeout, cboService, commonMes
                 }
             });
        
-    }
-
-    $scope.RunMonthlySummary = function () {
-        $scope.$broadcast('show-errors-check-validity');
-        if ($scope.NewAttdnProcess.$valid) {
-            $http({
-                method: 'GET',
-                url: $scope.path + 'MonthlySummary?Date=' + $scope.Attnd.Date,
-            }).then(function successCallback(response) {
-                if (response.data.Error == false) {
-                    ShowResult(response.data.Message, 'success');
-                }
-            });
-        }
-    }
+    }   
 
     $scope.RunRoster = function () {
         $scope.$broadcast('show-errors-check-validity');

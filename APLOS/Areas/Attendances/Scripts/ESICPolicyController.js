@@ -14,7 +14,7 @@ function ESICPolicyController($window, cboService, commonMessage, $scope, $rootS
     $scope.EOperatorList = [{ Text: "*", Value: "*" }, { Text: "/", Value: "/" }, { Text: "+", Value: "+" }, { Text: "-", Value: "-" }];
     $scope.OperatorList = [{ Text: "*", Value: "*" }, { Text: "/", Value: "/" }, { Text: "+", Value: "+" }, { Text: "-", Value: "-" }];
     $scope.companyList = [];
-
+    $scope.HeadList = [];
     cboService.getCompanyGroupCompanyCbo(null, function (result) {
         $scope.companyList = result;
     });
@@ -132,10 +132,10 @@ function ESICPolicyController($window, cboService, commonMessage, $scope, $rootS
         }
         return available;
     }
-    $scope.Clear = function () {
-        ClearFields();
-        return true;
-    };
+    //$scope.Clear = function () {
+    //    ClearFields();
+    //    return true;
+    //};
     $scope.ESICPolicyDetails.FormulaDes = null;
     $scope.ESICPolicyDetails.FormulaDesID = null;
     $scope.ESICPolicyDetails.SalaryHeadFormula = null;
@@ -526,13 +526,13 @@ function ESICPolicyController($window, cboService, commonMessage, $scope, $rootS
                 available = true;
                 break;
             }
-        }
+        }s
         return available;
     }
-    $scope.Clear = function () {
-        ClearFields();
-        return true;
-    };
+    //$scope.Clear = function () {
+    //    ClearFields();
+    //    return true;
+    //};
     $scope.ESICPolicyDetails.FormulaDes = null;
     $scope.ESICPolicyDetails.FormulaDesID = null;
     $scope.ESICPolicyDetails.SalaryHeadFormula = null;
@@ -773,12 +773,21 @@ function ESICPolicyController($window, cboService, commonMessage, $scope, $rootS
             //$scope.getDistributions($scope.ESICPolicyDetails.ID);
         });
         $scope.getMonths($scope.ESICPolicyMaster.ID);
+        $scope.getHeads($scope.ESICPolicyMaster.ID);
         $scope.getLeave($scope.ESICPolicyMaster.ID);
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
     }
-
+    //$scope.HeadsList = [];
+    $scope.getHeads = function (MasterID) {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetHeads?masterID=" + MasterID,
+        }).then(function successCallback(response) {
+            $scope.HeadList = response.data;
+        });
+    }
 
     // get saved Detail
     $scope.getSavedDetails = function () {
@@ -816,14 +825,14 @@ function ESICPolicyController($window, cboService, commonMessage, $scope, $rootS
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-                data: { 'master': $scope.ESICPolicyMaster, 'months': $scope.MonthList, 'LeaveList': $scope.LeaveList },
+                data: { 'master': $scope.ESICPolicyMaster, 'months': $scope.MonthList, 'LeaveList': $scope.LeaveList, 'HeadList': $scope.HeadList },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-                    
+
                     ShowResult(response.data.Message, 'success');
                     $scope.ESICPolicyMaster.ID = response.data.Data;
                     $scope.getData();
@@ -923,7 +932,7 @@ function ESICPolicyController($window, cboService, commonMessage, $scope, $rootS
         try {
             CheckField("Plant", $scope.ESICPolicyMaster.PlantID);
             CheckField("Policy Name", $scope.ESICPolicyMaster.ESICPolicyName);
-            CheckField("Month", $scope.ESICPolicyMonthNo.MonthName);
+            //CheckField("Month", $scope.ESICPolicyMonthNo.MonthName);
         } catch (ex) {
             throw ex;
         }
@@ -1066,7 +1075,13 @@ function ESICPolicyController($window, cboService, commonMessage, $scope, $rootS
         $scope.FormulaIdArray = [];
         $scope.EmployerFormulaArray = [];
         $scope.EmployerFormulaIdArray = [];
-
+        $scope.ESICPolicyHead = {
+            Id: null,
+            ESICPolicyMasterID: $scope.ESICPolicyMaster.ID,
+            SalaryHeadID: null,
+            SalaryHeadName: null,
+        }
+        $scope.HeadList = [];
     };
 
 
@@ -1074,6 +1089,7 @@ function ESICPolicyController($window, cboService, commonMessage, $scope, $rootS
 
     //Clear Details
     $scope.ClearD = function () {
+       
         $scope.Action = 'Save';
         $scope.ESICPolicyDetails = {
             ID: null,
@@ -1106,6 +1122,7 @@ function ESICPolicyController($window, cboService, commonMessage, $scope, $rootS
         $scope.FormulaIdArray = [];
         $scope.EmployerFormulaArray = [];
         $scope.EmployerFormulaIdArray = [];
+        
     };
 
     //Clear Distribution
@@ -1199,11 +1216,6 @@ function ESICPolicyController($window, cboService, commonMessage, $scope, $rootS
 
                 ShowResult(response.data.Message, 'success');
                 $scope.getSavedDetails($scope.ESICPolicyMaster);
-                //for (var i = 0; i < $scope.ModelList.length; i++) {
-                //    if ($scope.ModelList[i].ID == $scope.ESICPolicyDetails.ID) {
-                //        $scope.ModelList.splice(i, 1);
-                //    }
-                //}
             }
         }, function () {
             ShowResult(commonMessage.NetworkError, 'failure');
@@ -1211,5 +1223,63 @@ function ESICPolicyController($window, cboService, commonMessage, $scope, $rootS
         });
     };
 
+    //#region Update 
+
+
+    $scope.ESICPolicyHead = {
+        Id: null,
+        ESICPolicyMasterID: $scope.ESICPolicyMaster.ID,
+        SalaryHeadID: null,
+        SalaryHeadName: null,
+    }
+    $scope.SubmitHeads = function () {
+        try {
+            if (baseService.isUndefinedOrNull($scope.ESICPolicyHead.SalaryHeadID)) {
+                throw "Select Salary Head";
+            }
+            for (var i = 0; i < $scope.HeadList.length; i++) {
+                if ($scope.HeadList[i].SalaryHeadID == $scope.ESICPolicyHead.SalaryHeadID) {
+                    throw "This Salary head already Exist";
+                }
+            }
+            for (var i = 0; i < $scope.salaryHeadList.length; i++) {
+                if ($scope.salaryHeadList[i].Value == $scope.ESICPolicyHead.SalaryHeadID) {
+                    $scope.ESICPolicyHead.SalaryHeadName = $scope.salaryHeadList[i].Text;
+                    break;
+                }
+            }
+            var newObj = Object.assign({}, $scope.ESICPolicyHead);
+            $scope.HeadList.push(newObj);
+        } catch (e) {
+            ShowResult(e, 'info');
+        }
+    };
+
+    $scope.message_confirmation = null;
+    $scope.RemoveHead = function (obj) {
+        $scope.ESICPolicyHead = Object.assign({}, obj.data);
+        if (!baseService.isUndefinedOrNull($scope.ESICPolicyHead.Id))
+            $scope.message_confirmation = 'Are you sure want to delete permanently ?';
+        angular.element(document.querySelector('#confirmPopUpHead')).modal('show');
+    }
+    $scope.DeleteHeadList = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'DeleteHeadMaster?ID=' + $scope.ESICPolicyHead.Id,
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult("Invalid Head ");
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getHeads($scope.ESICPolicyMaster.ID);
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+    };
+
+    //#endregion
 
 }

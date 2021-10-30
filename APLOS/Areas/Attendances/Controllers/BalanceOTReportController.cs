@@ -22,11 +22,11 @@ using Library.HumanResource.NewAttendanceProcess;
 
 namespace Aplos.Areas.Attendances.Controllers
 {
-    public class EntireYearPresentDaysSummaryController : BaseController
+    public class BalanceOTReportController : BaseController
     {
         FullYearPresentDaysCount rep = new FullYearPresentDaysCount();
 
-        public EntireYearPresentDaysSummaryController()
+        public BalanceOTReportController()
         {
             rep = new FullYearPresentDaysCount();
         }
