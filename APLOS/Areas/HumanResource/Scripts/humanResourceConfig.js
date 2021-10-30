@@ -641,6 +641,11 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
                 templateUrl: 'humanresource/PayrollReports/SalaryProcessedReportNew',
                 controller: 'salaryProcessedReportControllerNew'
             })
+        .when('/final-deduction',
+            {
+                templateUrl: 'humanresource/FinalDeductionReport/Aplos',
+                controller: 'FinalDeductionReportController'
+            })
         .when('/salary-structure-and-Processed-report-new',
             {
                 templateUrl: 'humanresource/PayrollReports/SalaryStructureAndProcessedReportNew',
