@@ -5117,7 +5117,7 @@ namespace Library.HumanResource.Payroll
                 int ColSr = 0, ColIDNo = 0, ColName = 0, ColDOJ = 0, ColDOS = 0, cDept = 0, cSec = 0, cSubSec = 0, cLine = 0, cPayrollGroup = 0, cJobLocation = 0, cGender = 0,
                     cGrade = 0, ColGVDG = 0, ColGrs = 0, colPayDays = 0, ColPdDy = 0, ColLate = 0, ColAbDy = 0, ColHlDy = 0, ColWkOf = 0, ColLv = 0, ColMLv = 0
                    , ColLWP = 0, colBank = 0, cDMP = 0, colBankAccountNo = 0, colEmpCurrentStat = 0, colEmpStatus = 0, cPaymentMode = 0, cUnit = 0, ColTotalOTHR = 0, colDirectManpowerCost = 0;
-                int npstruct = 0, ColTotalWorkingDay = 0, ColActualWorkingDay = 0, ColLatePresent = 0 , ColContractor = 0;
+                int npstruct = 0, ColTotalWorkingDay = 0, ColActualWorkingDay = 0, ColLatePresent = 0, ColContractor = 0;
 
                 #endregion
 
@@ -5973,7 +5973,7 @@ namespace Library.HumanResource.Payroll
             }
         }
 
-        public IWorkbook GetFinalDeductionReportCompanyWise(out int xlsRow, string companyGroupId, string companyId, string plantId, string userId, string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, bool isTopSheet)
+        public IWorkbook GetFinalDeductionReportCompanyWise(out int xlsRow, string companyGroupId, string companyId, string plantId, string userId, string month, string year, Dictionary<string, string> parameters, bool isTopSheet)
         {
             #region Variable
             clsReport objRpt = null;
@@ -6037,20 +6037,13 @@ namespace Library.HumanResource.Payroll
                 //Sql Salary Process 
                 DataTable dtSalaryHeadSheet;
                 List<SalarySheetReportUD> listdsSlrProc = new List<SalarySheetReportUD>();
-                GeFinalDeductionReportCompanyWiseSQL(companyGroupId, companyId, plantId, fdateOfMonth, ldateOfMonth, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, isMaternity, out dsEmpLoyeeInfo);//Sql Query For Salary  Data
-                Dictionary<string, List<DataRow>> dicEmpSalry = GetEmployeeSalaryInfoDetail(companyGroupId, companyId, plantId, fdateOfMonth, ldateOfMonth, salaryProcessId, payRollGroup, parameters, out dtSalaryHeadSheet);
+                //  GeFinalDeductionReportCompanyWiseSQL(companyGroupId, companyId, plantId, fdateOfMonth, ldateOfMonth, parameters, out dsEmpLoyeeInfo);//Sql Query For Salary  Data
+                SalaryHeadSQL(plantId, month, year, parameters, out dsEmpLoyeeInfo);//Sql Query For Salary  Data
+                                                                                    // Dictionary<string, List<DataRow>> dicEmpSalry = GetEmployeeSalaryInfoDetail(companyGroupId, companyId, plantId, fdateOfMonth, ldateOfMonth,  parameters, out dtSalaryHeadSheet);
 
-                if (dicEmpSalry.First().Value[0].Table.Rows.Count > 0)
-                {
-                    listdsSlrProc = dicEmpSalry.First().Value[0].Table.ToList<SalarySheetReportUD>();
-                    listdsSlrStr = dicEmpSalry.First().Value[0].Table.ToList<SalarySheetReportUD>();
-                    dtEmployees = dsEmpLoyeeInfo.Tables[0];//dicEmpSalry.First().Value[0].Table;
-                }
-                else
-                {
-                    Exception ex = new Exception("No Data found...");
-                    throw (ex);
-                }
+
+                dtEmployees = dsEmpLoyeeInfo.Tables[0];//dicEmpSalry.First().Value[0].Table;
+
 
                 dvSlrSheet = new DataView();
 
@@ -6091,19 +6084,21 @@ namespace Library.HumanResource.Payroll
                 SetCellValue("Employee Category", sheet1, xlsRow, ref xlsCol, out int colEmpCategory, 25);
                 SetCellValue("Department", sheet1, xlsRow, ref xlsCol, out cDept, 25);
                 SetCellValue("Section", sheet1, xlsRow, ref xlsCol, out cSec, 25);
-                SetCellValue("SubSection", sheet1, xlsRow, ref xlsCol, out cSubSec, 25);              
+                SetCellValue("SubSection", sheet1, xlsRow, ref xlsCol, out cSubSec, 25);
                 SetCellValue("Salary Head", sheet1, xlsRow, ref xlsCol, out int colSalaryHead, 25);
-
                 SetCellValue("Disbursement Amount", sheet1, xlsRow, ref xlsCol, out int colDisbursementAmount, 25);
+                SetCellValue("Data Upload From", sheet1, xlsRow, ref xlsCol, out int colExtDataUploadApp, 25);
+                SetCellValue("Plant", sheet1, xlsRow, ref xlsCol, out int colPlant, 25);
+                
 
-          
+
                 endGenericColumn = xlsCol;
 
                 //SR to
                 sheet1.Range[xlsRow, ColSr].Text = "Employee Information";
-                sheet1.Range[xlsRow, ColSr, xlsRow, colDisbursementAmount].Merge();
+                sheet1.Range[xlsRow, ColSr, xlsRow, colPlant].Merge();
                 //xlsCol += 1;
-                ColGrs = colDisbursementAmount;
+                ColGrs = colPlant;
                 // 9
 
                 var _count_earning_head = 0;
@@ -6111,7 +6106,7 @@ namespace Library.HumanResource.Payroll
                 var _count_deducting_head = 0;
                 var _total_head_count = 0;
 
-      
+
 
 
                 xlsCol++;
@@ -6264,10 +6259,7 @@ namespace Library.HumanResource.Payroll
                         sheet1.Range[xlsRow, ColDOS].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, ColDOS].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                        //if (string.IsNullOrEmpty(dtEmployees.Rows[i]["EmployeeCurrentStatus"].ToString()) == false)
-                        //    sheet1.Range[xlsRow, colEmpCurrentStat].Text = dtEmployees.Rows[i]["EmployeeCurrentStatus"].ToString();
-                        //sheet1.Range[xlsRow, colEmpCurrentStat].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        //sheet1.Range[xlsRow, colEmpCurrentStat].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
                         if (string.IsNullOrEmpty(dtEmployees.Rows[i]["EmployeeStatus"].ToString()) == false)
                             sheet1.Range[xlsRow, colEmpStatus].Text = dtEmployees.Rows[i]["EmployeeStatus"].ToString();
                         sheet1.Range[xlsRow, colEmpStatus].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -6302,56 +6294,6 @@ namespace Library.HumanResource.Payroll
                             sheet1.Range[xlsRow, cSubSec].Text = dtEmployees.Rows[i]["SubSectionName"].ToString();
                         sheet1.Range[xlsRow, cSubSec].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, cSubSec].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        //if (string.IsNullOrEmpty(dtEmployees.Rows[i]["UnitName"].ToString()) == false)
-                        //    sheet1.Range[xlsRow, cUnit].Text = dtEmployees.Rows[i]["UnitName"].ToString();
-                        //sheet1.Range[xlsRow, cUnit].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        //sheet1.Range[xlsRow, cUnit].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                        //if (string.IsNullOrEmpty(dtEmployees.Rows[i]["PaymentMode"].ToString()) == false)
-                        //    sheet1.Range[xlsRow, cPaymentMode].Text = dtEmployees.Rows[i]["PaymentMode"].ToString();
-                        //sheet1.Range[xlsRow, cPaymentMode].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        //sheet1.Range[xlsRow, cPaymentMode].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-
-                        //if (string.IsNullOrEmpty(dtEmployees.Rows[i]["BankName"].ToString()) == false)
-                        //    sheet1.Range[xlsRow, colBank].Text = dtEmployees.Rows[i]["BankName"].ToString();
-                        //sheet1.Range[xlsRow, colBank].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        //sheet1.Range[xlsRow, colBank].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                        //if (string.IsNullOrEmpty(dtEmployees.Rows[i]["BankAccNo"].ToString()) == false)
-                        //    sheet1.Range[xlsRow, colBankAccountNo].Text = dtEmployees.Rows[i]["BankAccNo"].ToString();
-                        //sheet1.Range[xlsRow, colBankAccountNo].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        //sheet1.Range[xlsRow, colBankAccountNo].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-
-
-
-                        //if (string.IsNullOrEmpty(dtEmployees.Rows[i]["Gender"].ToString()) == false)
-                        //    sheet1.Range[xlsRow, cGender].Text = dtEmployees.Rows[i]["Gender"].ToString();
-                        //sheet1.Range[xlsRow, cGender].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        //sheet1.Range[xlsRow, cGender].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                        //if (string.IsNullOrEmpty(dtEmployees.Rows[i]["JobLocation"].ToString()) == false)
-                        //    sheet1.Range[xlsRow, cJobLocation].Text = dtEmployees.Rows[i]["JobLocation"].ToString();
-                        //sheet1.Range[xlsRow, cJobLocation].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        //sheet1.Range[xlsRow, cJobLocation].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                        //if (string.IsNullOrEmpty(dtEmployees.Rows[i]["LineName"].ToString()) == false)
-                        //    sheet1.Range[xlsRow, cLine].Text = dtEmployees.Rows[i]["LineName"].ToString();
-                        //sheet1.Range[xlsRow, cLine].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        //sheet1.Range[xlsRow, cLine].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-
-                        //if (string.IsNullOrEmpty(dtEmployees.Rows[i]["PayRollGroup"].ToString()) == false)
-                        //    sheet1.Range[xlsRow, cPayrollGroup].Text = dtEmployees.Rows[i]["PayRollGroup"].ToString();
-                        //sheet1.Range[xlsRow, cPayrollGroup].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        //sheet1.Range[xlsRow, cPayrollGroup].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                        ////5
-                        //if (string.IsNullOrEmpty(dtEmployees.Rows[i]["GradeCode"].ToString()) == false)
-                        //    sheet1.Range[xlsRow, cGrade].Text = dtEmployees.Rows[i]["GradeCode"].ToString();
-                        //sheet1.Range[xlsRow, cGrade].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        //sheet1.Range[xlsRow, cGrade].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                         if (string.IsNullOrEmpty(dtEmployees.Rows[i]["SalaryHead"].ToString()) == false)
                             sheet1.Range[xlsRow, colSalaryHead].Text = dtEmployees.Rows[i]["SalaryHead"].ToString();
@@ -6359,36 +6301,34 @@ namespace Library.HumanResource.Payroll
                         sheet1.Range[xlsRow, colSalaryHead].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                         if (string.IsNullOrEmpty(dtEmployees.Rows[i]["EntryAmount"].ToString()) == false)
-                            sheet1.Range[xlsRow, colDisbursementAmount].Number =clsStaticInfo.dbl( dtEmployees.Rows[i]["EntryAmount"].ToString());
+                            sheet1.Range[xlsRow, colDisbursementAmount].Number = clsStaticInfo.dbl(dtEmployees.Rows[i]["EntryAmount"].ToString());
                         sheet1[xlsRow, colDisbursementAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
 
                         sheet1.Range[xlsRow, colDisbursementAmount].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, colDisbursementAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                        //if (string.IsNullOrEmpty(dtEmployees.Rows[i]["DirectManpowerCost"].ToString()) == false)
-                        // //   sheet1.Range[xlsRow, colDirectManpowerCost].Text = dtEmployees.Rows[i]["DirectManpowerCost"].ToString();
-                        //sheet1.Range[xlsRow, colDirectManpowerCost].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        //sheet1.Range[xlsRow, colDirectManpowerCost].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["SalaryHead"].ToString()) == false)
+                            sheet1.Range[xlsRow, colExtDataUploadApp].Text = dtEmployees.Rows[i]["ExtDataUploadApp"].ToString();
+                        sheet1.Range[xlsRow, colExtDataUploadApp].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, colExtDataUploadApp].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                        //sheet1.Range[xlsRow, colWeekoffDays].Text = dtEmployees.Rows[i]["WeekoffDays"].ToString();
 
-                        //if (string.IsNullOrEmpty(dtEmployees.Rows[i]["Gender"].ToString()) == false)
-                        //    sheet1.Range[xlsRow, cGender].Text = dtEmployees.Rows[i]["Gender"].ToString();
-                        //sheet1.Range[xlsRow, cGender].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        //sheet1.Range[xlsRow, cGender].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                        //5 "Section", "SubSection", 
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["Plant"].ToString()) == false)
+                            sheet1.Range[xlsRow, colPlant].Text = dtEmployees.Rows[i]["Plant"].ToString();
+                        sheet1.Range[xlsRow, colPlant].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, colPlant].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
 
                         #endregion
 
 
                         #region ------------------------------------Salary Sheet----------------------------------
-                        
+
 
                     }
                     catch (Exception ex)
                     {
-
                         throw ex;
                     }
 
@@ -9551,7 +9491,7 @@ namespace Library.HumanResource.Payroll
                         {
                             double totalWidth = sheet1.GetColumnWidth(1) + sheet1.GetColumnWidth(2);
                             int totalWidthPixel = (int)(totalWidth * 5.0);
-                            int totalheight = (int)((sheet1.GetRowHeight(1) + sheet1.GetRowHeight(2) )*1.5);
+                            int totalheight = (int)((sheet1.GetRowHeight(1) + sheet1.GetRowHeight(2)) * 1.5);
 
                             companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
                             IPictureShape pic = null;
@@ -12113,6 +12053,199 @@ ELSE CONVERT(BIT,0) END  ---No
             }
         }
 
+        public IEnumerable<object> GetFInalDeductionEmpInfo(string companyGroupId, string plantId, string effectiveDate, string salaryProcessId, bool sa, bool ca, string userId, bool isActive, bool isSeperated, bool isMaternity)
+        {
+            try
+            {
+                var wcPayrollGroup = "";
+                var wcSalaryProcess = "";
+                var salaryProcessJoin = "";
+                var salaryProcessColumn = "";
+                var strDOJ = "";
+                string salaryProcessFlag = "";
+                string wcEmpStatus = " Where (1=0 ";
+                //string salaryProcessID = "";
+
+                if (sa == true || ca == true)
+                {
+                    wcPayrollGroup = @"";
+                }
+                else
+                {
+                    string inPayrollGroup = "''";
+                    DataTable dtPayRollGrpEmpId = _sqlRepository.GetDataTable("SELECT employeeid FROM MST.PayrollGroupMaster WHERE PayrollGroupId IN (SELECT PayrollGroupId FROM SEC.UserPayrollGroup where UserId = '" + userId + @"') AND PlantID IN (" + plantId + @")");
+                    DataTable dtNotPayRollGrpEmpId = _sqlRepository.GetDataTable(@"SELECT SystemId FROM EmployeeInformation E 
+                    WHERE SystemId NOT IN (SELECT employeeid from MST.PayrollGroupMaster where PlantID in(" + plantId + @")  AND E.PlantID in(" + plantId + @"))");
+
+
+                    for (int i = 0; i < dtPayRollGrpEmpId.Rows.Count; i++)
+                        inPayrollGroup += ",'" + dtPayRollGrpEmpId.Rows[i]["employeeid"].ToString() + "'";
+
+
+                    for (int i = 0; i < dtNotPayRollGrpEmpId.Rows.Count; i++)
+                        inPayrollGroup += ",'" + dtNotPayRollGrpEmpId.Rows[i]["SystemId"].ToString() + "'";
+
+                    wcPayrollGroup = @" AND E.SystemId  IN (" + inPayrollGroup + @")";
+                }
+                if (salaryProcessId == "STRUCTURE")
+                {
+                    salaryProcessColumn = "";
+                    salaryProcessJoin = "";
+                    wcSalaryProcess = "";
+                    strDOJ = "AND DOJ<='" + effectiveDate + @"' AND (DOS is null OR DOS>= '" + effectiveDate + @"')";
+
+
+                }
+                else if (!string.IsNullOrEmpty(salaryProcessId))
+                {
+                    salaryProcessColumn = ",ISNULL(SPM.Description,'') SalaryProcess";
+                    salaryProcessJoin = @"  LEFT OUTER JOIN SalaryProcChild SPC ON SPC.EmpInfoSystemID = E.SystemId
+                                    LEFT OUTER JOIN SalaryProcMaster SPM ON SPM.SystemID = spc.SlrProcMstSystemID and spm.MonthNo = Month('" + effectiveDate + @"') and spm.YearNo = Year('" + effectiveDate + @"')";
+                    wcSalaryProcess = @"AND SPC.SlrProcMstSystemID IN('" + salaryProcessId + @"')";
+
+                }
+                else if (string.IsNullOrEmpty(salaryProcessId) == true && salaryProcessId != "STRUCTURE")
+                {
+                    salaryProcessColumn = ",ISNULL(SPM.Description,'') SalaryProcess";
+                    salaryProcessJoin = @"  LEFT OUTER JOIN SalaryProcChild SPC ON SPC.EmpInfoSystemID = E.SystemId
+                                    LEFT OUTER JOIN SalaryProcMaster SPM ON SPM.SystemID = spc.SlrProcMstSystemID and spm.MonthNo = Month('" + effectiveDate + @"') and spm.YearNo = Year('" + effectiveDate + @"')";
+
+                    string strSql = @"SELECT SystemID FROM SalaryProcMaster
+                                      WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
+                                                        WHERE PlantID  in(" + plantId + @")  GROUP BY SlrProcMstSystemID)
+                                        AND MonthNo =  MONTH('" + effectiveDate + @"') AND YearNo =  YEAR('" + effectiveDate + @"')";
+
+                    DataTable dtSalPrcId = _sqlRepository.GetDataTable(strSql);
+                    salaryProcessId = "''";
+                    for (int si = 0; si < dtSalPrcId.Rows.Count; si++)
+                    {
+                        salaryProcessId += ",'" + dtSalPrcId.Rows[si]["SystemID"].ToString() + "'";
+                    }
+                    wcSalaryProcess = @" AND SPC.SlrProcMstSystemID IN( " + salaryProcessId + @"  )";
+                }
+                if (salaryProcessId == "STRUCTURE")
+                {
+                    wcEmpStatus = " Where (1=1 ";
+                    salaryProcessFlag = "";
+                }
+                else
+                {
+                    salaryProcessFlag = ", Case when Isnull(SPM.SalaryProcFlag,'') = '' THen 'Regular' else SalaryProcFlag end SalaryProcFlag";
+                    wcEmpStatus = " Where (1=0 ";
+
+                    if (isActive == true && isSeperated == true && isMaternity == true)
+                    {
+                        wcEmpStatus = " Where (1=1 ";
+                    }
+                    else
+                    {
+                        if (isActive == true)
+                        {
+                            wcEmpStatus += " OR SalaryProcFlag ='Regular'";
+                        }
+                        if (isSeperated == true)
+                        {
+                            wcEmpStatus += " OR SalaryProcFlag ='SEPARATED'";
+                        }
+                        if (isMaternity == true)
+                        {
+                            wcEmpStatus += " OR SalaryProcFlag ='MLV_PRE'";
+
+                        }
+                    }
+                }
+
+
+
+
+
+                wcEmpStatus += ")";
+
+                var cListOId = string.Empty; var cList = string.Empty; ; var cListId = string.Empty; var Join = string.Empty;
+                var param = string.Empty;
+                if (!string.IsNullOrEmpty(companyGroupId) && !string.IsNullOrEmpty(plantId))
+                    param = "E.GroupID='" + companyGroupId + "' AND E.PlantId in(" + plantId + @") ";
+                else if (!string.IsNullOrEmpty(companyGroupId) && string.IsNullOrEmpty(plantId))
+                    param = "E.GroupID='" + companyGroupId + "'";
+
+                var cmdText = @"SELECT [isSelect] = Convert(bit, 'True'),[isToBeSelect] = Convert(bit, 'False'),* FROM (  SELECT   dISTINCT   
+                                     isnull(e.SystemId,'') EmpSystemId
+									,ISNULL(e.EmployeeId,'')  EmployeeId                                     
+                                    ,ISNULL(e.EmployeeCode,'') EmployeeCode
+                                    ,ISNULL(e.EmployeeName,'') EmployeeName								
+                                    ,ISNULL(mpb.EntityId,'') EntityId
+									,ISNULL(mpb.PositionId,'') PositionId                                     
+                                    ,isnull(ld.UserName,'') Designation                                       
+									,ISNULL(Department.UserName,'') Department 
+									,ISNULL(Division.UserName,'') Division 
+									,ISNULL(EmpC.UserName,'') EmployeeCategory
+									,ISNULL(Plant.UserName,'') Plant 
+                                    ,ISNULL(Plant.Id,'') PlantID 
+									,ISNULL(Section.UserName,'') Section 
+									,ISNULL(SubSection.UserName,'') SubSection 
+									,ISNULL(Unit.UserName,'') Unit 
+                                    ,ISNULL(eL.UserName,'') Line
+                                    ,ISNULL(REPLACE(CONVERT(VARCHAR(11), e.DOJ, 106), ' ', '-'),'') DOJ
+                                    ,ISNULL(REPLACE(CONVERT(VARCHAR(11), e.DOS, 106), ' ', '-'),'') DOS
+                                    , CASE WHEN MONTH(DOS) =  MONTH('" + effectiveDate + @"')  AND YEAR(DOS) = YEAR('" + effectiveDate + @"') then 'Separated' else 'Active' end CurrentMonthEmployeeStatus
+                                    ,ISNULL(e.EmployeeStatus,'') EmployeeStatus
+                                    " + salaryProcessFlag + @"
+                                    " + salaryProcessColumn + @"
+									,ISNULL(PG.UserName,'') PayRollGroup
+                                    ,e.EmployeeCodePreFix,e.EmployeeCodeNumeric
+                                    ,ISNULL(jl.JobLocation, '') JobLocation
+									,ISNULL(SPLD.PaymentMode,'') PaymentMode
+									,ISNULL(bb.UserName,'') BankName
+
+                                     FROM EmployeeInformation e
+                                
+                                    JOIN (
+                                     SELECT DISTINCT EmpInfoSystemID,SlrProcMstSystemID,PlantID ,m.Description,m.SalaryProcFlag
+                                    FROM SalaryProcChild c
+                                   INNER JOIN SalaryProcMaster m on M.MonthNo= MONTH('" + effectiveDate + @"') AND M.YearNo=YEAR('" + effectiveDate + @"') AND M.SystemID=C.SlrProcMstSystemID
+                                   
+                                    ) SPM ON spm.EmpInfoSystemID=e.SystemId and " + param + @"
+									  JOIN SalaryProcessLogDetail SPLD ON 
+								
+									  SPLD.SalaryProcessId=SPM.SlrProcMstSystemID
+									 AND SPM.EmpInfoSystemID = SPLD.EmpSystemId 
+
+                                    LEFT OUTER JOIN HKP.LegalDesignation  ld on ld.Id=SPLD.LegalDesignationId
+                                   
+                                    LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=SPLD.BudgetCode
+									LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
+                                    LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id
+                                    LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
+                                    LEFT JOIN [ORG].[Division] ON Division.Id = EN.DivisionId
+                                    LEFT JOIN [ORG].[Plant] ON Plant.Id = EN.PlantId
+                                    LEFT JOIN [ORG].[Section] ON Section.Id = PO.SectionId
+                                    LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
+                                    LEFT JOIN [ORG].[Unit] ON Unit.Id = EN.UnitId
+                                    
+                                    LEFT OUTER JOIN ORG.Line eL on eL.id=mpb.LineId
+
+                                    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = SPLD.EmployeeCategoryId
+			                                       
+                                    LEFT OUTER JOIN hkp.Designation dsg on dsg.id=PO.DesignationId
+                                    Left outer join MST.PayrollGroupMaster PGM ON PGM.employeeid = E.SystemId
+									Left outer join HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
+                                    
+								    Left Join [dbo].[JobLocation] jl on jl.SystemID = E.JobLocationID
+									left join [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=e.SystemId
+									left join [HKP].[Bank] bb on bb.Id = SPLD.BankSystemID
+									left join [HKP].[BankBranch] bbranch on bbranch.Id = SPLD.BankBranchId
+   
+                                     WHERE 1=1 " + strDOJ + @"
+                                            " + wcPayrollGroup + @"                                
+                                     ) DD " + wcEmpStatus + @" ORDER BY ISNULL(EmployeeCodePreFix,''),ISNULL(EmployeeCodeNumeric,0)";
+                return _sqlRepository.GetDataCollection(cmdText);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
 
         public IEnumerable<object> GetEmpInfoSalaryPorcessed(string companyGroupId, string plantId, string effectiveDate, string salaryProcessId, bool sa, bool ca, string userId, bool isActive, bool isSeperated, bool isMaternity)
         {
@@ -14077,205 +14210,254 @@ INNER JOIN
             }
         }//End Function
 
-        public void GeFinalDeductionReportCompanyWiseSQL(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string salaryProcessSystemId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, out DataSet dsRef)
+        //        public void GeFinalDeductionReportCompanyWiseSQL(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, Dictionary<string, string> parameters, out DataSet dsRef)
+        //        {
+        //            string strSQL;
+        //            ConnectionManager.DAL.ConManager objCon;
+        //            string salaryProcessId = "";
+        //            var _wc = string.Empty;
+        //            var wcSalaryProcessSystemIdStr = "";
+        //            plantId = "'" + plantId.Replace(",", "','") + "'";
+
+        //            if (!string.IsNullOrEmpty(salaryProcessSystemId) && salaryProcessSystemId != "undefined" && salaryProcessSystemId != "null")
+        //            {
+        //                wcSalaryProcessSystemIdStr = "SystemID IN ('" + salaryProcessSystemId + @"')";
+        //            }
+        //            else
+        //            {
+        //                wcSalaryProcessSystemIdStr = @"SystemID IN( SELECT SystemID FROM SalaryProcMaster
+        //                                      WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
+        //                                                        WHERE PlantID IN(" + plantId + @") GROUP BY SlrProcMstSystemID)
+        //                                        AND MonthNo = Month('" + fromDate + "') AND YearNo = Year('" + fromDate + "')  )";
+
+
+        //                string strSql = @"SELECT SystemID FROM SalaryProcMaster
+        //                                      WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
+        //                                                        WHERE PlantID IN(" + plantId + @") GROUP BY SlrProcMstSystemID)
+        //                                        AND MonthNo =  MONTH('" + fromDate + @"') AND YearNo =  YEAR('" + fromDate + @"')";
+
+        //                DataTable dtSalPrcId = _sqlRepository.GetDataTable(strSql);
+        //                salaryProcessId = "''";
+        //                for (int si = 0; si < dtSalPrcId.Rows.Count; si++)
+        //                {
+        //                    salaryProcessId += ",'" + dtSalPrcId.Rows[si]["SystemID"].ToString() + "'";
+        //                }
+        //            }
+        //            string wcEmpStatus = " AND (1=0 ";
+
+        //            if (isActive == true && isSeperated == true && isMaternity == true)
+        //            {
+        //                wcEmpStatus = " AND (1=1 ";
+        //            }
+        //            else
+        //            {
+        //                if (isActive == true)
+        //                {
+        //                    wcEmpStatus += " OR EmpBasic.EmployeeStatus ='Regular'";
+        //                }
+        //                if (isSeperated == true)
+        //                {
+        //                    wcEmpStatus += " OR EmpBasic.EmployeeStatus ='SEPARATED'";
+        //                }
+        //                if (isMaternity == true)
+        //                {
+        //                    wcEmpStatus += " OR EmpBasic.EmployeeStatus ='MLV_PRE'";
+
+        //                }
+        //            }
+
+        //            wcEmpStatus += ")";
+
+        //            try
+        //            {
+        //                strSQL = @"SELECT EmpBasic.*,MMDSA.*,ISNULL(MW.Grade,'') Grade,ISNULL(MW.SalaryHeadValue,0) MinimumWage,SH.SalaryHead,SH.EntryAmount 
+        //                            FROM
+        //                                    (
+        //									SELECT DISTINCT E.SystemID EmpSystemId, isnull(E.VendorId,'') as Vendor , isnull(p.UserName,'') as Contractor ,ISNULL(EmployeeCodePreFix,'') EmployeeCodePreFix,ISNULL(EmployeeCodeNumeric,0) EmployeeCodeNumeric,E.GroupID CompanyGroupId,E.CompanyId, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus EmployeeStatusReal,E.EmployeeCurrentStatus
+        //											, DG.UserName DesignationGroupName, E.DesignationSystemID, DE.UserName DesignationName,
+        //											'' UserGroupSystemID,  F.Id PlantID, F.UserName PlantName, 
+        //											FU.UserName UnitName,  DV.UserName DivisionName,  DP.UserName DepartmentName,
+        //											 S.UserName SectionName, E.SubSectionID, SS.UserName SubSectionName, E.EmployeeCategorySystemID,
+        //											EC.UserName EmpCategoryName,EC.WorkingDaysInAMonth--, BK.BankNameShort BankName, BK.BankNameFull, E.BankAccNo
+        //                                            ,e.SalaryRuleMasterSystemID,Format(E.DOJ,'dd-MMM-yyyy') DOJ,Format(E.DOS,'dd-MMM-yyyy') DOS,Format(E.DOB,'dd-MMM-yyyy') DOB
+        //											,ISNULL(LDS.UserName,'') LegalDesignation,ISNULL(E.NationalID,'') NationalID
+        //											,ISNULL(Line.UserName,'') LineName
+        //											,ISNULL(E.GenderID,'') Gender
+        //                                            ,ISNULL(LSalGr.Code,'') GradeCode
+        //											,ISNULL(PG.UserName,'') PayRollGroup
+        //                                    , CASE WHEN ISNULL(SPM.SalaryProcFlag,'') = '' THEN 'Regular' ELSE SalaryProcFlag END EmployeeStatus
+        //                                    ,ISNULL(jl.JobLocation, '') JobLocation
+        //									,ISNULL(SPLD.PaymentMode,'') PaymentMode
+        //									,ISNULL(bb.UserName,'') BankName
+        //                                    ,ISNULL(spld.BankAccNo,'') BankAccNo
+        //                                    ,ISNULL(spld.IFSCCode,'') IFSCCode
+        //                                    ,CASE WHEN ISNULL(PO.IsDirect,0) = 0 THEN 'No' ELSE 'Yes' END IsDirect
+        //                                    ,CASE WHEN ISNULL(PO.DirectManpowerCost,0) = 0 THEN 'No' ELSE 'Yes' END DirectManpowerCost
+
+        //                                     FROM EmployeeInformation E
+        //                                     left join hkp.Party p on p.Id = E.VendorId
+        //                                          Left JOIN (
+        //                                    SELECT DISTINCT EmpInfoSystemID,SlrProcMstSystemID,PlantID ,m.Description,m.SalaryProcFlag
+        //                                    FROM SalaryProcChild c
+        //                                    JOIN SalaryProcMaster m on m.SystemID=c.SlrProcMstSystemID
+        //                                    WHERE SlrProcMstSystemID IN(" + salaryProcessId + @") 
+        //                                    ) SPM ON spm.EmpInfoSystemID=e.SystemId
+        //									 JOIN SalaryProcessLogDetail SPLD ON SPLD.SalaryProcessId  IN(" + salaryProcessId + @") AND e.SystemId = SPLD.EmpSystemId  --SPLD.SalaryProcessId = SPM.SystemId AND SPC.EmpInfoSystemID = SPLD.EmpSystemId and SPLD.PlantId = '202022' 
+
+        //									 			LEFT JOIN ORG.Plant F ON F.Id= E.PlantId
+        //												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
+        //												LEFT JOIN hkp.Designation DE ON E.GivenDesignationId = DE.Id
+        //												LEFT JOIN hkp.LegalDesignation LDS ON SPLD.LegalDesignationId = LDS.Id
+        //								LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = SPLD.BudgetCode
+        //								LEFT OUTER JOIN [ORG].[Position] AS PO ON PO.Id = MB.PositionId
+        //                                LEFT OUTER JOIN [ORG].[Entity] AS ENT ON ENT.Id = MB.EntityId
+
+        //												LEFT JOIN [ORG].[Line] ON Line.Id = MB.LineId
+        //												  LEFT JOIN [dbo].[JobLocation] jl on jl.SystemID = E.JobLocationID
+        //												  LEFT JOIN [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=e.SystemId
+        //									LEFT JOIN [HKP].[Bank] bb on bb.Id = SPLD.BankSystemID
+        //                                    LEFT OUTER JOIN MST.PayrollGroupMaster PGM ON PGM.employeeid = E.SystemId
+
+        //									LEFT OUTER JOIN HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
+        //                                                LEFT JOIN MST.LegalSalaryGradeDesignation LSGD ON LSGD.LegalDesignationId = LDS.Id and E.PlantId = LSGD.PlantId
+        //                                                LEFT JOIN SCS.LegalSalaryGrade LSalGr ON LSalGr.Id = SPLD.LegalSalaryGradeId  --and SPLD.PlantId = LSalGr.PlantId
+
+        //												LEFT JOIN org.Unit FU ON ENT.UnitID = FU.Id
+        //												LEFT JOIN org.Division DV ON PO.DivisionID = DV.Id
+        //												LEFT JOIN org.Department DP ON PO.DepartmentID = DP.Id
+        //												LEFT JOIN org.Section S ON PO.SectionID = S.Id
+        //												LEFT JOIN org.SubSection SS ON PO.SubSectionID = SS.Id
+
+        //												LEFT JOIN
+        //                                                --hkp.EmployeeCategory EC ON E.EmployeeCategorySystemID = EC.Id
+        //            --                                    (
+        //            --                                    SELECT ECT.Id, ECT.UserName, DM.DesignationId FROM [HKP].[EmployeeCategory] ECT
+        //												--LEFT JOIN MST.DesignationMaster DM ON ECT.Id=DM.EmployeeCategoryId
+        //												--)EC ON EC.DesignationId=E.GivenDesignationId
+        //												[HKP].[EmployeeCategory] EC ON EC.Id = SPLD.EmployeeCategoryId
+
+
+
+        //									) EmpBasic
+        //									LEFT JOIN (select EF.SystemId,EF.EmployeeName,sh.SalaryHead,mwesac.EntryAmount,mwesam.YearNo,mwesam.MonthNo from EmployeeInformation EF 
+
+        //left outer join MonthWiseExtraSalaryAmtMaster AS mwesam on mwesam.EmpInfoSystemID=EF.SystemId
+        //left outer join MonthWiseExtraSalaryAmtChild AS mwesac on mwesam.SystemID=mwesac.MWESAMasterSystemID
+        //left outer join SalaryHead AS sh on mwesac.SalaryHeadID=sh.SalaryHeadID
+        //) SH on SH.SystemId=EmpBasic.EmpSystemId
+
+        //                                   LEFT JOIN 
+        //													(
+        //													 SELECT E.SystemID, SUM(SV.SalaryHeadValue) SalaryHeadValue,LSG.UserName Grade
+        //														FROM EmployeeInformation E   
+        //																LEFT JOIN MST.ManpowerBudget b ON e.BudgetCode = b.Id
+        //																LEFT JOIN MST.LegalSalaryGradeDesignation GD ON GD.LegalDesignationId = E.LegalDesignationId 
+        //                                                                                                AND E.PlantId = gd.PlantId
+        //																LEFT JOIN (
+        //																			SELECT MAX(EffectiveDate) EffectiveDate, LegalSalaryGradeId, EmployeeLocationId 
+        //																				FROM MST.LegalSalaryStructure 
+        //																				WHERE EffectiveDate <= '" + fromDate + @"'
+        //																			GROUP BY LegalSalaryGradeId, EmployeeLocationId 
+        //																		  ) S ON S.LegalSalaryGradeId = GD.LegalSalaryGradeId AND S.EmployeeLocationId = B.EmployeeLocationId
+        //																LEFT JOIN MST.LegalSalaryStructure SS ON SS.LegalSalaryGradeId = S.LegalSalaryGradeId 
+        //                                                                                            AND SS.EmployeeLocationId = S.EmployeeLocationId 
+        //                                                                                            AND SS.EffectiveDate = S.EffectiveDate
+        //																LEFT JOIN MST.LegalSalaryStructureValue SV ON SV.LegalSalaryStructureId = SS.Id 	
+        //                                                                left join  [SCS].[LegalSalaryGrade] LSG ON LSG.Id=S.LegalSalaryGradeId	
+        //														GROUP BY E.SystemId,LSG.UserName
+        //													) MW ON MW.SystemId = EmpBasic.EmpSystemId
+        //                                    INNER JOIN
+        //		                                    (
+        //											SELECT EmpSystemID,WeekoffDays,MonthNo,YearNo, ISNULL(TotalWorkingDay,0) TotalWorkingDay,ISNULL(TotalPayDay,0)TotalPayDay,ISNULL(TotalNonPayDay,0)TotalNonPayDay,ISNULL(ActualWorkingDay,0)ActualWorkingDay,IsNULL(TotalPresent,0) TotalPresent,ISNULL(TotalLate,0) TotalLate,ISNULL(TotalAbsent,'') TotalAbsent
+        //										,ISNULL(TotalLv,0) TotalLv
+        //										,ISNULL(TotalMLv,0) TotalMLv,ISNULL(TotalCompAssignLv,0) TotalCompAssignLv,ISNULL(TotalWeekOff,0) +  ISNULL(TotalWeekOffHoliDay,0) TotalWeekOff, ISNULL(TotalWeekOffHoliDay,0) TotalWeekOffHoliDay
+        //										,ISNULL(TotalOTHr,0) TotalOTHr,ISNULL(TotalNormalOTHr,0) TotalNormalOTHr,ISNULL(TotalExtraOTHr,0) TotalExtraOTHr,ISNULL(WeekOffOTHr,0) WeekOffOTHr
+        //										,ISNULL(HoliDayOTHr,0) HoliDayOTHr,ISNULL(TotalLWP,0) TotalLWP,ISNULL(IsOTEntitled,0) IsOTEntitled,ISNULL(OTRate,0) OTRate,ISNULL(TotalHoliDay,0) TotalHoliDay
+        //										  FROM SalaryProceAttdnData MMDSA where MMDSA.MonthNo = MONTH('" + fromDate + @"') AND
+        //						                               MMDSA.YearNo = YEAR('" + fromDate + @"') --AND MMDSA.PlantID = '" + plantId + @"' 
+        //											) MMDSA ON EmpBasic.EmpSystemID = MMDSA.EmpSystemID 
+        //                                            WHERE EmpBasic.PlantId IN (" + plantId + @") " + wcEmpStatus + @"";
+        //                try
+        //                {
+        //                    if (parameters.Count > 0)
+        //                    {
+        //                        if (parameters.Keys.ElementAt(0) != "")
+        //                        {
+        //                            strSQL += @"and EmpBasic.EmpSystemId IN(" + parameters["EmpSystemId"] + ")";
+        //                        }
+        //                    }
+        //                }
+        //                catch (Exception)
+        //                {
+
+        //                }
+
+        //                strSQL += @"Order by EmpBasic.EmployeeCodePreFix,EmpBasic.EmployeeCodeNumeric ";
+
+        //                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+        //                con.getDataSet(strSQL, out dsRef);
+
+
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                throw (ex);
+        //            }
+        //            finally
+        //            {
+        //                objCon = null;
+        //            }
+        //        }//End Function
+
+
+        private void SalaryHeadSQL(string plantId, string month, string year, Dictionary<string, string> parameters, out DataSet dsRef)
         {
-            string strSQL;
-            ConnectionManager.DAL.ConManager objCon;
-            string salaryProcessId = "";
-            var _wc = string.Empty;
-            var wcSalaryProcessSystemIdStr = "";
-            plantId = "'" + plantId.Replace(",", "','") + "'";
-
-            if (!string.IsNullOrEmpty(salaryProcessSystemId) && salaryProcessSystemId != "undefined" && salaryProcessSystemId != "null")
-            {
-                wcSalaryProcessSystemIdStr = "SystemID IN ('" + salaryProcessSystemId + @"')";
-            }
-            else
-            {
-                wcSalaryProcessSystemIdStr = @"SystemID IN( SELECT SystemID FROM SalaryProcMaster
-                                      WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
-                                                        WHERE PlantID IN(" + plantId + @") GROUP BY SlrProcMstSystemID)
-                                        AND MonthNo = Month('" + fromDate + "') AND YearNo = Year('" + fromDate + "')  )";
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
 
-                string strSql = @"SELECT SystemID FROM SalaryProcMaster
-                                      WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
-                                                        WHERE PlantID IN(" + plantId + @") GROUP BY SlrProcMstSystemID)
-                                        AND MonthNo =  MONTH('" + fromDate + @"') AND YearNo =  YEAR('" + fromDate + @"')";
-
-                DataTable dtSalPrcId = _sqlRepository.GetDataTable(strSql);
-                salaryProcessId = "''";
-                for (int si = 0; si < dtSalPrcId.Rows.Count; si++)
-                {
-                    salaryProcessId += ",'" + dtSalPrcId.Rows[si]["SystemID"].ToString() + "'";
-                }
-            }
-            string wcEmpStatus = " AND (1=0 ";
-
-            if (isActive == true && isSeperated == true && isMaternity == true)
-            {
-                wcEmpStatus = " AND (1=1 ";
-            }
-            else
-            {
-                if (isActive == true)
-                {
-                    wcEmpStatus += " OR EmpBasic.EmployeeStatus ='Regular'";
-                }
-                if (isSeperated == true)
-                {
-                    wcEmpStatus += " OR EmpBasic.EmployeeStatus ='SEPARATED'";
-                }
-                if (isMaternity == true)
-                {
-                    wcEmpStatus += " OR EmpBasic.EmployeeStatus ='MLV_PRE'";
-
-                }
-            }
-
-            wcEmpStatus += ")";
-
-            try
-            {
-                strSQL = @"SELECT EmpBasic.*,MMDSA.*,ISNULL(MW.Grade,'') Grade,ISNULL(MW.SalaryHeadValue,0) MinimumWage,SH.SalaryHead,SH.EntryAmount 
-                            FROM
-                                    (
-									SELECT DISTINCT E.SystemID EmpSystemId, isnull(E.VendorId,'') as Vendor , isnull(p.UserName,'') as Contractor ,ISNULL(EmployeeCodePreFix,'') EmployeeCodePreFix,ISNULL(EmployeeCodeNumeric,0) EmployeeCodeNumeric,E.GroupID CompanyGroupId,E.CompanyId, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus EmployeeStatusReal,E.EmployeeCurrentStatus
-											, DG.UserName DesignationGroupName, E.DesignationSystemID, DE.UserName DesignationName,
-											'' UserGroupSystemID,  F.Id PlantID, F.UserName PlantName, 
+            string strSQL = @"SELECT DISTINCT E.SystemID EmpSystemId, isnull(E.VendorId,'') as Vendor ,F.UserName Plant
+									, isnull(p.UserName,'') as Contractor, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus 
+											, E.DesignationSystemID, DE.UserName DesignationName,
+											  F.Id PlantID, F.UserName PlantName, 
 											FU.UserName UnitName,  DV.UserName DivisionName,  DP.UserName DepartmentName,
-											 S.UserName SectionName, E.SubSectionID, SS.UserName SubSectionName, E.EmployeeCategorySystemID,
-											EC.UserName EmpCategoryName,EC.WorkingDaysInAMonth--, BK.BankNameShort BankName, BK.BankNameFull, E.BankAccNo
-                                            ,e.SalaryRuleMasterSystemID,Format(E.DOJ,'dd-MMM-yyyy') DOJ,Format(E.DOS,'dd-MMM-yyyy') DOS,Format(E.DOB,'dd-MMM-yyyy') DOB
-											,ISNULL(LDS.UserName,'') LegalDesignation,ISNULL(E.NationalID,'') NationalID
-											,ISNULL(Line.UserName,'') LineName
-											,ISNULL(E.GenderID,'') Gender
-                                            ,ISNULL(LSalGr.Code,'') GradeCode
-											,ISNULL(PG.UserName,'') PayRollGroup
-                                    , CASE WHEN ISNULL(SPM.SalaryProcFlag,'') = '' THEN 'Regular' ELSE SalaryProcFlag END EmployeeStatus
-                                    ,ISNULL(jl.JobLocation, '') JobLocation
-									,ISNULL(SPLD.PaymentMode,'') PaymentMode
-									,ISNULL(bb.UserName,'') BankName
-                                    ,ISNULL(spld.BankAccNo,'') BankAccNo
-                                    ,ISNULL(spld.IFSCCode,'') IFSCCode
-                                    ,CASE WHEN ISNULL(PO.IsDirect,0) = 0 THEN 'No' ELSE 'Yes' END IsDirect
-                                    ,CASE WHEN ISNULL(PO.DirectManpowerCost,0) = 0 THEN 'No' ELSE 'Yes' END DirectManpowerCost
-
+											 S.UserName SectionName
+											 , SS.UserName SubSectionName,
+											EC.UserName EmpCategoryName,
+                                         Format(E.DOJ,'dd-MMM-yyyy') DOJ,Format(E.DOS,'dd-MMM-yyyy') DOS,Format(E.DOB,'dd-MMM-yyyy') DOB
+											,ISNULL(LDS.UserName,'') LegalDesignation
+											,SH.SalaryHead,SH.EntryAmount,SH.DefineAmount,LS.UserName Grade,SH.ExtDataUploadApp
                                      FROM EmployeeInformation E
                                      left join hkp.Party p on p.Id = E.VendorId
-                                          Left JOIN (
-                                    SELECT DISTINCT EmpInfoSystemID,SlrProcMstSystemID,PlantID ,m.Description,m.SalaryProcFlag
-                                    FROM SalaryProcChild c
-                                    JOIN SalaryProcMaster m on m.SystemID=c.SlrProcMstSystemID
-                                    WHERE SlrProcMstSystemID IN(" + salaryProcessId + @") 
-                                    ) SPM ON spm.EmpInfoSystemID=e.SystemId
-									 JOIN SalaryProcessLogDetail SPLD ON SPLD.SalaryProcessId  IN(" + salaryProcessId + @") AND e.SystemId = SPLD.EmpSystemId  --SPLD.SalaryProcessId = SPM.SystemId AND SPC.EmpInfoSystemID = SPLD.EmpSystemId and SPLD.PlantId = '202022' 
-                         
 									 			LEFT JOIN ORG.Plant F ON F.Id= E.PlantId
 												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
 												LEFT JOIN hkp.Designation DE ON E.GivenDesignationId = DE.Id
-												LEFT JOIN hkp.LegalDesignation LDS ON SPLD.LegalDesignationId = LDS.Id
-								LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = SPLD.BudgetCode
+												LEFT JOIN hkp.LegalDesignation LDS ON E.LegalDesignationId = LDS.Id
+LEFT join  [MST].[DesignationMasterLegalDesignation] dmld on dmld.LegalDesignationId=LDS.Id
+                        left join [MST].[DesignationMaster] dm on dm.Id=dmld.DesignationMasterId
+                        left join HKP.EmployeeCategory EC on EC.Id=dm.EmployeeCategoryId
+								LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = E.BudgetCode
 								LEFT OUTER JOIN [ORG].[Position] AS PO ON PO.Id = MB.PositionId
                                 LEFT OUTER JOIN [ORG].[Entity] AS ENT ON ENT.Id = MB.EntityId
-
-												LEFT JOIN [ORG].[Line] ON Line.Id = MB.LineId
-												  LEFT JOIN [dbo].[JobLocation] jl on jl.SystemID = E.JobLocationID
-												  LEFT JOIN [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=e.SystemId
-									LEFT JOIN [HKP].[Bank] bb on bb.Id = SPLD.BankSystemID
-                                    LEFT OUTER JOIN MST.PayrollGroupMaster PGM ON PGM.employeeid = E.SystemId
-
-									LEFT OUTER JOIN HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
                                                 LEFT JOIN MST.LegalSalaryGradeDesignation LSGD ON LSGD.LegalDesignationId = LDS.Id and E.PlantId = LSGD.PlantId
-                                                LEFT JOIN SCS.LegalSalaryGrade LSalGr ON LSalGr.Id = SPLD.LegalSalaryGradeId  --and SPLD.PlantId = LSalGr.PlantId
+                                                  JOIN [SCS].[LegalSalaryGrade] LS ON LS.Id = LSGD.LegalSalaryGradeId and ls.PlantId=lsgd.PlantId
 												
 												LEFT JOIN org.Unit FU ON ENT.UnitID = FU.Id
 												LEFT JOIN org.Division DV ON PO.DivisionID = DV.Id
 												LEFT JOIN org.Department DP ON PO.DepartmentID = DP.Id
 												LEFT JOIN org.Section S ON PO.SectionID = S.Id
 												LEFT JOIN org.SubSection SS ON PO.SubSectionID = SS.Id
+												 Join(SELECT m.EmpInfoSystemID, c.SalaryHeadID,Sh.SalaryHead,c.ExtDataUploadApp,SUM(C.EntryAmount)AS EntryAmount,SUM(c.DefineAmount) AS DefineAmount
+  FROM MonthWiseExtraSalaryAmtMaster AS m
+JOIN MonthWiseExtraSalaryAmtChild AS C ON c.MWESAMasterSystemID=m.SystemID
+JOIN SalaryHead AS sh ON sh.SalaryHeadID=c.SalaryHeadID
+WHERE m.MonthNo='" + month + @"' AND m.YearNo='" + year + @"'
+GROUP BY m.EmpInfoSystemID, c.SalaryHeadID,c.ExtDataUploadApp,Sh.SalaryHead) SH on SH.EmpInfoSystemID=E.SystemId
 
-												LEFT JOIN
-                                                --hkp.EmployeeCategory EC ON E.EmployeeCategorySystemID = EC.Id
-            --                                    (
-            --                                    SELECT ECT.Id, ECT.UserName, DM.DesignationId FROM [HKP].[EmployeeCategory] ECT
-												--LEFT JOIN MST.DesignationMaster DM ON ECT.Id=DM.EmployeeCategoryId
-												--)EC ON EC.DesignationId=E.GivenDesignationId
-												[HKP].[EmployeeCategory] EC ON EC.Id = SPLD.EmployeeCategoryId
-											
+where E.SystemId in (" + parameters["EmpSystemId"] + @")";
 
-                               
-									) EmpBasic
-									LEFT JOIN (select EF.SystemId,EF.EmployeeName,sh.SalaryHead,mwesac.EntryAmount,mwesam.YearNo,mwesam.MonthNo from EmployeeInformation EF 
-
-left outer join MonthWiseExtraSalaryAmtMaster AS mwesam on mwesam.EmpInfoSystemID=EF.SystemId
-left outer join MonthWiseExtraSalaryAmtChild AS mwesac on mwesam.SystemID=mwesac.MWESAMasterSystemID
-left outer join SalaryHead AS sh on mwesac.SalaryHeadID=sh.SalaryHeadID
-) SH on SH.SystemId=EmpBasic.EmpSystemId
-
-                                   LEFT JOIN 
-													(
-													 SELECT E.SystemID, SUM(SV.SalaryHeadValue) SalaryHeadValue,LSG.UserName Grade
-														FROM EmployeeInformation E   
-																LEFT JOIN MST.ManpowerBudget b ON e.BudgetCode = b.Id
-																LEFT JOIN MST.LegalSalaryGradeDesignation GD ON GD.LegalDesignationId = E.LegalDesignationId 
-                                                                                                AND E.PlantId = gd.PlantId
-																LEFT JOIN (
-																			SELECT MAX(EffectiveDate) EffectiveDate, LegalSalaryGradeId, EmployeeLocationId 
-																				FROM MST.LegalSalaryStructure 
-																				WHERE EffectiveDate <= '" + fromDate + @"'
-																			GROUP BY LegalSalaryGradeId, EmployeeLocationId 
-																		  ) S ON S.LegalSalaryGradeId = GD.LegalSalaryGradeId AND S.EmployeeLocationId = B.EmployeeLocationId
-																LEFT JOIN MST.LegalSalaryStructure SS ON SS.LegalSalaryGradeId = S.LegalSalaryGradeId 
-                                                                                            AND SS.EmployeeLocationId = S.EmployeeLocationId 
-                                                                                            AND SS.EffectiveDate = S.EffectiveDate
-																LEFT JOIN MST.LegalSalaryStructureValue SV ON SV.LegalSalaryStructureId = SS.Id 	
-                                                                left join  [SCS].[LegalSalaryGrade] LSG ON LSG.Id=S.LegalSalaryGradeId	
-														GROUP BY E.SystemId,LSG.UserName
-													) MW ON MW.SystemId = EmpBasic.EmpSystemId
-                                    INNER JOIN
-		                                    (
-											SELECT EmpSystemID,WeekoffDays,MonthNo,YearNo, ISNULL(TotalWorkingDay,0) TotalWorkingDay,ISNULL(TotalPayDay,0)TotalPayDay,ISNULL(TotalNonPayDay,0)TotalNonPayDay,ISNULL(ActualWorkingDay,0)ActualWorkingDay,IsNULL(TotalPresent,0) TotalPresent,ISNULL(TotalLate,0) TotalLate,ISNULL(TotalAbsent,'') TotalAbsent
-										,ISNULL(TotalLv,0) TotalLv
-										,ISNULL(TotalMLv,0) TotalMLv,ISNULL(TotalCompAssignLv,0) TotalCompAssignLv,ISNULL(TotalWeekOff,0) +  ISNULL(TotalWeekOffHoliDay,0) TotalWeekOff, ISNULL(TotalWeekOffHoliDay,0) TotalWeekOffHoliDay
-										,ISNULL(TotalOTHr,0) TotalOTHr,ISNULL(TotalNormalOTHr,0) TotalNormalOTHr,ISNULL(TotalExtraOTHr,0) TotalExtraOTHr,ISNULL(WeekOffOTHr,0) WeekOffOTHr
-										,ISNULL(HoliDayOTHr,0) HoliDayOTHr,ISNULL(TotalLWP,0) TotalLWP,ISNULL(IsOTEntitled,0) IsOTEntitled,ISNULL(OTRate,0) OTRate,ISNULL(TotalHoliDay,0) TotalHoliDay
-										  FROM SalaryProceAttdnData MMDSA where MMDSA.MonthNo = MONTH('" + fromDate + @"') AND
-						                               MMDSA.YearNo = YEAR('" + fromDate + @"') --AND MMDSA.PlantID = '" + plantId + @"' 
-											) MMDSA ON EmpBasic.EmpSystemID = MMDSA.EmpSystemID 
-                                            WHERE EmpBasic.PlantId IN (" + plantId + @") " + wcEmpStatus + @"";
-                try
-                {
-                    if (parameters.Count > 0)
-                    {
-                        if (parameters.Keys.ElementAt(0) != "")
-                        {
-                            strSQL += @"and EmpBasic.EmpSystemId IN(" + parameters["EmpSystemId"] + ")";
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-
-                }
-
-                strSQL += @"Order by EmpBasic.EmployeeCodePreFix,EmpBasic.EmployeeCodeNumeric ";
-
-                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
-                con.getDataSet(strSQL, out dsRef);
-
-
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-            finally
-            {
-                objCon = null;
-            }
-        }//End Function
-
+            ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+            con.getDataSet(strSQL, out dsRef);
+        }
 
         public void GetEmployeeInfoDetailSalaryLogWiseForArrear(string companyGroupId, string companyId, string plantId, string MonthNos, string YearNos, string fromDate, string toDate, string salaryProcessSystemId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, out DataSet dsRef)
         {

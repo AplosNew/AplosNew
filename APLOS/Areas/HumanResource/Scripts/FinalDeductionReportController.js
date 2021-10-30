@@ -151,37 +151,23 @@ function FinalDeductionReportController(commonMessage, $scope, $rootScope, baseS
     $scope.EmployeeListDefault = [];
     $scope.EmployeeListTemp = [];
     $scope.GetEmployeeInformation = function () {
-        //var DropDownListObj = $("#ddlPayRollGroupList").data("ejDropDownList");
-        //$scope.payGroupListSelected = DropDownListObj.getSelectedValue();
+        $scope.empGrid = false;
+        var DropDownListObj = $("#CWPlant").data("ejDropDownList");
+        var PlantId = DropDownListObj.getSelectedValue();
 
-        //if (angular.isUndefinedOrNull($scope.year) === false && angular.isUndefinedOrNull($scope.month) === false) {
-        //    var DropDownListSalaryProcess = $("#ddlSalaryProcessId").data("ejDropDownList");
-        //    $scope.salaryProcessId = DropDownListSalaryProcess.getSelectedValue();
-        //}
-        var monthName = $scope.monthList.filter(function (mnth) {
-            return mnth.Value == $scope.month;
-        });
-        $scope.effectiveDate = daysInMonth($scope.month, $scope.year) + '-' + monthName[0].Text + '-' + $scope.year;
-
-        if (angular.isUndefinedOrNull($scope.month)) {
-            ShowResult("Select Month", 'failure');
+        if (baseService.isUndefinedOrNull(PlantId)) {
+            throw "Select Plant..";
         }
-        if (angular.isUndefinedOrNull($scope.year)) {
-            ShowResult("Select Year", 'failure');
-        }
-        else {
-
-            var parameters = {
-                'effectiveDate': $scope.effectiveDate, 'salaryProcessId': $scope.salaryProcessId, 'payRollGroup': $scope.payGroupListSelected
-             /*   , 'isActive': $scope.isActive,*/
-                //'isSeperated': $scope.isSeperated,
-                //'isMaternity': $scope.isMaternity
-            };
+            
             $http({
                 method: "POST",
                 dataType: 'JSON',
-                url: 'humanresource/FinalDeductionReport/GetEmpInfoSalaryPorcessed',
-                data: parameters
+                url: 'humanresource/FinalDeductionReport/GetEmployeeList',
+                data: {
+                    'month': $scope.month,
+                    'year': $scope.year,
+                    'PlantId': PlantId
+                }
             }).then(function successCallback(response) {
                 if (response.data.length > 0) {
                     $scope.empGrid = true;
@@ -198,12 +184,70 @@ function FinalDeductionReportController(commonMessage, $scope, $rootScope, baseS
                 gridObj.refreshContent(true);
 
             });
-        }
+        
     };
 
+
+    $scope.FinalDeductionEmployeeList = [];
+    $scope.empGrid = false;
+    $scope.GetEmployeeList = function () {
+        $scope.empGrid = false;
+        var DropDownListObj = $("#CWPlant").data("ejDropDownList");
+        var PlantId = DropDownListObj.getSelectedValue();
+
+        if (baseService.isUndefinedOrNull(PlantId)) {
+            throw "Select Plant..";
+        }
+
+        $http({
+            method: "POST",
+            dataType: 'JSON',
+            url: 'humanresource/FinalDeductionReport/GetEmployeeList',
+            data: {
+                'month': $scope.month,
+                'year': $scope.year,
+                 'PlantId': PlantId
+            }
+        }).then(function successCallback(response) {
+            $scope.empGrid = true;
+            $scope.FinalDeductionEmployeeList = response.data;
+
+
+
+
+        });
+    }
+
+    $scope.PlantIdFromUI = null;
+    $scope.PlantList = [];
+    $scope.getPlant = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetPlantList",
+        }).then(function successCallback(response) {
+            $scope.PlantList = response.data;
+            var index = 0;
+            for (var i = 0; i < $scope.PlantList.length; i++) {
+                if ($scope.PlantList[i].PlantId == $window.plantId) {
+                    index = i;
+                }
+            }
+
+            $('#CWPlant').ejDropDownList(
+                {
+                    dataSource: $scope.PlantList,
+                    fields: { text: "PlantName", value: "PlantId" },
+                    selectedIndex: index, showCheckBox: true, multiSelectMode: ej.MultiSelectMode.VisualMode
+                    , width: 250
+                });
+
+        });
+    }
+    $scope.getPlant();
     $scope.GetEmployeeSalaryProcessedReport = function () {
         try {
             var parameters = [];
+            $scope.empGrid = false;
             var gridObj = $("#empInfoGrid").ejGrid("instance");
             var filteredRecords = gridObj.getFilteredRecords();
             if ($scope.isManualFilter == true) {
@@ -275,13 +319,9 @@ function FinalDeductionReportController(commonMessage, $scope, $rootScope, baseS
                 url: 'humanresource/FinalDeductionReport/GetEmployeeSalaryProcessedReportSalLogWiseNew',
                 data: {
                     'month': $scope.month,
-                    'year': $scope.year,
-                    'salaryProcessId': $scope.salaryProcessId,
-                    'payRollGroup': $scope.payGroupListSelected,
+                    'year': $scope.year,                    
                     'parameters': parameters,
-                    'isActive': $scope.isActive,
-                    'isSeperated': $scope.isSeperated,
-                    'isMaternity': $scope.isMaternity
+                   
                 }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -295,8 +335,6 @@ function FinalDeductionReportController(commonMessage, $scope, $rootScope, baseS
             ShowResult(e, 'failure');
         }
     };
-
-
     $scope.GetBsrSalarySummaryReport = function () {
         try {
             var parameteres = [];
@@ -304,7 +342,7 @@ function FinalDeductionReportController(commonMessage, $scope, $rootScope, baseS
 
             $http({
                 method: 'POST',
-                url: 'humanresource/FinalDeductionReport/GetBsrSalarySummaryReport',
+                url: 'humanresource/FinalDeductionReportC/GetBsrSalarySummaryReport',
                 data: {
                     'month': $scope.month,
                     'year': $scope.year,
@@ -371,7 +409,7 @@ function FinalDeductionReportController(commonMessage, $scope, $rootScope, baseS
                 for (var i = 0; i < $scope.EmployeeList.length; i++) {
                     for (var j = 0; j < filtered.length; j++) {
                         if ($scope.EmployeeList[i].EmpSystemId == filtered[j].EmpSystemId)
-                            // $scope.EmployeeList[i].isSelect = true;
+                           
                             $scope.EmployeeList[i].isToBeSelect = true;
                     }
 
