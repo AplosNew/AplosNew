@@ -2501,6 +2501,10 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                         $scope.colorCharacteristicsId = $scope.characteristicsList[0].Value;
                         $scope.columnName = $scope.characteristicsList[1].Text;
                         $scope.sizeCharacteristicsId = $scope.characteristicsList[1].Value;
+
+                        $scope.char1Id = $scope.characteristicsList[0].Value;
+                        $scope.char2Id = $scope.characteristicsList[1].Value;
+
                         angular.element(document.querySelector('#firstPopup')).modal('hide');
                         angular.element(document.querySelector('#thirdPopup')).modal('hide');
 
@@ -4489,7 +4493,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             $scope.FromSKU2List = response.data;
         });
     }
-    $scope.char1Id = '';
+    $scope.char1Id = null;
     $scope.ToSKU1List = [];
     $scope.GetToItemMaterialSKU1 = function (materialId) {
         $http({
@@ -4500,7 +4504,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             $scope.char1Id = response.data[0].CharacteristicsId;
         });
     }
-    $scope.char2Id = '';
+    $scope.char2Id = null;
     $scope.ToSKU2List = [];
     $scope.GetToItemMaterialSKU2 = function (materialId) {
         $http({
