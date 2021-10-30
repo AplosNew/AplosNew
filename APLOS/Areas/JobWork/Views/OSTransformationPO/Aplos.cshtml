@@ -1476,13 +1476,13 @@
                             </div>
                         </div>
                         @*<div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
-                                <div class="form-group">
-                                    <label class=" control-label">Alternate UoM</label>
-                                    <div>
-                                        <input type="text" ng-model="detailModel.AlternateUoM" class="form-control" readonly maxlength="50">
-                                    </div>
-                                </div>
-                            </div>*@
+            <div class="form-group">
+                <label class=" control-label">Alternate UoM</label>
+                <div>
+                    <input type="text" ng-model="detailModel.AlternateUoM" class="form-control" readonly maxlength="50">
+                </div>
+            </div>
+        </div>*@
 
                         <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
                             <div class="form-group" show-errors>
@@ -1493,6 +1493,65 @@
                             </div>
                         </div>
                         <div class="clearfix"></div>
+
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
+                            <div class="form-group">
+
+                                <label class=" control-label">SKU 1</label>
+                                @*<div class=" show-message">*@
+                                <div class="input-group">
+                                    <span class="input-group-addon">{{detailModel.Code1}}</span>
+                                    <input type="text" ng-model="detailModel.UserName1" class="form-control" readonly>
+                                    <input type="hidden" ng-model="detailModel.FirstCharacteristicsValueId" />
+                                    <span class="input-group-btn">
+                                        <button ng-click="SKU1PopUp()" ng-disabled="detailModel.MaterialMasterId==null" tabindex="18" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button ng-click="SKU1Clear()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                    </span>
+                                </div>
+                                @*</div>*@
+
+                            </div>
+                        </div>
+
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
+                            <div class="form-group">
+
+                                <label class=" control-label">SKU 2</label>
+                                @*<div class=" show-message">*@
+                                <div class="input-group">
+                                    <span class="input-group-addon">{{detailModel.Code2}}</span>
+                                    <input type="text" ng-model="detailModel.UserName2" class="form-control" readonly>
+                                    <input type="hidden" ng-model="detailModel.SecondCharacteristicsValueId" />
+                                    <span class="input-group-btn">
+                                        <button ng-click="SKU2PopUp()" ng-disabled="detailModel.MaterialMasterId==null" tabindex="18" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button ng-click="SKU2Clear()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                    </span>
+                                </div>
+                                @*</div>*@
+
+                            </div>
+                        </div>
+
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
+                            <div class="form-group">
+
+                                <label class=" control-label">SKU 3</label>
+                                @*<div class=" show-message">*@
+                                <div class="input-group">
+                                    <span class="input-group-addon">{{detailModel.Code3}}</span>
+                                    <input type="text" ng-model="detailModel.UserName3" class="form-control" readonly>
+                                    <input type="hidden" ng-model="detailModel.ThirdCharacteristicsValueId" />
+                                    <span class="input-group-btn">
+                                        <button ng-click="SKU3PopUp()" ng-disabled="detailModel.MaterialMasterId==null" tabindex="18" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button ng-click="SKU3Clear()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                    </span>
+                                </div>
+                                @*</div>*@
+
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+
                         <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
                             <div class="form-group" show-errors>
                                 <label class=" control-label">Currency<sup>*</sup></label>
@@ -1715,13 +1774,13 @@
                         <div class="clearfix"></div>
 
                         @*<div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
-                                <div class="form-group">
-                                    <label class="control-label">Remarks</label>
-                                    <div>
-                                        <textarea type="text" ng-model="detailModel.Remarks" class="form-control" tabindex="16" maxlength="250"></textarea>
-                                    </div>
-                                </div>
-                            </div>*@
+            <div class="form-group">
+                <label class="control-label">Remarks</label>
+                <div>
+                    <textarea type="text" ng-model="detailModel.Remarks" class="form-control" tabindex="16" maxlength="250"></textarea>
+                </div>
+            </div>
+        </div>*@
                         @*<div class="clearfix"></div>*@
                         <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
                             <div class="form-group">
@@ -1751,11 +1810,11 @@
                         </div>
                         <div class="clearfix"></div>
                         @*<div class="common-btn">
-                                <ul class="list-inline text-right">
-                                    <li> <button ng-click="SaveMatPlanning()" ng-disabled="Transformation.Id==null" class="btn" tabindex="5"><i class="glyphicon glyphicon-plus-sign"></i></button></li>
-                                    <li> <button ng-click="detailClear()" class="btn" tabindex="7"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                                </ul>
-                            </div>*@
+            <ul class="list-inline text-right">
+                <li> <button ng-click="SaveMatPlanning()" ng-disabled="Transformation.Id==null" class="btn" tabindex="5"><i class="glyphicon glyphicon-plus-sign"></i></button></li>
+                <li> <button ng-click="detailClear()" class="btn" tabindex="7"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>*@
                     </div>
                 </div>
 
@@ -3391,6 +3450,111 @@
                                 <div e-column e-type="string" e-field="ArticleCode" e-headertext="Article Code" e-width="140"></div>
                                 <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
                                 <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button data-dismiss="modal" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="SKU1PopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> SKU 1 List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;">
+                        <div style="color:black;" id="GridSKU1" ej-grid e-datasource="SKU1List"
+                             e-allowfiltering="true" e-recorddoubleclick="setSKU1Data" e-allowpaging="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-type="string" e-field="MaterialMst" e-headertext="Material Name" e-width="80"></div>
+                                <div e-column e-type="string" e-field="FirstCharacteristics" e-headertext="First Characteristics" e-width="40"></div>
+                                <div e-column e-type="string" e-field="Sequence" e-headertext="Sequence" e-width="140"></div>
+                                <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="140"></div>
+                                <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                                <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                                <div e-column e-type="string" e-field="UserName" e-headertext="First Characteristics Value" e-width="80"></div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button data-dismiss="modal" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="SKU2PopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> SKU 2 List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;">
+                        <div style="color:black;" id="GridSKU2" ej-grid e-datasource="SKU2List"
+                             e-allowfiltering="true" e-recorddoubleclick="setSKU2Data" e-allowpaging="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-type="string" e-field="MaterialMst" e-headertext="Material Name" e-width="80"></div>
+                                <div e-column e-type="string" e-field="FirstCharacteristics" e-headertext="First Characteristics" e-width="40"></div>
+                                <div e-column e-type="string" e-field="Sequence" e-headertext="Sequence" e-width="140"></div>
+                                <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="140"></div>
+                                <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                                <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                                <div e-column e-type="string" e-field="UserName" e-headertext="First Characteristics Value" e-width="80"></div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button data-dismiss="modal" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="SKU3PopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> SKU 3 List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;">
+                        <div style="color:black;" id="GridSKU3" ej-grid e-datasource="SKU3List"
+                             e-allowfiltering="true" e-recorddoubleclick="setSKU3Data" e-allowpaging="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-type="string" e-field="MaterialMst" e-headertext="Material Name" e-width="80"></div>
+                                <div e-column e-type="string" e-field="FirstCharacteristics" e-headertext="First Characteristics" e-width="40"></div>
+                                <div e-column e-type="string" e-field="Sequence" e-headertext="Sequence" e-width="140"></div>
+                                <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="140"></div>
+                                <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                                <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                                <div e-column e-type="string" e-field="UserName" e-headertext="First Characteristics Value" e-width="80"></div>
 
                             </div>
                         </div>
