@@ -411,6 +411,10 @@ function employeeConfig($routeProvider, $locationProvider, $windowProvider) {
             templateUrl: 'employees/ODDelete/ODDelete',
             controller: 'oDDeleteController'
         })
+        .when('/od-delete-new', {
+            templateUrl: 'employees/ODDeleteNew/Aplos',
+            controller: 'oDDeleteNewController'
+        })
         .when('/exception-employee', {
             templateUrl: 'employees/ExceptionEmployee/Aplos',
             controller: 'exceptionEmployeeController'
