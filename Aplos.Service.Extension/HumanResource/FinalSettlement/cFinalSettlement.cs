@@ -18,7 +18,7 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
         }
 
 
-        public DataTable GetEmployeeBasicInformation(string SystemId, string plantId)
+        public System.Data.DataTable GetEmployeeBasicInformation(string SystemId, string plantId)
         {
             try
             {
@@ -203,13 +203,13 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
 
 
                 string sql = @"SELECT ROW_NUMBER() OVER(ORDER BY FinalSettlementHead ASC) AS RowNumber,* FROM (
-SELECT                                  ISNULL(ll.Name, dh.UserName) AS FinalSettlementHead ,Amount= convert(int,ROUND(fs.Amount,0)),dh.Category 
+                                    SELECT   ISNULL(ll.Name, dh.UserName) AS FinalSettlementHead ,Amount= convert(int,ROUND(fs.Amount,0)),dh.Category 
                                         FROM FinalSettlementDeductionDetails fs
                                         left join [dbo].[FinalSettlementDeductionHead] dh on dh.id=fs.FinalSettlementDeductionHeadId
                                         left join [HKP].[LocalLanguage] ll on ll.FinalSettlementHeadId=fs.Id and ll.LanguageId='" + LanguageId + @"'
                                         where fs.EmployeeFinalSettlementId='" + EmployeeFinalSettlementId + @"' and dh.Category='Earning'
                                         UNION
-                                        SELECT ISNULL(ll.Name, SH.SalaryHead) AS FinalSettlementHead ,Amount= convert(int,ROUND(R.Amount,0)),'Earning' Category  from FinalSettlementRetainedDetails R
+                                       SELECT ISNULL(ll.Name, concat(SH.SalaryHead, ' ','(',R.YearStatus,')')) AS FinalSettlementHead,Amount= convert(int,ROUND(R.Amount,0)),'Earning' Category  from FinalSettlementRetainedDetails R
                                         left Join SalaryHead SH ON SH.SalaryHeadID= R.SalaryHeadId
                                         left join [HKP].[LocalLanguage] ll on ll.SalaryHeadId=SH.SalaryHeadID and ll.LanguageId='" + LanguageId + @"'
                                         WHERE EmployeeFinalSettlementId='" + EmployeeFinalSettlementId + @"'
