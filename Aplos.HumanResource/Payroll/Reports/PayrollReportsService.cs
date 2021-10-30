@@ -44,7 +44,6 @@ namespace Library.HumanResource.Payroll
 
         private readonly SqlRepository _sqlRepository;
 
-
         public PayrollReportsService()
         {
             _sqlRepository = new SqlRepository();
@@ -12665,7 +12664,6 @@ ELSE CONVERT(BIT,0) END  ---No
 
 
         }
-
 
 
         #region Cell Style
