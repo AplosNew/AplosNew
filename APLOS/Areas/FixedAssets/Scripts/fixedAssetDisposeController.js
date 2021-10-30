@@ -18,6 +18,7 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
     $controller('employeeBaseController', { $scope: $scope, $http: $http });
     $controller("partyBaseController", { $scope: $scope, $http: $http });
     $controller("currencyBaseController", { $scope: $scope, $http: $http });
+    $scope.path = 'FixedAssets/FixedAssetRegister/'
 
     $scope.voucherDetailList = [];
     $scope.searchBy = "FARDisposeNo"; $scope.search = "";
@@ -99,21 +100,34 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
     };
     $scope.Get = function (data) {
         $scope.voucher.Id = data.rowData.Id;
-        //$scope.voucher.ParticularName = data.rowData.Id;
-        //$scope.voucher.Material = data.MaterialMasterName;
-        //$scope.voucher.Article = data.Article;
-        //$scope.voucher.CapitalizationDate = data.CapitalizationDate;
-        //$scope.voucher.PurchaseDate = data.PurchaseDate;
-        //$scope.voucher.IssueDate = data.IssueDate;
-        //$scope.voucher.TrnCurrency = data.TrnCurrency;
-        //$scope.voucher.baseCurrency = data.BaseCurrency;
+        $scope.voucher.Remarks = data.rowData.Remarks;
+        $scope.voucher.TrnCurrency = data.TrnCurrency;
+        $scope.voucher.PartyName = data.CustomerName;
+        $scope.voucher.CompanyCurrencyRate = data.ToCurrencyRate;
+       
+        if ($scope.voucher.Status == 'Sales') {
+            $scope.DisposeTpye();
+           // return true;
+        }
+
+        $scope.getMonths(data.rowData.Id);
         $scope.Action = "Update";
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
 
-
     };
+
+    $scope.voucherDetailList = [];
+    $scope.getMonths = function (fixedAssetRegisterDisposeId) {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetFixedAssetRegisterDisposeEditList?fixedAssetRegisterDisposeId=" + fixedAssetRegisterDisposeId,
+            // , url: 'FixedAssets/FixedAssetRegister/GetFixedAssetRegisterPopUpList'
+        }).then(function successCallback(response) {
+            $scope.voucherDetailList = response.data;
+        });
+    }
 
 
     $scope.removeRow = function (index) {
@@ -348,9 +362,9 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
                 $scope.voucherDetail.GLGeneralInfoName = data.GLGeneralInfoCode + '-' + data.GLGeneralInfoName;
                 $scope.voucherDetail.FixedAssetMasterId = data.FixedAssetMasterId;
                 $scope.voucherDetail.FixedAssetRegisterId = data.FixedAssetRegisterId;
-                $scope.voucherDetail.ParticularName = data.FixedAssetMasterName;
+                $scope.voucherDetail.FixedAssetMasterName = data.FixedAssetMasterName;
 
-                $scope.voucherDetail.Material = data.MaterialMasterName;
+                $scope.voucherDetail.MaterialMasterName = data.MaterialMasterName;
                 $scope.voucherDetail.Article = data.Article;
                 $scope.voucherDetail.CapitalizationDate = data.CapitalizationDate;
                 $scope.voucherDetail.PurchaseDate = data.PurchaseDate;
@@ -358,7 +372,7 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
                 $scope.voucherDetail.TrnCurrency = data.TrnCurrency;
                 $scope.voucherDetail.baseCurrency = data.BaseCurrency;
                 
-                $scope.voucherDetail.isOB = data.IsOBBalance;
+                $scope.voucherDetail.IsOpeningBalance = data.IsOpeningBalance;
                 $scope.voucherDetail.vendor = data.Vendor;
                 
                 $scope.voucherDetail.FAType = $scope.voucher.FAType;

@@ -22068,8 +22068,8 @@ namespace Library.Service.HumanResources
 
                 if (dtFinalSettlementData.Rows.Count > 0)
                 {
-                    dtFinalSettlementDedutionData = ob.GetFinalSettlementDeductionData(dtFinalSettlementData.Rows[0]["Id"].ToString());
-                    dtFinalSettlementEarningData = ob.GetFinalSettlementEarningData(dtFinalSettlementData.Rows[0]["Id"].ToString());
+                    dtFinalSettlementDedutionData = ob.GetFinalSettlementDeductionData(dtFinalSettlementData.Rows[0]["Id"].ToString(), LanguageId);
+                    dtFinalSettlementEarningData = ob.GetFinalSettlementEarningData(dtFinalSettlementData.Rows[0]["Id"].ToString(), LanguageId);
                 }
 
                 if (dtFinalSettlementEarningData.Rows.Count > 0)

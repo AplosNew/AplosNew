@@ -495,6 +495,8 @@
     <Compile Include="Areas\Employees\Controllers\AccountsGroupController.cs" />
     <Compile Include="Areas\Employees\Controllers\AllowanceDailyController.cs" />
     <Compile Include="Areas\Employees\Controllers\CompensatoryOffNewController.cs" />
+    <Compile Include="Areas\Employees\Controllers\ResidenceGroupController.cs" />
+    <Compile Include="Areas\Employees\Controllers\TransportGroupController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmpActiveInActiveNewController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmployeeInFoReportController.cs" />
     <Compile Include="Areas\Employees\Controllers\CompanyWiseEmployeePlantTransferController.cs" />
@@ -1763,6 +1765,8 @@
     <Content Include="Areas\Employees\Scripts\ContractualEmployeeCodeController.js" />
     <Content Include="Areas\Employees\Scripts\AccountsGroupController.js" />
     <Content Include="Areas\Employees\Scripts\CompensatoryOffNewController.js" />
+    <Content Include="Areas\Employees\Scripts\ResidenceGroupController.js" />
+    <Content Include="Areas\Employees\Scripts\TransportGroupController.js" />
     <Content Include="Areas\Employees\Scripts\empActiveInActiveNewController.js" />
     <Content Include="Areas\Employees\Scripts\employeeBaseMultipleController.js" />
     <Content Include="Areas\Employees\Scripts\CompanyWiseEmployeePlantTransferController.js" />
@@ -3797,6 +3801,8 @@
     <Content Include="Areas\Employees\Views\EmpActiveInActiveNew\Aplos.cshtml" />
     <Content Include="Areas\Employees\Views\ContractualEmployeeCode\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\BalanceOTReport\Aplos.cshtml" />
+    <Content Include="Areas\Employees\Views\ResidenceGroup\Aplos.cshtml" />
+    <Content Include="Areas\Employees\Views\TransportGroup\Aplos.cshtml" />
     <Content Include="Areas\Employees\Views\ODDeleteNew\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\FinalDeductionReport\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />

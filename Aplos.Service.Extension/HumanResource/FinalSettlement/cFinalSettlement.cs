@@ -165,7 +165,7 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
                 throw;
             }
         }
-        public DataTable GetFinalSettlementDeductionData(string EmployeeFinalSettlementId)
+        public DataTable GetFinalSettlementDeductionData(string EmployeeFinalSettlementId,string LanguageId)
         {
             try
             {
@@ -178,7 +178,7 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
                                 SELECT ISNULL(ll.Name, dh.UserName) AS FinalSettlementHead ,Amount=convert(int,ROUND(fs.Amount,0)),dh.Category 
                                 FROM FinalSettlementDeductionDetails fs
                                 left join [dbo].[FinalSettlementDeductionHead] dh on dh.id=fs.FinalSettlementDeductionHeadId
-                                left join [HKP].[LocalLanguage] ll on ll.FinalSettlementHeadId=fs.Id
+                                left join [HKP].[LocalLanguage] ll on ll.FinalSettlementHeadId=fs.Id and ll.LanguageId='" + LanguageId + @"'
                                 WHERE  dh.Category='Deduction' AND fs.EmployeeFinalSettlementId='" + EmployeeFinalSettlementId + @"' 
                                 UNION
                                 SELECT FinalSettlementHead='Notice Period',Amount= convert(int,ROUND( NoticePeriodAmount,0)),'Deduction' Category---,NoticePeriodDayNo,NoticePeriodType,NoticePeriodRate 
@@ -196,22 +196,22 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
                 throw;
             }
         }
-        public DataTable GetFinalSettlementEarningData(string EmployeeFinalSettlementId)
+        public DataTable GetFinalSettlementEarningData(string EmployeeFinalSettlementId,string LanguageId)
         {
             try
             {
 
 
                 string sql = @"SELECT ROW_NUMBER() OVER(ORDER BY FinalSettlementHead ASC) AS RowNumber,* FROM (
-SELECT ISNULL(ll.Name, dh.UserName) AS FinalSettlementHead ,Amount= convert(int,ROUND(fs.Amount,0)),dh.Category 
+SELECT                                  ISNULL(ll.Name, dh.UserName) AS FinalSettlementHead ,Amount= convert(int,ROUND(fs.Amount,0)),dh.Category 
                                         FROM FinalSettlementDeductionDetails fs
                                         left join [dbo].[FinalSettlementDeductionHead] dh on dh.id=fs.FinalSettlementDeductionHeadId
-                                        left join [HKP].[LocalLanguage] ll on ll.FinalSettlementHeadId=fs.Id
+                                        left join [HKP].[LocalLanguage] ll on ll.FinalSettlementHeadId=fs.Id and ll.LanguageId='" + LanguageId + @"'
                                         where fs.EmployeeFinalSettlementId='" + EmployeeFinalSettlementId + @"' and dh.Category='Earning'
                                         UNION
                                         SELECT ISNULL(ll.Name, SH.SalaryHead) AS FinalSettlementHead ,Amount= convert(int,ROUND(R.Amount,0)),'Earning' Category  from FinalSettlementRetainedDetails R
                                         left Join SalaryHead SH ON SH.SalaryHeadID= R.SalaryHeadId
-                                        left join [HKP].[LocalLanguage] ll on ll.SalaryHeadId=SH.SalaryHeadID
+                                        left join [HKP].[LocalLanguage] ll on ll.SalaryHeadId=SH.SalaryHeadID and ll.LanguageId='" + LanguageId + @"'
                                         WHERE EmployeeFinalSettlementId='" + EmployeeFinalSettlementId + @"'
                                         UNION
                                         SELECT FinalSettlementHead='Notice Period',Amount= convert(int,ROUND(NoticePeriodAmount,0)),'Earning' Category---,NoticePeriodDayNo,NoticePeriodType,NoticePeriodRate 

@@ -495,5 +495,13 @@ function employeeConfig($routeProvider, $locationProvider, $windowProvider) {
             templateUrl: 'Employees/ContractualEmployeeCode/Aplos',
             controller: 'ContractualEmployeeCodeController'
         })
+        .when('/residence-group', {
+            templateUrl: 'Employees/ResidenceGroup/Aplos',
+            controller: 'ResidenceGroupController'
+        })
+        .when('/transport-group', {
+            templateUrl: 'Employees/TransportGroup/Aplos',
+            controller: 'TransportGroupController'
+        })
         ;
 } 
