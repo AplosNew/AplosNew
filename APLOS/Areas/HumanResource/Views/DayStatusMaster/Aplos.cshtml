@@ -75,7 +75,7 @@
                     <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="DayTypeWithValues" role="tab" data-toggle="tab">Day Type With Values</a></li>
                     <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="DayStatus" role="tab" data-toggle="tab">Day Status</a></li>
                     <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="PlantChild" role="tab" data-toggle="tab">Plant Entry</a></li>
-                    <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="LeaveDayType" role="tab" data-toggle="tab">Leave Day Type Entry</a></li>
+                    @*<li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="LeaveDayType" role="tab" data-toggle="tab">Leave Day Type Entry</a></li>*@
                 </ul>
             </div>
             <div class="tab-content">
@@ -324,6 +324,18 @@
                                                 <input type="text" onkeypress="return isNumber(event)" ng-model="DayChild.MedicalLeaveValueMV" class="form-control" maxlength="100" tabindex="2">
                                             </div>
                                         </div>
+
+                                        <div class="form-group">
+                                            <label class="col-sm-8 control-label">Leave Day Types</label>
+                                            <div class="col-sm-4 show-message">
+                                                <div class="common-btn">
+                                                    <ul class="common-btn list-inline text-right">
+                                                        <li><button ng-click="selectLeaveDayType()" class="btn" tabindex="10"><i class="glyphicon glyphicon-search"></i></button></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                     </div>
 
                                     <div class="col-xs-12 col-sm-6 col-md-6 ">
@@ -562,7 +574,169 @@
                                 </fieldset>
                             </div>
 
+                            <div class="col-xs-12">
+                                <fieldset class="scheduler-border">
+                                    <legend class="scheduler-border">OT Process Values</legend>
+                                    <div class="col-xs-12 col-sm-6 col-md-6 ">
 
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Day Limit</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" onkeypress="return isNumber(event)" ng-model="DayChild.DayLimit" class="form-control" maxlength="100" tabindex="2">
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Week 2 Limit</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" onkeypress="return isNumber(event)" ng-model="DayChild.Week2Limit" class="form-control" maxlength="100" tabindex="2">
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Week 4 Limit</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" onkeypress="return isNumber(event)" ng-model="DayChild.Week4Limit" class="form-control" maxlength="100" tabindex="2">
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Applicable W/M</label>
+                                            <div class="col-sm-8 ">
+                                                <div class="select-style">
+                                                    <select id="OTApplicable" class="form-control" ng-model="DayChild.ApplicableWM" name="OTApplicable" tabindex="1">
+                                                        <option value="">-Select-</option>
+                                                        <option Value="W">W</option>
+                                                        <option Value="M">M</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">OT Rate Legal<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="DayChild.OTRateLegal" name="OTRateLegal"
+                                                            ng-options="item.Value as item.Text for item in OTRateList" required tabindex="2">
+                                                        <option value="">--Select--</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">OT Confirmation </label>
+                                            <div class="col-sm-8 ">
+                                                <div class="select-style">
+                                                    <select id="OTConfirmation" class="form-control" ng-model="DayChild.OTConfirmation" name="OTConfirmation" tabindex="1">
+                                                        <option value="">-Select-</option>
+                                                        <option Value="0">0 - No OT </option>
+                                                        <option Value="1">1 - Split OT</option>
+                                                        <option Value="2">2 - Full Extra OT</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Attendance Bonus Absent</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" onkeypress="return isNumber(event)" ng-model="DayChild.AttnBonusAbsent" class="form-control" maxlength="100" tabindex="2">
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Attendance Bonus Leave</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" onkeypress="return isNumber(event)" ng-model="DayChild.AttnBonusLeave" class="form-control" maxlength="100" tabindex="2">
+                                            </div>
+                                        </div>
+                                        
+
+
+
+                                    </div>
+
+                                    <div class="col-xs-12 col-sm-6 col-md-6 ">
+
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Week 1 Limit</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" onkeypress="return isNumber(event)" ng-model="DayChild.Week1Limit" class="form-control" maxlength="100" tabindex="2">
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Week 3 Limit</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" onkeypress="return isNumber(event)" ng-model="DayChild.Week3Limit" class="form-control" maxlength="100" tabindex="2">
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Monthly Limit</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" onkeypress="return isNumber(event)" ng-model="DayChild.MonthlyLimit" class="form-control" maxlength="100" tabindex="2">
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">OT Multipling Factor</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" onkeypress="return isNumber(event)" ng-model="DayChild.OTMultiplingFactor" class="form-control" maxlength="100" tabindex="2">
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">OT Rate Extra<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="DayChild.OTRateExtra" name="OTRateExtra"
+                                                            ng-options="item.Value as item.Text for item in OTRateList" required tabindex="2">
+                                                        <option value="">--Select--</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Is OT Confimation Auto</label>
+                                            <div class="col-sm-8">
+                                                <div class="checkbox-site" style="margin-top:7px;">
+                                                    <label>
+                                                        <input type="checkbox" ng-model="DayChild.isOTConfirmationAuto" tabindex="8">
+                                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Display In Out Time</label>
+                                            <div class="col-sm-8 ">
+                                                <div class="select-style">
+                                                    <select id="DisplayInOutTime" class="form-control" ng-model="DayChild.DisplayInOutTime" name="DisplayInOutTime" tabindex="1">
+                                                        <option value="">-Select-</option>
+                                                        <option Value="0">0 - No Show </option>
+                                                        <option Value="1">1 - Show in Screen</option>
+                                                        <option Value="2">2 - Show Both</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Attendance Bonus Late</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" onkeypress="return isNumber(event)" ng-model="DayChild.AttnBonusLate" class="form-control" maxlength="100" tabindex="2">
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </fieldset>
+                            </div>
 
 
                             <div class="col-xs-12">
@@ -883,7 +1057,7 @@
 
 
                 </div>
-                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+                @*<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
                     <div class="row" ng-form name="LeaveForm" id="NonAllowed">
                         <div class="row" style="padding:10px;">
                             <div class="col-xs-6 col-lg-6">
@@ -935,7 +1109,7 @@
                     </div>
 
 
-                </div>
+                </div>*@
             </div>
         </div>
     </div>
@@ -1128,29 +1302,38 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button class="close" data-dismiss="modal">&times;</button>
-                <h1 class="modal-title" style="font-size:20px; text-align:center; margin:-10px;">Day Type With Values</h1>
+                <h1 class="modal-title" style="font-size:20px; text-align:center; margin:-10px;">Leave Days</h1>
             </div>
             <div class="modal-body" style="min-height:300px; min-width:100%;">
                 <div class="row" style="margin: 20px; font-style:italic"> </div>
                 <p style="margin:10px;">
-                    Select the Day Type With Values by Double Clicking.
+                    Enter the Values.
                 <p>
 
-                    <div id="DayTypeModal" ej-grid e-datasource="DayTypeChildList" 
-                         e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-                         e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
-                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true"
-                         e-recorddoubleclick="doubleLeaveDayType">
-                        <div e-columns>
-                            <div e-column e-field="Id" e-headertext="Day Type With Values Id" e-width="80"></div>
-                            <div e-column e-field="DayType" e-headertext="Day Type" e-width="120"></div>
-                            <div e-column e-field="Category" e-headertext="Category" e-width="120"></div>
-                            <div e-column e-field="SubCategory" e-headertext="Sub Category" e-width="120"></div>
-                            <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="120"></div>
-                            <div e-column e-field="UserName" e-headertext="User Name" e-width="120"></div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-sm-12">
+                            <div style="color:black;" id="LeaveDayTypeGrid" ej-grid e-datasource="LeaveList"
+                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-pagesettings-pagesize="20"
+                                 e-allowselection="true" e-filtersettings-filterType="excel"
+                                 e-templaterefresh="refreshTemplate" e-enabletouch="true" e-responsive="true" e-allowtextwrap="true" e-allowscrolling="true">
+                                <div e-columns>
+
+                                    <div e-column e-field="Leave" e-headertext="Leave" e-width="100"></div>
+                                    <div e-column e-headertext="Earn Value" e-template="#eVal" e-textalign="center" e-width="80"></div>
+                                    <div e-column e-headertext="Availed Value" e-template="#aVal" e-textalign="center" e-width="80"></div>
+
+                                </div>
+                            </div>
 
                         </div>
                     </div>
+
+                    <script type="text/template" id="eVal">
+                        <input type="number" ng-model="data.EarnValue" style="color:black; text-align:center" />
+                    </script>
+                    <script type="text/template" id="aVal">
+                        <input type="number" ng-model="data.AvailedValue" style="color:black; text-align:center" />
+                    </script>
 
 
             </div>

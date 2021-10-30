@@ -97,21 +97,25 @@ namespace Aplos.Areas.Attendances.Controllers
             int ColEmployeeCode = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "EmployeeName", 13, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "EmployeeName", 15, ExcelHAlign.HAlignCenter);
             int ColEmployeeName = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Department", 13, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "Department", 15, ExcelHAlign.HAlignCenter);
             int ColDepartment = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Section", 13, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "Section", 15, ExcelHAlign.HAlignCenter);
             int ColSection = COL;
             COL++;
 
 
-            report.SetHeaderText(ref sheet, ROW, COL, "SubSection", 13, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "SubSection", 15, ExcelHAlign.HAlignCenter);
             int ColSubSection = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Designation", 15, ExcelHAlign.HAlignCenter);
+            int ColLegalDesignation = COL;
             COL++;
 
 
@@ -181,6 +185,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
                 sheet[ROW, ColSection].Text = data.Rows[i]["Section"].ToString();
                 sheet[ROW, ColSubSection].Text = data.Rows[i]["SubSection"].ToString();
+                sheet[ROW, ColLegalDesignation].Text = data.Rows[i]["LegalDesignation"].ToString();
                 sheet[ROW, ColMarch].Number = clsStaticInfo.dbl(data.Rows[i]["Mar"].ToString());
                 sheet[ROW, ColApril].Number = clsStaticInfo.dbl(data.Rows[i]["Apr"].ToString());
                 sheet[ROW, ColMay].Number = clsStaticInfo.dbl(data.Rows[i]["May"].ToString());

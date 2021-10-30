@@ -880,10 +880,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 string newformat = Convert.ToDateTime(Date).ToString("yyyyMMdd");
 
                 var sql = @"select TobeAdded=case When isnull(p.EmpSystemID,'') ='' then 'true' 
-                else 'false' end ,e.SystemId,'" + Date + @"' as WorkDate,
-                convert(varchar(30),'" + newformat + @"' )+convert(varchar(30), e.SystemId)RowId,e.PlantId,e.GroupID,
-                m.ShiftSystemId 
-                as ManualShift,sd.InTime as ManualShiftIn,sd.OutTime as ManualShiftOut,sd.ShiftDuration as ManualDuration,
+                else 'false' end ,e.SystemId,'"+Date+@"' as WorkDate,
+                convert(varchar(30),'" + newformat + @"' )+convert(varchar(30), e.SystemId)RowId,
+				e.PlantId,e.GroupID,
+                isnull(m.ShiftSystemId,p.ManualShiftID) 
+                as ManualShift,ISNULL(sd.InTime,p.ShiftInTime) as ManualShiftIn,
+				isnull(sd.OutTime,p.ShiftOutTime) as ManualShiftOut,isnull(sd.ShiftDuration,p.ShiftDuration)
+				as ManualDuration,
                 e.ProfileShiftId as ProfileShift,sdx.InTime as ProfileShiftIn,sdx.OutTime as ProfileShiftOut,
                 sdx.ShiftDuration as ProfileDuration,
                 mb.ShiftDefinationId as BudgetedShift,sdy.InTime as BudgetShiftIn,sdy.OutTime as BudgetShiftOut,
@@ -893,27 +896,30 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 else 'true' end,IsManualInTime=case When isnull(m.InTime,'') ='' then 'false' 
                 else 'true' end,IsManualOutTime=case When isnull(m.OutTime,'') ='' then 'false' 
                 else 'true' end,mb.Id as BudgetId,rh.Id as RosterId,Op.InPunchStartTime as PlantInPunchStartTime, 
-                FullDayDuration=isnull(isnull(sd.FullDayDuration,sdz.FullDayDuration),
-                isnull(sdx.FullDayDuration,sdy.FullDayDuration)),HalfDayDuration=isnull(isnull(sd.HalfDayDuration,sdz.HalfDayDuration),
-                isnull(sdx.HalfDayDuration,sdy.HalfDayDuration)),ShortDuration=isnull(isnull(sd.ShortDuration,sdz.ShortDuration),
-                isnull(sdx.ShortDuration,sdy.ShortDuration)),HoursWithoutOT=isnull(isnull(sd.HoursWithoutOT,sdz.HoursWithoutOT),
+                FullDayDuration=isnull(isnull(isnull(sd.FullDayDuration,p.ShiftFullDayDuration),sdz.FullDayDuration),
+                isnull(sdx.FullDayDuration,sdy.FullDayDuration)),				
+				HalfDayDuration=isnull(isnull(isnull(sd.HalfDayDuration,p.ShiftHalfDayDuration),sdz.HalfDayDuration),
+                isnull(sdx.HalfDayDuration,sdy.HalfDayDuration)),
+				ShortDuration=isnull(isnull(isnull(sd.ShortDuration,p.ShiftShortDuration),sdz.ShortDuration),
+                isnull(sdx.ShortDuration,sdy.ShortDuration)),
+				HoursWithoutOT=isnull(isnull(isnull(sd.HoursWithoutOT,p.ShiftHoursWithoutOT),sdz.HoursWithoutOT),
                 isnull(sdx.HoursWithoutOT,sdy.HoursWithoutOT))
                 from EmployeeInformation e 
                 left join ShiftDefination sdx on sdx.SystemID=e.ProfileShiftId
-                left outer join AttndManualDataFromApp m on e.SystemId=m.EmpSystemID and m.WorkDate='" + Date + @"'
+                left outer join AttndManualDataFromApp m on e.SystemId=m.EmpSystemID and m.WorkDate='"+Date+@"'
                 left join ShiftDefination sd on sd.SystemID=m.ShiftSystemId
-                left join AttdnProcessData p on p.EmpSystemID=e.SystemId and p.WorkDate='" + Date + @"'
+                left join AttdnProcessData p on p.EmpSystemID=e.SystemId and p.WorkDate='"+Date+@"'
                 left join mst.ManpowerBudget mb on mb.Id=e.BudgetCode
                 left join ShiftDefination sdy on sdy.SystemID=mb.ShiftDefinationId
                 left join dbo.RosterBudget rb on rb.BudgetId=mb.Id 
                 left join RosterPatternHeader rh on rh.Id=rb.RosterId
-                left join dbo.RosterPatternProcess rp on rp.RPHeaderId=rh.Id and rp.WorkDate='" + Date + @"'
+                left join dbo.RosterPatternProcess rp on rp.RPHeaderId=rh.Id and rp.WorkDate='"+Date+@"'
                 left join ShiftDefination sdz on sdz.SystemID=rp.ShiftDefinationID
                 left join org.Plant pl on pl.Id=e.PlantId
                 left join OutPunchConfigurationHeader Op on OP.PlantId=pl.Id
-                where e.EmpType!='Guest' and e.PlantId='" + PlantId + @"' and
-				E.DOJ <= '"+Date+"' AND (E.DOS >= '"+Date+"' OR ISNULL(E.DOS,'') = '' OR E.DOS = '01/01/1901') ";
-
+                where e.EmpType!='Guest' and e.PlantId='"+PlantId+@"' and
+				E.DOJ <= '"+Date+@"' AND (E.DOS >= '"+Date+@"' OR ISNULL(E.DOS,'') = '' 
+				OR E.DOS = '01/01/1901')";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
@@ -1024,9 +1030,9 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 (DATEDIFF(DAY, (Select top 1 ed.EffectiveDate from
                 dbo.WeekOffHeader h 
-                --left join dbo.WeekOffEffectiveDate ed on ed.WOHeaderId = h.Id               
-                left join dbo.EmployeeWeeklyOff ed on ed.WOHeaderId = h.Id
-                and ed.EmpSystemId = e.SystemId
+                left join dbo.WeekOffEffectiveDate ed on ed.WOHeaderId = h.Id               
+                --left join dbo.EmployeeWeeklyOff ed on ed.WOHeaderId = h.Id
+                --and ed.EmpSystemId = e.SystemId
                 where ed.EffectiveDate <= '" + Date + @"' and ed.WOHeaderId =  
 				(Select top 1 ex.WOHeaderId from dbo.EmployeeWeeklyOff ex
                 where EmpSystemId = e.SystemId and ex.EffectiveDate<='" + Date + @"'
@@ -4692,14 +4698,14 @@ namespace Library.HumanResource.NewAttendanceProcess {
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                var sql = @"select distinct Format(WorkDate,'yyyy-MMM-dd')WorkDate,EmpSystemID,
+                var sql = @"select Format(WorkDate,'yyyy-MMM-dd')WorkDate,EmpSystemID,
                 Format(ap.InTime,'yyyy-MMM-dd HH:mm:ss')InTime,				
 				Format(ap.ShiftInTime,'yyyy-MMM-dd HH:mm:ss')ShiftInTime,  
                 sd.ShiftEarlyInMargin,sd.ShiftLateInMargin                
                 from Attdnprocessdata  ap
                 left join ShiftDefination sd on sd.SystemID=ap.ShiftSystemID
                 where ManualFlag=1
-				and ap.PlantID='"+Plant+"'";
+				and ap.PlantID='"+Plant+ "' order by ap.WorkDate asc";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -4717,7 +4723,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 var sql = @"select EmpsystemId,Format(WorkDate,'yyyy-MMM-dd')WorkDate,
 				 InTime=ISNULL(ManualInTime,PunchInTime),OutTime=
 				 ISNULL(ManualOutTime,PunchOutTime) from  AttdnProcessData
-				 WHERE ManualFlag=1 and PlantID='" + Plant + "'";
+				 WHERE ManualFlag=1 and PlantID='" + Plant + "' order by WorkDate asc";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -4745,7 +4751,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 left join ShiftDefination sd on sd.SystemID=ap.ShiftSystemID
                 where ap.ManualFlag=1 and ap.PlantID='" + Plant + @"' and isnull(ap.InTime,'')!='' 
 				and isnull(ap.OutTime,'')!='') as dd
-				where dd.CalDuration>=0";
+				where dd.CalDuration>=0 order by WorkDate asc";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -4767,7 +4773,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 (ap.Duration-isnull(ap.ShiftHoursWithoutOT,'0'))OverUnderStay
                 from attdnprocessdata ap
                 where Duration >0 and ap.PlantID='" + Plant + @"'
-				AND ManualFlag=1";
+				AND ManualFlag=1 order by WorkDate asc";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -4787,7 +4793,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 ,p.ShiftHalfDayDuration,p.ShiftFullDayDuration,p.InTime,p.OutTime,
                 p.ShiftShortDuration from AttdnProcessData p 
                 where ManualFlag=1 
-                and p.PlantID='" + Plant + "'";
+                and p.PlantID='" + Plant + "' order by WorkDate asc";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
@@ -4853,7 +4859,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 									        left join DayStatus ds on ds.headerId=dh.Id
 											left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId
 									        where ManualFlag=1 and ds.Code=p.DayStatusCode
-									        and ei.PlantId='" + Plant + "'";
+									        and ei.PlantId='" + Plant + "' order by workdate asc";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
@@ -4888,7 +4894,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 						left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId									       
 						where ManualFlag=1 						
 						and dt.DayType=ISNULL(ISNULL(p.ManualDayStatus,p.SandwichStatus),p.ProcessDayStatus)
-						and ei.PlantId='" + Plant+"'";
+						and ei.PlantId='" + Plant+ "' order by WorkDate asc";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -4899,6 +4905,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             }
         }
         public void ManualsandwichLogic(out DataSet ds, string Plant)
+
         {
             ConnectionManager.DAL.ConManager objCon;
             try
@@ -4917,7 +4924,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 				and PlantID='" + Plant + @"'
 				)PrevWorkDate
 				from AttdnProcessData p
-                where ManualFlag=1 and PlantID='" + Plant + "'";
+                where ManualFlag=1 and PlantID='" + Plant + "' order by WorkDate asc";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
@@ -4984,7 +4991,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 left join OTPerMinutePolicy ot on ot.PlantId=pl.Id
                         where ManualFlag=1 and p.IsOTEntitled='1'
 						and p.DayTypeOTApplicable != 0 and p.Duration>0
-						and p.PlantId='" + Plant + "'";
+						and p.PlantId='" + Plant + "' order by WorkDate asc";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -5028,33 +5035,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 objCone.ExecuteNonQueryWrapper(sql, true, "1");
                 objCone.CommitTransaction();
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
-        public void ManualEarnedLeave(out DataSet ds, string Plant)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-                var sql = @"select distinct p.RowId,dt.DayType, dt.EarnedPL,dt.EarnedCL,
-                        format(p.WorkDate,'yyyy-MMM-dd')WorkDate from AttdnProcessData p
-                        join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
-                        left join mst.DesignationMasterLegalDesignation ddm on 
-                        ddm.LegalDesignationId = ei.LegalDesignationId
-                        left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
-						left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
-						and dc.PlantId=ei.PlantId
-						left join DayStatusHeader dh on dh.Id=dc.headerId
-						left join DayStatus ds on ds.headerId=dh.Id
-						left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId									       
-						where p.ManualFlag=1 
-						and dt.DayType=p.DayStatus and (dt.EarnedCL>0 or dt.EarnedPL>0)
-						and ei.PlantId='" + Plant + "'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
             catch (Exception ex)
             {

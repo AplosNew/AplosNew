@@ -493,6 +493,7 @@
     <Compile Include="Areas\Employees\Controllers\AccountsGroupController.cs" />
     <Compile Include="Areas\Employees\Controllers\AllowanceDailyController.cs" />
     <Compile Include="Areas\Employees\Controllers\CompensatoryOffNewController.cs" />
+    <Compile Include="Areas\Employees\Controllers\EmpActiveInActiveNewController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmployeeInFoReportController.cs" />
     <Compile Include="Areas\Employees\Controllers\CompanyWiseEmployeePlantTransferController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmployeePlantTransferNewController.cs" />
@@ -1756,6 +1757,7 @@
     <Content Include="Areas\EmployeeServices\Scripts\EmployeeServiceTypeController.js" />
     <Content Include="Areas\Employees\Scripts\AccountsGroupController.js" />
     <Content Include="Areas\Employees\Scripts\CompensatoryOffNewController.js" />
+    <Content Include="Areas\Employees\Scripts\empActiveInActiveNewController.js" />
     <Content Include="Areas\Employees\Scripts\employeeBaseMultipleController.js" />
     <Content Include="Areas\Employees\Scripts\CompanyWiseEmployeePlantTransferController.js" />
     <Content Include="Areas\Employees\Scripts\EmployeePlantTransferNewController.js" />
@@ -3784,6 +3786,7 @@
     <Content Include="Areas\Attendances\Views\EmployeeLastPunchReport\Aplos.cshtml" />
     <Content Include="Areas\Payrolls\Views\OTFormula\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\LeaveWithWagesRegistersForm18\Aplos.cshtml" />
+    <Content Include="Areas\Employees\Views\EmpActiveInActiveNew\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

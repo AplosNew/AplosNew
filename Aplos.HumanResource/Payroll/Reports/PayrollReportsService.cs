@@ -5117,7 +5117,7 @@ namespace Library.HumanResource.Payroll
                 int ColSr = 0, ColIDNo = 0, ColName = 0, ColDOJ = 0, ColDOS = 0, cDept = 0, cSec = 0, cSubSec = 0, cLine = 0, cPayrollGroup = 0, cJobLocation = 0, cGender = 0,
                     cGrade = 0, ColGVDG = 0, ColGrs = 0, colPayDays = 0, ColPdDy = 0, ColLate = 0, ColAbDy = 0, ColHlDy = 0, ColWkOf = 0, ColLv = 0, ColMLv = 0
                    , ColLWP = 0, colBank = 0, cDMP = 0, colBankAccountNo = 0, colEmpCurrentStat = 0, colEmpStatus = 0, cPaymentMode = 0, cUnit = 0, ColTotalOTHR = 0, colDirectManpowerCost = 0;
-                int npstruct = 0, ColTotalWorkingDay = 0, ColActualWorkingDay = 0, ColLatePresent = 0 , ColContractor = 0;
+                int npstruct = 0, ColTotalWorkingDay = 0, ColActualWorkingDay = 0, ColLatePresent = 0, ColContractor = 0;
 
                 #endregion
 
@@ -9041,7 +9041,7 @@ namespace Library.HumanResource.Payroll
                         {
                             double totalWidth = sheet1.GetColumnWidth(1) + sheet1.GetColumnWidth(2);
                             int totalWidthPixel = (int)(totalWidth * 5.0);
-                            int totalheight = (int)((sheet1.GetRowHeight(1) + sheet1.GetRowHeight(2) )*1.5);
+                            int totalheight = (int)((sheet1.GetRowHeight(1) + sheet1.GetRowHeight(2)) * 1.5);
 
                             companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
                             IPictureShape pic = null;
@@ -16704,7 +16704,559 @@ INNER JOIN
         }
         #endregion Employee Salary Payable
 
+        #region form 18
+
+        public void GetSettingsForForm18(out List<Dictionary<string, object>> salaryHeads, out List<Dictionary<string, object>> LeaveTypes)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT H.SalaryHeadId, H.SalaryHead, H.[Description], H.HeadType, H.HeadCategory,
+                        CONVERT(BIT,CASE WHEN ISNULL(d.Id,'')='' THEN 0 ELSE 1 END) AS isSelect, D.Sequence
+                          FROM SalaryHead H
+                        LEFT JOIN LeaveWithWagesRegisterSalaryHeads D ON d.SalaryHeadID=h.SalaryHeadID AND d.CompanyId='" + identity.CompanyId + @"'
+                        where H.HeadType='E'";
+            salaryHeads = _sqlRepository.GetDataCollection(sql);
+
+
+            sql = @"SELECT  H.Id AS LeaveTypeId,H.LeaveType, H.Code, H.UserName, H.[Description],
+                        CONVERT(BIT,CASE WHEN ISNULL(d.Id,'')='' THEN 0 ELSE 1 END) AS isSelect, ISNULL(D.Sequence,h.Sequence) AS Sequence
+                          FROM LeaveType H
+                        LEFT JOIN LeaveWithWagesRegisterLeaveTypes D ON d.LeaveTypeId=h.Id AND d.CompanyId='" + identity.CompanyId + @"'";
+            LeaveTypes = _sqlRepository.GetDataCollection(sql);
+        }
+        public void SaveSettingsForForm18(List<Dictionary<string, object>> salaryHeads, List<Dictionary<string, object>> LeaveTypes)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+
+
+            ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+            con.OpenDataSetThroughAdapter("SELECT * FROM LeaveWithWagesRegisterSalaryHeads AS dp where CompanyId='" + identity.CompanyId + @"'", out DataSet dsSalaryHead, false, "1");
+            con.OpenDataSetThroughAdapter("SELECT * FROM LeaveWithWagesRegisterLeaveTypes AS dp where CompanyId='" + identity.CompanyId + @"'", out DataSet dsLeaveTypes, false, "1");
+
+            while (dsSalaryHead.Tables[0].DefaultView.Count > 0)
+                dsSalaryHead.Tables[0].DefaultView[0].Delete();
+
+            while (dsLeaveTypes.Tables[0].DefaultView.Count > 0)
+                dsLeaveTypes.Tables[0].DefaultView[0].Delete();
+
+
+            for (int i = 0; i < salaryHeads.Count; i++)
+            {
+                if (bplib.clsWebLib.GetBoolData(salaryHeads[i]["isSelect"].ToString()) == false)
+                    continue;
+
+                DataRow dr = dsSalaryHead.Tables[0].NewRow();
+
+                dr["CompanyId"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(identity.CompanyId));
+                dr["SalaryHeadId"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(salaryHeads[i]["SalaryHeadId"]));
+                dr["Sequence"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(salaryHeads[i]["Sequence"]));
+
+                dr["AddedBy"] = identity.Name;
+                dr["AddedDate"] = DateTime.Now;
+                dr["AddedFromIP"] = identity.IPAddress;
+
+                dr["UpdatedBy"] = identity.Name;
+                dr["UpdatedDate"] = DateTime.Now;
+                dr["UpdatedFromIP"] = identity.IPAddress;
+                dsSalaryHead.Tables[0].Rows.Add(dr);
+            }
+
+
+            for (int i = 0; i < LeaveTypes.Count; i++)
+            {
+                if (bplib.clsWebLib.GetBoolData(LeaveTypes[i]["isSelect"].ToString()) == false)
+                    continue;
+
+                DataRow dr = dsLeaveTypes.Tables[0].NewRow();
+
+                dr["CompanyId"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(identity.CompanyId));
+                dr["LeaveTypeId"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(LeaveTypes[i]["LeaveTypeId"]));
+                dr["Sequence"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(LeaveTypes[i]["Sequence"]));
+
+                dr["AddedBy"] = identity.Name;
+                dr["AddedDate"] = DateTime.Now;
+                dr["AddedFromIP"] = identity.IPAddress;
+
+                dr["UpdatedBy"] = identity.Name;
+                dr["UpdatedDate"] = DateTime.Now;
+                dr["UpdatedFromIP"] = identity.IPAddress;
+                dsLeaveTypes.Tables[0].Rows.Add(dr);
+            }
+
+            OTSBD.clsStaticInfo SaveInfo = new OTSBD.clsStaticInfo();
+            SaveInfo.SaveDataSets(dsSalaryHead, dsLeaveTypes);
+        }
+
+
+        //report
+
+        private void GetCalendarYear(string CalendarYearId, out DataTable dtCalendar)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT Id, FORMAT(FromDate,'dd-MMM-yyyy') AS FromDate,FORMAT(ToDate,'dd-MMM-yyyy') AS ToDate  from YearlyCalendar where yearNo='" + CalendarYearId + @"' AND PlantId='" + identity.PlantId + "'";
+            dtCalendar = _sqlRepository.GetDataTable(sql);
+        }
+        private void GetEmployeeInformation(string EmployeeId, out DataTable dtEmployeeInformation)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,FORMAT(ei.DOJ,'dd-MMM-yyyy') AS DOJ,FORMAT(ei.DOS,'dd-MMM-yyyy') AS DOS,
+                                dm.UserName AS Designation,P.UserName AS Contractor
+                                FROM EmployeeInformation AS ei
+                                LEFT JOIN mst.DesignationMasterLegalDesignation AS LD ON ld.LegalDesignationId=ei.LegalDesignationId
+                                LEFT JOIN mst.DesignationMaster AS dm ON dm.Id=ld.DesignationMasterId
+                                LEFT JOIN hkp.Party AS p ON p.Id=ei.VendorId
+                                WHERE ei.SystemId='" + EmployeeId + @"'";
+            dtEmployeeInformation = _sqlRepository.GetDataTable(sql);
+        }
+        private void GetLeaveHeads(out DataTable dtLeaveInfo)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT LeaveTypeId,lt.UserName AS LeaveType FROM LeaveWithWagesRegisterLeaveTypes LTS 
+                                LEFT JOIN LeaveType AS lt ON lt.Id=lts.LeaveTypeId
+                                where LTS.CompanyId='" + identity.CompanyId + @"'
+                                ORDER BY lts.Sequence";
+            dtLeaveInfo = _sqlRepository.GetDataTable(sql);
+        }
+
+        private void GetEmployeeSalary(string EmployeeId, string FromDate, string ToDate, out DataTable dtEmployeeSalary)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"
+                            SELECT Ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ATT.MonthDesc, ATT.MonthNo,
+                                   ATT.YearNo, ATT.TotalActualWorkingDays, ATT.TotalPayDaysValue,sal.DisbusmentAmount,sala.DisbusmentAmount AS TotalForLeaveAmount
+                              FROM EmployeeInformation AS ei
+                            LEFT JOIN 
+                            (
+
+                            SELECT apd.EmpSystemID, Format(apd.WorkDate,'MMM-yy') AS MonthDesc,Month(apd.WorkDate)MonthNo,Year(apd.WorkDate)YearNo,SUM(apd.ActualWorkingDayValue) AS TotalActualWorkingDays,
+                            SUM(apd.PayDayValue) AS TotalPayDaysValue
+                            FROM AttdnProcessData AS apd Where apd.EmpSystemID='" + EmployeeId + @"' AND apd.WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'
+                            GROUP BY  apd.EmpSystemID, Format(apd.WorkDate,'MMM-yy'),Month(apd.WorkDate),Year(apd.WorkDate)
+
+                            ) AS ATT ON ATT.EmpSystemID=ei.SystemId
+
+                            LEFT JOIN 
+                            (
+		                            SELECT spm.MonthNo,spm.YearNo,spc.EmpInfoSystemID,spc.DisbusmentAmount
+		                            FROM SalaryProcChild AS spc
+		                            JOIN SalaryProcMaster AS spm ON spm.SystemID=spc.SlrProcMstSystemID
+		                            JOIN SalaryHead AS sh ON sh.SalaryHeadID=spc.SalaryHeadID
+		                            JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.MonthNo=spm.MonthNo AND sl.YearNo=spm.YearNo
+		                            WHERE spc.EmpInfoSystemID='" + EmployeeId + @"' AND spm.FromDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'
+		                            AND sh.HeadCategory='Gross'
+		                            AND spm.ToDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'  AND sl.IsLocked=1
+                            ) AS SAL ON SAL.EmpInfoSystemID=ei.SystemId AND sal.MonthNo=att.MonthNo AND sal.YearNo=att.YearNo
+                            LEFT JOIN 
+                            (
+		                            SELECT spm.MonthNo,spm.YearNo,spc.EmpInfoSystemID,SUM(spc.DisbusmentAmount) AS DisbusmentAmount
+		                            FROM SalaryProcChild AS spc
+		                            JOIN SalaryProcMaster AS spm ON spm.SystemID=spc.SlrProcMstSystemID
+		                            JOIN SalaryHead AS sh ON sh.SalaryHeadID=spc.SalaryHeadID
+		                            JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.MonthNo=spm.MonthNo AND sl.YearNo=spm.YearNo
+		                            WHERE spc.EmpInfoSystemID='" + EmployeeId + @"' AND spm.FromDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'
+		                            AND sh.SalaryHeadID IN (SELECT  S.SalaryHeadID FROM LeaveWithWagesRegisterSalaryHeads AS S)
+		                            AND spm.ToDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'  AND sl.IsLocked=1
+		                            GROUP BY spm.MonthNo,spm.YearNo,spc.EmpInfoSystemID
+                            ) AS SALA ON SALA.EmpInfoSystemID=ei.SystemId AND SALA.MonthNo=att.MonthNo AND SALA.YearNo=att.YearNo
+
+
+                            WHERE ei.SystemId='" + EmployeeId + @"'
+
+                            ORDER BY att.MonthNo, YearNo";
+            dtEmployeeSalary = _sqlRepository.GetDataTable(sql);
+        }
+        private void GetLeaveBalances(string EmployeeId, string FromDate, string ToDate, out DataTable dtLeaveBalance)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"Select L.LeaveTypeId,ISNULL(l.BroughtForward,0)+ ISNULL(L.CarryForwardOpeningBalance,0) AS LeaveCount,'OB' AS TransactionType
+                                  from 
+                                YearlyCalendar AS C
+                                JOIN trn.EmployeeLeaveSummary L ON l.CalanderYearId=c.Id
+                                WHERE L.EmployeeId='" + EmployeeId + @"' AND '" + FromDate + @"' BETWEEN c.FromDate AND c.ToDate AND l.LeaveTypeId IN (SELECT LeaveTypeId FROM LeaveWithWagesRegisterLeaveTypes where CompanyId='" + identity.CompanyId + @"') 
+                                
+                                UNION ALL
+
+                                SELECT l.LeaveTypeId,
+                                CASE WHEN EncashWorkingDaysQty>0 THEN CONVERT(DECIMAL(18,4), EncashEarnLeaveQty)/CONVERT(DECIMAL(18,4),EncashWorkingDaysQty) ELSE 0 END * SUM(l.EarnValue) ActualEarnedLeave,
+                                'CUR' AS TransactionType
+                                 FROM AttdnProcessData AS apd
+
+                                LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=apd.EmpSystemID
+                                LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
+                                LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
+                                LEFT JOIN mst.DesignationMaster AS dm ON dm.Id=dmc.DesignationMasterId
+                                LEFT JOIN DayStatusPlantChild PC ON pc.PlantId=ei.PlantId AND pc.EmpTypeId=dm.EmployeeCategoryId
+                                JOIN DayTypeWithValues AS ds ON ds.code=apd.DayStatus AND ds.HeaderId=pc.HeaderId
+                                JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id 
+
+                                 LEFT JOIN LeavePolicyDetail AS lpd ON lpd.LPMSystemID=dmc.LeavePolicyMasterId AND lpd.LTSystemID=l.LeaveTypeId
+                                WHERE apd.EmpSystemID='" + EmployeeId + @"' AND 
+                                apd.WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'
+                                AND L.LeaveTypeId IN (SELECT LeaveTypeId FROM LeaveWithWagesRegisterLeaveTypes where CompanyId='" + identity.CompanyId + @"') 
+                                GROUP BY l.LeaveTypeId,EncashWorkingDaysQty,EncashEarnLeaveQty
+
+                                ";
+            dtLeaveBalance = _sqlRepository.GetDataTable(sql);
+        }
+        private void GetLeaveTransaction(string EmployeeId, string FromDate, string ToDate, out DataTable dtLeaveTransaction)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT FORMAT(workdate,'dd-MMM-yy') WorkDate,FORMAT(workdate,'MMM-yy') AS MonthDef,l.LeaveTypeId,l.AvailedValue
+                                 FROM AttdnProcessData AS apd
+
+                                  LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=apd.EmpSystemID
+                                 LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
+                                 LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
+                                 LEFT JOIN mst.DesignationMaster AS dm ON dm.Id=dmc.DesignationMasterId
+                                 LEFT JOIN DayStatusPlantChild PC ON pc.PlantId=ei.PlantId AND pc.EmpTypeId=dm.EmployeeCategoryId
+                                  JOIN DayTypeWithValues AS ds ON ds.code=apd.DayStatus AND ds.HeaderId=pc.HeaderId
+                                 JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id 
+
+                                 LEFT JOIN LeavePolicyDetail AS lpd ON lpd.LPMSystemID=dmc.LeavePolicyMasterId AND lpd.LTSystemID=l.LeaveTypeId
+                                WHERE apd.EmpSystemID='" + EmployeeId + @"' AND l.AvailedValue>0 AND
+                                apd.WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'
+                               -- AND L.LeaveTypeId IN (SELECT LeaveTypeId FROM LeaveWithWagesRegisterLeaveTypes where CompanyId='" + identity.CompanyId + @"') 
+                                ";
+            DataTable dt = _sqlRepository.GetDataTable(sql);
+
+
+            dtLeaveTransaction = new DataTable("Table");
+            dtLeaveTransaction.Columns.Add("LeaveTypeId");
+            dtLeaveTransaction.Columns.Add("MonthDesc");
+            dtLeaveTransaction.Columns.Add("FromDate");
+            dtLeaveTransaction.Columns.Add("ToDate");
+            dtLeaveTransaction.Columns.Add("AvailedValue", typeof(double));
+
+            DataRow dr = null;
+            string LeaveTypeId = "";
+
+            int FirstDay = 1;
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                string CurrentCombination = dt.Rows[i]["LeaveTypeId"].ToString() + Convert.ToDateTime(dt.Rows[i]["WorkDate"].ToString()).AddDays(-1).ToString("dd-MMM-yyyy");
+                if (LeaveTypeId != CurrentCombination)
+                {
+                    FirstDay = 1;
+                    dr = dtLeaveTransaction.NewRow();
+                    dr["LeaveTypeId"] = dt.Rows[i]["LeaveTypeId"].ToString();
+                    dr["MonthDesc"] = dt.Rows[i]["MonthDef"].ToString();
+                    dr["FromDate"] = dt.Rows[i]["WorkDate"].ToString();
+
+                    dtLeaveTransaction.Rows.Add(dr);
+                }
+                dr["AvailedValue"] = clsStaticInfo.dbl(dr["AvailedValue"]) + clsStaticInfo.dbl(dt.Rows[i]["AvailedValue"].ToString());
+                dr["ToDate"] = dt.Rows[i]["WorkDate"].ToString();
+
+                LeaveTypeId = dt.Rows[i]["LeaveTypeId"].ToString() + Convert.ToDateTime(dt.Rows[i]["WorkDate"].ToString()).AddDays(0).ToString("dd-MMM-yyyy");
+                FirstDay++;
+            }
+
+        }
+        private void GetMaternityLeave(string EmployeeId, string FromDate, string ToDate, out DataTable MaternityLeave)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT FORMAT(apd.workdate,'MMM-yy') AS MonthDesc, ISNULL(SUM(ISNULL(l.AvailedValue,0)),0) AS AvailedValueMaternityLeave 
+
+                                FROM AttdnProcessData AS apd
+                                  LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=apd.EmpSystemID
+                                                                 LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
+                                                                 LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
+                                                                 LEFT JOIN mst.DesignationMaster AS dm ON dm.Id=dmc.DesignationMasterId
+                                                                 LEFT JOIN DayStatusPlantChild PC ON pc.PlantId=ei.PlantId AND pc.EmpTypeId=dm.EmployeeCategoryId
+                                                                  JOIN DayTypeWithValues AS ds ON ds.code=apd.DayStatus AND ds.HeaderId=pc.HeaderId
+                                                                 JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id 
+
+                                
+                                                                 JOIN LeaveType AS lt ON lt.Id=apd.LTSystemID
+								                                JOIN LeaveTransaction AS lt2 ON lt2.EmpSystemID=apd.EmpSystemID AND lt2.LTSystemID=lt.Id
+								                                JOIN LeaveTransactionDetails AS ltd ON ltd.LvTrnsSystemID=lt2.SystemID AND ltd.WorkDate=apd.WorkDate
+								                                JOIN mst.MaternityLeavePolicy AS mlp ON mlp.Id=lt2.MaternityLeavePolicyId
+								
+                                WHERE l.AvailedValue>0 AND ISNULL(mlp.IsNoBenefit,0)=0 AND apd.WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' AND apd.EmpSystemID='" + EmployeeId + @"'
+                             
+                                GROUP BY FORMAT(apd.workdate,'MMM-yy')  ";
+            MaternityLeave = _sqlRepository.GetDataTable(sql);
+
+
+
+        }
+
+        public IWorkbook Form18Xls(string EmployeeId, string CalendarYearId, ExcelEngine excelEngine)
+        {
+
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            try
+            {
+
+                if (string.IsNullOrEmpty(EmployeeId) || EmployeeId == "''")
+                    throw new Exception("Select Employee");
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+
+                GetCalendarYear(CalendarYearId, out DataTable dtCalendar);
+                string FromDate = dtCalendar.Rows[0]["FromDate"].ToString();
+                string ToDate = dtCalendar.Rows[0]["ToDate"].ToString();
+
+                GetLeaveHeads(out DataTable dtLeaveInfo);
+                GetEmployeeInformation(EmployeeId, out DataTable dtEmployeeInformation);
+                GetEmployeeSalary(EmployeeId, FromDate, ToDate, out DataTable dtEmployeeSalary);
+                GetLeaveBalances(EmployeeId, FromDate, ToDate, out DataTable dtLeaveBalance);
+                GetLeaveTransaction(EmployeeId, FromDate, ToDate, out DataTable dtLeaveTransaction);
+                GetMaternityLeave(EmployeeId, FromDate, ToDate, out DataTable dtMaternityLeaveTransaction);
+
+                if (dtLeaveInfo.Rows.Count == 0)
+                    throw new Exception("No leave data found in configurion");
+
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "Form 18";
+                sheet = workbook.Worksheets[0];
+
+
+                int ROW = 6; int COL = 1;
+
+                #region header part
+                int LeftCol = 1; int LeftColData = 3;
+                int MiddleCol = 6; int MiddleColData = 8;
+                int RightCol = 10; int RightColData = 12;
+
+                sheet[ROW, LeftCol].Text = "Full Name";
+                sheet[ROW, LeftColData].Text = dtEmployeeInformation.Rows[0]["EmployeeName"].ToString();
+
+                sheet[ROW, MiddleCol].Text = "Designation";
+                sheet[ROW, MiddleColData].Text = dtEmployeeInformation.Rows[0]["Designation"].ToString();
+
+                sheet[ROW, RightCol].Text = "Emp Code";
+                sheet[ROW, RightColData].Text = dtEmployeeInformation.Rows[0]["EmployeeCode"].ToString();
+                ROW++;
+
+                sheet[ROW, LeftCol].Text = "DOJ";
+                sheet[ROW, LeftColData].Text = dtEmployeeInformation.Rows[0]["DOJ"].ToString();
+                ROW++;
+
+                sheet[ROW, LeftCol].Text = "DOS";
+                sheet[ROW, LeftColData].Text = dtEmployeeInformation.Rows[0]["DOS"].ToString();
+
+
+                sheet[ROW, RightCol].Text = "Contractor(if any)";
+                sheet[ROW, RightColData].Text = dtEmployeeInformation.Rows[0]["Contractor"].ToString();
+
+                ROW++;
+                #endregion header part
+
+                #region columns
+                ROW++;
+                sheet[ROW, COL].Text = "Month";
+                sheet[ROW, COL].ColumnWidth = 8;
+                int colMonth = COL; COL++;
+
+                sheet[ROW, COL].Text = "Working Days";
+                sheet[ROW, COL].ColumnWidth = 8;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colActualWorkingDays = COL; COL++;
+
+                sheet[ROW, COL].Text = "Pay Days";
+                sheet[ROW, COL].ColumnWidth = 8;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colPayDays = COL; COL++;
+
+                sheet[ROW, COL].Text = "Wage Rate";
+                sheet[ROW, COL].ColumnWidth = 8;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colGross = COL; COL++;
+
+
+                sheet[ROW, COL].Text = "MLV with Pay";
+                sheet[ROW, COL].ColumnWidth = 8;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colMLV = COL; COL++;
+
+                sheet[ROW, COL].Text = "Layoff Days";
+                sheet[ROW, COL].ColumnWidth = 8;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colLayoffDays = COL; COL++;
+
+                Dictionary<string, int> dicLeaveColIndex = new Dictionary<string, int>();
+                for (int i = 0; i < dtLeaveInfo.Rows.Count; i++)
+                {
+                    dicLeaveColIndex.Add(dtLeaveInfo.Rows[i]["LeaveTypeId"].ToString(), COL);
+
+                    sheet[ROW - 1, COL].Text = dtLeaveInfo.Rows[i]["LeaveType"].ToString();
+                    sheet.Range[ROW - 1, COL, ROW - 1, COL + 2].Merge();
+                    sheet.Range[ROW - 1, COL, ROW - 1, COL + 2].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet.Range[ROW - 1, COL, ROW - 1, COL + 2].CellStyle.Interior.Color = System.Drawing.Color.FromArgb(0, 0, 0);
+                    sheet.Range[ROW - 1, COL, ROW - 1, COL + 2].CellStyle.Font.Color = ExcelKnownColors.White;
+                    sheet.Range[ROW - 1, COL, ROW - 1, COL + 2].CellStyle.Font.Bold = true;
+                    sheet.Range[ROW - 1, COL, ROW - 1, COL + 2].CellStyle.Font.Size = 9f;
+                    sheet.Range[ROW - 1, COL, ROW - 1, COL + 2].WrapText = true;
+                    sheet.Range[ROW - 1, COL, ROW - 1, COL + 2].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW - 1, COL, ROW - 1, COL + 2].BorderAround(ExcelLineStyle.Hair);
+
+                    sheet[ROW, COL].Text = "From";
+                    sheet[ROW, COL].ColumnWidth = 8;
+                    COL++;
+                    sheet[ROW, COL].Text = "To";
+                    sheet[ROW, COL].ColumnWidth = 8;
+                    COL++;
+                    sheet[ROW, COL].Text = "Days";
+                    sheet[ROW, COL].ColumnWidth = 8;
+                    sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                    COL++;
+                }
+                sheet[ROW, COL].Text = "Total Wages Paid(EL)";
+                sheet[ROW, COL].ColumnWidth = 8;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colTotalWagesPaidForEL = COL;
+
+                #endregion columns
+
+                int endCol = COL;
+
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.Color = System.Drawing.Color.FromArgb(0, 0, 0);
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].WrapText = true;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+
+                #region leave balances
+                int startRow = ROW;
+                sheet[startRow, 1].Text = "Balance From the preceeding year";
+                sheet[startRow + 1, 1].Text = "Credit for the current year";
+                sheet[startRow + 2, 1].Text = "Total leave to credit";
+
+                ROW = startRow + 3;
+                for (int i = 0; i < dtLeaveBalance.Rows.Count; i++)
+                {
+                    //Select L.LeaveTypeId,ISNULL(l.BroughtForward, 0) + ISNULL(L.CarryForwardOpeningBalance, 0) AS LeaveCount,'OB' AS TransactionType
+                    int tempLeaveCol = dicLeaveColIndex[dtLeaveBalance.Rows[i]["LeaveTypeId"].ToString()];
+                    if (dtLeaveBalance.Rows[i]["TransactionType"].ToString() == "OB")
+                        sheet[startRow, tempLeaveCol + 2].Number = clsStaticInfo.dbl(dtLeaveBalance.Rows[i]["LeaveCount"].ToString());
+                    else
+                        sheet[startRow + 1, tempLeaveCol + 2].Number = clsStaticInfo.dbl(dtLeaveBalance.Rows[i]["LeaveCount"].ToString());
+                }
+                for (int i = 0; i < dtLeaveInfo.Rows.Count; i++)
+                {
+                    int tempLeaveCol = dicLeaveColIndex[dtLeaveInfo.Rows[i]["LeaveTypeId"].ToString()];
+                    sheet[startRow + 2, tempLeaveCol + 2].Formula = clsStaticInfo.GetxlsCol(tempLeaveCol + 2) + startRow + "+" + clsStaticInfo.GetxlsCol(tempLeaveCol + 2) + (startRow + 1);
+                }
+                #endregion leave balances
+                startRow = ROW;
+
+
+
+                for (int i = 0; i < dtEmployeeSalary.Rows.Count; i++)
+                {
+                    //SELECT Ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ATT.MonthDesc, ATT.MonthNo,MonthDesc
+                    //ATT.YearNo, ATT.TotalActualWorkingDays, ATT.TotalPayDaysValue,sal.DisbusmentAmount,sala.DisbusmentAmount AS TotalForLeaveAmount
+
+
+                    sheet[ROW, colMonth].Text = dtEmployeeSalary.Rows[i]["MonthDesc"].ToString();
+                    sheet[ROW, colActualWorkingDays].Number = clsStaticInfo.dbl(dtEmployeeSalary.Rows[i]["TotalActualWorkingDays"].ToString());
+                    sheet[ROW, colPayDays].Number = clsStaticInfo.dbl(dtEmployeeSalary.Rows[i]["TotalPayDaysValue"].ToString());
+                    sheet[ROW, colGross].Number = clsStaticInfo.dbl(dtEmployeeSalary.Rows[i]["DisbusmentAmount"].ToString());
+                    sheet[ROW, colLayoffDays].Text = "";
+
+                    if (clsStaticInfo.dbl(dtEmployeeSalary.Rows[i]["TotalActualWorkingDays"].ToString()) > 0)
+                        sheet[ROW, colTotalWagesPaidForEL].Number = clsStaticInfo.dbl(dtEmployeeSalary.Rows[i]["totalForLeaveAmount"].ToString())
+                                                                    /
+                                                                    clsStaticInfo.dbl(dtEmployeeSalary.Rows[i]["TotalActualWorkingDays"].ToString());
+
+
+                    dtMaternityLeaveTransaction.DefaultView.RowFilter = "MonthDesc='" + dtEmployeeSalary.Rows[i]["MonthDesc"].ToString() + "'";
+                    if (dtMaternityLeaveTransaction.DefaultView.Count>0)
+                        sheet[ROW, colMLV].Number = clsStaticInfo.dbl(dtMaternityLeaveTransaction.DefaultView[0]["AvailedValueMaternityLeave"].ToString());
+
+
+                    int LeaveStartRow = ROW;
+                    int MaxRow = ROW;
+                    for (int KK = 0; KK < dtLeaveInfo.Rows.Count; KK++)
+                    {
+                        ROW = LeaveStartRow;
+                        dtLeaveTransaction.DefaultView.RowFilter = "LeaveTypeId='" + dtLeaveInfo.Rows[KK]["LeaveTypeId"].ToString() + "' AND MonthDesc='" + dtEmployeeSalary.Rows[i]["MonthDesc"].ToString() + "'";
+                        for (int SS = 0; SS < dtLeaveTransaction.DefaultView.Count; SS++)
+                        {
+                            sheet[ROW, dicLeaveColIndex[dtLeaveInfo.Rows[KK]["LeaveTypeId"].ToString()]].Text = dtLeaveTransaction.DefaultView[SS]["FromDate"].ToString();
+                            sheet[ROW, dicLeaveColIndex[dtLeaveInfo.Rows[KK]["LeaveTypeId"].ToString()] + 1].Text = dtLeaveTransaction.DefaultView[SS]["ToDate"].ToString();
+                            sheet[ROW, dicLeaveColIndex[dtLeaveInfo.Rows[KK]["LeaveTypeId"].ToString()] + 2].Number = clsStaticInfo.dbl(dtLeaveTransaction.DefaultView[SS]["AvailedValue"].ToString());
+
+                            if (ROW > MaxRow)
+                                MaxRow = ROW;
+
+                            sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                            sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                            sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                            ROW++;
+                        }
+                    }
+
+                    ROW = MaxRow;
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+
+                }
+
+
+                sheet.UsedRange.NumberFormat = clsStaticInfo.NumberFormat(2);
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Form 18", identity.CompanyId, identity.CompanyName, "");
+
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                sheet.IsGridLinesVisible = false;
+
+
+                //#endregion ******************Report Header******************
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                sheet.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + identity.Name + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:mm tt").ToString();
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+
+
+                return workbook;
+
+
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+
+
+
+        }
+
+        #endregion form18
+
     }
+
     public class ReportLeaveInfo
     {
         public string EmpSystemID { get; set; }
