@@ -17174,10 +17174,7 @@ INNER JOIN
 
                 for (int i = 0; i < dtEmployeeSalary.Rows.Count; i++)
                 {
-                    //SELECT Ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ATT.MonthDesc, ATT.MonthNo,MonthDesc
-                    //ATT.YearNo, ATT.TotalActualWorkingDays, ATT.TotalPayDaysValue,sal.DisbusmentAmount,sala.DisbusmentAmount AS TotalForLeaveAmount
-
-
+                   
                     sheet[ROW, colMonth].Text = dtEmployeeSalary.Rows[i]["MonthDesc"].ToString();
                     sheet[ROW, colActualWorkingDays].Number = clsStaticInfo.dbl(dtEmployeeSalary.Rows[i]["TotalActualWorkingDays"].ToString());
                     sheet[ROW, colPayDays].Number = clsStaticInfo.dbl(dtEmployeeSalary.Rows[i]["TotalPayDaysValue"].ToString());
