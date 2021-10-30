@@ -16,6 +16,7 @@ using System.Threading;
 using System.Data;
 using OTSBD;
 using System.Linq;
+using Syncfusion.XlsIO;
 
 #endregion Using
 
@@ -574,24 +575,30 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
 
+       
         [HttpGet, Authorize]
-        public ActionResult Form18(string empid, string CalendarYear)
+        public ActionResult Form18(string year, string empid)
         {
             try
             {
+                ExcelEngine excelEngine = new ExcelEngine();
 
+                Library.HumanResource.Payroll.PayrollReportsService service = new Library.HumanResource.Payroll.PayrollReportsService();
+                IWorkbook workbook = service.Form18Xls(empid, year, excelEngine);
 
+                string strFileName = "Form18.xlsx";
+                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                workbook.Close();
 
-                return null;
             }
             catch (Exception ex)
             {
 
-                return Json(new { Message = ex.Message, Error = true, }, JsonRequestBehavior.AllowGet);
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
             }
 
+            return null;
         }
-
 
         #endregion -- Operations
     }
