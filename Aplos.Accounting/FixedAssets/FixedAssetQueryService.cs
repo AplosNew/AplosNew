@@ -337,14 +337,14 @@ namespace Library.Accounting.FixedAssets
             //if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
             //    strkey = column + " like '%" + value + "%'";
 
-            var sql = @"select top 300 * from (SELECT FR.Id,FR.Id AS FixedAssetRegisterId, FR.MaterialMasterArticleId, FR.MaterialMasterId,FR.FixedAssetMasterId
+            var sql = @"select top 300 * from (SELECT FARD.Id,FR.Id AS FixedAssetRegisterId, FR.MaterialMasterArticleId, FR.MaterialMasterId,FR.FixedAssetMasterId
                                     , FR.SerialNo, FR.Id AssetNo, FR.InvoiceNo, MM.UserName MaterialMasterName
                                     , FAM.UserName FixedAssetMasterName, FAC.UserName FixedAssetCategory
                                     , FASC.UserName FixedAssetSubCategory, FAM.FixedAssetCategoryId
                                     , FAM.FixedAssetSubCategoryId, FAM.AssetType
                                     ,P.UserName Vendor
                                     ,c.Code TrnCurrency
-
+	                                ,FAD.DocDate
                                     , ISNULL(FR.Price,0) Price
 									,ISNULL(SAR.subAssetAmount,0) SubAssetAmount
 									, ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0) PurchasePrice
