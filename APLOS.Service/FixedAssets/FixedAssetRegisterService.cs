@@ -2871,8 +2871,8 @@ namespace Library.Service.FixedAssets
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                parameters.CmdText = @"SELECT  VD.VoucherId,VD.Id VoucherDetailNo,v.VoucherNo,IIH.Id InventoryIssueHistoryId,Round((IIH.Qty*IIH.Rate),4) Amount
-                    ,Round((IIH.Qty*IRD.BooksCurrencyBaseRate),4) FABaseAmount,LC.LCANo,PO.PurchaseLCId,IR.CurrencyId,II.CurrencyId BaseCurrencyId
+                parameters.CmdText = @"SELECT  VD.VoucherId,VD.Id VoucherDetailNo,v.VoucherNo,IIH.Id InventoryIssueHistoryId,Round((IIH.TotalAmount),4) Amount
+                    ,Round((IIH.TotalMaterialBooksCurrencyAmount),4) FABaseAmount,LC.LCANo,PO.PurchaseLCId,IR.CurrencyId,II.CurrencyId BaseCurrencyId
                     ,FAM.Id FixedAssetMasterId, BM.GLGeneralInfoId, AGL.UserName AS AssetGLName, BM.GLGeneralInfoId AS AssetGLId, FAMT.BudgetMasterId
                                     ,IIH.Qty,IR.Id GRNNo,IR.GateEntryNo,IR.DocRefNo InvoiceNo
 									,REPLACE(Convert(VARCHAR(11), IR.DocDate, 106), ' ', '-') AS InvoiceDate
@@ -4192,6 +4192,8 @@ namespace Library.Service.FixedAssets
                     {
                         FixedAssetRegisterId = fixedAssetReg.Id,
                         NegotiationValue = item.NegotiationValue,
+                        BaseNagotiationValue = item.BaseNagotiationValue,
+
                         FixedAssetRegisterDisposedId= fixedAssetDispose.Id,
                         Id = "D"+fixedAssetDispose.Id+ detailId,
                     };
@@ -4223,7 +4225,7 @@ namespace Library.Service.FixedAssets
 
         #endregion
         #region FixedAsset Sales
-        public string InsertFixedAssetSales(string status, IEnumerable<FixedAssetRegister> fixedAssetRegister, string partyId,string partyPlantId, string remarks, string currencyId, decimal toCurrencyRate)
+        public string InsertFixedAssetSales(string status, IEnumerable<FixedAssetRegister> fixedAssetRegister, string partyId,string partyPlantId, string remarks, string currencyId, decimal toCurrencyRate,string docDate)
         {
             var flag = false;
             try
@@ -4245,6 +4247,7 @@ namespace Library.Service.FixedAssets
                     IsPark = true,
                    ToCurrencyRate = toCurrencyRate,
                    CurrencyId = currencyId
+                   DocDate = docDate
 
                   
                 };
@@ -4257,6 +4260,7 @@ namespace Library.Service.FixedAssets
                     var fixedAssetReg = _fixedAssetRegisterRepository.Find(item.Id);
 
                     fixedAssetReg.NegotiationValue = item.NegotiationValue;
+                    fixedAssetReg.BaseNagotiationValue = item.BaseNagotiationValue;
                     fixedAssetReg.Status = status;
                     fixedAssetReg.Remarks = remarks;
                     _fixedAssetRegisterRepository.Update(fixedAssetReg);
@@ -4268,7 +4272,7 @@ namespace Library.Service.FixedAssets
                         NegotiationValue = item.NegotiationValue,
                         FixedAssetRegisterDisposedId = fixedAssetDispose.Id,
                         Id = "D" + fixedAssetDispose.Id + detailId,
-                        BaseNagotiationValue = item.NegotiationValue * toCurrencyRate
+                        BaseNagotiationValue = item.BaseNagotiationValue
                     };
                     AuditService.AddedLog(fixedAssetDisposeDetail);
                     _fixedAssetRegisterDisposedDetailRepository.Insert(fixedAssetDisposeDetail);
@@ -4295,6 +4299,78 @@ namespace Library.Service.FixedAssets
                     _unitOfWork.Rollback();
             }
         }
+
+        public string EditFixedAssetSales(string status, FixedAssetRegisterDisposed disposeVM, IEnumerable<FixedAssetRegisterDisposedDetail> fixedAssetRegister)
+        {
+            var flag = false;
+            try
+            {
+
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                int detailId = 0;
+                var fixedAssetDispose = new FixedAssetRegisterDisposed
+                {
+                    Status = disposeVM.Status,
+                    Remarks = disposeVM.Remarks,
+                    PartyId = disposeVM.PartyId,
+                    PartyPlantId = disposeVM.PartyPlantId,
+                    Id = disposeVM.Id,
+                    IsPark = true,
+                    ToCurrencyRate = disposeVM.ToCurrencyRate,
+                    CurrencyId = disposeVM.CurrencyId
+                    DocDate = disposeVM.DocDate
+                };
+                AuditService.UpdatedLog(fixedAssetDispose);
+                _fixedAssetRegisterDisposedRepository.Update(fixedAssetDispose);
+
+                foreach (var item in fixedAssetRegister)
+                {
+                    detailId++;
+                    var fixedAssetReg = _fixedAssetRegisterRepository.Find(item.FixedAssetRegisterId);
+
+                    fixedAssetReg.NegotiationValue = item.NegotiationValue;
+                    fixedAssetReg.BaseNagotiationValue = item.BaseNagotiationValue;
+                    fixedAssetReg.Status = status;
+                    fixedAssetReg.Remarks = disposeVM.Remarks;
+                    _fixedAssetRegisterRepository.Update(fixedAssetReg);
+
+
+                    var fixedAssetDisposeDetail = new FixedAssetRegisterDisposedDetail
+                    {
+                        FixedAssetRegisterId = item.FixedAssetRegisterId,
+                        NegotiationValue = item.NegotiationValue,
+                        FixedAssetRegisterDisposedId = fixedAssetDispose.Id,
+                        BaseNagotiationValue = item.BaseNagotiationValue,
+                        Id = item.Id,
+
+                    };
+                    AuditService.UpdatedLog(fixedAssetDisposeDetail);
+                    _fixedAssetRegisterDisposedDetailRepository.Update(fixedAssetDisposeDetail);
+                }
+
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+                return disposeVM.Remarks;
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+
 
         #endregion
 
