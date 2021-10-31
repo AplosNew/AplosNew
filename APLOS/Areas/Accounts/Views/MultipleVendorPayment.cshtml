@@ -12,16 +12,16 @@
                 <div class="row">
 
                     <div class="form-elements form-horizontal">
-                        <div class="col-xs-12 col-sm-4 col-md-4">
+                        <div class="col-xs-12 col-sm-5 col-md-5">
                             <div class="form-group" show-errors>
                                 <div class="radio col-sm-6 col-xs-6">
                                     <label>
                                         <input type="radio" name="Date Type" ng-click="changeDateType('DueUpToDate')" ng-model="multiplePayment.DateType" value="DueUpToDate">
-                                        <span class="cr" tabindex="14"><i class="cr-icon"></i></span>Due UpTo Date
+                                        <span class="cr" tabindex="14"><i class="cr-icon"></i></span>Due UpTo PostingDate
                                     </label>
                                     <label>
                                         <input type="radio" name="Date Type" ng-click="changeDateType('DocDate')" ng-model="multiplePayment.DateType" value="DocDate">
-                                        <span class="cr" tabindex="15"><i class="cr-icon"></i></span>Doc Date
+                                        <span class="cr" tabindex="15"><i class="cr-icon"></i></span>Due UpTo Doc Date
                                     </label>
                                 </div>
                                 <div class="col-sm-6 show-message">
@@ -43,7 +43,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xs-12 col-sm-2 col-md-2 ">
+                        <div class="col-xs-12 col-sm-1 col-md-1 ">
                             <button class="btn single-btn" ng-click="getPopupVendorPayableList()" tabindex="10">Select Payable</button>
                         </div>
                         <div class="col-xs-12 col-sm-3 col-md-3 ">
