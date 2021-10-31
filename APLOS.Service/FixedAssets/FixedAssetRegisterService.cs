@@ -4192,6 +4192,8 @@ namespace Library.Service.FixedAssets
                     {
                         FixedAssetRegisterId = fixedAssetReg.Id,
                         NegotiationValue = item.NegotiationValue,
+                        BaseNagotiationValue = item.BaseNagotiationValue,
+
                         FixedAssetRegisterDisposedId= fixedAssetDispose.Id,
                         Id = "D"+fixedAssetDispose.Id+ detailId,
                     };
@@ -4257,6 +4259,7 @@ namespace Library.Service.FixedAssets
                     var fixedAssetReg = _fixedAssetRegisterRepository.Find(item.Id);
 
                     fixedAssetReg.NegotiationValue = item.NegotiationValue;
+                    fixedAssetReg.BaseNagotiationValue = item.BaseNagotiationValue;
                     fixedAssetReg.Status = status;
                     fixedAssetReg.Remarks = remarks;
                     _fixedAssetRegisterRepository.Update(fixedAssetReg);
@@ -4268,7 +4271,7 @@ namespace Library.Service.FixedAssets
                         NegotiationValue = item.NegotiationValue,
                         FixedAssetRegisterDisposedId = fixedAssetDispose.Id,
                         Id = "D" + fixedAssetDispose.Id + detailId,
-                        BaseNagotiationValue = item.NegotiationValue * toCurrencyRate
+                        BaseNagotiationValue = item.BaseNagotiationValue
                     };
                     AuditService.AddedLog(fixedAssetDisposeDetail);
                     _fixedAssetRegisterDisposedDetailRepository.Insert(fixedAssetDisposeDetail);

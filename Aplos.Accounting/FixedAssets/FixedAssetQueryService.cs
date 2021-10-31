@@ -292,7 +292,7 @@ namespace Library.Accounting.FixedAssets
 									,isnull(FR.FABaseAmount,0) + ISNULL(SAR.subAssetBaseAmount,0) PurchaseBaseAmount
 									,isnull( FR.ADBaseAmount,0)ADBaseAmount
                                     , isnull(FR.FABaseAmount,0)+ISNULL(SAR.subAssetBaseAmount,0)-ISNULL(FR.ADBaseAmount,0) NetBaseBookValue 
-									, 0 NegotiationValue
+									, 0 NegotiationValue,0 BaseNagotiationValue
 
                                     , MMA.StandardName Article, FR.IsFinancial,IsOpeningBalance=case when FR.IsOpeningBalance=0 then 'No' Else 'Yes' End
                                     , GL.AccountCode GLGeneralInfoCode,GL.UserName GLGeneralInfoName,GL.Id GLGeneralInfoId
@@ -357,7 +357,7 @@ namespace Library.Accounting.FixedAssets
 									,isnull(FR.FABaseAmount,0) + ISNULL(SAR.subAssetBaseAmount,0) PurchaseBaseAmount
 									,isnull( FR.ADBaseAmount,0)ADBaseAmount
                                     , isnull(FR.FABaseAmount,0)+ISNULL(SAR.subAssetBaseAmount,0)-ISNULL(FR.ADBaseAmount,0) NetBaseBookValue 
-									,FARD.NagotiationBooksValue, FARD.NegotiationValue
+									,FARD.BaseNagotiationValue, FARD.NegotiationValue
 
                                     , MMA.StandardName Article, FR.IsFinancial,IsOpeningBalance=case when FR.IsOpeningBalance=0 then 'No' Else 'Yes' End
                                     , GL.AccountCode GLGeneralInfoCode,GL.UserName GLGeneralInfoName,GL.Id GLGeneralInfoId
