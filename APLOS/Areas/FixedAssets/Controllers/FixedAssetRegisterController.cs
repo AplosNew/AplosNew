@@ -921,6 +921,13 @@ namespace Aplos.Areas.FixedAssets.Controllers
             _fixedAssetRegisterService.InsertFixedAssetSales(status, fixedAssetRegister, partyId, partyPlantId, remarks, currencyId, toCurrencyRate);
             return Json(new { Message = AplosMessage.Insert });
         }
+        [HttpPost]
+        public JsonResult UpdateFixedAssetSales(string status, IEnumerable<FixedAssetRegister> fixedAssetRegister, string partyId, string partyPlantId, string remarks, string currencyId, decimal toCurrencyRate)
+        {
+            _fixedAssetRegisterService.EditFixedAssetSales(status, fixedAssetRegister, partyId, partyPlantId, remarks, currencyId, toCurrencyRate);
+            return Json(new { Message = AplosMessage.Insert });
+        }
+       
 
         [HttpPost]
         public JsonResult CreateFixedAssetScrap(string status, IEnumerable<FixedAssetRegister> fixedAssetRegister, string remarks)

@@ -2871,8 +2871,8 @@ namespace Library.Service.FixedAssets
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                parameters.CmdText = @"SELECT  VD.VoucherId,VD.Id VoucherDetailNo,v.VoucherNo,IIH.Id InventoryIssueHistoryId,Round((IIH.Qty*IIH.Rate),4) Amount
-                    ,Round((IIH.Qty*IRD.BooksCurrencyBaseRate),4) FABaseAmount,LC.LCANo,PO.PurchaseLCId,IR.CurrencyId,II.CurrencyId BaseCurrencyId
+                parameters.CmdText = @"SELECT  VD.VoucherId,VD.Id VoucherDetailNo,v.VoucherNo,IIH.Id InventoryIssueHistoryId,Round((IIH.TotalAmount),4) Amount
+                    ,Round((IIH.TotalMaterialBooksCurrencyAmount),4) FABaseAmount,LC.LCANo,PO.PurchaseLCId,IR.CurrencyId,II.CurrencyId BaseCurrencyId
                     ,FAM.Id FixedAssetMasterId, BM.GLGeneralInfoId, AGL.UserName AS AssetGLName, BM.GLGeneralInfoId AS AssetGLId, FAMT.BudgetMasterId
                                     ,IIH.Qty,IR.Id GRNNo,IR.GateEntryNo,IR.DocRefNo InvoiceNo
 									,REPLACE(Convert(VARCHAR(11), IR.DocDate, 106), ' ', '-') AS InvoiceDate
@@ -4298,6 +4298,81 @@ namespace Library.Service.FixedAssets
                     _unitOfWork.Rollback();
             }
         }
+
+        public string EditFixedAssetSales(string status, IEnumerable<FixedAssetRegister> fixedAssetRegister, string partyId, string partyPlantId, string remarks, string currencyId, decimal toCurrencyRate)
+        {
+            var flag = false;
+            try
+            {
+
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                string TableName = "trn.FixedAssetRegisterDisposed";
+                bplib.clsGenID genidYearly = new bplib.clsGenID();
+                genidYearly.GenerateIDYearly(DateTime.Now.ToString(), TableName, out string _id);
+                int detailId = 0;
+                var fixedAssetDispose = new FixedAssetRegisterDisposed
+                {
+                    Status = status,
+                    Remarks = remarks,
+                    PartyId = partyId,
+                    PartyPlantId = partyPlantId,
+                    Id = "RD" + _id,
+                    IsPark = true,
+                    ToCurrencyRate = toCurrencyRate,
+                    CurrencyId = currencyId
+
+
+                };
+                AuditService.AddedLog(fixedAssetDispose);
+                _fixedAssetRegisterDisposedRepository.Update(fixedAssetDispose);
+
+                foreach (var item in fixedAssetRegister)
+                {
+                    detailId++;
+                    var fixedAssetReg = _fixedAssetRegisterRepository.Find(item.Id);
+
+                    fixedAssetReg.NegotiationValue = item.NegotiationValue;
+                    fixedAssetReg.BaseNagotiationValue = item.BaseNagotiationValue;
+                    fixedAssetReg.Status = status;
+                    fixedAssetReg.Remarks = remarks;
+                    _fixedAssetRegisterRepository.Update(fixedAssetReg);
+
+
+                    var fixedAssetDisposeDetail = new FixedAssetRegisterDisposedDetail
+                    {
+                        FixedAssetRegisterId = fixedAssetReg.Id,
+                        NegotiationValue = item.NegotiationValue,
+                        FixedAssetRegisterDisposedId = fixedAssetDispose.Id,
+                        Id = "D" + fixedAssetDispose.Id + detailId,
+                        BaseNagotiationValue = item.BaseNagotiationValue
+                    };
+                    AuditService.AddedLog(fixedAssetDisposeDetail);
+                    _fixedAssetRegisterDisposedDetailRepository.Update(fixedAssetDisposeDetail);
+                }
+
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+                return remarks;
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+
 
         #endregion
 

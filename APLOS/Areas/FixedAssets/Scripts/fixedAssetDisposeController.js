@@ -299,10 +299,15 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
             else if ($scope.Action === "Update") {
                 $http({
                     method: "POST",
-                    url: "accounts/OpeningBalance/UpdateOBAdvanceJournal",
+                    url: "fixedassets/fixedassetregister/UpdateFixedAssetSales",
                     data: {
-                        "voucherVM": $scope.voucher,
-                        "voucherDetailVMList": JSON.stringify($scope.voucherDetailList)
+                        "status": $scope.voucher.Status,
+                        "fixedAssetRegister": $scope.voucherDetailList,
+                        "partyId": $scope.voucher.PartyId,
+                        "partyPlantId": $scope.voucher.InvoicingPartyPlantId,
+                        "remarks": $scope.voucher.Remarks,
+                        "currencyId": $scope.voucher.CurrencyId,
+                        "toCurrencyRate": $scope.voucher.CompanyCurrencyRate,
                     },
                     dataType: 'JSON'
                     , contentType: "application/json charset=utf-8"
