@@ -600,7 +600,8 @@ namespace Library.Accounting.FixedAssets
 
                 --LEFT JOIN HKP.Party P ON P.Id = FR.VendorId
                 LEFT JOIN ( SELECT FixedAssetRegisterId,ISNULL(Sum(Amount),0) subAssetAmount ,ISNULL(Sum(BaseAmount),0) subAssetBaseAmount FROM TRN.SubFixedAssetRegister group by FixedAssetRegisterId) SAR ON SAR.FixedAssetRegisterId=FR.Id
-                    where fr.CompanyId='C20171' AND frd.DisposedVoucherId IS NULL
+                    where fr.CompanyId='"+companyId+@"' 
+                    --AND frd.DisposedVoucherId IS NULL
                      group by fr.Remarks,fr.[Status],ei.EmployeeName,frd.IsPark,frd.Id,D.UserName ,DG.UserName,frd.EmployeeId,P.UserName ,frd.PartyId,frd.PartyPlantId,c.Code,FR.IsOpeningBalance ,P.UserName , BC.Code,c.Id 
 								) AS TEMP WHERE " + strkey+" order by DisposeNo ";
             return _sqlRepository.GetDataCollection(sql);
@@ -628,7 +629,7 @@ namespace Library.Accounting.FixedAssets
 									,sum(isnull( FR.ADBaseAmount,0))ADBaseAmount
                                     ,sum( isnull(FR.FABaseAmount,0)+ISNULL(SAR.subAssetBaseAmount,0)-ISNULL(FR.ADBaseAmount,0) )NetBaseBookValue 
 										,sum(isnull( rdd.NegotiationValue,0))NegotiationValue
-										,sum(isnull( rdd.NagotiationBooksValue,0))NagotiationBooksValue
+										,sum(isnull( rdd.BaseNagotiationValue,0))BaseNagotiationValue
 
                 from TRN.FixedAssetRegisterDisposed frd 
 				join TRN.FixedAssetRegisterDisposedDetail rdd ON rdd.FixedAssetRegisterDisposedId=frd.Id
