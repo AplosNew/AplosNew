@@ -3694,6 +3694,7 @@ function RequisitionController(accountService, addressService, $window, cboServi
 	cboService.getCboEntityByPlant($window.companyGroupId, $window.companyId, '', function (result) {
 		$scope.EntityList = result;
 	});
+
 	$scope.ReqList = [];
 	$scope.ReqStatus = 'ForChecked';
 	$scope.GetReq = function () {
