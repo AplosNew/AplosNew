@@ -799,10 +799,10 @@ namespace Library.OrderManagement.Packing
 
 							#region ConsumptionByCosting
 
-							if (item["CostingMasterTemplateId"] != null)
+							if (item["OrderCostingMasterTemplateId"] != null)
 							{
-								GetConsumptionByCostingData(item["CostingMasterTemplateId"].ToString(), out dsFromConsumptionByCosting);
-								dsFromConsumptionByCosting.Tables[0].DefaultView.RowFilter = "CostingId='" + item["CostingMasterTemplateId"].ToString() + "'";
+								GetConsumptionByCostingData(item["OrderCostingMasterTemplateId"].ToString(), out dsFromConsumptionByCosting);
+								dsFromConsumptionByCosting.Tables[0].DefaultView.RowFilter = "CostingId='" + item["OrderCostingMasterTemplateId"].ToString() + "'";
 								for (int l = 0; l < dsFromConsumptionByCosting.Tables[0].DefaultView.Count; l++)
 								{
 									DataRow drConsumptionByCosting = dsConsumptionByCosting.Tables[0].NewRow();
