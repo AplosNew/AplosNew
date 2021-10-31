@@ -41,7 +41,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         #region -- Pages
 
-        [Authorize]
+      
         public ActionResult Aplos()
         {
             return View();

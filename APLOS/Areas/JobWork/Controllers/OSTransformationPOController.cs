@@ -778,13 +778,13 @@ namespace Aplos.Areas.JobWork.Controllers
         }
 
         [HttpPost, Authorize]
-        public JsonResult LoadAllSKU(string MaterialMstId)
+        public JsonResult LoadAllSKU(string MaterialMstId, string assignment, string charId)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
-                return Json(JobWorkCommon.LoadAllSKU(MaterialMstId), JsonRequestBehavior.AllowGet);
+                return Json(JobWorkCommon.LoadAllSKU(MaterialMstId, assignment, charId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
