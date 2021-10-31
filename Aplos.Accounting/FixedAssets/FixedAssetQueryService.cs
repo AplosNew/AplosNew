@@ -292,7 +292,7 @@ namespace Library.Accounting.FixedAssets
 									,isnull(FR.FABaseAmount,0) + ISNULL(SAR.subAssetBaseAmount,0) PurchaseBaseAmount
 									,isnull( FR.ADBaseAmount,0)ADBaseAmount
                                     , isnull(FR.FABaseAmount,0)+ISNULL(SAR.subAssetBaseAmount,0)-ISNULL(FR.ADBaseAmount,0) NetBaseBookValue 
-									, 0 NegotiationValue
+									, 0 NegotiationValue,0 BaseNagotiationValue
 
                                     , MMA.StandardName Article, FR.IsFinancial,IsOpeningBalance=case when FR.IsOpeningBalance=0 then 'No' Else 'Yes' End
                                     , GL.AccountCode GLGeneralInfoCode,GL.UserName GLGeneralInfoName,GL.Id GLGeneralInfoId
@@ -337,14 +337,14 @@ namespace Library.Accounting.FixedAssets
             //if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
             //    strkey = column + " like '%" + value + "%'";
 
-            var sql = @"select top 300 * from (SELECT FR.Id,FR.Id AS FixedAssetRegisterId, FR.MaterialMasterArticleId, FR.MaterialMasterId,FR.FixedAssetMasterId
+            var sql = @"select top 300 * from (SELECT FARD.Id,FR.Id AS FixedAssetRegisterId, FR.MaterialMasterArticleId, FR.MaterialMasterId,FR.FixedAssetMasterId
                                     , FR.SerialNo, FR.Id AssetNo, FR.InvoiceNo, MM.UserName MaterialMasterName
                                     , FAM.UserName FixedAssetMasterName, FAC.UserName FixedAssetCategory
                                     , FASC.UserName FixedAssetSubCategory, FAM.FixedAssetCategoryId
                                     , FAM.FixedAssetSubCategoryId, FAM.AssetType
                                     ,P.UserName Vendor
                                     ,c.Code TrnCurrency
-
+	                                ,FAD.DocDate
                                     , ISNULL(FR.Price,0) Price
 									,ISNULL(SAR.subAssetAmount,0) SubAssetAmount
 									, ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0) PurchasePrice
@@ -357,7 +357,7 @@ namespace Library.Accounting.FixedAssets
 									,isnull(FR.FABaseAmount,0) + ISNULL(SAR.subAssetBaseAmount,0) PurchaseBaseAmount
 									,isnull( FR.ADBaseAmount,0)ADBaseAmount
                                     , isnull(FR.FABaseAmount,0)+ISNULL(SAR.subAssetBaseAmount,0)-ISNULL(FR.ADBaseAmount,0) NetBaseBookValue 
-									,FARD.NagotiationBooksValue, FARD.NegotiationValue
+									,FARD.BaseNagotiationValue, FARD.NegotiationValue
 
                                     , MMA.StandardName Article, FR.IsFinancial,IsOpeningBalance=case when FR.IsOpeningBalance=0 then 'No' Else 'Yes' End
                                     , GL.AccountCode GLGeneralInfoCode,GL.UserName GLGeneralInfoName,GL.Id GLGeneralInfoId

@@ -8264,30 +8264,35 @@ UNION ALL
         {
             string strSql = "";
             strSql = @"
-                select SourceType= case when V.SourceType='VendorInvoice' then 'Inbound Invoice'
+                 select SourceType= case when V.SourceType='VendorInvoice' then 'Inbound Invoice'
 						                when V.SourceType='VendorPayment' then 'Vendor Payment'
+						                when V.SourceType='CreditNoteSetOff' then 'Credit Note SetOff'
 						                when V.SourceType='InventoryPayable' then 'Purchase' else '' end
                 ,IWD.VoucherNo InvoiceVoucherNo,format( IWD.PostingDate, 'dd-MMM-yyyy') InvoicePostingDate,iwd.DocRefNo InvoieDocRefNo,format( IWD.DocDate, 'dd-MMM-yyyy') InvoiceDocDate
 				,V.VoucherNo,Format(V.PostingDate,'dd-MMM-yyyy') PostingDate,V.DocRefNo,format( V.DocDate, 'dd-MMM-yyyy')DocDate, P.UserName PartyName,P.TINNO GSTIN 
                 ,LineItemType=case when v.SourceType='InventoryPayable' then 'Material' 
 				                   when v.SourceType='VendorInvoice' then 'GL'
 				                   when v.SourceType='VendorPayment' then 'GL'
+				                   when v.SourceType='CreditNoteSetOff' then 'GL'
 				                   else '' end
 				                   ,Particular=case when v.SourceType='InventoryPayable' then MM.UserName 
 									                WHEN v.SourceType='VendorInvoice' THEN A.UserName
 									                WHEN v.SourceType='VendorPayment' THEN AP.UserName
+									                WHEN v.SourceType='CreditNoteSetOff' THEN AP.UserName
 				                   else '' end
 				 ,TaxableAmount=case when v.SourceType='InventoryPayable' then IRD.TotalMaterialTranAmount-IT.TaxAmount
 					                when v.SourceType='VendorInvoice' then VD.DrAmount-IT.TaxAmount	
-					                when v.SourceType='VendorPayment' then IWD.Amount-IT.TaxAmount	else 0 end
+					                when v.SourceType='VendorPayment' then IWD.Amount-IT.TaxAmount	
+					                when v.SourceType='CreditNoteSetOff' then IWD.Amount-IT.TaxAmount	else 0 end
                 ,InvoiceAmount=case when v.SourceType='InventoryPayable' then IRD.TotalMaterialTranAmount
 					                when v.SourceType='VendorInvoice' then VD.DrAmount	
+					                when v.SourceType='CreditNoteSetOff' then VD.DrAmount	
 					                when v.SourceType='VendorPayment' then IWD.Amount	else 0 end
                 ,IT.Id,0 DrAmount ,CrAmount=case when ITD.AType='Cr' then IT.TaxAmount else 0 end
 
                 ,TC.Code TaxCode ,TC.Sequence TCSequence,TC.TaxCategoryType,TC.UserName+'-'+TC.Code TaxCategory,IsNULL(TAXC.IsRCM,0) IsRCM,TAXC.UserName TaxCodeName
                 ,IsNULL(IV.IsExcludingTax,0) IsExcludingTax,IsNULL(IR.IsTaxApplicable,0) IsTaxApplicable,TAXC.[Type],ValueOfFixedNew = TAXC.UserName +' - '+ convert(varchar,TAXC.ValueOfFixed),TAXC.ValueOfFixed
-                ,HSNP.[Percentage],MM.HSNCodeId,MM.UserName Material
+                ,IsNULL(HSNP.[Percentage],0) Percentage,MM.HSNCodeId,MM.UserName Material
 
 				--,IT.Id,0 DrAmount ,CrAmount=case when ITD.AType='Cr' then IT.TaxAmount else 0 end
 				--,TC.TaxCategoryType,TC.UserName+'-'+TC.Code TaxCategory,IsNULL(TAXC.IsRCM,0) IsRCM,TAXC.UserName TaxCodeName

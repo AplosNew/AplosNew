@@ -91,7 +91,8 @@ namespace Aplos.Areas.Payrolls.Controllers
                 dtEmpInfo = null;
                 int iCount = 0;
                 var fileHeader = "";
-
+                double Total = 0;
+                double GrandTotal = 0;
                 //get ds
 
                 objRpt = new clsReport();
@@ -148,6 +149,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 var colWagesAbove15000 = 0;
                 var colRemarksDOL = 0;
                 var colAge = 0;
+                var colWagesTotal = 0;
                 var slCount = 0;
 
 
@@ -180,6 +182,11 @@ namespace Aplos.Areas.Payrolls.Controllers
                         SetHeaderTextPFund(ref sheet1, xlsRow, xlsCol, dt.Rows[i]["SalaryHead"].ToString(), 8, 25, ExcelHAlign.HAlignCenter);
                         SalaryHeadIndex.Add(dt.Rows[i]["SalaryHeadId"].ToString(), iCount);
                         xlsCol++;
+                    }
+
+                    if (dt.Rows.Count > 1)
+                    {
+                        SetHeaderTextPFund(ref sheet1, xlsRow, xlsCol, "Wages Total", 8, 25, ExcelHAlign.HAlignCenter); colWagesTotal = xlsCol; xlsCol++;
                     }
 
                     SetHeaderTextPFund(ref sheet1, xlsRow, xlsCol, "Employee's Share", 10, 25, ExcelHAlign.HAlignCenter); colEmployeeShare12parcent = xlsCol; xlsCol++;
@@ -318,12 +325,18 @@ namespace Aplos.Areas.Payrolls.Controllers
                         if (dicPFSalaryHeadWiseData.ContainsKey(dtEmpInfo.Rows[i]["EmpSystemId"].ToString()))
                         {
                             List<DataRow> dlrPF = dicPFSalaryHeadWiseData[dtEmpInfo.Rows[i]["EmpSystemId"].ToString()];
+                            Total = 0;
                             foreach (var item in dlrPF)
                             {
                                 sheet1.Range[xlsRow, SalaryHeadIndex[item["SalaryHeadID"].ToString()]].Number = clsStaticInfo.dbl(item["DisbusmentAmount"].ToString());
+                                Total = Total + clsStaticInfo.dbl(item["DisbusmentAmount"].ToString());
                             }
+                            GrandTotal = Total + GrandTotal;
                         }
-
+                        if (dt.Rows.Count > 1)
+                        {
+                            ru.SetTextBorder(ref sheet1, xlsRow, colWagesTotal, Total);
+                        }
                         ru.SetTextBorder(ref sheet1, xlsRow, colSrNo, slCount);
                         ru.SetTextBorder(ref sheet1, xlsRow, colPaycode, dtEmpInfo.Rows[i]["EmployeeCode"].ToString());
                         ru.SetTextBorder(ref sheet1, xlsRow, colPFUANNo, dtEmpInfo.Rows[i]["DocNumber"].ToString());//dtEmpInfo.Tables[0].Rows[i][""].ToString()
@@ -391,6 +404,17 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                     var summationRowLimit = xlsRow - 1;
                     //getTotal(ref sheet1, xlsRow, colWagesAmount, formulaStartRow, xlsRow - 1, ru);//Wages Sum
+                    if (dt.Rows.Count == 1)
+                    {
+                        getGrandTotal(ref sheet1, xlsRow, 7, GrandTotal, ru);//dtEmpInfo.Tables[0].Rows[i][""].ToString()
+                        sheet1.Range[xlsRow, 7].NumberFormat = ru.NumberFormatNegativeSignDelimeterDecimalTwo();
+                    }
+                    else
+                    {
+                        int num = dt.Rows.Count;
+                        getGrandTotal(ref sheet1, xlsRow, 7 + num, GrandTotal, ru);//dtEmpInfo.Tables[0].Rows[i][""].ToString()
+                        sheet1.Range[xlsRow, 7 + num].NumberFormat = ru.NumberFormatNegativeSignDelimeterDecimalTwo();
+                    }
                     getTotal(ref sheet1, xlsRow, colEmployeeShare12parcent, formulaStartRow, xlsRow - 1, ru);//EmployeeShare12parcent
                     getTotal(ref sheet1, xlsRow, colVPF, formulaStartRow, xlsRow - 1, ru);//
                     getTotal(ref sheet1, xlsRow, col3point67parcent, formulaStartRow, xlsRow - 1, ru);//EmployeeShare12parcent
@@ -417,14 +441,14 @@ namespace Aplos.Areas.Payrolls.Controllers
 
 
 
-                    //xlsRow++;
-                    //sheet1.Range[xlsRow, 2].Text = "Wages";
-                    //sheet1.Range[xlsRow, 2, xlsRow, 4].Merge();
-                    //sheet1.Range[xlsRow, 2].CellStyle.Font.Bold = true;
-                    //sheet1.Range[xlsRow, 2].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //sheet1.Range[xlsRow, 6].Formula = "=SUM(" + ru.GetColumnNameForXls(colWagesAmount) + formulaStartRow + ":" + ru.GetColumnNameForXls(colWagesAmount) + (summationRowLimit) + ")";
-                    //sheet1.Range[xlsRow, 6].NumberFormat = ru.NumberFormatDecimalFour();
-                    //sheet1.Range[xlsRow, 6, xlsRow, 7].Merge();
+                    xlsRow++;
+                    sheet1.Range[xlsRow, 2].Text = "Total- Wages Total";
+                    sheet1.Range[xlsRow, 2, xlsRow, 4].Merge();
+                    sheet1.Range[xlsRow, 2].CellStyle.Font.Bold = true;
+                    sheet1.Range[xlsRow, 2].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, 6].Number = GrandTotal;
+                    sheet1.Range[xlsRow, 6].NumberFormat = ru.NumberFormatDecimalFour();
+                    sheet1.Range[xlsRow, 6, xlsRow, 7].Merge();
 
                     xlsRow++;
 
@@ -499,13 +523,14 @@ namespace Aplos.Areas.Payrolls.Controllers
                     sheet1.Range[xlsRow, 6, xlsRow, 7].Merge();
 
 
-                    //xlsRow++;
-                    //sheet1.Range[xlsRow, 2].Text = "A/C:2 (0.50% of Wages) ->";
-                    //sheet1.Range[xlsRow, 2, xlsRow, 4].Merge();
-                    ////sheet1.Range[xlsRow, 2].CellStyle.Font.Bold = true;
-                    //sheet1.Range[xlsRow, 2].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //sheet1.Range[xlsRow, 6].Formula = "=ROUND(SUM(" + ru.GetColumnNameForXls(colWagesAmount) + formulaStartRow + ":" + ru.GetColumnNameForXls(colWagesAmount) + (summationRowLimit) + ") * 0.50%,0)";
-                    //sheet1.Range[xlsRow, 6, xlsRow, 7].Merge();
+                    xlsRow++;
+                    sheet1.Range[xlsRow, 2].Text = "A/C:2 (0.50% of Wages) ->";
+                    sheet1.Range[xlsRow, 2, xlsRow, 4].Merge();
+                    //sheet1.Range[xlsRow, 2].CellStyle.Font.Bold = true;
+                    sheet1.Range[xlsRow, 2].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, 6].Number = clsStaticInfo.dbl(GrandTotal) * 0.005;
+                    sheet1.Range[xlsRow, 6].NumberFormat = "#,##0.00";
+                    sheet1.Range[xlsRow, 6, xlsRow, 7].Merge();
 
                     xlsRow++;
                     sheet1.Range[xlsRow, 2].Text = "A/C:21 (0.50% of Pensionable Wages) ->";
@@ -1156,6 +1181,23 @@ namespace Aplos.Areas.Payrolls.Controllers
             try
             {
                 sheet1.Range[xlsRow, xlsCol].Formula = "=SUM(" + ru.GetColumnNameForXls(xlsCol) + Row_Total_Start + ":" + ru.GetColumnNameForXls(xlsCol) + (Row_Total_end) + ")";
+                sheet1.Range[xlsRow, xlsCol].NumberFormat = ru.NumberFormatDecimalTwo();
+                sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 12;
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        private void getGrandTotal(ref IWorksheet sheet1, int xlsRow, int xlsCol, double txt, ReportUtility ru)
+        {
+            try
+            {
+                sheet1.Range[xlsRow, xlsCol].Number = txt;
                 sheet1.Range[xlsRow, xlsCol].NumberFormat = ru.NumberFormatDecimalTwo();
                 sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
                 sheet1.Range[xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
