@@ -1881,6 +1881,7 @@
     <Content Include="Areas\HumanResource\Scripts\salaryProcessedReportControllerNew.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryProcessedReportExtraOTCTCCompanyController.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryProcessedReportExtraOTCTCOriginalController.js" />
+    <Content Include="Areas\HumanResource\Scripts\SalaryIntegrationWithThirdPartyController.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryStructureAndProcessedReportNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryStructureSheetDailyController.js" />
     <Content Include="Areas\HumanResource\Scripts\TablesUploadController.js" />
@@ -3805,6 +3806,7 @@
     <Content Include="Areas\Employees\Views\TransportGroup\Aplos.cshtml" />
     <Content Include="Areas\Employees\Views\ODDeleteNew\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\FinalDeductionReport\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\PayrollReports\SalaryIntegrationWithThirdParty.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

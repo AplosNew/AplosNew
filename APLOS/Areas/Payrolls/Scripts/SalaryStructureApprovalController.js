@@ -203,29 +203,6 @@ function SalaryStructureApprovalController(cboService, commonMessage, $scope, $r
     };
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     $scope.IsApprovedEmpList = false;
     $scope.employees = [];
 
@@ -432,8 +409,6 @@ function SalaryStructureApprovalController(cboService, commonMessage, $scope, $r
     $scope.Calculated = false;
     $scope.MinWage = null;
     $scope.NetGross = null;
-
-
     $scope.ResultTatalGross = null;
     $scope.ResultCTC = null;
     $scope.ResultNetpay = null;
@@ -662,8 +637,6 @@ function SalaryStructureApprovalController(cboService, commonMessage, $scope, $r
             $scope.ShowResultCustom(e, "failure");
         }
     };
-   
-
 
     //-------Promotion
     $scope.budgetCodeChangeOld = {
@@ -894,9 +867,6 @@ function SalaryStructureApprovalController(cboService, commonMessage, $scope, $r
 
     $scope.budgetCodeChangeNew = Object.assign({}, $scope.budgetCodeChange);
 
-
-
-
     $scope.NewbudgetCodeChange = {
         EntityName: null,
         Designation: null,
@@ -965,9 +935,6 @@ function SalaryStructureApprovalController(cboService, commonMessage, $scope, $r
     cboService.getCboLegalDesignation(null, function (result) {
         $scope.LegalDesignationList = result;
     });
-
-
- 
 
     $scope.clearCode = function () {
         $scope.budgetCodeChangeNew.BudgetId = null;
@@ -1101,7 +1068,7 @@ function SalaryStructureApprovalController(cboService, commonMessage, $scope, $r
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
                         $scope.ShowResultCustom(response.data.Message, "failure", 'EntryDiv');
-                     
+                        $scope.LoadEmployeeDataForGrid($scope.getEmpListUrl);
                     }
                     else {
                         $scope.ShowResultCustom(response.data.Message, "success", 'EntryDiv');

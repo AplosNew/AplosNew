@@ -1497,14 +1497,14 @@
                         <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
                             <div class="form-group">
 
-                                <label class=" control-label">SKU 1</label>
+                                <label class=" control-label">{{rmchar1.Name}}</label>
                                 @*<div class=" show-message">*@
                                 <div class="input-group">
-                                    <span class="input-group-addon">{{detailModel.Code1}}</span>
+                                    @*<span class="input-group-addon">{{detailModel.Code1}}</span>*@
                                     <input type="text" ng-model="detailModel.UserName1" class="form-control" readonly>
                                     <input type="hidden" ng-model="detailModel.FirstCharacteristicsValueId" />
                                     <span class="input-group-btn">
-                                        <button ng-click="SKU1PopUp()" ng-disabled="detailModel.MaterialMasterId==null" tabindex="18" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button ng-click="SKU1PopUp()" ng-disabled="SKU1disable" tabindex="18" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                                         <button ng-click="SKU1Clear()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
                                     </span>
                                 </div>
@@ -1516,14 +1516,14 @@
                         <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
                             <div class="form-group">
 
-                                <label class=" control-label">SKU 2</label>
+                                <label class=" control-label">{{rmchar2.Name}}</label>
                                 @*<div class=" show-message">*@
                                 <div class="input-group">
-                                    <span class="input-group-addon">{{detailModel.Code2}}</span>
+                                    @*<span class="input-group-addon">{{detailModel.Code2}}</span>*@
                                     <input type="text" ng-model="detailModel.UserName2" class="form-control" readonly>
                                     <input type="hidden" ng-model="detailModel.SecondCharacteristicsValueId" />
                                     <span class="input-group-btn">
-                                        <button ng-click="SKU2PopUp()" ng-disabled="detailModel.MaterialMasterId==null" tabindex="18" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button ng-click="SKU2PopUp()" ng-disabled="SKU2disable" tabindex="18" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                                         <button ng-click="SKU2Clear()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
                                     </span>
                                 </div>
@@ -1535,14 +1535,14 @@
                         <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
                             <div class="form-group">
 
-                                <label class=" control-label">SKU 3</label>
+                                <label class=" control-label">{{rmchar3.Name}}</label>
                                 @*<div class=" show-message">*@
                                 <div class="input-group">
-                                    <span class="input-group-addon">{{detailModel.Code3}}</span>
+                                    @*<span class="input-group-addon">{{detailModel.Code3}}</span>*@
                                     <input type="text" ng-model="detailModel.UserName3" class="form-control" readonly>
                                     <input type="hidden" ng-model="detailModel.ThirdCharacteristicsValueId" />
                                     <span class="input-group-btn">
-                                        <button ng-click="SKU3PopUp()" ng-disabled="detailModel.MaterialMasterId==null" tabindex="18" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button ng-click="SKU3PopUp()" ng-disabled="SKU3disable" tabindex="18" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                                         <button ng-click="SKU3Clear()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
                                     </span>
                                 </div>
@@ -3478,13 +3478,13 @@
                              e-allowfiltering="true" e-recorddoubleclick="setSKU1Data" e-allowpaging="true"
                              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                             <div e-columns>
-                                <div e-column e-type="string" e-field="MaterialMst" e-headertext="Material Name" e-width="80"></div>
-                                <div e-column e-type="string" e-field="FirstCharacteristics" e-headertext="First Characteristics" e-width="40"></div>
+                                @*<div e-column e-type="string" e-field="MaterialMst" e-headertext="Material Name" e-width="80"></div>
+                                <div e-column e-type="string" e-field="FirstCharacteristics" e-headertext="First Characteristics" e-width="40"></div>*@
                                 <div e-column e-type="string" e-field="Sequence" e-headertext="Sequence" e-width="140"></div>
                                 <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="140"></div>
                                 <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
                                 <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
-                                <div e-column e-type="string" e-field="UserName" e-headertext="First Characteristics Value" e-width="80"></div>
+                                <div e-column e-type="string" e-field="UserName" e-headertext="UserName" e-width="80"></div>
 
                             </div>
                         </div>
@@ -3513,8 +3513,8 @@
                              e-allowfiltering="true" e-recorddoubleclick="setSKU2Data" e-allowpaging="true"
                              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                             <div e-columns>
-                                <div e-column e-type="string" e-field="MaterialMst" e-headertext="Material Name" e-width="80"></div>
-                                <div e-column e-type="string" e-field="FirstCharacteristics" e-headertext="First Characteristics" e-width="40"></div>
+                                @*<div e-column e-type="string" e-field="MaterialMst" e-headertext="Material Name" e-width="80"></div>
+                                <div e-column e-type="string" e-field="FirstCharacteristics" e-headertext="First Characteristics" e-width="40"></div>*@
                                 <div e-column e-type="string" e-field="Sequence" e-headertext="Sequence" e-width="140"></div>
                                 <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="140"></div>
                                 <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
@@ -3548,8 +3548,8 @@
                              e-allowfiltering="true" e-recorddoubleclick="setSKU3Data" e-allowpaging="true"
                              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                             <div e-columns>
-                                <div e-column e-type="string" e-field="MaterialMst" e-headertext="Material Name" e-width="80"></div>
-                                <div e-column e-type="string" e-field="FirstCharacteristics" e-headertext="First Characteristics" e-width="40"></div>
+                                @*<div e-column e-type="string" e-field="MaterialMst" e-headertext="Material Name" e-width="80"></div>
+                                <div e-column e-type="string" e-field="FirstCharacteristics" e-headertext="First Characteristics" e-width="40"></div>*@
                                 <div e-column e-type="string" e-field="Sequence" e-headertext="Sequence" e-width="140"></div>
                                 <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="140"></div>
                                 <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>

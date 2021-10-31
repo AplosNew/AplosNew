@@ -641,17 +641,17 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
                 templateUrl: 'humanresource/PayrollReports/SalaryProcessedReportNew',
                 controller: 'salaryProcessedReportControllerNew'
             })
-        .when('/final-deduction',
-            {
-                templateUrl: 'humanresource/FinalDeductionReport/Aplos',
-                controller: 'FinalDeductionReportController'
-            })
         .when('/salary-structure-and-Processed-report-new',
             {
                 templateUrl: 'humanresource/PayrollReports/SalaryStructureAndProcessedReportNew',
                 controller: 'salaryStructureAndProcessedReportNewController'
             })
-
+        .when('/salary-integration-with-thirdparty',
+            {
+                templateUrl: 'humanresource/PayrollReports/SalaryIntegrationWithThirdParty',
+                controller: 'SalaryIntegrationWithThirdPartyController'
+            })
+    
         .when('/leave-delete-new', {
             templateUrl: 'humanresource/LeaveApplicationNew/LeaveDelete',
             controller: 'employeeLeaveDeleteApplicationNewController'
@@ -668,6 +668,11 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanresource/SalaryDisbursementReport/Aplos',
             controller: 'SalaryDisbursementReportController'
         })
+        .when('/final-deduction',
+            {
+                templateUrl: 'humanresource/FinalDeductionReport/Aplos',
+                controller: 'FinalDeductionReportController'
+            })
 ;
     
 
