@@ -4225,7 +4225,7 @@ namespace Library.Service.FixedAssets
 
         #endregion
         #region FixedAsset Sales
-        public string InsertFixedAssetSales(string status, IEnumerable<FixedAssetRegister> fixedAssetRegister, string partyId,string partyPlantId, string remarks, string currencyId, decimal toCurrencyRate)
+        public string InsertFixedAssetSales(string status, IEnumerable<FixedAssetRegister> fixedAssetRegister, string partyId,string partyPlantId, string remarks, string currencyId, decimal toCurrencyRate,string docDate)
         {
             var flag = false;
             try
@@ -4247,6 +4247,7 @@ namespace Library.Service.FixedAssets
                     IsPark = true,
                    ToCurrencyRate = toCurrencyRate,
                    CurrencyId = currencyId
+                   DocDate = docDate
 
                   
                 };
@@ -4299,7 +4300,7 @@ namespace Library.Service.FixedAssets
             }
         }
 
-        public string EditFixedAssetSales(string status, IEnumerable<FixedAssetRegister> fixedAssetRegister, string partyId, string partyPlantId, string remarks, string currencyId, decimal toCurrencyRate)
+        public string EditFixedAssetSales(string status, FixedAssetRegisterDisposed disposeVM, IEnumerable<FixedAssetRegisterDisposedDetail> fixedAssetRegister)
         {
             var flag = false;
             try
@@ -4307,54 +4308,51 @@ namespace Library.Service.FixedAssets
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
-                string TableName = "trn.FixedAssetRegisterDisposed";
-                bplib.clsGenID genidYearly = new bplib.clsGenID();
-                genidYearly.GenerateIDYearly(DateTime.Now.ToString(), TableName, out string _id);
                 int detailId = 0;
                 var fixedAssetDispose = new FixedAssetRegisterDisposed
                 {
-                    Status = status,
-                    Remarks = remarks,
-                    PartyId = partyId,
-                    PartyPlantId = partyPlantId,
-                    Id = "RD" + _id,
+                    Status = disposeVM.Status,
+                    Remarks = disposeVM.Remarks,
+                    PartyId = disposeVM.PartyId,
+                    PartyPlantId = disposeVM.PartyPlantId,
+                    Id = disposeVM.Id,
                     IsPark = true,
-                    ToCurrencyRate = toCurrencyRate,
-                    CurrencyId = currencyId
-
-
+                    ToCurrencyRate = disposeVM.ToCurrencyRate,
+                    CurrencyId = disposeVM.CurrencyId
+                    DocDate = disposeVM.DocDate
                 };
-                AuditService.AddedLog(fixedAssetDispose);
+                AuditService.UpdatedLog(fixedAssetDispose);
                 _fixedAssetRegisterDisposedRepository.Update(fixedAssetDispose);
 
                 foreach (var item in fixedAssetRegister)
                 {
                     detailId++;
-                    var fixedAssetReg = _fixedAssetRegisterRepository.Find(item.Id);
+                    var fixedAssetReg = _fixedAssetRegisterRepository.Find(item.FixedAssetRegisterId);
 
                     fixedAssetReg.NegotiationValue = item.NegotiationValue;
                     fixedAssetReg.BaseNagotiationValue = item.BaseNagotiationValue;
                     fixedAssetReg.Status = status;
-                    fixedAssetReg.Remarks = remarks;
+                    fixedAssetReg.Remarks = disposeVM.Remarks;
                     _fixedAssetRegisterRepository.Update(fixedAssetReg);
 
 
                     var fixedAssetDisposeDetail = new FixedAssetRegisterDisposedDetail
                     {
-                        FixedAssetRegisterId = fixedAssetReg.Id,
+                        FixedAssetRegisterId = item.FixedAssetRegisterId,
                         NegotiationValue = item.NegotiationValue,
                         FixedAssetRegisterDisposedId = fixedAssetDispose.Id,
-                        Id = "D" + fixedAssetDispose.Id + detailId,
-                        BaseNagotiationValue = item.BaseNagotiationValue
+                        BaseNagotiationValue = item.BaseNagotiationValue,
+                        Id = item.Id,
+
                     };
-                    AuditService.AddedLog(fixedAssetDisposeDetail);
+                    AuditService.UpdatedLog(fixedAssetDisposeDetail);
                     _fixedAssetRegisterDisposedDetailRepository.Update(fixedAssetDisposeDetail);
                 }
 
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
-                return remarks;
+                return disposeVM.Remarks;
             }
             catch (CustomException)
             {

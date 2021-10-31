@@ -108,9 +108,11 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
         $scope.voucher.PartyName = data.CustomerName;
         $scope.voucher.PartyId = data.PartyId;
         $scope.voucher.PartyPlantId = data.PartyPlantId;
-        $scope.voucher.CompanyCurrencyRate = data.ToCurrencyRate;
+        $scope.voucher.CompanyCurrencyRate = data.CompanyCurrencyRate;
+        $scope.voucher.ToCurrencyRate = data.CompanyCurrencyRate;
         $scope.voucher.BaseNagotiationValue = data.BaseNagotiationValue;
-
+        $scope.voucher.DocDate = data.DocDate;
+        	
         if ($scope.voucher.Status == 'Sales') {
             $scope.DisposeTpye();
             // return true;
@@ -255,6 +257,8 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
                         "remarks": $scope.voucher.Remarks,
                         "currencyId": $scope.voucher.CurrencyId,
                         "toCurrencyRate": $scope.voucher.CompanyCurrencyRate,
+                        "docDate": $scope.voucher.DocDate,
+                        
 
                     },
                     dataType: "JSON"
@@ -302,12 +306,8 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
                     url: "fixedassets/fixedassetregister/UpdateFixedAssetSales",
                     data: {
                         "status": $scope.voucher.Status,
+                        "disposeVM": $scope.voucher,
                         "fixedAssetRegister": $scope.voucherDetailList,
-                        "partyId": $scope.voucher.PartyId,
-                        "partyPlantId": $scope.voucher.InvoicingPartyPlantId,
-                        "remarks": $scope.voucher.Remarks,
-                        "currencyId": $scope.voucher.CurrencyId,
-                        "toCurrencyRate": $scope.voucher.CompanyCurrencyRate,
                     },
                     dataType: 'JSON'
                     , contentType: "application/json charset=utf-8"
