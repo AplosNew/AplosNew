@@ -582,7 +582,7 @@ namespace Library.Accounting.FixedAssets
 									,sum(isnull( FR.ADBaseAmount,0))ADBaseAmount
                                     ,sum( isnull(FR.FABaseAmount,0)+ISNULL(SAR.subAssetBaseAmount,0)-ISNULL(FR.ADBaseAmount,0) )NetBaseBookValue 
 										,sum(isnull( rdd.NegotiationValue,0))NegotiationValue
-                                    ,sum(isnull( rdd.NagotiationBooksValue,0))NagotiationBooksValue
+                                    ,sum(isnull( rdd.BaseNagotiationValue,0))BaseNagotiationValue
 
 				,P.UserName CustomerName,frd.PartyId,frd.PartyPlantId ,c.Code TrnPurchaseCurrency
                 ,IsOBBalance=case when FR.IsOpeningBalance=0 then 'No' Else 'Yes' End
