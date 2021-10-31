@@ -2,7 +2,7 @@
 GRNRequisitionSOAllocationController.$inject = ['accountService', 'addressService', '$window', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter', '$controller', '$location'];
 function GRNRequisitionSOAllocationController(accountService, addressService, $window, cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller, $location) {
     
-
+	$rootScope.title = 'GRN SO allocation';
 
 	// #region All Tab Control
 	$scope.Action = "Update";
@@ -182,6 +182,10 @@ function GRNRequisitionSOAllocationController(accountService, addressService, $w
 			$scope.currentAllocatedQty = $filter("sumByKey")($filter("filter")($scope.detailListNew), "AllocatedQty");
 			if ($scope.GRNTrnQty < (parseFloat($scope.currentTransactionQty) + parseFloat($scope.currentAllocatedQty))) {
 				ShowResult('Qty can not grater than GRN Qty ', 'failure', 'ListOfSo');
+				return true;
+			}
+			if ($scope.GRNTrnQty > (parseFloat($scope.currentTransactionQty) + parseFloat($scope.currentAllocatedQty))) {
+				ShowResult('Qty can not less than GRN Qty ', 'failure', 'ListOfSo');
 				return true;
 			}
 		}
