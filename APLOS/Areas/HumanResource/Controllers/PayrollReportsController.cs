@@ -67,6 +67,10 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
         {
             return View();
         }
+        public ActionResult SalaryIntegrationWithThirdParty()
+        {
+            return View();
+        }
 
 
         public ActionResult SalaryStructureAndProcessedReport()
@@ -256,7 +260,7 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
             }
         }
         [HttpPost, Authorize]
-        public ActionResult GetEmployeeSalaryStructureWithProceesdNew(string month, string year,string PlantId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity)
+        public ActionResult GetEmployeeSalaryStructureWithProceesdNew(string month, string year, string PlantId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity)
         {
             try
             {
@@ -731,6 +735,32 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
+
+        [HttpGet, Authorize]
+        public ActionResult SalaryIntegrationWithThirdpartyXls(string plantId, string month, string year)
+        {
+            try
+            {
+                plantId = "'" + plantId.Replace(",", "','") + "'";
+
+                ExcelEngine excelEngine = new ExcelEngine();
+
+                Library.HumanResource.Payroll.PayrollReportsService service = new Library.HumanResource.Payroll.PayrollReportsService();
+                IWorkbook workbook = service.SalaryIntegrationWithThirdparty(plantId, year, month, excelEngine);
+
+                string strFileName = "SalaryIntegrationWithThirdparty.xlsx";
+                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                workbook.Close();
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+            }
+
+            return null;
+        }
         #endregion -- Operations
 
 
