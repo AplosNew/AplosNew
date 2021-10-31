@@ -256,8 +256,8 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
                         "partyPlantId": $scope.voucher.InvoicingPartyPlantId,
                         "remarks": $scope.voucher.Remarks,
                         "currencyId": $scope.voucher.CurrencyId,
-                        "toCurrencyRate": $scope.voucher.CompanyCurrencyRate,
-                        "docDate": $scope.voucher.DocDate,
+                        "toCurrencyRate": $scope.voucher.CompanyCurrencyRate
+                        //"docDate": $scope.voucher.DocDate,
                         
 
                     },

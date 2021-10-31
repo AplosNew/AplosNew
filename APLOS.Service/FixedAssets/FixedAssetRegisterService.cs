@@ -4225,12 +4225,12 @@ namespace Library.Service.FixedAssets
 
         #endregion
         #region FixedAsset Sales
-        public string InsertFixedAssetSales(string status, IEnumerable<FixedAssetRegister> fixedAssetRegister, string partyId,string partyPlantId, string remarks, string currencyId, decimal toCurrencyRate,string docDate)
+        public string InsertFixedAssetSales(string status, IEnumerable<FixedAssetRegister> fixedAssetRegister, string partyId,string partyPlantId, string remarks, string currencyId, decimal toCurrencyRate)
         {
             var flag = false;
             try
             {
-
+               // DateTime dt =docDate;
                 _unitOfWork.BeginTransaction();
                 flag = true;
                 string TableName = "trn.FixedAssetRegisterDisposed";
@@ -4245,11 +4245,11 @@ namespace Library.Service.FixedAssets
                     PartyPlantId = partyPlantId,
                     Id = "RD" + _id,
                     IsPark = true,
-                   ToCurrencyRate = toCurrencyRate,
-                   CurrencyId = currencyId
-                   DocDate = docDate
+                    ToCurrencyRate = toCurrencyRate,
+                    CurrencyId = currencyId
+                   // DocDate = dt
 
-                  
+
                 };
                 AuditService.AddedLog(fixedAssetDispose);
                 _fixedAssetRegisterDisposedRepository.Insert(fixedAssetDispose);
@@ -4318,7 +4318,7 @@ namespace Library.Service.FixedAssets
                     Id = disposeVM.Id,
                     IsPark = true,
                     ToCurrencyRate = disposeVM.ToCurrencyRate,
-                    CurrencyId = disposeVM.CurrencyId
+                    CurrencyId = disposeVM.CurrencyId,
                     DocDate = disposeVM.DocDate
                 };
                 AuditService.UpdatedLog(fixedAssetDispose);
