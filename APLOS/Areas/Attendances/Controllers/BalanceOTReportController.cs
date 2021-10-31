@@ -39,11 +39,11 @@ namespace Aplos.Areas.Attendances.Controllers
              
 
         [HttpGet, Authorize]
-        public JsonResult GetSummaryData(string Year)
+        public JsonResult GetBalanceData()
         {
             try
             {
-                var jsondata = Json(new { Error = false, DATA = rep.GetData(Year) }, JsonRequestBehavior.AllowGet);
+                var jsondata = Json(new { Error = false, DATA = rep.GetBalanceData() }, JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
                 return jsondata;
             }
@@ -55,14 +55,14 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetPrintReport(string EmpId,string Year)
+        public ActionResult GetPrintReport(string EmpId)
         {
 
             try
             {
-                var workbook = GetFilterData(EmpId,Year);
+                var workbook = GetFilterData(EmpId);
 
-                var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "PresentDaysSummary.xlsx";
+                var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "BalanceOTReport.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
                 workbook.SaveAs(fullPath);
 
@@ -75,7 +75,7 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
 
-        private IWorkbook GetFilterData(string EmpId,string Year)
+        private IWorkbook GetFilterData(string EmpId)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
@@ -83,90 +83,62 @@ namespace Aplos.Areas.Attendances.Controllers
             workbook.Version = ExcelVersion.Excel2016;
 
             var sheet = workbook.Worksheets[0];
-            sheet.Name = "PresentDays";
+            sheet.Name = "Balance Hours";
 
 
             int ROW = 6;
             int endCol = 1;
             int COL = 1;
-            DataTable data = rep.GetReportData(EmpId,Year);
+            DataTable data = rep.GetBalanceDataReport(EmpId);
 
             #region Headers
 
-            report.SetHeaderText(ref sheet, ROW, COL, "EmployeeCode", 13, ExcelHAlign.HAlignCenter);
-            int ColEmployeeCode = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Position Code", 13, ExcelHAlign.HAlignCenter);
+            int ColPosCode = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "EmployeeName", 15, ExcelHAlign.HAlignCenter);
-            int ColEmployeeName = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Budget", 15, ExcelHAlign.HAlignCenter);
+            int ColBud = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Department", 15, ExcelHAlign.HAlignCenter);
-            int ColDepartment = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Legal Designation", 15, ExcelHAlign.HAlignCenter);
+            int ColLDesg = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Unit", 15, ExcelHAlign.HAlignCenter);
+            int ColUnit = COL;
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "Section", 15, ExcelHAlign.HAlignCenter);
             int ColSection = COL;
             COL++;
 
-
             report.SetHeaderText(ref sheet, ROW, COL, "SubSection", 15, ExcelHAlign.HAlignCenter);
             int ColSubSection = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Designation", 15, ExcelHAlign.HAlignCenter);
-            int ColLegalDesignation = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Employee Code", 13, ExcelHAlign.HAlignCenter);
+            int ColCode = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Name", 13, ExcelHAlign.HAlignCenter);
+            int ColName = COL;
             COL++;
 
 
-            report.SetHeaderText(ref sheet, ROW, COL, "January", 13, ExcelHAlign.HAlignCenter);
-            int ColJanuary = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Phone No", 13, ExcelHAlign.HAlignCenter);
+            int ColPh = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Feburary", 13, ExcelHAlign.HAlignCenter);
-            int ColFeburary = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Address", 13, ExcelHAlign.HAlignCenter);
+            int ColAdd = COL;
             COL++;
 
-
-            report.SetHeaderText(ref sheet, ROW, COL, "March", 13, ExcelHAlign.HAlignCenter);
-            int ColMarch = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Balance Hours", 13, ExcelHAlign.HAlignCenter);
+            int ColBal = COL;
             COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "April", 13, ExcelHAlign.HAlignCenter);
-            int ColApril = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "May", 13, ExcelHAlign.HAlignCenter);
-            int ColMay = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "June", 13, ExcelHAlign.HAlignCenter);
-            int ColJune = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "July", 13, ExcelHAlign.HAlignCenter);
-            int ColJuly = COL;
-            COL++;
-           
-            report.SetHeaderText(ref sheet, ROW, COL, "August", 13, ExcelHAlign.HAlignCenter);
-            int ColAugust = COL;
-            COL++; 
-            
-            report.SetHeaderText(ref sheet, ROW, COL, "September", 13, ExcelHAlign.HAlignCenter);
-            int ColSeptember = COL;
-            COL++; 
-            
-            report.SetHeaderText(ref sheet, ROW, COL, "October", 13, ExcelHAlign.HAlignCenter);
-            int ColOctober = COL;
-            COL++;
-            
-            report.SetHeaderText(ref sheet, ROW, COL, "November", 13, ExcelHAlign.HAlignCenter);
-            int ColNovember = COL;
-            COL++; 
-                     
-            report.SetHeaderText(ref sheet, ROW, COL, "December", 13, ExcelHAlign.HAlignCenter);
-            int ColDecember = COL;
             ROW++;
+
             endCol = COL;
             #endregion Headers
 
@@ -178,24 +150,18 @@ namespace Aplos.Areas.Attendances.Controllers
 
             for (int i = 0; i < data.Rows.Count; i++)
             {
-                sheet[ROW, ColJanuary].Number = clsStaticInfo.dbl(data.Rows[i]["Jan"].ToString());
-                sheet[ROW, ColFeburary].Number = clsStaticInfo.dbl(data.Rows[i]["Feb"].ToString());
-                sheet[ROW, ColEmployeeCode].Text = data.Rows[i]["EmployeeCode"].ToString();
-                sheet[ROW, ColEmployeeName].Text = data.Rows[i]["EmployeeName"].ToString();
-                sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
+                sheet[ROW, ColPosCode].Text = data.Rows[i]["PositionCode"].ToString();
+                sheet[ROW, ColBud].Text = data.Rows[i]["BudgetCode"].ToString();
+                sheet[ROW, ColLDesg].Text = data.Rows[i]["LegalDesg"].ToString();
+                sheet[ROW, ColUnit].Text = data.Rows[i]["Unit"].ToString();
                 sheet[ROW, ColSection].Text = data.Rows[i]["Section"].ToString();
                 sheet[ROW, ColSubSection].Text = data.Rows[i]["SubSection"].ToString();
-                sheet[ROW, ColLegalDesignation].Text = data.Rows[i]["LegalDesignation"].ToString();
-                sheet[ROW, ColMarch].Number = clsStaticInfo.dbl(data.Rows[i]["Mar"].ToString());
-                sheet[ROW, ColApril].Number = clsStaticInfo.dbl(data.Rows[i]["Apr"].ToString());
-                sheet[ROW, ColMay].Number = clsStaticInfo.dbl(data.Rows[i]["May"].ToString());
-                sheet[ROW, ColJune].Number = clsStaticInfo.dbl(data.Rows[i]["June"].ToString());
-                sheet[ROW, ColJuly].Number = clsStaticInfo.dbl(data.Rows[i]["July"].ToString());
-                sheet[ROW, ColAugust].Number = clsStaticInfo.dbl(data.Rows[i]["Aug"].ToString());
-                sheet[ROW, ColSeptember].Number = clsStaticInfo.dbl(data.Rows[i]["Sep"].ToString());
-                sheet[ROW, ColOctober].Number = clsStaticInfo.dbl(data.Rows[i]["Oct"].ToString());
-                sheet[ROW, ColNovember].Number = clsStaticInfo.dbl(data.Rows[i]["Nov"].ToString());
-                sheet[ROW, ColDecember].Number = clsStaticInfo.dbl(data.Rows[i]["Dec"].ToString());
+                sheet[ROW, ColCode].Text = data.Rows[i]["EmployeeCode"].ToString();
+                sheet[ROW, ColName].Text = data.Rows[i]["EmployeeName"].ToString();
+                sheet[ROW, ColPh].Text = data.Rows[i]["CellPhnNo"].ToString();
+                sheet[ROW, ColAdd].Text = data.Rows[i]["PresentAddress1"].ToString();
+                sheet[ROW, ColBal].Number = clsStaticInfo.dbl(data.Rows[i]["BalanceOT"].ToString());
+               
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
 
@@ -204,7 +170,7 @@ namespace Aplos.Areas.Attendances.Controllers
             }
 
             endRow = ROW - 1;
-            string reportname = "Present Days Summary Report";
+            string reportname = "Balance OT Report";
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             sheet.UsedRange.WrapText = true;
             sheet.UsedRange.CellStyle.Font.Size = 8;

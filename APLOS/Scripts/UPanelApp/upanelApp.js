@@ -9,6 +9,7 @@ var upanelApp = angular
     .controller("MachineMapController", MachineMapController)
     .controller("SkillMapController", SkillMapController)
     .controller("specialUnlockController", specialUnlockController)
+    .controller("SalaryIntegrationWithThirdPartyController", SalaryIntegrationWithThirdPartyController)
     .controller("accessControllerEmployeeTagController", accessControllerEmployeeTagController)
     .controller("AdminAttendanceControlController", AdminAttendanceControlController)
     .controller("accountDashboardController", accountDashboardController)

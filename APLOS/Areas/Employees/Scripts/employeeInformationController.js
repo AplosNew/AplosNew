@@ -269,7 +269,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
             $scope.EmployeeCodeCheckLevel = response.data[0].EmployeeCodeCheckLevel;
             $scope.IsReferenceRequired = response.data[0].IsReferenceRequired;
             $scope.IsTransportGroupMandatory = response.data[0].IsTransportGroupMandatory;
-            $scope.IsTransportGroupMandatory = response.data[0].IsResidenceGroupMandatory;
+            $scope.IsResidenceGroupMandatory = response.data[0].IsResidenceGroupMandatory;
 
 
             $scope.Tin = response.data[0].TINCaption;
@@ -1400,9 +1400,12 @@ function employeeInformationController(addressService, fileReader, cboService, c
 
     function CheckField(fieldValue, fieldName) {
         try {
-            if (fieldValue === null || fieldValue === '' || fieldValue === 'undefined') {
+            if (baseService.isUndefinedOrNull(fieldValue)) {
                 throw '[' + fieldName + '] is required...';
             }
+            //if (fieldValue === null || fieldValue === '' || fieldValue === 'undefined') {
+            //    throw '[' + fieldName + '] is required...';
+            //}
         } catch (e) {
             throw e;
         }
@@ -1583,7 +1586,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
         CheckField($scope.employeeNew.Salutation, "Salutation");
         CheckField($scope.employeeNew.FirstName, "First Name");
         CheckField($scope.employeeNew.EmpType, "Emp Type");
-        CheckField($scope.employeeNew.Citizen, "Citizen");
+        CheckField($scope.employeeNew.CitizenID, "Citizen");
         CheckField($scope.employeeNew.GenderID, "Gender");
         CheckField($scope.employeeNew.NationalID, $scope.Nid);
         CheckField($scope.employeeNew.PaymentMode, "Payment Mode");

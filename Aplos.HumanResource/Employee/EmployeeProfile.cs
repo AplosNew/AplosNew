@@ -1221,6 +1221,8 @@ namespace Aplos.HumanResource
                 drLocal["DesignationSystemID"] = data.DesignationSystemID;
                 drLocal["RelativeSystemId"] = data.RelativeSystemId;
                 drLocal["ProfileShiftId"] = data.FixSystemID;
+                drLocal["ResidenceGroupId"] = data.ResidenceGroupId;
+                drLocal["TransportGroupId"] = data.TransportGroupId;
                 
                 if (!string.IsNullOrEmpty(data.RelativeSystemId))
                 {

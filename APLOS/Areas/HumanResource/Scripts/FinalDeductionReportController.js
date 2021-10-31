@@ -494,8 +494,9 @@ function FinalDeductionReportController(commonMessage, $scope, $rootScope, baseS
         }
     };
     $scope.clearManualFilter = function () {
-        $scope.isManualFilter = false;
-        $scope.EmployeeListTemp = $scope.EmployeeList;
+       /* $scope.isManualFilter = false;*/
+        $scope.EmployeeList = [];
+        $scope.EmployeeListTemp = [];       
     };
     $scope.Back = function () {
         angular.element(document.querySelector('#empfilterPopUp')).modal('hide');

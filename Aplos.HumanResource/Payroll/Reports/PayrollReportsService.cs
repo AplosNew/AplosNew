@@ -552,7 +552,7 @@ namespace Library.HumanResource.Payroll
                 ru.SetCellValue("DOB", sheet1, xlsRow, ref xlsCol, out ColDOB, 12);
                 ru.SetCellValue("DOS", sheet1, xlsRow, ref xlsCol, out ColDOs, 12);
                 ru.SetCellValue("Designation", sheet1, xlsRow, ref xlsCol, out ColGVDG, 20);
-                ru.SetCellValue("Plant", sheet1, xlsRow, ref xlsCol, out int  ColPlant, 20);
+                ru.SetCellValue("Plant", sheet1, xlsRow, ref xlsCol, out int ColPlant, 20);
                 ru.SetCellValue("Department", sheet1, xlsRow, ref xlsCol, out ColDepartment, 20);
                 ru.SetCellValue("Section", sheet1, xlsRow, ref xlsCol, out ColSection, 20);
                 ru.SetCellValue("Unit", sheet1, xlsRow, ref xlsCol, out ColUnit, 20);
@@ -6088,7 +6088,7 @@ namespace Library.HumanResource.Payroll
                 SetCellValue("Disbursement Amount", sheet1, xlsRow, ref xlsCol, out int colDisbursementAmount, 25);
                 SetCellValue("Data Upload From", sheet1, xlsRow, ref xlsCol, out int colExtDataUploadApp, 25);
                 SetCellValue("Plant", sheet1, xlsRow, ref xlsCol, out int colPlant, 25);
-                
+
 
 
                 endGenericColumn = xlsCol;
@@ -12941,7 +12941,7 @@ ELSE CONVERT(BIT,0) END  ---No
 
 
 
-    
+
         public void GetEmpInformationRptPlantWise(string plantList, string effectiveDate, out DataSet dsRef)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -14416,7 +14416,8 @@ INNER JOIN
 											EC.UserName EmpCategoryName,
                                          Format(E.DOJ,'dd-MMM-yyyy') DOJ,Format(E.DOS,'dd-MMM-yyyy') DOS,Format(E.DOB,'dd-MMM-yyyy') DOB
 											,ISNULL(LDS.UserName,'') LegalDesignation
-											,SH.SalaryHead,SH.EntryAmount,SH.DefineAmount,LS.UserName Grade,SH.ExtDataUploadApp
+											,SH.SalaryHead,SH.EntryAmount,SH.DefineAmount,LS.UserName Grade,SH.ExtDataUploadApp,
+CASE WHEN SH.ExtDataUploadApp='Yes' THEN 'System' ELSE SH.ExtDataUploadApp END as ExtDataUploadApp
                                      FROM EmployeeInformation E
                                      left join hkp.Party p on p.Id = E.VendorId
 									 			LEFT JOIN ORG.Plant F ON F.Id= E.PlantId
@@ -18166,6 +18167,200 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
 
         #endregion form18
 
+
+        #region Salary Integration With Third party
+        private void GetSalaryIntegrationWithThirdparty(string plantId, string Year, string Month, out DataTable dtData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT k.AccountsGroup, k.GL, k.GLName, SUM(k.Debit)AS Debit, SUM(k.Credit) AS Credit
+                      FROM (SELECT ag.UserName AS AccountsGroup,  sh.SalaryHead,ac.SalaryHeadID,
+                                                        mb.Id AS ManpowerBudgetId, mb.EntityId, mb.PositionId,mb.AccountsGroupId,e.PlantId,
+                                                        e.ThirdPartyBusinessArea, e.ThirdPartyProfitCenter,ecc.CostCenterId,
+
+									                    GL=CASE WHEN POS.DirectManpowerCost=1 and SH.TransactionType in ('Dr.','Both')  THEN SGL.DrDirectOtherGLCode
+											                    WHEN POS.DirectManpowerCost=0 and SH.TransactionType in ('Dr.','Both')  THEN SGL.DrInDirectOtherGLCode
+											                    WHEN POS.DirectManpowerCost=1 and SH.TransactionType in ('Cr.','Both')  THEN SGL.CrDirectOtherGLCode
+											                    WHEN POS.DirectManpowerCost=0 and SH.TransactionType in ('Cr.','Both')  THEN SGL.CrInDirectOtherGLCode
+											                     END,
+									                    GLName=CASE WHEN POS.DirectManpowerCost=1 and SH.TransactionType in ('Dr.','Both')  THEN SGL.DrDirectOtherGL
+											                    WHEN POS.DirectManpowerCost=0 and SH.TransactionType in ('Dr.','Both')  THEN SGL.DrInDirectOtherGL
+											                    WHEN POS.DirectManpowerCost=1 and SH.TransactionType in ('Cr.','Both')  THEN SGL.CrDirectOtherGL
+											                    WHEN POS.DirectManpowerCost=0 and SH.TransactionType in ('Cr.','Both')  THEN SGL.CrInDirectOtherGL
+											                     END,
+								
+                                                        SUM(CASE WHEN ISNULL(sh.TransactionType,'') IN ('Dr.','Both') THEN ABS(ac.DisbusmentAmount) ELSE 0 END) AS Debit,
+                                                        SUM(CASE WHEN ISNULL(sh.TransactionType,'') IN ('Cr.','Both') THEN ABS(ac.DisbusmentAmount) ELSE 0 END) AS Credit
+		                                                        FROM SalaryProcMaster AS AM
+		                                                        JOIN SalaryProcChild AS AC ON am.SystemID=ac.SlrProcMstSystemID
+		                                                        LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=ac.EmpInfoSystemID
+		                                                        LEFT JOIN mst.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode 
+		                                                        Left Join ORG.Position POS on MB.PositionId=POS.Id
+		                                                        LEFT JOIN [MST].[SalaryHeadGL] SGL ON sgl.SalaryHeadId=ac.SalaryHeadID AND sgl.AccountsGroupId=mb.AccountsGroupId
+		                                                        JOIN SalaryHead AS sh ON sh.SalaryHeadID=ac.SalaryHeadID
+                                                                      
+		                                                        LEFT JOIN org.Entity AS e ON e.Id=mb.EntityId
+		                                                        LEFT JOIN org.EntityCostCenter AS ecc ON ecc.EntityId=e.Id
+		                                                        LEFT JOIN AccountsGroup AS ag ON AG.Id=mb.AccountsGroupId
+		                   
+
+                    WHERE am.MonthNo=" + Month + @"  AND am.YearNo=" + Year + @" 
+                                                        AND ISNULL(sh.TransactionType,'') IN ('Dr.','Cr.','Both')
+                                                        AND ei.PlantId IN (" + plantId + @" )
+                    GROUP BY sh.TransactionType,POS.DirectManpowerCost, ag.UserName, sh.SalaryHead,ac.SalaryHeadID,
+                    SGL.DrDirectOtherGLCode, SGL.DrInDirectOtherGLCode,SGL.CrDirectOtherGLCode, SGL.CrInDirectOtherGLCode,
+                    SGL.DrDirectOtherGL, SGL.DrInDirectOtherGL,SGL.CrDirectOtherGL, SGL.CrInDirectOtherGL,
+                                                        mb.Id, mb.EntityId, mb.PositionId, mb.AccountsGroupId,e.PlantId,
+                                                        e.ThirdPartyBusinessArea, e.ThirdPartyProfitCenter,ecc.CostCenterId
+                    ) AS K GROUP BY  k.AccountsGroup, k.GL, k.GLName";
+            dtData = _sqlRepository.GetDataTable(sql);
+        }
+
+        public IWorkbook SalaryIntegrationWithThirdparty(string plantId, string Year, string Month, ExcelEngine excelEngine)
+        {
+
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                if (plantId == "''")
+                    throw new Exception("Select plant");
+
+
+                GetSalaryIntegrationWithThirdparty(plantId, Year, Month, out DataTable dtData);
+
+                if (dtData.Rows.Count == 0)
+                    throw new Exception("No data found");
+
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "Salary Integration With Third Party";
+                sheet = workbook.Worksheets[0];
+
+
+                int ROW = 6; int COL = 1;
+
+
+
+                #region columns
+                sheet[ROW, COL].Text = "Accounts Group";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colAccountsGroup = COL; COL++;
+
+                sheet[ROW, COL].Text = "GL Code";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colGLCode = COL; COL++;
+
+                sheet[ROW, COL].Text = "GL Name";
+                sheet[ROW, COL].ColumnWidth = 30;
+                int colGLName = COL; COL++;
+
+                sheet[ROW, COL].Text = "Debit";
+                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colDebit = COL; COL++;
+
+                sheet[ROW, COL].Text = "Credit";
+                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colCredit = COL;
+
+                #endregion columns
+
+                int endCol = COL;
+
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.Color = System.Drawing.Color.FromArgb(0, 0, 0);
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].WrapText = true;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+
+                int startRow = ROW;
+
+
+
+                for (int i = 0; i < dtData.Rows.Count; i++)
+                {
+
+                    sheet[ROW, colAccountsGroup].Text = dtData.Rows[i]["AccountsGroup"].ToString();
+                    sheet[ROW, colGLCode].Text = dtData.Rows[i]["GL"].ToString();
+                    sheet[ROW, colGLName].Text = dtData.Rows[i]["GLName"].ToString();
+
+                    sheet[ROW, colDebit].Number = clsStaticInfo.dbl(dtData.Rows[i]["Debit"].ToString());
+                    sheet[ROW, colCredit].Number = clsStaticInfo.dbl(dtData.Rows[i]["Credit"].ToString());
+
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+
+                }
+
+                sheet[ROW, colAccountsGroup].Text = "Total";
+
+                sheet[ROW, colDebit].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colDebit) + startRow + ":" + clsStaticInfo.GetxlsCol(colDebit) + (ROW - 1) + ")";
+                sheet[ROW, colCredit].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colCredit) + startRow + ":" + clsStaticInfo.GetxlsCol(colCredit) + (ROW - 1) + ")";
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                ROW++;
+
+                sheet.UsedRange.NumberFormat = clsStaticInfo.NumberFormat(2);
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Salary Integration", identity.CompanyId, identity.CompanyName, "");
+
+                reportUtility.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 5, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                sheet.IsGridLinesVisible = false;
+
+
+                //#endregion ******************Report Header******************
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                sheet.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + identity.Name + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:mm tt").ToString();
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+
+
+                return workbook;
+
+
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+
+
+
+        }
+
+        #endregion Accounting Integration With Third party
     }
 
     public class ReportLeaveInfo
