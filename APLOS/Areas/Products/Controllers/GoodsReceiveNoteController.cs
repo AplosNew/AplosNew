@@ -4087,6 +4087,10 @@ UNION ALL
 		{
 			try
 			{
+                if (Data==null)
+                {
+					throw new Exception("Nothing to update..");
+                }
 				
 				ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
 				DataSet dsRack=null;
