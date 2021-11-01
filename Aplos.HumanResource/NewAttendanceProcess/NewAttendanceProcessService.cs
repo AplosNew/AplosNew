@@ -149,7 +149,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     dr["ShiftDuration"] = ProfileShiftDurn;
                                     dr["ShiftInTime"] = ProfileShiftIn;
                                     dr["ShiftOutTime"] = ProfileShiftOut;
-                                   
+
                                 }
                                 else if (RosterShift.ToString() != "")
                                 {
@@ -489,7 +489,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             }
                         }
                         SaveDataSets(dsRef);
-                        
+
                     }
                     #endregion
 
@@ -510,7 +510,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
                             "ei WHERE  ei.PlantId ='" + PlantId + "' AND ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901')" +
                             "and  ISNULL(EmpSystemID,'') not in (select distinct ISNULL(EmpSystemID,'') " +
-                            "from EmployeeWeeklyOff where EffectiveDate='"+WkDate+"'))";
+                            "from EmployeeWeeklyOff where EffectiveDate='" + WkDate + "'))";
 
 
                             ConnectionManager.DAL.ConManager objCone = null;
@@ -532,7 +532,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                            " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
                            "ei WHERE  ei.PlantId='" + PlantValue + "'  and ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901')" +
                            "and  ISNULL(EmpSystemID,'') not in (select distinct ISNULL(EmpSystemID,'') " +
-                           "from EmployeeWeeklyOff where EffectiveDate='"+Date+"'))";
+                           "from EmployeeWeeklyOff where EffectiveDate='" + Date + "'))";
 
 
                         ConnectionManager.DAL.ConManager objCone = null;
@@ -609,7 +609,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         {
                             string Plant = OriginalDateComp.Tables[0].Rows[i][@"PlantId"].ToString();
                             string ForEntirePlant = clsWebLib.GetBoolData(OriginalDateComp.Tables[0].Rows[i][@"ForEntirePlant"]).ToString();
-                            DayCode = clsWebLib.GetBoolData(OriginalDateComp.Tables[0].Rows[i][@"DayCode"]).ToString();
+                            DayCode = clsWebLib.RetValidLen(OriginalDateComp.Tables[0].Rows[i][@"DayCode"]).ToString();
                             string EmpId = clsWebLib.RetValidLen(OriginalDateComp.Tables[0].Rows[i][@"EmpSystemId"]).ToString();
 
                             if (ForEntirePlant == "True")
