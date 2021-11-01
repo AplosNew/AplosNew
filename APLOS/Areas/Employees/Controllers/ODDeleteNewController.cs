@@ -1,16 +1,10 @@
 ﻿using Aplos.Controllers;
 using Aplos.Properties;
-using clsAttendance;
-using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data.Sql;
 using Library.Data.UnitOfWorks;
-using Library.Model.Biometrics;
-using Library.Model.HumanResources;
+using Library.HumanResource.NewAttendanceProcess;
 using Library.Service.Biometrics;
-using Library.Service.Employees;
-using Library.Service.Enums;
-using Library.Service.HumanResources;
 using System;
 using System.Data;
 using System.Threading;
@@ -74,11 +68,12 @@ namespace Aplos.Areas.Employees.Controllers
             {
                 _unitOfWork.BeginTransaction();
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                clsAttendance.AttendanceProcessAplos obj = new AttendanceProcessAplos();
-
+             
                 string sql = @"select * from dbo.EmployeeOnDuty WHERE Id='" + id + "'";
                 DataTable dt = _sqlRepository.GetDataTable(sql);
-                
+
+
+                string RowsEdited = "''";
 
                 _leaveTransactionService.ExecuteSqlCommand(@"DELETE FROM  dbo.EmployeeOnDutyDetails WHERE OnDutyId='" + id + "'");
                 _leaveTransactionService.ExecuteSqlCommand(@"DELETE FROM  dbo.EmployeeOnDuty WHERE Id='" + id + "'");
@@ -90,13 +85,62 @@ namespace Aplos.Areas.Employees.Controllers
 
                 DateTime FromDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
                 DateTime ToDate = Convert.ToDateTime(dt.Rows[0]["ToDate"].ToString());
+                string EmpId = dt.Rows[0]["EmpSystemId"].ToString();
+
+                DataSet PlantLock;
+                PlantLockCheck(FromDate.ToString(), ToDate.ToString(), out PlantLock, identity.PlantId);
+                string pl = "";
+                if (PlantLock.Tables[0].Rows.Count > 0)
+                {
+                    for (var i = 0; i < PlantLock.Tables[0].Rows.Count; i++)
+                    {
+                        pl = pl + " " + PlantLock.Tables[0].Rows[i]["LockedDate"].ToString() + ", ";
+                    }                    
+                    throw new Exception("The Plant is Locked for - " + pl);
+
+                }
+
+
+                ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                var sqlx = @"select * from AttdnProcessData where WorkDate between '"+FromDate.ToString()+"' and '"+ToDate.ToString()+"' and EmpSystemID='"+EmpId+"'";
+                objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+
                 while (FromDate <= ToDate)
                 {
+                    string newformat = Convert.ToDateTime(FromDate).ToString("yyyyMMdd");
+                    dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                    if (dsRef.Tables[0].DefaultView.Count > 0)
+                    {
+                        string ExistingManualDay = bplib.clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"ManualDayStatus"]).ToString();
 
-                    AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
-                    obj.SaveTotal(identity.PlantId, FromDate.ToString("dd-MMM-yyyy"), dt.Rows[0]["EmpSystemID"].ToString(), true);
+                        if (ExistingManualDay=="OD")
+                        {
+                            RowsEdited = RowsEdited + ",'" + newformat + EmpId + "'";
+                            DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();
+                            dr["ManualFlag"] = true;
+                            dr["ManualByWhom"] = identity.Name;
+                            dr["ManualEntryTime"] = Convert.ToDateTime(DateTime.Now);
+                            dr["IsOD"] = 0;
+                            dr["ManualDayStatus"] = DBNull.Value;
+                            dr["IsManualDayStatus"] = false;
+                            // Mandatory Nullifying
+                            dr["OTComfirmBy"] = DBNull.Value;
+                            dr["DateOTComfirm"] = DBNull.Value;
+                            dr["IsOTComfirm"] = false;
+                            dr["LockedBy"] = DBNull.Value;
+                            dr["LockedDate"] = DBNull.Value; 
+                            dr["isLock"] = false;
+                            dr.EndEdit();
+                        }
+                    }
+
                     FromDate = FromDate.AddDays(1);
                 }
+                SaveDataSets(dsRef);
+
+                NewAttendanceProcessService ap = new NewAttendanceProcessService();
+                ap.ManualScheduler(identity.PlantId, RowsEdited);
 
                 return Json(new { Message = AplosMessage.Deleted });
             }
@@ -111,6 +155,71 @@ namespace Aplos.Areas.Employees.Controllers
             }
 
         }
+
+        private static void SaveDataSets(params DataSet[] dsRef)
+        {
+            bool IsTransactionStarted = false;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                IsTransactionStarted = true;
+                int i = 0;
+                foreach (DataSet value in dsRef)
+                {
+                    if (dsRef[i] != null)
+                        if (dsRef[i].Tables.Count > 0)
+                            objCon.SaveDataSetThroughAdapter(ref dsRef[i], true, "1");
+                    i++;
+                }
+                objCon.CommitTransaction();
+                IsTransactionStarted = false;
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    if (IsTransactionStarted)
+                    {
+                        objCon.RollBack();
+                    }
+                    objCon.CloseConnection();
+                }
+                catch (Exception exp)
+                {
+                    throw exp;
+                }
+                throw ex;
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void PlantLockCheck(string FDate, string TDate, out DataSet ds, string Plant)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                string From = Convert.ToDateTime(FDate).ToString("dd-MMM-yyyy");
+                string To = Convert.ToDateTime(TDate).ToString("dd-MMM-yyyy");
+
+                var sql = @"select * from PlantWiseAttendanceLock where PlantId='" + Plant + @"'
+                and LockedDate between '" + From + "' and '" + To + "' and IsActive='1'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+
 
 
         #endregion -- Operations
