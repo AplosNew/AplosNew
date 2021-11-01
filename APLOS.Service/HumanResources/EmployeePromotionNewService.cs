@@ -544,7 +544,7 @@ namespace Library.Service.HumanResources
                             LEFT JOIN HKP.LegalDesignation LGD on LGD.Id=EI.LegalDesignationId	
                             LEFT JOIN ORG.Section AS Se ON Se.Id= EI.SectionID 
                             LEFT JOIN ORG.SubSection AS SuS ON SuS.Id= EI.SubSectionID
-                              LEFT JOIN SalaryInfoDefineMaster SM ON SM.EmpInfoSystemID=EI.SystemID AND SM.EmpInfoSystemID=(SELECT TOP 1 SystemID FROM SalaryInfoDefineMaster WHERE EmpInfoSystemID= EI.SystemID  ORDER BY   EffectiveDate DESC) AND SM.IsApproved=0
+                              LEFT JOIN SalaryInfoDefineMaster SM ON SM.EmpInfoSystemID=EI.SystemID AND SM.EmpInfoSystemID=(SELECT TOP 1 EmpInfoSystemID FROM SalaryInfoDefineMaster WHERE EmpInfoSystemID= EI.SystemID  ORDER BY   EffectiveDate DESC) AND isnull(SM.IsApproved,0)=0
 							  LEFT JOIN IncrementHistory IH ON IH.EmpSystemID=EI.SystemID   AND IH.IsApproved=0  AND IH.EmpSystemID=(SELECT TOP 1 EmpSystemID FROM IncrementHistory WHERE EmpSystemID= EI.SystemID  ORDER BY FromEffectiveDate DESC)  AND sm.SystemID=IH.ToSalaryId 
                               WHERE EI.EmployeeStatus ='Active' AND EI.PlantId='" + plantId + @"' AND  EI.GroupId='" + companyGroupId + @"' 
                                        AND ( EI.SystemId IN (SELECT EmpInfoSystemID FROM SalaryInfoDefineMaster where  IsApproved=0) --or  EI.SystemId  IN (SELECT EmpSystemID FROM IncrementHistory Where IsApproved=0) 
