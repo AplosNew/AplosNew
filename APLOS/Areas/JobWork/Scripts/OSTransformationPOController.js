@@ -2003,6 +2003,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
           //      $scope.detailModel.Code1 = $scope.detailModel.SKU1ValueCode;
                 $scope.detailModel.UserName1 = $scope.detailModel.FirstCharacteristicsValue;
+                $scope.SKU1disable = false;
 
             }
             if (!baseService.isUndefinedOrNull($scope.detailModel.SecondCharacteristicsId)) {
@@ -2014,6 +2015,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
             //    $scope.detailModel.Code2 = $scope.detailModel.SKU2ValueCode;
                 $scope.detailModel.UserName2 = $scope.detailModel.SecondCharacteristicsValue;
+                $scope.SKU2disable = false;
             }
             if (!baseService.isUndefinedOrNull($scope.detailModel.ThirdCharacteristicsId)) {
                 $scope.rmchar3.CharacteristicsId = $scope.detailModel.ThirdCharacteristicsId;
@@ -2024,6 +2026,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
           //      $scope.detailModel.Code3 = $scope.detailModel.SKU3ValueCode;
                 $scope.detailModel.UserName3 = $scope.detailModel.ThirdCharacteristicsValue;
+                $scope.SKU3disable = false;
             }
 
             getDetailTaxCategoryList($scope.detailModel);
