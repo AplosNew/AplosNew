@@ -881,7 +881,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 var sql = @"select TobeAdded=case When isnull(p.EmpSystemID,'') ='' then 'true' 
                 else 'false' end ,e.SystemId,'"+Date+@"' as WorkDate,
-                convert(varchar(30),'" + newformat + @"' )+convert(varchar(30), e.SystemId)RowId,
+                convert(varchar(30),'"+newformat+@"' )+convert(varchar(30), e.SystemId)RowId,
 				e.PlantId,e.GroupID,
                 isnull(m.ShiftSystemId,p.ManualShiftID) 
                 as ManualShift,ISNULL(sd.InTime,p.ShiftInTime) as ManualShiftIn,
@@ -896,17 +896,34 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 else 'true' end,IsManualInTime=case When isnull(m.InTime,'') ='' then 'false' 
                 else 'true' end,IsManualOutTime=case When isnull(m.OutTime,'') ='' then 'false' 
                 else 'true' end,mb.Id as BudgetId,rh.Id as RosterId,Op.InPunchStartTime as PlantInPunchStartTime, 
-                FullDayDuration=isnull(isnull(isnull(sd.FullDayDuration,p.ShiftFullDayDuration),sdz.FullDayDuration),
-                isnull(sdx.FullDayDuration,sdy.FullDayDuration)),				
-				HalfDayDuration=isnull(isnull(isnull(sd.HalfDayDuration,p.ShiftHalfDayDuration),sdz.HalfDayDuration),
-                isnull(sdx.HalfDayDuration,sdy.HalfDayDuration)),
-				ShortDuration=isnull(isnull(isnull(sd.ShortDuration,p.ShiftShortDuration),sdz.ShortDuration),
-                isnull(sdx.ShortDuration,sdy.ShortDuration)),
-				HoursWithoutOT=isnull(isnull(isnull(sd.HoursWithoutOT,p.ShiftHoursWithoutOT),sdz.HoursWithoutOT),
-                isnull(sdx.HoursWithoutOT,sdy.HoursWithoutOT))
-                from EmployeeInformation e 
+                FullDayDuration=case when isnull(p.ManualShiftID,'')!='' then
+				isnull(isnull(isnull(sd.FullDayDuration,p.ShiftFullDayDuration),
+				sdx.FullDayDuration),isnull(sdz.FullDayDuration,sdy.FullDayDuration)) 
+				else 
+				isnull(isnull(sd.FullDayDuration,sdx.FullDayDuration),
+                isnull(sdz.FullDayDuration,sdy.FullDayDuration))end,				
+				HalfDayDuration=case when isnull(p.ManualShiftID,'')!='' then
+				isnull(isnull(isnull(sd.HalfDayDuration,p.ShiftHalfDayDuration),sdx.HalfDayDuration),
+                isnull(sdz.HalfDayDuration,sdy.HalfDayDuration))
+				else
+				isnull(isnull(sd.HalfDayDuration,sdx.HalfDayDuration),
+                isnull(sdz.HalfDayDuration,sdy.HalfDayDuration))
+				end,
+				ShortDuration= case when isnull(p.ManualShiftID,'')!='' then 
+				isnull(isnull(isnull(sd.ShortDuration,p.ShiftShortDuration),sdx.ShortDuration),
+                isnull(sdz.ShortDuration,sdy.ShortDuration)) else
+				isnull(isnull(sd.ShortDuration,sdx.ShortDuration),
+                isnull(sdz.ShortDuration,sdy.ShortDuration)) end,
+				HoursWithoutOT=case when isnull(p.ManualShiftID,'')!='' then 
+				isnull(isnull(isnull(sd.HoursWithoutOT,p.ShiftHoursWithoutOT),sdx.HoursWithoutOT),
+                isnull(sdz.HoursWithoutOT,sdy.HoursWithoutOT)) 
+				else
+				isnull(isnull(sd.HoursWithoutOT,sdx.HoursWithoutOT),
+                isnull(sdz.HoursWithoutOT,sdy.HoursWithoutOT))end
+		        from EmployeeInformation e 
                 left join ShiftDefination sdx on sdx.SystemID=e.ProfileShiftId
-                left outer join AttndManualDataFromApp m on e.SystemId=m.EmpSystemID and m.WorkDate='"+Date+@"'
+                left outer join AttndManualDataFromApp m on e.SystemId=m.EmpSystemID and
+				m.WorkDate='"+Date+@"'
                 left join ShiftDefination sd on sd.SystemID=m.ShiftSystemId
                 left join AttdnProcessData p on p.EmpSystemID=e.SystemId and p.WorkDate='"+Date+@"'
                 left join mst.ManpowerBudget mb on mb.Id=e.BudgetCode
@@ -920,6 +937,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 where e.EmpType!='Guest' and e.PlantId='"+PlantId+@"' and
 				E.DOJ <= '"+Date+@"' AND (E.DOS >= '"+Date+@"' OR ISNULL(E.DOS,'') = '' 
 				OR E.DOS = '01/01/1901')";
+
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
