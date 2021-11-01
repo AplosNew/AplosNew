@@ -373,6 +373,8 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         $scope.detailModel.UserName1 = data.UserName;
    //     $scope.detailModel.FirstCharacteristicsId = data.CharacteristicsId;
         $scope.detailModel.FirstCharacteristicsValueId = data.CharacteristicsValueId;
+        $scope.rmchar1.CharacteristicsValueId = data.CharacteristicsValueId;
+
         angular.element(document.querySelector('#SKU1PopUp')).modal('hide');
     };
 
@@ -412,6 +414,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         $scope.detailModel.UserName2 = data.UserName;
   //      $scope.detailModel.SecondCharacteristicsId = data.CharacteristicsId;
         $scope.detailModel.SecondCharacteristicsValueId = data.CharacteristicsValueId;
+        $scope.rmchar2.CharacteristicsValueId = data.CharacteristicsValueId;
         angular.element(document.querySelector('#SKU2PopUp')).modal('hide');
     };
 
@@ -451,6 +454,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         $scope.detailModel.UserName3 = data.UserName;
    //     $scope.detailModel.ThirdCharacteristicsId = data.CharacteristicsId;
         $scope.detailModel.ThirdCharacteristicsValueId = data.CharacteristicsValueId;
+        $scope.rmchar3.CharacteristicsValueId = data.CharacteristicsValueId;
         angular.element(document.querySelector('#SKU3PopUp')).modal('hide');
     };
 
@@ -2003,6 +2007,8 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
           //      $scope.detailModel.Code1 = $scope.detailModel.SKU1ValueCode;
                 $scope.detailModel.UserName1 = $scope.detailModel.FirstCharacteristicsValue;
+                $scope.rmchar1.ValueAssignmentLevel = $scope.detailModel.ValueAssignmentLevel;
+                $scope.SKU1disable = false;
 
             }
             if (!baseService.isUndefinedOrNull($scope.detailModel.SecondCharacteristicsId)) {
@@ -2014,6 +2020,8 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
             //    $scope.detailModel.Code2 = $scope.detailModel.SKU2ValueCode;
                 $scope.detailModel.UserName2 = $scope.detailModel.SecondCharacteristicsValue;
+                $scope.rmchar2.ValueAssignmentLevel = $scope.detailModel.ValueAssignmentLevel;
+                $scope.SKU2disable = false;
             }
             if (!baseService.isUndefinedOrNull($scope.detailModel.ThirdCharacteristicsId)) {
                 $scope.rmchar3.CharacteristicsId = $scope.detailModel.ThirdCharacteristicsId;
@@ -2024,6 +2032,8 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
           //      $scope.detailModel.Code3 = $scope.detailModel.SKU3ValueCode;
                 $scope.detailModel.UserName3 = $scope.detailModel.ThirdCharacteristicsValue;
+                $scope.rmchar3.ValueAssignmentLevel = $scope.detailModel.ValueAssignmentLevel;
+                $scope.SKU3disable = false;
             }
 
             getDetailTaxCategoryList($scope.detailModel);
