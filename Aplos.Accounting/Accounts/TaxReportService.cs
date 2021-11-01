@@ -8065,9 +8065,6 @@ UNION ALL
 
 
                         Percentage = dtRCMPayable.Rows[i][lineItemPercentageType].ToString();
-
-
-
                         xlsRow++;
                     }
 
