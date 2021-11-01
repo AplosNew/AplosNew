@@ -218,10 +218,13 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 
 				if ($scope.IssueTypeList.length > 0) {
                     $scope.GetReceiptVAChildData();
-                    //$scope.ShowHomeList = false;
+                    $scope.ShowHomeList = false;
                     //$scope.ShowReport = false;
 					$scope.GetTransformationReceiptCurrency();
-					$scope.GetIndividualReportData();
+				//	$scope.GetIndividualReportData();
+					$scope.GRNListDetails();
+					$scope.setStatus = 'Selected';
+					$scope.setTabGRNList(1);
 				}
 
 			});
@@ -1211,6 +1214,8 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 				var reportFormat = "Excel";
 				window.open('JobWork/OSReceiptValueAdded/GetTransformationPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
 				//   $scope.getData();
+				$scope.setStatus = 'Selected';
+				$scope.setTabGRNList(2);
 
 			} catch (e) {
 
@@ -1218,10 +1223,16 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 		}
 		else {
 			try {
-				$scope.PrintTabId = data.Id;
-				$scope.IssueId = data.ReceiveId;
+				//$scope.PrintTabId = data.Id;
+				//$scope.IssueId = data.ReceiveId;
+
+				$scope.PrintTabId = $scope.ModelNew.Id;
+				$scope.IssueId = data.Id;
+
 				var reportFormat = "Excel";
 				window.open('JobWork/OSReceiptValueAdded/GetValueAddedPrintReceiptReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
+				$scope.setStatus = 'Selected';
+				$scope.setTabGRNList(1);
 
 			} catch (e) {
 
@@ -1237,9 +1248,14 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 			//var gridObj = $(x).data("ejGrid");
 			//var data = gridObj.getSelectedRecords()[0];
 			location.href = "JobWork/OSReceiptValueAdded/GRNReport?grnId=" + data.Id;
+			$scope.setStatus = 'Selected';
+			$scope.setTabGRNList(2);
 		}
 		else {
-			location.href = "JobWork/OSReceiptValueAdded/ValAddedGRNReport?grnId=" + data.ReceiveId;
+		//	location.href = "JobWork/OSReceiptValueAdded/ValAddedGRNReport?grnId=" + data.ReceiveId;
+			location.href = "JobWork/OSReceiptValueAdded/ValAddedGRNReport?grnId=" + data.Id;
+			$scope.setStatus = 'Selected';
+			$scope.setTabGRNList(1);
         }
 	};
 
@@ -2790,6 +2806,8 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 			}).then(function successCallback(response) {
 				$scope.GriddataMaster = response.data;
 				//entrydata = copy(searchdata);
+				$scope.ShowHomeList = false;
+				$scope.setTab(1);
 			});
         }
 

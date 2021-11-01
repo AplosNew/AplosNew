@@ -1,23 +1,12 @@
 ﻿using Aplos.Controllers;
-using Aplos.Properties;
-using clsAttendance;
-using Library.Core;
 using Library.Crosscutting.Security;
-using Library.Data;
 using Library.Data.Sql;
-using Library.Model.Enums;
-using Library.Model.HumanResources;
+using Library.HumanResource.NewAttendanceProcess;
 using Library.Security.Core;
-using Library.Service.Attendances;
-using Library.Service.Enums;
 using Library.Service.HumanResources;
-using Library.Service.Leave;
-using Library.Service.Logs;
-using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Reflection;
 using System.Threading;
 using System.Web.Mvc;
 
@@ -96,7 +85,7 @@ namespace Aplos.Areas.Leave.Controllers
                 }
                 
                 DataSet dsRef;
-                string ManualTrigger = "''";
+                string RowsEdited = "''";
 
                 ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                 var sqlx = @"select * from AttdnProcessData where WorkDate between '" + Convert.ToDateTime(Min) + "' " +
@@ -128,12 +117,12 @@ namespace Aplos.Areas.Leave.Controllers
                     while (FromDate <= ToDate)
                     {
                         string newformat = Convert.ToDateTime(FromDate).ToString("yyyyMMdd");
-                        ManualTrigger = ManualTrigger + ",'" + newformat + item.EmpSystemId + "'";
-
+                       
                         dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + item.EmpSystemId + "' ";
 
                         if (dsRef.Tables[0].DefaultView.Count > 0)
                         {
+                            RowsEdited = RowsEdited + ",'" + newformat + item.EmpSystemId + "'";
                             DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                             dr.BeginEdit();
                             dr["IsOD"] = 1;
@@ -161,6 +150,9 @@ namespace Aplos.Areas.Leave.Controllers
                     string sql = @"update [dbo].[EmployeeOnDuty] set IsApproved=1 where EmpSystemId in(" + EmpIdLoop + @") ";
                     ExecuteRawSQL(sql);
                 }
+
+                NewAttendanceProcessService ap = new NewAttendanceProcessService();
+                ap.ManualScheduler(identity.PlantId, RowsEdited);
 
             }
             catch (Exception ex)
