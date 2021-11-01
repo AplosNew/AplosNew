@@ -1010,7 +1010,7 @@ namespace Aplos.Areas.IE.Controllers
                                         WHERE BT.Id=BTB.BulletinTemplateId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 										,'&amp;','&'), 'amp;', '')										
 							
-						,P.UserName Process,BTD.TotalSPT,BTD.RequiredManPower,BTD.AllotedManpower,BTD.AllotedWorkstation,CEILING(BTD.LineTargetPerHour)LineTargetPerHour
+						,P.UserName Process,ISNULL(BTD.TotalSPT,0)TotalSPT,ISNULL(BTD.RequiredManPower,0)RequiredManPower,ISNULL(BTD.AllotedManpower,0)AllotedManpower,ISNULL(BTD.AllotedWorkstation,0)AllotedWorkstation,CEILING(ISNULL(BTD.LineTargetPerHour,0))LineTargetPerHour
                         ,FORMAT(BT.AddedDate,'dd-MMM-yyyy')CreationDate
                          FROM [MST].[BulletinTemplate] BT
                          LEFT JOIN MST.ProductMaster PM ON PM.Id=BT.ProductMasterId

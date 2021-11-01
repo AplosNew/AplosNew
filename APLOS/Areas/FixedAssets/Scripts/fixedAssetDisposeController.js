@@ -12,12 +12,13 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
     $scope.currencyDisable = false;
     $scope.isAdvance = true;
 
-    
+
     $scope.partyType = "Customer";
     $scope.postUrl = "accounts/OpeningBalance/PostOBAdvanceJournal";
     $controller('employeeBaseController', { $scope: $scope, $http: $http });
     $controller("partyBaseController", { $scope: $scope, $http: $http });
     $controller("currencyBaseController", { $scope: $scope, $http: $http });
+    $scope.path = 'FixedAssets/FixedAssetRegister/'
 
     $scope.voucherDetailList = [];
     $scope.searchBy = "FARDisposeNo"; $scope.search = "";
@@ -97,23 +98,44 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
         BankCurrencyId: null,
         BankAmount: null
     };
-    $scope.Get = function (data) {
-        $scope.voucher.Id = data.rowData.Id;
-        //$scope.voucher.ParticularName = data.rowData.Id;
-        //$scope.voucher.Material = data.MaterialMasterName;
-        //$scope.voucher.Article = data.Article;
-        //$scope.voucher.CapitalizationDate = data.CapitalizationDate;
-        //$scope.voucher.PurchaseDate = data.PurchaseDate;
-        //$scope.voucher.IssueDate = data.IssueDate;
-        //$scope.voucher.TrnCurrency = data.TrnCurrency;
-        //$scope.voucher.baseCurrency = data.BaseCurrency;
+    $scope.Get = function (x) {
+        var data = x.rowData;
+        $scope.voucher.Status = data.Status;
+        $scope.voucher.Id = data.Id;
+        $scope.voucher.Remarks = data.Remarks;
+        $scope.voucher.TrnCurrency = data.TrnCurrency;
+        $scope.voucher.CurrencyId = data.trnCurrencyId;
+        $scope.voucher.PartyName = data.CustomerName;
+        $scope.voucher.PartyId = data.PartyId;
+        $scope.voucher.PartyPlantId = data.PartyPlantId;
+        $scope.voucher.CompanyCurrencyRate = data.CompanyCurrencyRate;
+        $scope.voucher.ToCurrencyRate = data.CompanyCurrencyRate;
+        $scope.voucher.BaseNagotiationValue = data.BaseNagotiationValue;
+        $scope.voucher.DocDate = data.DocDate;
+        	
+        if ($scope.voucher.Status == 'Sales') {
+            $scope.DisposeTpye();
+            // return true;
+        }
+
+        $scope.getFARDisposeDetail(data.Id);
         $scope.Action = "Update";
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
 
-
     };
+
+    $scope.voucherDetailList = [];
+    $scope.getFARDisposeDetail = function (fixedAssetRegisterDisposeId) {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetFixedAssetRegisterDisposeEditList?fixedAssetRegisterDisposeId=" + fixedAssetRegisterDisposeId,
+            // , url: 'FixedAssets/FixedAssetRegister/GetFixedAssetRegisterPopUpList'
+        }).then(function successCallback(response) {
+            $scope.voucherDetailList = response.data;
+        });
+    }
 
 
     $scope.removeRow = function (index) {
@@ -234,8 +256,10 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
                         "partyPlantId": $scope.voucher.InvoicingPartyPlantId,
                         "remarks": $scope.voucher.Remarks,
                         "currencyId": $scope.voucher.CurrencyId,
-                        "toCurrencyRate": $scope.voucher.CompanyCurrencyRate,
+                        "toCurrencyRate": $scope.voucher.CompanyCurrencyRate
+                        //"docDate": $scope.voucher.DocDate,
                         
+
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {
@@ -279,10 +303,11 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
             else if ($scope.Action === "Update") {
                 $http({
                     method: "POST",
-                    url: "accounts/OpeningBalance/UpdateOBAdvanceJournal",
+                    url: "fixedassets/fixedassetregister/UpdateFixedAssetSales",
                     data: {
-                        "voucherVM": $scope.voucher,
-                        "voucherDetailVMList": JSON.stringify($scope.voucherDetailList)
+                        "status": $scope.voucher.Status,
+                        "disposeVM": $scope.voucher,
+                        "fixedAssetRegister": $scope.voucherDetailList,
                     },
                     dataType: 'JSON'
                     , contentType: "application/json charset=utf-8"
@@ -348,27 +373,27 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
                 $scope.voucherDetail.GLGeneralInfoName = data.GLGeneralInfoCode + '-' + data.GLGeneralInfoName;
                 $scope.voucherDetail.FixedAssetMasterId = data.FixedAssetMasterId;
                 $scope.voucherDetail.FixedAssetRegisterId = data.FixedAssetRegisterId;
-                $scope.voucherDetail.ParticularName = data.FixedAssetMasterName;
+                $scope.voucherDetail.FixedAssetMasterName = data.FixedAssetMasterName;
 
-                $scope.voucherDetail.Material = data.MaterialMasterName;
+                $scope.voucherDetail.MaterialMasterName = data.MaterialMasterName;
                 $scope.voucherDetail.Article = data.Article;
                 $scope.voucherDetail.CapitalizationDate = data.CapitalizationDate;
                 $scope.voucherDetail.PurchaseDate = data.PurchaseDate;
                 $scope.voucherDetail.IssueDate = data.IssueDate;
                 $scope.voucherDetail.TrnCurrency = data.TrnCurrency;
                 $scope.voucherDetail.baseCurrency = data.BaseCurrency;
-                
-                $scope.voucherDetail.isOB = data.IsOBBalance;
+
+                $scope.voucherDetail.IsOpeningBalance = data.IsOpeningBalance;
                 $scope.voucherDetail.vendor = data.Vendor;
-                
+
                 $scope.voucherDetail.FAType = $scope.voucher.FAType;
                 $scope.voucherDetail.DocDate = $filter("dateFiltering")($scope.voucher.DocDate);
                 $scope.voucherDetail.DocRefNo = $scope.voucher.DocRefNo;
                 $scope.voucherDetail.Narration = $scope.voucher.Narration;
                 $scope.voucherDetail.EntityId = $scope.voucher.EntityId;
                 $scope.voucherDetail.PlantId = $scope.voucher.PlantId;
-                
-                
+
+
                 $scope.voucherDetail.FABaseAmount = data.FABaseAmount;
                 $scope.voucherDetail.SubAssetBaseAmount = data.SubAssetBaseAmount;
                 $scope.voucherDetail.PurchaseBaseAmount = data.PurchaseBaseAmount;
@@ -395,7 +420,7 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
 
             }
             else {
-                ShowResult('Asset No ' + data.FixedAssetRegisterId+' already exist !!', 'failure', 'assetRegisterPopUpmodal');
+                ShowResult('Asset No ' + data.FixedAssetRegisterId + ' already exist !!', 'failure', 'assetRegisterPopUpmodal');
 
             }
 
@@ -509,6 +534,9 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
             }).then(function successCallback(response) {
                 $scope.currencyExchangeRate = response.data;
                 $scope.voucher.CompanyCurrencyRate = $scope.currencyExchangeRate.ToCurrencyRate;
+                if ($scope.voucherDetailList.length > 0) {
+                    $scope.updateBooksNegotiationValue();
+                }
             });
         }
         else {
@@ -521,7 +549,13 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
         $scope.voucherDetailList = [];
     };
 
-
-
+    $scope.calBooksNegotiationValue = function (data) {
+        data.BaseNagotiationValue = data.NegotiationValue * $scope.voucher.CompanyCurrencyRate;
+    }
+    $scope.updateBooksNegotiationValue = function () {
+        for (var i = 0; i < $scope.voucherDetailList.length; i++) {
+            $scope.voucherDetailList[i].BaseNagotiationValue = $scope.voucherDetailList[i].NegotiationValue * $scope.voucher.CompanyCurrencyRate
+        }
+    }
 
 }

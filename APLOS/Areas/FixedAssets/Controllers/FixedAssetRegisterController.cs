@@ -878,6 +878,17 @@ namespace Aplos.Areas.FixedAssets.Controllers
                 return Json(_fixedAssetQueryService.GetFixedAssetRegisterPopUpList(column, value, companyId), JsonRequestBehavior.AllowGet);//, new JavaScriptSerializer().Deserialize<string[]>(ids)
         }
 
+
+        [HttpGet, Authorize]
+        public ActionResult GetFixedAssetRegisterDisposeEditList(string fixedAssetRegisterDisposeId,  string companyId)
+        {
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            if (companyId == null)
+                companyId = identity.CompanyId;
+            return Json(_fixedAssetQueryService.GetFixedAssetRegisterDisposeEditList(fixedAssetRegisterDisposeId, companyId), JsonRequestBehavior.AllowGet);//, new JavaScriptSerializer().Deserialize<string[]>(ids)
+        }
+
         [Authorize, HttpGet]
         public JsonResult GetFixedAssetAccDepGL(GridParameter parameters, string companyId)
         {
@@ -910,6 +921,13 @@ namespace Aplos.Areas.FixedAssets.Controllers
             _fixedAssetRegisterService.InsertFixedAssetSales(status, fixedAssetRegister, partyId, partyPlantId, remarks, currencyId, toCurrencyRate);
             return Json(new { Message = AplosMessage.Insert });
         }
+        [HttpPost]
+        public JsonResult UpdateFixedAssetSales(string status, FixedAssetRegisterDisposed disposeVM, IEnumerable<FixedAssetRegisterDisposedDetail> fixedAssetRegister)
+        {
+            _fixedAssetRegisterService.EditFixedAssetSales( status,  disposeVM, fixedAssetRegister);
+            return Json(new { Message = AplosMessage.Updated });
+        }
+       
 
         [HttpPost]
         public JsonResult CreateFixedAssetScrap(string status, IEnumerable<FixedAssetRegister> fixedAssetRegister, string remarks)

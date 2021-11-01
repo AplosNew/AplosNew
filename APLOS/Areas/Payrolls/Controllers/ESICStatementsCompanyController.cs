@@ -64,16 +64,19 @@ namespace Aplos.Areas.Payrolls.Controllers
             DataView dvBioDvAC = null;
             DataSet dsCmp = null;
             DataSet dsFactory = null;
-
+            Dictionary<string, int> SalaryHeadIndex = new Dictionary<string, int>();
             ExcelEngine excelEngine = null;
             IApplication application = null;
             IWorkbook workbook = null;
             IWorksheet sheet1 = null;
-
+            DataTable dt = null;
             int xlsRow = 1, xlsCol = 1;
             int endXlsCol = 1;
             string FactoryName = "";
             string CmpName = "";
+            int iCount = 0;
+            double TotalNumer = 0;
+            double GrandTotal = 0;
             try
             {
                 //get ds
@@ -90,8 +93,12 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                 Dictionary<string, DataRow> dicAttdnSummary = new Dictionary<string, DataRow>();
                 Dictionary<string, List<DataRow>> dicSalary = new Dictionary<string, List<DataRow>>();
+                Dictionary<string, List<DataRow>> dicPFSalaryHeadWiseData = new Dictionary<string, List<DataRow>>();
 
                 DataTable dtEmpInfo = GetESICEmployeeInfo(identity.CompanyId, Convert.ToInt32(month), year, isActive, isSeperated, isMaternity);
+
+                GetEmpPFSalaryHead(identity.CompanyId, out dt);
+                dicPFSalaryHeadWiseData = GetEmpPFSalaryHeadInfo(identity.CompanyId, Convert.ToInt32(month), year, isActive, isSeperated, isMaternity);
 
                 dicSalary = GetEmpESICSalaryInfo(identity.CompanyId, Convert.ToInt32(month), year, isActive, isSeperated, isMaternity);
                 dicAttdnSummary = GetEmployeeAttdnSummary(month, year, identity.CompanyId);
@@ -111,6 +118,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 var colInsuranceNo = 0;
                 var colESICER = 0;
                 var colESICEE = 0;
+                var colWagesTotal = 0;
                 var colTotal = 0;
 
                 excelEngine = new ExcelEngine();
@@ -132,7 +140,17 @@ namespace Aplos.Areas.Payrolls.Controllers
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Insurance No.", 12); colInsuranceNo = xlsCol; xlsCol++;
 
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Pay Days", 8); colDays = xlsCol; xlsCol++;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Wages Earned", 12); colWagesAmount = xlsCol; xlsCol++;
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    iCount = xlsCol;
+                    SetHeaderTextPFund(ref sheet1, xlsRow, xlsCol, dt.Rows[i]["SalaryHead"].ToString(), 8, 25, ExcelHAlign.HAlignCenter);
+                    SalaryHeadIndex.Add(dt.Rows[i]["SalaryHeadId"].ToString(), iCount);
+                    xlsCol++;
+                }
+                if (dt.Rows.Count > 1)
+                {
+                    ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Wages Total", 10); colWagesTotal = xlsCol; xlsCol++;
+                }
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Employee", 10); colESICEE = xlsCol; xlsCol++;
 
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Employer", 10); colESICER = xlsCol; xlsCol++;
@@ -226,6 +244,25 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                     slCount++;
                     #region Loop
+
+                    if (dicPFSalaryHeadWiseData.ContainsKey(dtEmpInfo.Rows[i]["EmpSystemId"].ToString()))
+                    {
+                        List<DataRow> dlrPF = dicPFSalaryHeadWiseData[dtEmpInfo.Rows[i]["EmpSystemId"].ToString()];
+                        TotalNumer = 0;
+                        foreach (var item in dlrPF)
+                        {
+                            sheet1.Range[xlsRow, SalaryHeadIndex[item["SalaryHeadID"].ToString()]].Number = clsStaticInfo.dbl(item["DisbusmentAmount"].ToString());
+                            TotalNumer = clsStaticInfo.dbl(item["DisbusmentAmount"].ToString()) + TotalNumer;
+                        }
+                        GrandTotal = GrandTotal + TotalNumer;
+                    }
+                        
+                    SetSLText(ref sheet1, xlsRow, colSrNo, slCount);
+                    if (dt.Rows.Count > 1)
+                    {
+                        ru.SetTextBorder(ref sheet1, xlsRow, colWagesTotal, TotalNumer);
+                    }
+
                     SetSLText(ref sheet1, xlsRow, colSrNo, slCount);
                     ru.SetTextBorder(ref sheet1, xlsRow, colPaycode, dtEmpInfo.Rows[i]["EmployeeCode"].ToString());
                     ru.SetTextBorder(ref sheet1, xlsRow, colEmployeeName, dtEmpInfo.Rows[i]["EmployeeName"].ToString());
@@ -234,11 +271,11 @@ namespace Aplos.Areas.Payrolls.Controllers
                     ru.SetTextBorder(ref sheet1, xlsRow, colDays, Workingdays);
                     sheet1.Range[xlsRow, colDays].NumberFormat = ru.NumberFormatNegativeSignDelimeterDecimalTwo();
 
-                    sheet1.Range[xlsRow, colWagesAmount].Number = Convert.ToDouble(gross);
-                    sheet1.Range[xlsRow, colWagesAmount].NumberFormat = GetDecimalFormat(grossIntegerInDisb, grossDecimalPoint);
-                    sheet1.Range[xlsRow, colWagesAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet1.Range[xlsRow, colWagesAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                    sheet1.Range[xlsRow, colWagesAmount].BorderAround(ExcelLineStyle.Hair);
+                    //sheet1.Range[xlsRow, colWagesAmount].Number = Convert.ToDouble(gross);
+                    //sheet1.Range[xlsRow, colWagesAmount].NumberFormat = GetDecimalFormat(grossIntegerInDisb, grossDecimalPoint);
+                    //sheet1.Range[xlsRow, colWagesAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    //sheet1.Range[xlsRow, colWagesAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                    //sheet1.Range[xlsRow, colWagesAmount].BorderAround(ExcelLineStyle.Hair);
 
                     sheet1.Range[xlsRow, colESICEE].Number = Convert.ToDouble(esicEE) * (-1.00);
                     sheet1.Range[xlsRow, colESICEE].NumberFormat = GetDecimalFormat(esicEEIntegerInDisb, esicEEDecimalPoint);
@@ -263,10 +300,17 @@ namespace Aplos.Areas.Payrolls.Controllers
                 sheet1.Range[xlsRow, colDays].CellStyle.Font.Bold = true;
                 sheet1.Range[xlsRow, colDays].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 
-                sheet1.Range[xlsRow, colWagesAmount].CellStyle.Font.Bold = true;
-                sheet1.Range[xlsRow, colWagesAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                sheet1.Range[xlsRow, colWagesAmount].Formula = "=SUM(" + ru.GetColumnNameForXls(colWagesAmount) + formulaStartRow + ":" + ru.GetColumnNameForXls(colWagesAmount) + (summationRowLimit) + ")";
-                sheet1.Range[xlsRow, colWagesAmount].NumberFormat = ru.NumberFormatInt();
+                if (dt.Rows.Count == 1)
+                {
+                    getGrandTotal(ref sheet1, xlsRow, 6, GrandTotal, ru);//dtEmpInfo.Tables[0].Rows[i][""].ToString()
+                    sheet1.Range[xlsRow, 6].NumberFormat = ru.NumberFormatNegativeSignDelimeterDecimalTwo();
+                }
+                else
+                {
+                    int num = dt.Rows.Count;
+                    getGrandTotal(ref sheet1, xlsRow, 6 + num, GrandTotal, ru);//dtEmpInfo.Tables[0].Rows[i][""].ToString()
+                    sheet1.Range[xlsRow, 6 + num].NumberFormat = ru.NumberFormatNegativeSignDelimeterDecimalTwo();
+                }
 
                 sheet1.Range[xlsRow, colESICER].CellStyle.Font.Bold = true;
                 sheet1.Range[xlsRow, colESICER].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -415,7 +459,141 @@ namespace Aplos.Areas.Payrolls.Controllers
                 return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
             }
         }
+        private void getGrandTotal(ref IWorksheet sheet1, int xlsRow, int xlsCol, double txt, ReportUtility ru)
+        {
+            try
+            {
+                sheet1.Range[xlsRow, xlsCol].Number = txt;
+                sheet1.Range[xlsRow, xlsCol].NumberFormat = ru.NumberFormatDecimalTwo();
+                sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 12;
 
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        public void GetEmpPFSalaryHead(string CompanyId, out DataTable dt)
+        {
+            string strSQL;
+            try
+            {
+                strSQL = @"select distinct pfs.SalaryHeadID,sh.SalaryHead from ESICPolicyMaster pf 
+		                            join ESICPolicySalaryHead pfs on pfs.ESICPolicyMasterId=pf.ID 
+		                            join SalaryHead SH on SH.SalaryHeadID=pfs.SalaryHeadID
+                                    left join ORG.Plant p on p.id=pf.PlantID
+                                    where p.CompanyId='" + CompanyId + "'";
+
+                dt = _sqlRepository.GetDataTable(strSQL);
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+
+            }
+        }//end function
+        public void SetHeaderTextPFund(ref IWorksheet sheet, int row, int col, string txt, int width, int RH, ExcelHAlign al)
+        {
+            sheet.Range[row, col].Text = txt;
+            sheet.Range[row, col].ColumnWidth = width;
+            sheet.Range[row, col].CellStyle.Font.Bold = true;
+            sheet.Range[row, col].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.Range[row, col].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[row, col].BorderAround(ExcelLineStyle.Thin);
+        }
+        public Dictionary<string, List<DataRow>> GetEmpPFSalaryHeadInfo(string plantId, int monthName, string year, bool isActive, bool isSeperated, bool isPFEligible)
+        {
+            string strSQL;
+            Dictionary<string, List<DataRow>> dicSalary = new Dictionary<string, List<DataRow>>();
+            var days = DateTime.DaysInMonth(Convert.ToInt32(year), monthName);//Number of Days in a month
+            string monthNameString = CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(monthName);//Month Name from Month No
+            var date = days + "-" + monthNameString + "-" + year;
+            string empStatus = "";
+            if (isActive == true)
+            {
+                empStatus = @"AND EmpSlr.EmployeeStatus = 'Active'";
+            }
+            if (isSeperated == true)
+            {
+                empStatus = @"AND EmpSlr.EmployeeStatus = 'Separated'";
+            }
+            if (isActive == true && isSeperated == true)
+            {
+                empStatus = "";
+            }
+            ConnectionManager.DAL.ConManager objCon;
+
+            string strSql = @"SELECT SystemID FROM SalaryProcMaster
+                                      WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild c
+                                        left join org.plant p on p.id=c.PlantId
+                                                        WHERE p.companyId = '" + plantId + @"')
+                                        AND MonthNo = Month('" + date + @"') AND YearNo = Year('" + date + @"')";
+            DataTable dtSalPrcId = _sqlRepository.GetDataTable(strSql);
+
+            string salaryProcessID = "''";
+            for (int si = 0; si < dtSalPrcId.Rows.Count; si++)
+            {
+                salaryProcessID += ",'" + dtSalPrcId.Rows[si]["SystemID"].ToString() + "'";
+            }
+            try
+            {
+                strSQL = @" SELECT SPC.SystemID AS SlrProcChdSysID, SPC.SlrProcMstSystemID, SPM.SalaryProcID, SPM.FromDate, SPM.ToDate,
+													SPC.EmpInfoSystemID, SPC.PlantID, SPM.UserGroupSystemID, SPM.MonthNo, SPM.YearNo, SPC.PayAbleShSystemID,
+													SPC.SalaryHeadID, SPC.EntryCurrencyID, SPC.EntryAmount, SPC.DefineCurrencyID, SPC.DefineAmount,
+													SPC.DisbusmentCurrencyID, SPC.DisbusmentAmount, SPC.AcltExcDisbSlrHDID, SPC.AcltExcDisbSlrHDAmt,
+												    SPM.AmtDefinitionCurrencyID,SPM.AmtDefinitionCurrencyRate, SPC.IsNetPayEffect
+                                                    ,SH.SalaryHead,SH.HeadCategory,SH.HeadType
+                                                    ,CASE WHEN ISNULL(SPM.SalaryProcFlag,'') = '' THEN 'Regular' ELSE SalaryProcFlag END EmployeeStatus
+                                                    ,SH.IsCTCComponent,SH.IsGrossComponent--,SH.Cat
+													,crc.IsDecimalInDisb,crc.DecimalNo,crc.IntegerInDisb
+											 FROM SalaryProcChild SPC 
+														INNER JOIN SalaryProcMaster SPM ON SPC.SlrProcMstSystemID = SPM.SystemID
+																							AND SPM.SystemID IN  (" + salaryProcessID + @")	
+                                                        --INNER JOIN SalaryHead SH ON SH.SalaryHeadID=SPC.SalaryHeadID 
+														--AND SH.HeadCategory IN ('PF Voluntary','Pension','Basic','PF Employer Contribution','PF Employee Contribution') 
+														
+                                            Inner join EmployeeInformation EEI ON EEI.SystemId = SPC.EmpInfoSystemID
+                                            left join ESICPolicyMaster pf on pf.PlantID = EEI.PlantId
+											join ESICPolicySalaryHead pfs on pfs.ESICPolicyMasterId=pf.ID 
+											  INNER JOIN SalaryHead SH ON SH.SalaryHeadID=SPC.SalaryHeadID and SH.SalaryHeadID=pfs.SalaryHeadID and sh.SalaryHeadID in(pfs.SalaryHeadID)
+														LEFT JOIN SalaryRuleMaster SRM ON SRM.SystemID = EEI.SalaryRuleMasterSystemID
+                                                                LEFT JOIN CurrencyRuleMaster crm on crm.SystemID = sRM.CurrencyRuleSystemID
+                                                                LEFT JOIN CurrencyRuleChild crc on crc.MstSystemID = CRM.SystemID and crc.SalaryHeadID=spc.SalaryHeadID			
+                                                        left join org.plant p on p.id = eei.plantId
+														WHERE  p.companyId = '" + plantId + @"' order by EmpInfoSystemID";
+
+                DataTable dt = _sqlRepository.GetDataTable(strSQL);
+                List<DataRow> _data = new List<DataRow>();
+                string empId = "";
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    if (empId != dt.Rows[i]["EmpInfoSystemID"].ToString())
+                    {
+                        _data = new List<DataRow>();
+                        dicSalary.Add(dt.Rows[i]["EmpInfoSystemID"].ToString(), _data);
+                    }
+                    _data.Add(dt.Rows[i]);
+
+                    empId = dt.Rows[i]["EmpInfoSystemID"].ToString();
+                }
+                return dicSalary;
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//end function
         #endregion -- Operations
 
         public DataTable GetESICEmployeeInfo(string plantId, int monthName, string year, bool isActive, bool isSeperated, bool isMaternity)

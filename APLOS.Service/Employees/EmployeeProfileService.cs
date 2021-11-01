@@ -254,6 +254,7 @@ namespace Library.Service.Employees
                 dblist.IsKnownPerson = entity.IsKnownPerson;
                 dblist.NumberOfKnownPerson = entity.NumberOfKnownPerson;
                 dblist.ApplyingAsFresher = entity.ApplyingAsFresher;
+                dblist.EmployeeNameLocal = entity.EmployeeNameLocal;
 
 
                 //var emp = PlantWiseDOJ(dblist.PlantID);
@@ -338,9 +339,13 @@ namespace Library.Service.Employees
                 dblist.CivilStatusID = entity.CivilStatusID;
                 dblist.MarriagedayCelebrationDate = entity.MarriagedayCelebrationDate;
                 dblist.SpouseName = entity.SpouseName;
+                dblist.SpouseNameLocal = entity.SpouseNameLocal;
                 dblist.SpouseNationalID = entity.SpouseNationalID;
                 dblist.SpouseOccupation = entity.SpouseOccupation;
                 dblist.NoOfChildren = entity.NoOfChildren;
+                dblist.FatherNameLocal = entity.FatherNameLocal;
+                dblist.MotherNameLocal = entity.MotherNameLocal;
+                dblist.LocalIdentificationMark = entity.LocalIdentificationMark;
 
                 dblist.UpdatedBy = name;
                 dblist.DateUpdated = DateTime.Now;
@@ -392,6 +397,10 @@ namespace Library.Service.Employees
                 dblist.EmrCntPer2Name = entity.EmrCntPer2Name;
                 dblist.EmrCntPer1CellNo = entity.EmrCntPer1CellNo;
                 dblist.EmrCntPer2CellNo = entity.EmrCntPer2CellNo;
+                dblist.PresentAddress1Local = entity.PresentAddress1Local;
+                dblist.PresentAddress2Local = entity.PresentAddress2Local;
+                dblist.ParmanentAddress1Local = entity.ParmanentAddress1Local;
+                dblist.ParmanentAddress2Local = entity.ParmanentAddress2Local;
 
                 dblist.EmployeeStatus = "Active";
                 dblist.UpdatedBy = name;
@@ -471,6 +480,8 @@ namespace Library.Service.Employees
                 dblist.PaymentModeEffectiveDate = entity.PaymentModeEffectiveDate;
                 dblist.CardNumber = entity.CardNumber;
                 dblist.IsEntryComplete = entity.IsEntryComplete;
+                dblist.ResidenceGroupId = entity.ResidenceGroupId;
+                dblist.TransportGroupId = entity.TransportGroupId;
                 if (!string.IsNullOrEmpty(entity.OperationMasterID))
                 {
                     dblist.OperationMasterID = entity.OperationMasterID;

@@ -349,7 +349,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         $scope.SKU1List = [];
         $http({
             method: 'POST',
-            data: { MaterialMstId: $scope.detailModel.MaterialMasterId },
+            data: { MaterialMstId: $scope.detailModel.MaterialMasterId, assignment: $scope.rmchar1.ValueAssignmentLevel, charId: $scope.detailModel.FirstCharacteristicsId },
             url: $scope.path + 'LoadAllSKU'
         }).then(function successCallback(response) {
             $scope.SKU1List = response.data;
@@ -358,8 +358,8 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
     $scope.SKU1Clear = function () {
         $scope.detailModel.UserName1 = null;
-        $scope.detailModel.Code1 = null;
-        $scope.detailModel.FirstCharacteristicsId = null;
+    //    $scope.detailModel.Code1 = null;
+    //    $scope.detailModel.FirstCharacteristicsId = null;
         $scope.detailModel.FirstCharacteristicsValueId = null;
 
     };
@@ -369,10 +369,10 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     //}
     $scope.setSKU1Data = function (obj) {
         var data = obj.data;
-        $scope.detailModel.Code1 = data.Code;
+    //    $scope.detailModel.Code1 = data.Code;
         $scope.detailModel.UserName1 = data.UserName;
-        $scope.detailModel.FirstCharacteristicsId = data.CharacteristicsId;
-        $scope.detailModel.FirstCharacteristicsValueId = data.Id;
+   //     $scope.detailModel.FirstCharacteristicsId = data.CharacteristicsId;
+        $scope.detailModel.FirstCharacteristicsValueId = data.CharacteristicsValueId;
         angular.element(document.querySelector('#SKU1PopUp')).modal('hide');
     };
 
@@ -388,7 +388,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         $scope.SKU2List = [];
         $http({
             method: 'POST',
-            data: { MaterialMstId: $scope.detailModel.MaterialMasterId },
+            data: { MaterialMstId: $scope.detailModel.MaterialMasterId, assignment: $scope.rmchar2.ValueAssignmentLevel, charId: $scope.detailModel.SecondCharacteristicsId },
             url: $scope.path + 'LoadAllSKU'
         }).then(function successCallback(response) {
             $scope.SKU2List = response.data;
@@ -397,8 +397,8 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
     $scope.SKU2Clear = function () {
         $scope.detailModel.UserName2 = null;
-        $scope.detailModel.Code2 = null;
-        $scope.detailModel.SecondCharacteristicsId = null;
+        //$scope.detailModel.Code2 = null;
+        //$scope.detailModel.SecondCharacteristicsId = null;
         $scope.detailModel.SecondCharacteristicsValueId = null;
 
     };
@@ -408,10 +408,10 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     //}
     $scope.setSKU2Data = function (obj) {
         var data = obj.data;
-        $scope.detailModel.Code2 = data.Code;
+    //    $scope.detailModel.Code2 = data.Code;
         $scope.detailModel.UserName2 = data.UserName;
-        $scope.detailModel.SecondCharacteristicsId = data.CharacteristicsId;
-        $scope.detailModel.SecondCharacteristicsValueId = data.Id;
+  //      $scope.detailModel.SecondCharacteristicsId = data.CharacteristicsId;
+        $scope.detailModel.SecondCharacteristicsValueId = data.CharacteristicsValueId;
         angular.element(document.querySelector('#SKU2PopUp')).modal('hide');
     };
 
@@ -427,7 +427,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         $scope.SKU3List = [];
         $http({
             method: 'POST',
-            data: { MaterialMstId: $scope.detailModel.MaterialMasterId },
+            data: { MaterialMstId: $scope.detailModel.MaterialMasterId, assignment: $scope.rmchar3.ValueAssignmentLevel, charId: $scope.detailModel.ThirdCharacteristicsId },
             url: $scope.path + 'LoadAllSKU'
         }).then(function successCallback(response) {
             $scope.SKU3List = response.data;
@@ -436,8 +436,8 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
     $scope.SKU3Clear = function () {
         $scope.detailModel.UserName3 = null;
-        $scope.detailModel.Code3 = null;
-        $scope.detailModel.ThirdCharacteristicsId = null;
+        //$scope.detailModel.Code3 = null;
+        //$scope.detailModel.ThirdCharacteristicsId = null;
         $scope.detailModel.ThirdCharacteristicsValueId = null;
 
     };
@@ -447,13 +447,12 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     //}
     $scope.setSKU3Data = function (obj) {
         var data = obj.data;
-        $scope.detailModel.Code3 = data.Code;
+    //    $scope.detailModel.Code3 = data.Code;
         $scope.detailModel.UserName3 = data.UserName;
-        $scope.detailModel.ThirdCharacteristicsId = data.CharacteristicsId;
-        $scope.detailModel.ThirdCharacteristicsValueId = data.Id;
+   //     $scope.detailModel.ThirdCharacteristicsId = data.CharacteristicsId;
+        $scope.detailModel.ThirdCharacteristicsValueId = data.CharacteristicsValueId;
         angular.element(document.querySelector('#SKU3PopUp')).modal('hide');
     };
-
 
     //---Shahshank
 
@@ -1941,12 +1940,18 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                                 
                             }
                     }
+                    if ($scope.GetMatMstJW[0].WithSKU == '1') {
+                        $scope.getRMCharacteristicsList();
+                    }
                 }
                 else {
                     $scope.detailModel.MaterialMasterId = null;
                     $scope.detailModel.MaterialName = null;
                     $scope.detailModel.MaterialCode = null;
                     $scope.detailModel.AlternateUoM = null;
+                    $scope.SKU1disable = true;
+                    $scope.SKU2disable = true;
+                    $scope.SKU3disable = true;
                     $scope.OMatUOMList = [];
                     $scope.OMatUOMList[0] = $scope.GetMatMstJW[0];
                     $scope.detailModel.OutputMaterialUOMId = $scope.GetMatMstJW[0].Value;
@@ -1978,13 +1983,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
        //   $scope.detailModel.ServiceId = $scope.detailModel.ServiceId;
             //$scope.detailModel.ValueLoss = $scope.detailModel.ValueLoss;
 
-            //if ($scope.detailModel.RateApplyId == "Input") {
-            //    $scope.detailModel.RateApplyId = 'Input';
-            //}
-            //else {
-            //    $scope.detailModel.RateApplyId = 'Output';
-            //}
-
             $scope.rmchar1 = {};
             $scope.rmchar2 = {};
             $scope.rmchar3 = {};
@@ -2003,8 +2001,9 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                 $scope.rmchar1.Name = $scope.detailModel.FirstCharacteristics;
                 $scope.rmchar1.FreeText = $scope.detailModel.FirstCharacteristicsValue;
 
-                $scope.detailModel.Code1 = $scope.detailModel.SKU1ValueCode;
+          //      $scope.detailModel.Code1 = $scope.detailModel.SKU1ValueCode;
                 $scope.detailModel.UserName1 = $scope.detailModel.FirstCharacteristicsValue;
+                $scope.SKU1disable = false;
 
             }
             if (!baseService.isUndefinedOrNull($scope.detailModel.SecondCharacteristicsId)) {
@@ -2014,8 +2013,9 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                 $scope.rmchar2.Name = $scope.detailModel.SecondCharacteristics;
                 $scope.rmchar2.FreeText = $scope.detailModel.SecondCharacteristicsValue;
 
-                $scope.detailModel.Code2 = $scope.detailModel.SKU2ValueCode;
+            //    $scope.detailModel.Code2 = $scope.detailModel.SKU2ValueCode;
                 $scope.detailModel.UserName2 = $scope.detailModel.SecondCharacteristicsValue;
+                $scope.SKU2disable = false;
             }
             if (!baseService.isUndefinedOrNull($scope.detailModel.ThirdCharacteristicsId)) {
                 $scope.rmchar3.CharacteristicsId = $scope.detailModel.ThirdCharacteristicsId;
@@ -2024,8 +2024,9 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                 $scope.rmchar3.Name = $scope.detailModel.ThirdCharacteristics;
                 $scope.rmchar3.FreeText = $scope.detailModel.ThirdCharacteristicsValue;
 
-                $scope.detailModel.Code3 = $scope.detailModel.SKU3ValueCode;
+          //      $scope.detailModel.Code3 = $scope.detailModel.SKU3ValueCode;
                 $scope.detailModel.UserName3 = $scope.detailModel.ThirdCharacteristicsValue;
+                $scope.SKU3disable = false;
             }
 
             getDetailTaxCategoryList($scope.detailModel);
@@ -2044,6 +2045,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         $scope.rmchar3 = {};
         $scope.rmchar3 = {};
         $scope.hasArticle = false;
+        $scope.clearCharNames();
     };
 
 
@@ -2329,6 +2331,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                         $scope.detailClear();
                         $scope.RequisitionListHide();
                         $scope.getPoChildAlldata();
+                    //    $scope.clearCharNames();
                     }
                 }), function errorCallBack(response) {
                     if (type === "PODETAILLIST") {
@@ -2650,16 +2653,21 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         $scope.detailModel.Specific = true;
     };
 
+
+    $scope.SKU1disable = true;
+    $scope.SKU2disable = true;
+    $scope.SKU3disable = true;
     $scope.rmcharacteristicsList = [];
     $scope.rm1characteristicsList = [];
     $scope.rm2characteristicsList = [];
-    $scope.getRMCharacteristicsList = function (id) {
+    $scope.getRMCharacteristicsList = function () {
         $scope.clearCharNames();
         $http({
             method: 'GET',
             url: 'Materials/MaterialMaster/getcharacteristicsbymaterialmasterid/',
             params: {
-                materialMasterId: id
+                //        materialMasterId: id
+                materialMasterId: $scope.detailModel.MaterialMasterId
             }
         }).then(function (response) {
             $scope.rmcharacteristicsList = [];
@@ -2671,57 +2679,79 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
             if (baseService.arrayLength($scope.rmcharacteristicsList) > 0) {
                 $scope.isSearch = $scope.rmcharacteristicsList[0].FreeText !== null ? true : false;
                 $scope.rmchar1 = {
-                    CharacteristicsId: $scope.rmcharacteristicsList[0].Value
-                    , CharacteristicsValueId: $scope.rmcharacteristicsList[0].CharacteristicsValueId
-                    , MaterialMasterId: $scope.rmcharacteristicsList[0].MaterialMasterId
-                    , Name: $scope.rmcharacteristicsList[0].Text
-                    , IsFreeField: $scope.rmcharacteristicsList[0].IsFreeField
-                    , IsPreDefinedField: $scope.rmcharacteristicsList[0].IsPreDefinedField
-                    , IsMandatory: $scope.rmcharacteristicsList[0].IsMandatory
+                    //CharacteristicsId: $scope.rmcharacteristicsList[0].Value
+                    //, CharacteristicsValueId: $scope.rmcharacteristicsList[0].CharacteristicsValueId
+                    //, MaterialMasterId: $scope.rmcharacteristicsList[0].MaterialMasterId
+                     Name: $scope.rmcharacteristicsList[0].Text
+                    //, IsFreeField: $scope.rmcharacteristicsList[0].IsFreeField
+                    //, IsPreDefinedField: $scope.rmcharacteristicsList[0].IsPreDefinedField
+                    //, IsMandatory: $scope.rmcharacteristicsList[0].IsMandatory
                     , ValueAssignmentLevel: $scope.rmcharacteristicsList[0].ValueAssignmentLevel
-                    , Sequence: $scope.rmcharacteristicsList[0].Sequence
-                    , FlagDisable: $scope.IsFreeOrNot($scope.rmcharacteristicsList[0].IsFreeField)
+                    //, Sequence: $scope.rmcharacteristicsList[0].Sequence
+                    //, FlagDisable: $scope.IsFreeOrNot($scope.rmcharacteristicsList[0].IsFreeField)
 
-                    , FreeText: $scope.rmcharacteristicsList[0].FreeText
-                    , show: true
+                    //, FreeText: $scope.rmcharacteristicsList[0].FreeText
+                    //, show: true
                 };
+                $scope.detailModel.FirstCharacteristicsId = $scope.rmcharacteristicsList[0].Value;
+                $scope.SKU1disable = false;
+               
             }
             if (baseService.arrayLength($scope.rmcharacteristicsList) > 1) {
                 $scope.isSearch = $scope.rmcharacteristicsList[1].FreeText !== null ? true : false;
                 $scope.rmchar2 = {
-                    CharacteristicsId: $scope.rmcharacteristicsList[1].Value
-                    , CharacteristicsValueId: $scope.rmcharacteristicsList[1].CharacteristicsValueId
-                    , MaterialMasterId: $scope.rmcharacteristicsList[1].MaterialMasterId
-                    , Name: $scope.rmcharacteristicsList[1].Text
-                    , IsFreeField: $scope.rmcharacteristicsList[1].IsFreeField
-                    , IsPreDefinedField: $scope.rmcharacteristicsList[1].IsPreDefinedField
-                    , IsMandatory: $scope.rmcharacteristicsList[1].IsMandatory
+                    //CharacteristicsId: $scope.rmcharacteristicsList[1].Value
+                    //, CharacteristicsValueId: $scope.rmcharacteristicsList[1].CharacteristicsValueId
+                    //, MaterialMasterId: $scope.rmcharacteristicsList[1].MaterialMasterId
+                     Name: $scope.rmcharacteristicsList[1].Text
+                    //, IsFreeField: $scope.rmcharacteristicsList[1].IsFreeField
+                    //, IsPreDefinedField: $scope.rmcharacteristicsList[1].IsPreDefinedField
+                    //, IsMandatory: $scope.rmcharacteristicsList[1].IsMandatory
                     , ValueAssignmentLevel: $scope.rmcharacteristicsList[1].ValueAssignmentLevel
-                    , Sequence: $scope.rmcharacteristicsList[1].Sequence
-                    , FlagDisable: $scope.IsFreeOrNot($scope.rmcharacteristicsList[1].IsFreeField)
-                    , FreeText: $scope.rmcharacteristicsList[1].FreeText
-                    , show: true
+                    //, Sequence: $scope.rmcharacteristicsList[1].Sequence
+                    //, FlagDisable: $scope.IsFreeOrNot($scope.rmcharacteristicsList[1].IsFreeField)
+                    //, FreeText: $scope.rmcharacteristicsList[1].FreeText
+                    //, show: true
                 };
+                $scope.detailModel.SecondCharacteristicsId = $scope.rmcharacteristicsList[1].Value;
+                $scope.SKU2disable = false;
+                
             }
             if (baseService.arrayLength($scope.rmcharacteristicsList) > 2) {
                 $scope.isSearch = $scope.rmcharacteristicsList[2].FreeText !== null ? true : false;
                 $scope.rmchar3 = {
-                    CharacteristicsId: $scope.rmcharacteristicsList[2].Value
-                    , CharacteristicsValueId: $scope.rmcharacteristicsList[2].CharacteristicsValueId
-                    , MaterialMasterId: $scope.rmcharacteristicsList[2].MaterialMasterId
-                    , Name: $scope.rmcharacteristicsList[2].Text
-                    , IsFreeField: $scope.rmcharacteristicsList[2].IsFreeField
-                    , IsPreDefinedField: $scope.rmcharacteristicsList[2].IsPreDefinedField
-                    , IsMandatory: $scope.rmcharacteristicsList[2].IsMandatory
+                    //CharacteristicsId: $scope.rmcharacteristicsList[2].Value
+                    //, CharacteristicsValueId: $scope.rmcharacteristicsList[2].CharacteristicsValueId
+                    //, MaterialMasterId: $scope.rmcharacteristicsList[2].MaterialMasterId
+                     Name: $scope.rmcharacteristicsList[2].Text
+                    //, IsFreeField: $scope.rmcharacteristicsList[2].IsFreeField
+                    //, IsPreDefinedField: $scope.rmcharacteristicsList[2].IsPreDefinedField
+                    //, IsMandatory: $scope.rmcharacteristicsList[2].IsMandatory
                     , ValueAssignmentLevel: $scope.rmcharacteristicsList[2].ValueAssignmentLevel
-                    , Sequence: $scope.rmcharacteristicsList[2].Sequence
-                    , FlagDisable: $scope.IsFreeOrNot($scope.rmcharacteristicsList[2].IsFreeField)
-                    , FreeText: $scope.rmcharacteristicsList[2].FreeText
-                    , show: true
+                    //, Sequence: $scope.rmcharacteristicsList[2].Sequence
+                    //, FlagDisable: $scope.IsFreeOrNot($scope.rmcharacteristicsList[2].IsFreeField)
+                    //, FreeText: $scope.rmcharacteristicsList[2].FreeText
+                    //, show: true
                 };
+                $scope.detailModel.ThirdCharacteristicsId = $scope.rmcharacteristicsList[2].Value;
+                $scope.SKU3disable = false;
             }
         });
     };
+
+    $scope.clearCharNames = function () {
+        //$scope.char1 = { CharacteristicsId: null, CharacteristicsValueId: null, MaterialMasterId: null, Name: null, IsFreeField: null, IsPreDefinedField: null, IsMandatory: null, FreeText: null, FlagDisable: null, Sequence: null, ValueAssignmentLevel: null, show: false };
+        //$scope.char2 = { CharacteristicsId: null, CharacteristicsValueId: null, MaterialMasterId: null, Name: null, IsFreeField: null, IsPreDefinedField: null, IsMandatory: null, FreeText: null, FlagDisable: null, Sequence: null, ValueAssignmentLevel: null, show: false };
+        //$scope.char3 = { CharacteristicsId: null, CharacteristicsValueId: null, MaterialMasterId: null, Name: null, IsFreeField: null, IsPreDefinedField: null, IsMandatory: null, FreeText: null, FlagDisable: null, Sequence: null, ValueAssignmentLevel: null, show: false };
+
+        $scope.rmchar1 = { Name: null, ValueAssignmentLevel: null };
+        $scope.rmchar2 = { Name: null, ValueAssignmentLevel: null};
+        $scope.rmchar3 = { Name: null, ValueAssignmentLevel: null };
+        $scope.SKU1disable = true;
+        $scope.SKU2disable = true;
+        $scope.SKU3disable = true;
+    };
+
 
     $scope.setCharData = function (data) {
         $scope[$scope.charValueSearchFor].CharacteristicsValueId = data.CharacteristicsValueId;
