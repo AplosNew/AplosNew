@@ -6523,7 +6523,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             int ColTrnRate = GRNCOL;
             GRNCOL++;
 
-            report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Trn Amt. USD", 12, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Trn Amt. "+ IIGRNdata.Rows[0]["TransactionCurrency"] +"", 12, ExcelHAlign.HAlignLeft);
             int ColTrnAmtUSD = GRNCOL;
             GRNCOL++;
 
@@ -6531,7 +6531,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             int ColCurrencyConvRate = GRNCOL;
             GRNCOL++;
 
-            report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Trn Amt. BDT", 12, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Trn Amt. "+ IIGRNdata.Rows[0]["BaseCurrency"] +"", 12, ExcelHAlign.HAlignLeft);
             int ColTrnAmtBDT = GRNCOL;
             GRNCOL++;
 
@@ -6572,7 +6572,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             int ColIssueBaseRate = GRNCOL;
             GRNCOL++;
 
-            report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Amt BDT", 12, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Amt " + IIGRNdata.Rows[0]["BaseCurrency"] + "", 12, ExcelHAlign.HAlignLeft);
             int ColAmtBDT = GRNCOL;
             //GRNCOL++;
 
