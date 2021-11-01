@@ -111,5 +111,7 @@ namespace Library.Service.FixedAssets
         string InsertFixedAssetLost(string status, IEnumerable<FixedAssetRegister> fixedAssetRegister, string employeeId, string id);
         string InsertFixedAssetSales(string status, IEnumerable<FixedAssetRegister> fixedAssetRegister, string partyId, string partyPlantId, string remarks,string currencyId, decimal toCurrencyRate);
         string InsertFixedAssetScrap(string status, IEnumerable<FixedAssetRegister> fixedAssetRegister, string remarks);
+
+        string EditFixedAssetSales(string status, FixedAssetRegisterDisposed disposeVM, IEnumerable<FixedAssetRegisterDisposedDetail> fixedAssetRegister);
     }
 }
