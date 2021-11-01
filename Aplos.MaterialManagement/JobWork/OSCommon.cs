@@ -4714,6 +4714,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						   ,ISNULL(MM.UserName,'') MaterialMasterName
                             --,MMA.Id ArticleId
 							,ISNULL(MMA.ShortName,'') ArticleName, MMA.Code as ArticleCode
+                            ,isnull(FChar.ValueAssignmentLevel,'') ValueAssignmentLevel
                             ,ISNULL(FChar.UserName,'') FirstCharacteristics,ISNULL(FCharValue.UserName,'') FirstCharacteristicsValue,ISNULL(FCharValue.Code,'') SKU1ValueCode
                                 ,ISNULL(SChar.UserName,'') SecondCharacteristics,ISNULL(SCharValue.UserName,'') SecondCharacteristicsValue,ISNULL(SCharValue.Code,'') SKU2ValueCode
                                 ,ISNULL(TChar.UserName,'') ThirdCharacteristics,ISNULL(TCharValue.UserName,'') ThirdCharacteristicsValue,ISNULL(TCharValue.Code,'') SKU3ValueCode
