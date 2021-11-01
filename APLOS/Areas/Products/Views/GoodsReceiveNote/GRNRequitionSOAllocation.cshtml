@@ -17,8 +17,8 @@
 
     <div class="tab-content">
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetpou(1), active: isSetpou(1) }">
-            <fieldset class="scheduler-border">
-                <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+            @*<fieldset class="scheduler-border">
+                <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>*@
                 <div id="GRNUncheck">
                     <div class="content-container-fluid" style="color:black;overflow:scroll">
                         <div style="color:black;" id="GridPO" ej-grid e-datasource="OutSourceGRNData" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
@@ -29,6 +29,7 @@
 
                             <div e-columns>
                                 <div e-column e-field="InventoryReceiveDetailId" e-headertext="GRN No" e-width="120"></div>
+                                <div e-column e-field="SOIdCount" e-headertext="SO ID Count" e-width="120"></div>
                                 <div e-column e-field="MaterialMasterName" e-headertext="MaterialMasterName" e-width="120"></div>
                                 <div e-column e-field="ArticleName" e-headertext="ArticleName" e-width="180"></div>
                                 <div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="70"></div>
@@ -94,7 +95,7 @@
                         </div>
                     </script>*@
                 </div>
-            </fieldset>
+            @*</fieldset>*@
         </div>
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetAllocatedList(2), active: isSetAllocatedList(2) }">
             <fieldset class="scheduler-border">
@@ -155,7 +156,7 @@
         <div class="clearfix"></div>
         <div class="common-btn">
             <ul class="list-inline text-right">
-                <li><button ng-click="UpdateJWSOAllocation();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                <li><button ng-click="UpdateJWSOAllocationFromUI();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
                 @*<li><button ng-click="closeDetaiPopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>*@
             </ul>
         </div>
