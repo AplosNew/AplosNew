@@ -558,4 +558,20 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
         }
     }
 
+    $scope.onClickExcelPrints = function (args) {
+
+        try {
+            var data = args.data;
+            var reportFormat = "Excel";
+
+            var file_src = 'FixedAssets/FixedAssetRegister/GetBulletinTamplateIndexReport?reportFormat=' + reportFormat + '&fixedAssetRegisterDisposeId=' + data.Id
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
+
+
+
 }
