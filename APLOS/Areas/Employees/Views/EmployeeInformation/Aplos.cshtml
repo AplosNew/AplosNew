@@ -2597,16 +2597,16 @@
                         </div>
 
                         @*<div class="form-group">
-                                <label class="col-sm-2 control-label">Reference Employee<sup ng-show="IsReferenceRequired===true">*</sup></label>
-                                <div class="col-sm-9 input-group" style="padding-left: 89px;padding-right: 14px;">
-                                    <span class="input-group-addon">{{employeeNew.RelativeEmployeeCode}}</span>
-                                    <input type="text" ng-model="employeeNew.RelativeEmployeeName" class="form-control" readonly>
-                                    <span class="input-group-btn">
-                                        <button ng-click="RelpopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                        <button ng-click="clearEmp()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                                    </span>
-                                </div>
-                            </div>*@
+            <label class="col-sm-2 control-label">Reference Employee<sup ng-show="IsReferenceRequired===true">*</sup></label>
+            <div class="col-sm-9 input-group" style="padding-left: 89px;padding-right: 14px;">
+                <span class="input-group-addon">{{employeeNew.RelativeEmployeeCode}}</span>
+                <input type="text" ng-model="employeeNew.RelativeEmployeeName" class="form-control" readonly>
+                <span class="input-group-btn">
+                    <button ng-click="RelpopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                    <button ng-click="clearEmp()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                </span>
+            </div>
+        </div>*@
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Ref.1 Name<sup ng-show="IsReferenceRequired===true">*</sup></label>
                             <div class="col-sm-8">
@@ -2624,6 +2624,17 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="form-group">
+                            <div class="checkbox-site">
+                                <label>
+                                    <span>Non Eligible OT</span>
+                                    <input type="checkbox" ng-model="NonEligibleOTChild.Exclude" id="OTCheck">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+
+                                </label>
+                            </div>
+                        </div>
+                        
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Transport Group<sup ng-show="IsTransportGroupMandatory===true">*</sup></label>
                             <div class="col-sm-8">
