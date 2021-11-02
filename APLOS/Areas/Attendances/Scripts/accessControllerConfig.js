@@ -25,6 +25,10 @@ function AccessControllerConfig($routeProvider, $locationProvider, $windowProvid
             templateUrl: 'Attendances/AttendanceRawDataDelete/Aplos',
             controller: 'AttendanceRawDataDeleteController'
         })
+        .when('/attendance-raw-data-delete-new', {
+            templateUrl: 'Attendances/AttendanceRawDataDeleteNew/Aplos',
+            controller: 'AttendanceRawDataDeleteNewController'
+        })
         .when('/attendance-raw-data-upload', {
             templateUrl: 'Attendances/AttendanceRawDataUpload/Aplos',
             controller: 'AttendanceRawDataUploadController'
