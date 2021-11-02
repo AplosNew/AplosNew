@@ -7,8 +7,7 @@
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="DayTypeWithValues" role="tab" data-toggle="tab">Employee Week Off</a></li>
-                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="DayStatus" role="tab" data-toggle="tab">Second Tab</a></li>
-                @*<li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="LeaveDayType" role="tab" data-toggle="tab">Leave Day Type Entry</a></li>*@
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="DayStatus" role="tab" data-toggle="tab">Process Attendance</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -80,7 +79,19 @@
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
                 <div class="row">
-                    <p>2nd Tab</p>
+
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" style="margin-top:10px">Effective Date</label>
+                            <div class="col-sm-8 show-message" style="margin-top:10px">
+                                <input type="text" id="DD" name="Date" ng-model="EffectiveDates" datepicker class="form-control ssd">
+
+                            </div>
+                        </div>
+
+                    </div>
+
                 </div>
             </div>
 
