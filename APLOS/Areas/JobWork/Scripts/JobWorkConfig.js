@@ -75,6 +75,12 @@ function JobWorkConfig($routeProvider, $locationProvider) {
             templateUrl: 'JobWork/JWPOIssue',
             controller: 'jwPOIssueController'
         })
+
+        .when('/os-issue-register', {
+            templateUrl: 'JobWork/OSissueRegister',
+            controller: 'OSissueRegisterController'
+        })
+
         //--------------------
         .when('/outsource-billing-post', {
             templateUrl: 'JobWork/OutSourceBillingPost/aplos',
