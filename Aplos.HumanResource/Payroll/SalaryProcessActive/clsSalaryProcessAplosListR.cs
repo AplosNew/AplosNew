@@ -1828,7 +1828,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                                                     var ss = dicLocal_Sub[i].SalaryHeadID;
 
-                                                    if (ss == "SHD202062")//SHD202023 SHD202065
+                                                    if (ss == "SHD20206")//SHD202023 SHD202065
                                                     {
 
                                                     }
@@ -4681,7 +4681,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                             EntCur = dicLocal_Sub[i].EntryAmount;
                                             string shid = dicLocal_Sub[i].SalaryHeadID;
                                             ///sru.CalculateHeadValue(para, dicLocal_Sub, AbsDay, DisbursedBtnMonth, TotWorkingDayWithHoli, intMonthNo, ref _child_salaryhead_seed, ref dtValue, ref dicSalaryHead, ref _childPK_seed_fromDB, ref _child_emp_seed, ref dicProcChild);
-                                            if ("SHD2018118" == dicLocal_Sub[i].SalaryHeadID)
+                                            if ("SHD20206" == dicLocal_Sub[i].SalaryHeadID)
                                             {
 
                                             }
