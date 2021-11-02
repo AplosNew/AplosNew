@@ -666,12 +666,8 @@ namespace Library.Accounting.FixedAssets
             companyCurrencyId = companyParallelCurrency["CurrencyId"].ToString();
             companyCurrencyCode = companyParallelCurrency["CurrencyCode"].ToString();
         }
-        private Dictionary<string, object> GetCompanyCurrencyId(string companyId)
-        {
-            var cmdText = @"select cpc.CurrencyId,C.Code CurrencyCode from SCS.CompanyParallelCurrency cpc
-                            LEFT JOIN SCS.Currency C ON C.Id = CPC.CurrencyId where cpc.ParallelCurrencyType = '" + ParallelCurrencyType.CompanyCurrency.ToString() + "'";
-            return _sqlRepository.GetData(cmdText);
-        }
+        private Dictionary<string, object> GetCompanyCurrencyId(string companyId)        {            var cmdText = @"select cpc.CurrencyId,C.Code CurrencyCode from SCS.CompanyParallelCurrency cpc
+                            LEFT JOIN SCS.Currency C ON C.Id = CPC.CurrencyId where cpc.ParallelCurrencyType = '" + ParallelCurrencyType.CompanyCurrency.ToString() + "'";            return _sqlRepository.GetData(cmdText);        }
         //testing 
         //private bool GetPlantIsShowFCInWord(string plantId)
         //{
@@ -719,9 +715,7 @@ namespace Library.Accounting.FixedAssets
         }
 
         //vendor invoice header data old & NEW
-        private Dictionary<string, object> GetFixedAssetsDisposePostHeader(string companyGroupId, string companyId, string plantId, string disposedVoucherId, SourceType sourceType)
-        {
-            var cmdText = @"SELECT VT.UserName AS VoucherTypeName, V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate
+        private Dictionary<string, object> GetFixedAssetsDisposePostHeader(string companyGroupId, string companyId, string plantId, string disposedVoucherId, SourceType sourceType)        {            var cmdText = @"SELECT VT.UserName AS VoucherTypeName, V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate
             , REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, V.DocRefNo
             ,AddedBy=CASE WHEN U.FullName<>'' THEN U.FullName ELSE V.AddedBy END
             ,PostedBy=CASE WHEN U.FullName<>'' THEN U.FullName ELSE V.PostedBy END
@@ -734,72 +728,30 @@ namespace Library.Accounting.FixedAssets
             LEFT JOIN [SCS].[VoucherType] AS VT ON VT.Id=V.VoucherTypeId
             LEFT JOIN [SCS].[Currency] AS C ON C.Id=V.CurrencyId
 			LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=BJ.EmployeeId
-            LEFT JOIN SEC.[User] U ON U.UserId=V.AddedBy
-            WHERE v.Archive=0 AND v.CompanyGroupId='" + companyGroupId + "' AND v.CompanyId='" + companyId + "' AND v.PlantId='" + plantId + "' AND BJ.DisposedVoucherId='" + disposedVoucherId + "' AND v.SourceType='" + sourceType + "'";
-            return _sqlRepository.GetData(cmdText);
-        }
+            LEFT JOIN SEC.[User] U ON U.UserId=V.AddedBy            WHERE v.Archive=0 AND v.CompanyGroupId='" + companyGroupId + "' AND v.CompanyId='" + companyId + "' AND v.PlantId='" + plantId + "' AND BJ.DisposedVoucherId='" + disposedVoucherId + "' AND v.SourceType='" + sourceType + "'";            return _sqlRepository.GetData(cmdText);        }
 
-        public IWorkbook FixedAssetsDisposePostReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string disposedVoucherId)
-        {
-            var reportUtility = new ReportUtility();
-            var excelEngine = new ExcelEngine();
-            var workbook = reportUtility.GetWorkbook(ref excelEngine, 1);
-            workbook.Version = ExcelVersion.Excel2016;
-            var sheet = workbook.Worksheets[0];
-            sheet.Name = "FixedAssetsDisposePost";
+        public IWorkbook FixedAssetsDisposePostReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string disposedVoucherId)        {            var reportUtility = new ReportUtility();            var excelEngine = new ExcelEngine();            var workbook = reportUtility.GetWorkbook(ref excelEngine, 1);            workbook.Version = ExcelVersion.Excel2016;            var sheet = workbook.Worksheets[0];            sheet.Name = "FixedAssetsDisposePost";
 
             //    var advanceDataList = GetVendorInvoiceChargeData(companyGroupId, companyId, plantId, voucherId, sourceType);
             //    var dtGeneralVoucher = advanceDataList;
 
-            var header = GetFixedAssetsDisposePostHeader(companyGroupId, companyId, plantId, disposedVoucherId, SourceType.FixedAssetDisposeJournal);
-
-            reportFileName = Convert.ToDateTime(header["PostingDate"]).ToString("yyMMdd") + " " + header["VoucherNo"];
-
-            var dsLocal = GetFixedAssetsDisposePostData(companyGroupId, companyId, plantId, disposedVoucherId, SourceType.FixedAssetDisposeJournal);
-
-            var transcationCurrency = header["CurrencyId"].ToString();
+            var header = GetFixedAssetsDisposePostHeader(companyGroupId, companyId, plantId, disposedVoucherId, SourceType.FixedAssetDisposeJournal);            reportFileName = Convert.ToDateTime(header["PostingDate"]).ToString("yyMMdd") + " " + header["VoucherNo"];            var dsLocal = GetFixedAssetsDisposePostData(companyGroupId, companyId, plantId, disposedVoucherId, SourceType.FixedAssetDisposeJournal);            var transcationCurrency = header["CurrencyId"].ToString();
             GetParallelCurrency(companyId, out string companyCurrencyId, out string companyCurrencyCode);
 
 
             var row = 5;
-            var colLast = 1;
-            int xlsCol = 1;
-            int colGl = 0;
-            int colinrDebit = 0;
-            int colinrCredit = 0;
-            int colusdDebit = 0;
-            int colusdCradit = 0;
-
-            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Voucher No");
-            reportUtility.SetText(ref sheet, row, 2, header["VoucherNo"].ToString());
+            var colLast = 1;            int xlsCol = 1;            int colGl = 0;            int colinrDebit = 0;            int colinrCredit = 0;            int colusdDebit = 0;            int colusdCradit = 0;
+            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Voucher No");            reportUtility.SetText(ref sheet, row, 2, header["VoucherNo"].ToString());
 
             //reportUtility.SetMasterHeaderText(ref sheet, row, middleColumnCaption, "");
             //sheet[row, 3].ColumnWidth = 25;
             //reportUtility.SetText(ref sheet, row, middleColumnCaption, header[""].ToString());
 
-            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Voucher Date");
-            reportUtility.SetText(ref sheet, row, 5, header["VoucherDate"].ToString());
-            sheet[row, 4].ColumnWidth = 15;
-            sheet[row, 5].ColumnWidth = 15;
-            row++;
-
-            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Posting Date");
-            reportUtility.SetText(ref sheet, row, 2, header["PostingDate"].ToString());
-            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "DocDate");
-            reportUtility.SetText(ref sheet, row, 5, header["DocDate"].ToString());
-            row++;
-
-            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Employee");
+            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Voucher Date");            reportUtility.SetText(ref sheet, row, 5, header["VoucherDate"].ToString());            sheet[row, 4].ColumnWidth = 15;            sheet[row, 5].ColumnWidth = 15;            row++;            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Posting Date");            reportUtility.SetText(ref sheet, row, 2, header["PostingDate"].ToString());            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "DocDate");            reportUtility.SetText(ref sheet, row, 5, header["DocDate"].ToString());            row++;            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Employee");
             //  reportUtility.SetText(ref sheet, row, 2, header["Vendor"].ToString());
-            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Doc Ref");
-            reportUtility.SetText(ref sheet, row, 5, header["DocRefNo"].ToString());
-            row++;
-
-            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Vendor Plant");
+            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Doc Ref");            reportUtility.SetText(ref sheet, row, 5, header["DocRefNo"].ToString());            row++;            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Vendor Plant");
             //reportUtility.SetText(ref sheet, row, 2, header["VendorPlant"].ToString());
-            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Status");
-            reportUtility.SetText(ref sheet, row, 5, header["Status"].ToString());
-            row++;
+            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Status");            reportUtility.SetText(ref sheet, row, 5, header["Status"].ToString());            row++;
 
             colLast = companyCurrencyId == transcationCurrency ? 5 : 7;
             reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Narration");
@@ -809,19 +761,7 @@ namespace Library.Accounting.FixedAssets
 
             row++;  //10
 
-            if (companyCurrencyId == transcationCurrency)
-            {
-                reportUtility.SetHeaderText(ref sheet, row, 4, companyCurrencyCode, ExcelHAlign.HAlignCenter);
-                sheet[row, 4, row, 5].Merge();
-            }
-            else
-            {
-                reportUtility.SetHeaderText(ref sheet, row, 4, header["CurrencyCode"].ToString(), ExcelHAlign.HAlignCenter);
-                sheet[row, 4, row, 5].Merge();
-
-                reportUtility.SetHeaderText(ref sheet, row, 6, companyCurrencyCode, ExcelHAlign.HAlignCenter);
-                sheet[row, 6, row, 7].Merge();
-            }
+            if (companyCurrencyId == transcationCurrency)            {                reportUtility.SetHeaderText(ref sheet, row, 4, companyCurrencyCode, ExcelHAlign.HAlignCenter);                sheet[row, 4, row, 5].Merge();            }            else            {                reportUtility.SetHeaderText(ref sheet, row, 4, header["CurrencyCode"].ToString(), ExcelHAlign.HAlignCenter);                sheet[row, 4, row, 5].Merge();                reportUtility.SetHeaderText(ref sheet, row, 6, companyCurrencyCode, ExcelHAlign.HAlignCenter);                sheet[row, 6, row, 7].Merge();            }
             sheet[row, 6].ColumnWidth = 15;
             //sheet[row, 6].RowHeight = 15;
             sheet[row, 7].ColumnWidth = 15;
@@ -830,41 +770,26 @@ namespace Library.Accounting.FixedAssets
             row++;
 
 
-            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "GL"); colGl = xlsCol; xlsCol++;
-            sheet[reportUtility.GetColumnNameForXls(colGl) + row + ":" + reportUtility.GetColumnNameForXls(3) + row].Merge();
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "GL"); colGl = xlsCol; xlsCol++;            sheet[reportUtility.GetColumnNameForXls(colGl) + row + ":" + reportUtility.GetColumnNameForXls(3) + row].Merge();
 
             xlsCol++; xlsCol++;
 
 
-            if (companyCurrencyId != transcationCurrency)
-            {
-                reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Debit", 13, ExcelHAlign.HAlignRight); colinrDebit = xlsCol; xlsCol++;
-                reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Credit", 13, ExcelHAlign.HAlignRight); colinrCredit = xlsCol; xlsCol++;
-
-
-                reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Debit", 13, ExcelHAlign.HAlignRight); colusdDebit = xlsCol; xlsCol++;
-                reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Credit", 13, ExcelHAlign.HAlignRight); colusdCradit = xlsCol;
-                colLast = xlsCol;
+            if (companyCurrencyId != transcationCurrency)            {                reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Debit", 13, ExcelHAlign.HAlignRight); colinrDebit = xlsCol; xlsCol++;                reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Credit", 13, ExcelHAlign.HAlignRight); colinrCredit = xlsCol; xlsCol++;                reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Debit", 13, ExcelHAlign.HAlignRight); colusdDebit = xlsCol; xlsCol++;                reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Credit", 13, ExcelHAlign.HAlignRight); colusdCradit = xlsCol;                colLast = xlsCol;
 
                 //sheet.Range[row, 4, row, colLast].BorderAround(ExcelLineStyle.Thin);
                 //sheet.Range[row, 4, row, colLast].BorderInside(ExcelLineStyle.Thin);
 
-                sheet.Range[row, colGl, row, colLast].BorderAround(ExcelLineStyle.Hair);
-                sheet.Range[row, colGl, row, colLast].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[row, colGl, row, colLast].BorderAround(ExcelLineStyle.Hair);                sheet.Range[row, colGl, row, colLast].BorderInside(ExcelLineStyle.Hair);
                 //sheet.Range[row, colGl, row, colLast].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-            }
-            else
-            {
+            }            else            {
 
-                reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Debit", 14, ExcelHAlign.HAlignRight); colinrDebit = xlsCol; xlsCol++;
-                reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Credit", 14, ExcelHAlign.HAlignRight); colinrCredit = xlsCol;
-                colLast = xlsCol;
+                reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Debit", 14, ExcelHAlign.HAlignRight); colinrDebit = xlsCol; xlsCol++;                reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Credit", 14, ExcelHAlign.HAlignRight); colinrCredit = xlsCol;                colLast = xlsCol;
 
                 //sheet.Range[row, 4, row, colLast].BorderAround(ExcelLineStyle.Thin);
                 //sheet.Range[row, 4, row, colLast].BorderInside(ExcelLineStyle.Thin);
 
-                sheet.Range[row, colGl, row, colLast].BorderAround(ExcelLineStyle.Hair);
-                sheet.Range[row, colGl, row, colLast].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[row, colGl, row, colLast].BorderAround(ExcelLineStyle.Hair);                sheet.Range[row, colGl, row, colLast].BorderInside(ExcelLineStyle.Hair);
                 //sheet.Range[row, 4, row, colLast].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
             }
 
@@ -1024,8 +949,7 @@ namespace Library.Accounting.FixedAssets
                 reportUtility.PageSetup(ref sheet, 7, ExcelPageOrientation.Portrait);
             }
 
-            return workbook;
-        }
+            return workbook;        }
 
         #endregion Fixed assets dispose post report
 
@@ -1035,65 +959,7 @@ namespace Library.Accounting.FixedAssets
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                string sql = @"SELECT FARD.Id,FR.Id AS FixedAssetRegisterId, FR.MaterialMasterArticleId, FR.MaterialMasterId,FR.FixedAssetMasterId
-                                    , FR.SerialNo, FR.Id AssetNo, FR.InvoiceNo, MM.UserName MaterialMasterName
-                                    , FAM.UserName FixedAssetMasterName, FAC.UserName FixedAssetCategory
-                                    , FASC.UserName FixedAssetSubCategory, FAM.FixedAssetCategoryId
-                                    , FAM.FixedAssetSubCategoryId, FAM.AssetType
-                                    ,P.UserName Vendor
-                                    ,c.Code TrnCurrency
-	                                ,FAD.DocDate
-                                    , ISNULL(FR.Price,0) Price
-									,ISNULL(SAR.subAssetAmount,0) SubAssetAmount
-									, ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0) PurchasePrice
-									 ,ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0)-ISNULL(FR.ADBaseAmount,0) NetBookValue 
-								--	, 0 NegotiationValue
-
-								   , BC.Code BaseCurrency
-									,isnull(FR.FABaseAmount,0)FABaseAmount
-									,ISNULL(SAR.subAssetBaseAmount,0) SubAssetBaseAmount
-									,isnull(FR.FABaseAmount,0) + ISNULL(SAR.subAssetBaseAmount,0) PurchaseBaseAmount
-									,isnull( FR.ADBaseAmount,0)ADBaseAmount
-                                    , isnull(FR.FABaseAmount,0)+ISNULL(SAR.subAssetBaseAmount,0)-ISNULL(FR.ADBaseAmount,0) NetBaseBookValue 
-									,FARD.BaseNagotiationValue, FARD.NegotiationValue
-
-                                    , MMA.StandardName Article, FR.IsFinancial,IsOpeningBalance=case when FR.IsOpeningBalance=0 then 'No' Else 'Yes' End
-                                    , GL.AccountCode GLGeneralInfoCode,GL.UserName GLGeneralInfoName,GL.Id GLGeneralInfoId
-									, BM.Id BudgetMasterId,B.UserName BudgetName,BM.RefNo BudgetRefNo
-									, A.UserName ActivityName, FR.FAActivityId ActivityId
-                                   		,format( FR.CapitalizationDate,'dd-MMM-yyyy')CapitalizationDate
-									,format(IR.GRNDate,'dd-MMM-yyyy') PurchaseDate
-									,format( ii.IssueDate,'dd-MMM-yyyy')IssueDate
-		                            ,FAD.Remarks
-
-                                    FROM[TRN].[FixedAssetRegister] FR
-                                   LEFT JOIN MST.MaterialMaster MM ON FR.MaterialMasterId= MM.Id
-                                   LEFT JOIN MST.MaterialMasterArticle MMA ON FR.MaterialMasterArticleId= MMA.Id
-                                   LEFT JOIN MST.BudgetMaster BM ON FR.FABudgetMasterId = BM.Id
-                                   LEFT JOIN [MST].[FixedAssetMaster] FAM ON FR.FixedAssetMasterId= FAM.Id
-                                   LEFT JOIN HKP.FixedAssetCategory FAC ON FAM.FixedAssetCategoryId= FAC.Id
-                                   LEFT JOIN HKP.FixedAssetSubCategory FASC ON FAM.FixedAssetSubCategoryId= FASC.Id
-
-	                                LEFT JOIN TRN.FixedAssetRegisterDetail FRD ON FRD.CapitalizeRegisterNo=FR.CapitalizeRegisterNo
-									LEFT JOIN TRN.InventoryIssueHistory IIH ON IIH.Id=FRD.InventoryIssueHistoryId
-									LEFT JOIN TRN.VoucherDetail VD ON VD.Id=IIH.CapitalizeVoucherDetailId
-									LEFT JOIN TRN.InventoryIssueDetail IID ON IID.Id=IIH.InventoryIssueDetailId
-									left join trn.InventoryIssue II on ii.Id = iid.InventoryIssueId
-									LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
-									left join trn.InventoryReceive IR on IR.Id =  IRD.InventoryReceiveId
-									LEFT JOIN TRN.Voucher V ON V.Id=VD.VoucherId 
-                                    LEFT JOIN SCS.Currency C ON C.Id =FR.CurrencyId
-                                    LEFT JOIN SCS.Currency BC ON BC.Id =FR.FABaseCurrencyId
-
-	                                LEFT JOIN HKP.Party P ON P.Id = FR.VendorId
-								   LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=BM.GLGeneralInfoId
-								   LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
-								   LEFT JOIN HKP.Activity A ON A.Id=FR.FAActivityId
-								   LEFT JOIN ( SELECT FixedAssetRegisterId,ISNULL(Sum(Amount),0) subAssetAmount,ISNULL(Sum(BaseAmount),0) subAssetBaseAmount FROM TRN.SubFixedAssetRegister group by FixedAssetRegisterId) SAR ON SAR.FixedAssetRegisterId=FR.Id
-                                    LEFT JOIN TRN.FixedAssetRegisterDisposedDetail FARD ON FARD.FixedAssetRegisterId=FR.Id
-                                    LEFT JOIN TRN.FixedAssetRegisterDisposed FAD ON FAD.Id=FARD.FixedAssetRegisterDisposedId
-                                   WHERE FR.CompanyId= '" + identity.CompanyId + @"'  and FR.Archive= 0 and FR.IsAUC= 0 
-                                    AND FARD.FixedAssetRegisterDisposedId='" + fixedAssetRegisterDisposeId + @"'";
+                string sql = @"SELECT FARD.Id,FR.Id AS FixedAssetRegisterId, FR.MaterialMasterArticleId, FR.MaterialMasterId,FR.FixedAssetMasterId                                    , FR.SerialNo, FR.Id AssetNo, FR.InvoiceNo, MM.UserName MaterialMasterName                                    , FAM.UserName FixedAssetMasterName, FAC.UserName FixedAssetCategory                                    , FASC.UserName FixedAssetSubCategory, FAM.FixedAssetCategoryId                                    , FAM.FixedAssetSubCategoryId, FAM.AssetType                                    ,P.UserName Vendor                                    ,c.Code TrnCurrency	                                ,FAD.DocDate                                    , ISNULL(FR.Price,0) Price									,ISNULL(SAR.subAssetAmount,0) SubAssetAmount									, ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0) PurchasePrice									 ,ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0)-ISNULL(FR.ADBaseAmount,0) NetBookValue 								--	, 0 NegotiationValue								   , BC.Code BaseCurrency									,isnull(FR.FABaseAmount,0)FABaseAmount									,ISNULL(SAR.subAssetBaseAmount,0) SubAssetBaseAmount									,isnull(FR.FABaseAmount,0) + ISNULL(SAR.subAssetBaseAmount,0) PurchaseBaseAmount									,isnull( FR.ADBaseAmount,0)ADBaseAmount                                    , isnull(FR.FABaseAmount,0)+ISNULL(SAR.subAssetBaseAmount,0)-ISNULL(FR.ADBaseAmount,0) NetBaseBookValue 									,FARD.BaseNagotiationValue, FARD.NegotiationValue                                    , MMA.StandardName Article, FR.IsFinancial,IsOpeningBalance=case when FR.IsOpeningBalance=0 then 'No' Else 'Yes' End                                    , GL.AccountCode GLGeneralInfoCode,GL.UserName GLGeneralInfoName,GL.Id GLGeneralInfoId									, BM.Id BudgetMasterId,B.UserName BudgetName,BM.RefNo BudgetRefNo									, A.UserName ActivityName, FR.FAActivityId ActivityId                                   		,format( FR.CapitalizationDate,'dd-MMM-yyyy')CapitalizationDate									,format(IR.GRNDate,'dd-MMM-yyyy') PurchaseDate									,format( ii.IssueDate,'dd-MMM-yyyy')IssueDate		                            ,FAD.Remarks,									Customer.UserName CustomerName									,CU.Code Currency                                    FROM[TRN].[FixedAssetRegister] FR                                   LEFT JOIN MST.MaterialMaster MM ON FR.MaterialMasterId= MM.Id                                   LEFT JOIN MST.MaterialMasterArticle MMA ON FR.MaterialMasterArticleId= MMA.Id                                   LEFT JOIN MST.BudgetMaster BM ON FR.FABudgetMasterId = BM.Id                                   LEFT JOIN [MST].[FixedAssetMaster] FAM ON FR.FixedAssetMasterId= FAM.Id                                   LEFT JOIN HKP.FixedAssetCategory FAC ON FAM.FixedAssetCategoryId= FAC.Id                                   LEFT JOIN HKP.FixedAssetSubCategory FASC ON FAM.FixedAssetSubCategoryId= FASC.Id	                                LEFT JOIN TRN.FixedAssetRegisterDetail FRD ON FRD.CapitalizeRegisterNo=FR.CapitalizeRegisterNo									LEFT JOIN TRN.InventoryIssueHistory IIH ON IIH.Id=FRD.InventoryIssueHistoryId									LEFT JOIN TRN.VoucherDetail VD ON VD.Id=IIH.CapitalizeVoucherDetailId									LEFT JOIN TRN.InventoryIssueDetail IID ON IID.Id=IIH.InventoryIssueDetailId									left join trn.InventoryIssue II on ii.Id = iid.InventoryIssueId									LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId									left join trn.InventoryReceive IR on IR.Id =  IRD.InventoryReceiveId									LEFT JOIN TRN.Voucher V ON V.Id=VD.VoucherId                                     LEFT JOIN SCS.Currency C ON C.Id =FR.CurrencyId                                    LEFT JOIN SCS.Currency BC ON BC.Id =FR.FABaseCurrencyId	                                LEFT JOIN HKP.Party P ON P.Id = FR.VendorId								   LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=BM.GLGeneralInfoId								   LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId								   LEFT JOIN HKP.Activity A ON A.Id=FR.FAActivityId								   LEFT JOIN ( SELECT FixedAssetRegisterId,ISNULL(Sum(Amount),0) subAssetAmount,ISNULL(Sum(BaseAmount),0) subAssetBaseAmount FROM								   TRN.SubFixedAssetRegister 								   group by FixedAssetRegisterId) SAR ON SAR.FixedAssetRegisterId=FR.Id                                    LEFT JOIN TRN.FixedAssetRegisterDisposedDetail FARD ON FARD.FixedAssetRegisterId=FR.Id                                    LEFT JOIN TRN.FixedAssetRegisterDisposed FAD ON FAD.Id=FARD.FixedAssetRegisterDisposedId	                                LEFT JOIN HKP.Party Customer ON Customer.Id = FAD.PartyId                                    LEFT JOIN SCS.Currency CU ON CU.Id =FAD.CurrencyId                                                                  WHERE FR.CompanyId= '" + identity.CompanyId + @"'  and FR.Archive= 0 and FR.IsAUC= 0                                     AND FARD.FixedAssetRegisterDisposedId='" + fixedAssetRegisterDisposeId + @"'";
                 return _sqlRepository.GetDataTable(sql);
             }
             catch (Exception ex)
