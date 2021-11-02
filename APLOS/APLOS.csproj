@@ -378,6 +378,7 @@
       <DependentUpon>AccountsDataSet.xsd</DependentUpon>
     </Compile>
     <Compile Include="Areas\Attendances\Controllers\AdditionalPayDayController.cs" />
+    <Compile Include="Areas\Attendances\Controllers\AttendanceRawDataDeleteNewController.cs" />
     <Compile Include="Areas\Attendances\Controllers\EmployeeLastPunchReportController.cs" />
     <Compile Include="Areas\Attendances\Controllers\BalanceOTReportController.cs" />
     <Compile Include="Areas\Attendances\Controllers\EntireYearPresentDaysSummaryController.cs" />
@@ -661,6 +662,7 @@
     <Compile Include="Areas\IssueTracker\Controllers\IssueUpdateAuditController.cs" />
     <Compile Include="Areas\IssueTracker\Controllers\SecretarialDocumentSubCategoryController.cs" />
     <Compile Include="Areas\IssueTracker\IssueTrackerAreaRegistration.cs" />
+    <Compile Include="Areas\JobWork\Controllers\OSIssueRegisterController.cs" />
     <Compile Include="Areas\JobWork\Controllers\JobWorkActivityController.cs" />
     <Compile Include="Areas\JobWork\Controllers\JobWorkIssueReturnConfirmationController.cs" />
     <Compile Include="Areas\JobWork\Controllers\OSIssueReturnController.cs" />
@@ -1623,6 +1625,7 @@
     <Content Include="Areas\Accounts\Scripts\vendorTranTypeController.js" />
     <Content Include="Areas\Accounts\Scripts\taxPayableReportController.js" />
     <Content Include="Areas\Accounts\Scripts\invoiceChargeWriteOffController.js" />
+    <Content Include="Areas\Attendances\Scripts\AttendanceRawDataDeleteNewController.js" />
     <Content Include="Areas\Attendances\Scripts\EmployeeLastPunchReportController.js" />
     <Content Include="Areas\Attendances\Scripts\BalanceOTReportController.js" />
     <Content Include="Areas\Attendances\Scripts\EntireYearPresentDaysSummaryController.js" />
@@ -1923,6 +1926,7 @@
     <Content Include="Areas\IssueTracker\Scripts\SecretarialDocumentCategoryController.js" />
     <Content Include="Areas\IssueTracker\Scripts\issueReportController.js" />
     <Content Include="Areas\IssueTracker\Scripts\SecretarialDocumentSubCategoryController.js" />
+    <Content Include="Areas\JobWork\Scripts\OSissueRegisterController.js" />
     <Content Include="Areas\JobWork\Scripts\jobWorkActivityController.js" />
     <Content Include="Areas\JobWork\Scripts\JobWorkIssueReturnConfirmationController.js" />
     <Content Include="Areas\JobWork\Scripts\OSIssueReturnController.js" />
@@ -3807,6 +3811,9 @@
     <Content Include="Areas\Employees\Views\ODDeleteNew\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\FinalDeductionReport\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\PayrollReports\SalaryIntegrationWithThirdParty.cshtml" />
+    <Content Include="Areas\Attendances\Views\AttendanceRawDataDeleteNew\Aplos.cshtml" />
+    <Content Include="Areas\JobWork\Views\OSIssueRegister\Aplos.cshtml" />
+    <Content Include="Areas\JobWork\Views\OSIssueRegister\IssueReturnRegister.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

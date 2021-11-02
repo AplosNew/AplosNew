@@ -30,1465 +30,1465 @@ using Library.MaterialManagement.JobWork;
 
 namespace Aplos.Areas.Products.Controllers
 {
-	public class GoodsReceiveNoteController : BaseController
-	{
-		#region Constructor
-
-
-
-		private readonly IInventoryReceiveService _inventoryReveiveService;
-		private readonly IInventoryIssueService _inventoryIssueService;
-		private readonly IInventoryReceiveDetailService _inventoryDetailService;
-		private readonly IGRNPORequisitionAllocationService _gRNPORequisitionAllocationService;
-		private readonly IInventoryMaterialService _inventoryMaterialService;
-		private readonly IInventoryServiceService _inventoryService;
-		private readonly IInventoryReceiveReportService _inventoryReportService;
-		private readonly IIssueRequestService _issueRequestService;
-		private readonly IIssueRequestMasterService _issueRequestMasterService;
-		private readonly ISqlRepository _sqlRepository;
-		private readonly IRepositoryAsync<InventoryReceiveDetail> _receiveDetailRepository;
-		private readonly IRepositoryAsync<PurchaseReturnDetail> _PurchaseReturnDetailRepository;
-
-		public GoodsReceiveNoteController(IInventoryReceiveService inventoryReveiveService
-			, IInventoryReceiveDetailService inventoryDetailService
-			, IInventoryMaterialService inventoryMaterialService
-			, IInventoryReceiveReportService inventoryReportService
-			, IInventoryServiceService inventoryService
-			, IGRNPORequisitionAllocationService gRNPORequisitionAllocationService
-			, IIssueRequestService issueRequestService
-			, IIssueRequestMasterService issueRequestMasterService
-			, IInventoryIssueService inventoryIssueService
-			, ISqlRepository sqlRepository
-			, IRepositoryAsync<InventoryReceiveDetail> receiveDetailRepository
-			, IRepositoryAsync<PurchaseReturnDetail> PurchaseReturnDetailRepository
-			)
-
-		{
-			_inventoryReveiveService = inventoryReveiveService;
-			_inventoryDetailService = inventoryDetailService;
-			_inventoryMaterialService = inventoryMaterialService;
-			_inventoryService = inventoryService;
-			_inventoryReportService = inventoryReportService;
-			_gRNPORequisitionAllocationService = gRNPORequisitionAllocationService;
-			_issueRequestService = issueRequestService;
-			_issueRequestMasterService = issueRequestMasterService;
-			_inventoryIssueService = inventoryIssueService;
-			_sqlRepository = sqlRepository;
-			_receiveDetailRepository = _receiveDetailRepository;
-			_PurchaseReturnDetailRepository = PurchaseReturnDetailRepository;
-
-		}
-
-		#endregion Constructor
-
-		#region Aplos
-
-		public ActionResult Aplos()
-		{
-			return View();
-		}
-
-		public ActionResult IssueSlipIssue()
-		{
-			return View();
-		}
-
-		[Authorize]
-		public ActionResult GRNApproved()
-		{
-			return View();
-		}
-
-		[Authorize]
-		public ActionResult PaymentHold()
-		{
-			return View();
-		}
-
-		[Authorize]
-		public ActionResult GRNApproval()
-		{
-			return View();
-		}
-
-		[Authorize]
-		public ActionResult GRNCheck()
-		{
-			return View();
-		}
-
-		//RequisitionWise Issue Slip
-		[Authorize]
-		public ActionResult IssueSlip()
-		{
-			return View();
-		}
-
-		//RequisitionWise Issue Slip
-		[Authorize]
-		public ActionResult MaterialWiseIssueSlip()
-		{
-			return View();
-		}
-
-		[Authorize]
-		public ActionResult IssueUI()
-		{
-			return View();
-		}
-
-
-		[Authorize]
-		public ActionResult IssueSlipCheck()
-		{
-			return View();
-		}
-
-		[Authorize]
-
-		public ActionResult ApprovingIssueSlip()
-		{
-			return View();
-		}
-
-		public ActionResult GRNByPO()
-		{
-			return View();
-		}
-
-		[Authorize]
-
-		public ActionResult MaterialIssueSlip()
-		{
-			return View();
-		}
-
-		[Authorize]
-		public ActionResult AssetIssueSlip()
-		{
-			return View();
-		}
-
-
-		public ActionResult PurchaseReturn()
-		{
-			return View();
-		}
-
-		[Authorize]
-		public ActionResult PurchaseReturnChecked()
-		{
-			return View();
-		}
-
-		[Authorize]
-		public ActionResult PurchaseReturnApprove()
-		{
-			return View();
-		}
-		[Authorize]
-		public ActionResult GRNUncheckedAndUnApproved()
-		{
-			return View();
-		}
-
-		[Authorize]
-		public ActionResult GRNRequitionSOAllocation() 
-		{
-			return View();
-		}
-		
-		#endregion Aplos
-
-		#region GRN-By-PO
-		[HttpPost]
-		public JsonResult CreateGRNBYPO(InventoryReceive entity, string entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string AcceptanceId, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
-		{
-			if (string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
-			{
-				CheckedByStatusForNoti = "False";
-				ApprovedByStatusForNoti = "False";
-			}
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			entity.CompanyGroupId = identity.CompanyGroupId;
-			entity.CompanyId = identity.CompanyId;
-			entity.PlantId = identity.PlantId;
-			var settings = new JsonSerializerSettings
-			{
-				NullValueHandling = NullValueHandling.Ignore,
-				MissingMemberHandling = MissingMemberHandling.Ignore
-			};
-
-			//IEnumerable<InventoryMaterialViewModel>
-			List<InventoryMaterialViewModel> entityMatAndImat1 = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(entityMatAndImat, settings);
-			if (identity.EmployeeId == entity.CheckedBy)
-			{
-				throw new CustomException("Please select another employee for Check by.");
-			}
-			else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "True")
-			{
-
-				entity.AuthorizedBy = entity.CheckedBy;
-				entity.AuthorizedByStatus = "For Approval";
-				entity.CheckedBy = null;
-				entity.CheckedByStatus = null;
-				entity.IsApproved = false;
-				entity.RequiredPosting = true;
-			}
-			else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
-			{
-				entity.CheckedByStatus = null;
-				entity.AuthorizedByStatus = null;
-				entity.CheckedBy = null;
-				entity.AuthorizedBy = null;
-				entity.IsApproved = true;
-				entity.RequiredPosting = true;
-			}
-			else
-			{
-				entity.CheckedBy = entity.CheckedBy;
-				entity.CheckedByStatus = "ForChecked";
-				entity.AuthorizedBy = null;
-				entity.AuthorizedByStatus = null;
-				entity.IsApproved = false;
-				entity.RequiredPosting = true;
-			}
-			if (entityMatAndImat1 != null)
-			{
-				foreach (var item in entityMatAndImat1)
-				{
-
-					if (!item.check)
-					{
-						throw new CustomException("Please Select Materials !");
-
-					}
-					else if (item.TransactionQty.ToString() == "0")
-					{
-						throw new CustomException("Please Input The Current Qty !");
-					}
-
-				}
-			}
-			else
-			{
-				throw new CustomException("Please Select atlest one Materials !");
-			}
-			if (chargesListPO != null)
-			{
-				foreach (var item in chargesListPO)
-				{
-					if (!item.check)
-					{
-						throw new CustomException("Please Select Materials !");
-					}
-					else if (item.Amount.ToString() == "0")
-					{
-						throw new CustomException("Please Input  Amount !");
-					}
-
-				}
-			}
-			bool _returnRes = GetDocRef(entity.DocRefNo, entity.PartyId, entity.DocDate.ToString(), entity.Id);
-			if (_returnRes == true)
-			{
-				throw new CustomException("Vendor / Docref / Docdate cannot duplicate!");
-			}
-
-			DetailCreate(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType);
-			ServiceChargesCreateNew(chargesListPO, POServiceTaxList, entity.Id, AcceptanceId);
-			return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
-		}
-
-		[HttpPost]
-		public JsonResult UpdateGRNBYPO(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
-		{
-			if (string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
-			{
-				CheckedByStatusForNoti = "False";
-				ApprovedByStatusForNoti = "False";
-			}
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			entity.CompanyGroupId = identity.CompanyGroupId;
-			entity.CompanyId = identity.CompanyId;
-			entity.PlantId = identity.PlantId;
-
-			if (identity.EmployeeId == entity.CheckedBy)
-			{
-				throw new CustomException("Please select another employee for Check by.");
-			}
-			else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "True")
-			{
-
-				entity.AuthorizedBy = entity.CheckedBy;
-				entity.AuthorizedByStatus = "For Approval";
-				entity.CheckedBy = null;
-				entity.CheckedByStatus = null;
-				entity.IsApproved = false;
-				entity.RequiredPosting = true;
-			}
-			else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
-			{
-				entity.CheckedByStatus = null;
-				entity.AuthorizedByStatus = null;
-				entity.CheckedBy = null;
-				entity.AuthorizedBy = null;
-				entity.IsApproved = true;
-				entity.RequiredPosting = true;
-			}
-			else
-			{
-				entity.CheckedBy = entity.CheckedBy;
-				entity.CheckedByStatus = "ForChecked";
-				entity.AuthorizedBy = null;
-				entity.AuthorizedByStatus = null;
-				entity.IsApproved = false;
-				entity.RequiredPosting = true;
-			}
-			if (entityMatAndImat != null)
-			{
-				foreach (var item in entityMatAndImat)
-				{
-
-					if (!item.check)
-						throw new CustomException("Please Select Materials !");
-
-				}
-			}
-			else
-			{
-				throw new CustomException("Please Select atlest one Materials !");
-			}
-			if (chargesListPO != null)
-			{
-				foreach (var item in chargesListPO)
-				{
-					if (!item.check)
-						throw new CustomException("Please Select Materials !");
-
-				}
-			}
-			DetailEdits(entity, entityMatAndImat, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType);
-			ServiceChargesCreateNewEdit(chargesListPO, POServiceTaxList, entity.Id);
-
-			return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
-		}
-
-		[HttpPost]
-		public ActionResult DeleteGRNBYPO(string id)
-		{
-			if (!string.IsNullOrEmpty(id))
-			{
-				_inventoryReveiveService.Delete(id);
-				return Json(new { Message = AplosMessage.Success });
-			}
-			else
-				throw new CustomException(Resources.IdNotFound);
-		}
-
-		#endregion GRN-By-PO
-
-		#region purchase-return
-		[HttpPost]
-		public JsonResult CreatePurchaseReturn(PurchaseReturn entity, IEnumerable<InventoryMaterialViewModel> entityMatAndImat, IEnumerable<PurchaseReturnTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesList, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string AcceptanceId, string CheckedByStatusForNoti, string ApprovedByStatusForNoti, IEnumerable<PurchaseReturnTax> ServicetaxCategoryList)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			entity.CompanyGroupId = identity.CompanyGroupId;
-			entity.PlantId = identity.PlantId;
-
-			if (identity.EmployeeId == entity.CheckedBy)
-			{
-				throw new CustomException("Please select another employee for Check by.");
-			}
-			else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "True")
-			{
-				entity.ApprovedBy = entity.CheckedBy;
-				entity.ApprovedByStatus = "For Approval";
-				entity.CheckedBy = null;
-				entity.CheckedByStatus = null;
-				entity.IsApproved = false;
-			}
-			else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
-			{
-				entity.CheckedByStatus = null;
-				entity.ApprovedByStatus = null;
-				entity.CheckedBy = null;
-				entity.ApprovedBy = null;
-				entity.IsApproved = true;
-			}
-			else
-			{
-				entity.CheckedBy = entity.CheckedBy;
-				entity.CheckedByStatus = "For Checking";
-				entity.ApprovedBy = null;
-				entity.ApprovedByStatus = null;
-				entity.IsApproved = false;
-
-			}
-			//entity.IsApproved = false;
-			if (entityMatAndImat != null)
-			{
-				foreach (var item in entityMatAndImat)
-				{
-
-					if (!item.check)
-					{
-						throw new CustomException("Please Select Materials !");
-
-					}
-					else if (string.IsNullOrEmpty(item.TransactionQty.ToString()) || item.TransactionQty.ToString() == "0")
-					{
-						throw new CustomException("Please Input The Current Qty !");
-					}
-
-				}
-			}
-			else
-			{
-				throw new CustomException("Please Select atlest one Materials !");
-			}
-			if (chargesList != null)
-			{
-				foreach (var item in chargesList)
-				{
-					if (!item.check)
-					{
-						throw new CustomException("Please Select Materials !");
-					}
-					else if (item.Amount.ToString() == "0")
-					{
-						throw new CustomException("Please Input  Amount !");
-					}
-
-				}
-			}
-			_inventoryDetailService.InsertOrUpdateGraphForPurchaseReturn(entity, entityMatAndImat, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType, chargesList, ServicetaxCategoryList);
-
-			return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
-		}
-
-		[HttpPost]
-		public ActionResult DeletePurchaseReturnfinal(string id)
-		{
-			if (!string.IsNullOrEmpty(id))
-			{
-				_inventoryReveiveService.DeletePurchaseReturnfinal(id);
-				return Json(new { Message = AplosMessage.Success });
-			}
-			else
-				throw new CustomException(Resources.IdNotFound);
-		}
-
-		#endregion purchase-return
-
-		#region GRN Through Requisition
-		[HttpPost]
-		public JsonResult Create(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string AcceptanceId, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
-		{
-			if (string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
-			{
-				CheckedByStatusForNoti = "False";
-				ApprovedByStatusForNoti = "False";
-			}
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			entity.CompanyGroupId = identity.CompanyGroupId;
-			entity.CompanyId = identity.CompanyId;
-			entity.PlantId = identity.PlantId;
-			if (identity.EmployeeId == entity.CheckedBy)
-			{
-				throw new CustomException("Please select another employee for Check by.");
-			}
-			else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "True")
-			{
-
-				entity.AuthorizedBy = entity.CheckedBy;
-				entity.AuthorizedByStatus = "For Approval";
-				entity.CheckedBy = null;
-				entity.CheckedByStatus = null;
-				entity.IsApproved = false;
-				entity.RequiredPosting = true;
-			}
-			else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
-			{
-				entity.CheckedByStatus = null;
-				entity.AuthorizedByStatus = null;
-				entity.CheckedBy = null;
-				entity.AuthorizedBy = null;
-				entity.IsApproved = true;
-				entity.RequiredPosting = true;
-			}
-			else
-			{
-				entity.CheckedBy = entity.CheckedBy;
-				entity.CheckedByStatus = "ForChecked";
-				entity.AuthorizedBy = null;
-				entity.AuthorizedByStatus = null;
-				entity.IsApproved = false;
-				entity.RequiredPosting = true;
-
-			}
-			//entity.EmployeeId = identity.EmployeeId;
-			if (entityMatAndImat != null)
-			{
-				foreach (var item in entityMatAndImat)
-				{
-
-					if (!item.check)
-					{
-						throw new CustomException("Please Select Materials !");
-
-					}
-					else if (item.TransactionQty.ToString() == "0")
-					{
-						throw new CustomException("Please Input The Current Qty !");
-					}
-
-				}
-			}
-			else
-			{
-				throw new CustomException("Please Select atlest one Materials !");
-			}
-			if (chargesListPO != null)
-			{
-				foreach (var item in chargesListPO)
-				{
-					if (!item.check)
-					{
-						throw new CustomException("Please Select Materials !");
-					}
-					else if (item.Amount.ToString() == "0")
-					{
-						throw new CustomException("Please Input  Amount !");
-					}
-
-				}
-			}
-			DetailCreate(entity, entityMatAndImat, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType);
-			ServiceChargesCreateNew(chargesListPO, POServiceTaxList, entity.Id, AcceptanceId);
-			return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
-		}
-
-		[HttpPost]
-		public JsonResult UpdareGRN(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
-		{
-			if (string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
-			{
-				CheckedByStatusForNoti = "False";
-				ApprovedByStatusForNoti = "False";
-			}
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			entity.CompanyGroupId = identity.CompanyGroupId;
-			entity.CompanyId = identity.CompanyId;
-			entity.PlantId = identity.PlantId;
-			if (identity.EmployeeId == entity.CheckedBy)
-			{
-				throw new CustomException("Please select another employee for Check by.");
-			}
-			else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "True")
-			{
-
-				entity.AuthorizedBy = entity.CheckedBy;
-				entity.AuthorizedByStatus = "For Approval";
-				entity.CheckedBy = null;
-				entity.CheckedByStatus = null;
-			}
-			else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
-			{
-				entity.CheckedByStatus = null;
-				entity.AuthorizedByStatus = null;
-				entity.CheckedBy = null;
-				entity.AuthorizedBy = null;
-			}
-			else
-			{
-				entity.CheckedBy = entity.CheckedBy;
-				entity.CheckedByStatus = "ForChecked";
-				entity.AuthorizedBy = null;
-				entity.AuthorizedByStatus = null;
-
-			}
-			entity.IsApproved = false;
-
-			if (entityMatAndImat != null)
-			{
-				foreach (var item in entityMatAndImat)
-				{
-
-					if (!item.check)
-						throw new CustomException("Please Select Materials !");
-
-				}
-			}
-			else
-			{
-				throw new CustomException("Please Select atlest one Materials !");
-			}
-			if (chargesListPO != null)
-			{
-				foreach (var item in chargesListPO)
-				{
-					if (!item.check)
-						throw new CustomException("Please Select Materials !");
-
-				}
-			}
-			DetailEdits(entity, entityMatAndImat, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType);
-			ServiceChargesCreateNewEdit(chargesListPO, POServiceTaxList, entity.Id);
-			return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
-		}
-
-		[HttpPost]
-		public ActionResult Delete(string id)
-		{
-			if (!string.IsNullOrEmpty(id))
-			{
-				_inventoryReveiveService.Delete(id);
-				return Json(new { Message = AplosMessage.Success });
-			}
-			else
-				throw new CustomException(Resources.IdNotFound);
-		}
-
-		#endregion GRN Through Requisition
-
-		#region -- Operations
-		[Authorize, HttpGet]
-		public JsonResult GetListForGRNSaveData(string GRNWithReqPOCheckStatus)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.QueryGetListForGRNSaveData(identity.PlantId, GRNWithReqPOCheckStatus), JsonRequestBehavior.AllowGet);
-		}
-		[Authorize, HttpGet]
-		public JsonResult GetListOfPO(string PoType, string Status)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetListForHold(identity.PlantId, PoType, Status), JsonRequestBehavior.AllowGet);
-		}
-
-		[Authorize, HttpGet]
-		public JsonResult LoadAcceptanceDetails(string AcceptanceId)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.LoadAcceptanceDetails(AcceptanceId), JsonRequestBehavior.AllowGet);
-		}
-
-
-		[Authorize, HttpGet]
-		public JsonResult GetSavedPOList(string GRNId)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetSavedPOList(GRNId), JsonRequestBehavior.AllowGet);
-		}
-		[Authorize, HttpGet]
-		public JsonResult GetSavedPOList1(string GRNId)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetSavedPOList1(GRNId), JsonRequestBehavior.AllowGet);
-		}
-
-		[Authorize, HttpGet]
-		public JsonResult GetListForREqPOGRN(string PoType, string Status)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetListForREqPOGRN(identity.PlantId, PoType, Status), JsonRequestBehavior.AllowGet);
-		}
-
-		[Authorize, HttpGet]
-		public JsonResult GetListOfPOGateEntry(string partyCode)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetListOfPOGateEntry(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, partyCode), JsonRequestBehavior.AllowGet);
-		}
-		[Authorize, HttpGet]
-		public JsonResult GetList(GridParameter parameters)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.Query(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
-		}
-		[Authorize, HttpGet]
-		public JsonResult GetListForGRNBYPO(string GRNbyPOCheckStatus)
-		{
-			//var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			//return Json(_inventoryReveiveService.QueryGetListForMasterData(identity.PlantId, GRNbyPOCheckStatus), JsonRequestBehavior.AllowGet);
-			try
-			{
-				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-				return Json(obj.QueryGetListForMasterData(identity.PlantId, GRNbyPOCheckStatus), JsonRequestBehavior.AllowGet);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
-
-		[Authorize, HttpGet]
-		public JsonResult GetListForMasterData2(string GRNbyPOApprovedStatus)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			//return Json(_inventoryReveiveService.QueryGetListForMasterData2(identity.PlantId, GRNbyPOApprovedStatus), JsonRequestBehavior.AllowGet);
-			var jsondata = Json(_inventoryReveiveService.QueryGetListForMasterData2(identity.PlantId, GRNbyPOApprovedStatus), JsonRequestBehavior.AllowGet);
-			jsondata.MaxJsonLength = int.MaxValue;
-			return jsondata;
-		}
-
-		[Authorize, HttpGet]
-		public JsonResult GetListForGrnByPoReq(string GRNWithReqPOApprovedStatus)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetListForGrnByPoReq(identity.PlantId, GRNWithReqPOApprovedStatus), JsonRequestBehavior.AllowGet);
-		}
-
-		[Authorize, HttpGet]
-		public JsonResult GetListByGrnno(GridParameter parameters, int GRN)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetListByGrnno(parameters, identity.PlantId, GRN), JsonRequestBehavior.AllowGet);
-		}
-
-		[Authorize, HttpGet]
-		public JsonResult GetPostingList(GridParameter parameters)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetPostingList(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
-		}
-
-		/// <summary>
-		/// using inventory payable
-		/// </summary>
-		/// <param name="parameters"></param>
-		/// <returns></returns>
-		[Authorize, HttpGet]
-		public JsonResult GetListForInvPayable(GridParameter parameters)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetListForInvPayable(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
-		}
-
-		[Authorize, HttpPost]
-		public JsonResult InsertGRN(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMaterial)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			entity.CompanyGroupId = identity.CompanyGroupId;
-			entity.CompanyId = identity.CompanyId;
-			entity.PlantId = identity.PlantId;
-			entity.FixedAssetOrInventory = "Inventory";
-			if (entityMaterial != null)
-			{
-			}
-			_inventoryReveiveService.Insert(entity, entityMaterial);
-			return Json(new { Message = AplosMessage.Insert });
-		}
-		[Authorize, HttpPost]
-		public JsonResult Edit(InventoryReceive entity)
-		{
-			_inventoryReveiveService.Update(entity);
-			return Json(new { Message = AplosMessage.Updated });
-		}
-		#endregion -- Operations
-
-		#region Inventory Detail
-		[Authorize, HttpGet]
-		public JsonResult GetToCurrencyRate(string currencyId, string baseCurrencyId, string docDate)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetToCurrencyRate(currencyId, baseCurrencyId, Convert.ToDateTime(docDate), identity.CompanyId), JsonRequestBehavior.AllowGet);
-		}
-		[Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Create))]
-		public JsonResult DetailCreate(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			_inventoryDetailService.InsertOrUpdateGraphNew(entity, entityMat, taxCategoryList, id, MaterialStorageId, GRNType);
-			return Json(new { Message = AplosMessage.Success });
-		}
-		[Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Create))]
-		public JsonResult GrnRequisitionAllocationSave(IEnumerable<InventoryMaterialViewModel> entity)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			_gRNPORequisitionAllocationService.InsertOrUpdateGraphNewGRNAllocation(entity);
-			return Json(new { Message = AplosMessage.Success });
-		}
-		[Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Create))]
-		public JsonResult DetailEdits(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMatAndImat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			_inventoryDetailService.InsertOrUpdateGraphNewEdits(entity, entityMatAndImat, taxCategoryList, id, MaterialStorageId, GRNType);
-			return Json(new { Message = AplosMessage.Success });
-		}
-		[Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Edit))]
-		public JsonResult DetailEdit(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			_inventoryDetailService.InsertOrUpdateGraphNewEdits(entity, entityMat, taxCategoryList, id, MaterialStorageId, GRNType);
-			return Json(new { Message = AplosMessage.Success });
-		}
-
-		[Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Delete))]
-		public JsonResult DetailDelete(string receiveDetailId)
-		{
-			_inventoryDetailService.Delete(receiveDetailId);
-			return Json(new { Message = AplosMessage.Deleted });
-		}
-		#endregion Inventory Detail
-
-		#region Inventory Receive Tax
-
-		[Authorize, HttpGet]
-		public JsonResult GetTaxCategoryList(string receiveId, string hsnCodeId, string GRNDate)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetTaxCategoryList(identity.CompanyGroupId, receiveId, identity.PlantId, hsnCodeId, GRNDate), JsonRequestBehavior.AllowGet);
-		}
-
-		[Authorize, HttpGet]
-		public JsonResult GetReceiveTaxList(string receiveDetailId)
-		{
-			return Json(_inventoryReveiveService.GetReceiveTaxList(receiveDetailId), JsonRequestBehavior.AllowGet);
-		}
-		[Authorize, HttpGet]
-		public JsonResult GetReceiveTaxListPO(string receiveDetailId)
-		{
-			return Json(_inventoryReveiveService.GetReceiveTaxListPO(receiveDetailId), JsonRequestBehavior.AllowGet);
-		}
-		[Authorize, HttpGet]
-		public JsonResult GetTotalReceiveTaxList(string receiveId)
-		{
-			return Json(_inventoryReveiveService.GetTotalReceiveTaxList(receiveId), JsonRequestBehavior.AllowGet);
-		}
-
-		[Authorize, HttpGet]
-		public JsonResult GetServiceTaxList(string serviceId)
-		{
-			return Json(_inventoryReveiveService.GetServiceTaxList(serviceId), JsonRequestBehavior.AllowGet);
-		}
-
-		[Authorize, HttpGet]
-		public JsonResult GetServiceTaxListPR(string serviceId)
-		{
-			return Json(_inventoryReveiveService.GetServiceTaxListPR(serviceId), JsonRequestBehavior.AllowGet);
-		}
-		[Authorize, HttpGet]
-		public JsonResult GetServiceTaxListPO(string serviceId)
-		{
-			return Json(_inventoryReveiveService.GetServiceTaxListPO(serviceId), JsonRequestBehavior.AllowGet);
-		}
-
-		[Authorize, HttpGet]
-		public JsonResult GetTaxCategoryListByPartyPlant(string partyPlantId, string hsnCodeId)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetTaxCategoryListByPartyPlant(identity.CompanyGroupId, partyPlantId, identity.PlantId, hsnCodeId), JsonRequestBehavior.AllowGet);
-		}
-		#endregion Inventory Receive Tax
-
-		#region Inventory Material
-
-		[Authorize, HttpGet]
-		public JsonResult GetInventoryMaterialList(GridParameter parameters, string inveReveiveId, string POID, string AcceptanceId)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryMaterialService.Query(parameters, inveReveiveId, POID, AcceptanceId), JsonRequestBehavior.AllowGet);
-		}
-
-		[Authorize, HttpGet]
-		public JsonResult GRNDetailsData(string inveReveiveId, string POID)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			var jsondata = Json(_inventoryMaterialService.GRNDetailsData(inveReveiveId, POID), JsonRequestBehavior.AllowGet);
-			jsondata.MaxJsonLength = int.MaxValue;
-			return jsondata;
-
-		}
-
-		[Authorize, HttpGet]
-		public JsonResult GetInventoryMaterialPayableList(GridParameter parameters, string inveReveiveId)
-		{
-			AccountsInventoryPayableService accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
-			return Json(accountsInventoryPayableService.GetPayableMaterial(parameters, inveReveiveId), JsonRequestBehavior.AllowGet);
-		}
-
-		[Authorize, HttpGet]
-		public JsonResult GetInventoryShortageMaterialPayableList(GridParameter parameters, string inveReveiveId)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryMaterialService.GetPayableShortageMaterial(parameters, inveReveiveId), JsonRequestBehavior.AllowGet);
-		}
-
-		[Authorize, HttpGet]
-		public JsonResult GetInventoryRejectMaterialPayableList(GridParameter parameters, string inveReveiveId)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryMaterialService.GetPayableRejectMaterial(parameters, inveReveiveId), JsonRequestBehavior.AllowGet);
-		}
-		//shakawats
-		[Authorize, HttpGet]
-		public JsonResult GetInventoryMaterialListByPO(GridParameter parameters, string inveReveiveId)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryMaterialService.Query1(parameters, inveReveiveId), JsonRequestBehavior.AllowGet);
-		}
-		[Authorize, HttpGet]
-		public JsonResult GetInventoryMaterialListByOnlyPO(GridParameter parameters, string inveReveiveId, string AcceptanceId)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryMaterialService.QueryOnlyPO(parameters, inveReveiveId, AcceptanceId), JsonRequestBehavior.AllowGet);
-		}
-		[Authorize, HttpGet]
-		public JsonResult GetInventoryMaterialPayable(string inveReveiveId, string employeeId, bool isReversCharge)
-		{
-			AccountsInventoryPayableService accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			if (!string.IsNullOrEmpty(employeeId) && employeeId != "null")
-				return Json(accountsInventoryPayableService.GetInventoryMaterialForImprestPayable(identity.CompanyId, identity.PlantId, inveReveiveId), JsonRequestBehavior.AllowGet);
-			else
-			{
-				if (isReversCharge)
-					return Json(accountsInventoryPayableService.GetInventoryMaterialReversChargePayable(identity.CompanyId, identity.PlantId, inveReveiveId), JsonRequestBehavior.AllowGet);
-				else
-					return Json(accountsInventoryPayableService.GetInventoryMaterialWithoutReversChargePayable(identity.CompanyId, identity.PlantId, inveReveiveId), JsonRequestBehavior.AllowGet);
-			}
-		}
-
-		#endregion Inventory Material
-
-		[Authorize, HttpGet]
-		public JsonResult GetInventoryMaterialListForPOUpdate(string inveReveiveId, string InventoryReceiveId, string MaterialMasterId, string InventoryReceiveDetailId)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryMaterialService.GetInventoryMaterialListForPOUpdate(inveReveiveId, InventoryReceiveId, MaterialMasterId, InventoryReceiveDetailId), JsonRequestBehavior.AllowGet);
-		}
-
-		#region Service Charges
-
-		[Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Create))]
-		public JsonResult ServiceChargesCreate(InventoryMaterialViewModel entity, IEnumerable<InventoryReceiveTax> taxCategoryList)
-		{
-			_inventoryService.InsertGraph(entity, taxCategoryList);
-			return Json(new { entity.Id, Message = AplosMessage.Success });
-		}
-		[Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Create))]
-		public JsonResult ServiceChargesCreateNew(IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string Id, string AcceptanceId)
-		{
-			_inventoryService.InsertGraphNew(chargesListPO, POServiceTaxList, Id, AcceptanceId);
-			return Json(new { Message = AplosMessage.Success });
-		}
-		[Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Create))]
-		public JsonResult ServiceChargesCreateNewEdit(IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string Id)
-		{
-			_inventoryService.InsertGraphNewEdit(chargesListPO, POServiceTaxList, Id);
-			return Json(new { Message = AplosMessage.Success });
-		}
-		[Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Delete))]
-		public JsonResult ServiceChargesDelete(string serviceId)
-		{
-			_inventoryService.Delete(serviceId);
-			return Json(new { Message = AplosMessage.Deleted });
-		}
-
-		[Authorize, HttpGet]
-		public JsonResult GetServiceChargeList(string receiveId)
-		{
-			return Json(_inventoryService.Query(receiveId), JsonRequestBehavior.AllowGet);
-		}
-		[Authorize, HttpGet]
-		public JsonResult GetPurchaseReturnServiceChargeList(string receiveId)
-		{
-			return Json(_inventoryService.QueryPurchaseReturnCharges(receiveId), JsonRequestBehavior.AllowGet);
-		}
-
-		[Authorize, HttpGet]
-		public JsonResult GetServiceChargeListPO(string receiveId, string AcceptanceId)
-		{
-			return Json(_inventoryService.Query1(receiveId, AcceptanceId), JsonRequestBehavior.AllowGet);
-		}
-		[Authorize, HttpGet]
-		public JsonResult getTCSData(string receiveId)
-		{
-			return Json(_inventoryService.getTCSData(receiveId), JsonRequestBehavior.AllowGet);
-		}
-		#endregion Service Charges
-
-		[HttpGet, Authorize]
-		public ActionResult Report(ReportFormat reportFormat, string inventoryReceiveId, string plantId)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			var reportFileName = "Inventory Receive " + inventoryReceiveId + "";
-			var workbook = _inventoryReportService.GetInventoryReceiveReport(identity.CompanyId, plantId, inventoryReceiveId);
-			switch (reportFormat)
-			{
-				case ReportFormat.Pdf:
-					return RenderReportAsPdf(workbook, reportFileName);
-
-				case ReportFormat.Excel:
-					return RenderReportAsExcel(workbook, reportFileName);
-
-				default:
-					return View();
-			}
-		}
-
-		#region Employee Purchase
-		[Authorize]
-		public ActionResult EmployeePurchase()
-		{
-			return View();
-		}
-
-		[Authorize, HttpGet]
-		public JsonResult GetEmployeePurchaseList(GridParameter parameters)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetEmployeePurchaseList(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
-		}
-
-		#endregion Employee Purchase
-
-		#region GRN Approved
-
-		[HttpPost, ChaildAction(ParentActionName = "Edit")]
-		public JsonResult Approved(IEnumerable<InventoryReceive> entities, string GRNStatus)
-		{
-			_inventoryReveiveService.GRNApproved(entities, GRNStatus);
-			return Json(new { Message = AplosMessage.Insert });
-		}
-		#endregion GRN Approved
-
-
-
-		#region Grn Approved and UnApproved Taufik 
-		[HttpPost, Authorize]
-		public JsonResult Approved1(IEnumerable<InventoryReceive> entities, string GRNStatus, string GRNNo, string AuthorizedByStatus, string RejectApprovedReason)
-		{
-			_inventoryReveiveService.GRNApproved1(entities, GRNStatus, GRNNo, AuthorizedByStatus, RejectApprovedReason);
-			return Json(new { Message = AplosMessage.Insert });
-		}
-
-		#endregion GRN Approved and Unapproved Taufik
-
-
-		//#region GRN Approval
-
-		//[HttpPost, ChaildAction(ParentActionName = "Edit")]
-		//public JsonResult Approval(IEnumerable<InventoryReceive> entities, string GRNStatus)
-		//{
-		//    _inventoryReveiveService.GRNApproval(entities, GRNStatus);
-		//    return Json(new { Message = AplosMessage.Insert });
-		//}
-
-		//#endregion GRN Approved
-
-		#region PaymentHold
-
-		[Authorize, HttpGet]
-		public JsonResult GetListForHold(GridParameter parameters)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetListForHold(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
-		}
-
-		[HttpPost, ChaildAction(ParentActionName = "Edit")]
-		public JsonResult PaymentHold(IEnumerable<InventoryReceive> entities)
-		{
-			_inventoryReveiveService.PaymentHold(entities);
-			return Json(new { Message = AplosMessage.Insert });
-		}
-
-		#endregion PaymentHold
-
-
-		#region INVENTORY RECEIPT  Report  
-
-		[Authorize, HttpGet]
-		public ActionResult GRNReport(string grnId)
-
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-			_inventoryReveiveService.InventoryReceive(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, grnId);
-
-			return null;
-		}
-
-		#endregion
-
-		#region FG INVENTORY Register  Report  
-
-		[Authorize, HttpGet]
-		public ActionResult FGGRNReport(string grnId)
-
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-			_inventoryReveiveService.FGInventoryReceive(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, grnId);
-
-			return null;
-		}
-
-		#endregion
-
-
-
-
-		#region GRN Approval Bye Taufik 25-6-2019
-		[HttpGet, Authorize]
-		public JsonResult getListForGRNUnchecked()
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.getListForGRNUnchecked(identity.PlantId), JsonRequestBehavior.AllowGet);
-		}
-
-
-		[Authorize, HttpGet]
-		public JsonResult getListForGRNChecked()
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.getListForGRNChecked(identity.PlantId), JsonRequestBehavior.AllowGet);
-		}
-
-		[Authorize, HttpGet]
-		public JsonResult getListForGRNRejectHoldList()
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.getListForGRNRejectHoldList(identity.PlantId), JsonRequestBehavior.AllowGet);
-		}
-
-
-
-
-
-		[HttpGet, Authorize]
-		public JsonResult GetListForGRNApproval()
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetListForGRNAp(identity.PlantId), JsonRequestBehavior.AllowGet);
-		}
-
-		[Authorize, HttpGet]
-		public JsonResult GetListForGRNApprovalHoldReject()
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetListForGRNApprovalHoldReject(identity.PlantId), JsonRequestBehavior.AllowGet);
-		}
-		[HttpPost]
-		//string InventoryReceiveDetailId, string TransactionQty, string TransactionRate, string TrnAmount,string BaseTaxAmount,string BaseAmount,
-		public JsonResult PoApproved(string PoId, string PoValue)
-		{
-			_inventoryReveiveService.PoApproved(PoId, PoValue);
-			return Json(new { Message = "PO Approved" + AplosMessage.Success });
-		}
-
-
-		#endregion
-
-
-		#region    Unapproved 
-		[Authorize, HttpGet]
-		public JsonResult GetListForGRNUNApproval()
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetListForGRNUNApproval(identity.PlantId), JsonRequestBehavior.AllowGet);
-		}
-
-
-		[Authorize, HttpPost]
-		//string InventoryReceiveDetailId, string TransactionQty, string TransactionRate, string TrnAmount,string BaseTaxAmount,string BaseAmount,
-		public JsonResult PoApproved1(string PoId, string PoValue)
-		{
-			_inventoryReveiveService.PoApproved1(PoId, PoValue);
-			return Json(new { Message = "PO UN Approved" + AplosMessage.Success });
-		}
-
-		#endregion
-
-
-		[HttpPost, Authorize]
-
-		public JsonResult GRNChecked(string PoId, string PoValue, string CheckedStataus, string AuthorizedBy, string CheckedRejectReason)
-		{
-
-			_inventoryReveiveService.GRNChecked(PoId, PoValue, CheckedStataus, AuthorizedBy, CheckedRejectReason);
-			return Json(new { Message = "GRN Checked " + AplosMessage.Success });
-		}
-
-		#region Grn IssueSlip 
-		[Authorize, HttpGet]
-		public JsonResult IssueSlipFilter()
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.IssueSlipFilter(), JsonRequestBehavior.AllowGet);
-
-		}
-
-		[HttpPost, Authorize]
-		//public JsonResult IssueSlipCreate(IssueRequestMaster Issentity, IEnumerable<IssueRequestViewModel> entity, string CheckedBy, string IssueSlipType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti, IEnumerable<IssueRequestViewModel> SOListSelectedNew, IEnumerable<IssueRequestViewModel> MaterialColorListNew, string ProcessId)
-		public JsonResult IssueSlipCreate(IssueRequestMaster Issentity, string entity, string entityGroupData, string CheckedBy, string IssueSlipType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti, string SOListSelectedNew, string MaterialColorListNew, string ProcessId,string OrderSpecific)
-
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			Issentity.CheckedBy = CheckedBy;
-			Issentity.CompanyGroupId = identity.CompanyGroupId;
-			Issentity.CompanyId = identity.CompanyId;
-			Issentity.PlantId = identity.PlantId;
-			Issentity.Orderspecific = OrderSpecific;
-			List<IssueRequestViewModel> entityDetailVM = JsonConvert.DeserializeObject<List<IssueRequestViewModel>>(entity);
-			List<IssueRequestViewModel> entityGroupDataVM = JsonConvert.DeserializeObject<List<IssueRequestViewModel>>(entityGroupData);
-			List<IssueRequestViewModel> SOListSelectedNewDetailVM = JsonConvert.DeserializeObject<List<IssueRequestViewModel>>(SOListSelectedNew);
-			List<IssueRequestViewModel> MaterialColorListNewDetailVM = JsonConvert.DeserializeObject<List<IssueRequestViewModel>>(MaterialColorListNew);
-
-			_issueRequestService.InsertOrUpdateGraphIssueSlipCreate(Issentity, entityDetailVM, entityGroupDataVM, IssueSlipType, CheckedByStatusForNoti, ApprovedByStatusForNoti, SOListSelectedNewDetailVM, MaterialColorListNewDetailVM, ProcessId);
-			//DetailCreate(entity, entityMatAndImat, receiveTaxList, entity.Id, entity.MaterialStorageId);
-
-			return Json(new { Issentity, Message = "Issue Request " + AplosMessage.Success + "Id=" + Issentity.Id });
-			//return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
-		}
-
-
-		#endregion
-
-		#region Grn IssueRequest Report 
-		[Authorize, HttpGet]
-		public ActionResult IssueRequestReport(string issueId)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-			_inventoryReveiveService.IssueRequestReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, issueId);
-
-			return null;
-		}
-
-		#endregion
-
-
-		#region Grn IssueUI or IssueWithReqPOGRN Report 
-		[Authorize, HttpGet]
-		public ActionResult IssueWithReqPOGRNReport(string Id)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-			_inventoryReveiveService.IssueWithReqPOGRNReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, Id);
-
-			return View();
-		}
-
-		#endregion
-
-
-		[HttpGet, Authorize]
-		public JsonResult IssueListData(string IssueStatus, string IssueSlipType)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_issueRequestService.IssueListData(IssueStatus, IssueSlipType), JsonRequestBehavior.AllowGet);
-		}
-
-
-		[HttpGet, Authorize]
-		public JsonResult AssetIssueListData(string IssueStatus, string IssueSlipType)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_issueRequestService.AssetIssueListData(IssueStatus, IssueSlipType), JsonRequestBehavior.AllowGet);
-		}
-
-
-		[Authorize, HttpGet]
-		public JsonResult ApprovedIssueSlipGridData(string IssueStatusApproval, string IssueSlipType)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_issueRequestService.ApprovedIssueSlipGridData(IssueStatusApproval, IssueSlipType), JsonRequestBehavior.AllowGet);
-		}
-
-		[Authorize, HttpGet]
-		public JsonResult IssueListById(GridParameter parameters, string Id)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_issueRequestService.IssueListById(parameters, Id), JsonRequestBehavior.AllowGet);
-		}
-
-		[Authorize, HttpGet]
-		public JsonResult IssueSlipDetail(string Id)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_issueRequestService.IssueSlipDetail(Id), JsonRequestBehavior.AllowGet);
-		}
-		[HttpPost, Authorize]
-		//public JsonResult IssueSlipUpdate(IssueRequestMaster Issentity, IEnumerable<IssueRequestViewModel> entity, string Id, string CheckedBy, string IssueSlipType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
-		public JsonResult IssueSlipUpdate(IssueRequestMaster Issentity, string entity, string Id, string CheckedBy, string IssueSlipType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti, string SOListSelectedNew, string MaterialColorListNew)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			Issentity.CheckedBy = CheckedBy;
-			Issentity.CompanyGroupId = identity.CompanyGroupId;
-			Issentity.CompanyId = identity.CompanyId;
-			Issentity.PlantId = identity.PlantId;
-
-			List<IssueRequestViewModel> entityDetailVM = JsonConvert.DeserializeObject<List<IssueRequestViewModel>>(entity);
-			//List<IssueRequestViewModel> SOListSelectedNewDetailVM = JsonConvert.DeserializeObject<List<IssueRequestViewModel>>(SOListSelectedNew);
-			//List<IssueRequestViewModel> MaterialColorListNewDetailVM = JsonConvert.DeserializeObject<List<IssueRequestViewModel>>(MaterialColorListNew);
-
-			_issueRequestService.InsertOrUpdateGraphIssueSlipUpdate(Issentity, entityDetailVM, Id, IssueSlipType, CheckedByStatusForNoti, ApprovedByStatusForNoti);
-			//DetailCreate(entity, entityMatAndImat, receiveTaxList, entity.Id, entity.MaterialStorageId);
-
-			return Json(new { Message = "Issue Request " + AplosMessage.Updated });
-		}
-		[Authorize, HttpGet]
-		public JsonResult IssueFilter()
-		{
-			return Json(_inventoryReveiveService.IssueFilter(), JsonRequestBehavior.AllowGet);
-
-		}
-
-
-
-		#region Requisition Inventory IssueUI Or Request
-
-		[Authorize, HttpGet]
-		public JsonResult GetRequisitionIssueDetail(string issueId)
-		{
-			return Json(_inventoryReveiveService.GetRequisitionIssueDetail(issueId), JsonRequestBehavior.AllowGet);
-
-		}
-
-
-		[Authorize, HttpGet]
-		public JsonResult IssueDetailData(string issueId)
-		{
-			return Json(_inventoryReveiveService.IssueDetailData(issueId), JsonRequestBehavior.AllowGet);
-
-		}
-
-		[Authorize, HttpGet]
-		public JsonResult RequisitionIssueListData()
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_issueRequestService.RequisitionIssueListData(), JsonRequestBehavior.AllowGet);
-		}
-
-		[HttpPost]
-		public JsonResult RequisitionIssueInsert(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList
-			, IEnumerable<RequisitionIssueDetailViewModel> requisitionIssueDetails)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			var inventoryIssue = new InventoryIssue();
-			inventoryIssue.CompanyGroupId = identity.CompanyGroupId;
-			inventoryIssue.CompanyId = identity.CompanyId;
-			inventoryIssue.PlantId = identity.PlantId;
-			_inventoryIssueService.RequisitionIssueInsert(entities, specificStockList, inventoryIssue, requisitionIssueDetails);
-			return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
-		}
-
-		[HttpPost]
-		public JsonResult RequisitionIssueUpdate(string issueId, IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList
-		   , IEnumerable<RequisitionIssueDetailViewModel> requisitionIssueDetails)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			var inventoryIssue = new InventoryIssue();
-			inventoryIssue.Id = issueId;
-			_inventoryIssueService.RequisitionIssueUpdate(entities, specificStockList, inventoryIssue, requisitionIssueDetails);
-			return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
-		}
-		#endregion
-
-
-		#region  IssueSlipChecked and Approval
-		[HttpGet, Authorize]
-		public JsonResult IssueSlipUnChecked(string IssuStatus)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_issueRequestService.IssueSlipUnChecked(IssuStatus), JsonRequestBehavior.AllowGet);
-		}
-
-
-		[Authorize, HttpGet]
-		public JsonResult IssueSlipChecked()
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_issueRequestService.IssueSlipChecked(), JsonRequestBehavior.AllowGet);
-		}
-
-
-		[HttpPost, Authorize]
-		//string InventoryReceiveDetailId, string TransactionQty, string TransactionRate, string TrnAmount,string BaseTaxAmount,string BaseAmount,
-		public JsonResult IssueSlipToChecked(string PoId, string PoValue, string CheckedStataus, string AuthorizedBy)
-		{
-			//var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			//if(identity.EmployeeId== AuthorizedBy)
-			//{
-
-			//}
-			_issueRequestService.IssueSlipToChecked(PoId, PoValue, CheckedStataus, AuthorizedBy);
-			return Json(new { Message = "Issue Slip Checked" + AplosMessage.Success });
-		}
-
-		#endregion
-
-
-
-		#region  ApprovingIssueSlip 
-
-
-		[HttpGet, Authorize]
-		public JsonResult IssueSlipUnApproved(string IssuAppStatus)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_issueRequestService.IssueSlipUnApproved(IssuAppStatus), JsonRequestBehavior.AllowGet);
-		}
-
-		[Authorize, HttpGet]
-		public JsonResult IssueSlipApproved()
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_issueRequestService.IssueSlipApproved(), JsonRequestBehavior.AllowGet);
-		}
-
-
-
-		[HttpPost, Authorize]
-		//string InventoryReceiveDetailId, string TransactionQty, string TransactionRate, string TrnAmount,string BaseTaxAmount,string BaseAmount,
-		public JsonResult IssueSlipToApproved(string PoId, string PoValue, string CheckedStataus, string AuthorizedBy)
-		{
-			_issueRequestService.IssueSlipToApproved(PoId, PoValue, CheckedStataus, AuthorizedBy);
-			return Json(new { Message = "Issue Slip Approved" + AplosMessage.Success });
-		}
-
-		#endregion
-
-
-
-		#region MaterialWiseIssueSlip 2 Step 
-		[Authorize, HttpGet]
-		public JsonResult GetIssueSlipFilterData()
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetIssueSlipFilterData(), JsonRequestBehavior.AllowGet);
-
-		}
-		#endregion
-
-
-
-		#region AssetIssueWiseIssueSlip  
-		[Authorize, HttpGet]
-		public JsonResult GetAssetIssueSlipFilterData()
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetAssetIssueSlipFilterData(), JsonRequestBehavior.AllowGet);
-
-		}
-		#endregion
-
-
-
-		#region Purchase Return Code Start Here
-		[HttpGet]
-		public JsonResult GetListPurchaseReturnData(string plantId, string tabType)
-		{
-
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			try
-			{
-				var sql = "";
-				if (tabType == "ForChecking")
-				{
-					sql = @"select * from(SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,
+    public class GoodsReceiveNoteController : BaseController
+    {
+        #region Constructor
+
+
+
+        private readonly IInventoryReceiveService _inventoryReveiveService;
+        private readonly IInventoryIssueService _inventoryIssueService;
+        private readonly IInventoryReceiveDetailService _inventoryDetailService;
+        private readonly IGRNPORequisitionAllocationService _gRNPORequisitionAllocationService;
+        private readonly IInventoryMaterialService _inventoryMaterialService;
+        private readonly IInventoryServiceService _inventoryService;
+        private readonly IInventoryReceiveReportService _inventoryReportService;
+        private readonly IIssueRequestService _issueRequestService;
+        private readonly IIssueRequestMasterService _issueRequestMasterService;
+        private readonly ISqlRepository _sqlRepository;
+        private readonly IRepositoryAsync<InventoryReceiveDetail> _receiveDetailRepository;
+        private readonly IRepositoryAsync<PurchaseReturnDetail> _PurchaseReturnDetailRepository;
+
+        public GoodsReceiveNoteController(IInventoryReceiveService inventoryReveiveService
+            , IInventoryReceiveDetailService inventoryDetailService
+            , IInventoryMaterialService inventoryMaterialService
+            , IInventoryReceiveReportService inventoryReportService
+            , IInventoryServiceService inventoryService
+            , IGRNPORequisitionAllocationService gRNPORequisitionAllocationService
+            , IIssueRequestService issueRequestService
+            , IIssueRequestMasterService issueRequestMasterService
+            , IInventoryIssueService inventoryIssueService
+            , ISqlRepository sqlRepository
+            , IRepositoryAsync<InventoryReceiveDetail> receiveDetailRepository
+            , IRepositoryAsync<PurchaseReturnDetail> PurchaseReturnDetailRepository
+            )
+
+        {
+            _inventoryReveiveService = inventoryReveiveService;
+            _inventoryDetailService = inventoryDetailService;
+            _inventoryMaterialService = inventoryMaterialService;
+            _inventoryService = inventoryService;
+            _inventoryReportService = inventoryReportService;
+            _gRNPORequisitionAllocationService = gRNPORequisitionAllocationService;
+            _issueRequestService = issueRequestService;
+            _issueRequestMasterService = issueRequestMasterService;
+            _inventoryIssueService = inventoryIssueService;
+            _sqlRepository = sqlRepository;
+            _receiveDetailRepository = _receiveDetailRepository;
+            _PurchaseReturnDetailRepository = PurchaseReturnDetailRepository;
+
+        }
+
+        #endregion Constructor
+
+        #region Aplos
+
+        public ActionResult Aplos()
+        {
+            return View();
+        }
+
+        public ActionResult IssueSlipIssue()
+        {
+            return View();
+        }
+
+        [Authorize]
+        public ActionResult GRNApproved()
+        {
+            return View();
+        }
+
+        [Authorize]
+        public ActionResult PaymentHold()
+        {
+            return View();
+        }
+
+        [Authorize]
+        public ActionResult GRNApproval()
+        {
+            return View();
+        }
+
+        [Authorize]
+        public ActionResult GRNCheck()
+        {
+            return View();
+        }
+
+        //RequisitionWise Issue Slip
+        [Authorize]
+        public ActionResult IssueSlip()
+        {
+            return View();
+        }
+
+        //RequisitionWise Issue Slip
+        [Authorize]
+        public ActionResult MaterialWiseIssueSlip()
+        {
+            return View();
+        }
+
+        [Authorize]
+        public ActionResult IssueUI()
+        {
+            return View();
+        }
+
+
+        [Authorize]
+        public ActionResult IssueSlipCheck()
+        {
+            return View();
+        }
+
+        [Authorize]
+
+        public ActionResult ApprovingIssueSlip()
+        {
+            return View();
+        }
+
+        public ActionResult GRNByPO()
+        {
+            return View();
+        }
+
+        [Authorize]
+
+        public ActionResult MaterialIssueSlip()
+        {
+            return View();
+        }
+
+        [Authorize]
+        public ActionResult AssetIssueSlip()
+        {
+            return View();
+        }
+
+
+        public ActionResult PurchaseReturn()
+        {
+            return View();
+        }
+
+        [Authorize]
+        public ActionResult PurchaseReturnChecked()
+        {
+            return View();
+        }
+
+        [Authorize]
+        public ActionResult PurchaseReturnApprove()
+        {
+            return View();
+        }
+        [Authorize]
+        public ActionResult GRNUncheckedAndUnApproved()
+        {
+            return View();
+        }
+
+        [Authorize]
+        public ActionResult GRNRequitionSOAllocation()
+        {
+            return View();
+        }
+
+        #endregion Aplos
+
+        #region GRN-By-PO
+        [HttpPost]
+        public JsonResult CreateGRNBYPO(InventoryReceive entity, string entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string AcceptanceId, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
+        {
+            if (string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
+            {
+                CheckedByStatusForNoti = "False";
+                ApprovedByStatusForNoti = "False";
+            }
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            entity.CompanyGroupId = identity.CompanyGroupId;
+            entity.CompanyId = identity.CompanyId;
+            entity.PlantId = identity.PlantId;
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+
+            //IEnumerable<InventoryMaterialViewModel>
+            List<InventoryMaterialViewModel> entityMatAndImat1 = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(entityMatAndImat, settings);
+            if (identity.EmployeeId == entity.CheckedBy)
+            {
+                throw new CustomException("Please select another employee for Check by.");
+            }
+            else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "True")
+            {
+
+                entity.AuthorizedBy = entity.CheckedBy;
+                entity.AuthorizedByStatus = "For Approval";
+                entity.CheckedBy = null;
+                entity.CheckedByStatus = null;
+                entity.IsApproved = false;
+                entity.RequiredPosting = true;
+            }
+            else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
+            {
+                entity.CheckedByStatus = null;
+                entity.AuthorizedByStatus = null;
+                entity.CheckedBy = null;
+                entity.AuthorizedBy = null;
+                entity.IsApproved = true;
+                entity.RequiredPosting = true;
+            }
+            else
+            {
+                entity.CheckedBy = entity.CheckedBy;
+                entity.CheckedByStatus = "ForChecked";
+                entity.AuthorizedBy = null;
+                entity.AuthorizedByStatus = null;
+                entity.IsApproved = false;
+                entity.RequiredPosting = true;
+            }
+            if (entityMatAndImat1 != null)
+            {
+                foreach (var item in entityMatAndImat1)
+                {
+
+                    if (!item.check)
+                    {
+                        throw new CustomException("Please Select Materials !");
+
+                    }
+                    else if (item.TransactionQty.ToString() == "0")
+                    {
+                        throw new CustomException("Please Input The Current Qty !");
+                    }
+
+                }
+            }
+            else
+            {
+                throw new CustomException("Please Select atlest one Materials !");
+            }
+            if (chargesListPO != null)
+            {
+                foreach (var item in chargesListPO)
+                {
+                    if (!item.check)
+                    {
+                        throw new CustomException("Please Select Materials !");
+                    }
+                    else if (item.Amount.ToString() == "0")
+                    {
+                        throw new CustomException("Please Input  Amount !");
+                    }
+
+                }
+            }
+            bool _returnRes = GetDocRef(entity.DocRefNo, entity.PartyId, entity.DocDate.ToString(), entity.Id);
+            if (_returnRes == true)
+            {
+                throw new CustomException("Vendor / Docref / Docdate cannot duplicate!");
+            }
+
+            DetailCreate(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType);
+            ServiceChargesCreateNew(chargesListPO, POServiceTaxList, entity.Id, AcceptanceId);
+            return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
+        }
+
+        [HttpPost]
+        public JsonResult UpdateGRNBYPO(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
+        {
+            if (string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
+            {
+                CheckedByStatusForNoti = "False";
+                ApprovedByStatusForNoti = "False";
+            }
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            entity.CompanyGroupId = identity.CompanyGroupId;
+            entity.CompanyId = identity.CompanyId;
+            entity.PlantId = identity.PlantId;
+
+            if (identity.EmployeeId == entity.CheckedBy)
+            {
+                throw new CustomException("Please select another employee for Check by.");
+            }
+            else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "True")
+            {
+
+                entity.AuthorizedBy = entity.CheckedBy;
+                entity.AuthorizedByStatus = "For Approval";
+                entity.CheckedBy = null;
+                entity.CheckedByStatus = null;
+                entity.IsApproved = false;
+                entity.RequiredPosting = true;
+            }
+            else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
+            {
+                entity.CheckedByStatus = null;
+                entity.AuthorizedByStatus = null;
+                entity.CheckedBy = null;
+                entity.AuthorizedBy = null;
+                entity.IsApproved = true;
+                entity.RequiredPosting = true;
+            }
+            else
+            {
+                entity.CheckedBy = entity.CheckedBy;
+                entity.CheckedByStatus = "ForChecked";
+                entity.AuthorizedBy = null;
+                entity.AuthorizedByStatus = null;
+                entity.IsApproved = false;
+                entity.RequiredPosting = true;
+            }
+            if (entityMatAndImat != null)
+            {
+                foreach (var item in entityMatAndImat)
+                {
+
+                    if (!item.check)
+                        throw new CustomException("Please Select Materials !");
+
+                }
+            }
+            else
+            {
+                throw new CustomException("Please Select atlest one Materials !");
+            }
+            if (chargesListPO != null)
+            {
+                foreach (var item in chargesListPO)
+                {
+                    if (!item.check)
+                        throw new CustomException("Please Select Materials !");
+
+                }
+            }
+            DetailEdits(entity, entityMatAndImat, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType);
+            ServiceChargesCreateNewEdit(chargesListPO, POServiceTaxList, entity.Id);
+
+            return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
+        }
+
+        [HttpPost]
+        public ActionResult DeleteGRNBYPO(string id)
+        {
+            if (!string.IsNullOrEmpty(id))
+            {
+                _inventoryReveiveService.Delete(id);
+                return Json(new { Message = AplosMessage.Success });
+            }
+            else
+                throw new CustomException(Resources.IdNotFound);
+        }
+
+        #endregion GRN-By-PO
+
+        #region purchase-return
+        [HttpPost]
+        public JsonResult CreatePurchaseReturn(PurchaseReturn entity, IEnumerable<InventoryMaterialViewModel> entityMatAndImat, IEnumerable<PurchaseReturnTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesList, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string AcceptanceId, string CheckedByStatusForNoti, string ApprovedByStatusForNoti, IEnumerable<PurchaseReturnTax> ServicetaxCategoryList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            entity.CompanyGroupId = identity.CompanyGroupId;
+            entity.PlantId = identity.PlantId;
+
+            if (identity.EmployeeId == entity.CheckedBy)
+            {
+                throw new CustomException("Please select another employee for Check by.");
+            }
+            else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "True")
+            {
+                entity.ApprovedBy = entity.CheckedBy;
+                entity.ApprovedByStatus = "For Approval";
+                entity.CheckedBy = null;
+                entity.CheckedByStatus = null;
+                entity.IsApproved = false;
+            }
+            else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
+            {
+                entity.CheckedByStatus = null;
+                entity.ApprovedByStatus = null;
+                entity.CheckedBy = null;
+                entity.ApprovedBy = null;
+                entity.IsApproved = true;
+            }
+            else
+            {
+                entity.CheckedBy = entity.CheckedBy;
+                entity.CheckedByStatus = "For Checking";
+                entity.ApprovedBy = null;
+                entity.ApprovedByStatus = null;
+                entity.IsApproved = false;
+
+            }
+            //entity.IsApproved = false;
+            if (entityMatAndImat != null)
+            {
+                foreach (var item in entityMatAndImat)
+                {
+
+                    if (!item.check)
+                    {
+                        throw new CustomException("Please Select Materials !");
+
+                    }
+                    else if (string.IsNullOrEmpty(item.TransactionQty.ToString()) || item.TransactionQty.ToString() == "0")
+                    {
+                        throw new CustomException("Please Input The Current Qty !");
+                    }
+
+                }
+            }
+            else
+            {
+                throw new CustomException("Please Select atlest one Materials !");
+            }
+            if (chargesList != null)
+            {
+                foreach (var item in chargesList)
+                {
+                    if (!item.check)
+                    {
+                        throw new CustomException("Please Select Materials !");
+                    }
+                    else if (item.Amount.ToString() == "0")
+                    {
+                        throw new CustomException("Please Input  Amount !");
+                    }
+
+                }
+            }
+            _inventoryDetailService.InsertOrUpdateGraphForPurchaseReturn(entity, entityMatAndImat, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType, chargesList, ServicetaxCategoryList);
+
+            return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
+        }
+
+        [HttpPost]
+        public ActionResult DeletePurchaseReturnfinal(string id)
+        {
+            if (!string.IsNullOrEmpty(id))
+            {
+                _inventoryReveiveService.DeletePurchaseReturnfinal(id);
+                return Json(new { Message = AplosMessage.Success });
+            }
+            else
+                throw new CustomException(Resources.IdNotFound);
+        }
+
+        #endregion purchase-return
+
+        #region GRN Through Requisition
+        [HttpPost]
+        public JsonResult Create(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string AcceptanceId, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
+        {
+            if (string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
+            {
+                CheckedByStatusForNoti = "False";
+                ApprovedByStatusForNoti = "False";
+            }
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            entity.CompanyGroupId = identity.CompanyGroupId;
+            entity.CompanyId = identity.CompanyId;
+            entity.PlantId = identity.PlantId;
+            if (identity.EmployeeId == entity.CheckedBy)
+            {
+                throw new CustomException("Please select another employee for Check by.");
+            }
+            else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "True")
+            {
+
+                entity.AuthorizedBy = entity.CheckedBy;
+                entity.AuthorizedByStatus = "For Approval";
+                entity.CheckedBy = null;
+                entity.CheckedByStatus = null;
+                entity.IsApproved = false;
+                entity.RequiredPosting = true;
+            }
+            else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
+            {
+                entity.CheckedByStatus = null;
+                entity.AuthorizedByStatus = null;
+                entity.CheckedBy = null;
+                entity.AuthorizedBy = null;
+                entity.IsApproved = true;
+                entity.RequiredPosting = true;
+            }
+            else
+            {
+                entity.CheckedBy = entity.CheckedBy;
+                entity.CheckedByStatus = "ForChecked";
+                entity.AuthorizedBy = null;
+                entity.AuthorizedByStatus = null;
+                entity.IsApproved = false;
+                entity.RequiredPosting = true;
+
+            }
+            //entity.EmployeeId = identity.EmployeeId;
+            if (entityMatAndImat != null)
+            {
+                foreach (var item in entityMatAndImat)
+                {
+
+                    if (!item.check)
+                    {
+                        throw new CustomException("Please Select Materials !");
+
+                    }
+                    else if (item.TransactionQty.ToString() == "0")
+                    {
+                        throw new CustomException("Please Input The Current Qty !");
+                    }
+
+                }
+            }
+            else
+            {
+                throw new CustomException("Please Select atlest one Materials !");
+            }
+            if (chargesListPO != null)
+            {
+                foreach (var item in chargesListPO)
+                {
+                    if (!item.check)
+                    {
+                        throw new CustomException("Please Select Materials !");
+                    }
+                    else if (item.Amount.ToString() == "0")
+                    {
+                        throw new CustomException("Please Input  Amount !");
+                    }
+
+                }
+            }
+            DetailCreate(entity, entityMatAndImat, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType);
+            ServiceChargesCreateNew(chargesListPO, POServiceTaxList, entity.Id, AcceptanceId);
+            return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
+        }
+
+        [HttpPost]
+        public JsonResult UpdareGRN(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
+        {
+            if (string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
+            {
+                CheckedByStatusForNoti = "False";
+                ApprovedByStatusForNoti = "False";
+            }
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            entity.CompanyGroupId = identity.CompanyGroupId;
+            entity.CompanyId = identity.CompanyId;
+            entity.PlantId = identity.PlantId;
+            if (identity.EmployeeId == entity.CheckedBy)
+            {
+                throw new CustomException("Please select another employee for Check by.");
+            }
+            else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "True")
+            {
+
+                entity.AuthorizedBy = entity.CheckedBy;
+                entity.AuthorizedByStatus = "For Approval";
+                entity.CheckedBy = null;
+                entity.CheckedByStatus = null;
+            }
+            else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
+            {
+                entity.CheckedByStatus = null;
+                entity.AuthorizedByStatus = null;
+                entity.CheckedBy = null;
+                entity.AuthorizedBy = null;
+            }
+            else
+            {
+                entity.CheckedBy = entity.CheckedBy;
+                entity.CheckedByStatus = "ForChecked";
+                entity.AuthorizedBy = null;
+                entity.AuthorizedByStatus = null;
+
+            }
+            entity.IsApproved = false;
+
+            if (entityMatAndImat != null)
+            {
+                foreach (var item in entityMatAndImat)
+                {
+
+                    if (!item.check)
+                        throw new CustomException("Please Select Materials !");
+
+                }
+            }
+            else
+            {
+                throw new CustomException("Please Select atlest one Materials !");
+            }
+            if (chargesListPO != null)
+            {
+                foreach (var item in chargesListPO)
+                {
+                    if (!item.check)
+                        throw new CustomException("Please Select Materials !");
+
+                }
+            }
+            DetailEdits(entity, entityMatAndImat, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType);
+            ServiceChargesCreateNewEdit(chargesListPO, POServiceTaxList, entity.Id);
+            return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
+        }
+
+        [HttpPost]
+        public ActionResult Delete(string id)
+        {
+            if (!string.IsNullOrEmpty(id))
+            {
+                _inventoryReveiveService.Delete(id);
+                return Json(new { Message = AplosMessage.Success });
+            }
+            else
+                throw new CustomException(Resources.IdNotFound);
+        }
+
+        #endregion GRN Through Requisition
+
+        #region -- Operations
+        [Authorize, HttpGet]
+        public JsonResult GetListForGRNSaveData(string GRNWithReqPOCheckStatus)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.QueryGetListForGRNSaveData(identity.PlantId, GRNWithReqPOCheckStatus), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetListOfPO(string PoType, string Status)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.GetListForHold(identity.PlantId, PoType, Status), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult LoadAcceptanceDetails(string AcceptanceId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.LoadAcceptanceDetails(AcceptanceId), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [Authorize, HttpGet]
+        public JsonResult GetSavedPOList(string GRNId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.GetSavedPOList(GRNId), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetSavedPOList1(string GRNId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.GetSavedPOList1(GRNId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetListForREqPOGRN(string PoType, string Status)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.GetListForREqPOGRN(identity.PlantId, PoType, Status), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetListOfPOGateEntry(string partyCode)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.GetListOfPOGateEntry(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, partyCode), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetList(GridParameter parameters)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.Query(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetListForGRNBYPO(string GRNbyPOCheckStatus)
+        {
+            //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            //return Json(_inventoryReveiveService.QueryGetListForMasterData(identity.PlantId, GRNbyPOCheckStatus), JsonRequestBehavior.AllowGet);
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
+                return Json(obj.QueryGetListForMasterData(identity.PlantId, GRNbyPOCheckStatus), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetListForMasterData2(string GRNbyPOApprovedStatus)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            //return Json(_inventoryReveiveService.QueryGetListForMasterData2(identity.PlantId, GRNbyPOApprovedStatus), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(_inventoryReveiveService.QueryGetListForMasterData2(identity.PlantId, GRNbyPOApprovedStatus), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetListForGrnByPoReq(string GRNWithReqPOApprovedStatus)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.GetListForGrnByPoReq(identity.PlantId, GRNWithReqPOApprovedStatus), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetListByGrnno(GridParameter parameters, int GRN)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.GetListByGrnno(parameters, identity.PlantId, GRN), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetPostingList(GridParameter parameters)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.GetPostingList(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// using inventory payable
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
+        [Authorize, HttpGet]
+        public JsonResult GetListForInvPayable(GridParameter parameters)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.GetListForInvPayable(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public JsonResult InsertGRN(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMaterial)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            entity.CompanyGroupId = identity.CompanyGroupId;
+            entity.CompanyId = identity.CompanyId;
+            entity.PlantId = identity.PlantId;
+            entity.FixedAssetOrInventory = "Inventory";
+            if (entityMaterial != null)
+            {
+            }
+            _inventoryReveiveService.Insert(entity, entityMaterial);
+            return Json(new { Message = AplosMessage.Insert });
+        }
+        [Authorize, HttpPost]
+        public JsonResult Edit(InventoryReceive entity)
+        {
+            _inventoryReveiveService.Update(entity);
+            return Json(new { Message = AplosMessage.Updated });
+        }
+        #endregion -- Operations
+
+        #region Inventory Detail
+        [Authorize, HttpGet]
+        public JsonResult GetToCurrencyRate(string currencyId, string baseCurrencyId, string docDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.GetToCurrencyRate(currencyId, baseCurrencyId, Convert.ToDateTime(docDate), identity.CompanyId), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Create))]
+        public JsonResult DetailCreate(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            _inventoryDetailService.InsertOrUpdateGraphNew(entity, entityMat, taxCategoryList, id, MaterialStorageId, GRNType);
+            return Json(new { Message = AplosMessage.Success });
+        }
+        [Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Create))]
+        public JsonResult GrnRequisitionAllocationSave(IEnumerable<InventoryMaterialViewModel> entity)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            _gRNPORequisitionAllocationService.InsertOrUpdateGraphNewGRNAllocation(entity);
+            return Json(new { Message = AplosMessage.Success });
+        }
+        [Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Create))]
+        public JsonResult DetailEdits(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMatAndImat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            _inventoryDetailService.InsertOrUpdateGraphNewEdits(entity, entityMatAndImat, taxCategoryList, id, MaterialStorageId, GRNType);
+            return Json(new { Message = AplosMessage.Success });
+        }
+        [Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Edit))]
+        public JsonResult DetailEdit(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            _inventoryDetailService.InsertOrUpdateGraphNewEdits(entity, entityMat, taxCategoryList, id, MaterialStorageId, GRNType);
+            return Json(new { Message = AplosMessage.Success });
+        }
+
+        [Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Delete))]
+        public JsonResult DetailDelete(string receiveDetailId)
+        {
+            _inventoryDetailService.Delete(receiveDetailId);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+        #endregion Inventory Detail
+
+        #region Inventory Receive Tax
+
+        [Authorize, HttpGet]
+        public JsonResult GetTaxCategoryList(string receiveId, string hsnCodeId, string GRNDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.GetTaxCategoryList(identity.CompanyGroupId, receiveId, identity.PlantId, hsnCodeId, GRNDate), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetReceiveTaxList(string receiveDetailId)
+        {
+            return Json(_inventoryReveiveService.GetReceiveTaxList(receiveDetailId), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetReceiveTaxListPO(string receiveDetailId)
+        {
+            return Json(_inventoryReveiveService.GetReceiveTaxListPO(receiveDetailId), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetTotalReceiveTaxList(string receiveId)
+        {
+            return Json(_inventoryReveiveService.GetTotalReceiveTaxList(receiveId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetServiceTaxList(string serviceId)
+        {
+            return Json(_inventoryReveiveService.GetServiceTaxList(serviceId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetServiceTaxListPR(string serviceId)
+        {
+            return Json(_inventoryReveiveService.GetServiceTaxListPR(serviceId), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetServiceTaxListPO(string serviceId)
+        {
+            return Json(_inventoryReveiveService.GetServiceTaxListPO(serviceId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetTaxCategoryListByPartyPlant(string partyPlantId, string hsnCodeId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.GetTaxCategoryListByPartyPlant(identity.CompanyGroupId, partyPlantId, identity.PlantId, hsnCodeId), JsonRequestBehavior.AllowGet);
+        }
+        #endregion Inventory Receive Tax
+
+        #region Inventory Material
+
+        [Authorize, HttpGet]
+        public JsonResult GetInventoryMaterialList(GridParameter parameters, string inveReveiveId, string POID, string AcceptanceId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryMaterialService.Query(parameters, inveReveiveId, POID, AcceptanceId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GRNDetailsData(string inveReveiveId, string POID)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var jsondata = Json(_inventoryMaterialService.GRNDetailsData(inveReveiveId, POID), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetInventoryMaterialPayableList(GridParameter parameters, string inveReveiveId)
+        {
+            AccountsInventoryPayableService accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
+            return Json(accountsInventoryPayableService.GetPayableMaterial(parameters, inveReveiveId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetInventoryShortageMaterialPayableList(GridParameter parameters, string inveReveiveId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryMaterialService.GetPayableShortageMaterial(parameters, inveReveiveId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetInventoryRejectMaterialPayableList(GridParameter parameters, string inveReveiveId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryMaterialService.GetPayableRejectMaterial(parameters, inveReveiveId), JsonRequestBehavior.AllowGet);
+        }
+        //shakawats
+        [Authorize, HttpGet]
+        public JsonResult GetInventoryMaterialListByPO(GridParameter parameters, string inveReveiveId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryMaterialService.Query1(parameters, inveReveiveId), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetInventoryMaterialListByOnlyPO(GridParameter parameters, string inveReveiveId, string AcceptanceId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryMaterialService.QueryOnlyPO(parameters, inveReveiveId, AcceptanceId), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetInventoryMaterialPayable(string inveReveiveId, string employeeId, bool isReversCharge)
+        {
+            AccountsInventoryPayableService accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            if (!string.IsNullOrEmpty(employeeId) && employeeId != "null")
+                return Json(accountsInventoryPayableService.GetInventoryMaterialForImprestPayable(identity.CompanyId, identity.PlantId, inveReveiveId), JsonRequestBehavior.AllowGet);
+            else
+            {
+                if (isReversCharge)
+                    return Json(accountsInventoryPayableService.GetInventoryMaterialReversChargePayable(identity.CompanyId, identity.PlantId, inveReveiveId), JsonRequestBehavior.AllowGet);
+                else
+                    return Json(accountsInventoryPayableService.GetInventoryMaterialWithoutReversChargePayable(identity.CompanyId, identity.PlantId, inveReveiveId), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        #endregion Inventory Material
+
+        [Authorize, HttpGet]
+        public JsonResult GetInventoryMaterialListForPOUpdate(string inveReveiveId, string InventoryReceiveId, string MaterialMasterId, string InventoryReceiveDetailId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryMaterialService.GetInventoryMaterialListForPOUpdate(inveReveiveId, InventoryReceiveId, MaterialMasterId, InventoryReceiveDetailId), JsonRequestBehavior.AllowGet);
+        }
+
+        #region Service Charges
+
+        [Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Create))]
+        public JsonResult ServiceChargesCreate(InventoryMaterialViewModel entity, IEnumerable<InventoryReceiveTax> taxCategoryList)
+        {
+            _inventoryService.InsertGraph(entity, taxCategoryList);
+            return Json(new { entity.Id, Message = AplosMessage.Success });
+        }
+        [Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Create))]
+        public JsonResult ServiceChargesCreateNew(IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string Id, string AcceptanceId)
+        {
+            _inventoryService.InsertGraphNew(chargesListPO, POServiceTaxList, Id, AcceptanceId);
+            return Json(new { Message = AplosMessage.Success });
+        }
+        [Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Create))]
+        public JsonResult ServiceChargesCreateNewEdit(IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string Id)
+        {
+            _inventoryService.InsertGraphNewEdit(chargesListPO, POServiceTaxList, Id);
+            return Json(new { Message = AplosMessage.Success });
+        }
+        [Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Delete))]
+        public JsonResult ServiceChargesDelete(string serviceId)
+        {
+            _inventoryService.Delete(serviceId);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetServiceChargeList(string receiveId)
+        {
+            return Json(_inventoryService.Query(receiveId), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetPurchaseReturnServiceChargeList(string receiveId)
+        {
+            return Json(_inventoryService.QueryPurchaseReturnCharges(receiveId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetServiceChargeListPO(string receiveId, string AcceptanceId)
+        {
+            return Json(_inventoryService.Query1(receiveId, AcceptanceId), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult getTCSData(string receiveId)
+        {
+            return Json(_inventoryService.getTCSData(receiveId), JsonRequestBehavior.AllowGet);
+        }
+        #endregion Service Charges
+
+        [HttpGet, Authorize]
+        public ActionResult Report(ReportFormat reportFormat, string inventoryReceiveId, string plantId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var reportFileName = "Inventory Receive " + inventoryReceiveId + "";
+            var workbook = _inventoryReportService.GetInventoryReceiveReport(identity.CompanyId, plantId, inventoryReceiveId);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return View();
+            }
+        }
+
+        #region Employee Purchase
+        [Authorize]
+        public ActionResult EmployeePurchase()
+        {
+            return View();
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetEmployeePurchaseList(GridParameter parameters)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.GetEmployeePurchaseList(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+
+        #endregion Employee Purchase
+
+        #region GRN Approved
+
+        [HttpPost, ChaildAction(ParentActionName = "Edit")]
+        public JsonResult Approved(IEnumerable<InventoryReceive> entities, string GRNStatus)
+        {
+            _inventoryReveiveService.GRNApproved(entities, GRNStatus);
+            return Json(new { Message = AplosMessage.Insert });
+        }
+        #endregion GRN Approved
+
+
+
+        #region Grn Approved and UnApproved Taufik 
+        [HttpPost, Authorize]
+        public JsonResult Approved1(IEnumerable<InventoryReceive> entities, string GRNStatus, string GRNNo, string AuthorizedByStatus, string RejectApprovedReason)
+        {
+            _inventoryReveiveService.GRNApproved1(entities, GRNStatus, GRNNo, AuthorizedByStatus, RejectApprovedReason);
+            return Json(new { Message = AplosMessage.Insert });
+        }
+
+        #endregion GRN Approved and Unapproved Taufik
+
+
+        //#region GRN Approval
+
+        //[HttpPost, ChaildAction(ParentActionName = "Edit")]
+        //public JsonResult Approval(IEnumerable<InventoryReceive> entities, string GRNStatus)
+        //{
+        //    _inventoryReveiveService.GRNApproval(entities, GRNStatus);
+        //    return Json(new { Message = AplosMessage.Insert });
+        //}
+
+        //#endregion GRN Approved
+
+        #region PaymentHold
+
+        [Authorize, HttpGet]
+        public JsonResult GetListForHold(GridParameter parameters)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.GetListForHold(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, ChaildAction(ParentActionName = "Edit")]
+        public JsonResult PaymentHold(IEnumerable<InventoryReceive> entities)
+        {
+            _inventoryReveiveService.PaymentHold(entities);
+            return Json(new { Message = AplosMessage.Insert });
+        }
+
+        #endregion PaymentHold
+
+
+        #region INVENTORY RECEIPT  Report  
+
+        [Authorize, HttpGet]
+        public ActionResult GRNReport(string grnId)
+
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            _inventoryReveiveService.InventoryReceive(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, grnId);
+
+            return null;
+        }
+
+        #endregion
+
+        #region FG INVENTORY Register  Report  
+
+        [Authorize, HttpGet]
+        public ActionResult FGGRNReport(string grnId)
+
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            _inventoryReveiveService.FGInventoryReceive(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, grnId);
+
+            return null;
+        }
+
+        #endregion
+
+
+
+
+        #region GRN Approval Bye Taufik 25-6-2019
+        [HttpGet, Authorize]
+        public JsonResult getListForGRNUnchecked()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.getListForGRNUnchecked(identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [Authorize, HttpGet]
+        public JsonResult getListForGRNChecked()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.getListForGRNChecked(identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult getListForGRNRejectHoldList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.getListForGRNRejectHoldList(identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+
+
+
+
+
+        [HttpGet, Authorize]
+        public JsonResult GetListForGRNApproval()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.GetListForGRNAp(identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetListForGRNApprovalHoldReject()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.GetListForGRNApprovalHoldReject(identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        //string InventoryReceiveDetailId, string TransactionQty, string TransactionRate, string TrnAmount,string BaseTaxAmount,string BaseAmount,
+        public JsonResult PoApproved(string PoId, string PoValue)
+        {
+            _inventoryReveiveService.PoApproved(PoId, PoValue);
+            return Json(new { Message = "PO Approved" + AplosMessage.Success });
+        }
+
+
+        #endregion
+
+
+        #region    Unapproved 
+        [Authorize, HttpGet]
+        public JsonResult GetListForGRNUNApproval()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.GetListForGRNUNApproval(identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [Authorize, HttpPost]
+        //string InventoryReceiveDetailId, string TransactionQty, string TransactionRate, string TrnAmount,string BaseTaxAmount,string BaseAmount,
+        public JsonResult PoApproved1(string PoId, string PoValue)
+        {
+            _inventoryReveiveService.PoApproved1(PoId, PoValue);
+            return Json(new { Message = "PO UN Approved" + AplosMessage.Success });
+        }
+
+        #endregion
+
+
+        [HttpPost, Authorize]
+
+        public JsonResult GRNChecked(string PoId, string PoValue, string CheckedStataus, string AuthorizedBy, string CheckedRejectReason)
+        {
+
+            _inventoryReveiveService.GRNChecked(PoId, PoValue, CheckedStataus, AuthorizedBy, CheckedRejectReason);
+            return Json(new { Message = "GRN Checked " + AplosMessage.Success });
+        }
+
+        #region Grn IssueSlip 
+        [Authorize, HttpGet]
+        public JsonResult IssueSlipFilter()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.IssueSlipFilter(), JsonRequestBehavior.AllowGet);
+
+        }
+
+        [HttpPost, Authorize]
+        //public JsonResult IssueSlipCreate(IssueRequestMaster Issentity, IEnumerable<IssueRequestViewModel> entity, string CheckedBy, string IssueSlipType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti, IEnumerable<IssueRequestViewModel> SOListSelectedNew, IEnumerable<IssueRequestViewModel> MaterialColorListNew, string ProcessId)
+        public JsonResult IssueSlipCreate(IssueRequestMaster Issentity, string entity, string entityGroupData, string CheckedBy, string IssueSlipType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti, string SOListSelectedNew, string MaterialColorListNew, string ProcessId, string OrderSpecific)
+
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            Issentity.CheckedBy = CheckedBy;
+            Issentity.CompanyGroupId = identity.CompanyGroupId;
+            Issentity.CompanyId = identity.CompanyId;
+            Issentity.PlantId = identity.PlantId;
+            Issentity.Orderspecific = OrderSpecific;
+            List<IssueRequestViewModel> entityDetailVM = JsonConvert.DeserializeObject<List<IssueRequestViewModel>>(entity);
+            List<IssueRequestViewModel> entityGroupDataVM = JsonConvert.DeserializeObject<List<IssueRequestViewModel>>(entityGroupData);
+            List<IssueRequestViewModel> SOListSelectedNewDetailVM = JsonConvert.DeserializeObject<List<IssueRequestViewModel>>(SOListSelectedNew);
+            List<IssueRequestViewModel> MaterialColorListNewDetailVM = JsonConvert.DeserializeObject<List<IssueRequestViewModel>>(MaterialColorListNew);
+
+            _issueRequestService.InsertOrUpdateGraphIssueSlipCreate(Issentity, entityDetailVM, entityGroupDataVM, IssueSlipType, CheckedByStatusForNoti, ApprovedByStatusForNoti, SOListSelectedNewDetailVM, MaterialColorListNewDetailVM, ProcessId);
+            //DetailCreate(entity, entityMatAndImat, receiveTaxList, entity.Id, entity.MaterialStorageId);
+
+            return Json(new { Issentity, Message = "Issue Request " + AplosMessage.Success + "Id=" + Issentity.Id });
+            //return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
+        }
+
+
+        #endregion
+
+        #region Grn IssueRequest Report 
+        [Authorize, HttpGet]
+        public ActionResult IssueRequestReport(string issueId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            _inventoryReveiveService.IssueRequestReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, issueId);
+
+            return null;
+        }
+
+        #endregion
+
+
+        #region Grn IssueUI or IssueWithReqPOGRN Report 
+        [Authorize, HttpGet]
+        public ActionResult IssueWithReqPOGRNReport(string Id)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            _inventoryReveiveService.IssueWithReqPOGRNReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, Id);
+
+            return View();
+        }
+
+        #endregion
+
+
+        [HttpGet, Authorize]
+        public JsonResult IssueListData(string IssueStatus, string IssueSlipType)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_issueRequestService.IssueListData(IssueStatus, IssueSlipType), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpGet, Authorize]
+        public JsonResult AssetIssueListData(string IssueStatus, string IssueSlipType)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_issueRequestService.AssetIssueListData(IssueStatus, IssueSlipType), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [Authorize, HttpGet]
+        public JsonResult ApprovedIssueSlipGridData(string IssueStatusApproval, string IssueSlipType)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_issueRequestService.ApprovedIssueSlipGridData(IssueStatusApproval, IssueSlipType), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult IssueListById(GridParameter parameters, string Id)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_issueRequestService.IssueListById(parameters, Id), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult IssueSlipDetail(string Id)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_issueRequestService.IssueSlipDetail(Id), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost, Authorize]
+        //public JsonResult IssueSlipUpdate(IssueRequestMaster Issentity, IEnumerable<IssueRequestViewModel> entity, string Id, string CheckedBy, string IssueSlipType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
+        public JsonResult IssueSlipUpdate(IssueRequestMaster Issentity, string entity, string Id, string CheckedBy, string IssueSlipType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti, string SOListSelectedNew, string MaterialColorListNew)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            Issentity.CheckedBy = CheckedBy;
+            Issentity.CompanyGroupId = identity.CompanyGroupId;
+            Issentity.CompanyId = identity.CompanyId;
+            Issentity.PlantId = identity.PlantId;
+
+            List<IssueRequestViewModel> entityDetailVM = JsonConvert.DeserializeObject<List<IssueRequestViewModel>>(entity);
+            //List<IssueRequestViewModel> SOListSelectedNewDetailVM = JsonConvert.DeserializeObject<List<IssueRequestViewModel>>(SOListSelectedNew);
+            //List<IssueRequestViewModel> MaterialColorListNewDetailVM = JsonConvert.DeserializeObject<List<IssueRequestViewModel>>(MaterialColorListNew);
+
+            _issueRequestService.InsertOrUpdateGraphIssueSlipUpdate(Issentity, entityDetailVM, Id, IssueSlipType, CheckedByStatusForNoti, ApprovedByStatusForNoti);
+            //DetailCreate(entity, entityMatAndImat, receiveTaxList, entity.Id, entity.MaterialStorageId);
+
+            return Json(new { Message = "Issue Request " + AplosMessage.Updated });
+        }
+        [Authorize, HttpGet]
+        public JsonResult IssueFilter()
+        {
+            return Json(_inventoryReveiveService.IssueFilter(), JsonRequestBehavior.AllowGet);
+
+        }
+
+
+
+        #region Requisition Inventory IssueUI Or Request
+
+        [Authorize, HttpGet]
+        public JsonResult GetRequisitionIssueDetail(string issueId)
+        {
+            return Json(_inventoryReveiveService.GetRequisitionIssueDetail(issueId), JsonRequestBehavior.AllowGet);
+
+        }
+
+
+        [Authorize, HttpGet]
+        public JsonResult IssueDetailData(string issueId)
+        {
+            return Json(_inventoryReveiveService.IssueDetailData(issueId), JsonRequestBehavior.AllowGet);
+
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult RequisitionIssueListData()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_issueRequestService.RequisitionIssueListData(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult RequisitionIssueInsert(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList
+            , IEnumerable<RequisitionIssueDetailViewModel> requisitionIssueDetails)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var inventoryIssue = new InventoryIssue();
+            inventoryIssue.CompanyGroupId = identity.CompanyGroupId;
+            inventoryIssue.CompanyId = identity.CompanyId;
+            inventoryIssue.PlantId = identity.PlantId;
+            _inventoryIssueService.RequisitionIssueInsert(entities, specificStockList, inventoryIssue, requisitionIssueDetails);
+            return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult RequisitionIssueUpdate(string issueId, IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList
+           , IEnumerable<RequisitionIssueDetailViewModel> requisitionIssueDetails)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var inventoryIssue = new InventoryIssue();
+            inventoryIssue.Id = issueId;
+            _inventoryIssueService.RequisitionIssueUpdate(entities, specificStockList, inventoryIssue, requisitionIssueDetails);
+            return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+        }
+        #endregion
+
+
+        #region  IssueSlipChecked and Approval
+        [HttpGet, Authorize]
+        public JsonResult IssueSlipUnChecked(string IssuStatus)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_issueRequestService.IssueSlipUnChecked(IssuStatus), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [Authorize, HttpGet]
+        public JsonResult IssueSlipChecked()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_issueRequestService.IssueSlipChecked(), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpPost, Authorize]
+        //string InventoryReceiveDetailId, string TransactionQty, string TransactionRate, string TrnAmount,string BaseTaxAmount,string BaseAmount,
+        public JsonResult IssueSlipToChecked(string PoId, string PoValue, string CheckedStataus, string AuthorizedBy)
+        {
+            //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            //if(identity.EmployeeId== AuthorizedBy)
+            //{
+
+            //}
+            _issueRequestService.IssueSlipToChecked(PoId, PoValue, CheckedStataus, AuthorizedBy);
+            return Json(new { Message = "Issue Slip Checked" + AplosMessage.Success });
+        }
+
+        #endregion
+
+
+
+        #region  ApprovingIssueSlip 
+
+
+        [HttpGet, Authorize]
+        public JsonResult IssueSlipUnApproved(string IssuAppStatus)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_issueRequestService.IssueSlipUnApproved(IssuAppStatus), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult IssueSlipApproved()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_issueRequestService.IssueSlipApproved(), JsonRequestBehavior.AllowGet);
+        }
+
+
+
+        [HttpPost, Authorize]
+        //string InventoryReceiveDetailId, string TransactionQty, string TransactionRate, string TrnAmount,string BaseTaxAmount,string BaseAmount,
+        public JsonResult IssueSlipToApproved(string PoId, string PoValue, string CheckedStataus, string AuthorizedBy)
+        {
+            _issueRequestService.IssueSlipToApproved(PoId, PoValue, CheckedStataus, AuthorizedBy);
+            return Json(new { Message = "Issue Slip Approved" + AplosMessage.Success });
+        }
+
+        #endregion
+
+
+
+        #region MaterialWiseIssueSlip 2 Step 
+        [Authorize, HttpGet]
+        public JsonResult GetIssueSlipFilterData()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.GetIssueSlipFilterData(), JsonRequestBehavior.AllowGet);
+
+        }
+        #endregion
+
+
+
+        #region AssetIssueWiseIssueSlip  
+        [Authorize, HttpGet]
+        public JsonResult GetAssetIssueSlipFilterData()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.GetAssetIssueSlipFilterData(), JsonRequestBehavior.AllowGet);
+
+        }
+        #endregion
+
+
+
+        #region Purchase Return Code Start Here
+        [HttpGet]
+        public JsonResult GetListPurchaseReturnData(string plantId, string tabType)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                var sql = "";
+                if (tabType == "ForChecking")
+                {
+                    sql = @"select * from(SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,
 						            IR.Id
                                     , REPLACE(CONVERT(CHAR(11), IR.POReturnDate, 106),' ','-') AS GRNDate1
                                      ,IR.POReturnDate 
@@ -1610,10 +1610,10 @@ namespace Aplos.Areas.Products.Controllers
 					and IR.ApprovedbyStatus Is Null
 					)x
               order by POReturnDate  ASC";
-				}
-				else if (tabType == "CheckedHoldReject")
-				{
-					sql = @"SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,
+                }
+                else if (tabType == "CheckedHoldReject")
+                {
+                    sql = @"SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,
 						            IR.Id
                                     , REPLACE(CONVERT(CHAR(11), IR.POReturnDate, 106),' ','-') AS GRNDate1
                                      ,IR.POReturnDate 
@@ -1654,10 +1654,10 @@ namespace Aplos.Areas.Products.Controllers
 			   order by IR.POReturnDate  ASC";
 
 
-				}
-				else if (tabType == "Checked")
-				{
-					sql = @"        SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,
+                }
+                else if (tabType == "Checked")
+                {
+                    sql = @"        SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,
 						            IR.Id
                                     , REPLACE(CONVERT(CHAR(11), IR.POReturnDate, 106),' ','-') AS GRNDate1
                                      ,IR.POReturnDate 
@@ -1699,10 +1699,10 @@ namespace Aplos.Areas.Products.Controllers
 
 
 
-				}
-				else if (tabType == "ApprovedHoldReject")
-				{
-					sql = @"
+                }
+                else if (tabType == "ApprovedHoldReject")
+                {
+                    sql = @"
                        
                             SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,
 						            IR.Id
@@ -1744,10 +1744,10 @@ namespace Aplos.Areas.Products.Controllers
                         AND IR.CheckedByStatus='Checked'
                         order by IR.POReturnDate  ASC";
 
-				}
-				else if (tabType == "Approved")
-				{
-					sql = @"Select * from(
+                }
+                else if (tabType == "Approved")
+                {
+                    sql = @"Select * from(
                         
                             SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,
 						            IR.Id
@@ -1875,10 +1875,10 @@ namespace Aplos.Areas.Products.Controllers
 
 
 
-				}
-				else if (tabType == "Posted")
-				{
-					sql = @"
+                }
+                else if (tabType == "Posted")
+                {
+                    sql = @"
                              SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,
 						            IR.Id
                                     , REPLACE(CONVERT(CHAR(11), IR.POReturnDate, 106),' ','-') AS GRNDate1
@@ -1924,33 +1924,33 @@ namespace Aplos.Areas.Products.Controllers
                     order by IR.POReturnDate  ASC";
 
 
-				}
+                }
 
 
-				return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
 
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
-			}
-			// return Json(_gateEntryService.PlantWiseGateCbo(IsSysAdmin, UserId, plantId), JsonRequestBehavior.AllowGet);
-		}
-		[HttpGet, Authorize]
-		public JsonResult PurchaseReturnApprovedCeackList(string tabType)
-		{
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+            // return Json(_gateEntryService.PlantWiseGateCbo(IsSysAdmin, UserId, plantId), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public JsonResult PurchaseReturnApprovedCeackList(string tabType)
+        {
 
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			try
-			{
-				var sql = "";
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                var sql = "";
 
 
-				if (tabType == "UnCheckedList")
-				{
-					sql = @"
+                if (tabType == "UnCheckedList")
+                {
+                    sql = @"
                             
                             
                             SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
@@ -2033,10 +2033,10 @@ namespace Aplos.Areas.Products.Controllers
 									,IR.AddedBy 
 	                                ,IR.CheckedHoldRejectReason                                   
 	                                ,IR.ApprovedByStatus , IR.DocRefNo";
-				}
-				else if (tabType == "HoldRejectCheckedList")
-				{
-					sql = @"
+                }
+                else if (tabType == "HoldRejectCheckedList")
+                {
+                    sql = @"
                        SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
                                     , REPLACE(CONVERT(CHAR(11), IR.POReturnDate , 106),' ','-') AS POReturnDate 
                                     , IR.CompanyGroupId
@@ -2117,10 +2117,10 @@ namespace Aplos.Areas.Products.Controllers
 									,IR.AddedBy 
 	                                ,IR.CheckedHoldRejectReason                                   
 	                                ,IR.ApprovedByStatus , IR.DocRefNo";
-				}
-				else if (tabType == "CheckedList")
-				{
-					sql = @"
+                }
+                else if (tabType == "CheckedList")
+                {
+                    sql = @"
                         SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
                                     , REPLACE(CONVERT(CHAR(11), IR.POReturnDate , 106),' ','-') AS POReturnDate 
                                     , IR.CompanyGroupId
@@ -2201,10 +2201,10 @@ namespace Aplos.Areas.Products.Controllers
 									,IR.AddedBy 
 	                                ,IR.CheckedHoldRejectReason                                   
 	                                ,IR.ApprovedByStatus , IR.DocRefNo";
-				}
-				else if (tabType == "UnApprovedList")
-				{
-					sql = @"
+                }
+                else if (tabType == "UnApprovedList")
+                {
+                    sql = @"
                        SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
                                     , REPLACE(CONVERT(CHAR(11), IR.POReturnDate , 106),' ','-') AS POReturnDate 
                                     , IR.CompanyGroupId
@@ -2368,10 +2368,10 @@ UNION ALL
 	                                ,IR.ApprovedByStatus , IR.DocRefNo";
 
 
-				}
-				else if (tabType == "HoldRejectApprovedList")
-				{
-					sql = @"
+                }
+                else if (tabType == "HoldRejectApprovedList")
+                {
+                    sql = @"
                         SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
                                     , REPLACE(CONVERT(CHAR(11), IR.POReturnDate , 106),' ','-') AS POReturnDate 
                                     , IR.CompanyGroupId
@@ -2452,10 +2452,10 @@ UNION ALL
 									,IR.AddedBy 
 	                                ,IR.CheckedHoldRejectReason                                   
 	                                ,IR.ApprovedByStatus , IR.DocRefNo";
-				}
-				else if (tabType == "ApprovedList")
-				{
-					sql = @"
+                }
+                else if (tabType == "ApprovedList")
+                {
+                    sql = @"
                        SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
                                     , REPLACE(CONVERT(CHAR(11), IR.POReturnDate , 106),' ','-') AS POReturnDate 
                                     , IR.CompanyGroupId
@@ -2536,165 +2536,165 @@ UNION ALL
 									,IR.AddedBy 
 	                                ,IR.CheckedHoldRejectReason                                   
 	                                ,IR.ApprovedByStatus , IR.DocRefNo";
-				}
+                }
 
 
-				return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
 
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
-			}
-			// return Json(_gateEntryService.PlantWiseGateCbo(IsSysAdmin, UserId, plantId), JsonRequestBehavior.AllowGet);
-
-
-
-
-
-		}
-
-
-		//string PoValue,
-		[HttpPost, Authorize]
-		public void PurchaseReturnCheckedAndApproved(string Id, string PurchaseReturnValue, string CheckedApprovedStataus, string CheckedApprovedBy, string RejectReason, string UIType)
-		{
-			var ApprovedById = "";
-			var ApprovedByStatus = "";
-			if (UIType == "Purchase-Return-Checked")
-			{
-				try
-				{
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+            // return Json(_gateEntryService.PlantWiseGateCbo(IsSysAdmin, UserId, plantId), JsonRequestBehavior.AllowGet);
 
 
 
-					PurchaseReturnValue = "0";
-					//  var Id = GetPK();
-					if (CheckedApprovedStataus == "Checked")
-					{
-						if (CheckedApprovedBy == null || CheckedApprovedBy == "")
-						{
-							throw new CustomException("Select Approved By");
-						}
-						ApprovedById = CheckedApprovedBy;
-						ApprovedByStatus = "For Approval";
-
-						//DailySendMailRequisitionApproved(RequisitionType, RequirmentType, CheckedBy, AuthorizedById, PoId, PreparedBY);
-
-					}
-					else
-					{
-						ApprovedById = null;
-
-					}
-					var Status = CheckedApprovedStataus;
-					var UpdatedBy = "";
-					var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-					var ip = identity.IPAddress;
-					var updatedDate = Convert.ToDateTime(DateTime.Now).ToString();
-					var AddedBy = identity.Name;
-					var AddedDate = Convert.ToDateTime(DateTime.Now).ToString();
-					var CompanyGroupId = identity.CompanyGroupId;
-					var CompanyId = identity.CompanyId;
-					var PlantId = identity.PlantId;
 
 
-					string _sql = "Update TRN.PurchaseReturn set CheckedByStatus='" + Status + "',ApprovedBy='" + ApprovedById + "',CheckedHoldRejectReason='" + RejectReason + "',ApprovedByStatus='" + ApprovedByStatus + "',IsApproved='" + 1 + "' where id='" + Id + "'";
-					_sqlRepository.ExecuteSqlCommand(_sql);
-					string _sql1 = "Insert into TRN.PurchaseReturnpprovalLogTbl(" +
-					"CompanyGroupId,CompanyId,PlantId,ApprovedBy,Date,PurchaseReturnValue,Status,AddedBy,AddedDate,AddedFromIP,UpdatedBy,UpdatedDate,UpdatedFromIp,PurchaseReturnID) " +
-					"values ('" + CompanyGroupId + "', " +
-					"'" + CompanyId + "'," +
-					"'" + PlantId + "'," +
-					"'" + AddedBy + "'," +
-					"'" + AddedDate + "'," +
-					"'" + PurchaseReturnValue + "'," +
-					"'" + Status + "'," +
-					"'" + AddedBy + "'," +
-					"'" + AddedDate + "'," +
-					"'" + ip + "'," +
-					"'" + UpdatedBy + "'," +
-					"'" + updatedDate + "', " +
-					"'" + ip + "','" + Id + "')";
-					_sqlRepository.ExecuteSqlCommand(_sql1);
-				}
-				catch (Exception ex)
-				{
-					throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-				}
+        }
 
-			}
-			else if (UIType == "Purchase-Return-Approved")
-			{
-				try
-				{
-					var IsApproved = 0;
 
-					PurchaseReturnValue = "0";
-					//  var Id = GetPK();
-					if (CheckedApprovedStataus == "Approved")
-					{
-						IsApproved = 1;
-						ApprovedById = CheckedApprovedBy;
-					}
-					else
-					{
-						IsApproved = 0;
-						ApprovedById = null;
-					}
-					var Status = CheckedApprovedStataus;
-					var UpdatedBy = "";
-					var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-					var ip = identity.IPAddress;
-					var updatedDate = Convert.ToDateTime(DateTime.Now).ToString();
-					var AddedBy = identity.Name;
-					var AddedDate = Convert.ToDateTime(DateTime.Now).ToString();
-					var CompanyGroupId = identity.CompanyGroupId;
-					var CompanyId = identity.CompanyId;
-					var PlantId = identity.PlantId;
-					string _sql = "Update TRN.PurchaseReturn set ApprovedByStatus='" + Status + "',ApprovedHoldRejectReason='" + RejectReason + "' where id='" + Id + "'";
-					_sqlRepository.ExecuteSqlCommand(_sql);
-					string _sql1 = "Insert into TRN.PurchaseReturnpprovalLogTbl(" +
-					"CompanyGroupId,CompanyId,PlantId,ApprovedBy,Date,PurchaseReturnValue,Status,AddedBy,AddedDate,AddedFromIP,UpdatedBy,UpdatedDate,UpdatedFromIp,PurchaseReturnID) " +
-					"values ('" + CompanyGroupId + "', " +
-					"'" + CompanyId + "'," +
-					"'" + PlantId + "'," +
-					"'" + AddedBy + "'," +
-					"'" + AddedDate + "'," +
-					"'" + PurchaseReturnValue + "'," +
-					"'" + Status + "'," +
-					"'" + AddedBy + "'," +
-					"'" + AddedDate + "'," +
-					"'" + ip + "'," +
-					"'" + UpdatedBy + "'," +
-					"'" + updatedDate + "', " +
-					"'" + ip + "','" + Id + "')";
-					_sqlRepository.ExecuteSqlCommand(_sql1);
-				}
-				catch (Exception ex)
-				{
-					throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-				}
-			}
-
-		}
-		[Authorize, HttpGet]
-		public JsonResult ApprovedGRNList()
-		{
-
-			try
-			{
-				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //string PoValue,
+        [HttpPost, Authorize]
+        public void PurchaseReturnCheckedAndApproved(string Id, string PurchaseReturnValue, string CheckedApprovedStataus, string CheckedApprovedBy, string RejectReason, string UIType)
+        {
+            var ApprovedById = "";
+            var ApprovedByStatus = "";
+            if (UIType == "Purchase-Return-Checked")
+            {
+                try
+                {
 
 
 
-				var Sql = @"SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
+                    PurchaseReturnValue = "0";
+                    //  var Id = GetPK();
+                    if (CheckedApprovedStataus == "Checked")
+                    {
+                        if (CheckedApprovedBy == null || CheckedApprovedBy == "")
+                        {
+                            throw new CustomException("Select Approved By");
+                        }
+                        ApprovedById = CheckedApprovedBy;
+                        ApprovedByStatus = "For Approval";
+
+                        //DailySendMailRequisitionApproved(RequisitionType, RequirmentType, CheckedBy, AuthorizedById, PoId, PreparedBY);
+
+                    }
+                    else
+                    {
+                        ApprovedById = null;
+
+                    }
+                    var Status = CheckedApprovedStataus;
+                    var UpdatedBy = "";
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                    var ip = identity.IPAddress;
+                    var updatedDate = Convert.ToDateTime(DateTime.Now).ToString();
+                    var AddedBy = identity.Name;
+                    var AddedDate = Convert.ToDateTime(DateTime.Now).ToString();
+                    var CompanyGroupId = identity.CompanyGroupId;
+                    var CompanyId = identity.CompanyId;
+                    var PlantId = identity.PlantId;
+
+
+                    string _sql = "Update TRN.PurchaseReturn set CheckedByStatus='" + Status + "',ApprovedBy='" + ApprovedById + "',CheckedHoldRejectReason='" + RejectReason + "',ApprovedByStatus='" + ApprovedByStatus + "',IsApproved='" + 1 + "' where id='" + Id + "'";
+                    _sqlRepository.ExecuteSqlCommand(_sql);
+                    string _sql1 = "Insert into TRN.PurchaseReturnpprovalLogTbl(" +
+                    "CompanyGroupId,CompanyId,PlantId,ApprovedBy,Date,PurchaseReturnValue,Status,AddedBy,AddedDate,AddedFromIP,UpdatedBy,UpdatedDate,UpdatedFromIp,PurchaseReturnID) " +
+                    "values ('" + CompanyGroupId + "', " +
+                    "'" + CompanyId + "'," +
+                    "'" + PlantId + "'," +
+                    "'" + AddedBy + "'," +
+                    "'" + AddedDate + "'," +
+                    "'" + PurchaseReturnValue + "'," +
+                    "'" + Status + "'," +
+                    "'" + AddedBy + "'," +
+                    "'" + AddedDate + "'," +
+                    "'" + ip + "'," +
+                    "'" + UpdatedBy + "'," +
+                    "'" + updatedDate + "', " +
+                    "'" + ip + "','" + Id + "')";
+                    _sqlRepository.ExecuteSqlCommand(_sql1);
+                }
+                catch (Exception ex)
+                {
+                    throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+                }
+
+            }
+            else if (UIType == "Purchase-Return-Approved")
+            {
+                try
+                {
+                    var IsApproved = 0;
+
+                    PurchaseReturnValue = "0";
+                    //  var Id = GetPK();
+                    if (CheckedApprovedStataus == "Approved")
+                    {
+                        IsApproved = 1;
+                        ApprovedById = CheckedApprovedBy;
+                    }
+                    else
+                    {
+                        IsApproved = 0;
+                        ApprovedById = null;
+                    }
+                    var Status = CheckedApprovedStataus;
+                    var UpdatedBy = "";
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                    var ip = identity.IPAddress;
+                    var updatedDate = Convert.ToDateTime(DateTime.Now).ToString();
+                    var AddedBy = identity.Name;
+                    var AddedDate = Convert.ToDateTime(DateTime.Now).ToString();
+                    var CompanyGroupId = identity.CompanyGroupId;
+                    var CompanyId = identity.CompanyId;
+                    var PlantId = identity.PlantId;
+                    string _sql = "Update TRN.PurchaseReturn set ApprovedByStatus='" + Status + "',ApprovedHoldRejectReason='" + RejectReason + "' where id='" + Id + "'";
+                    _sqlRepository.ExecuteSqlCommand(_sql);
+                    string _sql1 = "Insert into TRN.PurchaseReturnpprovalLogTbl(" +
+                    "CompanyGroupId,CompanyId,PlantId,ApprovedBy,Date,PurchaseReturnValue,Status,AddedBy,AddedDate,AddedFromIP,UpdatedBy,UpdatedDate,UpdatedFromIp,PurchaseReturnID) " +
+                    "values ('" + CompanyGroupId + "', " +
+                    "'" + CompanyId + "'," +
+                    "'" + PlantId + "'," +
+                    "'" + AddedBy + "'," +
+                    "'" + AddedDate + "'," +
+                    "'" + PurchaseReturnValue + "'," +
+                    "'" + Status + "'," +
+                    "'" + AddedBy + "'," +
+                    "'" + AddedDate + "'," +
+                    "'" + ip + "'," +
+                    "'" + UpdatedBy + "'," +
+                    "'" + updatedDate + "', " +
+                    "'" + ip + "','" + Id + "')";
+                    _sqlRepository.ExecuteSqlCommand(_sql1);
+                }
+                catch (Exception ex)
+                {
+                    throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+                }
+            }
+
+        }
+        [Authorize, HttpGet]
+        public JsonResult ApprovedGRNList()
+        {
+
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+
+
+                var Sql = @"SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
                                     , REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate1
                                      ,IR.GRNDate
                                     , IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
@@ -2745,31 +2745,31 @@ UNION ALL
                         --where IR.Id not in (select InventoryReceiveId from trn.PurchaseReturn where InventoryReceiveId is not null)
 						where IR.Status='Posting' AND IR.GRNType<>'FG'
                         Order by IR.GRNDate ASC";
-				var res = _sqlRepository.GetDataCollection(Sql);
-				var jsondata = Json(res, JsonRequestBehavior.AllowGet);
-				jsondata.MaxJsonLength = int.MaxValue;
-				return jsondata;
+                var res = _sqlRepository.GetDataCollection(Sql);
+                var jsondata = Json(res, JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
 
-				//return Json(_sqlRepository.GetDataCollection(Sql), JsonRequestBehavior.AllowGet);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
-			}
-		}
-
-
-		[Authorize, HttpGet]
-		public JsonResult GetInventoryMaterialListForPurchaseReturn(GridParameter parameters, string inveReveiveId, string POID, string AcceptanceId)
-		{
-			try
-			{
-				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                //return Json(_sqlRepository.GetDataCollection(Sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
 
 
-				var Sql = @"DECLARE @inventoryReceiveId VARCHAR(10)='" + inveReveiveId + @"'
+        [Authorize, HttpGet]
+        public JsonResult GetInventoryMaterialListForPurchaseReturn(GridParameter parameters, string inveReveiveId, string POID, string AcceptanceId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+
+                var Sql = @"DECLARE @inventoryReceiveId VARCHAR(10)='" + inveReveiveId + @"'
                                                      , @totalReceiveAmount DECIMAL(18, 4)=0
                                                      , @totalServiceAmount DECIMAL(18, 4)=0
                                                      , @totalSvcTaxAmount DECIMAL(18, 4)=0
@@ -2864,56 +2864,56 @@ UNION ALL
                                 --left join (select InventoryReceiveDetailId, sum(TransactionQty) OtherReturn from trn.PurchaseReturnDetail group BY InventoryReceiveDetailId) res on res.InventoryReceiveDetailId=IRD.Id
                                 WHERE IRD.InventoryReceiveId=@inventoryReceiveId and IM.MaterialMasterId IS not null";
 
-				return Json(_sqlRepository.GetDataCollection(Sql), JsonRequestBehavior.AllowGet);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
-			}
-		}
+                return Json(_sqlRepository.GetDataCollection(Sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
 
 
-		[Authorize, HttpGet]
-		public JsonResult GetPurchaseReturnCheckedBy()
-		{
-			try
-			{
-				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+        [Authorize, HttpGet]
+        public JsonResult GetPurchaseReturnCheckedBy()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           where  A.ActionStatus='PurchaseReturnCheckedBy'";//A.PlantId='" + identity.PlantId + "' AND
-				return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
-			}
-		}
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
 
-		[Authorize, HttpGet]
-		public JsonResult GetReceiveTaxListPO1(string receiveDetailId)
-		{
-			return Json(_inventoryReveiveService.GetReceiveTaxListPO(receiveDetailId), JsonRequestBehavior.AllowGet);
-		}
+        [Authorize, HttpGet]
+        public JsonResult GetReceiveTaxListPO1(string receiveDetailId)
+        {
+            return Json(_inventoryReveiveService.GetReceiveTaxListPO(receiveDetailId), JsonRequestBehavior.AllowGet);
+        }
 
-		[Authorize, HttpGet]
-		public JsonResult GetReceiveTaxListGRN(string receiveDetailId)
-		{
-			string paramter = "";
-			//if (receiveDetailId != "")
-			//{
-			//    if (paramter == "")
-			//        paramter += "A.InventoryReceiveId in(" + receiveDetailId + ")";
-			//    else
-			//        paramter += " AND A.InventoryReceiveId in(" + receiveDetailId + ")";
-			//}
-			try
-			{
-				var sql = @"SELECT A.Id,A.InventoryReceiveDetailId
+        [Authorize, HttpGet]
+        public JsonResult GetReceiveTaxListGRN(string receiveDetailId)
+        {
+            string paramter = "";
+            //if (receiveDetailId != "")
+            //{
+            //    if (paramter == "")
+            //        paramter += "A.InventoryReceiveId in(" + receiveDetailId + ")";
+            //    else
+            //        paramter += " AND A.InventoryReceiveId in(" + receiveDetailId + ")";
+            //}
+            try
+            {
+                var sql = @"SELECT A.Id,A.InventoryReceiveDetailId
 	                        ,A.InventoryReceiveId
 	                        , A.TaxCategoryId
 	                        , TC.UserName AS TaxCategory
@@ -2927,46 +2927,46 @@ UNION ALL
                         LEFT JOIN [HKP].[HSNCode] AS HN ON A.HSNCodeId=HN.Id
                         left join TRN.InventoryReceiveDetail d on d.id= A.InventoryReceiveDetailId
                         WHERE A.InventoryServiceId IS NULL AND A.InventoryReceiveId='" + receiveDetailId + "' ORDER BY TC.[Sequence]";
-				return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
 
-		[Authorize, HttpGet]
-		public JsonResult PurchaseReturnDetailsData(string PurchaseReturnId, string POID)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			var jsondata = Json(_inventoryMaterialService.PurchaseReturnDetailsData(PurchaseReturnId, POID), JsonRequestBehavior.AllowGet);
-			jsondata.MaxJsonLength = int.MaxValue;
-			return jsondata;
+        [Authorize, HttpGet]
+        public JsonResult PurchaseReturnDetailsData(string PurchaseReturnId, string POID)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var jsondata = Json(_inventoryMaterialService.PurchaseReturnDetailsData(PurchaseReturnId, POID), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
 
-		}
-
-
-		[Authorize, HttpGet]
-		public ActionResult PurchaseReturnReport(string grnId)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-			_inventoryReveiveService.PurchaseReturnReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, grnId);
-
-			return null;
-		}
-
-		[Authorize, HttpGet]
-		public JsonResult GetInventoryMaterialListForPurchaseReturnModify(GridParameter parameters, string inveReveiveId, string POID, string AcceptanceId)
-		{
-			try
-			{
-				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        }
 
 
-				var Sql = @"DECLARE @inventoryReceiveId VARCHAR(10)='" + inveReveiveId + @"'
+        [Authorize, HttpGet]
+        public ActionResult PurchaseReturnReport(string grnId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            _inventoryReveiveService.PurchaseReturnReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, grnId);
+
+            return null;
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetInventoryMaterialListForPurchaseReturnModify(GridParameter parameters, string inveReveiveId, string POID, string AcceptanceId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+
+                var Sql = @"DECLARE @inventoryReceiveId VARCHAR(10)='" + inveReveiveId + @"'
                                                      , @totalReceiveAmount DECIMAL(18, 4)=0
                                                      , @totalServiceAmount DECIMAL(18, 4)=0
                                                      , @totalSvcTaxAmount DECIMAL(18, 4)=0
@@ -3064,25 +3064,25 @@ UNION ALL
 
                                 WHERE IM.PurchaseReturnId=@inventoryReceiveId and IM.MaterialMasterId IS not null";
 
-				return Json(_sqlRepository.GetDataCollection(Sql), JsonRequestBehavior.AllowGet);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
-			}
-		}
+                return Json(_sqlRepository.GetDataCollection(Sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
 
 
-		[Authorize, HttpGet]
-		public JsonResult GetReceiveTaxListGRNPurchaseReturnModify(string receiveDetailId)
-		{
-			string paramter = "";
+        [Authorize, HttpGet]
+        public JsonResult GetReceiveTaxListGRNPurchaseReturnModify(string receiveDetailId)
+        {
+            string paramter = "";
 
-			try
-			{
-				var sql = @"SELECT A.Id,A.PurchaseReturnDetailId
+            try
+            {
+                var sql = @"SELECT A.Id,A.PurchaseReturnDetailId
 	                        ,A.PurchaseReturnId
 	                        , A.TaxCategoryId
 	                        , TC.UserName AS TaxCategory
@@ -3097,23 +3097,23 @@ UNION ALL
                         left join TRN.PurchaseReturnDetail d on d.id= A.PurchaseReturnDetailId
                         WHERE A.InventoryServiceId IS NULL 
 						AND A.PurchaseReturnId='" + receiveDetailId + "' ORDER BY TC.[Sequence]";
-				return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
-		[Authorize, HttpGet]
-		public JsonResult GetReceiveTaxListGRNPurchaseReturnModifyshowtax(string receiveDetailId)
-		{
-			string paramter = "";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetReceiveTaxListGRNPurchaseReturnModifyshowtax(string receiveDetailId)
+        {
+            string paramter = "";
 
-			try
-			{
-				var sql = @"SELECT A.Id,A.PurchaseReturnDetailId
+            try
+            {
+                var sql = @"SELECT A.Id,A.PurchaseReturnDetailId
 	                        ,A.PurchaseReturnId
 	                        , A.TaxCategoryId
 	                        , TC.UserName AS TaxCategory
@@ -3128,23 +3128,23 @@ UNION ALL
                         left join TRN.PurchaseReturnDetail d on d.id= A.PurchaseReturnDetailId
                         WHERE A.InventoryServiceId IS NULL 
 						AND A.PurchaseReturnDetailId='" + receiveDetailId + "' ORDER BY TC.[Sequence]";
-				return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
-		[Authorize, HttpGet]
-		public JsonResult GetReceiveTaxListGRNPurchaseReturnSaveshowtax(string receiveDetailId)
-		{
-			string paramter = "";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetReceiveTaxListGRNPurchaseReturnSaveshowtax(string receiveDetailId)
+        {
+            string paramter = "";
 
-			try
-			{
-				var sql = @"SELECT A.Id,A.InventoryReceiveDetailId
+            try
+            {
+                var sql = @"SELECT A.Id,A.InventoryReceiveDetailId
 	                        ,A.InventoryReceiveId
 	                        , A.TaxCategoryId
 	                        , TC.UserName AS TaxCategory
@@ -3159,160 +3159,160 @@ UNION ALL
                         left join TRN.InventoryReceiveDetail d on d.id= A.InventoryReceiveDetailId
                         WHERE A.InventoryServiceId IS NULL 
 						AND A.InventoryReceiveDetailId='" + receiveDetailId + "' ORDER BY TC.[Sequence]";
-				return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
 
 
 
 
-		[HttpPost, ChaildAction(ParentActionName = nameof(Delete))]
-		public JsonResult DeletePurchaseReturnRow1(string PurchaseReturnDetailId, string inventoryReceiveDetailId, string InventoryMaterial, decimal Trasantionqty)
-		{
-			_inventoryDetailService.DeletePurchaseReturnRow1(PurchaseReturnDetailId, inventoryReceiveDetailId, InventoryMaterial, Trasantionqty);
-			return Json(new { Message = AplosMessage.Deleted });
-		}
+        [HttpPost, ChaildAction(ParentActionName = nameof(Delete))]
+        public JsonResult DeletePurchaseReturnRow1(string PurchaseReturnDetailId, string inventoryReceiveDetailId, string InventoryMaterial, decimal Trasantionqty)
+        {
+            _inventoryDetailService.DeletePurchaseReturnRow1(PurchaseReturnDetailId, inventoryReceiveDetailId, InventoryMaterial, Trasantionqty);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
 
 
-		#endregion
-		[HttpGet, Authorize]
-		public JsonResult NotificationSetting()
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        #endregion
+        [HttpGet, Authorize]
+        public JsonResult NotificationSetting()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-			try
-			{
+            try
+            {
 
-				var sql = @"select * from dbo.NotificationSetting  where BusinessFlow='IssueSlip' and plantId='" + identity.PlantId + "'";
-				return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
-
-
-
-		[Authorize, HttpGet]
-		public JsonResult GetCheckedByAndApprovedBY(string CheckedBy, string ApprovedBy)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryDetailService.GetCheckedByAndApprovedBY(CheckedBy, ApprovedBy), JsonRequestBehavior.AllowGet);
-		}
-
-
-		#region notification setting Purchase Return
-
-		[HttpGet, Authorize]
-		public JsonResult NotificationSettingForPurchaserReturn()
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-			try
-			{
-
-				var sql = @"select * from dbo.NotificationSetting  where BusinessFlow='MaterialPurchaseReturn' and plantId='" + identity.PlantId + "'";
-				return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
+                var sql = @"select * from dbo.NotificationSetting  where BusinessFlow='IssueSlip' and plantId='" + identity.PlantId + "'";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
 
 
-		[Authorize, HttpGet]
-		public JsonResult GetCheckedByAndApprovedBYForPurchaserReturn(string CheckedBy, string ApprovedBy)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryDetailService.GetCheckedByAndApprovedBYForPurchaserReturn(CheckedBy, ApprovedBy), JsonRequestBehavior.AllowGet);
-		}
-
-		#endregion
-		[Authorize, HttpPost]
-		public ActionResult UpdateShortageRejectionValueMap(string InventoryReceiveId, List<Dictionary<string, object>> UserSendData)
-		{
-			try
-			{
-				Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-				obj.UpdateShortageRejectionValueMap(InventoryReceiveId, UserSendData);
-				return Json(new { Error = false, Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
-			}
-			catch (Exception ex)
-			{
-
-				return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-			}
+        [Authorize, HttpGet]
+        public JsonResult GetCheckedByAndApprovedBY(string CheckedBy, string ApprovedBy)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryDetailService.GetCheckedByAndApprovedBY(CheckedBy, ApprovedBy), JsonRequestBehavior.AllowGet);
+        }
 
 
-		}
-		[Authorize, HttpPost]
-		public bool GetDocRef(string UserDocRefNo, string PartyId, string DocDate, string Id)
-		{
-			try
-			{
-				Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-				bool res = obj.GetDocRef(UserDocRefNo, PartyId, DocDate, Id);
-				if (res == true)
-					return true;
-				else
-					return false;
+        #region notification setting Purchase Return
 
-			}
-			catch (Exception ex)
-			{
+        [HttpGet, Authorize]
+        public JsonResult NotificationSettingForPurchaserReturn()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-				return false;
-			}
+            try
+            {
 
-
-		}
+                var sql = @"select * from dbo.NotificationSetting  where BusinessFlow='MaterialPurchaseReturn' and plantId='" + identity.PlantId + "'";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
 
 
-		[Authorize, HttpGet]
-		public JsonResult GetGRNDetailsForSoAllocation(string InventoryReceiveDetailId, string PODetailId)
-		{
-			try
-			{
-				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-				return Json(obj.GetGRNDetailsForSoAllocation(InventoryReceiveDetailId, PODetailId), JsonRequestBehavior.AllowGet);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
+        [Authorize, HttpGet]
+        public JsonResult GetCheckedByAndApprovedBYForPurchaserReturn(string CheckedBy, string ApprovedBy)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryDetailService.GetCheckedByAndApprovedBYForPurchaserReturn(CheckedBy, ApprovedBy), JsonRequestBehavior.AllowGet);
+        }
 
-		}
+        #endregion
+        [Authorize, HttpPost]
+        public ActionResult UpdateShortageRejectionValueMap(string InventoryReceiveId, List<Dictionary<string, object>> UserSendData)
+        {
+            try
+            {
+                Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
+                obj.UpdateShortageRejectionValueMap(InventoryReceiveId, UserSendData);
+                return Json(new { Error = false, Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
 
-		[HttpGet, Authorize]
-		public JsonResult GetProductionRecipeMaterialList(string productionOrderId)
-		{
-			return Json(_inventoryDetailService.GetProductionRecipeMaterialList(productionOrderId), JsonRequestBehavior.AllowGet);
-		}
-		[HttpGet, Authorize]
-		public JsonResult GetProcessByProductionOrder(string productionOrderId)
-		{
-			return Json(_inventoryDetailService.GetProcessByProductionOrder(productionOrderId), JsonRequestBehavior.AllowGet);
-		}
-		[HttpGet, Authorize]
-		public ActionResult GetProductionList(string column, string value)
-		{
-			 string strkey = "1=1";
-			if (string.IsNullOrEmpty(column) == false)
-				strkey = column + " like '%" + value + "%'";
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
 
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;//
-			string sql = @"select top 100 * from (SELECT PO.*,isnull(po.Remarks,'') AS ProductionRemarks,isnull(s.UserName,'') AS ProductionStatus, isnull(EN.UserName,'') AS EntityName, 
+
+        }
+        [Authorize, HttpPost]
+        public bool GetDocRef(string UserDocRefNo, string PartyId, string DocDate, string Id)
+        {
+            try
+            {
+                Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
+                bool res = obj.GetDocRef(UserDocRefNo, PartyId, DocDate, Id);
+                if (res == true)
+                    return true;
+                else
+                    return false;
+
+            }
+            catch (Exception ex)
+            {
+
+                return false;
+            }
+
+
+        }
+
+
+
+        [Authorize, HttpGet]
+        public JsonResult GetGRNDetailsForSoAllocation(string InventoryReceiveDetailId, string PODetailId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
+                return Json(obj.GetGRNDetailsForSoAllocation(InventoryReceiveDetailId, PODetailId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetProductionRecipeMaterialList(string productionOrderId)
+        {
+            return Json(_inventoryDetailService.GetProductionRecipeMaterialList(productionOrderId), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public JsonResult GetProcessByProductionOrder(string productionOrderId)
+        {
+            return Json(_inventoryDetailService.GetProcessByProductionOrder(productionOrderId), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public ActionResult GetProductionList(string column, string value)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;//
+            string sql = @"select top 100 * from (SELECT PO.*,isnull(po.Remarks,'') AS ProductionRemarks,isnull(s.UserName,'') AS ProductionStatus, isnull(EN.UserName,'') AS EntityName, 
             isnull(PS.UserName,'') AS ProductionStatusName,ISNULL(so.Qty,0) AS SOQuantity           
                     FROM [TRN].[ProductionOrder] AS PO
                 JOIN [ORG].[Entity] AS EN ON PO.EntityId = EN.Id
@@ -3329,16 +3329,16 @@ UNION ALL
                             WHERE PO.PlantId='" + identity.PlantId + "' OR EN.PlantId='" + identity.PlantId + "') AS TEMP WHERE " + strkey;
 
 
-			sql = @"select top 100 * from ( " + ProductionOrderList() + @"
+            sql = @"select top 100 * from ( " + ProductionOrderList() + @"
                             WHERE PO.PlantId='" + identity.PlantId + "' OR EN.PlantId='" + identity.PlantId + "') AS TEMP WHERE " + strkey + " ORDER BY UpdatedDate DESC";
 
 
-			return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-		}
-		private string ProductionOrderList()
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return @"SELECT 
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+        private string ProductionOrderList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return @"SELECT 
                     case when PO.PlantId='" + identity.PlantId + @"' AND PO.PlantId=EN.PlantId then 'OWN' else 
                      case when PO.PlantId='" + identity.PlantId + @"' and EN.PlantId<>PO.PlantId then 'OUT' ELSE
                     case when PO.PlantId<>'" + identity.PlantId + @"' AND EN.PlantId='" + identity.PlantId + @"' THEN 'IN' ELSE '' END END END AS Owner,
@@ -3427,106 +3427,106 @@ UNION ALL
                                                     group by pod.ProductionOrderId,mm.userName,PM.UserName,pc.UserName,PM.Id) AS SO ON so.ProductionOrderId=po.Id
                             LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId";
 
-		}
+        }
 
-		[HttpGet, Authorize]
-		public ActionResult GetMaterialWithSKU(string processId, string parameters)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			try
-			{
-				string paramter = "";
-				if (parameters != "")
-				{
-					if (paramter == "")
-						paramter += "SO.Id in(" + parameters + ")";
-					else
-						paramter += " AND SO.Id in(" + parameters + ")";
-				}
+        [HttpGet, Authorize]
+        public ActionResult GetMaterialWithSKU(string processId, string parameters)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                string paramter = "";
+                if (parameters != "")
+                {
+                    if (paramter == "")
+                        paramter += "SO.Id in(" + parameters + ")";
+                    else
+                        paramter += " AND SO.Id in(" + parameters + ")";
+                }
 
-				//var sql = @"SELECT b.Id BOQId,b.Sequence Sequence1
-				//            ,b.MasterOrderItemId
-				//            ,moi.MasterOrderId
-				//            ,ISNULL(mo.OwnReferenceNo,'') OwnOrderReferenceNo
-				//            ,ISNULL(mo.BuyerReferenceNo,'') BuyerOrderReferenceNo
-				//            ,ISNULL(moi.OwnReferenceNo,'') OwnItemReferenceNo
-				//            ,ISNULL(moi.BuyerReferenceNo,'') BuyerItemReferenceNo
-				//            , b.VendorId
-				//            ,b.SalesOrderId
-				//            ,b.ProcessId
-				//            ,mm.Id MaterialMasterId,mma.Id ArticleId
-				//            ,IsNULL(mm.UserName,'') AS UserName
-				//            ,IsNULL(mma.StandardName,'') AS StandardName
-				//            ,IsNULL(p.UserName,'') AS Vendor
-				//            ,IsNULL(v1.UserName,'') AS FirstCharacteristicsValue
-				//            ,IsNULL(v2.UserName,'') AS SecondCharacteristicsValue
-				//            ,IsNULL(v3.UserName,'') AS ThirdCharacteristicsValue
-				//            ,b.FirstCharacteristicsValueId,FC.Id FirstCharacteristicsId
-				//            ,b.SecondCharacteristicsValueId,SC.Id FirstCharacteristicsId
-				//            ,b.ThirdCharacteristicsValueId,TC.Id ThirdCharacteristicsId
-				//            ,RequiredQtyApproved=Case When CONVERT(BIT, isnull(b.RequiredQtyApproved,0))=0 Then 'No' ELSE 'Yes' END
-				//            ,IncompleteMaterial=CASE WHEN CONVERT(BIT, isnull(b.IncompleteMaterial,0))=1 THEN 'Yes' ELSE 'No' END 
-				//            ,b.OrderQty,b.PlanOrderQty,b.Consumption,b.WastagePer,
-				//            b.BOMQty,C.Id
-				//            ,null CheckedStatus   ,null TaxList,MM.HSNCodeId	,MM.IsOriginApplicable
-				//            ,REPLACE(CONVERT(CHAR(11), so.DeliveryDate, 106),' ','-') AS DeliveryDate 
-				//            ,ISNULL(cpo.PONumber,'') PONumber
-				//            ,AUOM.AlternativeUOMId,AUOM.BaseUOMId,AUOM.BaseUOMFactor,AUOM.AlternativeUOMFactor
-				//            ,uom1.UserName AlternateUOM
-				//            ,RequiredQty= CASE WHEN AUOM.BaseUOMFactor IS NULL THEN ROUND(isnull(b.RequiredQty,0),2) ELSE ROUND(isnull(b.BOMQty,0)/ISNULL(AUOM.BaseUOMFactor,0),2) END
-				//            ,uom.UserName BOQUOM
-				//            ,UOM=CASE WHEN AUOM.AlternativeUOMId IS NULL then uom.UserName else  uom1.UserName END
-				//            ,TransactionUoMId=CASE WHEN AUOM.AlternativeUOMId IS NULL THEN b.UoMId ELSE AUOM.AlternativeUOMId END
-				//            ,RefferenceNo=ISNULL(mo.OwnReferenceNo,'') + '/' + ISNULL(mo.BuyerReferenceNo,'') +'/'+ ISNULL(moi.OwnReferenceNo,'')+'/'+ISNULL(moi.BuyerReferenceNo,'')
-				//            FROM BOQ AS b
-				//            LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
-				//            LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
-				//            LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=b.UoMId
-				//            LEFT OUTER JOIN HKP.Party P ON p.Id=b.VendorId
-				//            LEFT OUTER JOIN trn.SalesOrder AS so ON so.Id=b.SalesOrderId
-				//            LEFT OUTER JOIN trn.MasterOrderItem AS moi ON moi.Id=b.MasterOrderItemId
-				//            LEFT OUTER JOIN trn.MasterOrder AS mo ON mo.Id=moi.MasterOrderId
-				//            left outer join [TRN].[CustomerPO] cpo On cpo.Id=so.CustomerPOId
-				//            LEFT OUTER JOIN [HKP].[CharacteristicsValue] V1 ON v1.Id=b.FirstCharacteristicsValueId
-				//            LEFT OUTER JOIN [HKP].[CharacteristicsValue] V2 ON v2.Id=b.SecondCharacteristicsValueId
-				//            LEFT OUTER JOIN [HKP].[CharacteristicsValue] V3 ON v3.Id=b.ThirdCharacteristicsValueId
-				//            LEFT JOIN HKP.Characteristics AS FC ON FC.Id=V1.CharacteristicsId
-				//            LEFT JOIN HKP.Characteristics AS SC ON SC.Id=V2.CharacteristicsId
-				//            LEFT JOIN HKP.Characteristics AS TC ON TC.Id=V3.CharacteristicsId
-				//            LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId						
-				//            LEFT JOIN MST.MaterialMasterAlternativeUOM AUOM ON AUOM.MaterialMasterId=mm.Id 
-				//            LEFT OUTER JOIN scs.UnitOfMeasurement AS uom1 ON uom1.Id=AUOM.AlternativeUOMId						
-				//            where b.ProcessId in('"+ processId + @"') And " + paramter + @"
-				//            ORDER BY b.Sequence, b.SalesOrderId
-				//            ";
+                //var sql = @"SELECT b.Id BOQId,b.Sequence Sequence1
+                //            ,b.MasterOrderItemId
+                //            ,moi.MasterOrderId
+                //            ,ISNULL(mo.OwnReferenceNo,'') OwnOrderReferenceNo
+                //            ,ISNULL(mo.BuyerReferenceNo,'') BuyerOrderReferenceNo
+                //            ,ISNULL(moi.OwnReferenceNo,'') OwnItemReferenceNo
+                //            ,ISNULL(moi.BuyerReferenceNo,'') BuyerItemReferenceNo
+                //            , b.VendorId
+                //            ,b.SalesOrderId
+                //            ,b.ProcessId
+                //            ,mm.Id MaterialMasterId,mma.Id ArticleId
+                //            ,IsNULL(mm.UserName,'') AS UserName
+                //            ,IsNULL(mma.StandardName,'') AS StandardName
+                //            ,IsNULL(p.UserName,'') AS Vendor
+                //            ,IsNULL(v1.UserName,'') AS FirstCharacteristicsValue
+                //            ,IsNULL(v2.UserName,'') AS SecondCharacteristicsValue
+                //            ,IsNULL(v3.UserName,'') AS ThirdCharacteristicsValue
+                //            ,b.FirstCharacteristicsValueId,FC.Id FirstCharacteristicsId
+                //            ,b.SecondCharacteristicsValueId,SC.Id FirstCharacteristicsId
+                //            ,b.ThirdCharacteristicsValueId,TC.Id ThirdCharacteristicsId
+                //            ,RequiredQtyApproved=Case When CONVERT(BIT, isnull(b.RequiredQtyApproved,0))=0 Then 'No' ELSE 'Yes' END
+                //            ,IncompleteMaterial=CASE WHEN CONVERT(BIT, isnull(b.IncompleteMaterial,0))=1 THEN 'Yes' ELSE 'No' END 
+                //            ,b.OrderQty,b.PlanOrderQty,b.Consumption,b.WastagePer,
+                //            b.BOMQty,C.Id
+                //            ,null CheckedStatus   ,null TaxList,MM.HSNCodeId	,MM.IsOriginApplicable
+                //            ,REPLACE(CONVERT(CHAR(11), so.DeliveryDate, 106),' ','-') AS DeliveryDate 
+                //            ,ISNULL(cpo.PONumber,'') PONumber
+                //            ,AUOM.AlternativeUOMId,AUOM.BaseUOMId,AUOM.BaseUOMFactor,AUOM.AlternativeUOMFactor
+                //            ,uom1.UserName AlternateUOM
+                //            ,RequiredQty= CASE WHEN AUOM.BaseUOMFactor IS NULL THEN ROUND(isnull(b.RequiredQty,0),2) ELSE ROUND(isnull(b.BOMQty,0)/ISNULL(AUOM.BaseUOMFactor,0),2) END
+                //            ,uom.UserName BOQUOM
+                //            ,UOM=CASE WHEN AUOM.AlternativeUOMId IS NULL then uom.UserName else  uom1.UserName END
+                //            ,TransactionUoMId=CASE WHEN AUOM.AlternativeUOMId IS NULL THEN b.UoMId ELSE AUOM.AlternativeUOMId END
+                //            ,RefferenceNo=ISNULL(mo.OwnReferenceNo,'') + '/' + ISNULL(mo.BuyerReferenceNo,'') +'/'+ ISNULL(moi.OwnReferenceNo,'')+'/'+ISNULL(moi.BuyerReferenceNo,'')
+                //            FROM BOQ AS b
+                //            LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
+                //            LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
+                //            LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=b.UoMId
+                //            LEFT OUTER JOIN HKP.Party P ON p.Id=b.VendorId
+                //            LEFT OUTER JOIN trn.SalesOrder AS so ON so.Id=b.SalesOrderId
+                //            LEFT OUTER JOIN trn.MasterOrderItem AS moi ON moi.Id=b.MasterOrderItemId
+                //            LEFT OUTER JOIN trn.MasterOrder AS mo ON mo.Id=moi.MasterOrderId
+                //            left outer join [TRN].[CustomerPO] cpo On cpo.Id=so.CustomerPOId
+                //            LEFT OUTER JOIN [HKP].[CharacteristicsValue] V1 ON v1.Id=b.FirstCharacteristicsValueId
+                //            LEFT OUTER JOIN [HKP].[CharacteristicsValue] V2 ON v2.Id=b.SecondCharacteristicsValueId
+                //            LEFT OUTER JOIN [HKP].[CharacteristicsValue] V3 ON v3.Id=b.ThirdCharacteristicsValueId
+                //            LEFT JOIN HKP.Characteristics AS FC ON FC.Id=V1.CharacteristicsId
+                //            LEFT JOIN HKP.Characteristics AS SC ON SC.Id=V2.CharacteristicsId
+                //            LEFT JOIN HKP.Characteristics AS TC ON TC.Id=V3.CharacteristicsId
+                //            LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId						
+                //            LEFT JOIN MST.MaterialMasterAlternativeUOM AUOM ON AUOM.MaterialMasterId=mm.Id 
+                //            LEFT OUTER JOIN scs.UnitOfMeasurement AS uom1 ON uom1.Id=AUOM.AlternativeUOMId						
+                //            where b.ProcessId in('"+ processId + @"') And " + paramter + @"
+                //            ORDER BY b.Sequence, b.SalesOrderId
+                //            ";
 
-				//var sql = @"SELECT Distinct              b.MaterialMasterId,MM.UserName MaterialName
-				//                        ,b.ArticleId, Article.StandardName ArticleName
-				//                        , BOQFGMAP.FirstCharacteristicsValueId 
-				//                        ,IsNULL(v1.UserName, '') AS FirstCharacteristicsValue
-				//                        , FC.Id FirstCharacteristicsId
-				//                        , IsNULL(v2.UserName, '') AS SecondCharacteristicsValue
-				//                        , BOQFGMAP.SecondCharacteristicsValueId,SC.Id FirstCharacteristicsId
-				//                        , IsNULL(v3.UserName, '') AS ThirdCharacteristicsValue
-				//                        , BOQFGMAP.ThirdCharacteristicsValueId,TC.Id ThirdCharacteristicsId,null Active
-				//			,b.SalesOrderId
-				//			,b.OrderQty							
-				//			,b.Consumption
-				//			,b.WastagePer
-				//			,b.PlanOrderQty
-				//                        FROM BOQ AS b
-				//                        LEFT  JOIN MST.MaterialMaster MM ON MM.Id=B.MaterialMasterId
-				//                        LEFT JOIN mst.MaterialMasterArticle Article ON Article.MaterialMasterId=mm.Id
-				//                        LEFT JOIN BOQFGMapping BOQFGMAP  ON BOQFGMAP.BOQDetailId = B.Id
-				//                        LEFT OUTER JOIN[HKP].[CharacteristicsValue] V1 ON v1.Id = BOQFGMAP.FirstCharacteristicsValueId
-				//                        LEFT OUTER JOIN[HKP].[CharacteristicsValue] V2 ON v2.Id = BOQFGMAP.SecondCharacteristicsValueId
-				//                        LEFT OUTER JOIN[HKP].[CharacteristicsValue] V3 ON v3.Id = BOQFGMAP.ThirdCharacteristicsValueId
-				//                        LEFT JOIN HKP.Characteristics AS FC ON FC.Id = V1.CharacteristicsId
-				//                        LEFT JOIN HKP.Characteristics AS SC ON SC.Id = V2.CharacteristicsId
-				//                        LEFT JOIN HKP.Characteristics AS TC ON TC.Id = V3.CharacteristicsId
-				//                        where b.ProcessId in('" + processId + @"') And " + paramter + @"";
+                //var sql = @"SELECT Distinct              b.MaterialMasterId,MM.UserName MaterialName
+                //                        ,b.ArticleId, Article.StandardName ArticleName
+                //                        , BOQFGMAP.FirstCharacteristicsValueId 
+                //                        ,IsNULL(v1.UserName, '') AS FirstCharacteristicsValue
+                //                        , FC.Id FirstCharacteristicsId
+                //                        , IsNULL(v2.UserName, '') AS SecondCharacteristicsValue
+                //                        , BOQFGMAP.SecondCharacteristicsValueId,SC.Id FirstCharacteristicsId
+                //                        , IsNULL(v3.UserName, '') AS ThirdCharacteristicsValue
+                //                        , BOQFGMAP.ThirdCharacteristicsValueId,TC.Id ThirdCharacteristicsId,null Active
+                //			,b.SalesOrderId
+                //			,b.OrderQty							
+                //			,b.Consumption
+                //			,b.WastagePer
+                //			,b.PlanOrderQty
+                //                        FROM BOQ AS b
+                //                        LEFT  JOIN MST.MaterialMaster MM ON MM.Id=B.MaterialMasterId
+                //                        LEFT JOIN mst.MaterialMasterArticle Article ON Article.MaterialMasterId=mm.Id
+                //                        LEFT JOIN BOQFGMapping BOQFGMAP  ON BOQFGMAP.BOQDetailId = B.Id
+                //                        LEFT OUTER JOIN[HKP].[CharacteristicsValue] V1 ON v1.Id = BOQFGMAP.FirstCharacteristicsValueId
+                //                        LEFT OUTER JOIN[HKP].[CharacteristicsValue] V2 ON v2.Id = BOQFGMAP.SecondCharacteristicsValueId
+                //                        LEFT OUTER JOIN[HKP].[CharacteristicsValue] V3 ON v3.Id = BOQFGMAP.ThirdCharacteristicsValueId
+                //                        LEFT JOIN HKP.Characteristics AS FC ON FC.Id = V1.CharacteristicsId
+                //                        LEFT JOIN HKP.Characteristics AS SC ON SC.Id = V2.CharacteristicsId
+                //                        LEFT JOIN HKP.Characteristics AS TC ON TC.Id = V3.CharacteristicsId
+                //                        where b.ProcessId in('" + processId + @"') And " + paramter + @"";
 
-				var sql = @"SELECT Concat(SO.Id,'-',ISNULL(FCS.CharacteristicsValueId,''),'-',ISNULL(SCS.CharacteristicsValueId,''),'-',ISNULL(TCS.CharacteristicsValueId,'')) SOMATART
+                var sql = @"SELECT Concat(SO.Id,'-',ISNULL(FCS.CharacteristicsValueId,''),'-',ISNULL(SCS.CharacteristicsValueId,''),'-',ISNULL(TCS.CharacteristicsValueId,'')) SOMATART
 					,MOI.MaterialMasterId
 					,MM.UserName MaterialName
 					,MOI.ArticleId
@@ -3585,622 +3585,623 @@ UNION ALL
 					,D.UserName 
 					,CPO.PONumber
 					,CPO.PODate";
-				return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
 
-		}
-		[Authorize, HttpGet]
-		public JsonResult GetMaterialListForProductionReq(string Material, string Article, string Skuvalue1, string Skuvalue2, string Skuvalue3, string processId, string parameters, string SOMATART, string queryString)
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetMaterialListForProductionReq(string Material, string Article, string Skuvalue1, string Skuvalue2, string Skuvalue3, string processId, string parameters, string SOMATART, string queryString)
 
-		{
-			try
-			{
-				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-				return Json(obj.GetMaterialListForProductionReq(Material, Article, Skuvalue1, Skuvalue2, Skuvalue3, processId, parameters, SOMATART, queryString), JsonRequestBehavior.AllowGet);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
+                return Json(obj.GetMaterialListForProductionReq(Material, Article, Skuvalue1, Skuvalue2, Skuvalue3, processId, parameters, SOMATART, queryString), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
 
-		}
+        }
 
-		[Authorize, HttpGet]
-		public JsonResult GRNDocumentMapDataAll(string POID)
-		{
-			try
-			{
-				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-				return Json(obj.GRNDocumentMapDataAll(POID), JsonRequestBehavior.AllowGet);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
+        [Authorize, HttpGet]
+        public JsonResult GRNDocumentMapDataAll(string POID)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
+                return Json(obj.GRNDocumentMapDataAll(POID), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
-		#region GRN Uncheck and Un Approved
-		[HttpGet, Authorize]
-		public JsonResult getGRNCheckedListData()
-		{
-
-
-			try
-			{
-				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-				return Json(obj.getGRNCheckedListData(identity.PlantId), JsonRequestBehavior.AllowGet);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
-		[HttpGet, Authorize]
-		public JsonResult getGRNApprovedListData()
-		{
-			try
-			{
-				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-				return Json(obj.getGRNApprovedListData(identity.PlantId), JsonRequestBehavior.AllowGet);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
-		#endregion
-		#region GRN UncheckAnd UnApproved
-		[HttpPost]
-		public ActionResult GRNUncheckUpdate(string InventoryReceiveId, Dictionary<string, object> UserSendData)
-		{
-			try
-			{
-				Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-				obj.GRNUncheckUpdate(InventoryReceiveId, UserSendData);
-				return Json(new { Error = false, Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
-			}
-			catch (Exception ex)
-			{
-
-				return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-			}
-		}
-		[HttpPost]
-		public ActionResult GRNUnapprovedUpdate(string InventoryReceiveId, Dictionary<string, object> UserSendData)
-		{
-			try
-			{
-				Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-				obj.GRNUnapprovedUpdate(InventoryReceiveId, UserSendData);
-				return Json(new { Error = false, Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
-			}
-			catch (Exception ex)
-			{
-
-				return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-			}
-
-		}
-
-		#endregion
-		[Authorize, HttpGet]
-		public JsonResult GetSalesOrderInfobyIssueSlipId(string IssueSlipId)
-		{
-			try
-			{
-				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				Library.MaterialManagement.InventoryManagements.InventoryIssueService obj = new Library.MaterialManagement.InventoryManagements.InventoryIssueService();
-				return Json(obj.GetSalesOrderInfobyIssueSlipId(IssueSlipId), JsonRequestBehavior.AllowGet);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
-
-		[Authorize, HttpGet]
-		public JsonResult GetProductionOrderBYSalesOrder(string ProductionOrderId)
-		{
-			try
-			{
-				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				Library.MaterialManagement.InventoryManagements.InventoryIssueService obj = new Library.MaterialManagement.InventoryManagements.InventoryIssueService();
-				return Json(obj.GetProductionOrderBYSalesOrder(ProductionOrderId), JsonRequestBehavior.AllowGet);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
-
-		[Authorize, HttpGet]
-		public JsonResult GetIssueWiseSKU(string IssueId)
-		{
-			try
-			{
-				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				Library.MaterialManagement.InventoryManagements.InventoryIssueService obj = new Library.MaterialManagement.InventoryManagements.InventoryIssueService();
-				return Json(obj.GetIssueWiseSKU(IssueId), JsonRequestBehavior.AllowGet);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
-
-		#region GRN-By-JW
-		[HttpPost]
-		public JsonResult CreateJWGRN(InventoryReceive entity, string entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string AcceptanceId, string CheckedByStatusForNoti, string ApprovedByStatusForNoti, string entityMatByProduct)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			entity.CompanyGroupId = identity.CompanyGroupId;
-			entity.CompanyId = identity.CompanyId;
-			entity.PlantId = identity.PlantId;
-
-			if (string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
-			{
-				CheckedByStatusForNoti = "False";
-				ApprovedByStatusForNoti = "False";
-			}
-			
-			var settings = new JsonSerializerSettings
-			{
-				NullValueHandling = NullValueHandling.Ignore,
-				MissingMemberHandling = MissingMemberHandling.Ignore
-			};
-
-			//IEnumerable<InventoryMaterialViewModel>
-			List<InventoryMaterialViewModel> entityMatAndImat1 = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(entityMatAndImat, settings);
-			List<InventoryMaterialViewModel> entityMatByProduct1 = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(entityMatByProduct, settings);
-			if (identity.EmployeeId == entity.CheckedBy)
-			{
-				throw new CustomException("Please select another employee for Check by.");
-			}
-			else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "True")
-			{
-
-				entity.AuthorizedBy = entity.CheckedBy;
-				entity.AuthorizedByStatus = "For Approval";
-				entity.CheckedBy = null;
-				entity.CheckedByStatus = null;
-				entity.IsApproved = false;
-				entity.RequiredPosting = true;
-			}
-			else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
-			{
-				entity.CheckedByStatus = null;
-				entity.AuthorizedByStatus = null;
-				entity.CheckedBy = null;
-				entity.AuthorizedBy = null;
-				entity.IsApproved = true;
-				entity.RequiredPosting = true;
-			}
-			else
-			{
-				entity.CheckedBy = entity.CheckedBy;
-				entity.CheckedByStatus = "ForChecked";
-				entity.AuthorizedBy = null;
-				entity.AuthorizedByStatus = null;
-				entity.IsApproved = false;
-				entity.RequiredPosting = true;
-			}
-			if (entityMatAndImat1 != null)
-			{
-				foreach (var item in entityMatAndImat1)
-				{
-
-					if (!item.check)
-					{
-						throw new CustomException("Please Select Materials !");
-
-					}
-					else if (item.TransactionQty.ToString() == "0")
-					{
-						throw new CustomException("Please Input The Current Qty !");
-					}
-
-				}
-			}
-			else
-			{
-				throw new CustomException("Please Select atlest one Materials !");
-			}
-			if (chargesListPO != null)
-			{
-				foreach (var item in chargesListPO)
-				{
-					if (!item.check)
-					{
-						throw new CustomException("Please Select Materials !");
-					}
-					else if (item.Amount.ToString() == "0")
-					{
-						throw new CustomException("Please Input  Amount !");
-					}
-
-				}
-			}
-			bool _returnRes = GetDocRef(entity.DocRefNo, entity.PartyId, entity.DocDate.ToString(), entity.Id);
-			if (_returnRes == true)
-			{
-				throw new CustomException("Vendor / Docref / Docdate cannot duplicate!");
-			}			
-			if (entityMatAndImat1 != null)
-			{
-				foreach (var item in entityMatAndImat1)
-				{
-
-					if (!item.check)
-					{
-						throw new CustomException("Please Select Materials !");
-
-					}
-					else if (item.TransactionQty.ToString() == "0")
-					{
-						throw new CustomException("Please Input The Current Qty !");
-					}
-
-				}
-			}
-			else
-			{
-				throw new CustomException("Please Select atlest one Materials !");
-			}		
-		
-
-			JWDetailCreate(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType, entityMatByProduct1);			
-			return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
-		}
-		public JsonResult JWDetailCreate(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType, IEnumerable<InventoryMaterialViewModel>  entityMatByProduct)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			_inventoryDetailService.JWInsertOrUpdateGraphNew(entity, entityMat, taxCategoryList, id, MaterialStorageId, GRNType, entityMatByProduct);
-			return Json(new { Message = AplosMessage.Success });
-		}
-		//[HttpPost]
-		//public JsonResult UpdateJWGRN(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
-		//{
-		//	if (string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
-		//	{
-		//		CheckedByStatusForNoti = "False";
-		//		ApprovedByStatusForNoti = "False";
-		//	}
-		//	var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-		//	entity.CompanyGroupId = identity.CompanyGroupId;
-		//	entity.CompanyId = identity.CompanyId;
-		//	entity.PlantId = identity.PlantId;
-
-		//	if (identity.EmployeeId == entity.CheckedBy)
-		//	{
-		//		throw new CustomException("Please select another employee for Check by.");
-		//	}
-		//	else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "True")
-		//	{
-
-		//		entity.AuthorizedBy = entity.CheckedBy;
-		//		entity.AuthorizedByStatus = "For Approval";
-		//		entity.CheckedBy = null;
-		//		entity.CheckedByStatus = null;
-		//		entity.IsApproved = false;
-		//		entity.RequiredPosting = true;
-		//	}
-		//	else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
-		//	{
-		//		entity.CheckedByStatus = null;
-		//		entity.AuthorizedByStatus = null;
-		//		entity.CheckedBy = null;
-		//		entity.AuthorizedBy = null;
-		//		entity.IsApproved = true;
-		//		entity.RequiredPosting = true;
-		//	}
-		//	else
-		//	{
-		//		entity.CheckedBy = entity.CheckedBy;
-		//		entity.CheckedByStatus = "ForChecked";
-		//		entity.AuthorizedBy = null;
-		//		entity.AuthorizedByStatus = null;
-		//		entity.IsApproved = false;
-		//		entity.RequiredPosting = true;
-		//	}
-		//	if (entityMatAndImat != null)
-		//	{
-		//		foreach (var item in entityMatAndImat)
-		//		{
-
-		//			if (!item.check)
-		//				throw new CustomException("Please Select Materials !");
-
-		//		}
-		//	}
-		//	else
-		//	{
-		//		throw new CustomException("Please Select atlest one Materials !");
-		//	}
-		//	if (chargesListPO != null)
-		//	{
-		//		foreach (var item in chargesListPO)
-		//		{
-		//			if (!item.check)
-		//				throw new CustomException("Please Select Materials !");
-
-		//		}
-		//	}
-		//	DetailEdits(entity, entityMatAndImat, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType);
-		//	ServiceChargesCreateNewEdit(chargesListPO, POServiceTaxList, entity.Id);
-
-		//	return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
-		//}
-
-		//[HttpPost]
-		//public ActionResult DeleteJWGRN(string id) 
-		//{
-		//	if (!string.IsNullOrEmpty(id))
-		//	{
-		//		_inventoryReveiveService.Delete(id);
-		//		return Json(new { Message = AplosMessage.Success });
-		//	}
-		//	else
-		//		throw new CustomException(Resources.IdNotFound);
-		//}
-		[Authorize, HttpGet]
-		public JsonResult GetJWGRNDataChecking(string GRNbyPOCheckStatus, string POId) 
-		{
-			//var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			//return Json(_inventoryReveiveService.QueryGetListForMasterData(identity.PlantId, GRNbyPOCheckStatus), JsonRequestBehavior.AllowGet);
-			try
-			{
-				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-				return Json(obj.GetJWGRNDataChecking(identity.PlantId, GRNbyPOCheckStatus, POId), JsonRequestBehavior.AllowGet);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
-		[Authorize, HttpGet]
-		public JsonResult GetJWApproving(string GRNbyPOApprovedStatus)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetJWApproving(identity.PlantId, GRNbyPOApprovedStatus), JsonRequestBehavior.AllowGet);
-		}
-
-		[Authorize, HttpGet]
-		public JsonResult GetJWOutPutInventoryMaterialList(string inveReveiveId)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryMaterialService.JWOutPutQuery(inveReveiveId), JsonRequestBehavior.AllowGet);
-		}
-
-		[Authorize, HttpGet]
-		public JsonResult GetJWByProductInventoryMaterialList(string inveReveiveId)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryMaterialService.JWByProductQuery(inveReveiveId), JsonRequestBehavior.AllowGet);
-		}
-
-		[Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Delete))]
-		public JsonResult JWDetailDelete(string receiveDetailId)
-		{
-			_inventoryDetailService.JWDelete(receiveDetailId);
-			return Json(new { Message = AplosMessage.Deleted });
-		}
-
-		[HttpPost]
-		public ActionResult JWDeleteGRN(string Id)
-		{
-			if (!string.IsNullOrEmpty(Id))
-			{
-				_inventoryReveiveService.JWDelete(Id);
-				return Json(new { Message = AplosMessage.Success });
-			}
-			else
-				throw new CustomException(Resources.IdNotFound);
-		}
-
-		[Authorize, HttpGet]
-		public JsonResult JWGRNDetailsData(string inveReveiveId, string POID)
-		{
-
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-			return Json(obj.JWGRNDetailsData(inveReveiveId, POID), JsonRequestBehavior.AllowGet);
-
-			//var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			//var jsondata = Json(_inventoryMaterialService.JWGRNDetailsData(inveReveiveId, POID), JsonRequestBehavior.AllowGet);
-			//jsondata.MaxJsonLength = int.MaxValue;
-			//return jsondata;
-
-		}
-		#endregion GRN-By-JW
+        #region GRN Uncheck and Un Approved
+        [HttpGet, Authorize]
+        public JsonResult getGRNCheckedListData()
+        {
 
 
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
+                return Json(obj.getGRNCheckedListData(identity.PlantId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        [HttpGet, Authorize]
+        public JsonResult getGRNApprovedListData()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
+                return Json(obj.getGRNApprovedListData(identity.PlantId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+        #region GRN UncheckAnd UnApproved
+        [HttpPost]
+        public ActionResult GRNUncheckUpdate(string InventoryReceiveId, Dictionary<string, object> UserSendData)
+        {
+            try
+            {
+                Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
+                obj.GRNUncheckUpdate(InventoryReceiveId, UserSendData);
+                return Json(new { Error = false, Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
 
-		[Authorize, HttpGet]
-		public JsonResult GetSOWiseMaterialStock(string Material, string Article, string Skuvalue1, string Skuvalue2, string Skuvalue3, string processId, string parameters, string SOMATART,string SalesOrderId)
-		{
-			try 
-			{
-				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-				return Json(obj.GetSOWiseMaterialStock(Material, Article, Skuvalue1, Skuvalue2, Skuvalue3, processId, parameters, SOMATART, SalesOrderId), JsonRequestBehavior.AllowGet);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        [HttpPost]
+        public ActionResult GRNUnapprovedUpdate(string InventoryReceiveId, Dictionary<string, object> UserSendData)
+        {
+            try
+            {
+                Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
+                obj.GRNUnapprovedUpdate(InventoryReceiveId, UserSendData);
+                return Json(new { Error = false, Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
 
-		}
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
 
+        }
 
-		[Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Delete))]
-		public JsonResult IssueSlipDelete(string issueslipDetailId)  
-		{
-			_inventoryDetailService.IssueSlipDelete(issueslipDetailId);
-			return Json(new { Message = AplosMessage.Deleted });
-		}
+        #endregion
+        [Authorize, HttpGet]
+        public JsonResult GetSalesOrderInfobyIssueSlipId(string IssueSlipId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                Library.MaterialManagement.InventoryManagements.InventoryIssueService obj = new Library.MaterialManagement.InventoryManagements.InventoryIssueService();
+                return Json(obj.GetSalesOrderInfobyIssueSlipId(IssueSlipId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
-		[Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Delete))]
-		public JsonResult IssueSlipDeleteAll(string issueslipDetailId) 
-		{
-			_inventoryDetailService.IssueSlipDeleteFn(issueslipDetailId);
-			return Json(new { Message = AplosMessage.Deleted });
-		}
+        [Authorize, HttpGet]
+        public JsonResult GetProductionOrderBYSalesOrder(string ProductionOrderId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                Library.MaterialManagement.InventoryManagements.InventoryIssueService obj = new Library.MaterialManagement.InventoryManagements.InventoryIssueService();
+                return Json(obj.GetProductionOrderBYSalesOrder(ProductionOrderId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
-		[Authorize, HttpGet]
-		public JsonResult GetOutSourceReceiptDataForAllocation()
-		{
+        [Authorize, HttpGet]
+        public JsonResult GetIssueWiseSKU(string IssueId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                Library.MaterialManagement.InventoryManagements.InventoryIssueService obj = new Library.MaterialManagement.InventoryManagements.InventoryIssueService();
+                return Json(obj.GetIssueWiseSKU(IssueId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			OutsourceReceiveAllocationService outsourceReceiveAllocationService = new OutsourceReceiveAllocationService();
-			//Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-			return Json(outsourceReceiveAllocationService.GetOutSourceReceiptDataForAllocation(), JsonRequestBehavior.AllowGet);
-		}
+        #region GRN-By-JW
+        [HttpPost]
+        public JsonResult CreateJWGRN(InventoryReceive entity, string entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string AcceptanceId, string CheckedByStatusForNoti, string ApprovedByStatusForNoti, string entityMatByProduct)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            entity.CompanyGroupId = identity.CompanyGroupId;
+            entity.CompanyId = identity.CompanyId;
+            entity.PlantId = identity.PlantId;
 
-		[Authorize, HttpGet]
-		public JsonResult GetOutSourceReceiptAllocatedData()
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			OutsourceReceiveAllocationService outsourceReceiveAllocationService = new OutsourceReceiveAllocationService();
-			//Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-			return Json(outsourceReceiveAllocationService.GetOutSourceReceiptAllocatedData(), JsonRequestBehavior.AllowGet);
-		}
+            if (string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
+            {
+                CheckedByStatusForNoti = "False";
+                ApprovedByStatusForNoti = "False";
+            }
 
-		[Authorize, HttpGet]
-		public JsonResult GetOutSourceReceiptDetailDataForAllocation(string inventoryReceiveDetailId)
-		{
-			OutsourceReceiveAllocationService outsourceReceiveAllocationService = new OutsourceReceiveAllocationService();
-			//Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-			return Json(outsourceReceiveAllocationService.GetOutSourceReceiptDetailDataForAllocation(inventoryReceiveDetailId), JsonRequestBehavior.AllowGet);
-		}
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
 
-		[HttpPost]
-		public JsonResult CreateJWSOAllocation(IList<Dictionary<string, object>> Data)
-		{
-			try
-			{
-                if (Data==null)
+            //IEnumerable<InventoryMaterialViewModel>
+            List<InventoryMaterialViewModel> entityMatAndImat1 = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(entityMatAndImat, settings);
+            List<InventoryMaterialViewModel> entityMatByProduct1 = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(entityMatByProduct, settings);
+            if (identity.EmployeeId == entity.CheckedBy)
+            {
+                throw new CustomException("Please select another employee for Check by.");
+            }
+            else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "True")
+            {
+
+                entity.AuthorizedBy = entity.CheckedBy;
+                entity.AuthorizedByStatus = "For Approval";
+                entity.CheckedBy = null;
+                entity.CheckedByStatus = null;
+                entity.IsApproved = false;
+                entity.RequiredPosting = true;
+            }
+            else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
+            {
+                entity.CheckedByStatus = null;
+                entity.AuthorizedByStatus = null;
+                entity.CheckedBy = null;
+                entity.AuthorizedBy = null;
+                entity.IsApproved = true;
+                entity.RequiredPosting = true;
+            }
+            else
+            {
+                entity.CheckedBy = entity.CheckedBy;
+                entity.CheckedByStatus = "ForChecked";
+                entity.AuthorizedBy = null;
+                entity.AuthorizedByStatus = null;
+                entity.IsApproved = false;
+                entity.RequiredPosting = true;
+            }
+            if (entityMatAndImat1 != null)
+            {
+                foreach (var item in entityMatAndImat1)
                 {
-					throw new Exception("Nothing to update..");
+
+                    if (!item.check)
+                    {
+                        throw new CustomException("Please Select Materials !");
+
+                    }
+                    else if (item.TransactionQty.ToString() == "0")
+                    {
+                        throw new CustomException("Please Input The Current Qty !");
+                    }
+
                 }
-				
-				ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-				DataSet dsRack=null;
-				foreach (var item in Data)
-				{
-					//conRack.OpenDataSetThroughAdapter("select * from trn.GRNPORequisitionAllocation where Id<>'" + item["Id"] + "'", out DataSet dsRackValidation, false, "1");
+            }
+            else
+            {
+                throw new CustomException("Please Select atlest one Materials !");
+            }
+            if (chargesListPO != null)
+            {
+                foreach (var item in chargesListPO)
+                {
+                    if (!item.check)
+                    {
+                        throw new CustomException("Please Select Materials !");
+                    }
+                    else if (item.Amount.ToString() == "0")
+                    {
+                        throw new CustomException("Please Input  Amount !");
+                    }
 
-					//if (dsRackValidation.Tables[0].Rows.Count > 0)
-					//{
-					//	throw new Exception("Id Already Exist.");
-					//}
+                }
+            }
+            bool _returnRes = GetDocRef(entity.DocRefNo, entity.PartyId, entity.DocDate.ToString(), entity.Id);
+            if (_returnRes == true)
+            {
+                throw new CustomException("Vendor / Docref / Docdate cannot duplicate!");
+            }
+            if (entityMatAndImat1 != null)
+            {
+                foreach (var item in entityMatAndImat1)
+                {
 
-					
+                    if (!item.check)
+                    {
+                        throw new CustomException("Please Select Materials !");
 
-					conRack = new ConnectionManager.DAL.ConManager("1");
-					conRack.OpenDataSetThroughAdapter("select * from trn.GRNPORequisitionAllocation where Id='" + item["Id"] + "'", out dsRack, false, "1");
+                    }
+                    else if (item.TransactionQty.ToString() == "0")
+                    {
+                        throw new CustomException("Please Input The Current Qty !");
+                    }
 
-					//if (RackData["StorageLocationId"] == null)
-					//{
-					//	throw new Exception("Please Select Storage Location");
-					//}
+                }
+            }
+            else
+            {
+                throw new CustomException("Please Select atlest one Materials !");
+            }
 
-					string _Id = "";
 
-					#region data update
-					//if (dsRack.Tables[0].Rows.Count == 0)
-					DataView dv = new DataView(dsRack.Tables[0]);
-					dv.RowFilter = "Id='" + item["Id"] + "'";
-					if (dv.Count == 0)
-					{
-						bplib.clsGenID genid = new bplib.clsGenID();
-						genid.GenID("trn.GRNPORequisitionAllocation", out _Id);
-						_Id = "OS" + _Id;
-						item["Id"] = _Id;
+            JWDetailCreate(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType, entityMatByProduct1);
+            return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
+        }
+        public JsonResult JWDetailCreate(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType, IEnumerable<InventoryMaterialViewModel> entityMatByProduct)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            _inventoryDetailService.JWInsertOrUpdateGraphNew(entity, entityMat, taxCategoryList, id, MaterialStorageId, GRNType, entityMatByProduct);
+            return Json(new { Message = AplosMessage.Success });
+        }
+        //[HttpPost]
+        //public JsonResult UpdateJWGRN(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
+        //{
+        //	if (string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
+        //	{
+        //		CheckedByStatusForNoti = "False";
+        //		ApprovedByStatusForNoti = "False";
+        //	}
+        //	var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //	entity.CompanyGroupId = identity.CompanyGroupId;
+        //	entity.CompanyId = identity.CompanyId;
+        //	entity.PlantId = identity.PlantId;
 
-						//Data["InventoryReceiveDetailId"] = _Id;
-						//Data["POBOQMapId"] = _Id;
-						//Data["POReqDetailsID"] = _Id;
-						//Data["TransactionQty"] = _Id;
-						//Data["TransactionUoMId"] = _Id;
-						//Data["BaseQty"] = _Id;
-						//Data["BaseUoMId"] = _Id;
-						//Data["POBOQQty"] = _Id;
-						//Data["POUoMId"] = _Id;
-						//Data["SalesOrderId"] = _Id;
-						//Data["RejectQty"] = _Id;
-						//Data["RejectBaseQty"] = _Id;
+        //	if (identity.EmployeeId == entity.CheckedBy)
+        //	{
+        //		throw new CustomException("Please select another employee for Check by.");
+        //	}
+        //	else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "True")
+        //	{
 
-						AddNewRow(dsRack.Tables[0], item);
-					}
-					else
-					{
-						_Id = item["Id"].ToString();
-						EditRow(dsRack.Tables[0].Rows[0], item);
-					}
-					#endregion data update 
-				}
+        //		entity.AuthorizedBy = entity.CheckedBy;
+        //		entity.AuthorizedByStatus = "For Approval";
+        //		entity.CheckedBy = null;
+        //		entity.CheckedByStatus = null;
+        //		entity.IsApproved = false;
+        //		entity.RequiredPosting = true;
+        //	}
+        //	else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
+        //	{
+        //		entity.CheckedByStatus = null;
+        //		entity.AuthorizedByStatus = null;
+        //		entity.CheckedBy = null;
+        //		entity.AuthorizedBy = null;
+        //		entity.IsApproved = true;
+        //		entity.RequiredPosting = true;
+        //	}
+        //	else
+        //	{
+        //		entity.CheckedBy = entity.CheckedBy;
+        //		entity.CheckedByStatus = "ForChecked";
+        //		entity.AuthorizedBy = null;
+        //		entity.AuthorizedByStatus = null;
+        //		entity.IsApproved = false;
+        //		entity.RequiredPosting = true;
+        //	}
+        //	if (entityMatAndImat != null)
+        //	{
+        //		foreach (var item in entityMatAndImat)
+        //		{
 
-				clsStaticInfo _info = new clsStaticInfo();
-				_info.SaveDataSets(dsRack);
+        //			if (!item.check)
+        //				throw new CustomException("Please Select Materials !");
 
-				return Json(new { Error = false, Data = Data/*, Sequence = GetSequence()*/, Message = AplosMessage.Insert });
+        //		}
+        //	}
+        //	else
+        //	{
+        //		throw new CustomException("Please Select atlest one Materials !");
+        //	}
+        //	if (chargesListPO != null)
+        //	{
+        //		foreach (var item in chargesListPO)
+        //		{
+        //			if (!item.check)
+        //				throw new CustomException("Please Select Materials !");
 
-			}
-			catch (Exception ex)
-			{
+        //		}
+        //	}
+        //	DetailEdits(entity, entityMatAndImat, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType);
+        //	ServiceChargesCreateNewEdit(chargesListPO, POServiceTaxList, entity.Id);
 
-				return Json(new { Error = true, Message = ex.Message });
+        //	return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
+        //}
 
-			}
-		}
+        //[HttpPost]
+        //public ActionResult DeleteJWGRN(string id) 
+        //{
+        //	if (!string.IsNullOrEmpty(id))
+        //	{
+        //		_inventoryReveiveService.Delete(id);
+        //		return Json(new { Message = AplosMessage.Success });
+        //	}
+        //	else
+        //		throw new CustomException(Resources.IdNotFound);
+        //}
+        [Authorize, HttpGet]
+        public JsonResult GetJWGRNDataChecking(string GRNbyPOCheckStatus, string POId)
+        {
+            //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            //return Json(_inventoryReveiveService.QueryGetListForMasterData(identity.PlantId, GRNbyPOCheckStatus), JsonRequestBehavior.AllowGet);
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
+                return Json(obj.GetJWGRNDataChecking(identity.PlantId, GRNbyPOCheckStatus, POId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetJWApproving(string GRNbyPOApprovedStatus)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.GetJWApproving(identity.PlantId, GRNbyPOApprovedStatus), JsonRequestBehavior.AllowGet);
+        }
 
-		private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			DataRow dr = dt.NewRow();
-			foreach (var item in sourceData.Keys)
-			{
-				try
-				{
-					dr[item] = sourceData[item];
-				}
-				catch (Exception)
-				{
-				}
-			}
-			dr["AddedBy"] = identity.Name;
-			dr["AddedDate"] = System.DateTime.Now.ToString();
-			dr["AddedFromIP"] = identity.IPAddress;
-			dt.Rows.Add(dr);
-		}
-		private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			dr.BeginEdit();
-			foreach (var item in sourceData.Keys)
-			{
-				try
-				{
-					dr[item] = sourceData[item];
-				}
-				catch (Exception)
-				{
-				}
-			}
-			dr["UpdatedBy"] = identity.Name;
-			dr["UpdatedDate"] = System.DateTime.Now.ToString();
-			dr["UpdatedFromIP"] = identity.IPAddress;
-			dr.EndEdit();
-		}
-	}//
+        [Authorize, HttpGet]
+        public JsonResult GetJWOutPutInventoryMaterialList(string inveReveiveId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryMaterialService.JWOutPutQuery(inveReveiveId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetJWByProductInventoryMaterialList(string inveReveiveId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryMaterialService.JWByProductQuery(inveReveiveId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Delete))]
+        public JsonResult JWDetailDelete(string receiveDetailId)
+        {
+            _inventoryDetailService.JWDelete(receiveDetailId);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+        [HttpPost]
+        public ActionResult JWDeleteGRN(string Id)
+        {
+            if (!string.IsNullOrEmpty(Id))
+            {
+                _inventoryReveiveService.JWDelete(Id);
+                return Json(new { Message = AplosMessage.Success });
+            }
+            else
+                throw new CustomException(Resources.IdNotFound);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult JWGRNDetailsData(string inveReveiveId, string POID)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
+            return Json(obj.JWGRNDetailsData(inveReveiveId, POID), JsonRequestBehavior.AllowGet);
+
+            //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            //var jsondata = Json(_inventoryMaterialService.JWGRNDetailsData(inveReveiveId, POID), JsonRequestBehavior.AllowGet);
+            //jsondata.MaxJsonLength = int.MaxValue;
+            //return jsondata;
+
+        }
+        #endregion GRN-By-JW
+
+
+
+        [Authorize, HttpGet]
+        public JsonResult GetSOWiseMaterialStock(string Material, string Article, string Skuvalue1, string Skuvalue2, string Skuvalue3, string processId, string parameters, string SOMATART, string SalesOrderId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
+                return Json(obj.GetSOWiseMaterialStock(Material, Article, Skuvalue1, Skuvalue2, Skuvalue3, processId, parameters, SOMATART, SalesOrderId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+
+        [Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Delete))]
+        public JsonResult IssueSlipDelete(string issueslipDetailId)
+        {
+            _inventoryDetailService.IssueSlipDelete(issueslipDetailId);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+        [Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Delete))]
+        public JsonResult IssueSlipDeleteAll(string issueslipDetailId)
+        {
+            _inventoryDetailService.IssueSlipDeleteFn(issueslipDetailId);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetOutSourceReceiptDataForAllocation()
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            OutsourceReceiveAllocationService outsourceReceiveAllocationService = new OutsourceReceiveAllocationService();
+            //Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
+            return Json(outsourceReceiveAllocationService.GetOutSourceReceiptDataForAllocation(), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetOutSourceReceiptAllocatedData()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            OutsourceReceiveAllocationService outsourceReceiveAllocationService = new OutsourceReceiveAllocationService();
+            //Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
+            return Json(outsourceReceiveAllocationService.GetOutSourceReceiptAllocatedData(), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetOutSourceReceiptDetailDataForAllocation(string inventoryReceiveDetailId)
+        {
+            OutsourceReceiveAllocationService outsourceReceiveAllocationService = new OutsourceReceiveAllocationService();
+            //Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
+            return Json(outsourceReceiveAllocationService.GetOutSourceReceiptDetailDataForAllocation(inventoryReceiveDetailId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult CreateJWSOAllocation(IList<Dictionary<string, object>> Data)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                DataSet dsRack = null;
+                if (Data == null)
+                {
+                    throw new Exception("Nothing to update..");
+                }
+                string Ids = "";
+                for (int i = 0; i < Data.Count; i++)
+                {
+                    if (Ids == "")
+                        Ids = "'" + Data[i]["Id"] + "'";
+                    else
+                        Ids += ",'" + Data[i]["Id"] + "'";
+                }
+                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from trn.GRNPORequisitionAllocation where Id='" + Ids + "'", out dsRack, false, "1");
+
+                foreach (var item in Data)
+                {
+
+                    string _Id = "";
+
+                    #region data update
+
+                    //DataView dv = new DataView(dsRack.Tables[0]);
+                    dsRack.Tables[0].DefaultView.RowFilter = "Id='" + item["Id"] + "'";
+                    if (dsRack.Tables[0].DefaultView.Count == 0)
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("trn.GRNPORequisitionAllocation", out _Id);
+                        DataRow dr = dsRack.Tables[0].NewRow();
+                        _Id = "OS" + _Id;
+
+                        dr["Id"] = _Id;
+                        dr["InventoryReceiveDetailId"] = item["InventoryReceiveDetailId"];
+                        dr["POBOQMapId"] = item["POBOQMapId"];
+                        dr["POReqDetailsID"] = item["POReqDetailsID"];
+                        dr["TransactionQty"] = item["TransactionQty"];
+                        dr["TransactionUoMId"] = item["TransactionUoMId"];
+                        dr["BaseQty"] = item["BaseQty"];
+                        dr["BaseUoMId"] = item["BaseUoMId"];
+                        dr["POBOQQty"] = item["POBOQQty"];
+                        dr["POUoMId"] = item["POUoMId"];
+                        dr["SalesOrderId"] = item["SalesOrderId"];
+                        dr["RejectQty"] = item["RejectQty"];
+                        dr["RejectBaseQty"] = item["RejectBaseQty"];
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = DateTime.Now;
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = DateTime.Now;
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+
+                        dsRack.Tables[0].Rows.Add(dr);
+                    }
+                    else
+                    {
+                        _Id = item["Id"].ToString();
+                        EditRow(dsRack.Tables[0].Rows[0], item);
+                    }
+                    #endregion data update 
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsRack);
+
+                return Json(new { Error = false, Data = Data/*, Sequence = GetSequence()*/, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr.EndEdit();
+        }
+    }//
 
 }

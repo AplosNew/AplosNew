@@ -100,6 +100,10 @@ namespace Aplos.Areas.Attendances.Controllers
             int ColEmployeeName = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "Plant", 18, ExcelHAlign.HAlignCenter);
+            int ColPlant = COL;
+            COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "DOJ", 13, ExcelHAlign.HAlignCenter);
             int ColDOJ = COL;
             COL++;
@@ -152,6 +156,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet[ROW, ColTenure].Number = clsStaticInfo.dbl(data.Rows[i]["TenureMonth"].ToString());
                 sheet[ROW, ColEmployeeCode].Text = data.Rows[i]["EmployeeCode"].ToString();
                 sheet[ROW, ColEmployeeName].Text = data.Rows[i]["EmployeeName"].ToString();
+                sheet[ROW, ColPlant].Text = data.Rows[i]["Plant"].ToString();
                 sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
                 sheet[ROW, ColSection].Text = data.Rows[i]["Section"].ToString();
                 sheet[ROW, ColSubSection].Text = data.Rows[i]["SubSection"].ToString();
@@ -173,7 +178,7 @@ namespace Aplos.Areas.Attendances.Controllers
             sheet.UsedRange.WrapText = true;
             sheet.UsedRange.CellStyle.Font.Size = 8;
             ReportUtility reportUtility = new ReportUtility();
-            reportUtility.PlantHeader(ref sheet, endCol, reportname, identity.PlantId);
+            reportUtility.CompanyHeader(ref sheet, endCol, reportname, identity.CompanyId);
             reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
 
             return workbook;

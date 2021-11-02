@@ -2326,7 +2326,8 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                             ShowResult(response.data.Message, 'success');
                         }
                         else {
-                            ShowResult(response.data.Message, 'success', 'detailPopUp');
+                        //    ShowResult(response.data.Message, 'success', 'detailPopUp');
+                            ShowResult(response.data.Message, 'success');
                         }
 
                         $scope.taxCategoryList = [];

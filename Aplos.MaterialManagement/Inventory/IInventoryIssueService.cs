@@ -27,19 +27,32 @@ namespace Library.MaterialManagement.Inventory
         
         IEnumerable<object> GetIssueRegister(string fromDate, string toDate, string Type);
 
+        // OutSource
+        IEnumerable<object> GetOSIssueRegister(string fromDate, string toDate, string Type);
+
         IEnumerable<object> GetIssueReturnRegister(string fromDate, string toDate, string Type);
-        IEnumerable<object> GetIssueRegisterBYGRN(string fromDate, string toDate, string Type); 
-        
-		
-		IEnumerable<object> GetIssueRegisterDetail(string id);
+        IEnumerable<object> GetIssueRegisterBYGRN(string fromDate, string toDate, string Type);
+
+        // Out Source
+
+        IEnumerable<object> GetOSIssueRegisterBYGRN(string fromDate, string toDate, string Type);
+
+
+        IEnumerable<object> GetIssueRegisterDetail(string id);
 
         IWorkbook CreateIssueRegisterReportSheet(string companyId, string plantId, string fromDate, string toDate,string Type);
+
+        // Out Source
+        IWorkbook CreateOSIssueRegisterReportSheet(string companyId, string plantId, string fromDate, string toDate, string Type);
 
         IWorkbook CreateIssueReturnRegisterReportSheet(string companyId, string plantId, string fromDate, string toDate, string Type);
 
         IWorkbook CreateIssueRegisterGRNIssueReport(string companyId, string plantId, string fromDate, string toDate, string Type);
 
-        
+        // Out source
+        IWorkbook CreateOSIssueRegisterGRNIssueReport(string companyId, string plantId, string fromDate, string toDate, string Type);
+
+
         void DeleteIssueDetail(string issueDetailId);
         void DeleteSalesDetail(string issueDetailId); 
         

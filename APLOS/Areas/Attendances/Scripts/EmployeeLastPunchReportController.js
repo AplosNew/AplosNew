@@ -18,6 +18,7 @@ function EmployeeLastPunchReportController($window, $timeout, cboService, common
             var ColumnList = [
                 { field: 'EmployeeCode', width: 150, headerText: "EmployeeCode", type: "string" },
                 { field: 'EmployeeName', width: 150, headerText: "Employee Name", type: "string" },
+                { field: 'Plant', width: 150, headerText: "PlantName", type: "string" },
                 { field: 'DOJ', width: 150, headerText: "DOJ", type: "string" },
                 { field: 'Department', width: 150, headerText: "Department", type: "string" },
                 { field: 'Section', width: 150, headerText: "Section", type: "string" },
