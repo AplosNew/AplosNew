@@ -76,6 +76,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             string CmpName = "";
             DataTable dt = null;
             int iCount = 0;
+            double GrandTotal = 0;
             Dictionary<string, int> SalaryHeadIndex = new Dictionary<string, int>();
             try
             {
@@ -252,8 +253,8 @@ namespace Aplos.Areas.Payrolls.Controllers
                             sheet1.Range[xlsRow, SalaryHeadIndex[item["SalaryHeadID"].ToString()]].Number = clsStaticInfo.dbl(item["DisbusmentAmount"].ToString());
                             TotalNumer = clsStaticInfo.dbl(item["DisbusmentAmount"].ToString()) + TotalNumer;
                         }
+                        GrandTotal = GrandTotal + TotalNumer;
                     }
-
                     SetSLText(ref sheet1, xlsRow, colSrNo, slCount);
                     if (dt.Rows.Count > 1)
                     {
@@ -295,10 +296,17 @@ namespace Aplos.Areas.Payrolls.Controllers
                 sheet1.Range[xlsRow, colDays].CellStyle.Font.Bold = true;
                 sheet1.Range[xlsRow, colDays].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 
-                //sheet1.Range[xlsRow, colWagesAmount].CellStyle.Font.Bold = true;
-                //sheet1.Range[xlsRow, colWagesAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //sheet1.Range[xlsRow, colWagesAmount].Formula = "=SUM(" + ru.GetColumnNameForXls(colWagesAmount) + formulaStartRow + ":" + ru.GetColumnNameForXls(colWagesAmount) + (summationRowLimit) + ")";
-                //sheet1.Range[xlsRow, colWagesAmount].NumberFormat = ru.NumberFormatInt();
+                if (dt.Rows.Count == 1)
+                {
+                    getGrandTotal(ref sheet1, xlsRow, 6, GrandTotal, ru);//dtEmpInfo.Tables[0].Rows[i][""].ToString()
+                    sheet1.Range[xlsRow, 6].NumberFormat = ru.NumberFormatNegativeSignDelimeterDecimalTwo();
+                }
+                else
+                {
+                    int num = dt.Rows.Count;
+                    getGrandTotal(ref sheet1, xlsRow, 6 + num, GrandTotal, ru);//dtEmpInfo.Tables[0].Rows[i][""].ToString()
+                    sheet1.Range[xlsRow, 6 + num].NumberFormat = ru.NumberFormatNegativeSignDelimeterDecimalTwo();
+                }
 
                 sheet1.Range[xlsRow, colESICER].CellStyle.Font.Bold = true;
                 sheet1.Range[xlsRow, colESICER].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -448,7 +456,23 @@ namespace Aplos.Areas.Payrolls.Controllers
                 return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
             }
         }
+        private void getGrandTotal(ref IWorksheet sheet1, int xlsRow, int xlsCol, double txt, ReportUtility ru)
+        {
+            try
+            {
+                sheet1.Range[xlsRow, xlsCol].Number = txt;
+                sheet1.Range[xlsRow, xlsCol].NumberFormat = ru.NumberFormatDecimalTwo();
+                sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 12;
 
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
         public void SetHeaderTextPFund(ref IWorksheet sheet, int row, int col, string txt, int width, int RH, ExcelHAlign al)
         {
             sheet.Range[row, col].Text = txt;

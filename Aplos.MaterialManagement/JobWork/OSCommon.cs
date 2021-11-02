@@ -3123,7 +3123,8 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                 }
                 else
                 {
-                    con.executeQuery("delete from dbo.JWPOBOQMAP where JWPODetailId='" + id + @"' ");
+             //       con.executeQuery("delete from dbo.JWPOBOQMAP where JWPODetailId='" + id + @"' ");
+                    con.executeQuery("delete from dbo.OSPOBOQMAP where OSTransformationPODetailId='" + id + @"' ");
                     con.executeQuery("delete from dbo.OSTransformationPOInputMaterial where OSTransformationPODetailId='" + id + @"' ");
                     con.executeQuery("delete from dbo.OSTransformationPOTax where OSTransformationPODetailId='" + id + @"' ");
                     con.executeQuery("delete from dbo.OSTransformationPODetail where Id='" + id + "' ");
@@ -3449,6 +3450,22 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
         //    }
         //}
 
+        private string GetOSoutputmatPK()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "OSTransformationPODetail", out sID);
+            return sID;
+        }
+
+        private string GetOSPOTaxPK()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "OSTransformationPOTax", out sID);
+            return sID;
+        }
+
         public List<Dictionary<string, object>> detailcreate(List<Dictionary<string, object>> data, string JWPurchaseOrderId, string JWActivityId, string userName, string IPAddress, string OrderSpecific, string type, List<Dictionary<string, object>> taxCategoryList, string JWPOToCurrencyRate, string JWPOIsNonCreditable, string JWPODate, string JWPOType)
         {
             string  JWOutId = " ";
@@ -3557,7 +3574,8 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                         {
                             bplib.clsGenID genid = new bplib.clsGenID();
                             genid.GenID("OSTransformationPODetail", out _Id);
-                            data[i]["Id"] = "JWPD" + _Id;
+                            // data[i]["Id"] = "JWPD" + _Id;
+                            data[i]["Id"] = "JWPD" + GetOSoutputmatPK();
                             JWPODId = data[i]["Id"].ToString();
                             data[i]["OSTransformationPOId"] = JWPurchaseOrderId;
                             data[i]["Quantity"] = data[i]["TransactionQty"];
@@ -3678,8 +3696,6 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
                             EditRow(dsMaster.Tables[0].DefaultView[0].Row, data[i]);
 
-                            
-
                             if (data[i]["BOQId"] != null)
                             {
                                 clsStaticInfo _info = new clsStaticInfo();
@@ -3726,7 +3742,8 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
                             bplib.clsGenID genid = new bplib.clsGenID();
                             genid.GenID("OSTransformationPODetail", out _Id);
-                            data[i]["Id"] = "JWPD" + _Id;
+                          //   data[i]["Id"] = "JWPD" + _Id;
+                            data[i]["Id"] = "JWPD" + GetOSoutputmatPK();
                             JWPODId = data[i]["Id"].ToString();
                             //data[i]["OSTransformationPOId"] = JWPurchaseOrderId;
                             data[i]["TransactionUoMId"] = data[i]["OutputMaterialUOMId"];
@@ -3806,10 +3823,11 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
                                 bplib.clsGenID genid = new bplib.clsGenID();
                                 genid.GenID("OSTransformationPOTax", out _Id);
-                                taxCategoryList[i1]["Id"] = "JWPDT" + _Id;
-                                //JWPODId = taxCategoryList[i1]["Id"].ToString();
-                                //data[i]["OSTransformationPOId"] = JWPurchaseOrderId;
-                                taxCategoryList[i1]["OSTransformationPOId"] = JWPurchaseOrderId;
+                               //  taxCategoryList[i1]["Id"] = "JWPDT" + _Id;
+                                    taxCategoryList[i1]["Id"] = "JWPDT" + GetOSPOTaxPK();
+                                    //JWPODId = taxCategoryList[i1]["Id"].ToString();
+                                    //data[i]["OSTransformationPOId"] = JWPurchaseOrderId;
+                                    taxCategoryList[i1]["OSTransformationPOId"] = JWPurchaseOrderId;
                                 taxCategoryList[i1]["OSTransformationPODetailId"] = DetailIdid;
                                 //data[i]["Quantity"] = data[i]["TransactionQty"];
 
@@ -3927,7 +3945,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
         {
             string sID = string.Empty;
             bplib.clsGenID objGenID = new bplib.clsGenID();
-            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "JobWorkTransformationContractChild3", out sID);
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "OSTransformationPOInputMaterial", out sID);
             return sID;
         }
 
@@ -3949,13 +3967,13 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
                 if (!string.IsNullOrEmpty(JWOutId))
                 {
-                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.JobWorkTransformationContractChild3 where JobWorkTransformationContractChildMasterId='" + JWOutId + "' ", out DelJWMatInput, false, "1");
+                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.OSTransformationPOInputMaterial where OSTransformationPODetailId='" + JWOutId + "' ", out DelJWMatInput, false, "1");
                     if (DelJWMatInput.Tables[0].Rows.Count > 0)
                     {
                         // throw new Exception("First Delete Material Output Data");
                         con.BeginTransaction();
 
-                        con.executeQuery("delete from dbo.JobWorkTransformationContractChild3 where JobWorkTransformationContractChildMasterId='" + JWOutId + @"' ");
+                        con.executeQuery("delete from dbo.OSTransformationPOInputMaterial where OSTransformationPODetailId='" + JWOutId + @"' ");
 
                         con.CommitTransaction();
                     }
@@ -3969,7 +3987,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                 {
                     JWBOQChildId += ",'" + JWBOQ.Tables[0].Rows[i]["Id"] ;
                 }
-                con.OpenDataSetThroughAdapter("select * from dbo.jobworktransformationcontractchild3 where JobWorkTransformationContractChildMasterId='"+ JWOutId + "' ", out JWOutMat, false, "1");
+                con.OpenDataSetThroughAdapter("select * from dbo.OSTransformationPOInputMaterial where OSTransformationPODetailId='" + JWOutId + "' ", out JWOutMat, false, "1");
                 string BoqChildId = "";
                 decimal Consumption = 0;
                 decimal WastagePer = 0;
@@ -3989,7 +4007,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
                     BOQArticleId = JWBOQ.Tables[0].Rows[j]["ArticleId"].ToString();
 
-                    JWOutMat.Tables[0].DefaultView.RowFilter = "JobWorkTransformationContractChildMasterId='" + JWOutId + "' and BOQChildId='" + bplib.clsWebLib.RetValidLen(JWBOQ.Tables[0].Rows[j]["Id"]).ToString() + "' ";
+                    JWOutMat.Tables[0].DefaultView.RowFilter = "OSTransformationPODetailId='" + JWOutId + "' and BOQChildId='" + bplib.clsWebLib.RetValidLen(JWBOQ.Tables[0].Rows[j]["Id"]).ToString() + "' ";
                     
 
                     if (JWOutMat.Tables[0].DefaultView.Count == 0)
@@ -3997,7 +4015,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                         DataRow dr = JWOutMat.Tables[0].NewRow();
                         dr["Id"] = "MI" + GetMaterialInputPK();
 
-                        dr["JobWorkTransformationContractChildMasterId"] = JWOutId;
+                        dr["OSTransformationPODetailId"] = JWOutId;
 
                         //dr["JobWorkItemId"] = item.JobWorkItemId;
                         //dr["ItemSpecification"] = item.ItemSpecification;
@@ -4021,14 +4039,14 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                     {
                         //edit
 
-                        JWOutMat.Tables[0].DefaultView.RowFilter = "JobWorkTransformationContractChildMasterId='" + JWOutId + "' and BOQChildId='" + bplib.clsWebLib.RetValidLen(JWBOQ.Tables[0].Rows[j]["Id"]).ToString() + "' ";
+                        JWOutMat.Tables[0].DefaultView.RowFilter = "OSTransformationPODetailId='" + JWOutId + "' and BOQChildId='" + bplib.clsWebLib.RetValidLen(JWBOQ.Tables[0].Rows[j]["Id"]).ToString() + "' ";
 
                         if(JWOutMat.Tables[0].DefaultView.Count == 0)
                         {
                             DataRow drr = JWOutMat.Tables[0].NewRow();
                             drr["Id"] = "MI" + GetMaterialInputPK();
 
-                            drr["JobWorkTransformationContractChildMasterId"] = JWOutId;
+                            drr["OSTransformationPODetailId"] = JWOutId;
 
                             drr["NetConsumption"] = Consumption;
                             drr["Rejection"] = 0;
@@ -4050,7 +4068,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
                             drr.BeginEdit();
 
-                            drr["JobWorkTransformationContractChildMasterId"] = JWOutId;
+                            drr["OSTransformationPODetailId"] = JWOutId;
 
                             drr["NetConsumption"] = Consumption;
                             drr["Rejection"] = 0;
@@ -4495,13 +4513,13 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
                 if (!string.IsNullOrEmpty(JWPODetailId))
                 {
-                    con.OpenDataSetThroughAdapter("SELECT * FROM JWPOBOQMAP WHERE JWPODetailId='" + JWPODetailId + "' ", out DelJWPOBOQMap, false, "1");
+                    con.OpenDataSetThroughAdapter("SELECT * FROM OSPOBOQMAP WHERE OSTransformationPODetailId='" + JWPODetailId + "' ", out DelJWPOBOQMap, false, "1");
                     if (DelJWPOBOQMap.Tables[0].Rows.Count > 0)
                     {
                         // throw new Exception("First Delete Material Output Data");
                         con.BeginTransaction();
 
-                        con.executeQuery("delete from JWPOBOQMAP where JWPODetailId='"+ JWPODetailId + @"' ");
+                        con.executeQuery("delete from OSPOBOQMAP where OSTransformationPODetailId='" + JWPODetailId + @"' ");
 
                         con.CommitTransaction();
                     }
@@ -4517,7 +4535,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                 string DetailSKU1Id = "0";
                 string DetailSKU2Id = "0";
                 string DetailSKU3Id = "0";
-                sql = "SELECT * FROM JWPOBOQMAP WHERE JWPODetailId='" + JWPODetailId + "'";
+                sql = "SELECT * FROM OSPOBOQMAP WHERE OSTransformationPODetailId='" + JWPODetailId + "'";
                 con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter(sql, out dsPOboq, false, "1");
                 Library.Service.Extension.Conversions.UOMConversion conversion = new Library.Service.Extension.Conversions.UOMConversion();
@@ -4580,7 +4598,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                         if (_poboqId == "")
                         {
                             bplib.clsGenID id = new bplib.clsGenID();
-                            id.GenID("JWPOBOQMAP", out _poboqId);
+                            id.GenID("OSPOBOQMAP", out _poboqId);
                             _poboqId = "JPB" + _poboqId;
 
                         }
@@ -4591,7 +4609,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
                         dr["Id"] = _poboqId + "-" + (a + 1).ToString();
 
-                        dr["JWPODetailId"] = JWPODetailId;
+                        dr["OSTransformationPODetailId"] = JWPODetailId;
                         dr["BOQDetailId"] = detailBoq[a]["BOQId"];
                         dr["TransactionQty"] = detailBoq[a]["TransactionQty"];
                         dr["TransactionUoMId"] = detailBoq[a]["TransactionUoMId"];
@@ -4611,7 +4629,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                     {
                         DataRow dr = dsPOboq.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
-                        dr["JWPODetailId"] = JWPODetailId;
+                        dr["OSTransformationPODetailId"] = JWPODetailId;
                         dr["BOQDetailId"] = detailBoq[a]["BOQId"];
                         dr["TransactionQty"] = detailBoq[a]["TransactionQty"];
                         dr["TransactionUoMId"] = detailBoq[a]["TransactionUoMId"];
@@ -4694,6 +4712,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						   ,ISNULL(MM.UserName,'') MaterialMasterName
                             --,MMA.Id ArticleId
 							,ISNULL(MMA.ShortName,'') ArticleName, MMA.Code as ArticleCode
+                            ,isnull(FChar.ValueAssignmentLevel,'') ValueAssignmentLevel
                             ,ISNULL(FChar.UserName,'') FirstCharacteristics,ISNULL(FCharValue.UserName,'') FirstCharacteristicsValue,ISNULL(FCharValue.Code,'') SKU1ValueCode
                                 ,ISNULL(SChar.UserName,'') SecondCharacteristics,ISNULL(SCharValue.UserName,'') SecondCharacteristicsValue,ISNULL(SCharValue.Code,'') SKU2ValueCode
                                 ,ISNULL(TChar.UserName,'') ThirdCharacteristics,ISNULL(TCharValue.UserName,'') ThirdCharacteristicsValue,ISNULL(TCharValue.Code,'') SKU3ValueCode
@@ -5457,7 +5476,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                 //               where jwi.Id='" + JobWorkItemId + @"' ";
 
                 sql = @"select --mm.BaseUOMId UoMId,mmuom.UserName UoM
-                        mm.Id, mm.Code, mm.UserName as Material,jwi.UOMId, uom.UserName as JWIUom
+                        mm.Id, mm.Code, mm.UserName as Material,mm.WithSKU,jwi.UOMId, uom.UserName as JWIUom
                          ,Value=case when jwi.MaterialMasterId is not null then mm.BaseUOMId else jwi.UOMId End
                          ,Text=case when jwi.MaterialMasterId is not null then mmuom.UserName else uom.UserName End
                         -- ,AlternateUoM=case when jwi.MaterialMasterId is not null then U.UserName End
@@ -5471,7 +5490,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                          UNION ALL
                         select
                         --mauom.AlternativeUOMId UoMId,uom1.UserName UoM
-                        mm.Id, mm.Code, mm.UserName as Material,jwi.UOMId, uom.UserName as JWIUom
+                        mm.Id, mm.Code, mm.UserName as Material,mm.WithSKU,jwi.UOMId, uom.UserName as JWIUom
                          ,Value=case when jwi.MaterialMasterId is not null then mauom.AlternativeUOMId else jwi.UOMId End
                          ,Text=case when jwi.MaterialMasterId is not null then uom1.UserName else uom.UserName End
                         -- -- ,AlternateUoM=case when jwi.MaterialMasterId is not null then uom1.UserName End
@@ -6831,14 +6850,24 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
             }
         }
 
-        public IEnumerable<object> LoadAllSKU(string MaterialMstId)
+        public IEnumerable<object> LoadAllSKU(string MaterialMstId, string assignment, string charId)
         {
             try
             {
-                var _sql = @"select cv.Id,cv.Sequence,cv.Code,cv.ShortName,cv.StandardName,cv.UserName,cv.CharacteristicsId,C.UserName as FirstCharacteristics,cv.MaterialMasterId,mm.UserName as MaterialMst
-                                from HKP.CharacteristicsValue cv left join HKP.Characteristics C on cv.CharacteristicsId=C.Id
-                                left join MST.MaterialMaster mm on mm.Id=cv.MaterialMasterId
-                                where MaterialMasterId='"+ MaterialMstId + @"' order by cv.Sequence ";
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var _sql = "";
+                //var _sql = @"select cv.Id,cv.Sequence,cv.Code,cv.ShortName,cv.StandardName,cv.UserName,cv.CharacteristicsId,C.UserName as FirstCharacteristics,cv.MaterialMasterId,mm.UserName as MaterialMst
+                //                from HKP.CharacteristicsValue cv left join HKP.Characteristics C on cv.CharacteristicsId=C.Id
+                //                left join MST.MaterialMaster mm on mm.Id=cv.MaterialMasterId
+                //                where MaterialMasterId='"+ MaterialMstId + @"' order by cv.Sequence ";
+
+                if (assignment == ValueAssignmentEnum.General.ToString())
+                    _sql = @"SELECT Id AS CharacteristicsValueId, CompanyGroupId, CharacteristicsId, MaterialMasterId, SourceType, Code, [Sequence], ShortName, StandardName, UserName, IsDefault, Remarks, [Description], Active
+                    FROM HKP.CharacteristicsValue WHERE CompanyGroupId='" + identity.CompanyGroupId + @"' AND CharacteristicsId='" + charId + "' AND SourceType='" + assignment + "'";
+                else
+                    _sql = @"SELECT Id AS CharacteristicsValueId, CompanyGroupId, CharacteristicsId, MaterialMasterId, SourceType, Code, [Sequence], ShortName, StandardName, UserName, IsDefault, Remarks, [Description], Active
+                    FROM HKP.CharacteristicsValue WHERE CompanyGroupId='" + identity.CompanyGroupId + @"' AND CharacteristicsId='" + charId + "' AND MaterialMasterId='" + MaterialMstId + "' AND SourceType='" + assignment + "'";
+          //      return _sqlRepository.GetGridData(parameters);
 
                 return _sqlRepository.GetDataCollection(_sql);
             }

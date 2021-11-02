@@ -352,7 +352,10 @@ CASE WHEN ISNULL(dtd.EmployeeSystemId,'')='' THEN 'Unassigned' ELSE CONCAT('Assi
                             EMP.SectionId,SS.UserName SubSection
                             ,PL.UserName Plant
                             FROM EmployeeInformation EMP
-                            join EmployeeOperation AS eo ON EO.EmpSystemId=EMP.SystemId AND EO.OperationVariationId='" + OperationVariationId + @"'
+                            join (
+                            	SELECT EmpSystemId,OperationVariationId FROM EmployeeOperation 
+								UNION SELECT SystemId,OperationVariationId FROM EmployeeInformation
+                            )AS eo ON EO.EmpSystemId=EMP.SystemId AND EO.OperationVariationId='" + OperationVariationId + @"'
                             LEFT JOIN LineLayoutDailyTargetData AS DTD ON dtD.EmployeeSystemId=emp.SystemId 
 														AND dtD.LineLayoutDailyTargetId IN (SELECT Id FROM LineLayoutDailyTarget AS X Where x.TargetDate='" + TargetDate + @"')
 							LEFT JOIN LineLayoutDailyTarget		DT ON dt.Id=dtd.LineLayoutDailyTargetId		
@@ -450,7 +453,8 @@ CASE WHEN ISNULL(dtd.EmployeeSystemId,'')='' THEN 'Unassigned' ELSE CONCAT('Assi
 				                        JOIN mst.OperationVariation AS ovx ON ovx.Id=eox.OperationVariationId                                             
 			                            where eox.EmpSystemId='" + EmployeeId + @"' ORDER BY eox.Sequence ";
 
-            _tempData[0]["SkillList"] = _sqlRepository.GetDataCollection(sql);
+            if (_tempData.Count > 0)
+                _tempData[0]["SkillList"] = _sqlRepository.GetDataCollection(sql);
             data.Add(_tempData);
 
 
