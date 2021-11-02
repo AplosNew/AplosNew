@@ -8,6 +8,15 @@ function EmployeeWeekOffUpdatesController(commonMessage, $scope, $rootScope, bas
     $scope.path = "humanresource/WeekOffUpdates/";
 
 
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
     // ***** Code For the Fist Tab
 
     $scope.employee = null;
