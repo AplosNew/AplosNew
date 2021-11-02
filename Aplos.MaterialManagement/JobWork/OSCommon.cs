@@ -3696,8 +3696,6 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
                             EditRow(dsMaster.Tables[0].DefaultView[0].Row, data[i]);
 
-                            
-
                             if (data[i]["BOQId"] != null)
                             {
                                 clsStaticInfo _info = new clsStaticInfo();

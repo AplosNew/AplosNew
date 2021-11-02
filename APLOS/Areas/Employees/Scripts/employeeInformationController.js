@@ -546,10 +546,12 @@ function employeeInformationController(addressService, fileReader, cboService, c
             if ($scope.flg === 'new') {
                 $scope.employeeNew.GivenDesignationId = response.data[0].Value;
                 $scope.employeeNew.GivenDesignation = response.data[0].Text;
+                $scope.fillNonEligible();
             } else {
                 $scope.employeeInformation.GivenDesignationId = response.data[0].Value;
                 $scope.employeeInformation.GivenDesignation = response.data[0].Text;
             }
+            
         })
         $scope.GetInActiveLegalDesignaion(legalDesignationId);
     };
@@ -1637,7 +1639,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
             $http({
                 method: 'POST',
                 url: $scope.saveNewUrl,
-                data: { 'entity': $scope.employeeNew, 'EmployeeCodeCheckLevel': $scope.EmployeeCodeCheckLevel, 'empRef': $scope.empReferenceInformation },
+                data: { 'entity': $scope.employeeNew, 'EmployeeCodeCheckLevel': $scope.EmployeeCodeCheckLevel, 'empRef': $scope.empReferenceInformation, 'OT': $scope.NonEligibleOTChild},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -3887,8 +3889,8 @@ function employeeInformationController(addressService, fileReader, cboService, c
 
     /// The Additions of Week off and the Non Eligible OT
 
-    //var x = document.getElementById("OTCheck");
-    //x.disabled = true;
+    var x = document.getElementById("OTCheck");
+    x.disabled = true;
 
     //$scope.WeekOffChild = {
     //    Id: null,
@@ -3897,12 +3899,12 @@ function employeeInformationController(addressService, fileReader, cboService, c
     //    EffectiveDate: null,
     //}
 
-    //$scope.NonEligibleOTChild = {
-    //    Id: null,
-    //    EmpSystemId: null,
-    //    EffectiveDate: null,
-    //    Exclude: false,
-    //}
+    $scope.NonEligibleOTChild = {
+        Id: null,
+        EmpSystemId: null,
+        EffectiveDate: null,
+        Exclude: false,
+    }
 
     //$scope.weekOffList = [];
     //$scope.fillWeekOff = function () {
@@ -3915,21 +3917,21 @@ function employeeInformationController(addressService, fileReader, cboService, c
     //    })
     //}
 
-    //$scope.fillNonEligible = function () {
-    //    $http({
-    //        method: 'POST',
-    //        url: $scope.path + 'getNonEligibleOT',
-    //        data: { 'DesgId': $scope.employeeNew.GivenDesignationId }
-    //    }).then(function succ(res) {
-    //        $scope.NonEligibleOTChild.Exclude = res.data[0].IsOTEntitled;
-    //        if ($scope.NonEligibleOTChild.Exclude == true) {
-    //            $scope.NonEligibleOTChild.Exclude = false;
-    //            x.disabled = false;
-    //        }
-    //        else {
-    //            x.disabled = true;
-    //        }
-    //    });
-    //}
+    $scope.fillNonEligible = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getNonEligibleOT',
+            data: { 'DesgId': $scope.employeeNew.GivenDesignationId }
+        }).then(function succ(res) {
+            $scope.NonEligibleOTChild.Exclude = res.data[0].IsOTEntitled;
+            if ($scope.NonEligibleOTChild.Exclude == true) {
+                $scope.NonEligibleOTChild.Exclude = false;
+                x.disabled = false;
+            }
+            else {
+                x.disabled = true;
+            }
+        });
+    }
 
 }
