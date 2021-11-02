@@ -14416,8 +14416,8 @@ INNER JOIN
 											EC.UserName EmpCategoryName,
                                          Format(E.DOJ,'dd-MMM-yyyy') DOJ,Format(E.DOS,'dd-MMM-yyyy') DOS,Format(E.DOB,'dd-MMM-yyyy') DOB
 											,ISNULL(LDS.UserName,'') LegalDesignation
-											,SH.SalaryHead,SH.EntryAmount,SH.DefineAmount,LS.UserName Grade,SH.ExtDataUploadApp,
-CASE WHEN SH.ExtDataUploadApp='Yes' THEN 'System' ELSE SH.ExtDataUploadApp END as ExtDataUploadApp
+											,SH.SalaryHead,SH.EntryAmount,SH.DefineAmount,LS.UserName Grade,
+CASE WHEN SH.ExtDataUploadApp='Yes' THEN 'Mobile upload' ELSE 'Excel upload' END as ExtDataUploadApp
                                      FROM EmployeeInformation E
                                      left join hkp.Party p on p.Id = E.VendorId
 									 			LEFT JOIN ORG.Plant F ON F.Id= E.PlantId
