@@ -227,7 +227,7 @@ namespace Aplos.Areas.Attendances.Controllers
                         dr["GroupID"] = identity.CompanyGroupId;
                         dr["PlantID"] = identity.PlantId.ToString();
                         dr["AddedBy"] = identity.Name;
-                        dr["DateAdded"] = System.DateTime.Now.ToString();
+                        dr["DateAdded"] = DateTime.Now.ToString();
                         dr["BackupType"] = "RAWDATADELETE";
                         dsSaveddataRef.Tables[0].Rows.Add(dr);
 
@@ -255,20 +255,6 @@ namespace Aplos.Areas.Attendances.Controllers
                     //Old year insert 
                 }
                 SaveAttendanceRawDataBackupDataSetsAndDelete(AttendanceRawDataId, dsSaveddataRef);
-
-
-
-
-
-
-                while (FromDate <= ToDate)
-                {
-
-                    AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
-                    ReturnType r = obj.SaveTotal(identity.PlantId, FromDate.ToString("dd-MMM-yyyy"), EmpSytemId, false);//laila                 
-                    FromDate = FromDate.AddDays(1);
-                }
-
 
             }
             catch (Exception ex)
@@ -398,15 +384,6 @@ namespace Aplos.Areas.Attendances.Controllers
                     //Old year insert 
                 }
                 SaveAttendanceRawDataBackupDataSetsAndDelete(AttendanceRawDataId, dsSaveddataRef);
-
-
-
-
-
-
-                AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
-                ReturnType r = obj.SaveTotal(identity.PlantId, ToDate.ToString("dd-MMM-yyyy"), EmpSytemId, false);//laila                 
-
 
             }
             catch (Exception ex)
