@@ -280,6 +280,7 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
         [HttpPost, Authorize]
         public JsonResult GetEmployeeList(string month, string year,string PlantId)
         {
+
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var str = @"SELECT  DISTINCT E.SystemID EmpSystemId,[isSelect] = Convert(bit, 'True'),[isToBeSelect] = Convert(bit, 'False'), isnull(E.VendorId,'') as Vendor 
 									, isnull(p.UserName,'') as Contractor, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus 

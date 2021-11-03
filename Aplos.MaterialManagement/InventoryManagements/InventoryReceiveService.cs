@@ -12495,20 +12495,6 @@ namespace Library.MaterialManagement.InventoryManagements
 					sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
 					sheet1headreColIndex++;
 
-					//sheet1.Range[_rowL, sheet1headreColIndex].Text = "Storage Location";
-					//sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
-					//sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-					//sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					//sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-					//sheet1headreColIndex++;
-
-					//sheet1.Range[_rowL, sheet1headreColIndex].Text = "GRN Date";
-					//sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
-					//sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-					//sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					//sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-					//sheet1headreColIndex++;
-
 					sheet1.Range[_rowL, sheet1headreColIndex].Text = "HSN No";
 					sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
 					sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -12517,9 +12503,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					sheet1headreColIndex++;
 
 					if (Country == "true")
-					{
-						//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Country Name");
-						//sheet1headreColIndex++;
+					{			
 
 						sheet1.Range[_rowL, sheet1headreColIndex].Text = "Country Name";
 						sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
@@ -12528,10 +12512,9 @@ namespace Library.MaterialManagement.InventoryManagements
 						sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
 						sheet1headreColIndex++;
 
-
 					}
 
-					sheet1.Range[_rowL, sheet1headreColIndex].Text = "UOM";
+					sheet1.Range[_rowL, sheet1headreColIndex].Text = "UoM";
 					sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
 					sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 					sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -13424,18 +13407,6 @@ namespace Library.MaterialManagement.InventoryManagements
 						sheet1.Range[_row, 30, _row, 31].CellStyle.FillBackground = ExcelKnownColors.Tan;
 						sheet1.Range[_row, 30, _row, 31].Merge();
 					}
-
-
-
-
-
-
-					//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Material Type");
-					//sheet1headreColIndex++;
-					//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Material Group");
-					//sheet1headreColIndex++;
-					//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Material");
-					//sheet1headreColIndex++;
 
 					sheet1.Range[_rowL, sheet1headreColIndex].Text = "SL";
 					sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 5;
