@@ -691,99 +691,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.modelNew = Object.assign({}, $scope.model);
     }
 
-    //$scope.partySearchByList = [
-    //    {
-    //        'name': $scope.partyType + ' Code',
-    //        'value': 'Code'
-    //    },
-    //    {
-    //        'name': $scope.partyType + ' Name',
-    //        'value': 'PartyName'
-    //    },
-    //    {
-    //        'name': 'Account Group',
-    //        'value': 'PartyAccountGroupName'
-    //    },
-    //    {
-    //        'name': 'Country',
-    //        'value': 'CountryName'
-    //    },
-    //    {
-    //        'name': 'State',
-    //        'value': 'StateName'
-    //    },
-    //    {
-    //        'name': 'Currency',
-    //        'value': 'CurrencyCode'
-    //    }
-    //];
-    //$scope.partyParameters = {
-    //    limit: 10
-    //    , offset: 0
-    //    , order: 'ASC'
-    //    , sort: 'PartyName, PartyAccountGroupName'
-    //    , searchBy: 'PartyName'
-    //    , pageSize: 10
-    //    , total_count: 0
-    //    , search: null
-    //    , serverPagination: true
-    //};
-    //$scope.showPartyPopUp = function () {
-    //    if (baseService.isUndefinedOrNull($scope.fileNew.CompanyId)) {
-    //        ShowResult('Select Company', 'failure');
-    //        return false;
-    //    }
-    //    if (baseService.isUndefinedOrNull($scope.fileNew.PlantId)) {
-    //        ShowResult('Select Plant', 'failure');
-    //        return false;
-    //    }
-    //    baseService.setCurrentPage('partyList');
-    //    $scope.getPartyList = function (pageno) {
-    //        $scope.partyUrl = $scope.path + 'GetCompanyPartyDataList?companyId=' + $scope.fileNew.CompanyId + '&plantId=' + $scope.fileNew.PlantId + '&partyType=' + $scope.partyType;
-    //        baseService.paginationBase($scope.partyUrl, pageno, $scope.partyParameters)
-    //            .then(function (result) {
-    //                $scope.partyList = result.Rows;
-    //                $scope.partyParameters.total_count = result.Total;
-    //            }, function () {
-    //                ShowResult(commonMessage.NetworkError, 'failure');
-    //            }).finally(function () {
-    //            });
-    //    };
-    //    angular.element(document.querySelector('#partyPopUp')).modal('show');
-    //    $scope.getPartyList();
-    //};
-
-    //$scope.selectPartyPopUpRow = function (index, id) {
-    //    $scope.partyIndex = index;
-    //    $scope.selectedParty = id;
-    //};
-
-    //$scope.selectCustomerPopUp = function (index, id) {
-    //    $scope.partyIndex = index;
-    //    $scope.selectedCustomer = id;
-    //};
-
-    //$scope.closePartyPopUp = function (x) {
-    //    var party = x.data;
-    //    $scope.fileNew.PartyCode = party.Code;
-    //    $scope.fileNew.CustomerName = party.UserName;
-    //    $scope.fileNew.PartyId = party.Id;
-    //    $scope.fileNew.CurrencyId = party.CurrencyId;
-    //    $scope.fileNew.PartyAccountGroupId = party.PartyAccountGroupId;
-
-    //    $scope.fileNew.IsPaymentTermChangeable = '';
-    //    $scope.fileNew.PaymentTermId = '';
-
-    //    $scope.fileNew.PaymentTermId = party.PaymentTermId;
-    //    $scope.fileNew.IsPaymentTermChangeable = party.IsPaymentTermChangeable;
-
-    //    $scope.changePaymentTerm($scope.fileNew.PaymentTermId);
-    //    $scope.personList = [];
-    //    getPartyPlantList();
-    //    //GetDepartmentPersonCbo();
-    //    $scope.hidePartyPopUp();
-    //};
-
+    
     $scope.searchByParty = "UserName"; $scope.searchParty = "";
 
     $scope.ShowCustomerPopUpNew = function () {
@@ -4563,6 +4471,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     //#region Create New SKU
 
     $scope.characteristicsValueList = [];
+    $scope.SKU = null;
+    $scope.SKU = null;
     $scope.SKU = null;
     $scope.SKULevel = null;
     $scope.name = null;
