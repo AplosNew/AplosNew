@@ -18255,7 +18255,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                         ,DrAmt=CASE WHEN SH.TransactionTypeNew in ('Dr.')  THEN abs(isnull(SPC.DisbusmentAmount,0)) END
                         ,CrAmt=CASE WHEN SH.TransactionTypeNew in ('Cr.')  THEN abs(isnull(SPC.DisbusmentAmount,0)) END
                         from SalaryProcChild SPC
-                        Inner Join SalaryProcMaster SPM on SPC.SlrProcMstSystemID=SPM.SystemID and SPM.MonthNo='" + Month + "' and SPM.YearNo='" + Year + @"'
+                        Inner Join SalaryProcMaster SPM on SPC.SlrProcMstSystemID=SPM.SystemID and SPM.MonthNo='" + Month + "' and SPM.YearNo='" + Year + @"' AND SPC.PlantId IN (" + plantId + @" )
                         Inner Join SalaryProcessLogDetail SPLD on SPM.SystemID=SPLD.SalaryProcessId and SPLD.EmpSystemId=SPC.EmpInfoSystemID
                         Left Join EmployeeInformation E on SPLD.EmpSystemId=E.SystemId
                         Left Join ORG.Plant P on SPLD.PlantId=P.Id
@@ -18275,7 +18275,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                         	SELECT *,CASE WHEN ISNULL(sh.TransactionType,'')='Both' THEN 'Cr.' ELSE sh.TransactionType END AS TransactionTypeNew
                             FROM SalaryHead AS sh WHERE  ISNULL(sh.TransactionType,'') IN ('Cr.','Both') 
                         ) SH on SPC.SalaryHeadID=SH.SalaryHeadID
-                        Where SPM.MonthNo='" + Month + "' and SPM.YearNo='"+ Year + @"'  
+                        Where SPM.MonthNo='" + Month + "' and SPM.YearNo='"+ Year + @"'  AND SPC.PlantId IN (" + plantId + @" )
                         ) TempTbl
                         group by AccountsGroupId,AccountGroup,GL,GLName--,SalHeadId,SalHeadName";
             dtData = _sqlRepository.GetDataTable(sql);

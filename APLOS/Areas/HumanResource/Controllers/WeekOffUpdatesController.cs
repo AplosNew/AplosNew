@@ -425,5 +425,21 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
 
         }
+
+        // 2nd TAB Controllers
+
+        [Authorize]
+        public ActionResult getDistinctEmployeesToBeProcessed(string EffectiveDate)
+        {
+            try
+            {
+                return Json(rs.getDistinctEmployeesToBeProcessed(EffectiveDate), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
     }
 }

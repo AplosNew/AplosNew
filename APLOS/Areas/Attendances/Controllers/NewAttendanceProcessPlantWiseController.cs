@@ -42,6 +42,11 @@ namespace Aplos.Areas.Attendances.Controllers
             string CatchPlant = "";
             try
             {
+                if(Convert.ToDateTime(Date) > DateTime.Now)
+                {
+                    throw new Exception("Future Date Cannot be selected!!");
+                }
+
                 CatchPlant = identity.PlantId;
                 rep.ShiftProcess(Date, CatchPlant);
             }
@@ -61,7 +66,12 @@ namespace Aplos.Areas.Attendances.Controllers
             string CatchPlant = "";
             try
             {
-                 CatchPlant = identity.PlantId;
+                if (Convert.ToDateTime(Date) > DateTime.Now)
+                {
+                    throw new Exception("Future Date Cannot be selected!!");
+                }
+
+                CatchPlant = identity.PlantId;
                  rep.AttndProcess(Date, CatchPlant);
             }
             catch (Exception ex)
@@ -79,6 +89,10 @@ namespace Aplos.Areas.Attendances.Controllers
             string CatchPlant = ""; 
             try
             {
+                if (Convert.ToDateTime(Date) > DateTime.Now)
+                {
+                    throw new Exception("Future Date Cannot be selected!!");
+                }
                 CatchPlant = identity.PlantId; 
                 rep.DayStatus(Date, CatchPlant);
             }
@@ -99,6 +113,10 @@ namespace Aplos.Areas.Attendances.Controllers
             string CatchPlant = "";
             try
             {
+                if (Convert.ToDateTime(Date) > DateTime.Now)
+                {
+                    throw new Exception("Future Date Cannot be selected!!");
+                }
                 CatchPlant = identity.PlantId;
                 rep.PastDOJProcess(Date, CatchPlant);
             }
@@ -140,6 +158,10 @@ namespace Aplos.Areas.Attendances.Controllers
             string CatchPlant = "";
             try
             {
+                if (Convert.ToDateTime(Date) > DateTime.Now)
+                {
+                    throw new Exception("Future Date Cannot be selected!!");
+                }
                 CatchPlant = identity.PlantId;
                 rep.RosterProcess(CatchPlant, Date);
             }
