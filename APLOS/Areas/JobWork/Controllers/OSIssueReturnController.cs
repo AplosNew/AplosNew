@@ -7044,7 +7044,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                         LEFT JOIN TRN.InventoryMaterial IM ON IM.Id = IID.InventoryMaterialId
                         LEFT JOIN MST.MaterialMasterArticle mma ON mma.Id = IM.ArticleId
                         LEFT JOIN MST.MaterialMaster mm ON mm.Id = IM.MaterialMasterId
-
+                        LEFT JOIN MST.MaterialMasterAlternativeUOM mmu ON mmu.MaterialMasterId=mm.Id and mmu.AlternativeUOMId=IID.TransactionUoMId
 						LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
                         LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
                         LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id

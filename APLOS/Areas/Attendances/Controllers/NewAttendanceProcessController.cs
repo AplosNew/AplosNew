@@ -38,6 +38,11 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpGet, Authorize]
         public ActionResult RunShiftProcess(string Date)
         {
+            if (Convert.ToDateTime(Date) > DateTime.Now)
+            {
+                throw new Exception("Future Date Cannot be selected!!");
+            }
+
             string CGId = "";
 
             DataSet GroupList;            
@@ -81,6 +86,11 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpGet, Authorize]
         public ActionResult RunAttnd(string Date)
         {
+            if (Convert.ToDateTime(Date) > DateTime.Now)
+            {
+                throw new Exception("Future Date Cannot be selected!!");
+            }
+
             string CGId = "";
 
             DataSet GroupList;
@@ -124,6 +134,11 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpGet, Authorize]
         public ActionResult RunDayStatus(string Date)
         {
+            if (Convert.ToDateTime(Date) > DateTime.Now)
+            {
+                throw new Exception("Future Date Cannot be selected!!");
+            }
+
             string CGId = "";
 
             DataSet GroupList;
@@ -168,6 +183,11 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpGet, Authorize]
         public ActionResult RunDOJProcess(string Date)
         {
+            if (Convert.ToDateTime(Date) > DateTime.Now)
+            {
+                throw new Exception("Future Date Cannot be selected!!");
+            }
+
             string CGId = "";
 
             DataSet GroupList;
@@ -258,6 +278,11 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpGet, Authorize]
         public ActionResult RunRoster(string Date)
         {
+            if (Convert.ToDateTime(Date) > DateTime.Now)
+            {
+                throw new Exception("Future Date Cannot be selected!!");
+            }
+
             string CGId = "";
 
             DataSet GroupList;
