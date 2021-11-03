@@ -229,7 +229,11 @@ namespace Aplos.Areas.Accounts.Controllers
         //    }
         //    return Json(new { PreRecruitmentDocument = preRecruitmentDocument, Message = AplosMessage.Success });
         //}
-
+        public Dictionary<string, object> GetEntityByEmployeeId(string employeeId)
+        {
+            var cmdText = @"SELECT MB.EntityId FROM dbo.EmployeeInformation AS EI LEFT JOIN MST.ManpowerBudget AS MB ON MB.Id=EI.BudgetCode WHERE EI.SystemId = '" + employeeId + "'";
+            return _sqlRepository.GetData(cmdText);
+        }
         [HttpPost, Authorize]
         public JsonResult PotalBookingCreate(FormCollection form/*ExpenseBooking expenseBooking, IEnumerable<ExpenseBookingDetail> expenseBookingDetails, IEnumerable<ExpenseActivity> expActdetails*/)
         {
