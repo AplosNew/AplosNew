@@ -1,0 +1,59 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>Ot Final</h3>
+<div class="form-elements form-horizontal" ng-form="modelForm">
+     <div  @*class="tab-content"*@ class="row">
+
+       <div class="col-xs-12 col-sm-5 col-md-5">
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Select Year<sup>*</sup></label>
+            <div class="col-sm-8  show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="Year" ng-change="getFromAndToDate()" required tabindex="1">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in ClanderYear" value="{{option.YearNo}}">{{option.YearNo}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Month<sup>*</sup></label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    <select id="MonthId" class="form-control" ng-model="Month" name="MonthId" required tabindex="1" ng-change="getSalaryProcessIdList();">
+                        <option value="">--Select--</option>
+                        <option Value="01">Jan</option>
+                        <option Value="02">Feb</option>
+                        <option Value="03">Mar</option>
+                        <option Value="04">Apr</option>
+                        <option Value="05">May</option>
+                        <option Value="06">Jun</option>
+                        <option Value="07">Jul</option>
+                        <option Value="08">Aug</option>
+                        <option Value="09">Sep</option>
+                        <option Value="10">Oct</option>
+                        <option Value="11">Nov</option>
+                        <option Value="12">Dec</option>
+                    </select>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="common-btn">
+            <button ng-click="GetOtFinalReport();" class="btn"> <i class="glyphicon glyphicon-download"></i>Download</button>
+        </div>
+
+    </div>
+
+     </div>
+    
+
+    </div>
+<div class="loader" data-loader>
+    Please wait
+    <div class="bounce1"></div>
+    <div class="bounce2"></div>
+    <div class="bounce3"></div>
+    <div class="bounce3"></div>
+</div>

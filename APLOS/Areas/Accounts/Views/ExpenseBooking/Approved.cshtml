@@ -1,0 +1,129 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> Expense Booking Posting</h3>
+<div class="form-elements form-horizontal" ng-form="form1">
+    <div class="col-xs-12 col-sm-4 col-md-4">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Voucher Date<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="VoucherDate" ng-model="voucher.VoucherDate" datepicker class="form-control" disabled required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Beneficiary</label>
+            <div class="col-sm-8">
+                <input type="text" name="BeneficiaryType" ng-model="voucher.BeneficiaryType" readonly class="form-control">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Employee</label>
+            <div class="col-sm-8 control-label">
+                <input type="text" name="Code" ng-model="voucher.EmployeeCodeName" class="form-control" readonly>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Vendor</label>
+            <div class="col-sm-8">
+                <input type="text" name="PartyName" ng-model="voucher.PartyName" readonly class="form-control">
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-4 col-md-4">
+        <div id="div_PostingDate" class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Posting Date<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input required datepicker="getFiscalYearPeriod(voucher.PostingDate);checkPostingDate();" id="postingDate" type="text" name="PostingDate" ng-model="voucher.PostingDate" class="form-control" tabindex="1">
+            </div>
+        </div>
+        <div id="div_DocDate" class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Doc Date<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="DocDate" ng-model="voucher.DocDate" datepicker required class="form-control" tabindex="3">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Currency Code" ng-model="voucher.CurrencyCode" class="form-control" tabindex="4" disabled required>
+            </div>
+        </div>
+        <div id="div_TransactionType" class="form-group" ng-show="voucher.BeneficiaryType=='Self'">
+            <label class="col-sm-4 control-label">Transaction Type<sup>*</sup></label>
+            <div class="col-sm-5 show-message">
+                <div class="select-style">
+                    <select name="Transaction Type" class="form-control"
+                            ng-model="voucher.EmployeeTransactionTypeId" ng-change="expensesBookingTransaction(voucher.EmployeeTransactionTypeId)" tabindex="1">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in employeeTransactionTypeList" value="{{option.EmployeeTransactionTypeId}}">{{option.EmployeeTransactionTypeName}}</option>
+                    </select>
+                </div>
+            </div>
+            <label class="col-sm-3 control-label">{{voucher.JournalType}}</label>
+
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-4 col-md-4">
+        <div class="form-group" show-errors>
+            <label class="col-sm-3 control-label">Voucher Type<sup>*</sup></label>
+            <div class="col-sm-9 show-message">
+                <div class="select-style">
+                    <select ng-disabled="voucherTypeList.length==1" class="form-control" name="Voucher Type" ng-model="voucher.VoucherTypeId" tabindex="2" required>
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in voucherTypeList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-3 control-label">Doc Ref<sup>*</sup></label>
+            <div class="col-sm-9 show-message">
+                <input type="text" maxlength="50" name="Doc Ref" ng-model="voucher.DocRefNo" class="form-control" tabindex="4" disabled required>
+            </div>
+        </div>
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-3 control-label">Narration<sup>*</sup></label>
+            <div class="col-sm-9 show-message">
+                <textarea rows="3" type="text" name="Narration" tabindex="8" class="form-control" ng-model="voucher.Narration" required capitalize></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="table-responsive modal-table" ng-show="expensesBookingDetailList.length">
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>Budget</th>
+                    <th>Activity</th>
+                    <th>FA Item</th>
+                    <th>Expense Date</th>
+                    <th class="text-right">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="x in expensesBookingDetailList">
+                    <td>{{x.BudgetName}}</td>
+                    <td>{{x.ActivityName}}</td>
+                    <td>{{x.FixedAsset}}</td>
+                    <td>{{x.DocDate | dateFiltering}}</td>
+                    <td class="text-right">{{x.Amount | number:2}}</td>
+                </tr>
+            </tbody>
+            <tfoot ng-show="expensesBookingDetailList.length">
+                <tr>
+                    <td colspan="4" class="text-right"><b>Sub Total</b></td>
+                    <td class="text-right"><b>{{ expensesBookingDetailList | sumByKey : 'Amount' }}</b></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li><button ng-click="confirmDelete();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Delete</button></li>
+            <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            <li><button ng-click="Back();" class="btn"><i class="glyphicon glyphicon-backward"></i> Back</button></li>
+        </ul>
+    </div>
+</div>
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="Delete()"></confirm-archive-generic>
+
+<confirm-modal></confirm-modal>

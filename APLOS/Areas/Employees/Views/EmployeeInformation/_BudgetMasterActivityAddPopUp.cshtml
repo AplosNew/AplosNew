@@ -1,0 +1,44 @@
+﻿<div class="modal fade site-modal in" id="budgetActivityAddPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Activity</h4>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Apply</th>
+                                <th>GL</th>
+                                <th>Budget</th>
+                                <th>Activity</th>
+                                <th>FA Linked</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in activityList">
+                                <td>
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="x.Active">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>{{x.GLGeneralInfoName}}</td>
+                                <td>{{x.BudgetItem}}</td>
+                                <td>{{x.ActivityCodeName}}</td>
+                                <td>{{x.FALinked}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn btn-default" ng-click="selectActivity();">OK</button>
+            </div>
+        </div>
+    </div>
+</div>

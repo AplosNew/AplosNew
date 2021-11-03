@@ -1,0 +1,72 @@
+﻿<togglable name="Company Fiscal Year Period"></togglable>
+<div class="form-horizontal" ng-form id="CompanyFiscalYearPeriod" name="companyFiscalYearPeriodForm">
+    <input type="hidden" ng-model="companyFiscalYearPeriod.Id">
+    <div class="col-xs-12 col-sm-6 col-md-6   form-element-ctrl form-horizontal">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Company<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select name="Company Name" class="col-sm-3 form-control" ng-model="companyFiscalYearPeriod.CompanyId" ng-options="item.Value as item.Text for item in companyList" required tabindex="2" ng-change="getFiscalYear(companyFiscalYearPeriod.CompanyId)"></select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6  form-element-ctrl form-horizontal">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Fiscal Year<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select name="FiscalYear" class="col-sm-3 form-control" ng-model="companyFiscalYearPeriod.FiscalYearId" ng-options="item.Value as item.Text for item in fiscalYearList" required tabindex="1" ng-change="getComFiscalYearPeriod(companyFiscalYearPeriod.CompanyId, companyFiscalYearPeriod.FiscalYearId)"></select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+</div>
+<div class="table-responsive modal-table">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Period No</th>
+                <th>Period Name</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Budget Locked</th>
+                <th>Transation Locked</th>
+                <th>Exchange Rate Confirmed</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="x in companyFiscalYearPeriods" ng-dblclick="Get(x.Id);">
+                <td>{{x.PeriodNo}}</td>
+                <td>{{x.PeriodName}}</td>
+                <td>{{x.StartDate |dateFiltering}}</td>
+                <td>{{x.EndDate |dateFiltering}}</td>
+                <td align="center">
+                    <div class="checkbox-site">
+                        <label>
+                            <input ng-click="UpdateBudgetLocked(x.Id);" type="checkbox" ng-model="x.IsBudgetLocked" id="IsBudgetLocked-{{x.ComFysId}}">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok center-block"></i></span>
+                        </label>
+                    </div>
+                </td>
+                <td align="center">
+                    <div class="checkbox-site">
+                        <label>
+                            <input ng-click="UpdateTransationLocked(x.Id);" type="checkbox" ng-model="x.IsTransationLocked" id="IsTransationLocked-{{x.ComFysId}}">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </td>
+                <td align="center">
+                    <div class="checkbox-site">
+                        <label>
+                            <input ng-click="UpdateExchangeRateConfirmed(x.Id);" type="checkbox" ng-model="x.IsExchangeRateConfirmed" id="IsExchangeRateConfirmed-{{x.ComFysId}}">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

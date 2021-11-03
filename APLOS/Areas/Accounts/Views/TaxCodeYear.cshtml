@@ -1,0 +1,268 @@
+﻿<togglable name="Tax Code Year"></togglable>
+<div class="form-horizontal" ng-form name="taxCodeForm">
+    <div class="col-xs-12 col-sm-12 col-md-4 form-element-ctrl form-horizontal">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Country<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" name="Country" ng-model="taxCode.CountryId" required tabindex="1"
+                            ng-change="onCountryChange(taxCode.CountryId);"
+                            ng-options="item.Value as item.Text for item in countryList">
+                        <option></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-4 form-element-ctrl form-horizontal">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">TaxCode<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" name="TaxCode" ng-model="taxCode.TaxCodeId" required tabindex="1"
+                            ng-change="onTaxCodeChange(taxCode.TaxCodeId,taxCode.CountryId);getTaxCode(taxCode.TaxCodeId);"
+                            ng-options="item.Value as item.Text for item in TaxCodecboList">
+                        <option></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+</div>
+<div ng-form id="taxcode" name="taxCodeForm" class="form-elements  form-horizontal">
+    <div class="col-xs-12 col-sm-4 col-md-4 form-horizontal">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Code</label>
+            <label class="col-sm-8 control-label">{{taxCode.Code}}</label>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Manually Editable</label>
+            <label class="col-sm-8 control-label">{{taxCode.ManuallyEditable?'Yes':'No'}}</label>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label"> Triggering Instance</label>
+            <label class="col-sm-8 control-label"> {{taxCode.InvoiceOrPayment}}</label>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-4 col-md-4 form-horizontal">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Tax Category</label>
+            <label class="col-sm-8 control-label">{{taxCode.TaxCategoryName}}</label>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Type</label>
+            <label class="col-sm-8 control-label">{{taxCode.InputOrOutput}}</label>
+        </div>
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Tax Base</label>
+            <label class="col-sm-8 control-label">{{taxCode.BaseGrossOrNet}}</label>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-4 col-md-4 form-horizontal">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Applicable Tax :</label>
+            <label class="col-sm-4 control-label">Withhold</label>
+            <label class="col-sm-4 control-label">{{taxCode.IsWithhold}}</label>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label"></label>
+            <label class="col-sm-4 control-label">Creditable</label>
+            <label class="col-sm-4 control-label">{{taxCode.IsCreditable}}</label>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label"></label>
+            <label class="col-sm-4 control-label">Merge</label>
+            <label class="col-sm-4 control-label">{{taxCode.IsMerge}}</label>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <hr />
+    <div class="col-xs-12 col-sm-4 col-md-4 form-horizontal">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label"> Tax Year</label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select name="Tax Year" ng-model="taxCodeYear.TaxYearId" ng-disabled="IsTaxYearDisable"
+                            ng-change="onTaxYearChange(taxCodeYear.TaxYearId)" class=" form-control"
+                            ng-options="item.Value as item.Text for item in TaxYearList" tabindex="3" required>
+                        <option></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-4 col-md-4 form-horizontal">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label"> Calculation Type<sup>*</sup></label>
+            <div class="col-sm-8 control-label show-message">
+                <div class="select-style">
+                    <select name="Calculation Type" ng-model="taxCodeYear.Type" class="form-control" ng-change="changeType(taxCodeYear.Type)" required tabindex="4">
+                        <option value="FixedPercentage">Fixed Percentage</option>
+                        <option value="FixedValue">Fixed Value</option>
+                        <option value="BreakUp">Break Up</option>
+                        <option value="Cumulative">Cumulative</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div id="TabhideShow" ng-show="taxCodeYear.TaxYearId">
+        <div class="row">
+            <div class="col-xs-12 col-sm-4 col-md-4 form-horizontal">
+                <div ng-show="accTextBoxShow">
+                    <label class="col-sm-4 control-label">Value</label>
+                    <div class="col-sm-8 control-label">
+                        <input type="number" name="Value" ng-model="taxCodeDetailValueOfFixed.ValueOfFixed" class="form-control" tabindex="5">
+                    </div>
+                </div>
+            </div>
+            @***********************For BreakUp*********************@
+            <div class="col-sm-12" ng-show="fRowShow">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Slab</th>
+                                <th>Taxable Income</th>
+                                <th>Taxrate Percentage</th>
+                                <th>Apply</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="select-style">
+                                        <select name="Continent" ng-model="taxCodeDetail.SlabDefine" ng-change="OnBalanceAmountChange(taxCodeDetail.SlabDefine)" class="col-sm-3 form-control" tabindex="6">
+                                            <option value="First">First</option>
+                                            <option value="Next">Next</option>
+                                            <option value="OnBalanceAmount">On Balance Amount</option>
+                                        </select>
+                                    </div>
+                                </td>
+                                <td><input type="number" ng-readonly="onbalanceIncomeReadonly" class="form-control" ng-model="taxCodeDetail.TaxableIncome" placeholder="0" tabindex="7"></td>
+                                <td><input type="number" class="form-control" ng-model="taxCodeDetail.TaxRate" tabindex="8"></td>
+                                <td class="text-right">
+                                    <button class="btn single-btn" ng-click="addRow()" tabindex="10">{{CAction}}</button>
+                                </td>
+                            </tr>
+                            <tr ng-repeat="p in taxCodeAddedRow" ng-click="GetTaxCodDetailrow(p, $index)">
+                                <td>{{p.SlabDefine}}</td>
+                                <td>{{p.TaxableIncome}}</td>
+                                <td>{{p.TaxRate}}</td>
+                                <td class="text-right table-td">
+                                    <ul class="list-inline action-list">
+                                        <li>
+                                            <button ng-click="valuePassInDelModal($index, p.SlabDefine)" class="btn-action tooltip-here" data-placement="top" title="Remove">
+                                                <i class="glyphicon glyphicon-remove"></i>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-sm-12" ng-show="sRowShow">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Slab</th>
+                                <th>Taxable Income</th>
+                                <th>Taxrate Percentage</th>
+                                <th>Apply</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="select-style">
+                                        <select name="Continent" ng-model="taxCodeDetail.SlabDefine" ng-change="OnBalanceAmountChange(taxCodeDetail.SlabDefine)"
+                                                class="col-sm-3 form-control" tabindex="9">
+                                            <option value="Cumulative">Cumulative</option>
+                                            <option value="OnBalanceAmount">On Balance Amount</option>
+                                        </select>
+                                    </div>
+                                </td>
+                                <td><input type="text" ng-readonly="onbalanceIncomeReadonly" class="form-control" ng-model="taxCodeDetail.TaxableIncome" tabindex="10"></td>
+                                <td><input type="text" class="form-control" ng-model="taxCodeDetail.TaxRate" tabindex="11"></td>
+                                <td class="text-right">
+                                    <button class="btn single-btn" ng-click="addCumulativeRow()">{{CuAction}}</button>
+                                </td>
+                            </tr>
+                            <tr ng-repeat="p in taxCodeAddedRow" ng-click="GetTaxCodDetailrow(p,$index)">
+                                <td>{{p.SlabDefine}}</td>
+                                <td>{{p.TaxableIncome}}</td>
+                                <td>{{p.TaxRate}}</td>
+                                <td class="text-right table-td">
+                                    <ul class="list-inline action-list">
+                                        <li>
+                                            <button ng-click="valuePassInDelModal($index, p.SlabDefine)" class="btn-action tooltip-here" data-placement="top" title="Remove">
+                                                <i class="glyphicon glyphicon-remove"></i>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="6"></i> {{Action}}</button></li>
+                <li><button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="8"></i> Clear</button></li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchtaxcodeByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search"  ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Tax Year</th>
+                <th>Type</th>
+                <th>Active</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="p in taxcodes |itemsPerPage:$root.pageSize" total-items="$root.total_count" pagination-id="metaData.name + 'test'"
+                ng-dblclick="Get(p);">
+                <td>{{p.TaxYearName}}</td>
+                <td>{{p.Type}}</td>
+                <td>{{p.Active?'Yes':'No'}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10" pagination-id="metaData.name + 'test'" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)">
+    </dir-pagination-controls>
+</div>
+<confirm-archive-generic modalid="confirmgenericPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeTaxCodeRow()"></confirm-archive-generic>
+<confirm-modal></confirm-modal>

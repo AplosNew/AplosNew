@@ -1,0 +1,355 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Approval Configuration
+</h3>
+<style>
+    .filled {
+        background-color: #ff0000 !important;
+    }
+</style>
+<div ng-form name="approvalConfigurationForm" class="form-horizontal form-element-ctrl">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Company<sup>*</sup> </label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select id="Company" class="form-control" ng-model="approvalConfigurationNew.CompanyId" name="Plant" ng-change="getPlant();" required tabindex="1">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in companyList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="form-elements">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Plant<sup>*</sup> </label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select id="PlantId" class="form-control" ng-model="approvalConfigurationNew.PlantId" name="Plant" ng-change="getEntityWithChange();" required tabindex="1">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in PlantList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Upper Designation & Special Allowance">Upper Designation & <span><br />Special Allowance</span></label>
+                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                    <span class="input-group-addon" ng-class="{filled:approvalConfigurationNew.UpperEmployeeStatus==='Separated'}">{{approvalConfigurationNew.UpperDesignationAndSpecialAllowanceRPEC}}</span>
+                    <input type="text" ng-model="approvalConfigurationNew.UpperDesignationAndSpecialAllowanceApprovedByPerson" ng-class="{filled:approvalConfigurationNew.UpperEmployeeStatus==='Separated'}" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="popUp('UpperDesignation')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="clearDesignation()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Pre Recruitment Org./Dept.Document Upload">Pre Recruitment Org./Dept.<span><br />Document Upload</span></label>
+                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                    <span class="input-group-addon" ng-class="{filled:approvalConfigurationNew.DocumentEmployeeStatus==='Separated'}">{{approvalConfigurationNew.OrgDocRPEC}}</span>
+                    <input type="text" ng-model="approvalConfigurationNew.DocumentResponsible" ng-class="{filled:approvalConfigurationNew.DocumentEmployeeStatus==='Separated'}" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="popUp('DocumentResponsiblePerson')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="clearDocument()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Post Recruitment Org./Dept.Document Upload">Post Recruitment Org./Dept.<span><br />Document Upload</span></label>
+                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                    <span class="input-group-addon" ng-class="{filled:approvalConfigurationNew.OrgDocEmployeeStatus==='Separated'}">{{approvalConfigurationNew.PostRecruitmentOrgDocRPEC}}</span>
+                    <input type="text" ng-model="approvalConfigurationNew.PostRecruitmentOrgDocRPerson" ng-class="{filled:approvalConfigurationNew.OrgDocEmployeeStatus==='Separated'}" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="popUp('PostRecruitmentOrganization')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="clearPostRecruitmentOrganization()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Recruitment Final Confirmation">Recruitment Final<span><br />Confirmation</span></label>
+                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                    <span class="input-group-addon" ng-class="{filled:approvalConfigurationNew.RecruitmentFinalEmployeeStatus==='Separated'}">{{approvalConfigurationNew.RecruitmentFinalConfirmationRPEC}}</span>
+                    <input type="text" ng-model="approvalConfigurationNew.RecruitmentFinalConfirmationRPerson" ng-class="{filled:approvalConfigurationNew.RecruitmentFinalEmployeeStatus==='Separated'}" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="popUp('RecruitmentFinalConfirmationRP')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="clearRecruitmentFinalConfirmation()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Salary Approval">Salary Approval</label>
+                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                    <span class="input-group-addon" ng-class="{filled:approvalConfigurationNew.SalaryEmployeeStatus==='Separated'}">{{approvalConfigurationNew.SalaryRPEC}}</span>
+                    <input type="text" ng-model="approvalConfigurationNew.SalaryResponsible" ng-class="{filled:approvalConfigurationNew.SalaryEmployeeStatus==='Separated'}" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="popUp('SalaryResponsiblePerson')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="clearSalary()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Resignation Recruitment Planning">Resignation Recruitment <span><br />Planning Approval</span></label>
+                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                    <span class="input-group-addon" ng-class="{filled:approvalConfigurationNew.ResigRecruitEmployeeStatus==='Separated'}">{{approvalConfigurationNew.ResigRecruitPlanningRPEC}}</span>
+                    <input type="text" ng-model="approvalConfigurationNew.ResigRecruitPlanningRPerson" ng-class="{filled:approvalConfigurationNew.ResigRecruitEmployeeStatus==='Separated'}" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="popUp('ResigRecruitPlanningRPerson')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="clearResigRecruitPlanningRP()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Leave Approval">Leave Approval</label>
+                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                    <span class="input-group-addon" ng-class="{filled:approvalConfigurationNew.LeaveEmployeeStatus==='Separated'}">{{approvalConfigurationNew.LeaveApprovalEC}}</span>
+                    <input type="text" ng-model="approvalConfigurationNew.LeaveApprovalPerson" ng-class="{filled:approvalConfigurationNew.LeaveEmployeeStatus==='Separated'}" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="popUp('LeaveApproval')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="clearLeaveApproval()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Salary Advance Approval">Salary Advance Approval</label>
+                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                    <span class="input-group-addon" ng-class="{filled:approvalConfigurationNew.SalaryAdvanceApprovalStatus==='Separated'}">{{approvalConfigurationNew.SalaryAdvanceApprovalEC}}</span>
+                    <input type="text" ng-model="approvalConfigurationNew.SalaryAdvanceApprovalPerson" ng-class="{filled:approvalConfigurationNew.SalaryAdvanceApprovalStatus==='Separated'}" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="popUp('SalaryAdvanceApproval')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="clearSalaryAdvanceApproval()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Expanse Booking">Expenses Booking</label>
+                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                    <span class="input-group-addon" ng-class="{filled:approvalConfigurationNew.ExpanseBookingStatus==='Separated'}">{{approvalConfigurationNew.ExpanseBookingEC}}</span>
+                    <input type="text" ng-model="approvalConfigurationNew.ExpanseBookingRP" ng-class="{filled:approvalConfigurationNew.ExpanseBookingStatus==='Separated'}" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="popUp('ExpanseBooking')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="clearExpanseBooking()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label" title="Entity">Entity<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="approvalConfigurationNew.EntityId" required ng-change="getData();"
+                                id="entityId" name="Entity" tabindex="1">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in EntityList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Pre Recruitment Profile Upload">Pre Recruitment Profile <span><br />Upload</span></label>
+                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                    <span class="input-group-addon" ng-class="{filled:approvalConfigurationNew.ProfileEmployeeStatus==='Separated'}">{{approvalConfigurationNew.ProfileUploadRPEC}}</span>
+                    <input type="text" ng-model="approvalConfigurationNew.ProfileUploadRPerson" ng-class="{filled:approvalConfigurationNew.ProfileEmployeeStatus==='Separated'}" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="popUp('ProfileUpload')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="clearProfileUpload()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Pre-Recruitment Document Approval">Pre-Recruitment Document<span><br />Approval</span></label>
+                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                    <span class="input-group-addon" ng-class="{filled:approvalConfigurationNew.PreRecruitmentDocEmployeeStatus==='Separated'}">{{approvalConfigurationNew.PreRecruitmentDocRPEC}}</span>
+                    <input type="text" ng-model="approvalConfigurationNew.PreRecruitmentDocRPerson" ng-class="{filled:approvalConfigurationNew.PreRecruitmentDocEmployeeStatus==='Separated'}" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="popUp('PreRecruitmentDocRP')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="clearPreRecruitmentDocRP()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Post-Recruitment Document Approval">Post-Recruitment Document<span><br />Approval</span></label>
+                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                    <span class="input-group-addon" ng-class="{filled:approvalConfigurationNew.PostRecruitmentDocEmployeeStatus==='Separated'}">{{approvalConfigurationNew.PostRecruitmentDocRPEC}}</span>
+                    <input type="text" ng-model="approvalConfigurationNew.PostRecruitmentDocRPerson" ng-class="{filled:approvalConfigurationNew.PostRecruitmentDocEmployeeStatus==='Separated'}" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="popUp('PostRecruitmentDocRP')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="clearPostRecruitmentDocRP()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Probation Approval">Probation Approval</label>
+                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                    <span class="input-group-addon" ng-class="{filled:approvalConfigurationNew.ProbationEmployeeStatus==='Separated'}">{{approvalConfigurationNew.ProbationRPEC}}</span>
+                    <input type="text" ng-model="approvalConfigurationNew.ProbationResponsible" ng-class="{filled:approvalConfigurationNew.ProbationEmployeeStatus==='Separated'}" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="popUp('ProbationResponsiblePerson')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="clearProbation()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Resignation Apply">Resignation Apply</label>
+                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                    <span class="input-group-addon" ng-class="{filled:approvalConfigurationNew.ResignationApplyEmployeeStatus==='Separated'}">{{approvalConfigurationNew.ResignationApplyEC}}</span>
+                    <input type="text" ng-model="approvalConfigurationNew.ResignationApplyPerson" ng-class="{filled:approvalConfigurationNew.ResignationApplyEmployeeStatus==='Separated'}" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="popUp('ResignationApply')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="clearResignationApply()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Resignation Approval">Resignation Approval</label>
+                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                    <span class="input-group-addon" ng-class="{filled:approvalConfigurationNew.ResignationEmployeeStatus==='Separated'}">{{approvalConfigurationNew.ResignationApprovalEC}}</span>
+                    <input type="text" ng-model="approvalConfigurationNew.Resignationperson" ng-class="{filled:approvalConfigurationNew.ResignationEmployeeStatus==='Separated'}" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="popUp('ResignationResponsiblePerson')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="clearResignation()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Production Planning">Production Planning</label>
+                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                    <span class="input-group-addon" ng-class="{filled:approvalConfigurationNew.ProductionEmployeeStatus==='Separated'}">{{approvalConfigurationNew.ProductionPlanningEC}}</span>
+                    <input type="text" ng-model="approvalConfigurationNew.ProductionPlanningPerson" ng-class="{filled:approvalConfigurationNew.ProductionEmployeeStatus==='Separated'}" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="popUp('ProductionPlanning')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="clearProductionPlanning()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Salary Fixation Approval">Salary Fixation Approval</label>
+                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                    <span class="input-group-addon" ng-class="{filled:approvalConfigurationNew.SalaryFixationApprovalStatus==='Separated'}">{{approvalConfigurationNew.SalaryFixationApprovalEC}}</span>
+                    <input type="text" ng-model="approvalConfigurationNew.SalaryFixationApprovalPerson" ng-class="{filled:approvalConfigurationNew.SalaryFixationApprovalStatus==='Separated'}" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="popUp('SalaryFixationApproval')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="clearSalaryFixationApproval()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Manual Attendance Approval">Manual Attendance Approval</label>
+                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                    <span class="input-group-addon" ng-class="{filled:approvalConfigurationNew.ManualAttendanceApprovalStatus==='Separated'}">{{approvalConfigurationNew.ManualAttendanceApprovalEC}}</span>
+                    <input type="text" ng-model="approvalConfigurationNew.ManualAttendanceApprovalPerson" ng-class="{filled:approvalConfigurationNew.ManualAttendanceApprovalStatus==='Separated'}" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="popUp('ManualAttendanceApproval')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="clearManualAttendanceApproval()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="InOut Attendance Approval">InOut Attendance Approval</label>
+                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                    <span class="input-group-addon" ng-class="{filled:approvalConfigurationNew.InOutAttendanceStatus==='Separated'}">{{approvalConfigurationNew.InOutAttendanceEC}}</span>
+                    <input type="text" ng-model="approvalConfigurationNew.InOutAttendancePerson" ng-class="{filled:approvalConfigurationNew.InOutAttendanceStatus==='Separated'}" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="popUp('InOutAttendanceApproval')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="clearInOutAttendanceApproval()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+            </ul>
+        </div>
+    </div>
+</div>
+<confirm-modal></confirm-modal>
+<modal-table modalid="popUpId"
+             data-title={{popUpTitle}}
+             data-search-parameters="popUpParameters"
+             data-exclued-column-list="Code"
+             data-field-list="popUpList"
+             data-data-list="popUpDataList"
+             data-search-function="getPopUpData"
+             data-single-click="selectSingleClick(data)"
+             data-double-click="selectDoubleClick(data)"
+             data-right-button="true"
+             data-left-button="true"
+             data-ng-click-left-button="selectByButton()"
+             data-ng-click-cancel="closePopUp()">
+</modal-table>
+<modal-table modalid="popUpPId"
+             data-title={{popUpTitle}}
+             data-search-parameters="popUpParameters"
+             data-exclued-column-list="Code"
+             data-field-list="popUpList"
+             data-data-list="popUpDataList"
+             data-search-function="getPopUpData"
+             data-single-click="selectSingleClick(data)"
+             data-double-click="selectDoubleClickP(data)"
+             data-right-button="true"
+             data-left-button="true"
+             data-ng-click-left-button="selectByButton()"
+             data-ng-click-cancel="closePopUp()">
+</modal-table>
+<div class="modal fade site-modal in" id="popUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                {{popUpTitle}}
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="popUpParameters.searchBy">
+                                            <option ng-repeat="option in popUpList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="popUpParameters.search"  ng-enter="popUpData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="popUpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th ng-repeat="x in popUpList">{{x.Text}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in popUpDataList|itemsPerPage:popUpParameters.pageSize" total-items="popUpParameters.total_count"
+                                ng-click="selectSingleClick(x)" ng-dblclick="selectdblClick(x);">
+                                <td ng-repeat="hh in popUpList">{{x[hh.Value]}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="popUpData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="loader" data-loader>
+    Please wait
+    <div class="bounce1"></div>
+    <div class="bounce2"></div>
+    <div class="bounce3"></div>
+</div>

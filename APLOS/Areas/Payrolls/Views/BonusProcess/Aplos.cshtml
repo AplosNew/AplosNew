@@ -1,0 +1,169 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>Bonus Process</h3>
+<div class="form-horizontal " id="MainDivId">
+    <div class="form-elements ">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Bonus Process Cut Off Date</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="From Date" placeholder="dd-MM-yyyy" ng-model="BonusProcess.Work" datepicker class="form-control datepicker" tabindex="1">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Disbust Salary Head</label>
+                        <div class="col-sm-8">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="BonusProcess.DSalaryHead"
+                                        ng-options="item.SalaryHeadID as item.SalaryHead for item in SalaryHeadList" name="Company" required tabindex="1">
+                                    <option></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Bonus Policy</label>
+                        <div class="col-sm-7">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="BonusProcess.BPolicy" ng-change="GetBonus();"
+                                        ng-options="item.PolicyId as item.PolicyName for item in BonusList" required tabindex="1">
+                                    <option></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-1" style="padding-left: 0px;">
+                            <div class="common-btn">
+                                <button ng-click="AddLineIdem();" class="btn"><i class="glyphicon glyphicon-option-horizontal"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Remarks</label>
+                        <div class="col-sm-8">
+                            <textarea type="text" ng-model="BonusProcess.Remark" class="form-control" maxlength="100" tabindex="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Bonus Type</label>
+                        <div class="col-sm-8">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="BonusProcess.BType" required tabindex="1">
+                                    <option></option>
+                                    <option value="Festival Bonus">Festival Bonus</option>
+                                    <option value="Special Bonus">Special Bonus</option>
+                                    <option value="Incentive Bonus">Incentive Bonus</option>
+                                    <option value="Performance Bonus"> Performance Bonus</option>
+                                    <option value="Yearly Bonus">Yearly Bonus</option>
+                                    <option value="Other Bonus">Other Bonus</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Amount Defination Currency</label>
+                        <div class="col-sm-8">
+                            <input class="form-control" disabled rows="3" ng-model="BonusProcess.AmtDefCurrency" tabindex="7">
+                            <input class="form-control" hidden rows="3" ng-model="BonusProcess.LocalCurrency" tabindex="7" >
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Rate</label>
+                        <div class="col-sm-8">
+                            <input class="form-control" disabled rows="3" ng-model="BonusProcess.Rate" tabindex="7" maxlength="250">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12">
+                <div id="Grid2" ej-grid e-datasource="BonusEmpList" e-allowsorting="true" e-allowscrolling="true"
+                     e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowResizing="true"
+                     e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="false">
+                    <div e-columns>
+                        @*<div e-column e-field="ID" e-headertext="ID" e-width="3" e-isprimarykey="true" e-visible="false"></div>*@
+                        <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="5"></div>
+                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="5"></div>
+                        <div e-column e-field="DOJ" e-headertext="DOJ" e-width="5"></div>
+                        <div e-column e-field="ServiceLength_Day" e-headertext="Service Length" e-width="5"></div>
+                        <div e-column e-field="ServiceLength_Month" e-headertext="Service Length" e-width="5"></div>
+                        <div e-column e-field="DOC" e-headertext="DOC" e-width="5"></div>
+                        <div e-column e-field="ConfirmServiceLength_Day" e-headertext="Confirm Service Length" e-width="5"></div>
+                        <div e-column e-field="ConfirmServiceLength_Month" e-headertext="Confirm Service Length" e-width="5"></div>
+                        <div e-column e-field="DesignationName" e-headertext="Designation" e-width="5"></div>
+                        <div e-column e-field="CalculationBaseonSalaryHead" e-headertext="Calculation Base on Salary Head" e-width="5"></div>
+                        <div e-column e-field="CalculationBaseonSalaryAmount" e-headertext="Calculation Base on Salary Amount	" e-width="5"></div>
+                        <div e-column e-field="BonusAmount" e-headertext="Bonus Amount" e-width="5"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Process();" class="btn"><i class="glyphicon glyphicon-retweet"></i> Process</button></li>
+                <li> <button ng-click="GetReport();" class="btn"><i class="glyphicon glyphicon-download-alt"></i> Print</button></li>
+                @*<li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-stop"></i> Cancle</button></li>*@
+            </ul>
+        </div>
+    </div>
+</div>
+
+<ej-dialog id="BPMRDetails"
+           title="Details"
+           e-enablemodal="true"
+           e-position-y="0"
+           e-showoninit="false"
+           e-target="#MainDivId"
+           e-close="onDialogClose"
+           e-width="1020"
+           e-minheight="220"
+           e-open="enableBtn">
+
+    <div class="col-xs-12">
+        <div id="Grid1" ej-grid e-datasource="MasterBonusList" e-allowsorting="true" e-allowscrolling="true"
+             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowResizing="true"
+             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="false">
+            <div e-columns>
+                <div e-column e-field="ID" e-headertext="ID" e-width="3" e-isprimarykey="true" e-visible="false"></div>
+                <div e-column e-field="EntitleFrm" e-headertext="Entitle From" e-width="5"></div>
+                <div e-column e-field="MinServLen" e-headertext="Minimum Service Length" e-width="5"></div>
+                <div e-column e-field="MaxServLen" e-headertext="Maximum Service Length" e-width="5"></div>
+                <div e-column e-field="IsFixed" e-headertext="Is Fixed" e-width="5"></div>
+                <div e-column e-field="FixedAmount" e-headertext="Fixed Amount" e-width="5"></div>
+                <div e-column e-field="IsPercentage" e-headertext="Is Percentage" e-width="5"></div>
+                <div e-column e-field="IsProportionate" e-headertext="Is Proportionate" e-width="5"></div>
+                <div e-column e-field="PerctSalaryHead" e-headertext="Salary Head" e-width="5"></div>
+                <div e-column e-field="BonusPercentage" e-headertext="Percentage Value" e-width="5"></div>
+                @*<div e-column e-field="DivisionFactor" e-headertext="Division Factor Value" e-width="5"></div>*@
+                @*<div e-column e-field="MinBonusAmt" e-headertext="Minimum Bonus Amount" e-width="5"></div>*@
+                <div e-column e-field="ServiceLengthType" e-headertext="Service Length Type" e-width="5"></div>
+            </div>
+        </div>
+    </div>
+
+</ej-dialog>
+
+<confirm-archive-generic modalid="confirmPopUpMaster" title="Confirmation" message="Are you sure to delete ?" data-ng-click-right-button="DeleteMaster();"></confirm-archive-generic>

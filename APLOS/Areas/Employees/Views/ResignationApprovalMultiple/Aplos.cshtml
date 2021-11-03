@@ -1,0 +1,336 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Multiple Separation Approval
+</h3>
+<style>
+
+    .filled {
+        background-color: #aea8d3 !important;
+    }
+
+    .empty {
+        background-color: #3e445a !important;
+    }
+</style>
+
+<div class="form-elements form-horizontal">
+
+    @*<p style="text-decoration:underline;cursor:pointer;" ng-show="message==null || message == ''" ng-click="showEntityPopUp();">My Entity List</p>
+    <p class="msg-success" ng-show="message!=null || message == ''">{{message}}</p>*@
+
+    <div class="site-tab">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Applied Info</a></li>
+            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">Pending Info</a></li>
+        </ul>
+    </div>
+
+    <div class="tab-content">
+
+        <div role="tabpanel" id="appliedResignation" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+
+            <div class="row text-right aplos-grid-toggle">
+                <div class="col-xs-12 col-sm-12 col-sm-12">
+                    @*<div class="search-form">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                <div class="select-style">
+                                    <select ng-model="SelectionParameters.searchBy">
+                                        <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-7 col-md-7">
+                                <input type="text" class="form-control" placeholder="Search" ng-model="SelectionParameters.search" ng-enter="LoadDataList()">
+                            </div>
+                            <div class="col-xs-12 col-sm-2 col-md-2">
+                                <button type="button" ng-click="LoadDataList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                            </div>
+                        </div>
+                    </div>*@
+                </div>
+            </div>
+
+
+
+            <div class="row"  ng-show="appliedList.length>0">
+                <div class="GridResignationAppliedEmployee" id="GridResignationAppliedEmployeeList" ej-grid e-datasource="appliedList"
+                     e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
+                     e-allowscrolling="true" e-minheight="400" e-gridlines="none"
+                     e-actioncomplete="actionCompleteSingleEmployee" e-height="400px"
+                     e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                        <div e-column e-field="Entity" e-headertext="Entity" e-width="80"></div>
+                        <div e-column e-field="ResignationDate" e-headertext="Separation Date" e-width="100"></div>
+                        <div e-column e-field="EffectiveDate" e-headertext="Effective Date" e-width="100"></div>
+                        <div e-column e-template="#actiondwonloadUrl" e- e-headertext="Separation Letter" e-width="80"></div>
+                        <div e-column e-template="#actionApprovalStatus" e-headertext="Approval Status" e-width="80"></div>
+                        <div e-column e-template="#actionApprovedEffectiveDate" e-headertext="Approval Date" e-width="100"></div>
+                        <div e-column e-template="#actionSeperationType" e-headertext="Separation Type" e-width="100"></div>
+                        <div e-column e-template="#actionSpecialFollowUp" e-headertext="Special Follow Up" e-width="80"></div>
+                        <div e-column e-template="#actionRemarks" e-headertext="Remarks" e-width="80"></div>
+
+                        <div e-column e-field="DisciplinaryAction" e-headertext="Disciplinary Action" e-width="80"></div>
+                        <div e-column e-field="CaseNo" e-headertext="Case No" e-width="80"></div>
+                        <div e-column e-field="Letter" e-headertext="Letter" e-width="80"></div>
+                    </div>
+                </div>
+
+                <script type="text/template" id="actiondwonloadUrl">
+                    <a href="{{filePath+data.AttachLetter}}"  style="text-decoration:underline" download="{{data.AttachLetter}}" target="_self">{{data.AttachLetter}}</a>
+                </script>
+                <script type="text/template" id="actionApprovedEffectiveDate">
+                    <div class="col-sm-10" style="padding:0px;">
+                        <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="data.ApprovedEffectiveDate" e-width="100%" />
+                    </div>
+                </script>
+                <script type="text/template" id="actionSeperationType">
+                    <div class="col-sm-10" style="padding:0px;">
+                        <input ej-dropdownlist e-datasource="$parent.SeparationTypeList" e-fields-text="UserName" e-fields-value="Id" e-value="data.SeparationType" e-width="100%" />
+                    </div>
+                </script>
+                <script type="text/template" id="actionApprovalStatus">
+                    <div class="col-sm-10" style="padding:0px;">
+                        <input ej-dropdownlist e-datasource="$parent.StatusList" e-fields-text="Text" e-fields-value="Value" e-value="data.ApprovalStatus" e-width="100%" />
+                    </div>
+                </script>
+                <script type="text/template" id="actionSpecialFollowUp">
+                    <div class="col-sm-10" style="padding:0px;">
+                        <input type="checkbox" ej-checkbox class="nodetext" e-value="data.SpecialFollowUp" e-checked="data.SpecialFollowUp"  />
+                    </div>
+                </script>
+                <script type="text/template" id="actionRemarks">
+                    <div class="col-sm-10" style="padding:0px;">
+                        <button ng-click="$parent.loadRemarks(this)" class="btn" tabindex="3">Remarks</button>
+                    </div>
+                </script>
+            </div>
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="Save();" ng-disabled="tempIdList.length==0" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                    @*<li> <button ng-click="ReportEmployeeInfo();" class="btn" tabindex="9"><i class="glyphicon glyphicon-print"></i> Print </button></li>*@
+                    @*<li> <button ng-click="As_ReportEmployeeInfo();" class="btn" tabindex="9"><i class="glyphicon glyphicon-print"></i> Print </button></li>*@
+                </ul>
+            </div>
+        </div>
+
+
+
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+
+            <div class="row text-right">
+                <div class="col-xs-12 col-sm-12 col-sm-12">
+                    <div class="search-form">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                <div class="select-style">
+                                    <select ng-model="SelectionParameters1.searchBy">
+                                        <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-7 col-md-7">
+                                <input type="text" class="form-control" placeholder="Search" ng-model="SelectionParameters1.search" ng-enter="LoadList();">
+                            </div>
+                            <div class="col-xs-12 col-sm-2 col-md-2">
+                                <button type="button" ng-click="LoadList();" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div ng-show="pendingList.length>0">
+                <label>Total :{{SelectionParameters1.total_count }}</label>
+                <input type="hidden" ng-model="Resignation.Id">
+
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Select</th>
+                                <th>Employee Name</th>
+                                <th>Employee Code</th>
+                                <th>Entity</th>
+                                <th>Resignation Date</th>
+                                <th>Applied Effective Date</th>
+                                <th>Resignation Letter</th>
+                                <th>Approval Status</th>
+                                <th>Approved Effective Date</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="e in pendingList | itemsPerPage:SelectionParameters1.pageSize" pagination-id="metaData.name + 'pendingList'"
+                                total-items="SelectionParameters1.total_count">
+                                <td class="text-right table-td">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="e.Active" checked="{{e.Active}}" ng-click="selectChValueId2($event,e)">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>{{e.EmployeeName | uppercase}}</td>
+                                <td>{{e.EmployeeCode}}</td>
+                                <td>{{e.Entity}}</td>
+                                <td>{{e.ResignationDate}}</td>
+                                <td>{{e.EffectiveDate}}</td>
+                                <td ng-click="FileDownload(e)">
+                                    <a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{e.AttachLetter}}" target="_self">{{e.AttachLetter}}</a>
+                                </td>
+                                <td>
+                                    <select name="Selection Status" class="form-control select-style" ng-model="e.ApprovalStatus" ng-change="setFinalStatus(e,e.EmployeeId,$index)" style="height: 28px;width: 100px;" tabindex="1">
+                                        <option value="">--Select--</option>
+                                        <option ng-repeat="item in StatusList" value="{{item.Value}}">{{item.Text}}</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="text" ng-model="e.ApprovedEffectiveDate" ng-disabled="e.ApprovalStatus == 'Rejected'" ng-change="setFinalApprovalDate(e.EmployeeId,$index)" style="width: 110px;" datepicker class="form-control datepicker" placeholder="dd-MM-yyyy">
+                                </td>
+                                
+                                
+                                <td>
+                                    <button ng-click="loadFinalRemarks(e.Remarks,$index)" ng-class="getRemarkColor(e)" class="btn" tabindex="3">Remarks</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls pagination-id="metaData.name + 'pendingList'"
+                                             max-size="10"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="LoadList(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SaveApproved();" ng-disabled="" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="entityPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header"> My Entity List<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Entity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in entityList">
+                                <td>{{x.Code}}</td>
+                                <td>{{x.EntityName}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*Char search*@
+<modal-table modalid="search_popup"
+             data-title="Search (Finished Goods) Data"
+             data-search-parameters="popUpParameters"
+             data-exclued-column-list="excluedColumnList"
+             data-field-list="popUpList"
+             data-data-list="popUpDataList"
+             data-search-function="getPopUpData"
+             data-single-click=""
+             data-double-click="getSearchObject(data)"
+             data-right-button="false"
+             data-left-button="false"
+             data-ng-click-left-button=""
+             data-ng-click-cancel="">
+</modal-table>
+<!-- #region Table -->
+<div class="modal fade site-modal in" id="remarksPopUpId" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-m">
+        <div class="modal-content">
+            <div class="modal-header"> Remarks  </div>
+            <div class="modal-body">
+                <div class="col-xs-12 col-sm-12 col-sm-12 form-elements form-horizontal">
+                    <textarea ng-model="tempRowData.Remarks" rows="3" class="form-control" placeholder="Please enter remarks here" maxlength="250" style="width:480px;border:1px solid black" />
+                </div>
+                <div class="common-btn modal-footer">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="closeRemarkPopUp()" class="btn">Done</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+         
+          
+          
+    <ej-dialog id="dialogRemarks"
+               title="Remarks"
+               e-enablemodal="true"
+               e-position-y="0"
+               e-target=".site-heading"
+               e-showoninit="false"
+               e-close="onDialogClose"
+               e-minwidth="480px"
+               e-showFooter="true"
+                e-create="onCreate" 
+               e-footerTemplateId="sample"
+               e-open="enableBtn"
+               >
+        <div class="col-xs-12 col-md-12">
+            <textarea ng-model="tempRowData.Remarks" rows="3" class="form-control" placeholder="Please enter remarks here" maxlength="250" style="width:430px;border:1px solid black" />
+        </div>
+    </ej-dialog>
+    <script id="sample" type="text/template">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12">
+
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li style="float:right; padding-right:11px"> <div id="buttonName" class="btn">OK</div></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <!-- #endregion -->
+    <!-- #region Table -->
+    <div class="modal fade site-modal in" id="remarksPopUpId2" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-m">
+            <div class="modal-content">
+                <div class="modal-header"> Remarks  </div>
+                <div class="modal-body">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 form-elements form-horizontal">
+                        <textarea ng-model="remarks_popup2" rows="3" class="form-control" placeholder="Please enter remarks here" maxlength="250" style="width:480px;border:1px solid black" />
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li><button ng-click="closeFinalRemarkPopUp()" class="btn">Done</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- #endregion -->
+
+
+    <confirm-archive-generic modalid="confirmDelete" title="Confirmation" data-ng-click-left-button="confirmCloseExperienceDelete()" message={{message_confirmation}} data-ng-click-right-button="removeResignation()"></confirm-archive-generic>
+
+
+
+

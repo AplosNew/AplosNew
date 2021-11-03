@@ -1,0 +1,556 @@
+﻿@*<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+	<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>*@
+@*<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/angular-bootstrap-toggle@0.4.0/dist/angular-bootstrap-toggle.min.css">
+	<script src="https://cdn.jsdelivr.net/npm/angular-bootstrap-toggle@0.4.0/dist/angular-bootstrap-toggle.min.js"></script>*@
+<link href="~/Scripts/bootstrap-toggle.min.css" rel="stylesheet" />
+<script src="~/Scripts/bootstrap-toggle.min.js"></script>
+<style>
+	html {
+		overflow: scroll;
+	}
+
+	.vl {
+		border-left: 6px solid green;
+		height: 100%;
+	}
+
+	.filled {
+		background-color: #0dbe67 !important;
+	}
+
+	#myDIV {
+		width: 100%;
+		text-align: center;
+	}
+
+	.options {
+		height: 150px;
+		overflow-y: scroll;
+	}
+
+	.changeType {
+		background: #eee;
+		border-radius: 2px;
+		border: 1px solid #bbb;
+		color: #bbb;
+		font-size: 10px;
+		padding: 4px;
+		float: right;
+	}
+
+		.changeType:before {
+			content: "\25BC ";
+		}
+
+	.options {
+		height: 150px;
+		overflow-y: scroll;
+		color: black;
+		font-weight: 100;
+	}
+
+	a.filterlink {
+		font-size: 12px;
+	}
+
+	.e-grid .e-headercelldiv {
+		font-weight: bold;
+		font-size: 13px;
+		display: block;
+		border: 0 none;
+		height: 29px;
+		line-height: 29px;
+		margin: -7px;
+		padding: 0 .7em;
+		text-align: left;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		font-family: "Arial Narrow";
+	}
+
+	.e-gridheader .e-headercell { /* grid header color and grid row select color*/
+		background: #a2f1ff;
+		color: #080076;
+		min-height: 100%;
+		border-bottom-color: #8B4513;
+	}
+	element.style {
+		height: 132.8889px;
+		width: 1229.32px;
+	}
+</style>
+<div class="row">
+	<div class="col-lg-12">
+		<div class="col-lg-2"><h4 style="/*margin-top:-10px;margin-bottom:25px;*/margin-left: -14%" class="ng-scope"><span class="glyphicon glyphicon-stats"></span> Material Ageing</h4></div>
+		<div class="col-lg-10">
+			<div class="row" id="date" style="border-bottom:1px solid #d8d7d7; margin:-2px;">
+				<div class="col-md-3">
+					Select Material:
+					<input type="checkbox" id="toggle-two" ng-model="Isregulardata" ng-change="Isregular()">
+					<script>
+						$(function () {
+							$('#toggle-two').bootstrapToggle({ off: 'Non Regular', on: 'Regular' });
+						})
+					</script>
+				</div>
+
+
+
+				<div class="col-md-9">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="col-md-6">
+								@*<div class="form-group form-element-ctrl">
+										<div class="show-message">
+											<div class="col-md-3" style="padding:3%;">From</div>
+											<div class="col-md-9">
+												<input type="text" name="Date" ng-model="dateRange.fromDate" datepicker class="form-control datepicker" required tabindex="1" style="margin-top: 7px;margin-bottom: -4px;">
+											</div>
+										</div>
+									</div>*@
+								<div id='Grid2'></div>
+							</div>
+							<div class="col-md-5">
+								@*<div class="form-group form-element-ctrl">
+										<div class="show-message">
+											<div class="col-md-3" style="padding:4%; margin-left:-12%">To</div>
+											<div class="col-md-9">
+												<input type="text" name="Date" ng-model="dateRange.toDate" datepicker class="form-control datepicker" required tabindex="1" style="margin-top: 7px;margin-bottom: -4px;">
+											</div>
+										</div>
+									</div>*@
+							</div>
+							<div class="col-md-1">
+								<button style="margin-top: 17%;margin-left: -172%;" type="button" ng-click="dFunction(dateRange.fromDate,dateRange.toDate)" class="btn single-btn"><i class="glyphicon glyphicon-arrow-down"></i> Generate </button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+
+				@*<div class="col-md-3">
+						Select Option:
+						<input type="checkbox" id="toggle-two" ng-model="data" ng-change="valuenumber()">
+						<script>
+							$(function () {
+								$('#toggle-two').bootstrapToggle({ on: 'Non Regular', off: 'Regular' });
+							})
+						</script>
+					</div>*@
+			</div>
+		</div>
+
+	</div>
+</div>
+<div class="col-lg-12">
+	<div class="col-md-12" align="right">
+		@*<input type="checkbox" ng-model="data" data-toggle="toggle" on="Valuess" off="Numberss" ng-change="valuenumber()">*@
+		<span style="color:maroon">Select Option For Value / Number:</span>
+
+
+		<input type="checkbox" id="toggle-two1" ng-model="data" ng-change="valuenumber()">
+		<script>
+			$(function () {
+				$('#toggle-two1').bootstrapToggle({ on: 'Number', off: 'Value' });
+			})
+		</script>
+	</div>
+</div>
+@*<h4 style="margin-top:-10px;margin-bottom:25px;"><span class="glyphicon glyphicon-stats"></span> Expense Dashboard</h4>*@
+@*<div class="container" id="headerNav" style="margin-left: -1.1%; margin-top:.5%;">
+	<div id="wizard-container">
+		<ul style="cursor:pointer; margin-bottom:-22px;">
+			<li hidden ng-repeat="x in ColList" ng-click="headerNav(x)" ng-show="x.Sequence < index">
+				<a>
+					<b>{{x.ColumnName}}</b><br />{{x.Name}}
+				</a>
+			</li>
+		</ul>
+	</div>
+</div>*@
+
+<div class="row">
+	<div class="col-md-12">
+		<div id="Detail" class="col-md-12" style="padding-left:0%">
+			<div class="modal-body table-responsive modal-table" style="margin-left:0%;   max-width:100%;"> @*max-height:475px;k*@
+				<table class="table table-hover table-striped" style="overflow-y:scroll;border:1px solid black; box-shadow:1px 1px 1px 1px grey;" id="myTable">
+					<thead style="background: linear-gradient(to right, #25c481, #25b7c4);">
+						<tr>
+							@*<th>{{ColList[index+2].ColumnName}}</th>*@							
+							<th style="text-align:center; font-weight:bold;"><h4> Material Type</h4></th>
+							<th style="text-align:center; font-weight:bold;"><h4> < =30 Days</h4></th>
+							<th style="text-align:center; font-weight:bold;"><h4> < =45 Days</h4></th>
+							<th style="text-align:center; font-weight:bold;"><h4> < =60 Days</h4></th>
+							<th style="text-align:center; font-weight:bold;"><h4> < =120 Days</h4> </th>
+							<th style="text-align:center; font-weight:bold;"><h4> < =365 Days</h4></th>
+							<th style="text-align:center; font-weight:bold;"><h4> > =365 Days</h4></th>
+
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="x in ExpenseList">
+							@*<td style="padding:2px; cursor:pointer;" class="hoverItem third-row" ng-hide="true">{{x.CompanyId}}{{x.PlantId}}</td>*@
+							@*<td style="padding:2px; cursor:pointer;" class="hoverItem third-row" ng-click="setIndex(x);GetDetailDrillDownTableJS(x);">{{x.ColumnName}}</td>*@
+							<td style="padding:2px; cursor:pointer;color:black;font-weight: bold;" class=""><h4>{{x.MaterialType}}</h4></td>
+							<td style="padding:2px;  text-align:right; cursor:pointer; color:black;font-weight: bold;" ng-click="GetBudgetWiseExpenseDetailJS(x,'30','FORTHEDAY')"  class="hoverItem" ng-show="data===true"><h4>{{x.ThirtyDaysCount|number}}</h4></td>
+							<td style="padding:2px;  text-align:right; cursor:pointer; color:black;font-weight: bold;" ng-click="GetBudgetWiseExpenseDetailJS(x,'30','FORTHEDAY')"  class="hoverItem" ng-show="data===undefined || data===false"><h4>{{x.Total30Value|number}}</h4></td>
+							<td style="padding:2px;  text-align:right; cursor:pointer; color:black;font-weight: bold;" ng-click="GetBudgetWiseExpenseDetailJS(x,'45','FORTHEPERIOD')"  class="hoverItem" ng-show="data===true"><h4>{{x.FourtyfiveDaysCount|number}}</h4></td>
+							<td style="padding:2px;  text-align:right; cursor:pointer; color:black;font-weight: bold;" ng-click="GetBudgetWiseExpenseDetailJS(x,'45','FORTHEDAY')"  class="hoverItem" ng-show="data===undefined || data===false"><h4>{{x.Total45Value|number}}</h4></td>
+							<td style="padding:2px;  text-align:right; cursor:pointer; color:black;font-weight: bold;" ng-click="GetBudgetWiseExpenseDetailJS(x,'60','ALL')"  class="hoverItem" ng-show="data===true"><h4>{{x.SixtyDaysCount|number}}</h4></td>
+							<td style="padding:2px;  text-align:right; cursor:pointer; color:black;font-weight: bold;" ng-click="GetBudgetWiseExpenseDetailJS(x,'60','FORTHEDAY')"  class="hoverItem" ng-show="data===undefined || data===false"><h4>{{x.Total60Value|number}}</h4></td>
+							<td style="padding:2px;  text-align:right; cursor:pointer; color:black;font-weight: bold;" ng-click="GetBudgetWiseExpenseDetailJS(x,'120','DELAY')"  class="hoverItem" ng-show="data===true"><h4>{{x.HundredtwentyDaysCount|number}}</h4></td>
+							<td style="padding:2px;  text-align:right; cursor:pointer; color:black;font-weight: bold;" ng-click="GetBudgetWiseExpenseDetailJS(x,'120','FORTHEDAY')"  class="hoverItem" ng-show="data===undefined || data===false"><h4>{{x.Total120Value|number}}</h4></td>
+							<td style="padding:2px;  text-align:right; cursor:pointer; color:black;font-weight: bold;" ng-click="GetBudgetWiseExpenseDetailJS(x,'365','DELAY')"  class="hoverItem" ng-show="data===true"><h4>{{x.ThreeHundredSixtyfiveDaysCount|number}}</h4></td>
+							<td style="padding:2px;  text-align:right; cursor:pointer; color:black;font-weight: bold;" ng-click="GetBudgetWiseExpenseDetailJS(x,'365','FORTHEDAY')"  class="hoverItem" ng-show="data===undefined || data===false"><h4>{{x.Total365Value|number}}</h4></td>
+							<td style="padding:2px;  text-align:right; cursor:pointer; color:black;font-weight: bold;" ng-click="GetBudgetWiseExpenseDetailJS(x,'9000000','FORTHEDAY')"  class="hoverItem" ng-show="data===true"><h4>{{x.Transaction365QtyGrt|number}}</h4></td>
+							<td style="padding:2px;  text-align:right; cursor:pointer; color:black;font-weight: bold;" ng-click="GetBudgetWiseExpenseDetailJS(x,'9000000','FORTHEDAY')"  class="hoverItem" ng-show="data===undefined || data===false"><h4>{{x.Total366Value|number}}</h4></td>
+
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="col-md-2"></div>
+	</div>
+</div>
+<br />
+@*<div class="row">
+
+		<div class="col-md-4"> <canvas id="expenseBarChart" width="200" height="300"></canvas></div>
+		<div class="col-md-4"> <canvas id="periodExpenseBarChart" width="200" height="300"></canvas></div>
+		<div class="col-md-4">
+			<table>
+				<thead>
+					<tr style="border-bottom:1px solid black; font-size:83%; color: rgb(54, 162, 235)">
+						<th>Posting Period</th>
+						<th>Entry Period</th>
+						<th style="text-align:right;">Expense Amount</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr style="border-bottom:1px solid black; font-size:83%;" ng-repeat="item in expensePeriodList" ng-class="{compareExpense: item.EntryPeriod != item.PostingPeriod}">
+						<td>{{item.PostingPeriod}}</td>
+						<td>{{item.EntryPeriod}}</td>
+						<td style="text-align:right;" class="hoverItem" ng-click="GetBudgetWiseExpenseDetailJS(item,'Expense','');">{{item.Amount|number}}</td>
+					</tr>
+					<tr style="border-bottom:1px solid black; font-size:83%; font-weight:bold" ng-show="ExpenseListTotal >= 0|| ExpenseListTotal <= 0">
+						<td colspan="2"> Total</td>
+						<td style="text-align:right;">{{ExpenseListTotal|number}}</td>
+					</tr>
+				</tbody>
+			</table>
+			<hr />
+			<table>
+				<thead>
+					<tr style="border-bottom:1px solid black; font-size:83%; color: rgba(46, 204, 113,.6)">
+						<th>Posting Period</th>
+						<th>Entry Period</th>
+						<th style="text-align:right;">Revenue Amount</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr style="border-bottom:1px solid black; font-size:83%;" ng-repeat="item in revenuePeriodList" ng-class="{compareRevenue: item.EntryPeriod != item.PostingPeriod}">
+						<td>{{item.PostingPeriod}}</td>
+						<td>{{item.EntryPeriod}}</td>
+						<td style="text-align:right;" class="hoverItem" ng-click="GetBudgetWiseExpenseDetailJS(item,'Revenue','');">{{item.Amount|number}}</td>
+					</tr>
+					<tr style="border-bottom:1px solid black; font-size:83%; font-weight:bold" ng-show="RevenueListTotal >= 0 || RevenueListTotal <= 0">
+						<td colspan="2"> Total</td>
+						<td style="text-align:right;">{{RevenueListTotal|number}}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+	</div>*@
+
+<br />
+<div class="row">
+	<div class="col-md-12"> <canvas id="periodicBudgetedAountChart" width="200" height="50"></canvas> </div>
+</div>
+
+<!--                     Modals                            --->
+@*<ej-dialog id="BudgetWiseExpenseListModal" title="List of Documents" e-enablemodal="true" e-position-y="0" e-target="#MainDiv" e-showoninit="false" e-close="onDialogClose" e-minwidth="900px" e-maxwidth="1000px" e-open="enableBtn">
+		<div id="BudgetAmountDetailList" ej-grid e-datasource="BudgetWiseExpenseDetailList"
+			 e-allowfiltering="true"
+			 e-filtersettings-filterType="excel">
+			<div e-columns>
+				<div e-column e-field="BudgetCategoryName" e-headertext="Budget Category Name" e-tooltip="Category Name" e-width="80"></div>
+				<div e-column e-field="BudgetSubCategoryName" e-headertext="Doc Category" e-tooltip="Sub Category" e-width="80"></div>
+				<div e-column e-field="BudgetName" e-headertext="Item" e-tooltip="Item" e-width="80"></div>
+				<div e-column e-field="PostingPeriod" e-headertext="Posting Period" e-tooltip="Posting Period" e-width="80"></div>
+				<div e-column e-field="EntryPeriod" e-headertext="Entry Period" e-tooltip="EntryPeriod" e-width="80"></div>
+				<div e-column e-field="Amount" e-headertext="Amount" e-width="80"></div>
+			</div>
+		</div>
+		<script type="text/template" id="actionTemplateEmployee">
+
+			<label id="deleteIntegratorTemplate" ng-click="$parent.GetDocumentWiseEmployeeList(this)" style="color:blue;text-decoration:underline;cursor:pointer">{{data.TotalOverDueDocument}}</label>
+
+		</script>
+	</ej-dialog>*@
+<div id="BudgetWiseExpenseListModal" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="padding-left:115px;">
+	<div class="modal-dialog" style="width:1250px;">
+		<div class="modal-content" style="width:1250px; ">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title" id="myModalLabel"></h4>
+			</div>
+			<div class="modal-body table-responsive modal-table" style="overflow-y:scroll; max-height:375px;">
+				<div class="content-container-fluid" style="color:black;">
+					<div id="BudgetAmountDetailList" ej-grid e-datasource="BudgetWiseExpenseDetailList"
+						 e-allowfiltering="true"
+						 e-filtersettings-filterType="excel">
+						<div e-columns>
+							<div e-column e-field="BudgetCategoryName" e-headertext="Category" e-tooltip="Category" e-width="80"></div>
+							<div e-column e-field="BudgetSubCategoryName" e-headertext="Sub Category" e-tooltip="SubCategory" e-width="80"></div>
+							<div e-column e-field="BudgetName" e-headertext="Item" e-tooltip="Item" e-width="80"></div>
+							<div e-column e-field="PostingPeriod" e-headertext="Posting Period" e-tooltip="Posting Period" e-width="80"></div>
+							<div e-column e-field="EntryPeriod" e-headertext="Entry Period" e-tooltip="Entry Period" e-width="80"></div>
+
+							<div e-column e-template="#actionTemplateAmount" e-headertext="Amount" e-width="80"></div>
+
+						</div>
+					</div>
+				</div>
+				<script type="text/template" id="actionTemplateAmount">
+
+					<label id="BudgetDetailTemplate" ng-click="$parent.GetExpenseDetailJS(this)" style="color:blue;text-decoration:underline;cursor:pointer">{{data.Amount}}</label>
+
+				</script>
+			</div>
+			<div class="modal-footer common-btn">
+				<label> Total Amount: {{budgetWiseExpenseTotal|number:2}} </label>
+				<button type="button" class="btn" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="ExpenseListModal" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="padding-left:115px;">
+	<div class="modal-dialog" style="width:1250px;">
+		<div class="modal-content" style="width:1250px; ">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title" id="myModalLabel">Voucher List</h4>
+			</div>
+			<div class="modal-body table-responsive modal-table" style="overflow-y:scroll; max-height:375px;">
+				<div class="content-container-fluid" style="color:black;">
+					<div id="ExpenseDetailList" ej-grid e-datasource="ExpenseDetailList"
+						 e-allowfiltering="true"
+						 e-filtersettings-filterType="excel">
+						<div e-columns>
+							<div e-column e-field="VoucherNo" e-headertext="Voucher No" e-tooltip="Voucher No" e-width="80"></div>
+							<div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-tooltip="Doc Ref No" e-width="80"></div>
+							<div e-column e-field="DocDate" e-headertext="Doc Date" e-tooltip="Doc Date" e-width="80"></div>
+							<div e-column e-field="PostingDate" e-headertext="PostingDate" e-tooltip="PostingDate" e-width="80"></div>
+							<div e-column e-field="BudgetCategoryName" e-headertext="Category" e-tooltip="Category" e-width="80"></div>
+							<div e-column e-field="BudgetSubCategoryName" e-headertext="Sub Category" e-tooltip="Sub Category" e-width="80"></div>
+							<div e-column e-field="BudgetName" e-headertext="Item" e-tooltip="Item" e-width="80"></div>
+
+							<div e-column e-template="#actionTemplateAmountExpense" e-headertext="Amount" e-width="80"></div>
+
+						</div>
+					</div>
+				</div>
+				<script type="text/template" id="actionTemplateAmountExpense">
+
+					<label id="ExpenseTemplate" ng-click="$parent.GetVoucharDetailJS(this)" style="color:blue;text-decoration:underline;cursor:pointer">{{data.Amount}}</label>
+
+				</script>
+			</div>
+			<!--<div class="modal-body table-responsive modal-table" style="overflow-y:scroll; max-height:375px;">
+				<table class="table table-striped">
+					<thead>
+						<tr>
+							<th>SL</th>
+							<th>Voucher No</th>
+							<th>Doc.Ref. No.</th>
+							<th>Category</th>
+							<th>Subcategory</th>
+							<th>Item</th>
+							<th>Amount</th>
+							<th ng-repeat="x in ColList" ng-show="x.Sequence >-1">
+								{{x.ColumnName}}
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+						@*<tr ng-repeat="x in ExpenseDetailList|itemsPerPage:DocWiseEmpParameters.pageSize" total-items="ExpenseParameters.total_count" pagination-id="metaData.name + 'ExpenseDetailList'" >*@
+						<tr dir-paginate="x in ExpenseDetailList|itemsPerPage:ExpenseParameters.pageSize" ng-click="GetVoucharDetailJS(x)" total-items="ExpenseParameters.total_count" pagination-id="metaData.name + 'ExpenseDetailList'">
+							<td>{{$index +1}}</td>
+							<td>{{x.VoucherNo}}</td>
+							<td>{{x.DocRefNo}}</td>
+							<td>{{x.BudgetCategoryName}}</td>
+							<td>{{x.BudgetSubCategoryName}}</td>
+							<td>{{x.BudgetName}}</td>
+							@*<td>{{x.GLGeneralInfoName}}</td>*@
+							@*<td>{{x.FiscalYearName}}</td>*@
+							<td style="text-align:right;">{{x.Amount}}</td>
+							@*<td>{{x.CompanyName}}</td>*@
+							<td ng-repeat="y in ColList" ng-show="y.Sequence > -1">
+								{{x[y.ColumnName]}}
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>-->
+			<div class="modal-footer common-btn">
+				@*<dir-pagination-controls max-size="20"
+											   pagination-id="metaData.name + 'ExpenseDetailList'"
+											   direction-links="true"
+											   boundary-links="true"
+											   on-page-change="GetExpenseDetailData(newPageNumber)">
+					</dir-pagination-controls>*@
+				<label>Total Amount: {{ExpenseDetailListTotal}}</label>
+				<button type="button" class="btn" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="DetailModal" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="padding-left:215px;">
+	<div class="modal-dialog" style="width:1250px;">
+		<div class="modal-content" style="width:1250px;">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title" id="myModalLabel">Material Group Details Information</h4>
+			</div>
+			<div class="content-container-fluid" style="color:black;overflow:scroll;">
+				<div style="color:black;" id="Group" ng-init="chkinit()" 
+					 ej-grid e-datasource="MaterialGroupList" 
+					 e-templaterefresh="refreshTemplateMasterOrderOperation" 
+					 e-recorddoubleclick="GetGroupWiseMaterialDetailJS"
+					 e-allowfiltering="true" e-allowpaging="true" 
+					 e-allowsorting="true" 
+					 e-allowscrolling="true"
+					 e-filtersettings-filterType="excel" 
+					 e-enabletouch="true" 
+					 e-allowselection="true">
+					<div e-columns>
+						@*<div e-column e-headertext="Actions" e-width="100">
+						<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Inactive" class="btn" ng-click="$parent.valuePassInDelModal('PendingReqForPO');">Inactive</button>
+						<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Print" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPrint('PendingReqForPO');" style="margin: -6px;"></i></button>
+					</div>*@
+
+						<div e-column e-field="CompanyGroup" e-headertext="Company Group" e-width="120"></div>
+						<div e-column e-field="CompanyName" e-headertext="Company" e-width="200"></div>
+						<div e-column e-field="PlantName" e-headertext="PlantName" e-width="120"></div>
+						<div e-column e-field="MaterialType" e-headertext="MaterialType" e-width="200"></div>
+						<div e-column e-field="MaterialGroup" e-headertext="MaterialGroup" e-width="300"></div>
+						<div e-column e-field="MaterialGroup1Name" e-headertext="MaterialGroup1Name" e-width="200"></div>
+						<div e-column e-field="MaterialGroup2Name" e-headertext="MaterialGroup2Name" e-width="200"></div>
+						<div e-column e-field="MaterialGroup3Name" e-headertext="MaterialGroup3Name" e-width="200"></div>
+
+						<div e-column e-field="TotalQty" e-headertext="TotalQty" e-width="120"></div>
+						<div e-column e-field="TotalValue" e-headertext="TotalValue" e-width="120"></div>
+
+
+					</div>
+
+				</div>
+
+			</div>
+			<div>
+				<ul class="common-btn list-inline text-left">
+					<li style="text-align:left;"> <button id="" class="btn" ng-click="Print1();"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
+					
+
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="DetailModalMaterial" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="padding-left:215px;padding-top:50px;">
+	<div class="modal-dialog" style="width:1250px;">
+		<div class="modal-content" style="width:1250px;">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title" id="myModalLabel">Material Details Information</h4>
+			</div>
+			<div class="content-container-fluid" style="color:black;overflow:scroll;height:100px;">
+				<div style="color:black;" id="Material" ng-init="chkinit()" ej-grid e-datasource="MaterialList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="GetMaterialWiseArticleDetailJS"
+					 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+					 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+					<div e-columns>
+						@*<div e-column e-headertext="Actions" e-width="100">
+						<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Inactive" class="btn" ng-click="$parent.valuePassInDelModal('PendingReqForPO');">Inactive</button>
+						<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Print" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPrint('PendingReqForPO');" style="margin: -6px;"></i></button>
+					</div>*@
+
+						@*<div e-column e-field="CompanyGroup" e-headertext="Company Group" e-width="120"></div>*@
+						<div e-column e-field="CompanyName" e-headertext="Company" e-width="200"></div>
+						<div e-column e-field="PlantName" e-headertext="PlantName" e-width="120"></div>
+						<div e-column e-field="MaterialType" e-headertext="MaterialType" e-width="200"></div>
+						<div e-column e-field="MaterialGroup" e-headertext="MaterialGroup" e-width="300"></div>
+						<div e-column e-field="MaterialGroup1Name" e-headertext="MaterialGroup1Name" e-width="200"></div>
+						<div e-column e-field="MaterialGroup2Name" e-headertext="MaterialGroup2Name" e-width="200"></div>
+						<div e-column e-field="MaterialGroup3Name" e-headertext="MaterialGroup3Name" e-width="200"></div>
+						<div e-column e-field="MaterialName" e-headertext="Material" e-width="200"></div>
+						<div e-column e-field="TotalQty" e-headertext="TotalQty" e-width="120"></div>
+						<div e-column e-field="TotalValue" e-headertext="TotalValue" e-width="120"></div>
+
+
+					</div>
+
+				</div>
+
+			</div>
+			<div>
+				<ul class="common-btn list-inline text-left">
+					<li style="text-align:left;"> <button id="" class="btn" ng-click="Print2();"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
+
+
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="DetailModalArticle" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="padding-left:215px;padding-top:100px;">
+	<div class="modal-dialog" style="width:1250px;">
+		<div class="modal-content" style="width:1250px;">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title" id="myModalLabel">Article Details Information</h4>
+			</div>
+			<div class="content-container-fluid" style="color:black;overflow:scroll;height:100px;">
+				<div style="color:black;" id="Article" ng-init="chkinit()" ej-grid e-datasource="ArticleList"
+					 e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
+					 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+					 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+					<div e-columns>
+						@*<div e-column e-headertext="Actions" e-width="100">
+						<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Inactive" class="btn" ng-click="$parent.valuePassInDelModal('PendingReqForPO');">Inactive</button>
+						<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Print" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPrint('PendingReqForPO');" style="margin: -6px;"></i></button>
+					</div>*@
+
+						@*<div e-column e-field="CompanyGroup" e-headertext="Company Group" e-width="120"></div>*@
+						<div e-column e-field="CompanyName" e-headertext="Company" e-width="200"></div>
+						<div e-column e-field="PlantName" e-headertext="PlantName" e-width="120"></div>
+						<div e-column e-field="MaterialType" e-headertext="MaterialType" e-width="200"></div>
+						<div e-column e-field="MaterialGroup" e-headertext="MaterialGroup" e-width="300"></div>
+						<div e-column e-field="MaterialGroup1Name" e-headertext="MaterialGroup1Name" e-width="200"></div>
+						<div e-column e-field="MaterialGroup2Name" e-headertext="MaterialGroup2Name" e-width="200"></div>
+						<div e-column e-field="MaterialGroup3Name" e-headertext="MaterialGroup3Name" e-width="200"></div>
+						<div e-column e-field="MaterialName" e-headertext="Material" e-width="200"></div>
+						<div e-column e-field="ArticleName" e-headertext="Article" e-width="200"></div>
+						<div e-column e-field="TotalQty" e-headertext="TotalQty" e-width="120"></div>
+						<div e-column e-field="TotalValue" e-headertext="TotalValue" e-width="120"></div>
+
+
+					</div>
+
+				</div>
+
+			</div>
+			<div>
+				<ul class="common-btn list-inline text-left">
+					<li style="text-align:left;"> <button id="" class="btn" ng-click="Print3();"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
+
+
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>

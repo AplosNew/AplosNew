@@ -1,0 +1,287 @@
+﻿<togglable name="{{title}}"></togglable>
+
+<link href="~/Scripts/BootstrapTimePicker/css/bootstrap-timepicker.css" rel="stylesheet" />
+<script src="~/Scripts/BootstrapTimePicker/Scripts/bootstrap.js"></script>
+<script src="~/Scripts/BootstrapTimePicker/js/bootstrap-timepicker.js"></script>
+
+<div class="form-elements form-horizontal" ng-form name="PurchaseBookingSodaForm">
+    <div class="row" ng-form name="General">
+        <input type="hidden" ng-model="PurchaseBookingSoda.Id">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Location<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="PurchaseBookingSoda.LocationId" name="Location" ng-disabled="PurchaseBookingSoda.Id==null || PurchaseBookingSoda.Id!=null"
+                                ng-options="item.Value as item.Text for item in LocationList" required tabindex="1">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Time<sup>*</sup></label>
+                <div class="col-sm-7 input-group bootstrap-timepicker timepicker" style="float:right">
+                    <input id="Time" type="text" class="form-control input-small" ng-model="PurchaseBookingSoda.Time" style="margin-left:-36px; width:345px" tabindex="3" ng-disabled="PurchaseBookingSoda.Id==null || PurchaseBookingSoda.Id!=null">
+                    <span class="input-group-addon" style="float:left; width:37px"><i class="glyphicon glyphicon-time"></i></span>
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Crop Planning<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="PurchaseBookingSoda.CropPlanningId" name="Crop Planning" ng-change="GetFarmer();" ng-disabled="PurchaseBookingSoda.Id==null || PurchaseBookingSoda.Id!=null"
+                                ng-options="item.Value as item.Text for item in CropPlanningList" required tabindex="5">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Farmer Father/ Husband Name</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="PurchaseBookingSoda.FarmerFatherHusbandNameId" ng-change="GetFarmerRegistrationId();" ng-disabled="PurchaseBookingSoda.Id==null || PurchaseBookingSoda.Id!=null"
+                                ng-options="item.Value as item.Text for item in FarmerFatherHusbandNameList" tabindex="7">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Validation Date</label>
+                <div class="col-sm-8">
+                    <input type="text" ng-model="PurchaseBookingSoda.ValidationDate" class="form-control" tabindex="9" ng-disabled="PurchaseBookingSoda.Id==null || PurchaseBookingSoda.Id!=null" maxlength="50">
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Start Date" ng-model="PurchaseBookingSoda.Date" ng-disabled="PurchaseBookingSoda.Id==null || PurchaseBookingSoda.Id!=null" datepicker class="form-control" ng-change="GetValidationDate();" required tabindex="2">
+
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">ICS Master</label>
+                <div class="col-sm-8">
+
+                    <div class="select-style">
+                        <select class="form-control" ng-model="PurchaseBookingSoda.ICSMasterID" ng-change="GetCropPlanning();" ng-disabled="PurchaseBookingSoda.Id==null || PurchaseBookingSoda.Id!=null"
+                                ng-options="item.Value as item.Text for item in ICSMasterList" tabindex="4">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Farmer</label>
+                <div class="col-sm-8">
+                    @*<input type="text" ng-model="PurchaseBookingSoda.Farmer" class="form-control" readonly maxlength="50">*@
+                </div>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="PurchaseBookingSoda.Farmer" ng-change="GetFarmerFather();" ng-disabled="PurchaseBookingSoda.Id==null || PurchaseBookingSoda.Id!=null"
+                                ng-options="item.Value as item.Text for item in FarmerList" tabindex="6">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Farmer Registration ID/ Tracenet Id<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="PurchaseBookingSoda.FarmerRegId" name="Farmer Registration Id/ Tracenet Id" ng-disabled="PurchaseBookingSoda.Id==null || PurchaseBookingSoda.Id!=null"
+                                ng-options="item.Value as item.Text for item in FarmerRegistrationList" required tabindex="8">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Customer</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="PurchaseBookingSoda.CustomerId" ng-disabled="PurchaseBookingSoda.Id==null || PurchaseBookingSoda.Id!=null"
+                                ng-options="item.Value as item.Text for item in CustomerList" tabindex="10">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <br />
+
+    </div>
+    <confirm-modal></confirm-modal>
+
+    <div class="row">
+        <div class="form-elements form-horizontal" ng-form id="QMTab">
+            <div class="tab-design" id="tab_show">
+
+                <div class="site-tab">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="Confirmationchild" role="tab" data-toggle="tab">Payment</a></li>
+
+                    </ul>
+                </div>
+
+                <div class="tab-content">
+
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+
+                        <div class="row">
+
+                            <div ng-form name="purchasebookingsodachildForm" class="form-horizontal form-element-ctrl">
+
+                                <div class="col-xs-12">
+                                    <div style="color:black;" id="GridPurchaseBookingSodaChildTab" ej-grid e-datasource="PBSChildList"
+                                         e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="GetPurchaseBookingSodaChild"
+                                         e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateemployee" e-responsive="true">
+                                        <div e-columns>
+                                            @*<div e-column e-template="#checkedPBSChildTabItem" e-width="8"></div>*@
+                                            <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="20"></div>
+                                            <div e-column e-type="string" e-field="PurchaseBookingSodaMasterId" e-headertext="Purchase Booking Soda Master" e-width="20"></div>
+                                            <div e-column e-type="string" e-field="Crop" e-headertext="Crop" e-width="30"></div>
+                                            <div e-column e-type="string" e-field="CropType" e-headertext="Crop Type" e-width="30"></div>
+                                            <div e-column e-type="string" e-field="ApprovedQuantity" e-headertext="Approved Quantity" e-width="35"></div>
+                                            <div e-column e-type="string" e-field="ApprovedRate" e-headertext="Approved Rate" e-width="35"></div>
+                                            <div e-column e-type="string" e-field="ApproveAmount" e-headertext="Approved Amount" e-width="35"></div>
+                                            <div e-column e-template="#PaidQuantity" e-headertext="Paid Quantity" e-width="35"></div>
+                                            <div e-column e-template="#PaidRate" e-headertext="Paid Rate" e-width="35"></div>
+                                            <div e-column e-template="#PaidAmount" e-headertext="Paid Amount" e-width="35"></div>
+
+                                            <div e-column e-type="string" e-field="TargetRatee" e-headertext="Target Rate" e-width="30"></div>
+                                            <div e-column e-type="string" e-field="BalanceBook" e-headertext="Balance Book" e-width="35"></div>
+                                            <div e-column e-type="string" e-field="BalancePurchase" e-headertext="Balance Purchase" e-width="35"></div>
+
+                                        </div>
+                                    </div>
+                                    @*<script type="text/template" id="checkedPBSChildTabItem">
+            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.isSelected" e-checked="data.isSelected" />
+        </script>*@
+                                    <script type="text/template" id="checkboxTemplate">
+                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
+                                    </script>
+                                    <script type="text/x-jsrender" id="headerTemplate">
+                                        <input type="checkbox" id="headchk" />
+                                    </script>
+
+                                    <script type="text/ng-template" id="PaidQuantity">
+                                        <input type="text" ej-numerictextbox e-decimalplaces="0" e-enablertl="false" maxlength="15" e-value="data.PaidQuantity" e-change="data.PaidAmount=data.PaidQuantity*data.PaidRate" tabindex="12" e-width="100" />
+                                    </script>
+                                    <script type="text/ng-template" id="PaidRate">
+                                        <input type="text" ej-numerictextbox e-decimalplaces="0" e-enablertl="false" maxlength="15" e-value="data.PaidRate" e-change="data.PaidAmount=data.PaidQuantity*data.PaidRate" tabindex="13" e-width="100" />
+                                    </script>
+                                    <script type="text/ng-template" id="PaidAmount">
+                                        <input type="text" ej-numerictextbox e-decimalplaces="0" e-enablertl="false" maxlength="15" e-value="data.PaidAmount" readonly e-width="100" />
+                                    </script>
+
+                                </div>
+                            
+                                <div class="common-btn" style="padding-right: 15px;">
+                                    <ul class="list-inline text-right">
+                                        <li>
+                                            <button ng-click="SavePBSChildTab();" ng-disabled="PurchaseBookingSoda.Id==null" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button>
+                                            <button ng-click="ClearPBSChildTab();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button>
+
+                                        </li>
+                                    </ul>
+                                </div>
+
+                            </div>
+
+
+                        </div>
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive aplos-grid-toggle">
+
+    <div id="PurchaseBookingSodaListGrid" ej-grid e-datasource="PurchaseBookingSodaList"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="false" e-recorddoubleclick="Get">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-width="1" e-isprimarykey="true" e-visible="false"></div>
+            <div e-column e-field="IcsMaster" e-headertext="ICS Master" e-width="2"></div>
+            <div e-column e-field="FarmerName" e-headertext="Farmer" e-width="1"></div>
+            <div e-column e-field="BookingDate" e-headertext="Date" e-width="1"></div>
+            <div e-column e-field="BookDays" e-headertext="Booking Days" e-width="2"></div>
+            @*<div e-column e-field="TotalAmount" e-headertext="Total Amount" e-width="2"></div>*@
+            <div e-column e-field="Customer" e-headertext="Customer" e-width="2" e-visible="true"></div>
+            <div e-column e-field="Location" e-headertext="Location" e-width="2"></div>
+            <div e-column e-template="#checkedConfirmationItem" e-headertext="Confirm Check Box" e-width="2"></div>
+            <div e-column e-field="ValidateDate" e-headertext="Validation Date" e-width="2" e-visible="true"></div>
+            <div e-column e-field="BookingStatus" e-headertext="Booking Status" e-width="2"></div>
+
+        </div>
+    </div>
+    <script type="text/template" id="checkedConfirmationItem">
+        <input type="checkbox" ej-checkbox class="nodetext" e-value="data.isSelected" e-checked="data.isSelected" />
+    </script>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="Save()" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+        
+        </ul>
+    </div>
+</div>
+
+
+<confirm-archive-generic modalid="DeletePurchaseBookingSodaChildTabPopUp" title="Confirmation" message="Are you sure want to Delete?" data-ng-click-right-button="DeletePurchaseBookingSodaChild();"></confirm-archive-generic>
+
+<script type="text/javascript">
+    $('[id*=Time]').timepicker({ showMeridian: false, defaultTime: false }).on('changeTime.timepicker', function (e) {
+        var hours = e.time.hours, //Returns a string
+            min = e.time.minutes
+        //merdian = e.time.meridian;
+
+        if (hours.length == 1) {
+            $('[id*=Time]').timepicker('setTime', '0' + hours + ':' + min);
+
+        }
+    });
+</script>

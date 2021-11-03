@@ -1,0 +1,170 @@
+﻿<style>
+    canvas {
+        width: 90% !important;
+        height: 90% !important;
+    }
+
+    .chart-title {
+        position: absolute;
+        left: 0;
+        right: 2px;
+        margin: 0 auto;
+        top: 35%;
+        transform: translateY(-42%);
+        width: 75%;
+        text-align: center;
+        font-size: 13px;
+    }
+</style>
+<div class="row" style="margin-bottom:0px;">
+    <div class="col-xs-6 col-sm-3 col-md-3 col-lg-1"></div>
+    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4 thumbnail table-responsive modal-table" style="border-radius:0px; margin-bottom:5px; border:0px; box-shadow:1px 1px 1px 1px grey;">
+        <table class="table table-bordered table-hover table-striped">
+            <tbody>
+            <thead>
+                <tr>
+                    <th>Party</th>
+                    <th>
+
+                        <select class="form-control " style="border-radius:0px;" ng-model="AccountDashboardDropDown.PartyId" ng-change="GetaccountRecievableWithPartyCurrency(AccountDashboardDropDown.PartyId);GetaccountPayableWithPartyCurrency(AccountDashboardDropDown.PartyId,AccountDashboardDropDown.CurrencyId);" name="Party">
+                            <option value="">--All--</option>
+                            <option ng-repeat="option in PartyList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+    <div class="col-xs-6 col-sm-3 col-md-3 col-lg-2"></div>
+    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4 thumbnail table-responsive modal-table" style="border-radius:0px; margin-bottom:5px; border:0px; box-shadow:1px 1px 1px 1px grey;">
+        <table class="table table-bordered table-hover table-striped">
+
+            <tbody @*style="cursor:pointer;"*@>
+            <thead>
+                <tr>
+                    <th>Currency</th>
+                    <th>
+
+                        <select class="form-control" style="border-radius:0px;" name="Currency" ng-model="AccountDashboardDropDown.CurrencyId" ng-change="GetaccountRecievableWithPartyCurrency(AccountDashboardDropDown.PartyId,AccountDashboardDropDown.CurrencyId);GetaccountPayableWithPartyCurrency(AccountDashboardDropDown.PartyId,AccountDashboardDropDown.CurrencyId);">
+
+                            <option ng-repeat="option in CurrencyParal" value="{{option.CurrencyId}}">{{option.Code}}</option>
+                        </select>
+                    </th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+<div class="row" style="margin-top:0px;">
+    <div class="col-xs-6 col-sm-3 col-md-3 col-lg-1"></div>
+
+    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4 thumbnail" style="border:0px; border-radius:0px;  box-shadow:1px 1px 1px 1px grey;">
+        <label class="chart-title">Total Receivable<br>Amount <br><span>{{RtotalBalance|currency:""}}</span></label>
+        <canvas id="AcRChart" width="400" height="400" style="margin-left:5px; border:1px;"></canvas>
+        <div id="summary" class="table-responsive modal-table">
+            <table class="table table-bordered table-hover table-striped">
+                <tbody @*style="cursor:pointer;"*@>
+                    <tr style="background-color:#242841;"><td colspan="3" style="position:center;color:white;"><strong>Account Receivable</strong></td></tr>
+                    <tr style="cursor:pointer" ng-click="GetROverDue();">
+                        <td>Overdue</td>
+                        <td> <span style="background-color:rgba(240, 52, 52, .6);border:1px solid rgba(240, 52, 52, .8)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+                        <td class="text-right">{{OverDue|currency:""}}</td>
+                    </tr>
+
+                    <tr>
+                        <td>Today</td>
+                        <td><span style="background-color:rgba(46, 204, 113, .6);border:1px solid rgba(46, 204, 113, .8);"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+
+                        <td class="text-right">{{RecToday|currency:""}}</td>
+                    </tr>
+                    <tr>
+                        <td>Next 7 Days</td>
+                        <td> <span style="background-color:rgba(241, 196, 15, .6);border:1px solid rgba(241, 196, 15, .8);"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+
+                        <td class="text-right">{{RecN7Today|currency:""}}</td>
+                    </tr>
+                    <tr>
+                        <td>After 7 Days</td>
+                        <td><span style="background-color:rgba(191, 204, 113, .6);border:1px solid rgba(191, 204, 113, .6);">&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+
+                        <td class="text-right">{{RecOtherToday|currency:""}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-xs-6 col-sm-3 col-md-3 col-lg-2"></div>
+    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4 thumbnail" style="border:0px; border-radius:0px; box-shadow:1px 1px 1px 1px grey;">
+        <label class="chart-title">Total Payable<br>Amount <br><span>{{PtotalBalance|currency:""}}</span></label>
+        <canvas id="AccPChart" width="200" height="200"></canvas>
+        <div id="summary" class="table-responsive modal-table">
+            <table class="table table-bordered table-hover table-striped">
+                <tbody>
+                    <tr><td colspan="3" style="position:center; background-color:#242841;"><strong style="color:white;">Account Payable</strong></td></tr>
+                    <tr>
+                        <td>Overdue</td>
+                        <td><span style="background-color:rgba(240, 52, 52, .6);border:1px solid rgba(240, 52, 52, .8)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+                        <td class="text-right">{{pPayOverDue|currency:""}}</td>
+                    </tr>
+                    <tr>
+                        <td>Today</td>
+                        <td><span style="background-color:rgba(46, 204, 113, .6);border:1px solid rgba(46, 204, 113, .8);"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+                        <td class="text-right">{{pPayToday|currency:""}}</td>
+                    </tr>
+                    <tr>
+                        <td>Next 7 Days</td>
+                        <td><span style="background-color:rgba(241, 196, 15, .6);border:1px solid rgba(241, 196, 15, .8);"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+                        <td class="text-right">{{pPayN7Today|currency:""}}</td>
+                    </tr>
+                    <tr>
+                        <td>After 7 Days</td>
+                        <td><span style="background-color:rgba(191, 204, 113, .6);border:1px solid rgba(191, 204, 113, .6);">&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+                        <td class="text-right">{{pPayOtherToday|currency:""}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="OverDue" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="padding-left:115px;">
+    <div class="modal-dialog" style="width:1250px;">
+        <div class="modal-content" style="width:1250px; ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title" id="myModalLabel">Overdue party List  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   <strong>BudgetCode:{{BEmpBudgetCode}}&nbsp;</strong></h4>
+            </div>
+            <div class="modal-body table-responsive modal-table" style="overflow-y:scroll; max-height:375px;">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>SL</th>
+                            <th>Invoice Id</th>
+                            <th>Party</th>
+                            <th>DocRef</th>
+                            <th>DocDate</th>
+                            <th>Due Date</th>
+                            <th>Base No. of Due Date</th>
+                            <th>Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in ROverDueList">
+                            <td>{{$index +1}}</td>
+                            <td>{{x.CustomerInvoiceId}}</td>
+                            <td>{{x.Party}}</td>
+                            <td>{{x.DocRefNo}}</td>
+                            <td>{{x.DocDate}}</td>
+                            <td>{{x.FBOD}}</td>
+                            <td>{{x.BaseNoOfDays}}</td>
+                            <td>{{x.Balance}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,1432 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{AA817A3E-2BF1-4F54-9008-2DF78294C1C8}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Library.Service</RootNamespace>
+    <AssemblyName>Aplos.Service</AssemblyName>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Accounts\IMISAccountDashboardService.cs" />
+    <Compile Include="Accounts\MISAccountDashboardService.cs" />
+    <Compile Include="Accounts\ReportGeneralVoucher.cs" />
+    <Compile Include="Advances\AdvanceService.cs" />
+    <Compile Include="Advances\IAdvanceService.cs" />
+    <Compile Include="Attendances\IMonthlyAttendanceInformation.cs" />
+    <Compile Include="Attendances\MonthlyAttendanceInformation.cs" />
+    <Compile Include="Attendances\AttendanceEarlyOut.cs" />
+    <Compile Include="Attendances\clsLeaveYearEndProcess.cs" />
+    <Compile Include="Attendances\clsRosterInfo.cs" />
+    <Compile Include="Attendances\clsIncrementType.cs" />
+    <Compile Include="Attendances\clsSandwichAbsent.cs" />
+    <Compile Include="Attendances\clsSetInOut.cs" />
+    <Compile Include="Attendances\clsShiftInfo.cs" />
+    <Compile Include="Attendances\IOTManagementService.cs" />
+    <Compile Include="Attendances\OTManagementService.cs" />
+    <Compile Include="Attendances\AttdnRawDataFromAppService.cs" />
+    <Compile Include="Banks\CheckLotDetailNewService.cs" />
+    <Compile Include="Banks\CheckLotNewService.cs" />
+    <Compile Include="Banks\ICheckLotDetailNewService.cs" />
+    <Compile Include="Banks\ICheckLotNewService.cs" />
+    <Compile Include="Biometrics\AttendanceDeviceZoneService.cs" />
+    <Compile Include="Biometrics\BiometricAccessControlService.cs" />
+    <Compile Include="Biometrics\IAttendanceDeviceZoneService.cs" />
+    <Compile Include="Biometrics\IBiometricAccessControlService.cs" />
+    <Compile Include="Costings\CostingCategoryService.cs" />
+    <Compile Include="Costings\CostingItemService.cs" />
+    <Compile Include="Costings\CostingComponentService.cs" />
+    <Compile Include="Costings\ICostingCategoryService.cs" />
+    <Compile Include="Costings\ICostingItemService.cs" />
+    <Compile Include="Costings\ICostingComponentService.cs" />
+    <Compile Include="EmployeeServices\EmployeeDataService.cs" />
+    <Compile Include="EmployeeServices\IEmployeeDataService.cs" />
+    <Compile Include="EmployeeServices\IServiceTypeAndCategoryService.cs" />
+    <Compile Include="EmployeeServices\ServiceTypeAndCategoryService.cs" />
+    <Compile Include="Employees\EmployeeActiveInActiveService.cs" />
+    <Compile Include="Employees\HolidayAbsentismAssignmentService.cs" />
+    <Compile Include="Employees\IEmployeeActiveInActiveService.cs" />
+    <Compile Include="Employees\IHolidayAbsentismAssignmentService.cs" />
+    <Compile Include="Employees\IAuthorizationConfigService.cs" />
+    <Compile Include="Employees\ISeparationTypeService.cs" />
+    <Compile Include="Employees\ISkillGroupService.cs" />
+    <Compile Include="Employees\ISkillMatrixService.cs" />
+    <Compile Include="Employees\AuthorizationConfigService.cs" />
+    <Compile Include="Employees\SeparationTypeService.cs" />
+    <Compile Include="Employees\SkillMatrixService.cs" />
+    <Compile Include="Enums\CommercialEnum.cs" />
+    <Compile Include="Enums\FixedAssetDisposeStatusEnum.cs" />
+    <Compile Include="Enums\NewBeneficiaryType.cs" />
+    <Compile Include="Enums\ActivityOrderTypeEnum.cs" />
+    <Compile Include="Enums\TaxCategoryLevelEnum.cs" />
+    <Compile Include="Enums\TermsAndConditionsEnum.cs" />
+    <Compile Include="Enums\TaxCategoryTypeEnum.cs" />
+    <Compile Include="Enums\InvoiceTypeEnum.cs" />
+    <Compile Include="Enums\CostingEnum.cs" />
+    <Compile Include="Enums\EmployeeSalaryAdvanceType.cs" />
+    <Compile Include="Enums\CheckLotPrintType.cs" />
+    <Compile Include="Enums\LoanTransactionType.cs" />
+    <Compile Include="Enums\SalaryPayableGroup.cs" />
+    <Compile Include="Enums\TaskManagementEnum.cs" />
+    <Compile Include="Enums\TaskMasterEnum.cs" />
+    <Compile Include="Enums\EnumPlanningTypes.cs" />
+    <Compile Include="Enums\EntityConfigParameter.cs" />
+    <Compile Include="Enums\InventoryEnum.cs" />
+    <Compile Include="Enums\ActivityTypeEnum.cs" />
+    <Compile Include="Enums\PayrollEnum.cs" />
+    <Compile Include="Enums\TaskSchedulerEnum.cs" />
+    <Compile Include="Finances\AutoLoanService.cs" />
+    <Compile Include="Finances\IAutoLoanService.cs" />
+    <Compile Include="FixedAssets\ISubAssetTypeService.cs" />
+    <Compile Include="FixedAssets\SubAssetTypeService.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Helpers\clsConnection.cs" />
+    <Compile Include="Helpers\DynamicList.cs" />
+    <Compile Include="Helpers\ConvertExcelToImage.cs" />
+    <Compile Include="Helpers\numberToStringBuilder.cs" />
+    <Compile Include="Helpers\ProcessUtility.cs" />
+    <Compile Include="Helpers\ThreadConsumption.cs" />
+    <Compile Include="HumanResources\EmployeePromotionNewService.cs" />
+    <Compile Include="HumanResources\EmployeeWeekOff\clsTemplateDownloadEmployeeWeekOff.cs" />
+    <Compile Include="HumanResources\EmployeeWeekOff\clsTemplateReadEmployeeWeekOff.cs" />
+    <Compile Include="HumanResources\EmployeeWeekOff\clsTemplateSaveEmployeeWeekOff.cs" />
+    <Compile Include="HumanResources\EmployeeWeekOff\EmployeeWeekOffUploadTemplate.cs" />
+    <Compile Include="HumanResources\HrmsSettingsService.cs" />
+    <Compile Include="HumanResources\Attendance\clsAttendanceUtility.cs" />
+    <Compile Include="HumanResources\Attendance\clsAttnManualOverTime.cs" />
+    <Compile Include="HumanResources\Attendance\clsCrossModule.cs" />
+    <Compile Include="HumanResources\Attendance\clsStaticInfo.cs" />
+    <Compile Include="HumanResources\EmployeeDisciplinaryActionService.cs" />
+    <Compile Include="HumanResources\DisciplinaryActionCategoryService.cs" />
+    <Compile Include="HumanResources\EmployeePromotionService.cs" />
+    <Compile Include="HumanResources\CompliedEmployeeRosterService.cs" />
+    <Compile Include="HumanResources\ICompliedEmployeeRosterService.cs" />
+    <Compile Include="HumanResources\IEmployeeDisciplinaryActionService.cs" />
+    <Compile Include="HumanResources\IDisciplinaryActionCategoryService.cs" />
+    <Compile Include="HumanResources\IManpowerAttendanceSummaryService.cs" />
+    <Compile Include="HumanResources\IAttendanceManagementService.cs" />
+    <Compile Include="HumanResources\IHrmsSettingsService.cs" />
+    <Compile Include="HumanResources\ISFBonusSheetReportService.cs" />
+    <Compile Include="HumanResources\IPayRegisterBDReportService.cs" />
+    <Compile Include="HumanResources\ISpecialFollowUPReportService .cs" />
+    <Compile Include="HumanResources\ManpowerAttendanceSummary.cs" />
+    <Compile Include="HumanResources\AttendanceManagementService.cs" />
+    <Compile Include="HumanResources\Profile\clsTemplateDownloadProfile.cs" />
+    <Compile Include="HumanResources\Profile\clsTemplateReadProfile.cs" />
+    <Compile Include="HumanResources\Profile\clsTemplateSaveProfile.cs" />
+    <Compile Include="HumanResources\Profile\EmployeeProfileUploadTemplate.cs" />
+    <Compile Include="HumanResources\Salary\clsBonusMonthlyRetainNew.cs" />
+    <Compile Include="HumanResources\Salary\clsEmployeeLoadNew.cs" />
+    <Compile Include="HumanResources\Salary\clsESICProcessNew.cs" />
+    <Compile Include="HumanResources\Salary\clsPFProcessNew.cs" />
+    <Compile Include="HumanResources\Salary\clsSalaryInfoForSalaryStructure.cs" />
+    <Compile Include="HumanResources\Salary\clsSalaryInfoModelNew.cs" />
+    <Compile Include="HumanResources\Salary\clsSalaryInfoNew.cs" />
+    <Compile Include="HumanResources\Salary\clsSalaryStructureAplosNew.cs" />
+    <Compile Include="HumanResources\SFBonusSheetReportService.cs" />
+    <Compile Include="HumanResources\PayRegisterBDReportService.cs" />
+    <Compile Include="HumanResources\Salary\clsBonusMonthlyRetainForSalaryStructure.cs" />
+    <Compile Include="HumanResources\Salary\clsCommonUtility.cs" />
+    <Compile Include="HumanResources\Salary\clsEmployeeLoad.cs" />
+    <Compile Include="HumanResources\Salary\clsESICProcessForSalaryStructure.cs" />
+    <Compile Include="HumanResources\Salary\clsGenID.cs" />
+    <Compile Include="HumanResources\Salary\clsPFProcessForSalaryStructure.cs" />
+    <Compile Include="HumanResources\Salary\clsReport.cs" />
+    <Compile Include="HumanResources\Salary\clsRetentionProcess.cs" />
+    <Compile Include="HumanResources\Salary\clsSalaryInfoModelForSalaryStructure.cs" />
+    <Compile Include="HumanResources\Salary\clsSalaryProcModels.cs" />
+    <Compile Include="HumanResources\Salary\clsSalaryReport.cs" />
+    <Compile Include="HumanResources\Salary\clsSalaryStructureAplos.cs" />
+    <Compile Include="HumanResources\Salary\clsSalaryUtility.cs" />
+    <Compile Include="HumanResources\Salary\clsTax.cs" />
+    <Compile Include="HumanResources\Salary\clsWebLib.cs" />
+    <Compile Include="HumanResources\Salary\FunctionPara.cs" />
+    <Compile Include="HumanResources\Shift\clsTemplateDownloadShiftAssignment.cs" />
+    <Compile Include="HumanResources\Shift\clsTemplateReadShiftAssignment.cs" />
+    <Compile Include="HumanResources\Shift\clsTemplateSaveShiftAssignment.cs" />
+    <Compile Include="HumanResources\Shift\EmployeeShiftUploadTemplate.cs" />
+    <Compile Include="HumanResources\SpecialFollowUPReportService .cs" />
+    <Compile Include="IE\AttachmentService .cs" />
+    <Compile Include="IE\BulletinTeamplateService.cs" />
+    <Compile Include="IE\GaugeFolderService.cs" />
+    <Compile Include="IE\IAttachmentService .cs" />
+    <Compile Include="IE\IBulletinTemplateService.cs" />
+    <Compile Include="IE\IGaugeFolderService.cs" />
+    <Compile Include="IE\IOperationConsumptionService .cs" />
+    <Compile Include="IE\IMachineMasterUIService.cs" />
+    <Compile Include="IE\IOperationPositionMPBudgetService.cs" />
+    <Compile Include="IE\IOperationMasterService.cs" />
+    <Compile Include="IE\IOperationSkillService.cs" />
+    <Compile Include="IE\ISkillGroupingService.cs" />
+    <Compile Include="IE\ISizeGroupService.cs" />
+    <Compile Include="IE\IWorksheet.cs" />
+    <Compile Include="IE\OperationConsumptionService .cs" />
+    <Compile Include="IE\MachineMasterUIService.cs" />
+    <Compile Include="IE\OperationPositionMPBudgetService.cs" />
+    <Compile Include="IE\OperationMasterService.cs" />
+    <Compile Include="IE\SkillGroupingService.cs" />
+    <Compile Include="IE\SizeGroupService.cs" />
+    <Compile Include="Invoices\IInventoryIssueJournalService.cs" />
+    <Compile Include="Invoices\InventoryIssueJournalService.cs" />
+    <Compile Include="IssueTracker\IIssueCategoryService.cs" />
+    <Compile Include="IssueTracker\IIssueExternalAuditService.cs" />
+    <Compile Include="IssueTracker\IIssueFollowUpResponsibleService.cs" />
+    <Compile Include="IssueTracker\IIssueGroupService.cs" />
+    <Compile Include="IssueTracker\IIssueImportanceService.cs" />
+    <Compile Include="IssueTracker\IIssueInternalAuditService.cs" />
+    <Compile Include="IssueTracker\IIssueRefDetailService.cs" />
+    <Compile Include="IssueTracker\IIssueStandardService.cs" />
+    <Compile Include="IssueTracker\IIssueStatusService.cs" />
+    <Compile Include="IssueTracker\IIssueSubCategoryService.cs" />
+    <Compile Include="IssueTracker\IIssueSubTaskService.cs" />
+    <Compile Include="IssueTracker\IIssueTransactionService.cs" />
+    <Compile Include="IssueTracker\IIssueUpdateAuditService.cs" />
+    <Compile Include="IssueTracker\IssueCategoryService.cs" />
+    <Compile Include="IssueTracker\IssueExternalAuditService.cs" />
+    <Compile Include="IssueTracker\IssueFollowUpResponsibleService.cs" />
+    <Compile Include="IssueTracker\IssueGroupService.cs" />
+    <Compile Include="IssueTracker\IssueImportanceService.cs" />
+    <Compile Include="IssueTracker\IssueInternalAuditService.cs" />
+    <Compile Include="IssueTracker\IssueRefDetailService.cs" />
+    <Compile Include="IssueTracker\IssueStandardService.cs" />
+    <Compile Include="IssueTracker\IssueStatusService.cs" />
+    <Compile Include="IssueTracker\IssueSubCategoryService.cs" />
+    <Compile Include="IssueTracker\IssueSubTaskService.cs" />
+    <Compile Include="IssueTracker\IssueTransactionService.cs" />
+    <Compile Include="IssueTracker\IssueUpdateAuditService.cs" />
+    <Compile Include="Leave\clsHourlyOffDutyTag.cs" />
+    <Compile Include="Leave\clsHourlyOt.cs" />
+    <Compile Include="Leave\clsLeaveAllocationEmp.cs" />
+    <Compile Include="Leave\clsOffDDutyHoursApprove.cs" />
+    <Compile Include="Leave\clsOffDDutyHours.cs" />
+    <Compile Include="Leave\clsLeaveApproval.cs" />
+    <Compile Include="Leave\clsShiftCreation.cs" />
+    <Compile Include="Leave\clsLeavePolicy.cs" />
+    <Compile Include="Machines\IMachineActivityService.cs" />
+    <Compile Include="MobileAPI\IMobileService.cs" />
+    <Compile Include="MobileAPI\MobileService.cs" />
+    <Compile Include="OrderManagements\CommitmentService.cs" />
+    <Compile Include="OrderManagements\IPackingListMasterService.cs" />
+    <Compile Include="OrderManagements\IRunningOrderParametersService.cs" />
+    <Compile Include="OrderManagements\IProductionResourcesService.cs" />
+    <Compile Include="OrderManagements\PackingListMasterService.cs" />
+    <Compile Include="OrderManagements\ProductionOrderReports.cs" />
+    <Compile Include="OrderManagements\RunningOrderParametersService.cs" />
+    <Compile Include="OrderManagements\ProductionResourcesService.cs" />
+    <Compile Include="Payrolls\EncashmentService.cs" />
+    <Compile Include="Payrolls\IEncashmentService.cs" />
+    <Compile Include="Payrolls\Increment\clsBulkIncrement.cs" />
+    <Compile Include="Payrolls\SalaryProcessActive\clsBonusMonthlyRetain.cs" />
+    <Compile Include="Payrolls\SalaryProcessActive\clsESICProcess.cs" />
+    <Compile Include="Payrolls\SalaryProcessActive\clsPFProcess.cs" />
+    <Compile Include="Payrolls\SalaryProcessActive\clsRetentionProcess.cs" />
+    <Compile Include="Payrolls\SalaryProcessActive\clsSalaryProc.cs" />
+    <Compile Include="Payrolls\SalaryProcessActive\clsSalaryProcessAplosListR.cs" />
+    <Compile Include="Payrolls\SalaryProcessActive\clsSalaryProcessLog.cs" />
+    <Compile Include="Payrolls\SalaryProcessActive\clsSalaryProcessQuery2.cs" />
+    <Compile Include="Payrolls\SalaryProcessActive\clsSalaryProcessUI.cs" />
+    <Compile Include="Payrolls\SalaryProcessActive\clsSalaryProcModels.cs" />
+    <Compile Include="Payrolls\SalaryProcessActive\clsSalaryReprocessUnit.cs" />
+    <Compile Include="Payrolls\SalaryProcessActive\clsSalaryUtility.cs" />
+    <Compile Include="Payrolls\SalaryProcess\clsDailyAllowance.cs" />
+    <Compile Include="Payrolls\SalaryProcess\clsMaternityBenefit.cs" />
+    <Compile Include="Payrolls\SalaryProcess\clsSalaryInfo.cs" />
+    <Compile Include="Payrolls\SalaryProcess\clsSalaryInfoModel.cs" />
+    <Compile Include="Payrolls\IParollsReportService.cs" />
+    <Compile Include="Payrolls\ParollsReportService.cs" />
+    <Compile Include="Payrolls\SalaryProcess\clsSalaryProcessQuery.cs" />
+    <Compile Include="Payrolls\SalaryProcess\clsSalaryUtility.cs" />
+    <Compile Include="Payrolls\SalaryProcess\FunctionPara.cs" />
+    <Compile Include="Payrolls\SalaryProcess\SalaryProcessDic.cs" />
+    <Compile Include="Productions\IProductionBookingPeriodService.cs" />
+    <Compile Include="Productions\IRecipeMaterialService.cs" />
+    <Compile Include="Productions\ProductionTransformationBookingService.cs" />
+    <Compile Include="Productions\ProductionConversionParameterService.cs" />
+    <Compile Include="Productions\ProductionBookingPeriodService.cs" />
+    <Compile Include="Productions\IRecipeMaterialGroupingMasterService.cs" />
+    <Compile Include="Productions\IRecipeConfigService.cs" />
+    <Compile Include="Productions\ProductionBooking\IProductionSummaryDetailService.cs" />
+    <Compile Include="Productions\ProductionBooking\ProductionServices.cs" />
+    <Compile Include="Productions\ProductionBooking\ProductionSummaryDetailService.cs" />
+    <Compile Include="Productions\RecipeMaterialGroupingMasterService.cs" />
+    <Compile Include="Productions\ProductionBooking\IProductionSummaryService.cs" />
+    <Compile Include="Productions\ProductionBooking\ProductionSummaryService.cs" />
+    <Compile Include="Productions\RecipeConfigService.cs" />
+    <Compile Include="Productions\RecipeMaterialService.cs" />
+    <Compile Include="Productions\Recipe\IRecipeGlobalMasterService.cs" />
+    <Compile Include="Productions\Recipe\IRecipeGlobalOperationService.cs" />
+    <Compile Include="Productions\Recipe\IRecipeGlobalRawMaterialService.cs" />
+    <Compile Include="Productions\Recipe\IRecipeGlobalSubprocessService.cs" />
+    <Compile Include="Productions\Recipe\IRecipeGlobalUtilityService.cs" />
+    <Compile Include="Productions\Recipe\IRecipeOperationService.cs" />
+    <Compile Include="Productions\Recipe\RecipeGlobalMasterService.cs" />
+    <Compile Include="Productions\Recipe\RecipeGlobalOperationService.cs" />
+    <Compile Include="Productions\Recipe\RecipeGlobalRawMaterialService.cs" />
+    <Compile Include="Productions\Recipe\RecipeGlobalSubprocessService.cs" />
+    <Compile Include="Productions\Recipe\RecipeGlobalUtilityService.cs" />
+    <Compile Include="Attendances\IAttdnRawDataService.cs" />
+    <Compile Include="Banks\CashReportService.cs" />
+    <Compile Include="Banks\BankReportService.cs" />
+    <Compile Include="Banks\ICashReportService.cs" />
+    <Compile Include="Banks\IBankReportService.cs" />
+    <Compile Include="Employees\EmployeeReportService.cs" />
+    <Compile Include="Employees\IBonusPolicyMonthlyRetainEligibleEmployeeService.cs" />
+    <Compile Include="Employees\BonusPolicyMonthlyRetainEligibleEmployeeService.cs" />
+    <Compile Include="Employees\IEmployeeReportService.cs" />
+    <Compile Include="Enums\LeaveEnum.cs" />
+    <Compile Include="Expenses\IExpenseDashboardService.cs" />
+    <Compile Include="Expenses\ExpenseDashboardService.cs" />
+    <Compile Include="Accounts\AccountDashboardService.cs" />
+    <Compile Include="Accounts\IAccountDashboardService.cs" />
+    <Compile Include="Finances\FinancingService.cs" />
+    <Compile Include="Finances\IFinancingService.cs" />
+    <Compile Include="Finances\IInvestmentReportService.cs" />
+    <Compile Include="Finances\ILoanReportService.cs" />
+    <Compile Include="Finances\InvestmentReportService.cs" />
+    <Compile Include="Finances\LoanReportService.cs" />
+    <Compile Include="Helpers\DataTableExtension.cs" />
+    <Compile Include="HumanResources\CompliedShiftGroupingService.cs" />
+    <Compile Include="HumanResources\CompliedShiftAssignmentService.cs" />
+    <Compile Include="HumanResources\ICompliedShiftGroupingService.cs" />
+    <Compile Include="HumanResources\ICompliedShiftGroupingDetailService.cs" />
+    <Compile Include="HumanResources\ICompliedShiftAssignmentService.cs" />
+    <Compile Include="HumanResources\IRestDetailsService.cs" />
+    <Compile Include="HumanResources\IRestService.cs" />
+    <Compile Include="HumanResources\ICompliedShiftService.cs" />
+    <Compile Include="HumanResources\CompliedShiftGroupingDetailService.cs" />
+    <Compile Include="HumanResources\Reports\SalaryReportService.cs" />
+    <Compile Include="HumanResources\Reports\ISalaryReportService.cs" />
+    <Compile Include="HumanResources\Reports\Salary\IWelfareSummaryReportService.cs" />
+    <Compile Include="HumanResources\Reports\Salary\WelfareSummaryReportService.cs" />
+    <Compile Include="HumanResources\RestDetailsService.cs" />
+    <Compile Include="HumanResources\RestService.cs" />
+    <Compile Include="Employees\IWeeklyAbsentismAssignmentService.cs" />
+    <Compile Include="Employees\WeeklyAbsentismAssignmentService.cs" />
+    <Compile Include="HumanResources\CompliedShiftService.cs" />
+    <Compile Include="Invoices\AdjustmentNoteReportService.cs" />
+    <Compile Include="Invoices\IAdjustmentNoteReportService.cs" />
+    <Compile Include="Invoices\ISyncPurchaseDataService.cs" />
+    <Compile Include="Invoices\ISyncSalesDataService.cs" />
+    <Compile Include="Invoices\SyncPurchaseDataService.cs" />
+    <Compile Include="Invoices\SyncSalesDataService.cs" />
+    <Compile Include="Advances\AdvanceWriteOffService.cs" />
+    <Compile Include="Employees\EmployeePayableService.cs" />
+    <Compile Include="Employees\EmployeePayableWriteOffService.cs" />
+    <Compile Include="Expenses\ExpenseBookingService.cs" />
+    <Compile Include="Advances\IAdvanceWriteOffService.cs" />
+    <Compile Include="Invoices\IAdjustmentNoteService.cs" />
+    <Compile Include="Invoices\IInventoryPayableService.cs" />
+    <Compile Include="Finances\ILoanService.cs" />
+    <Compile Include="Invoices\AdjustmentNoteService.cs" />
+    <Compile Include="Invoices\InventoryPayableService.cs" />
+    <Compile Include="Finances\LoanService.cs" />
+    <Compile Include="HumanResources\IMaternityLeaveTransactionService.cs" />
+    <Compile Include="HumanResources\IMaternityLeavePolicyService.cs" />
+    <Compile Include="HumanResources\MaternityLeaveTransactionService.cs" />
+    <Compile Include="HumanResources\MaternityLeavePolicyService.cs" />
+    <Compile Include="Invoices\IInvoiceWriteOffService.cs" />
+    <Compile Include="Invoices\InvoiceWriteOffService.cs" />
+    <Compile Include="Invoices\ITaxPaymentService.cs" />
+    <Compile Include="Invoices\TaxPaymentService.cs" />
+    <Compile Include="Employees\IEmployeePayableService.cs" />
+    <Compile Include="Employees\IEmployeePayableWriteOffService.cs" />
+    <Compile Include="Expenses\IExpenseBookingService.cs" />
+    <Compile Include="Finances\IInvestmentService.cs" />
+    <Compile Include="Finances\InvestmentService.cs" />
+    <Compile Include="Invoices\IInvoiceService.cs" />
+    <Compile Include="Invoices\InvoiceService.cs" />
+    <Compile Include="Biometrics\LeaveTransectionService.cs" />
+    <Compile Include="Attendances\BiometricDeviceAsShortLeaveService.cs" />
+    <Compile Include="Attendances\AttdnDataMonthlySummaryService.cs" />
+    <Compile Include="Biometrics\ILeaveTransectionService.cs" />
+    <Compile Include="Attendances\IBiometricDeviceAsShortLeaveService.cs" />
+    <Compile Include="Attendances\IAttdnDataMonthlySummaryService.cs" />
+    <Compile Include="Attendances\IEmpDateWiseShiftAssignService.cs" />
+    <Compile Include="Biometrics\IShortLeaveAllocationService.cs" />
+    <Compile Include="Biometrics\ILeaveAllocationService.cs" />
+    <Compile Include="Biometrics\ILeaveTransactionDetailsService.cs" />
+    <Compile Include="Attendances\EmpDateWiseShiftAssignService.cs" />
+    <Compile Include="Biometrics\ShortLeaveAllocationService.cs" />
+    <Compile Include="Biometrics\LeaveAllocationService.cs" />
+    <Compile Include="Biometrics\LeaveTransactionDetailsService.cs" />
+    <Compile Include="Biometrics\EmployeeNotificationsService.cs" />
+    <Compile Include="Attendances\AttdnProcessDataService.cs" />
+    <Compile Include="Attendances\AttdnRawDataService.cs" />
+    <Compile Include="Attendances\AttdnDataDownLoadLogService.cs" />
+    <Compile Include="Biometrics\EmployeeFPBackUpService.cs" />
+    <Compile Include="Attendances\AccessControllerDeleteRequestService.cs" />
+    <Compile Include="Attendances\AccessControllerEmployeeTagService.cs" />
+    <Compile Include="Biometrics\EmployeeFPInformationService.cs" />
+    <Compile Include="Attendances\IAccessControllerDeleteRequestService.cs" />
+    <Compile Include="Attendances\IAttdnDataDownLoadLogService.cs" />
+    <Compile Include="Biometrics\IEmployeeNotificationsService.cs" />
+    <Compile Include="Attendances\IAttdnProcessDataService.cs" />
+    <Compile Include="Attendances\IAttdnRawDataFromAppService.cs" />
+    <Compile Include="Attendances\IAccessControllerEmployeeTagService.cs" />
+    <Compile Include="Biometrics\IEmployeeFPBackUpService.cs" />
+    <Compile Include="Biometrics\IEmployeeFPInformationService.cs" />
+    <Compile Include="Attendances\AccessControllerListService.cs" />
+    <Compile Include="Employees\CompanyGroupSOPDocumentCategoryService.cs" />
+    <Compile Include="Employees\CompanyGroupSOPDocumentSubCategoryService.cs" />
+    <Compile Include="Employees\ILeaveOpeningBalanceService.cs" />
+    <Compile Include="Employees\LeaveOpeningBalanceService.cs" />
+    <Compile Include="Employees\EmployeeSalaryRuleEditableService.cs" />
+    <Compile Include="Employees\IEmployeeSalaryRuleEditableService.cs" />
+    <Compile Include="Employees\RetentionAllowanceService.cs" />
+    <Compile Include="Employees\ICompanyGroupSOPDocumentCategoryService.cs" />
+    <Compile Include="Employees\ICompanyGroupSOPDocumentSubCategoryService.cs" />
+    <Compile Include="Employees\IRetentionAllowanceService.cs" />
+    <Compile Include="Employees\IPFEmployeeVoluntaryValueService.cs" />
+    <Compile Include="Employees\IPFEmployeeAppliedService.cs" />
+    <Compile Include="Employees\IEmployeeWiseTermsAndConditionsService.cs" />
+    <Compile Include="Employees\PFEmployeeVoluntaryValueService.cs" />
+    <Compile Include="Employees\PFEmployeeAppliedService.cs" />
+    <Compile Include="Employees\ISOPDocumentCategoryService.cs" />
+    <Compile Include="Employees\ISOPDocumentSubCategoryService.cs" />
+    <Compile Include="Employees\EmployeeWiseTermsAndConditionsService.cs" />
+    <Compile Include="Employees\SOPActivityDocumentService.cs" />
+    <Compile Include="Employees\ISOPActivityDocumentService.cs" />
+    <Compile Include="Employees\ISOPActivityKPIService.cs" />
+    <Compile Include="Employees\SOPActivityKPIService.cs" />
+    <Compile Include="Employees\SOPActivityService.cs" />
+    <Compile Include="Employees\CompanyGroupSOPSubCategoryService.cs" />
+    <Compile Include="Employees\CompanyGroupSOPCategoryService.cs" />
+    <Compile Include="Employees\ComplianceDocumentSetProofTypeAssignService.cs" />
+    <Compile Include="Employees\ComplianceDocumentProofTypeAssignService .cs" />
+    <Compile Include="Employees\EmployeeBankInformationService.cs" />
+    <Compile Include="Attendances\IAccessControllerListService.cs" />
+    <Compile Include="Employees\EmployeeProfileService.cs" />
+    <Compile Include="Employees\EmployeeLeaveSummaryService.cs" />
+    <Compile Include="Employees\HRDashboardService.cs" />
+    <Compile Include="Employees\ISOPActivityService.cs" />
+    <Compile Include="Employees\ICompanyGroupSOPSubCategoryService.cs" />
+    <Compile Include="Employees\ICompanyGroupSOPCategoryService.cs" />
+    <Compile Include="Employees\IComplianceDocumentSetProofTypeAssignService.cs" />
+    <Compile Include="Employees\IComplianceDocumentProofTypeAssignService.cs" />
+    <Compile Include="Employees\IEmployeeBankInformationService.cs" />
+    <Compile Include="Employees\IEmployeeProfileService.cs" />
+    <Compile Include="Employees\IEmployeeLeaveSummaryService.cs" />
+    <Compile Include="Employees\ISOPAttachmentDetailService.cs" />
+    <Compile Include="Employees\IPostRecruitmentDocumentService.cs" />
+    <Compile Include="Employees\IPreRecruitmentDashboardService.cs" />
+    <Compile Include="Employees\IEmployeeDocumentAssignmentService.cs" />
+    <Compile Include="Employees\IPreRecruitmentProofTypeService.cs" />
+    <Compile Include="Employees\ISOPDocumentService.cs" />
+    <Compile Include="Employees\ISOPItemService.cs" />
+    <Compile Include="Employees\ISOPSubCategoryService.cs" />
+    <Compile Include="Employees\ISOPCategoryService.cs" />
+    <Compile Include="Employees\IResignationReqcruitmentPlanningService.cs" />
+    <Compile Include="Employees\IComplianceDocumentProofTypeService.cs" />
+    <Compile Include="Employees\IRouteEmployeeService.cs" />
+    <Compile Include="Employees\IRouteService.cs" />
+    <Compile Include="Employees\IRouteStoppageService.cs" />
+    <Compile Include="Employees\ITempDocDashboardService.cs" />
+    <Compile Include="Employees\IStoppageService.cs" />
+    <Compile Include="Employees\SOPAttachmentDetailService.cs" />
+    <Compile Include="Employees\PostRecruitmentDocumentService.cs" />
+    <Compile Include="Employees\PreRecruitmentDashboardService.cs" />
+    <Compile Include="Employees\EmployeeDocumentAssignmentService.cs" />
+    <Compile Include="Employees\PreRecruitmentProofTypeService.cs" />
+    <Compile Include="Employees\SOPDocumentCategoryService.cs" />
+    <Compile Include="Employees\SOPDocumentService.cs" />
+    <Compile Include="Employees\SOPItemService.cs" />
+    <Compile Include="Employees\SOPDocumentSubCategoryService.cs" />
+    <Compile Include="Employees\SOPSubCategoryService.cs" />
+    <Compile Include="Employees\SOPCategoryService.cs" />
+    <Compile Include="Employees\ResignationReqcruitmentPlanningService.cs" />
+    <Compile Include="Employees\ComplianceDocumentProofTypeService.cs" />
+    <Compile Include="Employees\RouteEmployeeService.cs" />
+    <Compile Include="Employees\RouteStoppageService.cs" />
+    <Compile Include="Employees\RouteService.cs" />
+    <Compile Include="Employees\StoppageService.cs" />
+    <Compile Include="Employees\DirectTaxPaymentHeadService.cs" />
+    <Compile Include="Employees\IDirectTaxPaymentHeadService.cs" />
+    <Compile Include="Employees\IDocumentDashboardService .cs" />
+    <Compile Include="Employees\DocumentDashboardService.cs" />
+    <Compile Include="Employees\IApprovedEmployeeService.cs" />
+    <Compile Include="Employees\IPreRecruitmentDocumentApprovalService.cs" />
+    <Compile Include="Employees\IEmployeeProbationalPeriodService.cs" />
+    <Compile Include="Employees\EmployeeProbationalPeriodService.cs" />
+    <Compile Include="Employees\ApprovedEmployeeService.cs" />
+    <Compile Include="Employees\ReportResignationEmployeeInfo.cs" />
+    <Compile Include="Employees\ResignationService.cs" />
+    <Compile Include="Employees\IResignationService.cs" />
+    <Compile Include="Employees\IApprovalConfigurationService.cs" />
+    <Compile Include="Employees\PreRecruitmentDocumentApprovalService.cs" />
+    <Compile Include="Employees\ApprovalConfigurationService.cs" />
+    <Compile Include="Employees\ComplianceDocumentPostRecruitmentService.cs" />
+    <Compile Include="Employees\ComplianceDocumentPositonCodeService.cs" />
+    <Compile Include="Employees\DocumentSetAssignDetailService.cs" />
+    <Compile Include="Employees\ComplianceDocumentSetDetailService.cs" />
+    <Compile Include="Employees\ComplianceDocumentSetService.cs" />
+    <Compile Include="Employees\EmployeeDocumentService.cs" />
+    <Compile Include="Employees\IComplianceDocumentPostRecruitmentService.cs" />
+    <Compile Include="Employees\IEmployeeDocumentService.cs" />
+    <Compile Include="Employees\ISalaryHeadGLService.cs" />
+    <Compile Include="Employees\IPreRecruitmentDocumentService.cs" />
+    <Compile Include="Employees\SalaryHeadGLService.cs" />
+    <Compile Include="Employees\IComplianceDocumentPositonCodeService.cs" />
+    <Compile Include="Employees\IDocumentSetAssignDetailService.cs" />
+    <Compile Include="Employees\IComplianceDocumentSetDetailService.cs" />
+    <Compile Include="Employees\IComplianceDocumentSetService.cs" />
+    <Compile Include="Employees\ComplianceDocumentService.cs" />
+    <Compile Include="Employees\ComplianceDocumentSubCategoryService.cs" />
+    <Compile Include="Employees\DocumentConfigurationDesignationGroupService.cs" />
+    <Compile Include="Employees\IComplianceDocumentService.cs" />
+    <Compile Include="Employees\IComplianceDocumentSubCategoryService.cs" />
+    <Compile Include="Employees\IComplianceDocumentCategoryService.cs" />
+    <Compile Include="Employees\IDocumentConfigurationDesignationGroupService.cs" />
+    <Compile Include="Employees\ComplianceDocumentCategoryService.cs" />
+    <Compile Include="Employees\PreRecruitmentDocumentService.cs" />
+    <Compile Include="Employees\IEmployeeBudgetCategoryDepartmentService.cs" />
+    <Compile Include="Employees\EmployeeBudgetCategoryDepartmentService.cs" />
+    <Compile Include="Employees\TempDocDashboardService.cs" />
+    <Compile Include="Enums\ConfirmationStatus.cs" />
+    <Compile Include="Enums\SOPEnum.cs" />
+    <Compile Include="Enums\EmployeeEnum.cs" />
+    <Compile Include="Enums\EnumDependateDate.cs" />
+    <Compile Include="Enums\EnumDocumentType.cs" />
+    <Compile Include="Enums\EnumEmploymentStage.cs" />
+    <Compile Include="Enums\EnumImportance.cs" />
+    <Compile Include="Enums\EnumPostRecruitment.cs" />
+    <Compile Include="Enums\PrdOrdSetting.cs" />
+    <Compile Include="Enums\SelectionStatus.cs" />
+    <Compile Include="External\ChartService.cs" />
+    <Compile Include="External\IChartService.cs" />
+    <Compile Include="External\EmployeeProfileFromExcelService.cs" />
+    <Compile Include="External\IEmployeeProfileFromExcelService.cs" />
+    <Compile Include="FixedAssets\FixedAssetMasterBudgetTagService.cs" />
+    <Compile Include="FixedAssets\FixedAssetRegisterSkuValueService.cs" />
+    <Compile Include="FixedAssets\IFixedAssetMasterBudgetTagService.cs" />
+    <Compile Include="FixedAssets\IFixedAssetRegisterSkuValueService.cs" />
+    <Compile Include="FixedAssets\IFixedAssetRegisterCharacteristicsValueService.cs" />
+    <Compile Include="FixedAssets\FixedAssetRegisterCharacteristicsValueService.cs" />
+    <Compile Include="FixedAssets\IFixedAssetMasterGLService.cs" />
+    <Compile Include="FixedAssets\IFixedAssetMasterVendorReconGLService.cs" />
+    <Compile Include="FixedAssets\FixedAssetMasterGLService.cs" />
+    <Compile Include="FixedAssets\FixedAssetMasterVendorReconGLService.cs" />
+    <Compile Include="Helpers\IISManager.cs" />
+    <Compile Include="Helpers\ResourcesPathReader.cs" />
+    <Compile Include="HumanResources\IWorkGroupService.cs" />
+    <Compile Include="HumanResources\WorkGroupService.cs" />
+    <Compile Include="HumanResources\EmployeeShiftAssignService.cs" />
+    <Compile Include="HumanResources\SalaryFixationMailService.cs" />
+    <Compile Include="HumanResources\ISalaryFixationMailService.cs" />
+    <Compile Include="HumanResources\IEmployeeShiftAssignService.cs" />
+    <Compile Include="Machines\IEntityOperationSettingsService.cs" />
+    <Compile Include="Machines\IProductionSystemService.cs" />
+    <Compile Include="Machines\IStitchCodeService.cs" />
+    <Compile Include="Machines\IPersonalAllowanceService.cs" />
+    <Compile Include="Machines\IOperationProcessService.cs" />
+    <Compile Include="Machines\EntityOperationSettingsService.cs" />
+    <Compile Include="Machines\IOperationMotionService.cs" />
+    <Compile Include="Machines\IMachineVariantService.cs" />
+    <Compile Include="Machines\ProductionSystemService.cs" />
+    <Compile Include="Machines\StitchCodeService.cs" />
+    <Compile Include="Machines\PersonalAllowanceService.cs" />
+    <Compile Include="Machines\OperationProcessService.cs" />
+    <Compile Include="Machines\OperationMotionService.cs" />
+    <Compile Include="Machines\MachineVariantService.cs" />
+    <Compile Include="OrderManagements\ILineEmployeeAssignService.cs" />
+    <Compile Include="OrderManagements\LineEmployeeAssignService.cs" />
+    <Compile Include="Organizations\IOrganizationReportService.cs" />
+    <Compile Include="Organizations\OrganizationReportService.cs" />
+    <Compile Include="Parties\IPartyReportService.cs" />
+    <Compile Include="Parties\PartyReportService.cs" />
+    <Compile Include="Payrolls\IPaidHoursEmployeeAssignService.cs" />
+    <Compile Include="Payrolls\IPayrollGroupMasterService.cs" />
+    <Compile Include="Payrolls\PaidHoursEmployeeAssignService.cs" />
+    <Compile Include="Payrolls\PayrollGroupMasterService.cs" />
+    <Compile Include="Processes\IProcessGroupService.cs" />
+    <Compile Include="Processes\ProcessGroupService.cs" />
+    <Compile Include="Productions\RecipeProductionOrderService.cs" />
+    <Compile Include="Productions\IRecipeProductionOrderService.cs" />
+    <Compile Include="Productions\IPlanningTypesService.cs" />
+    <Compile Include="Productions\PlanningTypesService.cs" />
+    <Compile Include="Productions\Recipe\RecipeOperationService.cs" />
+    <Compile Include="Products\PlantWiseGateService.cs" />
+    <Compile Include="Products\GRNRejectionDetails.cs" />
+    <Compile Include="Products\IPlantWiseGateService.cs" />
+    <Compile Include="Products\IGRNRejectionDetailsService.cs" />
+    <Compile Include="Products\IGRNPORequisitionAllocation.cs" />
+    <Compile Include="Products\IPOGVendorService.cs" />
+    <Compile Include="Products\IPurchaseOrderGroupDetailsService.cs" />
+    <Compile Include="Products\IPoRequisitionDetailService.cs" />
+    <Compile Include="Products\IQualityStdSetService.cs" />
+    <Compile Include="Products\IPurchaseOrderGroupMasterService.cs" />
+    <Compile Include="Products\GRNPORequisitionAllocationService.cs" />
+    <Compile Include="Products\POGVendorService.cs" />
+    <Compile Include="Products\PurchaseOrderGroupDetailsService.cs" />
+    <Compile Include="Products\PoRequisitionDetailService.cs" />
+    <Compile Include="Products\QualityStdSetService.cs" />
+    <Compile Include="Products\PurchaseOrderGroupMasterService.cs" />
+    <Compile Include="QMS\IQMSInspectionService.cs" />
+    <Compile Include="QMS\IQMSRejectionService.cs" />
+    <Compile Include="QMS\QMSInspectionService.cs" />
+    <Compile Include="QMS\QMSRejectionService.cs" />
+    <Compile Include="Advances\AdvanceReportService.cs" />
+    <Compile Include="Advances\IAdvanceReportService.cs" />
+    <Compile Include="Invoices\IInvoiceReportService.cs" />
+    <Compile Include="Invoices\InvoiceReportService.cs" />
+    <Compile Include="Organizations\IPositionReportService.cs" />
+    <Compile Include="SalaryDisbursement\SalaryDisbursementService.cs" />
+    <Compile Include="SalaryDisbursement\ISalaryDisbursementService.cs" />
+    <Compile Include="SalesManagements\ISalesService.cs" />
+    <Compile Include="SalesManagements\SalesService.cs" />
+    <Compile Include="Setups\EntityConfigService.cs" />
+    <Compile Include="Setups\IEntityConfigService.cs" />
+    <Compile Include="Setups\IEmployeeAttendaceGroupService.cs" />
+    <Compile Include="Setups\IMailLogService.cs" />
+    <Compile Include="Setups\IMailReceiverService.cs" />
+    <Compile Include="Setups\IMailSenderService.cs" />
+    <Compile Include="Setups\IRptConfigTemplateService.cs" />
+    <Compile Include="Setups\IAttendanceGroupService.cs" />
+    <Compile Include="Setups\EmployeeAttendanceGroupService.cs" />
+    <Compile Include="Setups\ISpecialTaxService.cs" />
+    <Compile Include="Setups\RptConfigTemplateService.cs" />
+    <Compile Include="Setups\AttendanceGroupService.cs" />
+    <Compile Include="Setups\SpecialTaxService.cs" />
+    <Compile Include="TaskManagement\IEntityTaskService.cs" />
+    <Compile Include="TaskManagement\ITaskAuditService.cs" />
+    <Compile Include="TaskManagement\ITaskCategoryService.cs" />
+    <Compile Include="TaskManagement\ITaskClassService.cs" />
+    <Compile Include="TaskManagement\IDelayReason.cs" />
+    <Compile Include="TaskManagement\ITaskManagerMasterService.cs" />
+    <Compile Include="TaskManagement\ITaskManagerSubTasksService.cs" />
+    <Compile Include="TaskManagement\ITaskOrgCategoryService.cs" />
+    <Compile Include="TaskManagement\ITaskFrequencyService.cs" />
+    <Compile Include="TaskManagement\ITaskRevisionCategoryService.cs" />
+    <Compile Include="TaskManagement\ITaskStatusService.cs" />
+    <Compile Include="TaskManagement\ITaskMasterService.cs" />
+    <Compile Include="TaskManagement\ITaskNotificationService.cs" />
+    <Compile Include="TaskManagement\ITaskTypeService.cs" />
+    <Compile Include="TaskManagement\EntityTaskService.cs" />
+    <Compile Include="TaskManagement\TaskAuditService.cs" />
+    <Compile Include="TaskManagement\TaskCategoryService.cs" />
+    <Compile Include="TaskManagement\TaskClassService.cs" />
+    <Compile Include="TaskManagement\DelayReasonService .cs" />
+    <Compile Include="TaskManagement\TaskManagerMasterService.cs" />
+    <Compile Include="TaskManagement\TaskManagerSubTasksService.cs" />
+    <Compile Include="TaskManagement\TaskOrgCategoryService.cs" />
+    <Compile Include="TaskManagement\TaskRevisionCategoryService.cs" />
+    <Compile Include="TaskManagement\TaskFrequencyService.cs" />
+    <Compile Include="TaskManagement\TaskStatusService.cs" />
+    <Compile Include="TaskManagement\TaskMasterService.cs" />
+    <Compile Include="TaskManagement\TaskNotificationService.cs" />
+    <Compile Include="TaskManagement\TaskTypeService.cs" />
+    <Compile Include="TaskScheduler\ITaskSchedulerMasterService.cs" />
+    <Compile Include="TaskScheduler\TaskScheduler.cs" />
+    <Compile Include="TaskScheduler\TaskSchedulerMasterService.cs" />
+    <Compile Include="Vouchers\IVoucherReportService.cs" />
+    <Compile Include="Materials\IServiceGroupGLService.cs" />
+    <Compile Include="Materials\IServiceGroupPartyAccountGroupGLService.cs" />
+    <Compile Include="Materials\ServiceGroupGLService.cs" />
+    <Compile Include="Materials\ServiceGroupPartyAccountGroupGLService.cs" />
+    <Compile Include="Materials\MaterialStorageService.cs" />
+    <Compile Include="Materials\IMaterialStorageService.cs" />
+    <Compile Include="Materials\MaterialStockService.cs" />
+    <Compile Include="Materials\FabricRollManagementSettingsService.cs" />
+    <Compile Include="Materials\FabricRollMasterDefectService.cs" />
+    <Compile Include="Materials\FabricRollMasterService.cs" />
+    <Compile Include="Materials\IMaterialStockService.cs" />
+    <Compile Include="Materials\IFabricRollManagementSettingsService.cs" />
+    <Compile Include="Materials\IFabricRollMasterDefectService.cs" />
+    <Compile Include="Materials\IFabricRollMasterService.cs" />
+    <Compile Include="Materials\IMaterialMasterArticleService.cs" />
+    <Compile Include="Materials\MaterialMasterArticleService.cs" />
+    <Compile Include="Materials\MaterialSubCategoryService.cs" />
+    <Compile Include="Materials\MaterialCategoryService.cs" />
+    <Compile Include="Materials\IMaterialSubCategoryService.cs" />
+    <Compile Include="Materials\IMaterialCategoryService.cs" />
+    <Compile Include="OrderManagements\LineDayCriticalityService.cs" />
+    <Compile Include="OrderManagements\ILineDayCriticalityService.cs" />
+    <Compile Include="OrderManagements\ICriticalService.cs" />
+    <Compile Include="OrderManagements\CriticalService.cs" />
+    <Compile Include="OrderManagements\IPreCostingService.cs" />
+    <Compile Include="OrderManagements\ISampleRequisitionService.cs" />
+    <Compile Include="OrderManagements\PreCostingService.cs" />
+    <Compile Include="OrderManagements\InquiryService.cs" />
+    <Compile Include="OrderManagements\IInquiryService.cs" />
+    <Compile Include="OrderManagements\ICommitmentService.cs" />
+    <Compile Include="OrderManagements\ICommitmentMonthService.cs" />
+    <Compile Include="OrderManagements\CommitmentMonthService.cs" />
+    <Compile Include="OrderManagements\SampleRequisitionService.cs" />
+    <Compile Include="Organizations\HRDashboardService.cs" />
+    <Compile Include="Organizations\IManpowerBudgetDashboardService.cs" />
+    <Compile Include="Organizations\IOrganogramService.cs" />
+    <Compile Include="Organizations\OrganogramService.cs" />
+    <Compile Include="External\ReportEmployeeInfo.cs" />
+    <Compile Include="External\UserAccessService.cs" />
+    <Compile Include="External\EmployeeLinkService.cs" />
+    <Compile Include="External\DocumentActivityService.cs" />
+    <Compile Include="External\AplosEmpFieldService.cs" />
+    <Compile Include="External\ActivityService.cs" />
+    <Compile Include="External\EmployeeService.cs" />
+    <Compile Include="External\IUserAccessService.cs" />
+    <Compile Include="External\IEmployeeLinkService.cs" />
+    <Compile Include="External\IDocumentActivityService.cs" />
+    <Compile Include="External\IAplosEmpFieldService.cs" />
+    <Compile Include="External\IActivityService.cs" />
+    <Compile Include="External\IEmployeeService .cs" />
+    <Compile Include="External\IAplosEmpFieldTagService.cs" />
+    <Compile Include="External\AplosEmpFieldTagService.cs" />
+    <Compile Include="External\IKPIService.cs" />
+    <Compile Include="External\KPIService.cs" />
+    <Compile Include="FixedAssets\CompanyFixedAssetDepreciationRuleService.cs" />
+    <Compile Include="FixedAssets\CompanyGroupFixedAssetAttributeService.cs" />
+    <Compile Include="FixedAssets\FixedAssetDepreciationRuleService.cs" />
+    <Compile Include="FixedAssets\ICompanyFixedAssetDepreciationRuleService.cs" />
+    <Compile Include="FixedAssets\ICompanyGroupFixedAssetAttributeService.cs" />
+    <Compile Include="FixedAssets\IFixedAssetDepreciationRuleService.cs" />
+    <Compile Include="OpeningBalances\IOpeningBalanceService.cs" />
+    <Compile Include="OpeningBalances\OpeningBalanceService.cs" />
+    <Compile Include="Employees\EmpAcademicQualificationInformationService.cs" />
+    <Compile Include="Employees\EmpTrainingInformationService.cs" />
+    <Compile Include="Employees\EmpExperienceInformationService.cs" />
+    <Compile Include="Employees\IEmpAcademicQualificationInformationService.cs" />
+    <Compile Include="Employees\IEmpTrainingInformationService.cs" />
+    <Compile Include="Employees\IEmpExperienceInformationService.cs" />
+    <Compile Include="Employees\IInterviewRankingService.cs" />
+    <Compile Include="Employees\IPreRecruitmentApprovalService.cs" />
+    <Compile Include="Employees\IEmpReferenceInformationService.cs" />
+    <Compile Include="Employees\IRecruitmentSelectionService.cs" />
+    <Compile Include="Employees\IPreRecruitmentEmpTrainingService.cs" />
+    <Compile Include="Employees\IPreRecruitmentEmpExperienceService.cs" />
+    <Compile Include="Employees\IPreRecruitmentEmpQualificationService.cs" />
+    <Compile Include="Employees\IPreRecruitmentEmpReferenceService.cs" />
+    <Compile Include="Employees\IPreRecruitmentEmployeeService.cs" />
+    <Compile Include="Employees\InterviewRankingService.cs" />
+    <Compile Include="Employees\EmpReferenceInformationService.cs" />
+    <Compile Include="Employees\RecruitmentApprovalService.cs" />
+    <Compile Include="Employees\RecruitmentSelectionService .cs" />
+    <Compile Include="Employees\PreRecruitmentEmpTrainingService.cs" />
+    <Compile Include="Employees\PreRecruitmentEmpQualificationService.cs" />
+    <Compile Include="Employees\PreRecruitmentEmpExperienceService.cs" />
+    <Compile Include="Employees\PreRecruitmentEmpReferenceService.cs" />
+    <Compile Include="Employees\PreRecruitmentEmployeeService.cs" />
+    <Compile Include="Employees\IJobDescriptionDetailService.cs" />
+    <Compile Include="Employees\IJobDescriptionService.cs" />
+    <Compile Include="Employees\IJobDescriptionItemService.cs" />
+    <Compile Include="Employees\IJobDescriptionSubCategoryService.cs" />
+    <Compile Include="Employees\JobDescriptionItemService.cs" />
+    <Compile Include="Employees\JobDescriptionDetailService.cs" />
+    <Compile Include="Employees\JobDescriptionService.cs" />
+    <Compile Include="Employees\JobDescriptionSubCategoryService.cs" />
+    <Compile Include="Employees\JobDescriptionCategoryService.cs" />
+    <Compile Include="Employees\IJobDescriptionCategoryService.cs" />
+    <Compile Include="FixedAssets\CompanyGroupFixedAssetSubClassService.cs" />
+    <Compile Include="Materials\MaterialMasterVendorReconGLService.cs" />
+    <Compile Include="OpeningBalances\MaterialMasterOpeningBalanceDetailService.cs" />
+    <Compile Include="Materials\MaterialMasterGLService.cs" />
+    <Compile Include="FixedAssets\FixedAssetMasterService.cs" />
+    <Compile Include="FixedAssets\FixedAssetSubClassService.cs" />
+    <Compile Include="FixedAssets\FixedAssetClassService.cs" />
+    <Compile Include="FixedAssets\CompanyGroupFixedAssetClassService.cs" />
+    <Compile Include="FixedAssets\ICompanyGroupFixedAssetSubClassService.cs" />
+    <Compile Include="Materials\IMaterialMasterVendorReconGLService.cs" />
+    <Compile Include="OpeningBalances\IMaterialMasterOpeningBalanceDetailService.cs" />
+    <Compile Include="Materials\IMaterialMasterGLService.cs" />
+    <Compile Include="FixedAssets\IFixedAssetMasterService.cs" />
+    <Compile Include="FixedAssets\IFixedAssetSubClassService.cs" />
+    <Compile Include="FixedAssets\IFixedAssetClassService.cs" />
+    <Compile Include="FixedAssets\ICompanyGroupFixedAssetClassService.cs" />
+    <Compile Include="FixedAssets\IFixedAssetAttributeService.cs" />
+    <Compile Include="FixedAssets\FixedAssetAttributeService.cs" />
+    <Compile Include="FixedAssets\IFixedAssetAttributeValueService.cs" />
+    <Compile Include="FixedAssets\FixedAssetAttributeValueService.cs" />
+    <Compile Include="Materials\IMaterialGroupPackingFormService.cs" />
+    <Compile Include="Materials\IPackingFormService.cs" />
+    <Compile Include="Materials\MaterialGroupPackingFormService.cs" />
+    <Compile Include="Materials\PackingFormService.cs" />
+    <Compile Include="Materials\IMaterialGroupAlternativeUoMService.cs" />
+    <Compile Include="Materials\MaterialGroupPartyAccountGroupGLService.cs" />
+    <Compile Include="Materials\IMaterialGroupPartyAccountGroupGLService.cs" />
+    <Compile Include="Materials\MaterialGroupGLService.cs" />
+    <Compile Include="Materials\IMaterialGroupGLService.cs" />
+    <Compile Include="Materials\MaterialGroupAlternativeUoMService.cs" />
+    <Compile Include="OrderManagements\ISamplePackingListFormService.cs" />
+    <Compile Include="OrderManagements\ISamplePackingListMaterialDetailsService.cs" />
+    <Compile Include="OrderManagements\ISamplePackingListService.cs" />
+    <Compile Include="OrderManagements\ISampleOrderSubMaterialService.cs" />
+    <Compile Include="OrderManagements\ISampleOrderSubMaterialValueService.cs" />
+    <Compile Include="OrderManagements\ISampleOrderService.cs" />
+    <Compile Include="OrderManagements\ISampleOrderPartnerFunctionService.cs" />
+    <Compile Include="OrderManagements\SamplePackingListFormService.cs" />
+    <Compile Include="OrderManagements\SamplePackingListMaterialDetailsService.cs" />
+    <Compile Include="OrderManagements\SamplePackingListService.cs" />
+    <Compile Include="OrderManagements\SampleOrderSubMaterialService.cs" />
+    <Compile Include="OrderManagements\SampleOrderSubMaterialValueService.cs" />
+    <Compile Include="OrderManagements\SampleOrderService.cs" />
+    <Compile Include="OrderManagements\SampleOrderPartnerFunctionService.cs" />
+    <Compile Include="Organizations\PositionReportService.cs" />
+    <Compile Include="Vouchers\VoucherReportService.cs" />
+    <Compile Include="Setups\IPlantSettingService.cs" />
+    <Compile Include="Setups\PlantSettingService.cs" />
+    <Compile Include="Setups\ITnaSettingDetailService.cs" />
+    <Compile Include="Setups\ITnaSettingMasterService.cs" />
+    <Compile Include="Setups\TnaSettingDetailService.cs" />
+    <Compile Include="Setups\ShiftGroupDetailService.cs" />
+    <Compile Include="Setups\IShiftGroupDetailService.cs" />
+    <Compile Include="Setups\ICompanyServiceMasterService.cs" />
+    <Compile Include="Setups\IIntermediateItemService.cs" />
+    <Compile Include="Setups\IntermediateItemService.cs" />
+    <Compile Include="Setups\IIntermediateItemEntityService.cs" />
+    <Compile Include="Setups\IntermediateItemEntityService.cs" />
+    <Compile Include="Payrolls\CompanyGroupPayrollGroupService.cs" />
+    <Compile Include="Payrolls\ICompanyGroupPayrollGroupService.cs" />
+    <Compile Include="Payrolls\ILoanAdvanceChildService.cs" />
+    <Compile Include="Payrolls\ILoanAdvanceMasterService.cs" />
+    <Compile Include="Payrolls\ICompanyTaxContributionService.cs" />
+    <Compile Include="Payrolls\IPayrollGroupService.cs" />
+    <Compile Include="Payrolls\LoanAdvanceChildService.cs" />
+    <Compile Include="Payrolls\LoanAdvanceMasterService.cs" />
+    <Compile Include="Payrolls\CompanyTaxContributionService.cs" />
+    <Compile Include="Payrolls\PayrollGroupService.cs" />
+    <Compile Include="Processes\IProductionProcessGroupService.cs" />
+    <Compile Include="Processes\ProductionProcessGroupService.cs" />
+    <Compile Include="Processes\IProcessAlternativeUoMService.cs" />
+    <Compile Include="Processes\IProcessUoMService.cs" />
+    <Compile Include="Processes\ProcessUoMService.cs" />
+    <Compile Include="Processes\ProcessAlternativeUoMService.cs" />
+    <Compile Include="Productions\MainProcessPlanningService.cs" />
+    <Compile Include="Invoices\ISalesOrderInvoicePackingListService.cs" />
+    <Compile Include="Invoices\ISalesOrderInvoiceDetailService.cs" />
+    <Compile Include="Invoices\ISalesOrderInvoiceMasterService.cs" />
+    <Compile Include="Invoices\SalesOrderInvoicePackingListService.cs" />
+    <Compile Include="Invoices\SalesOrderInvoiceMasterService.cs" />
+    <Compile Include="Invoices\SalesOrderInvoiceDetailService.cs" />
+    <Compile Include="Products\IProductDefinitionService.cs" />
+    <Compile Include="Products\ProductDefinitionService.cs" />
+    <Compile Include="Projects\IProjectPlanningPurchaseOrderMachineTypeService - Copy.cs" />
+    <Compile Include="Projects\IProjectPlanningPORequisitionMaterialMasterArticleService.cs" />
+    <Compile Include="Projects\IProjectPlanningRequisitionMaterialMasterArticleService.cs" />
+    <Compile Include="Projects\IProjectPlanningRequisitionMaterialMasterService.cs" />
+    <Compile Include="Projects\IProjectPlanningPurchaseOrderMaterialMasterService.cs" />
+    <Compile Include="Projects\IProjectPlanningPurchaseOrderDetailService.cs" />
+    <Compile Include="Projects\IProjectPlanningPORequisitionMaterialMasterService.cs" />
+    <Compile Include="Projects\IProjectPlanningRequisitionService.cs" />
+    <Compile Include="Projects\IProjectPlanningPurchaseOrderService.cs" />
+    <Compile Include="Projects\ProjectPlanningPurchaseOrderMachineTypeService.cs" />
+    <Compile Include="Projects\ProjectPlanningPORequisitionMaterialMasterArticleService.cs" />
+    <Compile Include="Projects\ProjectPlanningRequisitionMaterialMasterArticleService.cs" />
+    <Compile Include="Projects\ProjectPlanningRequisitionMaterialMasterService.cs" />
+    <Compile Include="Projects\ProjectPlanningPurchaseOrderMaterialMasterService.cs" />
+    <Compile Include="Projects\ProjectPlanningPurchaseOrderDetailService.cs" />
+    <Compile Include="Projects\ProjectPlanningPORequisitionMaterialMasterService.cs" />
+    <Compile Include="Projects\ProjectPlanningRequisitionService.cs" />
+    <Compile Include="Projects\ProjectPlanningPurchaseOrderService.cs" />
+    <Compile Include="Machines\CompanyGroupMachineClassService.cs" />
+    <Compile Include="Machines\CompanyGroupOperationCategoryService.cs" />
+    <Compile Include="Machines\CompanyGroupOperationActivityService.cs" />
+    <Compile Include="Machines\OperationSubProcessService.cs" />
+    <Compile Include="Machines\ICompanyGroupMachineClassService.cs" />
+    <Compile Include="Machines\ICompanyGroupOperationCategoryService.cs" />
+    <Compile Include="Machines\ICompanyGroupOperationActivityService.cs" />
+    <Compile Include="Machines\IOperationCategoryService.cs" />
+    <Compile Include="Machines\IOperationFgComponentService.cs" />
+    <Compile Include="Machines\IOperationActivityService.cs" />
+    <Compile Include="Machines\IOperationSubProcessService.cs" />
+    <Compile Include="Machines\OperationCategoryService.cs" />
+    <Compile Include="Machines\OperationFgComponentService.cs" />
+    <Compile Include="Machines\OperationActivityService.cs" />
+    <Compile Include="Materials\MaterialMasterProcessSetService.cs" />
+    <Compile Include="Materials\CharacteristicsWisePropertiesDetailService.cs" />
+    <Compile Include="Materials\IMaterialMasterProcessSetService.cs" />
+    <Compile Include="Materials\ICharacteristicsWisePropertiesDetailService.cs" />
+    <Compile Include="Materials\IMaterialMasterCharacteristicsValueService.cs" />
+    <Compile Include="Materials\MaterialMasterCharacteristicsValueService.cs" />
+    <Compile Include="OrderManagements\CompanyGroupDestinationService.cs" />
+    <Compile Include="OrderManagements\CompanyGroupPortService.cs" />
+    <Compile Include="OrderManagements\CompanyGroupOrderCategoryService.cs" />
+    <Compile Include="OrderManagements\CompanyGroupShipModeService.cs" />
+    <Compile Include="OrderManagements\ICompanyGroupDestinationService.cs" />
+    <Compile Include="OrderManagements\ICompanyGroupPortService.cs" />
+    <Compile Include="OrderManagements\ICompanyGroupOrderCategoryService.cs" />
+    <Compile Include="OrderManagements\ICompanyGroupShipModeService.cs" />
+    <Compile Include="OrderManagements\IDestinationService.cs" />
+    <Compile Include="OrderManagements\IMasterOrderService.cs" />
+    <Compile Include="OrderManagements\IPortService.cs" />
+    <Compile Include="OrderManagements\ILSDService.cs" />
+    <Compile Include="OrderManagements\IShipModeService.cs" />
+    <Compile Include="OrderManagements\DestinationService.cs" />
+    <Compile Include="OrderManagements\MasterOrderService.cs" />
+    <Compile Include="OrderManagements\PortService.cs" />
+    <Compile Include="OrderManagements\LSDService.cs" />
+    <Compile Include="OrderManagements\ShipModeService.cs" />
+    <Compile Include="Processes\CompanyGroupSubProcessCategoryService.cs" />
+    <Compile Include="Processes\CompanyGroupProcessCriteriaService.cs" />
+    <Compile Include="Processes\CompanyGroupProcessCategoryService.cs" />
+    <Compile Include="Processes\EntityProcessTagService.cs" />
+    <Compile Include="Processes\ICompanyGroupSubProcessCategoryService.cs" />
+    <Compile Include="Processes\ICompanyGroupProcessCriteriaService.cs" />
+    <Compile Include="Processes\ICompanyGroupProcessCategoryService.cs" />
+    <Compile Include="Processes\IEntityProcessTagService.cs" />
+    <Compile Include="Processes\ISubProcessSetDetailService.cs" />
+    <Compile Include="Processes\ISubProcessSetService.cs" />
+    <Compile Include="Processes\IProcessTypeService.cs" />
+    <Compile Include="Processes\IProcessSetDetailService.cs" />
+    <Compile Include="Processes\IProcessSetService.cs" />
+    <Compile Include="Processes\IProcessCriteriaService.cs" />
+    <Compile Include="Processes\IUtilityService.cs" />
+    <Compile Include="Processes\SubProcessSetDetailService.cs" />
+    <Compile Include="Processes\SubProcessSetService.cs" />
+    <Compile Include="Processes\ProcessTypeService.cs" />
+    <Compile Include="Processes\ProcessCriteriaService.cs" />
+    <Compile Include="Processes\ProcessSetDetailService.cs" />
+    <Compile Include="Processes\ProcessSetService.cs" />
+    <Compile Include="Processes\UtilityService.cs" />
+    <Compile Include="Productions\BL\SalesOrder.cs" />
+    <Compile Include="Productions\CompanyGroupDMMService.cs" />
+    <Compile Include="Productions\CompanyGroupProductionStatusService.cs" />
+    <Compile Include="Productions\ICompanyGroupDMMService.cs" />
+    <Compile Include="Productions\ICompanyGroupProductionStatusService.cs" />
+    <Compile Include="Productions\DMMService.cs" />
+    <Compile Include="Productions\IDMMService .cs" />
+    <Compile Include="Productions\IMainProcessPlanningService.cs" />
+    <Compile Include="OrderManagements\IProductionOrderProcessCriteriaService.cs" />
+    <Compile Include="OrderManagements\IProductionOrderSubprocessSetService.cs" />
+    <Compile Include="Productions\ProcessBlock.cs" />
+    <Compile Include="OrderManagements\ProductionOrderProcessCriteriaService.cs" />
+    <Compile Include="OrderManagements\ProductionOrderSubprocessSetService.cs" />
+    <Compile Include="Productions\ProductionStatusService.cs" />
+    <Compile Include="Productions\IProductionStatusService.cs" />
+    <Compile Include="OrderManagements\IProductionOrderService.cs" />
+    <Compile Include="Productions\IProcessCapacityUOMService.cs" />
+    <Compile Include="Productions\IProductionSettingsService.cs" />
+    <Compile Include="OrderManagements\ProductionOrderService.cs" />
+    <Compile Include="Enums\RecipeEnum.cs" />
+    <Compile Include="Enums\BulletinEnum.cs" />
+    <Compile Include="Enums\ProcessEnum.cs" />
+    <Compile Include="Enums\MaterialEnum.cs" />
+    <Compile Include="FixedAssets\CompanyGroupFixedAssetSubCategoryService.cs" />
+    <Compile Include="FixedAssets\CompanyGroupFixedAssetCategoryService.cs" />
+    <Compile Include="FixedAssets\FixedAssetRegisterService.cs" />
+    <Compile Include="FixedAssets\ICompanyGroupFixedAssetSubCategoryService.cs" />
+    <Compile Include="FixedAssets\ICompanyGroupFixedAssetCategoryService.cs" />
+    <Compile Include="FixedAssets\IFixedAssetRegisterService.cs" />
+    <Compile Include="IE\SubsectionStructureDetailService.cs" />
+    <Compile Include="IE\ISubsectionStructureDetailService.cs" />
+    <Compile Include="IE\SubsectionStructureMasterService.cs" />
+    <Compile Include="IE\IBulletinDetailService.cs" />
+    <Compile Include="IE\ISubsectionStructureMasterService.cs" />
+    <Compile Include="IE\IOperationTimeCaptureDetailService.cs" />
+    <Compile Include="IE\IBulletinMasterService.cs" />
+    <Compile Include="IE\IOperationTimeCaptureMasterService.cs" />
+    <Compile Include="IE\IOperationVideoUploadService.cs" />
+    <Compile Include="IE\BulletinDetailService.cs" />
+    <Compile Include="IE\OperationTimeCaptureDetailService.cs" />
+    <Compile Include="IE\BulletinMasterService.cs" />
+    <Compile Include="IE\OperationTimeCaptureMasterService.cs" />
+    <Compile Include="IE\OperationVideoUploadService.cs" />
+    <Compile Include="Machines\ICompanyGroupThirdPartyOperationService.cs" />
+    <Compile Include="Machines\IThirdPartyOperationService.cs" />
+    <Compile Include="Machines\IOperationVariationService.cs" />
+    <Compile Include="Machines\CompanyGroupThirdPartyOperationService.cs" />
+    <Compile Include="Machines\ThirdPartyOperationService.cs" />
+    <Compile Include="Machines\OperationVariationService.cs" />
+    <Compile Include="Materials\CharacteristicsWisePropertiesUOMFactorService.cs" />
+    <Compile Include="Materials\CharacteristicsWisePropertiesUOMService.cs" />
+    <Compile Include="Materials\CharacteristicsWisePropertiesMasterService.cs" />
+    <Compile Include="Materials\ICharacteristicsWisePropertiesMasterService.cs" />
+    <Compile Include="Materials\ICharacteristicsWisePropertiesUOMFactorService.cs" />
+    <Compile Include="Materials\ICharacteristicsWisePropertiesUOMService.cs" />
+    <Compile Include="Materials\IMaterialMasterUsageService.cs" />
+    <Compile Include="Materials\MaterialMasterUsageService.cs" />
+    <Compile Include="Processes\CompanySubProcessService.cs" />
+    <Compile Include="Processes\CompanyProcessService.cs" />
+    <Compile Include="Processes\ICompanySubProcessService.cs" />
+    <Compile Include="Processes\ICompanyProcessService.cs" />
+    <Compile Include="Processes\IProcessConfigService.cs" />
+    <Compile Include="Processes\ISubProcessService.cs" />
+    <Compile Include="Processes\ProcessConfigService.cs" />
+    <Compile Include="Processes\SubProcessService.cs" />
+    <Compile Include="Productions\ProcessCapacityUOMService.cs" />
+    <Compile Include="Productions\ProductionSettingsService.cs" />
+    <Compile Include="Productions\ICustomerPOService.cs" />
+    <Compile Include="Productions\CustomerPOService.cs" />
+    <Compile Include="Products\CompanyGroupWiseProductSubCategoryService.cs" />
+    <Compile Include="Products\CompanyGroupWiseProductService.cs" />
+    <Compile Include="Products\CompanyGroupWiseProductCategoryService.cs" />
+    <Compile Include="Materials\DefectCodeDetailService.cs" />
+    <Compile Include="Materials\FGComponentService.cs" />
+    <Compile Include="Products\ICompanyGroupWiseProductSubCategoryService.cs" />
+    <Compile Include="Products\ICompanyGroupWiseProductService.cs" />
+    <Compile Include="Products\ICompanyGroupWiseProductCategoryService.cs" />
+    <Compile Include="Materials\IDefectCodeDetailService.cs" />
+    <Compile Include="Materials\IFGComponentService.cs" />
+    <Compile Include="Materials\IMaterialAttributeMasterService.cs" />
+    <Compile Include="Materials\IFGZoneService.cs" />
+    <Compile Include="Materials\IOurStyleService.cs" />
+    <Compile Include="Materials\IMaterialMasterProcessRoutingService.cs" />
+    <Compile Include="Materials\IMaterialMasterAlternativeUOMService.cs" />
+    <Compile Include="Materials\IDefectCodeService.cs" />
+    <Compile Include="Materials\IMaterialMasterAttributeValueService.cs" />
+    <Compile Include="Materials\IMaterialMasterService.cs" />
+    <Compile Include="Materials\MaterialAttributeMasterService.cs" />
+    <Compile Include="Materials\FGZoneService.cs" />
+    <Compile Include="Materials\OurStyleService.cs" />
+    <Compile Include="Materials\MaterialMasterProcessRoutingService.cs" />
+    <Compile Include="Materials\MaterialMasterAlternativeUOMService.cs" />
+    <Compile Include="Materials\DefectCodeService.cs" />
+    <Compile Include="Materials\MaterialMasterAttributeValueService.cs" />
+    <Compile Include="Materials\MaterialMasterService.cs" />
+    <Compile Include="Materials\MaterialAttributeValueService.cs" />
+    <Compile Include="Materials\IMaterialAttributeValueService.cs" />
+    <Compile Include="Materials\MaterialAttributeService.cs" />
+    <Compile Include="Materials\CompanyGroupMaterialAttribute.cs" />
+    <Compile Include="Materials\CompanyGroupCharacteristicsService.cs" />
+    <Compile Include="Materials\CompanyGroupWiseMaterialGroup2Service.cs" />
+    <Compile Include="Materials\CompanyGroupWiseMaterialGroupMasterService.cs" />
+    <Compile Include="Materials\CompanyGroupWiseMaterialGroup4Service.cs" />
+    <Compile Include="Materials\CompanyGroupWiseMaterialGroup3Service.cs" />
+    <Compile Include="Materials\CompanyGroupWiseMaterialGroup1Service.cs" />
+    <Compile Include="Materials\IMaterialAttributeService.cs" />
+    <Compile Include="Materials\ICompanyGroupWiseMaterialAttribute.cs" />
+    <Compile Include="Materials\ICompanyGroupCharacteristicsService.cs" />
+    <Compile Include="Materials\ICompanyGroupWiseMaterialGroup2Service.cs" />
+    <Compile Include="Materials\ICompanyGroupWiseMaterialGroup3Service.cs" />
+    <Compile Include="Materials\ICompanyGroupWiseMaterialGroupMasterService.cs" />
+    <Compile Include="Materials\ICompanyGroupWiseMaterialGroup4Service.cs" />
+    <Compile Include="Materials\ICompanyGroupWiseMaterialGroup1Service.cs" />
+    <Compile Include="Materials\IMaterialGroup2Service.cs" />
+    <Compile Include="Materials\IMaterialGroup3Service.cs" />
+    <Compile Include="Materials\IMaterialGroupMasterService.cs" />
+    <Compile Include="Materials\IMaterialGroup4Service.cs" />
+    <Compile Include="Materials\IMaterialGroup1Service.cs" />
+    <Compile Include="Materials\MaterialGridCharacteristicsService.cs" />
+    <Compile Include="Materials\IMaterialGridCharacteristicsService.cs" />
+    <Compile Include="Materials\MaterialGridService.cs" />
+    <Compile Include="Materials\CharacteristicsValueService.cs" />
+    <Compile Include="Materials\CharacteristicsService.cs" />
+    <Compile Include="Materials\IMaterialGridService.cs" />
+    <Compile Include="Materials\ICharacteristicsValueService.cs" />
+    <Compile Include="Materials\ICharacteristicsService.cs" />
+    <Compile Include="Materials\MaterialGroup2Service.cs" />
+    <Compile Include="Materials\MaterialGroup3Service.cs" />
+    <Compile Include="Materials\MaterialGroupMasterService.cs" />
+    <Compile Include="Materials\MaterialGroup4Service.cs" />
+    <Compile Include="Materials\MaterialGroup1Service.cs" />
+    <Compile Include="Products\IProductMasterAttributeValueService.cs" />
+    <Compile Include="Products\IProductSubCategoryAttributeService.cs" />
+    <Compile Include="Products\ProductMasterAttributeValueService.cs" />
+    <Compile Include="Products\ProductSubCategoryAttributeService.cs" />
+    <Compile Include="Projects\CompanyGroupWiseProjectPlanningCategoryService.cs" />
+    <Compile Include="Projects\CompanyGroupWiseProjectPlanningSubCategoryService.cs" />
+    <Compile Include="Projects\ICompanyGroupWiseProjectPlanningCategoryService.cs" />
+    <Compile Include="Projects\ICompanyGroupWiseProjectPlanningSubCategoryService.cs" />
+    <Compile Include="Projects\IProjectPlanningMaterialMasterService.cs" />
+    <Compile Include="Projects\IProjectPlanningMachineTypeService.cs" />
+    <Compile Include="Projects\IProjectPlanningDetailService.cs" />
+    <Compile Include="Projects\IProjectPlanningService.cs" />
+    <Compile Include="Projects\IProjectPlanningSubCategoryService.cs" />
+    <Compile Include="Projects\IProjectPlanningCategoryService.cs" />
+    <Compile Include="Projects\ProjectPlanningMaterialMasterService.cs" />
+    <Compile Include="Projects\ProjectPlanningMachineTypeService.cs" />
+    <Compile Include="Projects\ProjectPlanningDetailService.cs" />
+    <Compile Include="Projects\ProjectPlanningService.cs" />
+    <Compile Include="Projects\ProjectPlanningCategoryService.cs" />
+    <Compile Include="Projects\ProjectPlanningSubCategoryService.cs" />
+    <Compile Include="Properties\ServiceResources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ServiceResources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Helpers\InWord.cs" />
+    <Compile Include="Helpers\ReportUtility.cs" />
+    <Compile Include="Setups\ISalaryHeadService.cs" />
+    <Compile Include="Setups\IPlantWiseLetterTemplateService.cs" />
+    <Compile Include="Setups\IPlantWiseTermsAndConditionsService.cs" />
+    <Compile Include="Setups\IOrderActivityService.cs" />
+    <Compile Include="Setups\IEmployeeLocationService.cs" />
+    <Compile Include="Setups\IShiftGroupService.cs" />
+    <Compile Include="Setups\SalaryHeadService.cs" />
+    <Compile Include="Setups\PlantWiseLetterTemplateService.cs" />
+    <Compile Include="Setups\PlantWiseTermsAndConditionsService.cs" />
+    <Compile Include="Setups\AnnualNonCashService.cs" />
+    <Compile Include="Setups\IAnnualNonCashService.cs" />
+    <Compile Include="Setups\ILegalSalaryStructureService.cs" />
+    <Compile Include="Setups\IDesignationMasterConfigurationService.cs" />
+    <Compile Include="Setups\IPrdOrdSettingService.cs" />
+    <Compile Include="Setups\ISalaryFixationSettingDetailsService.cs" />
+    <Compile Include="Setups\ISalaryFixationService.cs" />
+    <Compile Include="Setups\ISalaryFixationSettingService.cs" />
+    <Compile Include="Setups\IPrerecruitmentUrlService.cs" />
+    <Compile Include="Setups\IPlantDesignationGroupSalaryRuleDetailService.cs" />
+    <Compile Include="Setups\ILegalSalaryGradeService.cs" />
+    <Compile Include="Setups\IHolidayCategoryService.cs" />
+    <Compile Include="Setups\LegalSalaryStructureService.cs" />
+    <Compile Include="Setups\IPlantSalaryHeadSequenceService.cs" />
+    <Compile Include="Setups\DesignationMasterConfigurationService.cs" />
+    <Compile Include="Setups\PrdOrdSettingService.cs" />
+    <Compile Include="Setups\SalaryFixationSettingDetailsService.cs" />
+    <Compile Include="Setups\SalaryFixationService.cs" />
+    <Compile Include="Setups\SalaryFixationSettingService.cs" />
+    <Compile Include="Setups\PrerecruitmentUrlService.cs" />
+    <Compile Include="Setups\PlantDesignationGroupSalaryRuleDetailService.cs" />
+    <Compile Include="Setups\PlantSalaryHeadSequenceService.cs" />
+    <Compile Include="Setups\PlantDesignationGroupSalaryRuleService.cs" />
+    <Compile Include="Setups\IPlantDesignationGroupSalaryRuleService.cs" />
+    <Compile Include="Setups\IEntityAllowanceService.cs" />
+    <Compile Include="Setups\ITestingStandardDetailService.cs" />
+    <Compile Include="Setups\ITestingStandardBuyerService.cs" />
+    <Compile Include="Setups\ITestingStandardService.cs" />
+    <Compile Include="Setups\EntityAllowanceService.cs" />
+    <Compile Include="Setups\LegalSalaryGradeService.cs" />
+    <Compile Include="Setups\HolidayCategoryService.cs" />
+    <Compile Include="Setups\OrderActivityService.cs" />
+    <Compile Include="Setups\TnaSettingMasterService.cs" />
+    <Compile Include="Setups\ShiftGroupService.cs" />
+    <Compile Include="Setups\TestingStandardDetailService.cs" />
+    <Compile Include="Setups\TestingStandardBuyerService.cs" />
+    <Compile Include="Setups\TestingStandardService.cs" />
+    <Compile Include="Setups\TestingService.cs" />
+    <Compile Include="Setups\ITestingService.cs" />
+    <Compile Include="Setups\ITestingCategoryService.cs" />
+    <Compile Include="Setups\CompanyServiceMasterService.cs" />
+    <Compile Include="Materials\ServiceMasterService.cs" />
+    <Compile Include="Materials\IServiceMasterService.cs" />
+    <Compile Include="Materials\ServiceGroupService.cs" />
+    <Compile Include="Materials\ServiceTypeService.cs" />
+    <Compile Include="Materials\IServiceGroupService.cs" />
+    <Compile Include="Materials\IServiceTypeService.cs" />
+    <Compile Include="Setups\IPlantConfigService.cs" />
+    <Compile Include="Setups\PlantConfigService.cs" />
+    <Compile Include="Setups\TestingCategoryService.cs" />
+    <Compile Include="Setups\EmployeeLocationService.cs" />
+    <Compile Include="Skills\SkillProcessService.cs" />
+    <Compile Include="Skills\CompanyGroupSkillCategoryService.cs" />
+    <Compile Include="Skills\ISkillProcessService.cs" />
+    <Compile Include="Skills\ICompanyGroupSkillCategoryService.cs" />
+    <Compile Include="Skills\ISkillService.cs" />
+    <Compile Include="Skills\ISkillCategoryService.cs" />
+    <Compile Include="Skills\SkillService.cs" />
+    <Compile Include="Skills\SkillCategoryService.cs" />
+    <Compile Include="FixedAssets\FixedAssetCategoryService.cs" />
+    <Compile Include="FixedAssets\FixedAssetSubCategoryService.cs" />
+    <Compile Include="FixedAssets\IFixedAssetCategoryService.cs" />
+    <Compile Include="FixedAssets\IFixedAssetSubCategoryService.cs" />
+    <Compile Include="Machines\IMachineCategoryService.cs" />
+    <Compile Include="Machines\IOperationService.cs" />
+    <Compile Include="Machines\IOperationTypeService.cs" />
+    <Compile Include="Machines\IMachineClassService.cs" />
+    <Compile Include="Machines\IMachineMasterService.cs" />
+    <Compile Include="Materials\IMaterialMasterMachineProcessService.cs" />
+    <Compile Include="Machines\IMachineSubCategoryService.cs" />
+    <Compile Include="Machines\IMachineSubClassService.cs" />
+    <Compile Include="Machines\MachineCategoryService.cs" />
+    <Compile Include="Machines\OperationService.cs" />
+    <Compile Include="Machines\OperationTypeService.cs" />
+    <Compile Include="Machines\MachineClassService.cs" />
+    <Compile Include="Machines\MachineMasterService.cs" />
+    <Compile Include="Materials\MaterialMasterMachineProcessService.cs" />
+    <Compile Include="Machines\MachineSubCategoryService.cs" />
+    <Compile Include="Machines\MachineSubClassService.cs" />
+    <Compile Include="OrderManagements\IOrderCategoryService.cs" />
+    <Compile Include="OrderManagements\IOrderControlStageService.cs" />
+    <Compile Include="OrderManagements\IOrderStatusService.cs" />
+    <Compile Include="OrderManagements\ISeasonsService.cs" />
+    <Compile Include="OrderManagements\OrderCategoryService.cs" />
+    <Compile Include="OrderManagements\OrderControlStageService.cs" />
+    <Compile Include="OrderManagements\OrderStatusService.cs" />
+    <Compile Include="OrderManagements\SeasonsService.cs" />
+    <Compile Include="Processes\IProcessCategoryService.cs" />
+    <Compile Include="Processes\IProcessService.cs" />
+    <Compile Include="Processes\ISubProcessCategoryService.cs" />
+    <Compile Include="Processes\ProcessCategoryService.cs" />
+    <Compile Include="Processes\ProcessService.cs" />
+    <Compile Include="Processes\SubProcessCategoryService.cs" />
+    <Compile Include="Materials\MaterialTypeService.cs" />
+    <Compile Include="Materials\IMaterialTypeService.cs" />
+    <Compile Include="Products\IItemCategoryService.cs" />
+    <Compile Include="Products\IItemMasterService.cs" />
+    <Compile Include="Products\IItemService.cs" />
+    <Compile Include="Products\IItemSubCategoryService.cs" />
+    <Compile Include="Products\IProductCategoryService.cs" />
+    <Compile Include="Products\IProductGroupService.cs" />
+    <Compile Include="Products\IProductMaster.cs" />
+    <Compile Include="Products\IProductService.cs" />
+    <Compile Include="Products\IProductSubCategoryService.cs" />
+    <Compile Include="Products\ItemCategoryService.cs" />
+    <Compile Include="Products\ItemMasterService.cs" />
+    <Compile Include="Products\ItemService.cs" />
+    <Compile Include="Products\ItemSubCategoryService.cs" />
+    <Compile Include="Products\ProductCategoryService.cs" />
+    <Compile Include="Products\ProductGroupService.cs" />
+    <Compile Include="Products\ProductMasterService.cs" />
+    <Compile Include="Products\ProductService.cs" />
+    <Compile Include="Products\ProductSubCategoryService.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WorkCenters\IWorkStationDailyService.cs" />
+    <Compile Include="WorkCenters\IWorkCenterBuyerTagService.cs" />
+    <Compile Include="WorkCenters\IWorkCenterMasterMachineService.cs" />
+    <Compile Include="WorkCenters\IWorkCenterMasterService.cs" />
+    <Compile Include="WorkCenters\WorkStationDailyService.cs" />
+    <Compile Include="WorkCenters\WorkCenterBuyerTagService .cs" />
+    <Compile Include="WorkCenters\WorkCenterMasterMachineService.cs" />
+    <Compile Include="WorkCenters\WorkCenterMasterService.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="AplosAttendance">
+      <HintPath>..\APLOS\Library\AplosAttendance.dll</HintPath>
+    </Reference>
+    <Reference Include="AplosShiftProcess">
+      <HintPath>..\APLOS\Library\AplosShiftProcess.dll</HintPath>
+    </Reference>
+    <Reference Include="ConnectionManager, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\APLOS\Library\ConnectionManager.dll</HintPath>
+    </Reference>
+    <Reference Include="ExcelDataReader, Version=3.6.0.0, Culture=neutral, PublicKeyToken=93517dbe6a4012fa, processorArchitecture=MSIL">
+      <HintPath>..\packages\ExcelDataReader.3.6.0\lib\net45\ExcelDataReader.dll</HintPath>
+    </Reference>
+    <Reference Include="ExcelDataReader.DataSet, Version=3.6.0.0, Culture=neutral, PublicKeyToken=93517dbe6a4012fa, processorArchitecture=MSIL">
+      <HintPath>..\packages\ExcelDataReader.DataSet.3.6.0\lib\net35\ExcelDataReader.DataSet.dll</HintPath>
+    </Reference>
+    <Reference Include="GenericLeaveProcess">
+      <HintPath>..\APLOS\Library\GenericLeaveProcess.dll</HintPath>
+    </Reference>
+    <Reference Include="HtmlAgilityPack">
+      <HintPath>..\APLOS\Library\HtmlAgilityPack.dll</HintPath>
+    </Reference>
+    <Reference Include="IronBarCode, Version=2020.6.0.0, Culture=neutral, PublicKeyToken=b971bb3971bdf306, processorArchitecture=MSIL">
+      <HintPath>..\packages\BarCode.2020.6.0\lib\net40\IronBarCode.dll</HintPath>
+    </Reference>
+    <Reference Include="Library.Core">
+      <HintPath>..\APLOS\Library\Library.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Library.Crosscutting">
+      <HintPath>..\APLOS\Library\Library.Crosscutting.dll</HintPath>
+    </Reference>
+    <Reference Include="Library.Data">
+      <HintPath>..\APLOS\Library\Library.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Library.Model.Core">
+      <HintPath>..\APLOS\Library\Library.Model.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Library.Service.Core, Version=2.3.0.9, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\APLOS\Library\Library.Service.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Library.ViewModel.Core">
+      <HintPath>..\APLOS\Library\Library.ViewModel.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.SignalR.Client, Version=2.4.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.SignalR.Client.2.4.1\lib\net45\Microsoft.AspNet.SignalR.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Build.Framework, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Build.Framework.16.6.0\lib\netstandard2.0\Microsoft.Build.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.ReportViewer.Common, Version=15.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\APLOS\Library\Microsoft.ReportViewer.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.DataVisualization, Version=15.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\APLOS\Library\Microsoft.ReportViewer.DataVisualization.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.ProcessingObjectModel, Version=15.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\APLOS\Library\Microsoft.ReportViewer.ProcessingObjectModel.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.WebDesign">
+      <HintPath>..\APLOS\Library\Microsoft.ReportViewer.WebDesign.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.WebForms">
+      <HintPath>..\APLOS\Library\Microsoft.ReportViewer.WebForms.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.WinForms">
+      <HintPath>..\APLOS\Library\Microsoft.ReportViewer.WinForms.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Web.Administration, Version=7.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Compression.Base">
+      <HintPath>..\APLOS\Library\Syncfusion.Compression.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.DocIO.Base">
+      <HintPath>..\APLOS\Library\Syncfusion.DocIO.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.DocToPdfConverter.Base">
+      <HintPath>..\APLOS\Library\Syncfusion.DocToPdfConverter.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.EJ">
+      <HintPath>..\APLOS\Library\Syncfusion.EJ.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.EJ.Export">
+      <HintPath>..\APLOS\Library\Syncfusion.EJ.Export.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.EJ.MVC">
+      <HintPath>..\APLOS\Library\Syncfusion.EJ.MVC.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.EJ.PdfViewer">
+      <HintPath>..\APLOS\Library\Syncfusion.EJ.PdfViewer.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.EJ.Web">
+      <HintPath>..\APLOS\Library\Syncfusion.EJ.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.ExcelToPdfConverter.Base">
+      <HintPath>..\APLOS\Library\Syncfusion.ExcelToPdfConverter.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.OfficeChart.Base">
+      <HintPath>..\APLOS\Library\Syncfusion.OfficeChart.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.OfficeChartToImageConverter.WPF">
+      <HintPath>..\APLOS\Library\Syncfusion.OfficeChartToImageConverter.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Pdf.Base">
+      <HintPath>..\APLOS\Library\Syncfusion.Pdf.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Pdf.Windows">
+      <HintPath>..\APLOS\Library\Syncfusion.Pdf.Windows.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.PdfViewer.Windows">
+      <HintPath>..\APLOS\Library\Syncfusion.PdfViewer.Windows.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Presentation.Base, Version=18.1460.0.52, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\APLOS\Library\Syncfusion.Presentation.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.PresentationToPdfConverter.Base, Version=18.1460.0.52, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\APLOS\Library\Syncfusion.PresentationToPdfConverter.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.XlsIO.Base">
+      <HintPath>..\APLOS\Library\Syncfusion.XlsIO.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data.OracleClient" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Drawing.Common, Version=4.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Drawing.Common.4.7.0\lib\net461\System.Drawing.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Net" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Net.Http.WebRequest" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.7.1\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Runtime.Serialization.Primitives, Version=4.1.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.Serialization.Primitives.4.3.0\lib\net46\System.Runtime.Serialization.Primitives.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security" />
+    <Reference Include="System.Security.AccessControl, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.AccessControl.4.7.0\lib\net461\System.Security.AccessControl.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Permissions, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Permissions.4.7.0\lib\net461\System.Security.Permissions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Principal.Windows, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Principal.Windows.4.7.0\lib\net461\System.Security.Principal.Windows.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Thread, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Thread.4.3.0\lib\net46\System.Threading.Thread.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="Unity.Abstractions, Version=4.1.3.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unity.Abstractions.4.1.3\lib\net46\Unity.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="Zen.Barcode.Core">
+      <HintPath>..\APLOS\Library\Zen.Barcode.Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\ServiceResources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>ServiceResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\APLOS.Domain\Aplos.Model.csproj">
+      <Project>{7f2fcb85-b5bd-457e-ae20-8793d0c72f20}</Project>
+      <Name>Aplos.Model</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aplos.Service.Extension\Aplos.Service.Extension.csproj">
+      <Project>{20086d6a-e384-4de1-8486-6eb0fdca39f9}</Project>
+      <Name>Aplos.Service.Extension</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aplos.ViewModel\Aplos.ViewModel.csproj">
+      <Project>{a40084df-ad53-44c7-805e-93769e586805}</Project>
+      <Name>Aplos.ViewModel</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="HumanResources\Leave\" />
+    <Folder Include="Payrolls\OT\" />
+    <Folder Include="Payrolls\SalaryStructure\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

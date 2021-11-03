@@ -1,0 +1,69 @@
+﻿<div class="modal fade site-modal in" id="customerListPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" ng-form name="partyForm">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Party List</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="customerParameters.searchBy">
+                                            <option ng-repeat="option in searchCustomerByList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="customerParameters.search" ng-enter="getCustomerData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getCustomerData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Party</th>
+                                <th>VAT No</th>
+                                <th>Trade License</th>
+                                <th>Currency</th>
+                                <th>Debit Limit</th>
+                                <th>Credit Limit</th>
+                                <td>Party Type</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in customerList |itemsPerPage:customerParameters.pageSize" pagination-id="metaData.name + 'customerList'" total-items="customerParameters.total_count"
+                                ng-click="selectCustomerPopUp($index, x.RowId);" @*ng-class="{selected : x.RowId == selectedCustomer}"*@ ng-dblclick="closeCustomerPopUp()">
+                                <td>{{x.Code}} - {{x.UserName}}</td>
+                                <td>{{x.VATResistrationNo? x.VATResistrationNo : '-'}}</td>
+                                <td>{{x.TradeLicenseNo? x.TradeLicenseNo : '-'}}</td>
+                                <td>{{x.CurrencyCode? x.CurrencyCode : '-'}}</td>
+                                <td class="text-right">{{x.DebitLimit | number:2}}</td>
+                                <td class="text-right">{{x.CreditLimit | number:2}}</td>
+                                <td>{{x.PartyType}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="5"
+                                             pagination-id="metaData.name + 'customerList'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getCustomerData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn btn-default" ng-click="closeCustomerPopUp()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

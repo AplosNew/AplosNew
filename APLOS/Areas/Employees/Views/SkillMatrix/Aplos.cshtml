@@ -1,0 +1,2408 @@
+﻿@*<link href="~/SyncfusionLib/css/web/default-theme/ej.web.all.min.css" rel="stylesheet" />
+
+
+	<script type="text/javascript" src="https://cdn.syncfusion.com/js/assets/external/jquery.easing.1.3.min.js"></script>
+	<script type="text/javascript" src="~/SyncfusionLib/JSP/Scripts/external/jsrender.min.js"></script>
+	<script type="text/javascript" src="~/SyncfusionLib/JSP/Scripts/web/ej.web.all.min.js"></script>
+	<script type="text/javascript" src="~/SyncfusionLib/JSP/Scripts/common/ej.unobtrusive.min.js"></script>
+
+	<script type="text/javascript" src="~/Scripts/jquery.timepicker.min.js"></script>
+	<script type="text/javascript" src="~/Scripts/bootstrap.min.js"></script>
+	<script type="text/javascript" src="~/Scripts/bootstrap-datepicker.js"></script>
+	<script type="text/javascript" src="~/Scripts/select2.js"></script>
+	<script type="text/javascript" src="~/Scripts/jquery-menu.js"></script>
+	<script type="text/javascript" src="~/Scripts/jquery-common.js"></script>*@
+
+
+@*<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>*@
+<link href="~/css/Loaders.css" rel="stylesheet" />
+
+
+
+<style>
+
+	.loaderr {
+		width: 300px;
+		height: 200px;
+		background-color: #0780BA;
+		color: #fff;
+		padding: 100px;
+		font-size: 25px;
+	}
+
+	.e-grid .e-headercelldiv {
+		font-weight: bold;
+		font-size: 10px;
+		display: block;
+		border: 0 none;
+		height: 29px;
+		line-height: 29px;
+		margin: -7px;
+		padding: 0 .7em;
+		text-align: left;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		font-family: "Arial Narrow";
+	}
+
+	.e-grid .e-rowcell {
+		border-width: 1px 0 0 1px;
+		padding: .7em;
+		line-height: 10px;
+		white-space: nowrap;
+		width: auto;
+		vertical-align: middle;
+	}
+	/*.e-gridheader .e-headercell {
+		background-color: #1c1f32;
+		color: White;
+		min-height: 100%;
+		border-bottom-color: #8B4513;
+	}*/
+	.e-grid.e-wrap .e-columnheader .e-headercelldiv {
+		margin-bottom: 2px;
+		margin-top: 0;
+		font-size: 9px;
+	}
+	/*.e-filterset:before {
+		color: Green;
+	}*/
+
+
+
+
+	e-grid .e-columnheader .wrap .e-headercelldiv {
+		height: Auto;
+	}
+
+	.e-grid .e-excelfilter .e-btncontainer input {
+		padding: .2em .4em .3em;
+	}
+
+	.e-grid.e-dlgcontainer .e-dlgBtns .e-clear {
+		padding: 3px;
+	}
+
+	.e-grid.e-dlgcontainer .e-dlgBtns .e-filter {
+		padding: 3px;
+	}
+
+	::-ms-clear {
+		display: none;
+	}
+
+	.e-grid.filtered .e-filteredicon {
+		color: red;
+	}
+</style>
+
+
+<script>
+
+	$(document).ready(function () {
+		// GetEntity();
+
+		$("#onroll").hide();
+		$("#present").hide();
+
+		//$("#Refresh").click(function () {
+
+		//    // Create grid object.
+		//    var gridObj = $("#Grid2").data("ejGrid");
+		//    //gridObj.clearFiltering("EmployeeID"); //clears the filtering based on the fieldName passed
+		//    gridObj.clearFiltering();  // clears all the filtering
+
+		//    var gridObj1 = $("#DetailGrid").data("ejGrid");
+		//    gridObj1.clearFiltering();
+		//    gridObj1.refreshContent(); // Refreshes the grid contents only
+		//    gridObj1.refreshContent(true); // Refreshes the template and grid contents
+		//    var obj = $("#Grid2").ejGrid("instance");
+		//    var sd = obj.getFilteredRecords();
+		//    if (sd.length == 0) {
+		//        sd = obj.model.dataSource;
+		//       // alert('Clear Test 1' + 1);
+		//        $.ajax({
+		//            type: "POST",
+		//            //contentType: "application/json; charset=utf-8",
+		//            url: 'Employees/SkillMatrix/GetGraphDetails1',
+		//            data: {},
+		//            dataType: "json",
+		//            success: function (data) {
+
+		//                $("#container").ejChart({
+		//                    primaryXAxis: {
+		//                        range: {
+		//                            min: 0,
+		//                            max: 50,
+		//                            interval: 1
+		//                        }
+
+		//                    },
+		//                    legend: {
+		//                        //Visible chart legend
+		//                        visible: false
+		//                    },
+		//                    canResize: true,
+		//                    // size: { width: '600', height: '3000' },
+		//                    isResponsive: true,
+		//                    series: [{
+		//                        title: {
+		//                            //Add chart title
+		//                            text: 'On Roll'
+		//                        },
+		//                        type: 'Bar',
+		//                        dataSource: data,
+		//                        //primaryYAxis: { labelPosition: "inside" },
+		//                        legend: { title: { font: { fontFamily: "Algerian" } } },
+		//                        xName: "OperationName",
+		//                        yName: "OnRollBalance",
+		//                        enableAnimation: true,
+		//                        tooltip: {
+		//                            visible: true
+		//                        },
+		//                        marker: {
+		//                            visible: true,
+		//                        }
+
+
+
+		//                    }],
+		//                    preRender: function (args) {
+		//                        var chart2 = $("#container").ejChart("instance");
+		//                        var length = chart2.model.series[0].points.length - 1;
+		//                        for (var i = 0; i < chart2.model.series[0].points.length; i++) {
+		//                            if (chart2.model.series[0].points[i].YValues[0] > 0)
+		//                                chart2.model.series[0].points[i].fill = "Yellow";
+		//                            else if (chart2.model.series[0].points[i].YValues[0] < 0)
+		//                                chart2.model.series[0].points[i].fill = "red";
+		//                            else
+		//                                chart2.model.series[0].points[i].fill = "Green";
+		//                        }
+
+		//                    },
+		//                });
+
+		//                var chart2 = $("#container").ejChart("instance");
+		//                chart2.model.size.height = 100 + (data.length * 16);
+		//                chart2.model.negativeColor = "Green";
+		//                chart2.redraw();
+		//                $("#container1").ejChart({
+		//                    plotOptions: {
+		//                        columnrange: {
+		//                            negativeColor: 'Green',
+		//                            threshold: 0,
+		//                            dataLabels: {
+		//                                enabled: true,
+		//                                formatter: function () {
+
+		//                                }
+		//                            }
+		//                        }
+		//                    },
+		//                    legend: {
+		//                        //Visible chart legend
+		//                        visible: false
+		//                    },
+		//                    primaryXAxis: {
+		//                        //range: {
+		//                        //    min: 0,
+		//                        //    max: 50,
+		//                        //    interval: 1
+		//                        //}
+		//                        LabelFormat: "0"
+		//                    },
+		//                    canResize: true,
+		//                    //size: { width: '600', height: '3000' },
+		//                    isResponsive: true,
+		//                    series: [{
+		//                        title: {
+		//                            //Add chart title
+		//                            text: 'Present'
+		//                        },
+		//                        //type: 'column',
+		//                        type: 'Bar',
+		//                        dataSource: data,
+		//                        //primaryYAxis: { labelPosition: "inside" },
+		//                        legend: { title: { font: { fontFamily: "Algerian" } } },
+		//                        xName: "OperationName",
+		//                        yName: "PresentBalance",
+		//                        enableAnimation: true,
+		//                        tooltip: {
+		//                            visible: true
+		//                        },
+		//                        marker: {
+		//                            visible: true,
+		//                        }
+
+
+		//                    }],
+		//                    preRender: function (args) {
+		//                        var chart3 = $("#container1").ejChart("instance");
+		//                        var length = chart3.model.series[0].points.length - 1;
+		//                        for (var i = 0; i < chart3.model.series[0].points.length; i++) {
+		//                            if (chart3.model.series[0].points[i].YValues[0] > 0)
+		//                                chart3.model.series[0].points[i].fill = "Yellow";
+		//                            else if (chart3.model.series[0].points[i].YValues[0] < 0)
+		//                                chart3.model.series[0].points[i].fill = "red";
+		//                            else
+		//                                chart3.model.series[0].points[i].fill = "Green";
+		//                        }
+
+		//                    },
+		//                });
+		//                var chart3 = $("#container1").ejChart("instance");
+		//                chart3.model.size.height = 100 + (data.length * 16);
+		//                chart3.model.negativeColor = "Green";
+		//                chart3.redraw();
+		//                $("#progressbar-5").prop('disabled', true);
+		//            }
+		//        });
+		//     //Detail grid Call
+		//        var obj = $("#Grid2").ejGrid("instance");
+		//        var sd = obj.getFilteredRecords();
+		//        if (sd.length == 0) {
+		//            sd = obj.model.dataSource;
+		//            //alert('1' + 1);
+		//        }
+
+		//        var arr = [];
+		//        var queryString = [];
+		//        var arrqueryStringProcess = [];
+		//        var arrqueryStringSkill = [];
+		//        var arrqueryStringGrouping = [];
+		//        var arrqueryStringMachineCategory = [];
+		//        var arrqueryStringMachineSubCategoryCode = [];
+		//        var arrqueryStringCaption = [];
+		//        var arrqueryStringOperationCode = [];
+		//        var arrqueryStringOperationCategoryId = [];
+		//        var arrqueryStringOnRoll = [];
+		//        var arrqueryStringTotalPresent = [];
+		//        var arrqueryStringOnRollShort = [];
+		//        var arrqueryStringOnRollExcess = [];
+		//        var arrqueryStringPresentShort = [];
+		//        var arrqueryStringPresentExcess = [];
+		//        // var queryStringSkillary = new Array(400)
+
+		//        var value = "";
+		//        var queryString = "''";
+		//        var queryStringCaption = "''";
+		//        var queryStringProcess = "''";
+		//        var queryStringSkill = "''";
+		//        var queryStringOperationCode = "''";
+
+
+
+		//        var queryStringGrouping = "''";
+		//        var queryStringMachineCategory = "''";
+		//        var queryStringMachineSubCategoryCode = "''";
+		//        var queryStringCaption = "''";
+		//        var queryStringOperationCategoryId = "''";
+
+		//        var queryStringOnRoll = "''";
+		//        var queryStringTotalPresent = "0";
+		//        var queryStringOnRollShort = "0";
+		//        var queryStringOnRollExcess = "0";
+		//        var queryStringPresentShort = "0";
+		//        var queryStringPresentExcess = "0";
+		//        var skillList = [];
+		//        var index = 0;
+		//        for (var i = 0; i < sd.length; i++) {
+		//            var x = sd[i];
+		//            //var yEntityName = x["EntityName"];
+		//            //var yposition = x["Caption"];
+		//            //var yProcess = x["Process"];
+		//            //var ySkill = x["Skill"];
+		//            //var ySkillId = x["SkillId"];
+		//            //var yGrouping = x["Grouping"];
+		//            //var yMachineCategory = x["MachineCategory"];
+		//            //var yMachineSubCategoryCode = x["MachineSubCategoryCode"];
+		//            //var yCaption = x["MachineSubCategoryCode"];
+		//            var yOnRoll = x["OnRoll"];
+		//            var yTotalPresent = x["TotalPresent"];
+		//            var yRollShort = x["RollShort"];
+		//            var yOnRollExcess = x["OnRollExcess"];
+		//            var yPresentShort = x["PresentShort"];
+		//            var yPresentExcess = x["PresentExcess"];
+
+		//            var yEntityName = x["EntityId"];
+		//            var yposition = x["Position"];
+		//            var yProcess = x["ProcessId"];
+		//            var ySkill = x["SkillId"];
+		//            var yOperationCode = x["OperationCode"];
+
+		//            //var ySkillId = x["SkillId"];
+		//            var yGrouping = x["SkillGroupID"];
+
+		//            var yMachineCategory = x["MachineCategoryID"];
+		//            var yMachineSubCategoryCode = x["MachineSubCategoryId"];
+		//            var yOperationCategoryId = x["OperationCategoryId"];
+
+		//            //var yCaption = x["MachineSubCategoryCode"];
+		//            var yOnRoll = x["OnRoll"];
+		//            var yTotalPresent = x["TotalPresent"];
+		//            var yRollShort = x["OnRollShort"];
+		//            var yOnRollExcess = x["OnRollExcess"];
+		//            var yPresentShort = x["PresentShort"];
+		//            var yPresentExcess = x["PresentExcess"];
+
+
+		//            if (!arr.includes(yEntityName)) {
+		//                queryString += ",'" + yEntityName + "'";
+		//                arr.push(yEntityName);
+		//            }
+		//            if (!arrqueryStringProcess.includes(yProcess)) {
+		//                queryStringProcess += ",'" + yProcess + "'";
+		//                arrqueryStringProcess.push(yProcess);
+		//            }
+
+		//            if (!arrqueryStringSkill.includes(ySkill)) {
+		//                queryStringSkill += ",'" + ySkill + "'";
+		//                arrqueryStringSkill.push(ySkill);
+
+		//            }
+		//            if (!arrqueryStringOperationCode.includes(yOperationCode)) {
+		//                queryStringOperationCode += ",'" + yOperationCode + "'";
+		//                arrqueryStringOperationCode.push(yOperationCode);
+
+		//            }
+
+		//            if (!arrqueryStringGrouping.includes(yGrouping)) {
+		//                queryStringGrouping += ",'" + yGrouping + "'";
+		//                arrqueryStringGrouping.push(yGrouping);
+		//            }
+		//            if (!arrqueryStringMachineCategory.includes(yMachineCategory)) {
+		//                queryStringMachineCategory += ",'" + yMachineCategory + "'";
+		//                arrqueryStringMachineCategory.push(yMachineCategory);
+		//            }
+		//            if (!arrqueryStringMachineSubCategoryCode.includes(yMachineSubCategoryCode)) {
+		//                queryStringMachineSubCategoryCode += ",'" + yMachineSubCategoryCode + "'";
+		//                arrqueryStringMachineSubCategoryCode.push(yMachineSubCategoryCode);
+		//            }
+		//            if (!arrqueryStringCaption.includes(yposition)) {
+		//                queryStringCaption += ",'" + yposition + "'";
+		//                arrqueryStringCaption.push(yposition);
+		//            }
+		//            if (!arrqueryStringOperationCategoryId.includes(yOperationCategoryId)) {
+		//                queryStringOperationCategoryId += ",'" + yOperationCategoryId + "'";
+		//                arrqueryStringOperationCategoryId.push(yOperationCategoryId);
+		//            }
+
+
+		//            //if (!arr.includes(yCaption)) {
+		//            //     queryStringCaption += ",'" + yCaption + "'";
+		//            //     arr.push(yCaption);
+		//            // }
+		//            if (!arrqueryStringOnRoll.includes(yOnRoll)) {
+		//                queryStringOnRoll += ",'" + yOnRoll + "'";
+		//                arrqueryStringOnRoll.push(yOnRoll);
+		//            }
+
+		//            if (!arrqueryStringTotalPresent.includes(yTotalPresent)) {
+		//                queryStringTotalPresent += "," + yTotalPresent + "";
+		//                arrqueryStringTotalPresent.push(yTotalPresent);
+		//            }
+		//            if (!arrqueryStringOnRollShort.includes(yRollShort)) {
+		//                queryStringOnRollShort += "," + yRollShort + "";
+		//                arrqueryStringOnRollShort.push(yRollShort);
+		//            }
+		//            if (!arrqueryStringOnRollExcess.includes(yOnRollExcess)) {
+		//                queryStringOnRollExcess += "," + yOnRollExcess + "";
+		//                arrqueryStringOnRollExcess.push(yOnRollExcess);
+		//            }
+		//            if (!arrqueryStringPresentShort.includes(yPresentShort)) {
+		//                queryStringPresentShort += "," + yPresentShort + "";
+		//                arrqueryStringPresentShort.push(yPresentShort);
+		//            }
+		//            if (!arrqueryStringPresentExcess.includes(yPresentExcess)) {
+		//                queryStringPresentExcess += "," + yPresentExcess + "";
+		//                arrqueryStringPresentExcess.push(yPresentExcess);
+		//            }
+
+		//        }
+		//        $.ajax({
+		//            type: "POST",
+		//            url: 'Employees/SkillMatrix/GetSkillMasterDetails',
+		//            data: {
+		//                'queryString': queryString,
+		//                'queryStringProcess': queryStringProcess,
+		//                'queryStringSkill': queryStringSkill,
+		//                'queryStringGrouping': queryStringGrouping,
+		//                'queryStringMachineCategory': queryStringMachineCategory,
+		//                'queryStringMachineSubCategoryCode': queryStringMachineSubCategoryCode,
+		//                'queryStringCaption': queryStringCaption,
+		//                'queryStringOperationCode': queryStringOperationCode,
+		//                'queryStringOperationCategoryId': queryStringOperationCategoryId,
+		//                'queryStringOnRoll': queryStringOnRoll,
+		//                'queryStringTotalPresent': queryStringTotalPresent,
+		//                'queryStringOnRollShort': queryStringOnRollShort,
+		//                'queryStringOnRollExcess': queryStringOnRollExcess,
+		//                'queryStringPresentShort': queryStringPresentShort,
+		//                'queryStringPresentExcess': queryStringPresentExcess
+
+		//            },
+		//            dataType: "json",
+		//            success: function (data) {
+
+		//                $("#DetailGrid").ejGrid({
+		//                    dataSource: data, // data must be array of json
+		//                    allowPaging: true,
+		//                    allowSorting: true,
+		//                    allowFiltering: true,
+		//                    isResponsive: true,
+		//                    minWidth: 600,
+		//                    allowResizeToFit: true,
+		//                    canResize: true,
+		//                    //allowTextWrap: true,
+		//                    allowTextWrap: true,
+		//                    textWrapSettings: { wrapMode: "header" },
+		//                    enableResponsiveRow: true,
+		//                    filterSettings: {
+		//                        filterType: "excel"
+		//                    },
+		//                    cssClass: "filtered",
+		//                    pageSize: 10,
+		//                    allowScrolling: true,
+		//                    scrollSettings: { wisth: "1250", height: "300" },
+		//                    summaryRows:
+		//                        [
+		//                            {
+		//                                title: "Total =",
+		//                                color: "Red",
+		//                                summaryColumns: [
+		//                                    {
+		//                                        summaryType: ej.Grid.SummaryType.Sum
+		//                                        , displayColumn: "ManpowerBudget"
+		//                                        , dataMember: "ManpowerBudget"
+		//                                        //, format: "{0:C1}"
+		//                                    },
+		//                                    {
+		//                                        summaryType: ej.Grid.SummaryType.Sum
+		//                                        , displayColumn: "OnRoll"
+		//                                        , dataMember: "OnRoll"
+		//                                        //, format: "{0:C1}"
+		//                                    },
+		//                                    {
+		//                                        summaryType: ej.Grid.SummaryType.Sum
+		//                                        , displayColumn: "TotalPresent"
+		//                                        , dataMember: "TotalPresent"
+		//                                        //, format: "{0:C1}"
+		//                                    },
+		//                                    {
+		//                                        summaryType: ej.Grid.SummaryType.Sum
+		//                                        , displayColumn: "OnRollShort"
+		//                                        , dataMember: "OnRollShort"
+		//                                        //, format: "{0:C1}"
+		//                                    },
+		//                                    {
+		//                                        summaryType: ej.Grid.SummaryType.Sum
+		//                                        , displayColumn: "OnRollExcess"
+		//                                        , dataMember: "OnRollExcess"
+		//                                        //, format: "{0:C1}"
+		//                                    },
+		//                                    {
+		//                                        summaryType: ej.Grid.SummaryType.Sum
+		//                                        , displayColumn: "PresentShort"
+		//                                        , dataMember: "PresentShort"
+		//                                        //, format: "{0:C1}"
+		//                                    },
+		//                                    {
+		//                                        summaryType: ej.Grid.SummaryType.Sum
+		//                                        , displayColumn: "PresentExcess"
+		//                                        , dataMember: "PresentExcess"
+		//                                        //, format: "{0:C1}"
+		//                                    },
+		//                                ]
+
+		//                            }
+		//                        ],
+
+		//                    columns: [
+		//                        {
+		//                            headerText: "Process", field: "Process", width: 100
+		//                        },
+		//                        { headerText: "Skill", field: "Skill", width: 80 },
+		//                        { headerText: "Machine Master", field: "MachineMaster", width: 120 },
+		//                        { headerText: "Type", field: "Type", width: 80 },
+		//                        { headerText: "Skill Group Cat", field: "SkillGroupe", width: 100 },
+		//                        { headerText: "Operation Category", field: "OperationCategoryName", width: 80 },
+		//                        { headerText: "Operation", field: "OperationName", width: 110 },
+		//                        { headerText: "Standard Salary", field: "StandardSalary", width: 80, textAlign: ej.TextAlign.Right },
+		//                        { headerText: "Standard Budget", field: "ManpowerBudget", width: 80, textAlign: ej.TextAlign.Right },
+
+		//                        { headerText: "On Roll", field: "OnRoll", width: 60, textAlign: ej.TextAlign.Right },
+		//                        { headerText: "Total Present", field: "TotalPresent", width: 70, textAlign: ej.TextAlign.Right },
+		//                        { headerText: "OnRoll Short", field: "OnRollShort", width: 70, textAlign: ej.TextAlign.Right },
+		//                        { headerText: "OnRoll Excess", field: "OnRollExcess", width: 80, textAlign: ej.TextAlign.Right },
+		//                        { headerText: "Present Short", field: "PresentShort", width: 70, textAlign: ej.TextAlign.Right },
+		//                        { headerText: "Present Excess", field: "PresentExcess", width: 70, textAlign: ej.TextAlign.Right },
+
+		//                        //{
+		//                        //    headerText: "OnRoll", field: "OnRoll", width: 70, textAlign: ej.TextAlign.Right, cssClass: "text"}, /*, cssClass: "customCSS example"*/
+		//                        //{ headerText: "TotalPresent", field: "TotalPresent", width: 70, textAlign: ej.TextAlign.Right},
+		//                        //{ headerText: "OnRollShort", field: "OnRollShort", width: 70, textAlign: ej.TextAlign.Right },
+		//                        //{ headerText: "OnRollExcess", field: "OnRollExcess", width: 70, textAlign: ej.TextAlign.Right},
+		//                        //{ headerText: "PresentShort", field: "PresentShort", width: 50, textAlign: ej.TextAlign.Right},
+		//                        //{ headerText: "PresentExcess", field: "PresentExcess", width: 50,textAlign: ej.TextAlign.Right },
+
+		//                        { headerText: "EntityName", field: "EntityName", width: 80, visible: false },
+		//                        { headerText: "MachineCategory", field: "MachineCategory", width: 100, visible: false },
+		//                        { headerText: "MachineSubCategory", field: "MachineSubCategory", width: 100, visible: false },
+		//                        { headerText: "Position", field: "Position", width: 100, visible: false },
+
+
+		//                    ],
+
+		//                    actionComplete: function (args) {
+		//                        debugger;
+		//                        if (args.requestType == "filtering") {
+		//                            var obj = $("#DetailGrid").ejGrid("instance");
+		//                            var sd1 = obj.getFilteredRecords();
+		//                            if (sd1.length == 0) {
+		//                                sd1 = obj.model.dataSource;
+		//                            }
+
+		//                            var listOnrollBalance = [];//sd1.clone(false);
+		//                            var checklist = [];
+		//                            for (var i = 0; i < sd1.length; i++) {
+		//                                var xxxxx = sd1[i];
+		//                                if (!checklist.includes(xxxxx["OperationName"])) {
+
+		//                                    var opname = xxxxx["OperationName"];
+		//                                    var total = 0;
+		//                                    var color = "";
+		//                                    for (var j = 0; j < sd1.length; j++) {
+		//                                        var yyyy = sd1[j];
+		//                                        if (xxxxx["OperationName"] == yyyy["OperationName"]) {
+		//                                            if (yyyy["OnRollShort"] > 0)
+		//                                                total += yyyy["OnRollShort"] * -1;
+		//                                            else
+		//                                                total += yyyy["OnRollExcess"];
+
+		//                                        }
+		//                                    }
+		//                                    var datatopush = {
+		//                                        'OperationName': opname,
+		//                                        'OnRollBalance': total
+		//                                    }
+		//                                    listOnrollBalance.push(datatopush);
+
+		//                                    checklist.push(xxxxx["OperationName"]);
+		//                                }
+		//                            }
+		//                            listOnrollBalance.sort(function (a, b) { return b.OnRollBalance - a.OnRollBalance });
+
+
+		//                            $("#container").ejChart({
+
+		//                                legend: {
+		//                                    //Visible chart legend
+		//                                    visible: false
+		//                                },
+		//                                canResize: true,
+		//                                allowScrolling: true,
+		//                                isResponsive: true,
+		//                                // name: "OnRollBalance",
+
+		//                                tooltip: { visible: true, format: "<div style = 'background:\"'#series.colour'\">#series.yName#  <br/> #point.x# : #point.y# </div>" },
+		//                                series: [
+		//                                    {
+
+		//                                        title: {
+		//                                            //Add chart title
+		//                                            text: 'On Roll'
+		//                                        },
+		//                                        type: 'Bar',
+		//                                        //fill: color,
+		//                                        dataSource: listOnrollBalance,//sd1,
+		//                                        //primaryYAxis: { labelPosition: "inside" },
+		//                                        legend: { title: { font: { fontFamily: "Algerian" } } },
+		//                                        xName: "OperationName",
+		//                                        yName: "OnRollBalance",
+		//                                        enableAnimation: true,
+		//                                        name: 'OnRollBalance',
+
+		//                                        //tooltip: {
+		//                                        //    visible: true
+		//                                        //},
+
+		//                                        marker: {
+		//                                            visible: true,
+		//                                        }
+
+
+		//                                    }
+		//                                ],
+		//                                preRender: function (args) {
+		//                                    var chart = $("#container").ejChart("instance");
+		//                                    var length = chart.model.series[0].points.length - 1;
+		//                                    for (var i = 0; i < chart.model.series[0].points.length; i++) {
+		//                                        if (chart.model.series[0].points[i].YValues[0] > 0)
+		//                                            chart.model.series[0].points[i].fill = "Yellow";
+		//                                        else if (chart.model.series[0].points[i].YValues[0] < 0)
+		//                                            chart.model.series[0].points[i].fill = "red";
+		//                                        else
+		//                                            chart.model.series[0].points[i].fill = "Green";
+		//                                    }
+		//                                    $("#container").ejTooltip(
+		//                                        {
+		//                                            content: "JavaScript is the programming language of HTML and the Web.",
+		//                                            //associate: "mousefollow"
+		//                                            associate: "axis",
+		//                                            position: {
+		//                                                target: { horizontal: 10, vertical: 10 }
+		//                                            }
+		//                                        });
+
+		//                                },
+		//                                primaryXAxis: {
+		//                                    range: {
+		//                                        min: -6,
+		//                                        max: 6,
+		//                                        interval: 2
+		//                                    }
+		//                                    //labelFormat: "0.00"
+		//                                }
+
+		//                            });
+
+		//                            var chart = $("#container").ejChart("instance");
+		//                            chart.model.size.height = 100 + (listOnrollBalance.length * 20);
+		//                            chart.redraw();
+
+
+		//                            var listOnrollBalance1 = [];//sd1.clone(false);
+		//                            var checklist1 = [];
+
+		//                            for (var i = 0; i < sd1.length; i++) {
+		//                                var xxxxxx = sd1[i];
+		//                                if (!checklist1.includes(xxxxxx["OperationName"])) {
+
+		//                                    var opnamee = xxxxxx["OperationName"];
+		//                                    var totall = 0;
+		//                                    for (var j = 0; j < sd1.length; j++) {
+		//                                        var yyyyy = sd1[j];
+		//                                        if (xxxxxx["OperationName"] == yyyyy["OperationName"]) {
+		//                                            if (yyyyy["PresentShort"] > 0)
+		//                                                totall += yyyyy["PresentShort"] * -1;
+		//                                            else
+		//                                                totall += yyyyy["PresentExcess"];
+		//                                        }
+		//                                    }
+		//                                    var datatopush1 = {
+		//                                        'OperationName': opnamee,
+		//                                        'OnRollBalance': totall
+		//                                    }
+		//                                    listOnrollBalance1.push(datatopush1);
+
+		//                                    checklist1.push(xxxxxx["OperationName"]);
+		//                                }
+		//                            }
+		//                            listOnrollBalance1.sort(function (a, b) { return b.OnRollBalance - a.OnRollBalance });
+		//                            $("#container1").ejChart({
+
+		//                                legend: {
+		//                                    //Visible chart legend
+		//                                    visible: false
+		//                                },
+		//                                canResize: true,
+		//                                //size: { width: '600', height: '3000' },
+
+		//                                isResponsive: true,
+		//                                series: [{
+		//                                    title: {
+		//                                        //Add chart title
+		//                                        text: 'Present'
+		//                                    },
+		//                                    //type: 'column',
+		//                                    type: 'Bar',
+		//                                    dataSource: listOnrollBalance1,
+		//                                    //primaryYAxis: { labelPosition: "inside" },
+		//                                    legend: { title: { font: { fontFamily: "Algerian" } } },
+		//                                    xName: "OperationName",
+		//                                    yName: "OnRollBalance",
+		//                                    enableAnimation: true,
+		//                                    tooltip: {
+		//                                        visible: true
+		//                                    },
+		//                                    marker: {
+		//                                        visible: true,
+		//                                    }
+
+
+		//                                }],
+		//                                preRender: function (args) {
+		//                                    var chart1 = $("#container1").ejChart("instance");
+		//                                    var length = chart1.model.series[0].points.length - 1;
+		//                                    for (var i = 0; i < chart1.model.series[0].points.length; i++) {
+		//                                        if (chart1.model.series[0].points[i].YValues[0] > 0)
+		//                                            chart1.model.series[0].points[i].fill = "Yellow";
+		//                                        else if (chart1.model.series[0].points[i].YValues[0] < 0)
+		//                                            chart1.model.series[0].points[i].fill = "red";
+		//                                        else
+		//                                            chart1.model.series[0].points[i].fill = "Green";
+		//                                    }
+
+		//                                },
+		//                                primaryXAxis: {
+		//                                    range: {
+		//                                        min: -6,
+		//                                        max: 6,
+		//                                        interval: 2
+		//                                    }
+		//                                    // labelFormat:"0.00"
+		//                                }
+		//                            });
+		//                            var chart1 = $("#container1").ejChart("instance");
+		//                            chart1.model.size.height = 100 + (listOnrollBalance1.length * 20);
+		//                            chart1.redraw();
+		//                        }
+		//                    }
+		//                });
+
+		//                $("#onroll").show();
+		//                $("#present").show();
+		//                //var obj = $("#Grid2").ejGrid("instance");
+		//                //var sdchk = obj.getFilteredRecords();
+		//                //if (sdchk.length == 0) {
+		//                //    sdchk = obj.model.dataSource;
+		//                //    //alert('1' + 1);
+		//                //    $.ajax({
+		//                //        type: "POST",
+		//                //        //contentType: "application/json; charset=utf-8",
+		//                //        url: 'Employees/SkillMatrix/GetGraphDetails1',
+		//                //        data: {},
+		//                //        dataType: "json",
+		//                //        success: function (data) {
+
+		//                //            $("#container").ejChart({
+		//                //                primaryXAxis: {
+		//                //                    range: {
+		//                //                        min: 0,
+		//                //                        max: 50,
+		//                //                        interval: 1
+		//                //                    }
+
+		//                //                },
+		//                //                legend: {
+		//                //                    //Visible chart legend
+		//                //                    visible: false
+		//                //                },
+		//                //                canResize: true,
+		//                //                // size: { width: '600', height: '3000' },
+		//                //                isResponsive: true,
+		//                //                series: [{
+		//                //                    title: {
+		//                //                        //Add chart title
+		//                //                        text: 'On Roll'
+		//                //                    },
+		//                //                    type: 'Bar',
+		//                //                    dataSource: data,
+		//                //                    //primaryYAxis: { labelPosition: "inside" },
+		//                //                    legend: { title: { font: { fontFamily: "Algerian" } } },
+		//                //                    xName: "OperationName",
+		//                //                    yName: "OnRollBalance",
+		//                //                    enableAnimation: true,
+		//                //                    tooltip: {
+		//                //                        visible: true
+		//                //                    },
+		//                //                    marker: {
+		//                //                        visible: true,
+		//                //                    }
+
+
+
+		//                //                }],
+		//                //                preRender: function (args) {
+		//                //                    var chart2 = $("#container").ejChart("instance");
+		//                //                    var length = chart2.model.series[0].points.length - 1;
+		//                //                    for (var i = 0; i < chart2.model.series[0].points.length; i++) {
+		//                //                        if (chart2.model.series[0].points[i].YValues[0] > 0)
+		//                //                            chart2.model.series[0].points[i].fill = "Yellow";
+		//                //                        else if (chart2.model.series[0].points[i].YValues[0] < 0)
+		//                //                            chart2.model.series[0].points[i].fill = "red";
+		//                //                        else
+		//                //                            chart2.model.series[0].points[i].fill = "Green";
+		//                //                    }
+
+		//                //                },
+		//                //            });
+
+		//                //            var chart2 = $("#container").ejChart("instance");
+		//                //            chart2.model.size.height = 100 + (data.length * 16);
+		//                //            chart2.model.negativeColor = "Green";
+		//                //            chart2.redraw();
+		//                //            $("#container1").ejChart({
+		//                //                plotOptions: {
+		//                //                    columnrange: {
+		//                //                        negativeColor: 'Green',
+		//                //                        threshold: 0,
+		//                //                        dataLabels: {
+		//                //                            enabled: true,
+		//                //                            formatter: function () {
+
+		//                //                            }
+		//                //                        }
+		//                //                    }
+		//                //                },
+		//                //                legend: {
+		//                //                    //Visible chart legend
+		//                //                    visible: false
+		//                //                },
+		//                //                primaryXAxis: {
+		//                //                    //range: {
+		//                //                    //    min: 0,
+		//                //                    //    max: 50,
+		//                //                    //    interval: 1
+		//                //                    //}
+		//                //                    LabelFormat: "0"
+		//                //                },
+		//                //                canResize: true,
+		//                //                //size: { width: '600', height: '3000' },
+		//                //                isResponsive: true,
+		//                //                series: [{
+		//                //                    title: {
+		//                //                        //Add chart title
+		//                //                        text: 'Present'
+		//                //                    },
+		//                //                    //type: 'column',
+		//                //                    type: 'Bar',
+		//                //                    dataSource: data,
+		//                //                    //primaryYAxis: { labelPosition: "inside" },
+		//                //                    legend: { title: { font: { fontFamily: "Algerian" } } },
+		//                //                    xName: "OperationName",
+		//                //                    yName: "PresentBalance",
+		//                //                    enableAnimation: true,
+		//                //                    tooltip: {
+		//                //                        visible: true
+		//                //                    },
+		//                //                    marker: {
+		//                //                        visible: true,
+		//                //                    }
+
+
+		//                //                }],
+		//                //                preRender: function (args) {
+		//                //                    var chart3 = $("#container1").ejChart("instance");
+		//                //                    var length = chart3.model.series[0].points.length - 1;
+		//                //                    for (var i = 0; i < chart3.model.series[0].points.length; i++) {
+		//                //                        if (chart3.model.series[0].points[i].YValues[0] > 0)
+		//                //                            chart3.model.series[0].points[i].fill = "Yellow";
+		//                //                        else if (chart3.model.series[0].points[i].YValues[0] < 0)
+		//                //                            chart3.model.series[0].points[i].fill = "red";
+		//                //                        else
+		//                //                            chart3.model.series[0].points[i].fill = "Green";
+		//                //                    }
+
+		//                //                },
+		//                //            });
+		//                //            var chart3 = $("#container1").ejChart("instance");
+		//                //            chart3.model.size.height = 100 + (data.length * 16);
+		//                //            chart3.model.negativeColor = "Green";
+		//                //            chart3.redraw();
+		//                //            $("#progressbar-5").prop('disabled', true);
+		//                //        }
+		//                //    });
+		//                //}
+		//                //else {
+		//                //    debugger;
+		//                //    $.ajax({
+		//                //        type: "POST",
+		//                //        //contentType: "application/json; charset=utf-8",
+		//                //        url: 'Employees/SkillMatrix/GetGraphDetails',
+		//                //        data: {
+
+		//                //            'queryString': queryString,
+		//                //            'queryStringProcess': queryStringProcess,
+		//                //            'queryStringSkill': queryStringSkill,
+		//                //            'queryStringGrouping': queryStringGrouping,
+		//                //            'queryStringMachineCategory': queryStringMachineCategory,
+		//                //            'queryStringMachineSubCategoryCode': queryStringMachineSubCategoryCode,
+		//                //            'queryStringCaption': queryStringCaption,
+		//                //            'queryStringOperationCode': queryStringOperationCode,
+		//                //            'queryStringOperationCategoryId': queryStringOperationCategoryId,
+		//                //            'queryStringOnRoll': queryStringOnRoll,
+		//                //            'queryStringTotalPresent': queryStringTotalPresent,
+		//                //            'queryStringOnRollShort': queryStringOnRollShort,
+		//                //            'queryStringOnRollExcess': queryStringOnRollExcess,
+		//                //            'queryStringPresentShort': queryStringPresentShort,
+		//                //            'queryStringPresentExcess': queryStringPresentExcess
+		//                //        },
+		//                //        dataType: "json",
+		//                //        success: function (data) {
+
+		//                //            $("#container").ejChart({
+		//                //                primaryXAxis: {
+		//                //                    range: {
+		//                //                        min: 0,
+		//                //                        max: 50,
+		//                //                        interval: 1
+		//                //                    }
+
+		//                //                },
+		//                //                legend: {
+		//                //                    //Visible chart legend
+		//                //                    visible: false
+		//                //                },
+		//                //                canResize: true,
+		//                //                // size: { width: '600', height: '3000' },
+		//                //                isResponsive: true,
+		//                //                series: [{
+		//                //                    title: {
+		//                //                        //Add chart title
+		//                //                        text: 'On Roll'
+		//                //                    },
+		//                //                    type: 'Bar',
+		//                //                    dataSource: data,
+		//                //                    //primaryYAxis: { labelPosition: "inside" },
+		//                //                    legend: { title: { font: { fontFamily: "Algerian" } } },
+		//                //                    xName: "OperationName",
+		//                //                    yName: "OnRollBalance",
+		//                //                    enableAnimation: true,
+		//                //                    tooltip: {
+		//                //                        visible: true
+		//                //                    },
+		//                //                    marker: {
+		//                //                        visible: true,
+		//                //                    }
+
+
+
+		//                //                }],
+		//                //                preRender: function (args) {
+		//                //                    var chart2 = $("#container").ejChart("instance");
+		//                //                    var length = chart2.model.series[0].points.length - 1;
+		//                //                    for (var i = 0; i < chart2.model.series[0].points.length; i++) {
+		//                //                        if (chart2.model.series[0].points[i].YValues[0] > 0)
+		//                //                            chart2.model.series[0].points[i].fill = "Yellow";
+		//                //                        else if (chart2.model.series[0].points[i].YValues[0] < 0)
+		//                //                            chart2.model.series[0].points[i].fill = "red";
+		//                //                        else
+		//                //                            chart2.model.series[0].points[i].fill = "Green";
+		//                //                    }
+
+		//                //                },
+		//                //            });
+
+		//                //            var chart2 = $("#container").ejChart("instance");
+		//                //            chart2.model.size.height = 100 + (data.length * 16);
+		//                //            chart2.model.negativeColor = "Green";
+		//                //            chart2.redraw();
+		//                //            $("#container1").ejChart({
+		//                //                plotOptions: {
+		//                //                    columnrange: {
+		//                //                        negativeColor: 'Green',
+		//                //                        threshold: 0,
+		//                //                        dataLabels: {
+		//                //                            enabled: true,
+		//                //                            formatter: function () {
+
+		//                //                            }
+		//                //                        }
+		//                //                    }
+		//                //                },
+		//                //                legend: {
+		//                //                    //Visible chart legend
+		//                //                    visible: false
+		//                //                },
+		//                //                primaryXAxis: {
+		//                //                    //range: {
+		//                //                    //    min: 0,
+		//                //                    //    max: 50,
+		//                //                    //    interval: 1
+		//                //                    //}
+		//                //                    LabelFormat: "0"
+		//                //                },
+		//                //                canResize: true,
+		//                //                //size: { width: '600', height: '3000' },
+		//                //                isResponsive: true,
+		//                //                series: [{
+		//                //                    title: {
+		//                //                        //Add chart title
+		//                //                        text: 'Present'
+		//                //                    },
+		//                //                    //type: 'column',
+		//                //                    type: 'Bar',
+		//                //                    dataSource: data,
+		//                //                    //primaryYAxis: { labelPosition: "inside" },
+		//                //                    legend: { title: { font: { fontFamily: "Algerian" } } },
+		//                //                    xName: "OperationName",
+		//                //                    yName: "PresentBalance",
+		//                //                    enableAnimation: true,
+		//                //                    tooltip: {
+		//                //                        visible: true
+		//                //                    },
+		//                //                    marker: {
+		//                //                        visible: true,
+		//                //                    }
+
+
+		//                //                }],
+		//                //                preRender: function (args) {
+		//                //                    var chart3 = $("#container1").ejChart("instance");
+		//                //                    var length = chart3.model.series[0].points.length - 1;
+		//                //                    for (var i = 0; i < chart3.model.series[0].points.length; i++) {
+		//                //                        if (chart3.model.series[0].points[i].YValues[0] > 0)
+		//                //                            chart3.model.series[0].points[i].fill = "Yellow";
+		//                //                        else if (chart3.model.series[0].points[i].YValues[0] < 0)
+		//                //                            chart3.model.series[0].points[i].fill = "red";
+		//                //                        else
+		//                //                            chart3.model.series[0].points[i].fill = "Green";
+		//                //                    }
+
+		//                //                },
+		//                //            });
+		//                //            var chart3 = $("#container1").ejChart("instance");
+		//                //            chart3.model.size.height = 100 + (data.length * 16);
+		//                //            chart3.model.negativeColor = "Green";
+		//                //            chart3.redraw();
+		//                //            $("#progressbar-5").prop('disabled', true);
+		//                //        }
+		//                //    });
+
+
+		//                //}
+
+
+		//            }//,
+
+		//        });
+
+		//    }
+		//    else {
+
+		//    }
+		//});
+
+
+		//        $("#go").click(function () {
+
+
+		//            //$(".loaderr").show(2000);
+		//            debugger;
+		//           // $('#load').show();
+		//            var obj = $("#Grid2").ejGrid("instance");
+		//            var sd = obj.getFilteredRecords();
+		//            if (sd.length == 0) {
+		//                sd = obj.model.dataSource;
+		//                //alert('1' +1);
+		//            }
+
+		//            var arr = [];
+		//            var queryString = [];
+		//            var arrqueryStringProcess = [];
+		//            var arrqueryStringSkill = [];
+		//            var arrqueryStringGrouping = [];
+		//            var arrqueryStringMachineCategory = [];
+		//            var arrqueryStringMachineSubCategoryCode = [];
+		//            var arrqueryStringCaption = [];
+		//            var arrqueryStringOperationCode = [];
+		//            var arrqueryStringOperationCategoryId = [];
+		//            var arrqueryStringOnRoll = [];
+		//            var arrqueryStringTotalPresent = [];
+		//            var arrqueryStringOnRollShort = [];
+		//            var arrqueryStringOnRollExcess = [];
+		//            var arrqueryStringPresentShort = [];
+		//            var arrqueryStringPresentExcess = [];
+		//            // var queryStringSkillary = new Array(400)
+
+		//            var value = "";
+		//            var queryString = "''";
+		//            var queryStringCaption = "''";
+		//            var queryStringProcess = "''";
+		//            var queryStringSkill = "''";
+		//            var queryStringOperationCode = "''";
+
+
+
+		//            var queryStringGrouping = "''";
+		//            var queryStringMachineCategory = "''";
+		//            var queryStringMachineSubCategoryCode = "''";
+		//            var queryStringCaption = "''";
+		//            var queryStringOperationCategoryId = "''";
+
+		//            var queryStringOnRoll = "''";
+		//            var queryStringTotalPresent = "0";
+		//            var queryStringOnRollShort = "0";
+		//            var queryStringOnRollExcess = "0";
+		//            var queryStringPresentShort = "0";
+		//            var queryStringPresentExcess = "0";
+		//            var skillList = [];
+		//            var index = 0;
+		//            for (var i = 0; i < sd.length; i++) {
+		//                var x = sd[i];
+		//                //var yEntityName = x["EntityName"];
+		//                //var yposition = x["Caption"];
+		//                //var yProcess = x["Process"];
+		//                //var ySkill = x["Skill"];
+		//                //var ySkillId = x["SkillId"];
+		//                //var yGrouping = x["Grouping"];
+		//                //var yMachineCategory = x["MachineCategory"];
+		//                //var yMachineSubCategoryCode = x["MachineSubCategoryCode"];
+		//                //var yCaption = x["MachineSubCategoryCode"];
+		//                var yOnRoll = x["OnRoll"];
+		//                var yTotalPresent = x["TotalPresent"];
+		//                var yRollShort = x["RollShort"];
+		//                var yOnRollExcess = x["OnRollExcess"];
+		//                var yPresentShort = x["PresentShort"];
+		//                var yPresentExcess = x["PresentExcess"];
+
+		//                var yEntityName = x["EntityId"];
+		//                var yposition = x["Position"];
+		//                var yProcess = x["ProcessId"];
+		//                var ySkill = x["SkillId"];
+		//                var yOperationCode = x["OperationCode"];
+
+		//                //var ySkillId = x["SkillId"];
+		//                var yGrouping = x["SkillGroupId"];
+
+		//                var yMachineCategory = x["MachineCategoryId"];
+		//                var yMachineSubCategoryCode = x["MachineSubCategoryId"];
+		//                var yOperationCategoryId = x["OperationCategoryId"];
+
+		//                //var yCaption = x["MachineSubCategoryCode"];
+		//                var yOnRoll = x["OnRoll"];
+		//                var yTotalPresent = x["TotalPresent"];
+		//                var yRollShort = x["OnRollShort"];
+		//                var yOnRollExcess = x["OnRollExcess"];
+		//                var yPresentShort = x["PresentShort"];
+		//                var yPresentExcess = x["PresentExcess"];
+
+
+		//                if (!arr.includes(yEntityName)) {
+		//                    queryString += ",'" + yEntityName + "'";
+		//                    arr.push(yEntityName);
+		//                }
+		//                if (!arrqueryStringProcess.includes(yProcess)) {
+		//                    queryStringProcess += ",'" + yProcess + "'";
+		//                    arrqueryStringProcess.push(yProcess);
+		//                }
+
+		//                if (!arrqueryStringSkill.includes(ySkill)) {
+		//                    queryStringSkill += ",'" + ySkill + "'";
+		//                    arrqueryStringSkill.push(ySkill);
+
+		//                }
+		//                if (!arrqueryStringOperationCode.includes(yOperationCode)) {
+		//                    queryStringOperationCode += ",'" + yOperationCode + "'";
+		//                    arrqueryStringOperationCode.push(yOperationCode);
+
+		//                }
+
+		//                if (!arrqueryStringGrouping.includes(yGrouping)) {
+		//                    queryStringGrouping += ",'" + yGrouping + "'";
+		//                    arrqueryStringGrouping.push(yGrouping);
+		//                }
+		//                if (!arrqueryStringMachineCategory.includes(yMachineCategory)) {
+		//                    queryStringMachineCategory += ",'" + yMachineCategory + "'";
+		//                    arrqueryStringMachineCategory.push(yMachineCategory);
+		//                }
+		//                if (!arrqueryStringMachineSubCategoryCode.includes(yMachineSubCategoryCode)) {
+		//                    queryStringMachineSubCategoryCode += ",'" + yMachineSubCategoryCode + "'";
+		//                    arrqueryStringMachineSubCategoryCode.push(yMachineSubCategoryCode);
+		//                }
+		//                if (!arrqueryStringCaption.includes(yposition)) {
+		//                    queryStringCaption += ",'" + yposition + "'";
+		//                    arrqueryStringCaption.push(yposition);
+		//                }
+		//                if (!arrqueryStringOperationCategoryId.includes(yOperationCategoryId)) {
+		//                    queryStringOperationCategoryId += ",'" + yOperationCategoryId + "'";
+		//                    arrqueryStringOperationCategoryId.push(yOperationCategoryId);
+		//                }
+
+
+		//                //if (!arr.includes(yCaption)) {
+		//                //     queryStringCaption += ",'" + yCaption + "'";
+		//                //     arr.push(yCaption);
+		//                // }
+		//                if (!arrqueryStringOnRoll.includes(yOnRoll)) {
+		//                     queryStringOnRoll += ",'" + yOnRoll + "'";
+		//                    arrqueryStringOnRoll.push(yOnRoll);
+		//                 }
+
+		//                if (!arrqueryStringTotalPresent.includes(yTotalPresent)) {
+		//                     queryStringTotalPresent += "," + yTotalPresent + "";
+		//                    arrqueryStringTotalPresent.push(yTotalPresent);
+		//                 }
+		//                if (!arrqueryStringOnRollShort.includes(yRollShort)) {
+		//                    queryStringOnRollShort += "," + yRollShort + "";
+		//                    arrqueryStringOnRollShort.push(yRollShort);
+		//                 }
+		//                if (!arrqueryStringOnRollExcess.includes(yOnRollExcess)) {
+		//                     queryStringOnRollExcess += "," + yOnRollExcess + "";
+		//                    arrqueryStringOnRollExcess.push(yOnRollExcess);
+		//                 }
+		//                if (!arrqueryStringPresentShort.includes(yPresentShort)) {
+		//                     queryStringPresentShort += "," + yPresentShort + "";
+		//                    arrqueryStringPresentShort.push(yPresentShort);
+		//                 }
+		//                if (!arrqueryStringPresentExcess.includes(yPresentExcess)) {
+		//                     queryStringPresentExcess += "," + yPresentExcess + "";
+		//                    arrqueryStringPresentExcess.push(yPresentExcess);
+		//                 }
+
+		//            }
+		//			$('#loadingmessage').show();
+		//			//#region grid filter clear and refresh
+		//			//var gridObj = $("#DetailGrid").data("ejGrid");
+		//			//var gridObj = $("#DetailGrid").ejGrid("instance");
+		//			//gridObj.clearFiltering();
+
+		//			//$scope.data=[];
+		//			//var gridObj = $("#DetailGrid").data("ejGrid");
+		//			//gridObj.refreshContent(true);
+		////#endregion
+		//            $.ajax({
+		//                type: "POST",
+		//                url: 'Employees/SkillMatrix/GetSkillMasterDetails',
+		//                data: {
+		//                    'queryString': queryString,
+		//                    'queryStringProcess': queryStringProcess,
+		//                    'queryStringSkill': queryStringSkill,
+		//                    'queryStringGrouping': queryStringGrouping,
+		//                    'queryStringMachineCategory': queryStringMachineCategory,
+		//                    'queryStringMachineSubCategoryCode': queryStringMachineSubCategoryCode,
+		//                    'queryStringCaption': queryStringCaption,
+		//                    'queryStringOperationCode': queryStringOperationCode,
+		//                    'queryStringOperationCategoryId': queryStringOperationCategoryId,
+		//                    'queryStringOnRoll': queryStringOnRoll,
+		//                    'queryStringTotalPresent': queryStringTotalPresent,
+		//                    'queryStringOnRollShort': queryStringOnRollShort,
+		//                    'queryStringOnRollExcess': queryStringOnRollExcess,
+		//                    'queryStringPresentShort': queryStringPresentShort,
+		//                    'queryStringPresentExcess': queryStringPresentExcess
+
+		//                },
+		//                dataType: "json",
+		//                success: function (data) {
+		//					$('#ld').hide();
+
+		//                    $("#DetailGrid").ejGrid({
+		//                        dataSource: data, // data must be array of json
+		//                        allowPaging: true,
+		//                        allowSorting: true,
+		//                        allowFiltering: true,
+		//                        isResponsive: true,
+		//                        minWidth: 600,
+		//                        allowResizeToFit: true,
+		//                        canResize: true,
+		//                        //allowTextWrap: true,
+		//                        allowTextWrap: true,
+		//                        textWrapSettings: { wrapMode: "header" },
+		//                        enableResponsiveRow: true,
+		//                        filterSettings: {
+		//                            filterType: "excel"
+		//                        },
+		//                        cssClass: "filtered",
+		//                        pageSize: 10,
+		//                        allowScrolling: true,
+		//                        scrollSettings: { wisth: "1250", height: "300" },
+		//                        summaryRows:
+		//                            [
+		//                                {
+		//                                    title: "Total =",
+		//                                    color: "Red",
+		//                                    summaryColumns: [
+		//                                        {
+		//                                            summaryType: ej.Grid.SummaryType.Sum
+		//                                            , displayColumn: "ManpowerBudget"
+		//                                            , dataMember: "ManpowerBudget"
+		//                                            //, format: "{0:C1}"
+		//                                        },
+		//                                        {
+		//                                            summaryType: ej.Grid.SummaryType.Sum
+		//                                            , displayColumn: "OnRoll"
+		//                                            , dataMember: "OnRoll"
+		//                                            //, format: "{0:C1}"
+		//                                        },
+		//                                        {
+		//                                            summaryType: ej.Grid.SummaryType.Sum
+		//                                            , displayColumn: "TotalPresent"
+		//                                            , dataMember: "TotalPresent"
+		//                                            //, format: "{0:C1}"
+		//                                        },
+		//                                        {
+		//                                            summaryType: ej.Grid.SummaryType.Sum
+		//                                            , displayColumn: "OnRollShort"
+		//                                            , dataMember: "OnRollShort"
+		//                                            //, format: "{0:C1}"
+		//                                        },
+		//                                        {
+		//                                            summaryType: ej.Grid.SummaryType.Sum
+		//                                            , displayColumn: "OnRollExcess"
+		//                                            , dataMember: "OnRollExcess"
+		//                                            //, format: "{0:C1}"
+		//                                        },
+		//                                        {
+		//                                            summaryType: ej.Grid.SummaryType.Sum
+		//                                            , displayColumn: "PresentShort"
+		//                                            , dataMember: "PresentShort"
+		//                                            //, format: "{0:C1}"
+		//                                        },
+		//                                        {
+		//                                            summaryType: ej.Grid.SummaryType.Sum
+		//                                            , displayColumn: "PresentExcess"
+		//                                            , dataMember: "PresentExcess"
+		//                                            //, format: "{0:C1}"
+		//                                        },
+		//                                    ]
+
+		//                                }
+		//                            ],
+
+		//                        columns: [
+		//                            {
+		//                                headerText: "Process", field: "Process", width: 100
+		//                            },
+		//                            { headerText: "Skill", field: "Skill", width: 80 },
+		//                            { headerText: "Machine Master", field: "MachineMaster", width: 120 },
+		//                            { headerText: "Type", field: "Type", width: 80 },
+		//                            { headerText: "Skill Group Cat", field: "SkillGroupe", width: 100 },
+		//                            { headerText: "Operation Category", field: "OperationCategoryName", width: 80 },
+		//                            { headerText: "Operation Code", field: "OperationCode", width: 110 },
+		//                            { headerText: "Operation", field: "OperationName", width: 110 },
+		//                            { headerText: "Standard Salary", field: "StandardSalary", width: 80, textAlign: ej.TextAlign.Right },
+		//                            { headerText: "Standard Budget", field: "ManpowerBudget", width: 80, textAlign: ej.TextAlign.Right },
+
+		//                            { headerText: "On Roll", field: "OnRoll", width: 60, textAlign: ej.TextAlign.Right },
+		//                            { headerText: "Total Present", field: "TotalPresent", width: 70, textAlign: ej.TextAlign.Right },
+		//                            { headerText: "OnRoll Short", field: "OnRollShort", width: 70, textAlign: ej.TextAlign.Right },
+		//                            { headerText: "OnRoll Excess", field: "OnRollExcess", width: 80, textAlign: ej.TextAlign.Right },
+		//                            { headerText: "Present Short", field: "PresentShort", width: 70, textAlign: ej.TextAlign.Right },
+		//                            { headerText: "Present Excess", field: "PresentExcess", width: 70, textAlign: ej.TextAlign.Right },
+
+		//                            //{
+		//                            //    headerText: "OnRoll", field: "OnRoll", width: 70, textAlign: ej.TextAlign.Right, cssClass: "text"}, /*, cssClass: "customCSS example"*/
+		//                            //{ headerText: "TotalPresent", field: "TotalPresent", width: 70, textAlign: ej.TextAlign.Right},
+		//                            //{ headerText: "OnRollShort", field: "OnRollShort", width: 70, textAlign: ej.TextAlign.Right },
+		//                            //{ headerText: "OnRollExcess", field: "OnRollExcess", width: 70, textAlign: ej.TextAlign.Right},
+		//                            //{ headerText: "PresentShort", field: "PresentShort", width: 50, textAlign: ej.TextAlign.Right},
+		//                            //{ headerText: "PresentExcess", field: "PresentExcess", width: 50,textAlign: ej.TextAlign.Right },
+
+
+		//                            { headerText: "EntityName", field: "EntityName", width: 80, visible: false },
+		//                            { headerText: "MachineCategory", field: "MachineCategory", width: 100, visible: false },
+		//                            { headerText: "MachineSubCategory", field: "MachineSubCategory", width: 100, visible: false },
+		//                            { headerText: "Position", field: "Position", width: 100, visible: false },
+
+
+		//                        ],
+
+		//                        actionComplete: function (args) {
+		//                            debugger;
+		//                            if (args.requestType == "filtering") {
+		//                                var obj = $("#DetailGrid").ejGrid("instance");
+		//                                var sd1 = obj.getFilteredRecords();
+		//                                if (sd1.length == 0) {
+		//                                    sd1 = obj.model.dataSource;
+		//                                }
+
+		//                                var listOnrollBalance = [];//sd1.clone(false);
+		//                                var checklist = [];
+		//                                for (var i = 0; i < sd1.length; i++) {
+		//                                    var xxxxx = sd1[i];
+		//                                    if (!checklist.includes(xxxxx["OperationCode"])) {
+
+		//                                        var opname = xxxxx["OperationCode"] + '-' + xxxxx["OperationName"];
+		//                                        var total = 0;
+		//                                        var color = "";
+		//                                        for (var j = 0; j < sd1.length; j++) {
+		//                                            var yyyy = sd1[j];
+		//                                            if (xxxxx["OperationCode"] == yyyy["OperationCode"]) {
+		//                                                if (yyyy["OnRollShort"] > 0)
+		//                                                    total += yyyy["OnRollShort"] * -1;
+		//                                                else
+		//                                                    total += yyyy["OnRollExcess"];
+
+		//                                            }
+		//                                        }
+		//                                        var datatopush = {
+		//                                            'OperationName': opname,
+		//                                            'OnRollBalance': total
+		//                                        }
+		//                                        listOnrollBalance.push(datatopush);
+
+		//                                        checklist.push(xxxxx["OperationName"]);
+		//                                    }
+		//                                }
+		//                                listOnrollBalance.sort(function (a, b) { return b.OnRollBalance - a.OnRollBalance });
+
+
+		//                                $("#container").ejChart({
+
+		//                                    legend: {
+		//                                        //Visible chart legend
+		//                                        visible: false
+		//                                    },
+		//                                    canResize: true,
+		//                                    allowScrolling: true,
+		//                                    isResponsive: true,
+		//                                    // name: "OnRollBalance",
+
+		//                                    //tooltip: { visible: true, format: "<div style = 'background:\"'#series.colour'\">#series.yName#  <br/> #point.x# : #point.y# </div>" },
+		//                                    series: [
+		//                                        {
+
+		//                                        title: {
+		//                                            //Add chart title
+		//                                            text: 'On Roll'
+		//                                        },
+		//                                            type: 'Bar',
+		//                                            //fill: color,
+		//                                        dataSource: listOnrollBalance,//sd1,
+		//                                        //primaryYAxis: { labelPosition: "inside" },
+		//                                        legend: { title: { font: { fontFamily: "Algerian" } } },
+		//                                        xName: "OperationName",
+		//                                        yName: "OnRollBalance",
+		//                                        enableAnimation: true,
+		//                                        name: 'OnRollBalance',
+
+		//                                            tooltip: {
+		//                                                visible: true
+		//                                            },
+
+		//                                            marker: {
+		//                                                visible: true,
+		//                                            }
+
+
+		//                                        }
+		//                                    ],
+		//                                    preRender: function (args) {
+		//                                        var chart = $("#container").ejChart("instance");
+		//                                        var length = chart.model.series[0].points.length - 1;
+		//                                        for (var i = 0; i < chart.model.series[0].points.length; i++) {
+		//                                            if (chart.model.series[0].points[i].YValues[0] > 0)
+		//                                                chart.model.series[0].points[i].fill = "Yellow";
+		//                                            else if (chart.model.series[0].points[i].YValues[0] < 0)
+		//                                                chart.model.series[0].points[i].fill = "red";
+		//                                            else
+		//                                                chart.model.series[0].points[i].fill = "Green";
+		//                                        }
+		//                                        //$("#container").ejTooltip(
+		//                                        //    {
+		//                                        //        content: "JavaScript is the programming language of HTML and the Web.",
+		//                                        //        //associate: "mousefollow"
+		//                                        //        associate: "axis",
+		//                                        //        position: {
+		//                                        //            target: { horizontal: 10, vertical: 10 }
+		//                                        //        }
+		//                                        //    });
+
+		//                                    },
+		//                                    primaryXAxis: {
+		//                                        range: {
+		//                                            min: -6,
+		//                                            max: 6,
+		//                                            interval: 2
+		//                                        }
+		//                                        //labelFormat: "0.00"
+		//                                    }
+
+		//                                });
+
+		//                                var chart = $("#container").ejChart("instance");
+		//                                chart.model.size.height = 100 + (listOnrollBalance.length * 20);
+		//                                chart.redraw();
+
+
+		//                                var listOnrollBalance1 = [];//sd1.clone(false);
+		//                                var checklist1 = [];
+
+		//                                for (var i = 0; i < sd1.length; i++) {
+		//                                    var xxxxxx = sd1[i];
+		//                                    if (!checklist1.includes(xxxxxx["OperationCode"])) {
+
+		//                                        var opnamee = xxxxxx["OperationCode"] + '-' + xxxxxx["OperationName"];
+		//                                        var totall = 0;
+		//                                        for (var j = 0; j < sd1.length; j++) {
+		//                                            var yyyyy = sd1[j];
+		//                                            if (xxxxxx["OperationCode"] == yyyyy["OperationCode"]) {
+		//                                                if (yyyyy["PresentShort"] > 0)
+		//                                                    totall += yyyyy["PresentShort"] * -1;
+		//                                                else
+		//                                                    totall += yyyyy["PresentExcess"];
+		//                                            }
+		//                                        }
+		//                                        var datatopush1 = {
+		//                                            'OperationName': opnamee,
+		//                                            'OnRollBalance': totall
+		//                                        }
+		//                                        listOnrollBalance1.push(datatopush1);
+
+		//                                        checklist1.push(xxxxxx["OperationName"]);
+		//                                    }
+		//                                }
+		//                                listOnrollBalance1.sort(function (a, b) { return b.OnRollBalance - a.OnRollBalance });
+		//                                $("#container1").ejChart({
+
+		//                                    legend: {
+		//                                        //Visible chart legend
+		//                                        visible: false
+		//                                    },
+		//                                    canResize: true,
+		//                                    //size: { width: '600', height: '3000' },
+
+		//                                    isResponsive: true,
+		//                                    series: [{
+		//                                        title: {
+		//                                            //Add chart title
+		//                                            text: 'Present'
+		//                                        },
+		//                                        //type: 'column',
+		//                                        type: 'Bar',
+		//                                        dataSource: listOnrollBalance1,
+		//                                        //primaryYAxis: { labelPosition: "inside" },
+		//                                        legend: { title: { font: { fontFamily: "Algerian" } } },
+		//                                        xName: "OperationName",
+		//                                        yName: "OnRollBalance",
+		//                                        enableAnimation: true,
+		//                                        tooltip: {
+		//                                            visible: true
+		//                                        },
+		//                                        marker: {
+		//                                            visible: true,
+		//                                        }
+
+
+		//                                    }],
+		//                                    preRender: function (args) {
+		//                                        var chart1 = $("#container1").ejChart("instance");
+		//                                        var length = chart1.model.series[0].points.length - 1;
+		//                                        for (var i = 0; i < chart1.model.series[0].points.length; i++) {
+		//                                            if (chart1.model.series[0].points[i].YValues[0] > 0)
+		//                                                chart1.model.series[0].points[i].fill = "Yellow";
+		//                                            else if (chart1.model.series[0].points[i].YValues[0] < 0)
+		//                                                chart1.model.series[0].points[i].fill = "red";
+		//                                            else
+		//                                                chart1.model.series[0].points[i].fill = "Green";
+		//                                        }
+		//										//$("#container1").ejTooltip(
+		//          //                                  {
+		//          //                                      content: "JavaScript is the programming language of HTML and the Web.",
+		//          //                                      //associate: "mousefollow"
+		//          //                                      associate: "axis",
+		//          //                                      position: {
+		//          //                                          target: { horizontal: 10, vertical: 10 }
+		//          //                                      }
+		//          //                                  });
+		//                                    },
+		//                                    primaryXAxis: {
+		//                                        range: {
+		//                                            min: -6,
+		//                                            max: 6,
+		//                                            interval: 2
+		//                                        }
+		//                                        // labelFormat:"0.00"
+		//                                    }
+		//                                });
+		//                                var chart1 = $("#container1").ejChart("instance");
+		//                                chart1.model.size.height = 100 + (listOnrollBalance1.length * 20);
+		//                                chart1.redraw();
+		//                            }
+		//                        }
+		//                    });
+
+
+		//					$("#present").show();
+		//					$("#onroll").show();
+		//					 var gridObj = $("#Grid2").data("ejGrid");
+		//					  //getting corresponding record
+		//					 var data = gridObj.getSelectedRecords()[0];
+		//                    var obj = $("#Grid2").ejGrid("instance");
+		//					var sdchk = obj.getFilteredRecords();
+
+		//					//#region Graph View For Master Data
+		//                    if (sdchk.length == 0) {
+		//                        sdchk = obj.model.dataSource;
+		//                        //alert('1' + 1);
+		//                        $.ajax({
+		//                            type: "POST",
+		//                            //contentType: "application/json; charset=utf-8",
+		//                            url: 'Employees/SkillMatrix/GetGraphDetails1',
+		//                            data: {},
+		//                            dataType: "json",
+		//                            success: function (data) {
+
+		//                                $("#container").ejChart({
+		//                                    primaryXAxis: {
+		//                                        range: {
+		//                                            min: 0,
+		//                                            max: 50,
+		//                                            interval: 1
+		//                                        }
+
+		//                                    },
+		//                                    legend: {
+		//                                        //Visible chart legend
+		//                                        visible: false
+		//                                    },
+		//                                    canResize: true,
+		//                                    // size: { width: '600', height: '3000' },
+		//                                    isResponsive: true,
+		//                                    series: [{
+		//                                        title: {
+		//                                            //Add chart title
+		//                                            text: 'On Roll'
+		//                                        },
+		//                                        type: 'Bar',
+		//                                        dataSource: data,
+		//                                        //primaryYAxis: { labelPosition: "inside" },
+		//                                        legend: { title: { font: { fontFamily: "Algerian" } } },
+		//                                        xName: "OperationName",
+		//                                        yName: "OnRollBalance",
+		//                                        enableAnimation: true,
+		//                                        tooltip: {
+		//                                            visible: true
+		//                                        },
+		//                                        marker: {
+		//                                            visible: true,
+		//                                        }
+
+
+
+		//                                    }],
+		//                                    preRender: function (args) {
+		//                                        var chart2 = $("#container").ejChart("instance");
+		//                                        var length = chart2.model.series[0].points.length - 1;
+		//                                        for (var i = 0; i < chart2.model.series[0].points.length; i++) {
+		//                                            if (chart2.model.series[0].points[i].YValues[0] > 0)
+		//                                                chart2.model.series[0].points[i].fill = "Yellow";
+		//                                            else if (chart2.model.series[0].points[i].YValues[0] < 0)
+		//                                                chart2.model.series[0].points[i].fill = "red";
+		//                                            else
+		//                                                chart2.model.series[0].points[i].fill = "Green";
+		//                                        }
+
+		//                                    },
+		//                                });
+
+		//                                var chart2 = $("#container").ejChart("instance");
+		//                                chart2.model.size.height = 100 + (data.length * 16);
+		//                                chart2.model.negativeColor = "Green";
+		//                                chart2.redraw();
+		//                                $("#container1").ejChart({
+		//                                    plotOptions: {
+		//                                        columnrange: {
+		//                                            negativeColor: 'Green',
+		//                                            threshold: 0,
+		//                                            dataLabels: {
+		//                                                enabled: true,
+		//                                                formatter: function () {
+
+		//                                                }
+		//                                            }
+		//                                        }
+		//                                    },
+		//                                    legend: {
+		//                                        //Visible chart legend
+		//                                        visible: false
+		//                                    },
+		//                                    primaryXAxis: {
+		//                                        //range: {
+		//                                        //    min: 0,
+		//                                        //    max: 50,
+		//                                        //    interval: 1
+		//                                        //}
+		//                                        LabelFormat: "0"
+		//                                    },
+		//                                    canResize: true,
+		//                                    //size: { width: '600', height: '3000' },
+		//                                    isResponsive: true,
+		//                                    series: [{
+		//                                        title: {
+		//                                            //Add chart title
+		//                                            text: 'Present'
+		//                                        },
+		//                                        //type: 'column',
+		//                                        type: 'Bar',
+		//                                        dataSource: data,
+		//                                        //primaryYAxis: { labelPosition: "inside" },
+		//                                        legend: { title: { font: { fontFamily: "Algerian" } } },
+		//                                        xName: "OperationName",
+		//                                        yName: "PresentBalance",
+		//                                        enableAnimation: true,
+		//                                        tooltip: {
+		//                                            visible: true
+		//                                        },
+		//                                        marker: {
+		//                                            visible: true,
+		//                                        }
+
+
+		//                                    }],
+		//                                    preRender: function (args) {
+		//                                        var chart3 = $("#container1").ejChart("instance");
+		//                                        var length = chart3.model.series[0].points.length - 1;
+		//                                        for (var i = 0; i < chart3.model.series[0].points.length; i++) {
+		//                                            if (chart3.model.series[0].points[i].YValues[0] > 0)
+		//                                                chart3.model.series[0].points[i].fill = "Yellow";
+		//                                            else if (chart3.model.series[0].points[i].YValues[0] < 0)
+		//                                                chart3.model.series[0].points[i].fill = "red";
+		//                                            else
+		//                                                chart3.model.series[0].points[i].fill = "Green";
+		//                                        }
+
+		//                                    },
+		//                                });
+		//                                var chart3 = $("#container1").ejChart("instance");
+		//                                chart3.model.size.height = 100 + (data.length * 16);
+		//                                chart3.model.negativeColor = "Green";
+		//                                chart3.redraw();
+		//                               // $("#progressbar-5").prop('disabled', true);
+		//                            }
+		//                        });
+		//                    }
+		//                    else {
+		//                    debugger;
+		//                    $.ajax({
+		//                        type: "POST",
+		//                        //contentType: "application/json; charset=utf-8",
+		//                        url: 'Employees/SkillMatrix/GetGraphDetails',
+		//                        data: {
+
+		//                            'queryString': queryString,
+		//                            'queryStringProcess': queryStringProcess,
+		//                            'queryStringSkill': queryStringSkill,
+		//                            'queryStringGrouping': queryStringGrouping,
+		//                            'queryStringMachineCategory': queryStringMachineCategory,
+		//                            'queryStringMachineSubCategoryCode': queryStringMachineSubCategoryCode,
+		//                            'queryStringCaption': queryStringCaption,
+		//                            'queryStringOperationCode': queryStringOperationCode,
+		//                            'queryStringOperationCategoryId': queryStringOperationCategoryId,
+		//                            'queryStringOnRoll': queryStringOnRoll,
+		//                            'queryStringTotalPresent': queryStringTotalPresent,
+		//                            'queryStringOnRollShort': queryStringOnRollShort,
+		//                            'queryStringOnRollExcess': queryStringOnRollExcess,
+		//                            'queryStringPresentShort': queryStringPresentShort,
+		//                            'queryStringPresentExcess': queryStringPresentExcess
+		//                        },
+		//                        dataType: "json",
+		//                        success: function (data) {
+
+		//                            $("#container").ejChart({
+		//                                primaryXAxis: {
+		//                                    range: {
+		//                                        min: 0,
+		//                                        max: 50,
+		//                                        interval: 1
+		//                                    }
+
+		//                                },
+		//                                legend: {
+		//                                    //Visible chart legend
+		//                                    visible: false
+		//                                },
+		//                                canResize: true,
+		//                                // size: { width: '600', height: '3000' },
+		//                                isResponsive: true,
+		//                                series: [{
+		//                                    title: {
+		//                                        //Add chart title
+		//                                        text: 'On Roll'
+		//                                    },
+		//                                    type: 'Bar',
+		//                                    dataSource: data,
+		//                                    //primaryYAxis: { labelPosition: "inside" },
+		//                                    legend: { title: { font: { fontFamily: "Algerian" } } },
+		//                                    xName: "OperationCode"+'-'+"OperationName",
+		//                                    yName: "OnRollBalance",
+		//                                    enableAnimation: true,
+		//                                    tooltip: {
+		//                                        visible: true
+		//                                    },
+		//                                    marker: {
+		//                                        visible: true,
+		//                                    }
+
+
+
+		//                                }],
+		//                                preRender: function (args) {
+		//                                    var chart2 = $("#container").ejChart("instance");
+		//                                    var length = chart2.model.series[0].points.length - 1;
+		//                                    for (var i = 0; i < chart2.model.series[0].points.length; i++) {
+		//                                        if (chart2.model.series[0].points[i].YValues[0] > 0)
+		//                                            chart2.model.series[0].points[i].fill = "Yellow";
+		//                                        else if (chart2.model.series[0].points[i].YValues[0] < 0)
+		//                                            chart2.model.series[0].points[i].fill = "red";
+		//                                        else
+		//                                            chart2.model.series[0].points[i].fill = "Green";
+		//                                    }
+
+		//                                },
+		//                            });
+
+		//                            var chart2 = $("#container").ejChart("instance");
+		//                            chart2.model.size.height = 100 + (data.length * 16);
+		//                            chart2.model.negativeColor = "Green";
+		//                            chart2.redraw();
+		//                            $("#container1").ejChart({
+		//                                plotOptions: {
+		//                                    columnrange: {
+		//                                        negativeColor: 'Green',
+		//                                        threshold: 0,
+		//                                        dataLabels: {
+		//                                            enabled: true,
+		//                                            formatter: function () {
+
+		//                                            }
+		//                                        }
+		//                                    }
+		//                                },
+		//                                legend: {
+		//                                    //Visible chart legend
+		//                                    visible: false
+		//                                },
+		//                                primaryXAxis: {
+		//                                    //range: {
+		//                                    //    min: 0,
+		//                                    //    max: 50,
+		//                                    //    interval: 1
+		//                                    //}
+		//                                    LabelFormat: "0"
+		//                                },
+		//                                canResize: true,
+		//                                //size: { width: '600', height: '3000' },
+		//                                isResponsive: true,
+		//                                series: [{
+		//                                    title: {
+		//                                        //Add chart title
+		//                                        text: 'Present'
+		//                                    },
+		//                                    //type: 'column',
+		//                                    type: 'Bar',
+		//                                    dataSource: data,
+		//                                    //primaryYAxis: { labelPosition: "inside" },
+		//                                    legend: { title: { font: { fontFamily: "Algerian" } } },
+		//                                    xName: "OperationCode" +'-'+ "OperationName",
+		//                                    yName: "PresentBalance",
+		//                                    enableAnimation: true,
+		//                                    tooltip: {
+		//                                        visible: true
+		//                                    },
+		//                                    marker: {
+		//                                        visible: true,
+		//                                    }
+
+
+		//                                }],
+		//                                preRender: function (args) {
+		//                                    var chart3 = $("#container1").ejChart("instance");
+		//                                    var length = chart3.model.series[0].points.length - 1;
+		//                                    for (var i = 0; i < chart3.model.series[0].points.length; i++) {
+		//                                        if (chart3.model.series[0].points[i].YValues[0] > 0)
+		//                                            chart3.model.series[0].points[i].fill = "Yellow";
+		//                                        else if (chart3.model.series[0].points[i].YValues[0] < 0)
+		//                                            chart3.model.series[0].points[i].fill = "red";
+		//                                        else
+		//                                            chart3.model.series[0].points[i].fill = "Green";
+		//                                    }
+
+		//                                },
+		//                            });
+		//                            var chart3 = $("#container1").ejChart("instance");
+		//                            chart3.model.size.height = 100 + (data.length * 16);
+		//                            chart3.model.negativeColor = "Green";
+		//                            chart3.redraw();
+		//                            //$("#progressbar-5").prop('disabled', true);
+		//                        }
+		//                    });
+
+
+		//                    }
+
+		//					//#endregion
+		//                }//,
+
+		//            });
+
+
+
+
+		//        });
+
+
+
+
+		//Progress Bar start
+
+		//Progress bar end
+
+
+
+
+
+	});
+
+
+	function beginEdit(args) {
+		if (args.requestType == "beginedit") {
+			var data = args.row.find("input");
+			for (var i = 0; i < data.length; i++) {
+				if (data[i].name == "EmployeeID" && parseInt($(data[i]).attr("value")) == 5) {
+					$(data[i]).addClass("e-disable").attr("disabled", "disabled");
+				}
+			}
+		}
+	}
+
+
+	function Refresh() {
+		var DetailGrid = $("#DetailGrid").ejGrid("instance");
+		DetailGrid.sendRefreshRequest();
+	}
+	function actionBegin(args) {
+		this.element.ejWaitingPopup({ template: '#content' });
+	}
+	function rowDataBound(args) {
+
+		// if (args.data.EmployeeID % 3 == 0)
+
+		args.row.css("backgroundColor", "#F3C3C3").css("color", "black");/*custom css applied to the row */
+		// $("#Grid2").children('.e-grid.e-headercell').css('background-color', 'red');
+		args.headerText.css("backgroundColor", "#F3C3C3").css("color", "red");
+	}
+
+	function GetEntity() {
+		debugger;
+		$.ajax({
+			type: "GET",
+			contentType: "application/json; charset=utf-8",
+			url: 'Employees/SkillMatrix/GetSkillMaster',
+			data: {},
+			async: false,
+			dataType: "json",
+			success: function (data) {
+				$("#Grid2").ejGrid({
+
+					dataSource: data, // data must be array of json
+					allowPaging: true,
+					//allowSorting: true,
+					allowFiltering: true,
+					isResponsive: true,
+					enableResponsiveRow: true,
+					allowTextWrap: true,
+					textWrapSettings: { wrapMode: "header" },
+					cssClass: "filtered",
+					filterSettings: {
+						filterType: "excel"
+					},
+					// pageSize: 1,
+					allowScrolling: true,
+					scrollSettings: { width: "auto", height: "2" },
+					//summaryRows:
+					//    [
+					//        {
+					//            title: "Total =",
+					//            color: "Red",
+					//            summaryColumns: [
+					//                {
+					//                    summaryType: ej.Grid.SummaryType.Sum
+					//                    , displayColumn: "ManpowerBudget"
+					//                    , dataMember: "ManpowerBudget"
+					//                    //, format: "{0:C1}"
+					//                },
+					//                {
+					//                    summaryType: ej.Grid.SummaryType.Sum
+					//                    , displayColumn: "OnRoll"
+					//                    , dataMember: "OnRoll"
+					//                    //, format: "{0:C1}"
+					//                },
+					//                {
+					//                    summaryType: ej.Grid.SummaryType.Sum
+					//                    , displayColumn: "TotalPresent"
+					//                    , dataMember: "TotalPresent"
+					//                    //, format: "{0:C1}"
+					//                },
+					//                {
+					//                    summaryType: ej.Grid.SummaryType.Sum
+					//                    , displayColumn: "OnRollShort"
+					//                    , dataMember: "OnRollShort"
+					//                    //, format: "{0:C1}"
+					//                },
+					//                {
+					//                    summaryType: ej.Grid.SummaryType.Sum
+					//                    , displayColumn: "OnRollExcess"
+					//                    , dataMember: "OnRollExcess"
+					//                    //, format: "{0:C1}"
+					//                },
+					//                {
+					//                    summaryType: ej.Grid.SummaryType.Sum
+					//                    , displayColumn: "PresentShort"
+					//                    , dataMember: "PresentShort"
+					//                    //, format: "{0:C1}"
+					//                },
+					//                {
+					//                    summaryType: ej.Grid.SummaryType.Sum
+					//                    , displayColumn: "PresentExcess"
+					//                    , dataMember: "PresentExcess"
+					//                    //, format: "{0:C1}"
+					//                },
+					//            ]
+
+					//        }
+					//    ],
+
+					columns: [
+						{ headerText: "Unit", field: "EntityName", width: 60 },
+						{ headerText: "Process", field: "Process", width: 80 },
+						{ headerText: "Skill", field: "Skill", width: 60 },
+						{ headerText: "Operation Name", field: "OperationName", width: 90 },
+						{ headerText: "Skill Group", field: "SkillGroupe", width: 90 },
+						{ headerText: "Operation Category", field: "OperationCategoryName", width: 80 },
+						{ headerText: "Machine Category", field: "MachineCategory", width: 85 },
+						{ headerText: "Machine Sub Category", field: "MachineSubCategory", width: 95 },
+						//{ headerText: "Position", field: "Position", width: 80 },
+						{ headerText: "OnRoll", field: "OnRoll", width: 70 },
+						{ headerText: "T.Present", field: "TotalPresent", width: 80 },
+						{ headerText: "OR.Short", field: "OnRollShort", width: 80 },
+						{ headerText: "OR.Excess", field: "OnRollExcess", width: 90 },
+						{ headerText: "P.Short", field: "PresentShort", width: 80 },
+						{ headerText: "P.Excess", field: "PresentExcess", width: 80 }
+
+
+
+
+						//{ field: "OerationCode", headerText: "Operation Code", textAlign: ej.TextAlign.Right, width: 200 },
+						//{ field: "OperationName", headerText: "Operation Name", width: 200, visibility: false },
+						//{ headerText: "Type", field: "Type", width: 100 },
+						// { headerText: "Machine Master", field: "MachineMaster", width: 200 },
+
+						//{ title: "EntityCode", field: "EntityCode", filterable: true, width: 200, filterable: { multi: true, search: true } },
+
+						//{ title: "PositionCode", field: "PositionCode", filterable: true, filterable: { multi: true, search: true } },
+						//{ headerText: "PositionName", field: "PositionName", width: 200 },
+
+						//{ title: "MachineCode", field: "MachineCode", width: 200, filterable: true, filterable: { multi: true, search: true } },
+
+						//{ headerText: "MachineCode", field: "MachineCode", width: 200 },
+						//        //{ title: "MachineCategoryCode", field: "MachineCategoryCode", width: 200, filterable: true, filterable: { multi: true, search: true } },
+
+
+						// { headerText: "SkillGroupingCode", field: "SkillGroupingCode", width: 200 },
+
+						// { headerText: "DesignationCategory", field: "DesignationCategory", width: 200 },
+						//{ headerText: "StandardSalary", field: "StandardSalary", width: 200 },
+
+						//{ headerText: "LegalDesignation", field: "LegalDesignation", width: 200 }
+
+						//{ headerText: "ManpowerBudget", field: "ManpowerBudget", width: 200 },
+
+					]//,
+					// rowDataBound: "rowDataBound"
+
+
+				});
+				$("#Grid2").children('.e-pager.e-js.e-pager').hide();
+				$("#Grid2").children('.e-gridcontent.e-droppable.e-js').hide();
+				$("#Grid2").children('.e-gridcontent').hide();
+				//$("#Grid2").children('.e-grid .e-headercell {background - color: chocolate;}').add();
+
+				$("#Grid2").children('.e-grid.e-headercell').css('background-color', 'red'); //{background - color: chocolate;}').add();
+
+			}
+		});
+	}
+
+
+</script>
+<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Skill Matrix Dashboard
+</h3>
+
+
+
+
+
+
+
+<div class="form-horizontal form-elements" ng-form="productNewForm">
+
+
+</div>
+<div class="clearfix"></div>
+
+<div class="row">
+	<div class="clearfix"></div>
+	<div id="grid" kendo-grid k-options="gridOptions"> </div>
+	@*<div><button type="button" id="go" style="background-color:maroon;color:white;">Search Info</button></div>*@
+
+	<fieldset class="scheduler-border">
+		<legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Select Filter Options</span></legend>
+
+
+		<div>
+			<div id='Grid2' style="width:100px;"></div>
+		</div>
+
+	</fieldset>
+	
+
+
+	<div class="tab-design" id="tab_show">
+		<div class="site-tab">
+			<ul class="nav nav-tabs" role="tablist">
+				<li role="presentation" ng-class="{ active: isSeta(1) }"><a ng-click="setTaba(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Summary</a></li>
+				<li role="presentation" ng-class="{ active: isSetb(2) }"><a ng-click="setTabb(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Details</a></li>
+
+			</ul>
+		</div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSeta(1), active: isSeta(1) }">
+              
+                <div>
+                    <ul class="common-btn list-inline text-right">
+
+                        <li> <button class="btn" ng-click="SkillMatSummary();"><i class="glyphicon glyphicon-download"></i> View</button></li>
+                        <li> <button class="btn" ng-click="PrintSum();"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
+                        @*<li> <button class="btn" ng-click="onClickReportDownloadWord();"><i class="glyphicon glyphicon-download"></i>Report</button></li>*@
+                        <li> <button class="btn" ng-click="GetOperationWiseInfo();"><i class="glyphicon glyphicon-download"></i>Report</button></li>
+                        @*<li> <button  class="btn" ng-click="RefreshData();"><i class="glyphicon glyphicon-download"></i> Clear Filter</button></li>*@
+                    </ul>
+                </div>
+                <fieldset class="scheduler-border">
+                    <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+                    <div>
+
+                        <div class="content-container-fluid" style="color:black;">
+                            <div style="color:black;" id="Grid1" ej-grid e-datasource="SummaryList"
+                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                 e-recorddoubleclick="recorddoubleclick" e-filtersettings-filterType="excel"
+                                 e-enabletouch="true"
+                                 e-allowselection="true"
+                                 e-detailstemplate="detailTemp"
+                                 e-detailsdatabound="detailgrid1"
+                                 e-scrollsettings="scroll">
+                                <div e-columns>
+                                    <div e-column e-field="EntityName" e-headertext="Entity" e-width="80"></div>
+                                    @*<div e-column e-field="OperationCode" e-headertext="Operation Code" e-width="80"></div>
+                            <div e-column e-field="OperationName" e-headertext="Operation Name" e-width="130"></div>*@
+                                    <div e-column e-field="OperationActivity" e-headertext="Operation Activity" e-width="80"></div>
+
+
+
+                                    <div e-column e-field="StandardSalary" e-headertext="S. Salary" e-width="80"></div>
+                                    <div e-column e-field="ManpowerBudget" e-headertext="M. Budget" e-width="80"></div>
+
+                                    <div e-column e-field="OnRoll" e-headertext="On Roll" e-width="60"></div>
+                                    <div e-column e-field="OnRollShort" e-headertext="On Roll Short" e-width="80"></div>
+                                    <div e-column e-field="OnRollExcess" e-headertext="On Roll Excess" e-width="80"></div>
+
+                                    <div e-column e-field="TotalPresent" e-headertext="Total Present" e-width="80"></div>
+                                    <div e-column e-field="PresentShort" e-headertext="Present Short" e-width="80"></div>
+                                    <div e-column e-field="PresentExcess" e-headertext="Present Excess" e-width="80"></div>
+
+                                </div>
+                            </div>
+
+                        </div>
+                        <script id="tabGridContents" type="text/x-jsrender">
+                            <div class="tabcontrol" id="Test">
+                                <ul>
+                                    <li><a href="#gridTab{{:OperationCode}}">Designation Info</a></li>
+                                </ul>
+                                <div id="gridTab{{:OperationCode}}">
+                                    <div id="detailGridSGrid"></div>
+                                </div>
+                            </div>
+                        </script>
+                    </div>
+                </fieldset>
+            </div>
+
+          
+
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetb(2), active: isSetb(2) }">
+                <div>
+                    <ul class="common-btn list-inline text-right">
+
+                        <li> <button id="go" class="btn" ng-click="ViewData();"><i class="glyphicon glyphicon-download"></i> View</button></li>
+                        <li> <button id="go1" class="btn" ng-click="Print();"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
+                        <li> <button id="Refresh" class="btn" ng-click="RefreshData();"><i class="glyphicon glyphicon-download"></i> Clear Filter</button></li>
+                    </ul>
+                </div>
+
+                <fieldset class="scheduler-border">
+                    <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Display Filter Data</span></legend>
+
+                    <div>
+                        <div id='DetailGrid'></div>
+
+                    </div>
+                    @*<div class="loader" data-loader>
+                    Please wait
+                    <div class="bounce1"></div>
+                    <div class="bounce2"></div>
+                    <div class="bounce3"></div>
+                </div>*@
+                    @*<div id="load" class="loaderr" style="display:none"></div>*@
+
+
+                </fieldset>
+                <fieldset class="scheduler-border">
+                    <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Graph By Filter Data</span></legend>
+                    <div class="col-xs-12 col-sm-6 col-md-6" style="text-align:center;">
+
+                        <div class="content-container-fluid">
+                            @*<div id="container" style="width:820px; height:500px;"></div>*@
+                            <div class="row">
+                                <label id="onroll"> On Roll</label>
+                                <div class="cols-sample-area">
+                                    <div id="container"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6" style="text-align:center;">
+
+                        <div class="content-container-fluid">
+                            <div class="row">
+                                <label id="present"> Present</label>
+                                <div class="cols-sample-area">
+                                    <div id="container1"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <script type="text/x-kendo-template" id="template">
+                    <div class="tabstrip">
+                        @*<ul>
+                        <li>
+                            Challan Details
+                        </li>
+                    </ul>*@
+                        <div>
+                            <div class="orders"></div>
+                        </div>
+                    </div>
+
+                </script>
+            </div>
+
+
+
+
+        </div>
+	</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	<div id='divInner'>
+
+	</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+
+<div class="content-container-fluid">
+	<input type="text" id="select" />
+</div>
+<br>
+<br>
+<div class="row">
+	<div class="cols-sample-area">
+		<div id="Grid"></div>
+	</div>
+</div>
+
+
+<div class="modal fade site-modal in" id="ListOfRequisition1" role="dialog" data-backdrop="static">
+	<div class="modal-dialog modal-lg modellgModify">
+		<div class="modal-content">
+			<div class="modal-header">Entity Wise Information <button type="button" class="close" ng-click="RequisitionListtHide1();">&times;</button></div>
+			<div class="modal-body form-elements form-horizontal">
+
+				<fieldset class="scheduler-border">
+					<legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data </span></legend>
+					<div id="Display">
+						@*<div id='Grid'></div>*@
+						<div class="content-container-fluid" style="color:black;">
+							
+							<div class="col-lg-12">
+								<div class="content-container-fluid" style="color:black;">
+									<div style="color:black;" id="Griddetail" ng-init="chkinit()" ej-grid e-datasource="listDEtails"
+										 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-filtersettings-filterType="excel" e-responsive="true"
+										 e-enabletouch="true" e-allowselection="true" @*e-rowdatabound="rowDataBound"*@>
+										<div e-columns>
+											<div e-column e-field="EntityName" e-headertext="Entiry Name" e-width="120"></div>
+
+											<div e-column e-field="ManpowerBudget" e-headertext="Manpower Budget" e-width="120"></div>
+											<div e-column e-field="OnRoll" e-headertext="On Roll" e-width="120"></div>
+											<div e-column e-field="OnRollShort" e-headertext="OnRoll Short" e-width="120"></div>
+											<div e-column e-field="OnRollExcess" e-headertext="OnRoll Excess" e-width="120"></div>
+
+											<div e-column e-field="TotalPresent" e-headertext="Total Present" e-width="120"></div>
+											<div e-column e-field="PresentShort" e-headertext="Present Short" e-width="120"></div>
+											<div e-column e-field="PresentExcess" e-headertext="Present Excess" e-width="120"></div>
+
+										</div>
+
+									</div>
+
+
+
+
+								</div>
+							</div>
+						</div>
+					</div>
+				</fieldset>
+
+
+
+
+
+				<div class="clearfix"></div>
+				<div class="common-btn">
+					<ul class="list-inline text-right">
+						@*<li><button ng-click="detailSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action1}}</button></li>*@
+						@*<li><button ng-click="valuePassInDelModal(x)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>*@
+						<li><button ng-click="RequisitionListtHide1();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	@*<script type="text/template" id="Rate">
+			<div class="checkbox-site">
+				<div id="control">
+					<input id="text-Rate" class="form-control" ng-keyup="calculateRequisitionData(x)" type="text" e-fields-text="data.Rate" e-value="detailModel.TransactionRate" e-width="100%" />
+				</div>
+
+
+			</div>
+
+		</script>*@
+</div>
+
+

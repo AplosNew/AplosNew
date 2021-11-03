@@ -1,0 +1,207 @@
+﻿<style>
+    .selected {
+        background-color: rgba(234, 97, 83, 0.42) !important;
+        border: 1px solid black;
+    }
+</style>
+<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>UoM Settings</h3>
+<div class="form-elements form-horizontal">
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Plant<sup>*</sup></label>
+        <div class="col-sm-4">
+            <div class="select-style">
+                <select class="form-control" ng-model="plantId" ng-options="item.Value as item.Text for item in plantList"
+                        ng-change="productionSettingsDataGet();processUomDataGet();">
+                    <option value=""></option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="tab-design">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href aria-controls="general" role="tab" data-toggle="tab">General</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href aria-controls="address" role="tab" data-toggle="tab">Process Capacity</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                <input type="hidden" ng-model="productionSettings.Id" />
+                <input type="hidden" ng-model="productionSettings.PlantId" />
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">NeoclearProcess</label>
+                        <div class="col-sm-8">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="productionSettings.NeoclearProcessId" id=""
+                                        ng-options="item.Value as item.Text for item in processList" tabindex="1">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Multiple Order Allowed InBatch</label>
+                        <div class="col-sm-8">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" ng-model="productionSettings.IsMultipleOrderAllowedInBatch">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-6 col-md-6">
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">BOM/Recipe</label>
+                        <div class="col-sm-8">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="productionSettings.BomOrRecipe"
+                                        ng-options="item.Value as item.Text for item in bomOrRecipeList" tabindex="2">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li><button ng-click="processUoMPopUp();" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Line Item</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12" ng-show="processUomTableShow">
+                        <div class="table-responsive modal-table">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Edit</th>
+                                        <th>Remove</th>
+                                        <th>Process</th>
+                                        <th>Capacity UoM</th>
+                                        <th>1st UoM</th>
+                                        <th>2nd UoM</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in processUomList|filter:{Archive:false} " ng-class="{selected : x.class=='new'}">
+                                        <td class="text-center table-td">
+                                            <ul class="list-inline action-list">
+                                                <li>
+                                                    <button ng-click="processUoMEdit(x)" class="btn btn-action tooltip-here" data-placement="top" title="Edit">
+                                                        <i class="glyphicon glyphicon-edit"></i>
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </td>
+                                        <td class="text-center table-td">
+                                            <ul class="list-inline action-list">
+                                                <li>
+                                                    <button ng-click="processUoMDel(x)" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
+                                                        <i class="glyphicon glyphicon-remove"></i>
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </td>
+                                        <td>{{x.ProcessName}}</td>
+                                        <td>{{x.CapacityUOM}}</td>
+                                        <td>{{x.UOM1}}</td>
+                                        <td>{{x.UOM2}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<confirm-modal></confirm-modal>
+
+<!-- #region Process UoM -->
+<div class="modal fade site-modal in form-elements form-horizontal" id="processUoMPopUp" role="dialog" data-backdrop="static" ng-form name="processUoMForm">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"><i class="glyphicon glyphicon-info-sign"></i> UoM Process</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Process</label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="processUomNew.ProcessId" name="Process" id="processId"
+                                            ng-options="item.Value as item.Text for item in processList" required tabindex="1">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">1st UoM</label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="processUomNew.UOM1Id" id="uoM1Id"
+                                            ng-options="item.Value as item.Text for item in uomList" tabindex="3">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Capacity UoM</label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="processUomNew.CapacityUOMId" name="Capacity Uom" id="capacityUOMId"
+                                            ng-options="item.Value as item.Text for item in uomList" required tabindex="2">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">2nd UoM</label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="processUomNew.UOM2Id" id="uoM2Id"
+                                            ng-options="item.Value as item.Text for item in uomList">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="addProcessUoM()" class="btn">{{psUoM}}</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic modalid="confirmPSPopUp" title="Confirmation"
+                         message={{psmessage_confirmation}} data-ng-click-right-button="psDeleteRow()">
+</confirm-archive-generic>
+<!-- #endregion -->

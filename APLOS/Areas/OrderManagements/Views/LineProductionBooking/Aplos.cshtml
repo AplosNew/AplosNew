@@ -1,0 +1,89 @@
+﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Line Production Qty Assign</h3>
+<div ng-form="modelNewForm" class=" form-elements form-horizontal">
+    <div class="col-xs-12 col-sm-3 col-md-3">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Prd Date<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Production Date" ng-model="modelNew.ProductionDate" tabindex="1" datepicker="getLineCbo();" class="form-control" required>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-3 col-md-3">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Line <sup>*</sup></label>
+            <div class="col-sm-8  show-message">
+                <div class="select-style">
+                    <select name="Line" id="lineId" ng-model="modelNew.LineId" class="col-sm-3 form-control" tabindex="2"
+                            ng-options="item.Value as item.Text for item in lineList" required ng-change="getSalesOrderCbo();">
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-3 col-md-3">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Sales Order<sup>*</sup></label>
+            <div class="col-sm-8  show-message">
+                <div class="select-style">
+                    <select name="Sales Order" id="salesOrderId" ng-model="modelNew.SalesOrderId" class="col-sm-3 form-control" tabindex="3"
+                            ng-options="item.Value as item.Text for item in salesOrderCboList" required ng-change="getShiftCboList();">
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-3 col-md-3">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Production Shift<sup>*</sup></label>
+            <div class="col-sm-8  show-message">
+                <div class="select-style">
+                    <select name="Production Shift" id="shiftId" ng-model="modelNew.ShiftId" class="col-sm-3 form-control" tabindex="4"
+                            ng-options="item.Value as item.Text for item in shiftCboList" required ng-change="getList();">
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="col-xs-12 col-sm-3 col-md-3">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Production Qty<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Prd Qty" ng-model="modelNew.ProductionQty" tabindex="5" class="form-control text-right" required>
+            </div>
+        </div>
+    </div>
+    <div class="table-responsive modal-table col-sm-12">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Employee Code</th>
+                    <th>Employee Name</th>
+                    <th>Operation</th>
+                    <th>Fabrication</th>
+                    <th>Style</th>
+                    <th class="col-sm-1">Operator Qty</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="x in productionList">
+                    <td>{{x.EmployeeCode}}</td>
+                    <td>{{x.EmployeeName}}</td>
+                    <td>{{x.OperationName}}</td>
+                    <td>{{x.Fabrication}}</td>
+                    <td>{{x.Style}}</td>
+                    <td><input type="text" class="form-control text-right" only-numbers ng-model="x.OperatorQty"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="common-btn clearfix">
+        <ul class="list-inline text-right">
+            <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
+            <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i>Clear</button></li>
+        </ul>
+    </div>
+</div>

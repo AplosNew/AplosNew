@@ -1,0 +1,70 @@
+﻿<div class="modal fade site-modal in" id="materialMasterbyTypePopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">{{materialTitle}}<button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="mmPopUpParameters.searchBy">
+                                            <option ng-repeat="option in searchMaterialMasterList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="mmPopUpParameters.search" ng-enter="getMaterialMasterbyTypeData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getMaterialMasterbyTypeData();" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped text-left">
+                        <thead>
+                            <tr>
+                                <th>Material Type</th>
+                                <th>Material Group</th>
+                                <th>Product</th>
+                                <th>Code</th>
+                                <th>Material Name</th>
+                                <th>Base UoM</th>
+                                <th>Id</th>
+                                <th>HSN Code</th>
+                                <th>WithSKU</th>
+                                <th>IsAsset</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in materialMasterbyTypeList  |itemsPerPage:$root.pageSize" pagination-id="metaData.name + 'materialMasterbyTypeList'"
+                                total-items="mmPopUpParameters.total_count" ng-dblclick="selectMaterialByType(x);">
+                                <td>{{x.MaterialTypeName}}</td>
+                                <td>{{x.MaterialGroupMasterName}}</td>
+                                <td>{{x.ProductMasterName}}</td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.BaseUoM}}</td>
+                                <td>{{x.Id}}</td>
+                                <td>{{x.HSNCode}}</td>
+                                <td>{{x.WithSKU?'Yes':'No'}}</td>
+                                <td>{{x.IsAsset}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls pagination-id="metaData.name + 'materialMasterbyTypeList'"
+                                             max-size="2"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getMaterialMasterbyTypeData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

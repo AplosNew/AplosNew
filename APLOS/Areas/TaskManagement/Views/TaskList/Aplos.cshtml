@@ -1,0 +1,521 @@
+﻿
+<table>
+    <tr>
+        <td>
+            <h3 class="site-heading" id="mainContent">
+
+                <span>  <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>  Task Manager</span>
+                <span id="livemessage" style="float:right;font-size:.8em;color:darkviolet;font-weight:bold;" class="check-element animate-show-hide" ng-show="showlivemessage">
+                    <span>{{livemessage}} </span> <span aria-hidden="true" style="color:#0500ff;padding-top:4px;" class="glyphicon glyphicon-info-sign small"></span>
+
+
+                </span>
+
+            </h3>
+        </td>
+
+        @*<td style="width:70px;">
+                <ul class="nav navbar-nav navbar-right" style="float:right;" ng-click="GetAllChatList()">
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="true">
+                            <div style="position:absolute;top:10px;left:6px;color:orangered;font-weight:bold; z-index:1;">{{UnReadChatCount.length>0?UnReadChatCount.length:''}}</div>
+                            <div class="glyphicon glyphicon-send" style="height:22px;width:22px; z-index:0; color:{{IsConnectedToHub==true?'#7fc3ff':'#dfdfdf'}};">
+
+                            </div>&nbsp;
+                            <i class="fa fa-angle-down"></i>
+                        </a>
+                        <ul class="dropdown-menu" style="width:400px;" ng-click="$event.stopPropagation()">
+                            <li>
+                                <div id="gridUnreadChatList" ng-init="chkinit()" style="width:400px;" ej-grid e-datasource="chatList" e-gridlines="horizontal"
+                                     e-allowtextwrap="true" e-textwrapsettings.wrapmode="content"
+                                     e-pagesettings-pagesize="8"
+                                     e-recordclick="OpenChat" e-allowfiltering="true" e-allowpaging="true"
+                                     e-toolbarsettings-showtoolbar="true" e-toolbarsettings-toolbaritems="[ej.Grid.ToolBarItems.Search]"
+                                     e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                     e-allowselection="true" e-filtersettings-filterType="excel">
+                                    <div e-columns>
+                                        <div e-column e-headertext="" e-template="#UnreadChatList" e-textalign="center" e-width="20"></div>
+                                    </div>
+                                </div>
+
+                                <script type="text/template" id="UnreadChatList">
+                                    <div style="height:35px;">
+                                        <div class="col-xs-12 col-sm-2 col-md-2 text-left" style="padding:0px;margin:0px;">
+                                            <img onerror="$(arguments[0].currentTarget).attr('src','images/blankuser.png')" src="POPResources/EmployeeProfiles/EmpPic/{{data.FromId==$parent.EMPID?data.ToEmpPicPath:data.ToId==$parent.EMPID?data.FromEmpPicPath:data.FromEmpPicPath}}"
+                                                 style="float:left;position:absolute; height:30px;width:30px;border:2px solid #efefef; border-radius:50%;" />
+                                        </div>
+                                        <div class="col-xs-12 col-sm-10 col-md-10  text-left" style="padding-left:4px;margin:0px;">
+
+                                            <div class="row" style="padding:0px;margin:0px;font-weight:{{data.IsRead==true?'normal':'bold'}}">
+                                                {{data.ChatName!=''?data.ChatName:data.FromId==$parent.EMPID?data.ToEmployee:data.ToId==$parent.EMPID?data.FromEmployee:data.FromEmployee}}
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </script>
+
+                            </li>
+                        </ul>
+
+
+                    </li>
+
+                </ul>
+            </td>*@
+        <td style="width:70px;">
+            <ul class="nav navbar-nav navbar-right" style="float:right;" ng-click="GetScheduledTaskList()">
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="true">
+                        <div class="glyphicon glyphicon-calendar" style="height:22px;width:22px; z-index:0; color:darkmagenta;">
+
+                        </div>&nbsp;
+                        <i class="fa fa-angle-down"></i>
+                    </a>
+                    <ul class="dropdown-menu" style="width:400px;" ng-click="$event.stopPropagation()">
+                        <li>
+                            <span> Scheduled Task List</span>
+                            <div id="gridScheduledTaskList" ng-init="chkinit()" style="width:400px;" ej-grid e-datasource="ScheduledTaskList" e-gridlines="horizontal"
+                                 e-allowtextwrap="true" e-textwrapsettings.wrapmode="content"
+                                 e-pagesettings-pagesize="8"
+                                 e-allowfiltering="true" e-allowpaging="true"
+                                 e-toolbarsettings-showtoolbar="true" e-toolbarsettings-toolbaritems="[ej.Grid.ToolBarItems.Search]"
+                                 e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                 e-allowselection="true" e-filtersettings-filterType="excel">
+                                <div e-columns>
+                                    <div e-column e-headertext="" e-template="#ScheduledTaskListHtml" e-textalign="center" e-width="20"></div>
+                                </div>
+                            </div>
+
+                            <script type="text/template" id="ScheduledTaskListHtml">
+                                <div style="height:35px;">
+                                    <div class="col-xs-12 col-sm-1 col-md-1 text-left" style="padding:0px;margin:0px;">
+                                        <img onerror="$(arguments[0].currentTarget).attr('src','images/blankuser.png')" src="POPResources/EmployeeProfiles/EmpPic/{{data.EmpPicPath}}"
+                                             style="float:left;position:absolute; height:30px;width:30px;border:2px solid #efefef; border-radius:50%;" />
+                                    </div>
+                                    <div class="col-xs-12 col-sm-10 col-md-10  text-left" style="padding-left:4px;margin:0px;">
+
+                                        <div class="row" style="padding:0px;margin:0px;">
+                                            <span style="color:mediumblue; font-size:small;">
+                                                <span>{{data.TaskType+'&rarr;'}}</span>
+                                            </span>
+                                            {{data.TaskDescription}}
+                                        </div>
+                                        <div class="row" style="padding:0px;margin:0px; font-size:.9em;color:grey">
+                                            <i>{{data.Details}}</i>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-1 col-md-1 text-right" style="padding:0px;margin:0px;">
+                                        <ul class="common-btn list-inline text-left" style="padding: 0px;">
+                                            <li style="padding: 0px;"><button ng-click="$parent.UpdateScheduledTaskListPopUp(this)" class="btn" style="background-color:transparent;border:none; height:30px;width:30px; padding:0px;color:orangered;"><i class="glyphicon glyphicon-trash e-large"></i></button></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </script>
+
+                        </li>
+                    </ul>
+
+
+                </li>
+
+            </ul>
+        </td>
+        <td style="width:70px;">
+
+            <ul class="nav navbar-nav navbar-right" style="float:right;" ng-click="GetAllConnectedUsers()">
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="true">
+                        <div style="position:absolute;top:10px;left:6px;color:orangered;font-weight:bold; z-index:1;">{{UnReadChatCount>0?UnReadChatCount:''}}</div>
+                        <div class="glyphicon glyphicon-user" style="height:22px;width:22px; color:{{IsConnectedToHub==true?'#00dc51':'#dfdfdf'}};"></div>&nbsp;
+                        <i class="fa fa-angle-down"></i>
+                    </a>
+
+                    <ul class="dropdown-menu" style="width:400px;" ng-click="$event.stopPropagation()">
+                        <li>
+                            <span> User List</span>
+                            <div id="loggeduserlist" ng-init="chkinit()" style="width:400px;" ej-grid e-datasource="UserList" e-gridlines="horizontal"
+                                 e-allowtextwrap="true" e-textwrapsettings.wrapmode="content" e-pagesettings-pagesize="10"
+                                 e-recordclick="openSingleChatWindow" e-allowfiltering="true" e-allowpaging="true"
+                                 e-toolbarsettings-showtoolbar="true" e-toolbarsettings-toolbaritems="[ej.Grid.ToolBarItems.Search]"
+                                 e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                 e-allowselection="true" e-filtersettings-filterType="excel">
+                                <div e-columns>
+                                    <div e-column e-headertext="" e-template="#userlist" e-textalign="center" e-width="200"></div>
+                                    <div e-column e-headertext="" e-template="#userstatus" e-textalign="center" e-width="20"></div>
+                                </div>
+                            </div>
+
+                            <script type="text/template" id="userlist">
+                                <div style="height:35px;">
+                                    <div class="col-xs-12 col-sm-2 col-md-2 text-left" style="padding:0px;margin:0px;">
+                                        <img onerror="$(arguments[0].currentTarget).attr('src','images/blankuser.png')" src="POPResources/EmployeeProfiles/EmpPic/{{data.EmpPicPath}}"
+                                             style="float:left;position:absolute; height:40px;width:40px;border:2px solid #efefef; border-radius:50%;" />
+
+                                    </div>
+                                    <div class="col-xs-12 col-sm-10 col-md-10  text-left" style="padding-left:4px;margin:0px;">
+
+                                        <div class="row" style="padding:0px;margin:0px;">
+                                            {{data.EmployeeName}}<br />
+                                            <span style="font-size:.8em;font-style:italic;color:gray;">{{data.Designation}},{{data.Department}}</span>
+                                            <div>
+                                                <span style="font-size:.75em;font-style:italic;color:#0500ff;">{{data.UnreadChat}} {{data.UnreadChatDateCreated}}</span>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </script>
+                            <script type="text/template" id="userstatus">
+
+                                <div style="height:10px;width:10px;background-color:{{data.IsConnected==true?'#00ff00':'grey'}};border-radius:50%;"></div>
+                            </script>
+                            @*</a>*@
+                        </li>
+                    </ul>
+
+                </li>
+
+            </ul>
+
+        </td>
+        <td style="width:70px;">
+            <ul class="nav navbar-nav navbar-right" style="float:right;" ng-click="GetAllUnreadThreads()">
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="true">
+                        <div style="position:absolute;top:10px;left:6px;color:orangered;font-weight:bold; z-index:1;">{{UnreadCommentList.length>0?UnreadCommentList.length:''}}</div>
+                        <div class="glyphicon glyphicon-send" style="height:22px;width:22px; z-index:0; color:{{IsConnectedToHub==true?'#7fc3ff':'#dfdfdf'}};">
+
+                        </div>&nbsp;
+                        <i class="fa fa-angle-down"></i>
+                    </a>
+                    <ul class="dropdown-menu" style="width:400px;" ng-click="$event.stopPropagation()">
+                        <li>
+                            <span> Task Converstions</span>
+                            <div id="gridUnreadCommentList" ng-init="chkinit()" style="width:400px;" ej-grid e-datasource="UnreadCommentList" e-gridlines="horizontal"
+                                 e-allowtextwrap="true" e-textwrapsettings.wrapmode="content"
+                                 e-pagesettings-pagesize="8"
+                                 e-recordclick="getToChat" e-allowfiltering="true" e-allowpaging="true"
+                                 e-toolbarsettings-showtoolbar="true" e-toolbarsettings-toolbaritems="[ej.Grid.ToolBarItems.Search]"
+                                 e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                 e-allowselection="true" e-filtersettings-filterType="excel">
+                                <div e-columns>
+                                    <div e-column e-headertext="" e-template="#UnreadCommentList" e-textalign="center" e-width="20"></div>
+                                </div>
+                            </div>
+
+                            <script type="text/template" id="UnreadCommentList">
+                                <div style="height:35px;">
+                                    <div class="col-xs-12 col-sm-2 col-md-2 text-left" style="padding:0px;margin:0px;">
+                                        <img onerror="$(arguments[0].currentTarget).attr('src','images/blankuser.png')" src="POPResources/EmployeeProfiles/EmpPic/{{data.AssignToId!=data.CreatedById && data.AssignToId==$parent.EMPID?data.EmpPicPathAssignBy:data.EmpPicPath}}"
+                                             style="float:left;position:absolute; height:30px;width:30px;border:2px solid #efefef; border-radius:50%;" />
+                                    </div>
+                                    <div class="col-xs-12 col-sm-10 col-md-10  text-left" style="padding-left:4px;margin:0px;">
+
+                                        <div class="row" style="padding:0px;margin:0px;">
+                                            {{data.TaskDescription}}
+                                        </div>
+                                        <div class="row" style="padding:0px;margin:0px; font-size:.7em">
+                                            <i>{{data.CommentedBy}} says:</i>
+                                            {{data.CommentText}} <span style="color:blue">{{data.CommentCreatedTime}}</span>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </script>
+
+                        </li>
+                    </ul>
+
+
+                </li>
+
+            </ul>
+        </td>
+        <td style="width:70px;">
+            <ul class="nav navbar-nav navbar-right" style="float:right;" ng-click="GetAllUnreadTasks()">
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="true">
+                        <div style="position:absolute;top:10px;left:6px;color:#0500ff;font-weight:bold; z-index:1;">{{UnreadTaskList.length>0?UnreadTaskList.length:''}}</div>
+                        <div class="glyphicon glyphicon-bell" style="height:22px;width:22px; z-index:0; color:{{IsConnectedToHub==true?'#ff0000':'#dfdfdf'}};">
+                        </div>&nbsp;
+                        <i class="fa fa-angle-down"></i>
+                    </a>
+                    <ul class="dropdown-menu" style="width:400px;" ng-click="$event.stopPropagation()">
+                        <li>
+                            <span> Incoming Task List</span>
+                            <div id="gridUnreadTaskList" ng-init="chkinit()" style="width:400px;" ej-grid e-datasource="UnreadTaskList" e-gridlines="horizontal"
+                                 e-allowtextwrap="true" e-textwrapsettings.wrapmode="content" e-pagesettings-pagesize="8"
+                                 e-recordclick="getToTask" e-allowfiltering="true" e-allowpaging="true"
+                                 e-toolbarsettings-showtoolbar="true" e-toolbarsettings-toolbaritems="[ej.Grid.ToolBarItems.Search]"
+                                 e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                 e-allowselection="true" e-filtersettings-filterType="excel">
+                                <div e-columns>
+                                    <div e-column e-headertext="" e-template="#UnreadTaskList" e-textalign="center" e-width="80"></div>
+                                    <div e-column e-headertext="" e-template="#UnreadTaskListType" e-textalign="center" e-width="20"></div>
+                                </div>
+                            </div>
+
+                            <script type="text/template" id="UnreadTaskList">
+                                <div style="height:35px;">
+                                    <div class="col-xs-12 col-sm-2 col-md-2 text-left" style="padding:0px;margin:0px;">
+                                        <img onerror="$(arguments[0].currentTarget).attr('src','images/blankuser.png')" src="POPResources/EmployeeProfiles/EmpPic/{{data.AssignToId!=data.CreatedById && data.AssignToId==$parent.EMPID?data.EmpPicPathAssignBy:data.EmpPicPath}}"
+                                             style="float:left;position:absolute; height:30px;width:30px;border:2px solid #efefef; border-radius:50%;" />
+                                    </div>
+                                    <div class="col-xs-12 col-sm-10 col-md-10  text-left" style="padding-left:4px;margin:0px;">
+                                        <div class="row" style="padding:0px;margin:0px;">
+                                            {{data.TaskDescription}}
+                                        </div>
+                                        <div class="row small" style="padding:2px;">
+                                            <span style="color:darkorchid;">
+                                                {{(data.AssignToId==$parent.EMPID && data.AssignToId==data.CreatedById)?'My Task':
+                                        (data.AssignToId!=$parent.EMPID && data.AssignToId==data.CreatedById)?data.AssignTo==null?'':'Own Task by '+data.AssignTo:
+
+                                        data.AssignToId!=data.CreatedById && data.AssignToId==$parent.EMPID?data.CreatedBy==null?'':'Assigned to me By '+data.CreatedBy:
+                                        data.CreatedById==$parent.EMPID && data.AssignToId!=$parent.EMPID?data.AssignTo==null?'':'Assigned to '+data.AssignTo:
+                                        data.CreatedById!=$parent.EMPID && data.AssignToId!=data.CreatedById && data.AssignToId!=$parent.EMPID?(data.AssignTo==null?'':'Assigned To ' +data.AssignTo)+ ' '+ (data.CreatedBy==null?'':' By '+data.CreatedBy):''}}
+                                                <i style="color:blue">  {{data.TaskAddedDate}}</i>
+
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </script>
+                            <script type="text/template" id="UnreadTaskListType">
+
+                                <div class="col-xs-12 col-sm-12 col-md-12 text-right small">
+
+                                    <div style="float:right;vertical-align:top;position:absolute;font-size:20px;">
+
+                                        <span style="display:{{data.AuthorizationType=='@Library.Service.Enums.AuthorizationTypeEnum.CheckBy.ToString()'?'block':'none'}}" class="glyphicon glyphicon-ok"></span>
+                                        <span style="display:{{data.AuthorizationType=='@Library.Service.Enums.AuthorizationTypeEnum.CrossCheckBy.ToString()'?'block':'none'}}" class="glyphicon glyphicon-check"></span>
+                                        <span style="display:{{data.AuthorizationType=='@Library.Service.Enums.AuthorizationTypeEnum.ApproveBy.ToString()'?'block':'none'}}" class="glyphicon glyphicon-pawn"></span>
+
+
+                                        <span style="display:{{data.AuthorizationType=='@Library.Service.Enums.AuthorizationTypeEnum.AssignTo.ToString()'?'block':'none'}}">
+                                            <span class="glyphicon glyphicon-retweet" style="color:blue; padding:2px;display:{{data.AssignToId==data.CreatedById?'block':'none'}};">
+                                            </span>
+                                            <span class="glyphicon glyphicon-arrow-left" style="color:green;padding:2px;display:{{data.AssignToId!=data.CreatedById && data.AssignToId==$parent.EMPID?'block':'none'}};">
+                                            </span>
+                                            <span class="glyphicon glyphicon-arrow-right" style="color:red;padding:2px;display:{{data.CreatedById==$parent.EMPID && data.AssignToId!=$parent.EMPID?'block':'none'}};">
+                                            </span>
+                                        </span>
+
+
+                                        <span style="display:{{data.AuthorizationType=='@Library.Service.Enums.AuthorizationTypeEnum.CreatedBy.ToString()'?'block':'none'}}">
+                                            <span class="glyphicon glyphicon-retweet" style="color:blue; padding:2px;display:{{data.AssignToId==data.CreatedById?'block':'none'}};">
+                                            </span>
+                                            <span class="glyphicon glyphicon-arrow-left" style="color:green;padding:2px;display:{{data.AssignToId!=data.CreatedById && data.AssignToId==$parent.EMPID?'block':'none'}};">
+                                            </span>
+                                            <span class="glyphicon glyphicon-arrow-right" style="color:red;padding:2px;display:{{data.CreatedById==$parent.EMPID && data.AssignToId!=$parent.EMPID?'block':'none'}};">
+                                            </span>
+
+                                        </span>
+
+                                    </div>
+
+
+                                </div>
+
+                            </script>
+
+                        </li>
+                    </ul>
+
+
+                </li>
+
+            </ul>
+        </td>
+    </tr>
+</table>
+
+
+<div class="row form-elements" @*style="font-family:''Arial Narrow', 'Arial', 'sans-serif', 'Franklin Gothic Medium'' !important;"*@>
+    <div class="col-sm-12" style="padding:0px;">
+
+        <div class="cols-sample-area" style="height:1200px;position:relative; margin:0 auto;">
+            <div id="outterSpliter" class="ang-splitter" ej-splitter e-height="100%" e-properties="proper"
+                 e-enableautoresize="true">
+                <div>
+                    <div class="cont">
+                        <div class="frame">
+                            @*<div id="groupButton" ej-GroupButton e-groupButtonMode="radiobutton" e-select="menuClick" e-dataSource="menuitem" e-fields-text="text" e-showRoundedCorner="false" e-orientation="vertical"></div>*@
+
+                            <div id="menuPane" ng-init="chkinit()" ej-grid e-textwrapsettings-wrapmode="both" e-datasource="menuitem" @*e-templaterefresh="refreshTemplateIssueTransaction"*@
+                                 e-databound="MenuCreate" e-recordclick="menuClick" e-allowfiltering="true" e-allowpaging="false" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
+                                 e-allowselection="true" e-filtersettings-filterType="excel" e-gridlines="none">
+                                <div e-columns>
+
+                                    <div e-column e-headertext="" e-template="#menuText" e-textalign="center" e-width="50"></div>
+                                    @*<div e-column e-field="text" e-headertext="" e-width="100"></div>*@
+                                </div>
+                            </div>
+                            <script type="text/template" id="menuText">
+
+                                <div class="col-xs-12 col-sm-12 col-md-12" style="text-align:left;padding:4px;">
+                                    <div style="display:inline-flex">
+                                        <div style="width:20px;color:midnightblue;" class="{{data.prefixIcon}}">
+
+                                        </div>
+                                        <div style="width:100%;color:black; text-align:left;font-size:1.0em;">
+                                            {{data.text}} <span style="font-style:italic;color:darkorchid;display:{{data.count>0?'inline':'none'}}">Total: {{data.count}}</span>
+                                            <span style="font-style:italic;color:blue;display:{{data.unread>0?'inline':'none'}}">Unread: {{data.unread}} </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </script>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="cont">
+                    <div class="col-xs-12 col-sm-12 col-md-12" style="border-bottom:1px solid #dfdfdf;">
+                        <h3 class="site-heading" style=" padding:10px; background-color:{{selectedTaskStatus=='Closed'?'red':'transparent'}};font-weight:bold;">
+                            <span aria-hidden="true" class="glyphicon glyphicon-tasks"></span>  {{SelectedMenu.text}} ({{selectedTaskStatus}} Tasks)
+                            <span style="float:right;position:relative;">
+                                <div id="groupButton" e-size="mini" ej-groupbutton e-groupbuttonmode="radiobutton" e-width="120" e-select="changeTaskStatus" e-showroundedcorner="false" e-enabletouch="true" e-datasource="TaskClosingStatus"></div>
+
+                            </span>
+
+                        </h3>
+
+                    </div>
+
+
+                    @Html.Partial("~/Areas/TaskManagement/Views/TaskList/TaskList.cshtml")
+                    @Html.Partial("~/Areas/TaskManagement/Views/TaskList/IssueTransactionList.cshtml")
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+
+<ej-dialog id="dialogSearchEmployee" title="Employees" e-enablemodal="true" e-position-y="0" e-position-x="0" e-showoninit="false" e-target="#mainContent" e-close="onDialogClose" e-width="900" e-open="enableBtn">
+    <div class="col-xs-12" style="border:1px solid #dfdfdf">
+        <div class="row text-right">
+            <div class="col-xs-12 col-sm-12 col-sm-12">
+                <div class="search-form">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-3 col-md-3">
+                            <div class="select-style">
+                                <select ng-model="EmployeeSearchCol">
+                                    <option ng-repeat="option in EmployeemodelFilterByList" value="{{option.value}}">{{option.name}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-7 col-md-7">
+                            <input type="text" class="form-control" placeholder="Search" ng-model="EmployeeSearchVal" ng-enter="getEmployeeData()">
+                        </div>
+                        <div class="col-xs-12 col-sm-2 col-md-2">
+                            <button type="button" ng-click="getEmployeeData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="SearchEmployee" ng-init="chkinit()" ej-grid e-datasource="EmployeeList" e-gridlines="horizontal"
+             e-allowtextwrap="true" e-textwrapsettings.wrapmode="content"
+             e-recorddoubleclick="ViewEmployeeStatus" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel">
+            <div e-columns>
+                <div e-column e-field="Id" e-headertext="Id" e-width="30" e-primarykey="true" e-visible="false"></div>
+                <div e-column e-headertext="" e-template="#empimage" e-textalign="center" e-width="40"></div>
+                <div e-column e-headertext="" e-template="#empdetail" e-textalign="left" e-width="400"></div>
+                @*<div e-column e-field="EmployeeCode" e-headertext="Code" e-width="30"></div>
+                    <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                    <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                    <div e-column e-field="Designation" e-headertext="Designation" e-width="80"></div>
+                    <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                    <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="80"></div>*@
+            </div>
+        </div>
+        <script type="text/x-jsrender" id="empimage">
+            <img onerror="$(arguments[0].currentTarget).attr('src','images/blankuser.png')"
+                 src="POPResources/EmployeeProfiles/EmpPic/{{:EmpPicPath}}" style="height:48px;width:48px;border:2px solid #efefef; border-radius:50%;" />
+        </script>
+        <script type="text/template" id="empdetail">
+            <div style="font-size:1.2em">
+                <span style="color:blue;font-weight:bold;">{{data.EmployeeCode}}  </span><span style="color:black;font-weight:bold;">{{data.EmployeeName}}</span><br />
+            </div>
+            <div style="font-size:1em;font-style:italic">
+                {{data.Designation}}, {{data.Department}}
+            </div>
+            <div style="font-size:1em;">
+                Section: {{data.Section}}, Sub-section: {{data.SubSection}}
+            </div>
+        </script>
+    </div>
+</ej-dialog>
+<ej-dialog id="dialogEditTask" e-close="EditTaskClose" title=" Edit To-Do" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#mainContent" e-minwidth="900" e-open="enableBtn">
+    <div class="row">
+        @Html.Partial("~/Areas/TaskManagement/Views/TaskList/EditTask.cshtml")
+    </div>
+</ej-dialog>
+<ej-dialog id="dialogScheduleAA" title=" Task Schedule" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#mainContent" e-minwidth="900" e-open="enableBtn">
+    <div class="col-xs-12">
+
+        @Html.Partial("~/Areas/TaskScheduler/Views/TaskSchedule/ToDoSchedule.cshtml")
+    </div>
+</ej-dialog>
+<ej-dialog id="dialogViewIssueDetail" title=" Issue Reponsible Group" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#mainContent" e-minwidth="900" e-open="enableBtn">
+    <div class="col-xs-12">
+
+        @Html.Partial("~/Areas/TaskManagement/Views/TaskList/ViewIssueDetail.cshtml")
+    </div>
+</ej-dialog>
+<ej-dialog id="dialogAdditionalFilter" title=" Search Parameters" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#mainContent" e-minwidth="900" e-open="enableBtn">
+    <div class="col-xs-12">
+
+        @Html.Partial("~/Areas/TaskManagement/Views/TaskList/AdditionalTaskFilter.cshtml")
+    </div>
+</ej-dialog>
+<ej-dialog id="dialogChat" title="Chat"  e-close="ChatWindowClose" e-enablemodal="false" e-position-y="0" e-actionbuttons="chatActionButtons" e-showoninit="false" e-target="#mainContent" e-minwidth="600" e-open="enableBtn">
+    <div class="col-xs-12">
+        @Html.Partial("~/Areas/TaskManagement/Views/Shared/_singleChat.cshtml")
+    </div>
+</ej-dialog>
+
+<style type="text/css">
+
+    .e-grid .e-rowcell {
+        white-space: normal !important;
+        font-size: 1.2em !important;
+        font-weight: 400 !important;
+        line-height: normal !important;
+        /*font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;*/
+        font-family: 'Arial Narrow', 'Arial', 'sans-serif', 'Franklin Gothic Medium' !important;
+        text-shadow: 1px 1px 1px #eeeeee !important;
+    }
+
+    .e-splitter .e-splitbar .e-h-arrow {
+        display: none !important;
+    }
+
+    .e-splitter {
+        /*border-left: none !important;
+        border-right: none !important;*/
+        border: none !important;
+    }
+</style>
+
+
+<confirm-modal></confirm-modal>
+<confirm-archive-generic data-modalid="confirmDeleteSubTask" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteToDoSubTaskFinal()" />
+<confirm-modal></confirm-modal>
+<confirm-archive-generic data-modalid="confirmDeleteAttachment" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteToDoFileFinal()" />
+<confirm-modal></confirm-modal>
+<confirm-archive-generic data-modalid="confirmAssignToOther" title="Assignment" message={{message_confirmation}} data-ng-click-right-button="Get(TempEditData)" />
+<confirm-modal></confirm-modal>
+<confirm-archive-generic data-modalid="confirmDeleteSchedule" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="UpdateScheduledTaskList()" />
+

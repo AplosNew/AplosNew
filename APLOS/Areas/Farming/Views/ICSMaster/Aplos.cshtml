@@ -1,0 +1,279 @@
+﻿<togglable name="{{title}}"></togglable>
+<style>
+
+    .filled {
+        background-color: #ff0000 !important;
+    }
+</style>
+<div class="form-elements form-horizontal" ng-form name="ICSMasterForm">
+    <div class="row" ng-form name="General">
+        <input type="hidden" ng-model="ICSMaster.Id">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Company<sup>*</sup> </label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select id="Company" class="form-control" ng-model="ICSMaster.CompanyId" name="Company" ng-change="getPlant();" required tabindex="1">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in companyList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label" title="Entity">Entity<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ICSMaster.EntityId" required id="entityId" name="Entity" tabindex="3" ng-change="getSaveList();">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in EntityList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Registration Code<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Registration Code" ng-model="ICSMaster.RegistrationCode" class="form-control" required tabindex="5" maxlength="15">
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Registration Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+
+                    <input type="text" ng-model="ICSMaster.RegistrationDate" datepicker name="Registration Date" required class="form-control" tabindex="7">
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Group/ Center<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Group/ Center" ng-model="ICSMaster.Group" class="form-control" required tabindex="9" maxlength="50">
+                </div>
+            </div>
+
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">License Number<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="License Number" ng-model="ICSMaster.LicenseNumber" class="form-control" required tabindex="11" maxlength="50">
+                </div>
+            </div>
+
+
+
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Renewal Period<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Renewal Period" ng-model="ICSMaster.RenewalPeriod" class="form-control" required tabindex="13" maxlength="50">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Debit GL</label>
+                <div class="col-sm-8 ">
+                    <input type="text" ng-model="ICSMaster.DebitGL" class="form-control" tabindex="15" maxlength="50">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="inputBtnSection common-btn">
+                    <label class="fileUpload col-sm-4 ">
+                        <input id="uploadBtn4" type="file" name="file[]" class="upload" />
+                        <span class="uploadBtn"><i class="fa fa-paperclip" aria-hidden="true"> Attach</i></span>
+                    </label>
+                    <div class="col-sm-6" style="width: 198px;">
+                        <input type="text" id="uploadFile4" name="uploadFile" class="disableInputField form-control" disabled="disabled" style="width: 183px;" />
+                    </div>
+                    <div class="col-sm-2" style="padding-left:0px;">
+                        <button ng-click="DocumentRemove();" class="btn" style="height: 31px;width: 88px;padding-left: 8px;background: #242841;"><i class="fa fa-chain-broken" aria-hidden="true"></i> Detach</button>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Plant<sup>*</sup> </label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select id="PlantId" class="form-control" ng-model="ICSMaster.PlantId" name="Plant" ng-change="getEntityWithChange();" required tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in PlantList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Registration ID<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Registration ID" ng-model="ICSMaster.RegistrationID" class="form-control" required tabindex="4" maxlength="50">
+                </div>
+            </div>
+
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Name" ng-model="ICSMaster.Name" class="form-control" required tabindex="6" maxlength="50">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">User Info 1</label>
+                <div class="col-sm-8 ">
+                    <input type="text" ng-model="ICSMaster.UserInfo1" class="form-control" tabindex="8" maxlength="50">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">User Info 2</label>
+                <div class="col-sm-8 ">
+                    <input type="text" ng-model="ICSMaster.UserInfo2" class="form-control" tabindex="10" maxlength="50">
+                </div>
+            </div>
+
+
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Responsible Person"><span>Responsible Person</span></label>
+                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                    <span class="input-group-addon" ng-class="{filled:ICSMaster.EmployeeStatus==='Separated'}">{{ICSMaster.EmployeeCode}}</span>
+                    <input type="text" ng-model="ICSMaster.ResponsiblePerson" class="form-control" readonly ng-class="{filled:ICSMaster.EmployeeStatus==='Separated'}">
+                    <span class="input-group-btn">
+                        <button ng-click="ResponsiblePersonPopUp()" tabindex="12" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="ResponsiblePersonClear()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Credit GL</label>
+                <div class="col-sm-8  ">
+                    <input type="text" ng-model="ICSMaster.CreditGL" class="form-control" tabindex="14" maxlength="50">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Remarks</label>
+                <div class="col-sm-8 ">
+
+                    <textarea class="form-control" ng-model="ICSMaster.Remarks" tabindex="16" maxlength="250"></textarea>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+        <br />
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Save()" class="btn" tabindex="17"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="18"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear()" class="btn" tabindex="19"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+    </div>
+    <confirm-modal></confirm-modal>
+
+    <div class="row text-right aplos-grid-toggle">
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="search-form">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-3">
+                        <div class="select-style">
+                            <select ng-model="searchBy">
+                                <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-7 col-md-7">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive aplos-grid-toggle">
+
+        <div id="ICSMasterListGrid" ej-grid e-datasource="ICSMasterList"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-recorddoubleclick="Get">
+            <div e-columns>
+                <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                <div e-column e-field="EntityName" e-headertext="Entity" e-width="2"></div>
+                <div e-column e-field="RegistrationCode" e-headertext="Registration Code" e-width="2"></div>
+                <div e-column e-field="Group" e-headertext="Group" e-width="2"></div>
+                <div e-column e-field="Name" e-headertext="Name" e-width="2"></div>
+                <div e-column e-field="LicenseNumber" e-headertext="License Number" e-width="2"></div>
+                <div e-column e-field="RegistrationID" e-headertext="Registration ID" e-width="2" e-visible="true"></div>
+                <div e-column e-field="RegistrationDate" e-headertext="Registration Date" e-width="3" e-visible="true"></div>
+                <div e-column e-field="RenewalPeriod" e-headertext="Renewal Period" e-width="2" e-visible="true"></div>
+
+                <div e-column e-template="#DownloadFileTab" e-headertext="Download" e-width="2"></div>
+            </div>
+        </div>
+        <script type="text/template" id="DownloadFileTab">
+            <a href="{{$parent.ToDoFilePath +'/'+ data.FileName}}" target="_self" download="{{data.FileName}}">
+                <span style="color:red;padding:4px;">  </span>
+                <span style="color:blue;">
+                    {{data.FileName}}
+                </span>
+            </a>
+        </script>
+    </div>
+
+
+
+<div class="modal fade site-modal in" id="EmployeePopUpResPerson" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> Responsible Person List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="GridEmployeeResPerson" ej-grid e-datasource="EmpResPersonList"
+                             e-allowfiltering="true" e-recorddoubleclick="setEmpData" e-allowpaging="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+
+                                <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="40"></div>
+                                <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee Name" e-width="140"></div>
+                                <div e-column e-type="string" e-field="PositionName" e-headertext="Position" e-width="140"></div>
+                                <div e-column e-type="string" e-field="Designation" e-headertext="Designation" e-width="80"></div>
+                                <div e-column e-type="string" e-field="DepartmentName" e-headertext="Department Name" e-width="80"></div>
+                                <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="80"></div>
+                                <div e-column e-type="string" e-field="SubSection" e-headertext="Sub Section" e-width="80"></div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+
+                            <button ng-click="closeEmpResPersonPopUp('EmployeePopUpResPerson');" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<confirm-archive-generic modalid="confirmDocumentDelete" title="Confirmation" message="Are you sure want to remove this file?" data-ng-click-right-button="removeDocument();"></confirm-archive-generic>

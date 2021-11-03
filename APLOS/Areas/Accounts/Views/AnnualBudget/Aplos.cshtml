@@ -1,0 +1,487 @@
+﻿<style>
+    .inlineMargin {
+        margin-left: 0px;
+        margin-right: 0px;
+    }
+
+    .resMargin {
+        margin-left: -15px;
+    }
+</style>
+<togglable name="Entity Wise Financial Budget"></togglable>
+<div class="form-horizontal" ng-form name="bankMasterForm">
+    <div class="col-xs-12 col-sm-4 col-md-4 form-element-ctrl form-horizontal">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Budget Master<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="input-group">
+                    <input type="text" name="Register" ng-model="routineBudget.BudgetName" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="GetBudgetMasterList();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-4 col-md-4 form-element-ctrl form-horizontal">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="routineBudget.EntityId" name="Entity" ng-options="item.Value as item.Text for item in entityList" ng-change="getfiscalYearList();" required>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-4 col-md-4 form-element-ctrl form-horizontal">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Fiscal Year<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select ng-change="getannualBudgetList(routineBudget.BudgetMasterId,routineBudget.EntityId,routineBudget.FiscalYearId);getannualBudgetDetailList(routineBudget.BudgetMasterId,routineBudget.EntityId,routineBudget.FiscalYearId);" name="FiscalYear" class="col-sm-3 form-control"
+                            ng-model="routineBudget.FiscalYearId" ng-options="item.Value as item.Text for item in fiscalYearList" required>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+</div>
+<div class="form-elements" ng-form id="routineBudget" name="routineBudgetForm">
+    <input type="hidden" ng-model="routineBudget.Id">
+    <div class="tab-design" id="tab_show">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="bank" role="tab" data-toggle="tab">Budget Head</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="address" role="tab" data-toggle="tab" ng-hide="true">Other Head</a></li>
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="activity" role="tab" data-toggle="tab">Activity</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                <div class="row" ng-form name="routineBudget1">
+                    <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Resp. Person by</label>
+                            <div class="col-sm-8 text-left">
+                                <input type="radio" name="baselinedate" ng-change="clearResponsiblePerson()" ng-model="routineBudget.ResponsiblePersonBy" value="Position">
+                                <span>Position</span>
+                                <input type="radio" name="baselinedate" ng-change="clearResponsiblePerson()" ng-model="routineBudget.ResponsiblePersonBy" value="Budget">
+                                <span>(MP)Budget</span>
+                                <input type="radio" name="baselinedate" ng-change="clearResponsiblePerson()" ng-model="routineBudget.ResponsiblePersonBy" value="Employee" checked="checked">
+                                <span>Employee</span><br />
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Resp. Person <sup>*</sup></label>
+                            <div class="col-sm-7 show-message">
+                                <input type="text" name="Responsible Person" ng-model="routineBudget.ResponsiblePerson" class="form-control" readonly required>
+                            </div>
+                            <div class="col-sm-1">
+                                <button tabindex="13" ng-click="showEmployeeInformationModal();" type="submit" class="btn single-small-btn pull-right"><i class="glyphicon glyphicon-search"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal form-elements">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Approval Category</label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select id="AprovalCategory" class="form-control" name="Aproval Category" ng-model="routineBudget.ApprovalCategory" tabindex="8" ng-disabled="responsiblePersonDetailList.length>0">
+                                        <option value="">--Select--</option>
+                                        <option ng-repeat="option in getAprovalCategoryList" value="{{option.Value}}">{{option.Text}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Active</label>
+                            <div class="col-sm-8">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="routineBudget.Active" tabindex="7">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label"> Standard per month<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="number" name="Budget Amount" ng-model="routineBudget.Amount" class="form-control" tabindex="1" required>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Budget Limitation</label>
+                            <div class="col-sm-8 show-message text-left">
+                                <input type="radio" name="BdgLimitation" ng-change="limitchange()" ng-model="routineBudget.BudgetLimit" value="Limited">
+                                <span>Limited</span>
+                                <input type="radio" name="BdgLimitation" ng-change="limitchange()" ng-model="routineBudget.BudgetLimit" value="Unlimited">
+                                <span>Unlimited</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal form-elements">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select id="CurrencyId" class="form-control" name="Currency" ng-model="routineBudget.CurrencyId" tabindex="2" required>
+                                        <option value="">--Select--</option>
+                                        <option ng-repeat="option in currencyList" value="{{option.Value}}">{{option.Text}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Exceed Percent(%)</label>
+                            <div class="col-sm-8 show-message">
+                                <input type="number" ng-model="routineBudget.VariationPercent" ng-disabled="routineBudget.BudgetLimit=='Unlimited'" name="Exceed Percent" class="form-control" tabindex="3">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Period No</th>
+                                    <th>Period Name</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>
+                                        Standard Budget
+                                        <div class="common-btn">
+                                            <button ng-click="copystandardBudgetallocation();" class="btn" tabindex="5"><i class="glyphicon"></i> Copy</button>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        Monthly Budget 
+                                        <div class="common-btn">
+                                            <button ng-click="copymonthlyBudgetallocation();" class="btn" tabindex="5"><i class="glyphicon"></i> Copy</button>
+                                        </div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="y in annualBudgetDetailList">
+                                    <td>{{y.PeriodNo}}</td>
+                                    <td>{{y.PeriodName}}</td>
+                                    <td>{{y.StartDate |dateFiltering}}</td>
+                                    <td>{{y.EndDate |dateFiltering}}</td>
+                                    <td>
+                                        <div class="show-message">
+                                            <input type="text" class="form-control text-right" ng-model="y.StandardAmount" ng-keyup="changestandardBudgetallocation()">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="show-message">
+                                            <input type="text" class="form-control text-right" ng-model="y.ActualAmount" ng-keyup="changemonthlyBudgetallocation()">
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="text-right"><strong>Total : </strong></td>
+                                    <td class="text-right"><strong>{{annualBudgetDetailList | sumByKey : 'StandardAmount' }}</strong></td>
+                                    <td class="text-right"><strong>{{annualBudgetDetailList | sumByKey : 'ActualAmount' }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="text-right"><strong>Average : </strong></td>
+                                    <td class="text-right"><strong>{{averageStandardAmount}}</strong></td>
+                                    <td class="text-right"><strong>{{averageActualAmount}}</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    @*<h4 class="site-heading">&nbsp;&nbsp; From Other Head</h4>
+                        <div class="col-xs-12 col-sm-5 col-md-5 form-element-ctrl form-horizontal">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Budget Master<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select id="othBudgetMasterId" class="form-control" name="Budget Master" ng-model="routineBudgetOtherHeadNew.BudgetMasterId" tabindex="4">
+                                            <option value="">--Select--</option>
+                                            <option ng-show="option.Value!=routineBudget.BudgetMasterId" ng-repeat="option in budgetMasterList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-5 col-md-5 form-element-ctrl form-horizontal">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Percentage<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <input type="text" ng-model="routineBudgetOtherHeadNew.Percentage" name="Percentage" only-numbers class="form-control" tabindex="5">
+                                </div>
+                            </div>
+                        </div>
+                        <button ng-click="AddOtherHead()" class="btn single-small-btn" tabindex="6"><i class="glyphicon glyphicon-plus-sign"></i></button>
+                        <div class="col-xs-12 col-sm-12 col-md-12 table-responsive modal-table" ng-show="OtherHeadDataList.length>0">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Budget Master</th>
+                                        <th>Percentage</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in OtherHeadDataList" ng-class="{selected : x.Id==null}">
+                                        <td>{{x.BudgetMaster}}</td>
+                                        <td>{{x.Percentage}}</td>
+                                        <td class="text-right">
+                                            <button ng-click="getEditBdgAmountRow($index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Edit">
+                                                <i class="glyphicon glyphicon-edit"></i>
+                                            </button>
+                                            <button ng-click="bdgAmountRemoveRow($index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove">
+                                                <i class="glyphicon glyphicon-remove"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>*@
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }" ng-hide="true">
+                <div class="row" ng-form name="routineBudget2">
+                    <h4 class="site-heading" ng-show="routineBudget.ApprovalCategory=='Other'">&nbsp;&nbsp; Approval Person</h4>
+                    <div class="col-xs-12 col-sm-12 col-md-12 form-horizontal form-elements" ng-show="routineBudget.ApprovalCategory=='Other'">
+                        <input type="hidden" ng-model="responsiblePersonDetailNew.Id" />
+                        <div class="col-md-4 resMargin">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Position</label>
+                                <div class="col-sm-6 pdr3">
+                                    <input type="text" ng-model="responsiblePersonDetailNew.PositionId" ng-show="false" class="form-control" readonly>
+                                    <input type="text" ng-model="responsiblePersonDetailNew.PositionName" class="form-control" readonly>
+                                </div>
+                                <button ng-click="positionPopUp();" class="btn single-small-btn inlineMargin"><i class="glyphicon glyphicon-search"></i></button>
+                                <button ng-click="clearPosition()" class="btn single-small-btn inlineMargin"><i class="glyphicon glyphicon-refresh"></i></button>
+                            </div>
+                        </div>
+                        <div class="col-md-4 resMargin">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">(MP) Budget</label>
+                                <div class="col-sm-5 pdr3">
+                                    <input type="text" ng-model="responsiblePersonDetailNew.ManpowerBudgetId" ng-show="false" class="form-control" readonly>
+                                    <input type="text" ng-model="responsiblePersonDetailNew.ManpowerBudget" class="form-control" readonly>
+                                </div>
+                                <button ng-click="manpowerBudgetPopUp();" class="btn single-small-btn inlineMargin"><i class="glyphicon glyphicon-search"></i></button>
+                                <button ng-click="clearBudget()" class="btn single-small-btn inlineMargin"><i class="glyphicon glyphicon-refresh"></i></button>
+                            </div>
+                        </div>
+                        <div class="col-md-4 resMargin">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Employee</label>
+                                <div class="col-sm-6 pdr3">
+                                    <input type="text" ng-model="responsiblePersonDetailNew.EmployeeId" ng-show="false" class="form-control" readonly>
+                                    <input type="text" ng-model="responsiblePersonDetailNew.Employee" class="form-control" readonly>
+                                </div>
+                                <button ng-click="" class="btn single-small-btn inlineMargin"><i class="glyphicon glyphicon-search"></i></button>
+                                <button ng-click="" class="btn single-small-btn inlineMargin"><i class="glyphicon glyphicon-refresh"></i></button>
+                            </div>
+                        </div>
+                        <button ng-click="addResponsiblePersonDetail()" class="btn single-small-btn pull-right"><i class="glyphicon glyphicon-plus-sign"></i></button>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12 table-responsive modal-table" ng-show="responsiblePersonDetailList.length>0">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Level</th>
+                                    <th>Position</th>
+                                    <th>(Mp)Budget</th>
+                                    <th>Employee</th>
+                                    <th>Remove</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in responsiblePersonDetailList">
+                                    <td>
+                                        <div class="form-group">
+                                            <div class="col-sm-8">
+                                                <input type="text" only-numbers ng-model="x.ApprovalLevel" class="form-control">
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{x.PositionName}}</td>
+                                    <td>{{x.ManpowerBudget}}</td>
+                                    <td>{{x.Employee}}</td>
+                                    <td class="text-right">
+                                        <button ng-click="respEditRow($index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Edit">
+                                            <i class="glyphicon glyphicon-edit"></i>
+                                        </button>
+                                        <button ng-click="respRemoveRow($index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove">
+                                            <i class="glyphicon glyphicon-remove"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                <div class="row" ng-form name="routineBudget3">
+                    <div class="col-xs-12 col-sm-12 col-md-12 table-responsive modal-table" ng-show="activityDataList.length>0">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Short Name</th>
+                                    <th>Standard Name</th>
+                                    <th>User Name</th>
+                                    <th>FA Linked</th>
+                                    <th style="width:10%;">Amount</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in activityDataList" ng-class="{selected : x.Id==null}">
+                                    <td>{{x.Code}}</td>
+                                    <td>{{x.ShortName}}</td>
+                                    <td>{{x.StandardName}}</td>
+                                    <td>{{x.UserName}}</td>
+                                    <td>{{x.FALinked}}</td>
+                                    <td><input type="text" only-numbers ng-model="x.Amount" class="form-control text-right"></td>
+                                    <td>
+                                        <div class="col-sm-12 input-group" style="margin-top:-7px;">
+                                            <input type="text" ng-model="x.BudgetMasterActivityFixedAssetViewModel.length" class="form-control" readonly>
+                                            <span class="input-group-btn">
+                                                <button ng-click="showEmployeePopUpList(x.ActivityId)" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                            </span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5" class="text-right"><strong>Total : </strong></td>
+                                    <td class="text-left"><strong>{{activityDataList | sumByKey : 'Amount' }}</strong></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li><button ng-click="Save();" class="btn" tabindex="33"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li><button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="34"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li><button ng-click="Clear();" class="btn" tabindex="35"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+@*<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>*@
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Budget</th>
+                <th>Currency</th>
+                <th>Amount</th>
+                <th>Budget Limit</th>
+                <th>PaymentVoucherType</th>
+                <th>Active</th>
+            </tr>
+        </thead>
+        <tbody>
+            @*<tr dir-paginate="x in routinebudgets |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get(x.Id, $index);">*@
+            <tr ng-repeat="x in routinebudgets" ng-dblclick="Get(x.Id, $index);">
+                <td>{{x.BudgetCodeName}}</td>
+                <td>{{x.CurrencyName}}</td>
+                <td>{{x.Amount}}</td>
+                <td>{{x.BudgetLimit}}</td>
+                <td>{{x.PaymentVoucherType}}</td>
+                <td>{{x.Active?'Yes':'No'}}</td>
+            </tr>
+        </tbody>
+    </table>
+    @*<dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>*@
+</div>
+<div class="modal fade site-modal in" id="employeepopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Search ({{popUpTitle}}) Data
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="$root.parameters.searchBy">
+                                            <option ng-repeat="option in sbEmployeeInformation" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="loadEIData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="loadEIData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped text-left">
+                        <thead>
+                            <tr>
+                                <th ng-repeat="h in sbEmployeeInformation">{{h.Text}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in employeeinformationData  |itemsPerPage:$root.pageSize" total-items="$root.total_count" pagination-id="metaData.name + 'employeeinformationData'" ng-dblclick="getEmployee(x);">
+                                <td ng-repeat="hh in sbEmployeeInformation">{{x[hh.Value]}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls pagination-id="metaData.name + 'employeeinformationData'"
+                                             max-size="2" direction-links="true"
+                                             boundary-links="true" on-page-change="loadEIData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic modalid="bdgPopUpDelete" title="Confirmation" message={{bdgConfirmMessage}} data-ng-click-right-button="confirmBdgAmntRemoveRow()"></confirm-archive-generic>
+<confirm-archive-generic modalid="respPopUpDelete" title="Confirmation" message={{respConfirmMessage}} data-ng-click-right-button="removeResponsiblePersonDetail()"></confirm-archive-generic>
+<confirm-archive-generic modalid="activityPopUpDelete" title="Confirmation" message={{activityConfirmMessage}} data-ng-click-right-button="confirmactivityRemoveRow()"></confirm-archive-generic>
+@Html.Partial("_ConfirmModal")
+@Html.Partial("~/Areas/Organizations/Views/ManpowerBudget/_ManpowerBudgetSingleSelectPopUp.cshtml")
+@Html.Partial("~/Areas/Organizations/Views/Position/_PositionPopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/AnnualBudget/_EmployeeActivityPopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/ExpenseBooking/_BudgetMasterPopUp.cshtml")

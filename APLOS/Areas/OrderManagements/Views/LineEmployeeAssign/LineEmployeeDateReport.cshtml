@@ -1,0 +1,25 @@
+﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Line Operator Date Report</h3>
+<div ng-form="lineEmployeeAssignNewForm" class=" form-elements form-horizontal">
+    <div class="row">
+        <div class="col-xs-12 col-sm-3 col-md-3">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">From Date</label>
+                <div class="col-sm-8">
+                    <input type="text" name="From Date" id="fromDate" datepicker ng-model="lineEmployeeDateOb.FromDate" tabindex="5" class="form-control">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-3 col-md-3">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">To Date</label>
+                <div class="col-sm-8">
+                    <input type="text" name="To Date" id="toDate" datepicker ng-model="lineEmployeeDateOb.ToDate" tabindex="5" class="form-control">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-3 col-md-3">
+            <button name="Report" class=" single-btn" ng-click="getEmpReport();"><i class="glyphicon glyphicon-print"></i></button>
+        </div>
+    </div>
+</div>
+<confirm-modal></confirm-modal>

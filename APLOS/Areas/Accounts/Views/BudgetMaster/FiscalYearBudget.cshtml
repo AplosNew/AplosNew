@@ -1,0 +1,48 @@
+﻿
+<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>Monthly Budget</h3>
+<div class="form-horizontal" ng-form name="pDPFunctionForm">
+    <div class="col-xs-12 col-sm-12 col-md-12 form-element-ctrl form-horizontal">
+        <div class="form-group" show-errors>
+            <label class="col-sm-3 col-md-2 control-label">Fiscal Year<sup>*</sup></label>
+            <div class="col-sm-3 col-md-4  show-message">
+                <div class="select-style">
+                    <select name="Fiscal Year" ng-model="fiscalYearperiod.FiscalYearId" class="col-sm-3 form-control"
+                            ng-change="getData()" ng-options="item.Value as item.Text for item in fiscalYearList" required tabindex="1">
+                        <option></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-3 col-md-2 control-label">Period Name<sup>*</sup></label>
+            <div class="col-sm-3 col-md-4  show-message">
+                <div class="select-style">
+                    <select name="Tax Year" ng-model="fiscalYearperiod.PeriodId" class="col-sm-3 form-control"
+                            ng-change="getData()" ng-options="item.Id as item.PeriodName for item in fiscalYearperiodList" required tabindex="1">
+                        <option></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="form-group" show-errors>
+        <label class="col-sm-3 control-label">Format<sup>*</sup></label>
+        <div class="col-sm-9 radio">
+            <label>
+                <input type="radio" name="source" ng-model="fiscalYearperiod.ReportFormat" value="@Library.Model.Enums.ReportFormat.Pdf.ToString()">
+                <span class="cr" tabindex="1"><i class="cr-icon"></i></span>@Library.Model.Enums.ReportFormat.Pdf.ToString()
+            </label>
+            <label>
+                <input type="radio" name="source" ng-model="fiscalYearperiod.ReportFormat" value="@Library.Model.Enums.ReportFormat.Excel.ToString()">
+                <span class="cr" tabindex="2"><i class="cr-icon"></i></span>@Library.Model.Enums.ReportFormat.Excel.ToString()
+            </label>
+        </div>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-left">
+            <li><button ng-click="jobcardreportFunc();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+        </ul>
+    </div>
+    <div class="clearfix"></div>
+</div>
+<confirm-modal></confirm-modal>

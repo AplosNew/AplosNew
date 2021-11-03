@@ -1,0 +1,246 @@
+﻿<h3 class="site-heading" style="cursor:unset;"><span class="glyphicon glyphicon-info-sign"></span> Material Master Article</h3>
+<div class="form-elements form-horizontal row" ng-form="form">
+    <div class="col-md-12 divborder">
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Material (Mst)<sup>*</sup></label>
+                <div class="col-sm-4 show-message">
+                    <div class="input-group">
+                        <input type="text" name="Mterial (Mst)" ng-model="model.UserName" class="form-control" readonly>
+                        <span class="input-group-btn">
+                            <button ng-click="popUp();" class="btn single-small-btn" tabindex="5"><i class="glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Code :</label>
+                <label class="col-sm-8 control-label">{{model.Code}}</label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Standard Name :</label>
+                <label class="col-sm-8 control-label">{{model.StandardName}}</label>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">ShortName :</label>
+                <label class="col-sm-8 control-label">{{model.ShortName}}</label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">BaseUoM :</label>
+                <label class="col-sm-8 control-label">{{model.BaseUom}}</label>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="common-btn">
+            <ul class="list-inline">
+                <li><button ng-click="articleFormPopUp();" class="btn"> Add Article</button></li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="10"></i> {{Action}}</button></li>
+                @*<li><button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i>Delete</button></li>*@
+                <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="12"></i> Clear</button></li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-md-12 table-responsive modal-table">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Remove</th>
+                    <th>Code</th>
+                    <th>Short Name</th>
+                    <th>Standard Name</th>
+                    <th ng-repeat="x in articleHead">{{x.MaterialAttributeName}}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="x in articleList">
+                    <td class="text-right table-td">
+                        <ul class="list-inline action-list">
+                            <li><button ng-click="edit(x, $index)" class="btn btn-action tooltip-here" data-placement="top" title="Edit"><i class="glyphicon glyphicon-edit"></i></button></li>
+                            <li><button ng-click="deleteModal(x, $index)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+                        </ul>
+                    </td>
+                    <td>{{x.Code}}</td>
+                    <td>{{x.ShortName}}</td>
+                    <td>{{x.StandardName}}</td>
+                    <td ng-repeat="y in x.MaterialMasterArticleValues">{{y.MaterialAttributeValueFreeText}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<confirm-modal></confirm-modal>
+<!-- #region Material Master -->
+<div class="modal fade site-modal in" id="popUpId" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" ng-form name="materialgridCharacteristicsForm">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Material</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="popUpParameters.searchBy">
+                                            <option ng-repeat="option in searchbyMaterialMasterDatalist" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="popUpParameters.search" ng-enter="getPopUpData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getPopUpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Material Type</th>
+                                <th>Material Group</th>
+                                <th>Product</th>
+                                <th>Code</th>
+                                <th>User Name</th>
+                                <th>Standard Name</th>
+                                <th>Short Name</th>
+                                <th>IsAsset</th>
+                                <th>Asset Master</th>
+                                <th>Budget Code</th>
+                                <th>Activity</th>
+                                <th>Id</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in popUpDataList|itemsPerPage:popUpParameters.pageSize" total-items="popUpParameters.total_count" ng-dblclick="selectDoubleClick(x);" ng-click="selectSingleClick(x);">
+                                <td>{{x.MaterialTypeName}}</td>
+                                <td>{{x.MaterialGroupMasterName}}</td>
+                                <td>{{x.ProductMasterName}}</td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.StandardName}}</td>
+                                <td>{{x.ShortName}}</td>
+                                <td>{{x.IsAsset}}</td>
+                                <td>{{x.AssetMasterName}}</td>
+                                <td>{{x.AssetBudgetCode}}</td>
+                                <td>{{x.ActivityName}}</td>
+                                <td>{{x.Id}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <dir-pagination-controls max-size="10"
+                                         direction-links="true"
+                                         boundary-links="true"
+                                         on-page-change="getPopUpData(newPageNumber)">
+                </dir-pagination-controls>
+            </div>
+            <div class="modal-footer  common-btn">
+                <ul class="list-inline text-right">
+                    <li><button data-ng-click="selectByButton()" class="btn"><i class=""></i> Select</button></li>
+                    <li><button data-ng-click="closePopUp()" class="btn btn-default">Cancel</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion -->
+<!-- #region Article -->
+<div class="modal fade site-modal in" id="articlePoUp" role="dialog" data-backdrop="static" style="overflow-y: auto !important;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Article<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-element-ctrl form-horizontal">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <input type="hidden" ng-model="articleNew.Id" />
+                    <div class="col-xs-12 col-sm-12 col-md-12 form-element-ctrl form-horizontal" style="padding-left:0px;">
+                        <div class="form-group" style="margin-bottom: 0px;">
+                            <label class="col-sm-3 control-label">Code<sup>*</sup></label>
+                            <label class="col-sm-3 control-label">Short Name<sup>*</sup></label>
+                            <label class="col-sm-3 control-label">Standard Name<sup>*</sup></label>
+                            <label class="col-sm-3 control-label"></label>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12 form-element-ctrl form-horizontal" style="padding-left:0px;">
+                        <div class="form-group">
+                            <div class="col-sm-3">
+                                <input type="text" ng-model="articleNew.Code" class="form-control" maxlength="200" disabled>
+                            </div>
+                            <div class="col-sm-3">
+                                <input type="text" ng-model="articleNew.ShortName" class="form-control" maxlength="200">
+                            </div>
+                            <div class="col-sm-3">
+                                <input type="text" ng-model="articleNew.StandardName" class="form-control" maxlength="200">
+                            </div>
+                            <div class="col-sm-3">
+                                <ul class="list-inline text-right">
+                                    <li><button ng-click="Generate();" class="btn" style="margin-top: -23px; background: #3e445a; color:#fff !important"><i class=""></i> Generate</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-12" ng-show="attributeList.length>0">
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Material Attribute</th>
+                                    <th>Material Attribute Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in attributeList">
+                                    <td> {{x.MaterialAttributeName}}</td>
+                                    <td>
+                                        <div class="col-sm-10">
+                                            <div class="input-group" style="margin-top:-2px;">
+                                                <input type="text" ng-model="x.MaterialAttributeValueFreeText" class="form-control" ng-keyup="idNullByFreeText(x.MaterialAttributeId, $index)" ng-disabled="x.FlagDisable" ng-required="x.IsMandatory"  maxlength="50">
+                                                <span class="input-group-btn">
+                                                    <button ng-click="valuePoUp(x, $index)" ng-disabled="!x.IsPreDefinedField" class="btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                    <button ng-click="materialAttributeValueClear($index)" class="btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <p class="msg-error" ng-show="IsMandatoryButNull(x.IsMandatory, x.MaterialAttributeValueFreeText)">
+                                            value is required.
+                                        </p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="clearfix common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-show="index==-1" ng-click="AddArticle();" class="btn"><i class=""></i> Add</button></li>
+                        <li> <button ng-hide="index==-1" ng-click="updateArticle();" class="btn"><i class=""></i> Update</button></li>
+                        <li> <button type="button" class="btn btn-default" ng-click="CloseArticlePopUp();">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Partial("~/Areas/Materials/Views/Shared/_AttributeValuePopUp.cshtml")
+<confirm-archive-generic modalid="deleteModal" title="Confirmation" message={{articleMessage}} data-ng-click-right-button="removeArticleRow()"></confirm-archive-generic>
+<!-- #endregion -->
+
+

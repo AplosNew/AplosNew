@@ -1,0 +1,151 @@
+﻿<togglable name="Mail Send"></togglable>
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="col-xs-6">
+            <ul class="list text-left">
+                <li>
+                    <button ng-click="ApprovedForResignationEmployeeList();" class="btn single-btn">Approved For Resignation Employee List</button>
+                </li>
+                <li>&nbsp;</li>
+                <li>
+                    <button ng-click="ApprovedEmployeeList();" class="btn single-btn">Approved Employee List</button>
+                </li>
+                <li>&nbsp;</li>
+                <li>
+                    <button ng-click="PreApprovedEmployeeList();" class="btn single-btn">Pre Approved Employee List</button>
+                </li>
+                <li>&nbsp;</li>
+                <li>
+                    <button ng-click="ProbationPeriodList();" class="btn single-btn">Probation Period List</button>
+                </li>
+                <li>&nbsp;</li>
+                <li>
+                    <button ng-click="DailyAttendanceNotification();" class="btn single-btn">Daily Attendance Notification</button>
+                </li>
+                <li>&nbsp;</li>
+                <li>
+                    <button ng-click="DailyAttendanceFromAppReport();" class="btn single-btn">Daily Attendance From App</button>
+                </li>
+                <li>&nbsp;</li>
+                <li>
+                    <button ng-click="SendDailyDevicePunchList();" class="btn single-btn">Daily Device Punch Information</button>
+                </li>
+                <li>&nbsp;</li>
+                <li>
+                    <button ng-click="SendDailyAttendanceSummary();" class="btn single-btn">Daily Attendance Summary</button>
+                </li>
+                <li>&nbsp;</li>
+
+                <li>
+                    <button ng-click="SendYesterdayMissedPunchNotificationList();" class="btn single-btn">Yesterday Missed Punch Report</button>
+                </li>
+                <li>&nbsp;</li>
+                <li>
+                    <button ng-click="SendDailyAttendanceAuditReport();" class="btn single-btn">Daily Attendance Audit Report</button>
+                </li>
+                <li>&nbsp;</li>
+                <li>
+                    <button ng-click="SendRunTaskNotification();" class="btn single-btn">Task Notification</button>
+                </li>
+                <li>&nbsp;</li>
+                <li>
+                    <button ng-click="SendIncrementDueEmployeeList();" class="btn single-btn">Inrement Due List</button>
+                </li>
+                <li>&nbsp;</li>
+                <li>
+                    <button ng-click="SendAccountDelayPosting();" class="btn single-btn">Account Delay Posting</button>
+                </li>
+                <li>&nbsp;</li>
+                <li>
+                    <button ng-click="SendLastFewDaysPayableCreatedMail();" class="btn single-btn">Last Few Days Payable Created</button>
+                </li>
+                <li>&nbsp;</li>
+                <li>
+                    <button ng-click="SendLastFewDaysPaymentMadeMail();" class="btn single-btn">LastFewDaysPaymentMade</button>
+                </li>
+                <li>&nbsp;</li>
+                <li>
+                    <button ng-click="SendEmpApprovalMail();" class="btn single-btn">Employee Approval</button>
+                </li>
+            </ul>
+        </div>
+        <div class="col-xs-6">
+            <ul class="list text-left">
+                <li>
+                    <button ng-click="AppliedResignationEmployeeList();" class="btn single-btn">Applied Resignation Employee List</button>
+                </li>
+                <li>&nbsp;</li>
+                <li>
+                    <button ng-click="ResignationDueList();" class="btn single-btn">Resignation Due List</button>
+                </li>
+                <li>&nbsp;</li>
+                <li>
+                    <button ng-click="SaparatedEmployeeList();" class="btn single-btn">Saparated Employee List</button>
+                </li>
+                <li>&nbsp;</li>
+                <li>
+                    <button ng-click="ResignationToBeApprovedList();" class="btn single-btn">Resignation To Be Approved List</button>
+                </li>
+                <li>&nbsp;</li>
+                <li>
+                    <button ng-click="CompliedShiftModal();" class="btn single-btn">Complied Shift Change</button>
+                </li>
+                <li>&nbsp;</li>
+                <li>
+                    <button ng-click="DailyMissedPunchReport();" class="btn single-btn">Daily Missed Punch</button>
+                </li>
+                <li>&nbsp;</li>
+                <li>
+                    <button ng-click="ManualAttendanceNotification();" class="btn single-btn">Manual Attendance Notification</button>
+                </li>
+                <li>&nbsp;</li>
+                <li>
+                    <button ng-click="SendYesterdayAbsentNotificationList();" class="btn single-btn">Yesterday Absent Notification</button>
+                </li>
+                <li>&nbsp;</li>
+                <li>
+                    <button ng-click="SendMonthlyAttendanceInformationReport();" class="btn single-btn">Manthly Attendance Information</button>
+                </li>
+                <li>&nbsp;</li>
+                <li>
+                    <button ng-click="SendDailyProductionReport();" class="btn single-btn">Daily Production Report</button>
+                </li>
+                <li>&nbsp;</li>
+                <li>
+                    <button ng-click="SendLateAttendancePosting();" class="btn single-btn">Late Attendance Posting</button>
+                </li>
+                <li>&nbsp;</li>
+                <li>
+                    <button ng-click="SendYestedayOverstayMail();" class="btn single-btn">Yesterday Overstay</button>
+                </li>
+                <li>&nbsp;</li>
+                <li>
+                    <button ng-click="SendTNAReportMail();" class="btn single-btn">TNA Report</button>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div id="rotateStartModal" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Shift Rotation</h4>
+            </div>
+            <div class="modal-body table-responsive modal-table" style="overflow-y:scroll; max-height:375px;">
+                <div class="select-style" style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); width:100%;">
+                    Date: <input placeholder="Shift Rotation Date*" type="text" ng-model="compliedShiftRotationDate" datepicker required class="form-control datepicker" tabindex="1" style="margin-top: 7px;margin-bottom: -4px;">
+                </div>
+                <ul>
+                    <li>
+                        <button ng-click="CompliedshiftChange();" class="btn single-btn">Complied Shift Change</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+

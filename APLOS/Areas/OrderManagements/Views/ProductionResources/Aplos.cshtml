@@ -1,0 +1,74 @@
+﻿<script src="~/Scripts/dom-to-image.js"></script>
+<script src="~/Scripts/fileSaver.js"></script>
+
+<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Production Resources</h3>
+<div class="form-elements form-horizontal" ng-form name="ProductionResourcesForm">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
+            <div class="col-sm-8">
+                <div class="select-style show-message">
+                    <select class="form-control"  ng-model="ProductionResourceNew.PlantId" ng-change="getData();"
+                            ng-options="item.Value as item.Text for item in PlantList" id="plantId" name="Plant" required tabindex="1">
+                        <option></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label"> Resource Name <sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Resource Name" ng-model="ProductionResourceNew.ResourceName"  class="form-control" required tabindex="5" maxlength="30">
+            </div>
+        </div>
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">UOM<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select id="ID" class="form-control" required ng-model="ProductionResourceNew.UOMId" name="UOM">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in UoMList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label"> Quantity <sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Quantity" ng-model="ProductionResourceNew.Quantity" n-decimals="4" class="form-control" required tabindex="5" maxlength="30">
+            </div>
+        </div>
+
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<div class="content-container-fluid" style="color:black;">
+    <div style="color:black;" id="Grid" ej-grid e-datasource="ProductionResources"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+         e-allowselection="true" e-recorddoubleclick="recorddoubleclick" e-filtersettings-filterType="excel">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-width="70" e-visible="false"></div>
+            <div e-column e-field="ResourceName" e-headertext="Resource Name" e-width="70"></div>
+            <div e-column e-field="Quantity" e-headertext="Quantity" e-width="80"></div>          
+            <div e-column e-field="Description" e-headertext="UOM" e-width="60"></div>
+        </div>
+    </div>
+</div>
+
+<confirm-modal></confirm-modal>
+<div class="loader" data-loader>
+    Please wait
+    <div class="bounce1"></div>
+    <div class="bounce2"></div>
+    <div class="bounce3"></div>
+</div>

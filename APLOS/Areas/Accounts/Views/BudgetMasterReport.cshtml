@@ -1,0 +1,33 @@
+﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Budget Master Report</h3>
+<div class="form-elements form-horizontal" ng-form id="form" name="form">
+    <div class="col-xs-12 col-sm-4 col-md-4">
+        <div class="form-group" show-errors id="div_COA">
+            <label class="col-sm-3 col-md-3 control-label">COA<sup>*</sup></label>
+            <div class="col-sm-9 col-md-9 show-message">
+                <div class="select-style">
+                    <select class="form-control" submit-required="true" ng-model="report.COAId"
+                            ng-change="onCOAChange(budgetMaster.COAId);" ng-options="item.Value as item.Text for item in cOAList">
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Activity</label>
+            <div class="checkbox-site">
+                <label class="col-sm-9">
+                    <input type="checkbox" id="IsActivityLevel" ng-model="report.IsActivityLevel" ng-checked="report.IsActivityLevel">
+                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                </label>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+     
+        </div>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-left">
+            <li><button ng-click="getReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+        </ul>
+    </div>
+</div>

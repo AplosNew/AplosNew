@@ -1,0 +1,349 @@
+﻿<togglable name="BOQ Generation"></togglable>
+<div class="form-elements" id="mainContainer">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Customer<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <input type="text" name="Customer" ng-model="Model.CustomerName" class="form-control" readonly>
+                        <span class="input-group-btn">
+                            <button ng-click="openPopup('dialogCustomerSearch');GetCustomerList();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Remarks</label>
+                <div class="col-sm-8">
+
+                    <input type="text" ng-model="Model.Remarks" name="Remarks" class="form-control">
+
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                <div class="col-sm-6">
+                    <input type="text" name="SalesOrder" ng-model="Model.UserName" class="form-control">
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" name="BOM Id" ng-disabled="true" ng-model="Model.Id" class="form-control">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Responsible Person</label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <input type="text" name="ResponsiblePerson" ng-model="Model.EmployeeName" @*style="width:200px;"*@ class="form-control" readonly>
+                        <span class="input-group-btn">
+                            <button name="submit" ng-click="openPopupAngular('employeeNewPopUp')" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-12">
+
+
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12">
+
+            <button ng-show="!Model.Id" ng-click="openPopup('dialogSalesOrderSearch');GetSalesOrderList();" class="btn single-small-btn"><i class="glyphicon glyphicon-plus-sign"></i> Sales Order</button>
+            <button ng-show="SelectedSalesOrderList.length>0" ng-click="ReportXls();" class="btn single-small-btn"><i class="glyphicon glyphicon-file"></i> BOM Report</button>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div id="GridSelectedSalesOrder" ej-grid e-actioncomplete="syncfusiongriddatabound" e-datasource="SelectedSalesOrderList"
+                         e-allowfiltering="true" e-allowscrolling="true"
+                         e-allowpaging="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-type="string" e-field="SalesOrderId" e-headertext="Sales Order" e-width="80"></div>
+                            <div e-column e-type="string" e-field="OrderCategoryName" e-headertext="Order Cat." e-width="80"></div>
+                            <div e-column e-type="string" e-field="MasterOrderId" e-headertext="Master Order#" e-width="100"></div>
+                            <div e-column e-type="string" e-field="BuyerOrderNo" e-headertext="Customer Order#" e-width="100"></div>
+                            <div e-column e-type="string" e-field="OwnOrderNo" e-headertext="Own Order#" e-width="100"></div>
+                            <div e-column e-type="string" e-field="BuyerItemNo" e-headertext="Customer Item No" e-width="100"></div>
+                            <div e-column e-type="string" e-field="OwnItemNo" e-headertext="Own Item No" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Description" e-headertext="SO Description" e-width="120"></div>
+                            <div e-column e-type="string" e-field="ItemList" e-headertext="Already Proc. Items" e-width="300"></div>
+                            <div e-column e-type="number" e-field="Qty" e-headertext="Qty" e-width="80"></div>
+                            <div e-column e-type="string" e-field="OrderStatusName" e-headertext="Order Status" e-width="80"></div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <ul class="common-btn list-inline text-left" ng-hide="MaterialList.length>0">
+                <li><button ng-click="Submit();" class="btn"><i class="glyphicon glyphicon-plus"></i> Submit</button></li>
+            </ul>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12" style="display:{{MaterialList.length>0?'inherit':'none'}}">
+            Item List for Selected Sales Orders
+            <div id="GridMaterialList" ng-init="chkinit()" ej-grid e-actioncomplete="syncfusiongriddatabound" e-datasource="MaterialList" e-rowdatabound="rowDataBoundMaterial"
+                 e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-allowfiltering="true" e-allowscrolling="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-type="string" e-template="#ItemSelected" e-headertext="" e-width="30"></div>
+                    <div e-column e-type="string" e-template="#ShowSOList" e-headertext="" e-width="30"></div>
+                    <div e-column e-type="string" e-field="CostingItemId" e-headertext="Item Id" e-width="40"></div>
+                    <div e-column e-type="string" e-field="ItemDescription" e-headertext="Item Description" e-width="350"></div>
+                    <div e-column e-type="string" e-field="SourcingType" e-headertext="Sourcing Type" e-width="90"></div>
+                    <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="150"></div>
+                    <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="150"></div>
+                    <div e-column e-type="string" e-field="ResponsiblePerson" e-headertext="Resp. Person" e-width="100"></div>
+
+                    <div e-column e-type="number" e-field="GrossConsumption" e-headertext="Gross Cons." e-width="80"></div>
+                    <div e-column e-type="string" e-field="UOM" e-headertext="UOM" e-width="50"></div>
+
+                    <div e-column e-type="number" e-field="GrossAmount" e-headertext="Gross Amount" e-width="80"></div>
+                </div>
+            </div>
+            <script type="text/template" id="ShowSOList">
+                <div class="common-btn" ng-show="data.SOCount>0">
+                    <ul class="list-inline text-right small">
+                        <li>
+                            <button ng-click="$parent.ShowProcessedSOList(data);" class="btn small" style="height: 20px; width: 20px; padding: 0px; margin: 0px;">
+                                <i class="glyphicon glyphicon-th-list"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </script>
+            <script type="text/template" id="ItemSelected">
+                <span ng-hide="!data.Saved && data.SOCount==$parent.SelectedSalesOrderList.length">
+                    <input type="checkbox" ej-checkbox e-value="data.Selected" e-checked="data.Selected" e-enabled="{{data.Saved==true?'false':'true'}}" class="nodetext" />
+                </span>
+            </script>
+            <div class="col-md-6">
+                <div>
+                    <span style="background-color:#BDFFF6;color:#BDFFF6">.....</span>New Item
+                    <span style="background-color:#FCFFD3;color:#FCFFD3">.....</span>Processed Item for Mixed SO
+                    <span style="background-color:#C3FFA5;color:#C3FFA5">.....</span>Processed Item for All Selected SO
+                </div>
+            </div>
+            <div class="col-md-6">
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-plus"></i> Process</button></li>
+                    @*<li><button ng-click="openPopupAngular('confirmDelete')" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
+                    <li><button ng-click="Cancel();" class="btn"><i class="glyphicon glyphicon-backward"></i> Cancel</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="aplos-grid-toggle">
+    <div class="row text-right">
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="search-form">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-3">
+                        <div class="select-style">
+                            <select ng-model="searchEdit">
+                                <option ng-repeat="option in searchByEdit" value="{{option.value}}">{{option.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-7 col-md-7">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="searchEditValue" ng-enter="GetEditList()">
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button type="button" ng-click="GetEditList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="GridEditList" ng-init="chkinit()" ej-grid e-actioncomplete="syncfusiongriddatabound" e-datasource="EditList" e-allowfiltering="true"
+         e-allowscrolling="true"
+         e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-recorddoubleclick="SelectEdit"
+         e-allowselection="true" e-filtersettings-filterType="excel">
+        <div e-columns>
+            <div e-column e-type="string" e-field="Id" e-headertext="BOM Id" e-width="80px"></div>
+            <div e-column e-field="BOMCreationDate" e-headertext="BOM Creation Dt" e-width="80px"></div>
+            <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="200px"></div>
+            <div e-column e-type="string" e-field="EmployeeName" e-headertext="Responsible Person" e-width="100px"></div>
+            <div e-column e-type="string" e-field="OwnOrderNo" e-headertext="Own Order#" e-width="100px"></div>
+            <div e-column e-type="string" e-field="BuyerItemNo" e-headertext="Customer Item No" e-width="100px"></div>
+            <div e-column e-type="string" e-field="OwnItemNo" e-headertext="Own Item No" e-width="100px"></div>
+            <div e-column e-type="string" e-field="Description" e-headertext="SO Description" e-width="120px"></div>
+            <div e-column e-type="string" e-field="ItemList" e-headertext="Selected Items" e-width="300px"></div>
+            <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="300px"></div>
+            <div e-column e-type="string" e-field="BuyerOrderNo" e-headertext="Customer Order#" e-width="100px"></div>
+            <div e-column e-type="string" e-field="SalesOrderId" e-headertext="Sales Order" e-width="80px"></div>
+            <div e-column e-type="string" e-field="MasterOrderId" e-headertext="Master Order#" e-width="100px"></div>
+        </div>
+    </div>
+</div>
+
+<ej-dialog id="dialogCustomerSearch" title=" Search Customer" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+           e-target="#mainContainer" e-minwidth="1000" e-open="enableBtn">
+    <div class="row text-right">
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="search-form">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-3">
+                        <div class="select-style">
+                            <select ng-model="searchCustomer">
+                                <option ng-repeat="option in searchByCustomer" value="{{option.value}}">{{option.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-7 col-md-7">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="searchCustomerValue" ng-enter="GetCustomerList()">
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button type="button" ng-click="GetCustomerList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="GridCustomerList" ng-init="chkinit()" ej-grid e-actioncomplete="syncfusiongriddatabound" e-datasource="CustomerList" e-allowfiltering="true"
+         e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-recorddoubleclick="SelectCustomer"
+         e-allowselection="true" e-filtersettings-filterType="excel">
+        <div e-columns>
+            <div e-column e-type="string" e-field="Customer" e-headertext="Customer"></div>
+            <div e-column e-type="number" e-field="NoOfMasterOrder" e-headertext="Master Orders" e-width="80"></div>
+            <div e-column e-type="number" e-field="NoOfMasterOrderItem" e-headertext="Items" e-width="80"></div>
+            <div e-column e-type="number" e-field="NoOfMasterSalesOrder" e-headertext="Sales Orders" e-width="80"></div>
+            <div e-column e-type="number" e-field="MissingSKUBreakdown" e-headertext="Missing SKU Breakdown" e-width="80"></div>
+            <div e-column e-type="number" e-field="MissingCostingAttachment" e-headertext="Missing Costing" e-width="80"></div>
+            <div e-column e-type="number" e-field="CostItemNos" e-headertext="Cost Items" e-width="80"></div>
+            <div e-column e-type="number" e-field="ItemWithoutBOQ" e-headertext="Items Wihout BOQ" e-width="80"></div>
+            <div e-column e-type="number" e-field="OverdueSOList" e-headertext="SO Overdue" e-width="80"></div>
+            <div e-column e-type="number" e-field="DueSOList" e-headertext="SO Due" e-width="80"></div>
+        </div>
+    </div>
+
+</ej-dialog>
+
+<ej-dialog id="dialogSalesOrderSearch" title=" Search Sales Order" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+           e-target="#mainContainer" e-minwidth="1000" e-open="enableBtn">
+    @*<div class="row text-right">
+            <div class="col-xs-12 col-sm-12 col-sm-12">
+                <div class="search-form">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-3 col-md-3">
+                            <div class="select-style">
+                                <select ng-model="searchSalesOrder">
+                                    <option ng-repeat="option in searchBySalesOrder" value="{{option.value}}">{{option.name}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-7 col-md-7">
+                            <input type="text" class="form-control" placeholder="Search" ng-model="searchSalesOrderValue" ng-enter="GetSalesOrderList()">
+                        </div>
+                        <div class="col-xs-12 col-sm-2 col-md-2">
+                            <button type="button" ng-click="GetSalesOrderList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>*@
+
+
+
+    <div id="GridSalesOrderList" ng-init="chkinit()" ej-grid e-actioncomplete="syncfusiongriddatabound" e-datasource="SalesOrderList" e-allowfiltering="true" e-allowscrolling="true"
+         e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-recorddoubleclick="SelectSalesOrder" e-rowdatabound="rowDataBound"
+         e-allowselection="true" e-filtersettings-filterType="excel">
+        <div e-columns>
+            <div e-column e-type="string" e-template="#templateSalesOrderSelected" e-headertext="" e-width="30"></div>
+            <div e-column e-type="string" e-field="BOMList" e-headertext="BOM Id" e-width="60"></div>
+            <div e-column e-type="string" e-field="OrderCostingMasterTemplateId" e-headertext="Cost Id" e-width="60"></div>
+            <div e-column e-type="string" e-field="SalesOrderId" e-headertext="Sales Order" e-width="60"></div>
+            <div e-column e-type="string" e-field="BuyerItemNo" e-headertext="BuyerItemNo" e-width="100"></div>
+            <div e-column e-type="string" e-field="OwnItemNo" e-headertext="OwnItemNo" e-width="100"></div>
+            <div e-column e-type="string" e-field="BuyerOrderNo" e-headertext="BuyerOrderNo" e-width="100"></div>
+            <div e-column e-type="string" e-field="OwnOrderNo" e-headertext="OwnOrderNo" e-width="100"></div>
+            <div e-column e-type="string" e-field="Description" e-headertext=" SO Description" e-width="90"></div>
+            <div e-column e-type="number" e-field="Qty" e-headertext="Qty" e-width="50"></div>
+            <div e-column e-type="string" e-field="OrderStatusName" e-headertext="Order Status" e-width="90"></div>
+            <div e-column e-type="string" e-field="OrderCategoryName" e-headertext="Order Cat." e-width="90"></div>
+            <div e-column e-type="string" e-field="ItemList" e-headertext="Processed Items" e-width="300"></div>
+
+            <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="100"></div>
+            <div e-column e-type="string" e-field="MaterialMasterName" e-headertext="Material" e-width="100"></div>
+            <div e-column e-type="string" e-field="ArticleName" e-headertext="Article" e-width="100"></div>
+            <div e-column e-type="string" e-field="DeliveryDate" e-headertext="Delivery Date" e-width="60"></div>
+            <div e-column e-type="string" e-field="CommitmentDate" e-headertext="Commitment Date" e-width="60"></div>
+            <div e-column e-type="string" e-field="DestinationName" e-headertext="Destination" e-width="60"></div>
+            <div e-column e-type="string" e-field="ShipmentModeName" e-headertext="Shipment Mode" e-width="60"></div>
+            <div e-column e-type="string" e-field="PONumber" e-headertext="PO Number" e-width="60"></div>
+
+            <div e-column e-type="number" e-field="NoOfMasterOrderItem" e-headertext="NoOfMasterOrderItem" e-width="80"></div>
+            <div e-column e-type="number" e-field="NoOfMasterSalesOrder" e-headertext="NoOfMasterSalesOrder" e-width="80"></div>
+        </div>
+    </div>
+    <script type="text/template" id="templateSalesOrderSelected">
+        <input type="checkbox" ej-checkbox e-value="data.Selected" e-checked="data.Selected" class="nodetext" />
+    </script>
+    <ul class="common-btn list-inline text-right">
+        <li><button ng-click="ApplySelectSalesOrder();" class="btn"><i class="glyphicon glyphicon-plus"></i> Apply</button></li>>
+    </ul>
+</ej-dialog>
+
+<div class="modal site-modal" id="employeeNewPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" ng-click="closePopup('employeeNewPopUp');">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color: black;" id="Grid" ej-grid e-actioncomplete="syncfusiongriddatabound" e-datasource="employee" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-type="string" e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-type="string" e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                            <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-type="string" e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-type="string" e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Line" e-headertext="Line" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @*<div class="modal-footer common-btn">
+                    <button ng-click="closePopup('employeeNewPopUp');" class="btn"><i class=""></i> Close</button>
+                </div>*@
+        </div>
+    </div>
+</div>
+
+<ej-dialog id="SalesOrderListForMaterialPopUp" title=" Used Sales Order" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+           e-target="#mainContainer" e-minwidth="1000" e-open="enableBtn">
+    <div id="GridSelectedSalesOrderForMaterial" ng-init="chkinit()" ej-grid e-actioncomplete="syncfusiongriddatabound" e-datasource="SelectedSalesOrderListForMaterial"
+         e-allowfiltering="true" e-allowscrolling="true"
+         e-allowpaging="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel">
+        <div e-columns>
+            <div e-column e-type="string" e-field="SalesOrderId" e-headertext="Sales Order" e-width="80"></div>
+            <div e-column e-type="string" e-field="MasterOrderId" e-headertext="Master Order#" e-width="100"></div>
+            <div e-column e-type="string" e-field="BuyerOrderNo" e-headertext="Customer Order#" e-width="100"></div>
+            <div e-column e-type="string" e-field="OwnOrderNo" e-headertext="Own Order#" e-width="100"></div>
+            <div e-column e-type="string" e-field="BuyerItemNo" e-headertext="Customer Item No" e-width="100"></div>
+            <div e-column e-type="string" e-field="OwnItemNo" e-headertext="Own Item No" e-width="100"></div>
+            <div e-column e-type="string" e-field="Description" e-headertext="SO Description" e-width="120"></div>
+            <div e-column e-type="string" e-field="ItemList" e-headertext="Selected Items" e-width="300"></div>
+            <div e-column e-type="number" e-field="Qty" e-headertext="Qty" e-width="80"></div>
+            <div e-column e-type="string" e-field="OrderStatusName" e-headertext="Order Status" e-width="80"></div>
+            <div e-column e-type="string" e-field="OrderCategoryName" e-headertext="Order Cat." e-width="80"></div>
+        </div>
+    </div>
+</ej-dialog>
+
+
+<confirm-modal></confirm-modal>
+<confirm-archive-generic modalid="confirmDelete" title="Confirmation" data-ng-click-left-button="closePopup('confirmDelete')" message="Are you sure to delete this transaction?" data-ng-click-right-button="Delete()"></confirm-archive-generic>
+
+

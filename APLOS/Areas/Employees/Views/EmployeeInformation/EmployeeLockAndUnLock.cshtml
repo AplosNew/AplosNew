@@ -1,0 +1,95 @@
+﻿<style>
+    .e-grid .e-gridcontent { /* grid content color*/
+        /*min-height:500px*/
+        font-size: 10px;
+    }
+
+
+
+    .e-grid .e-headercelldiv {
+        /*font-weight: bold;*/
+        font-size: 11px;
+        /*display: block;
+        border: 0 none;*/
+        overflow-wrap: break-word;
+        /*height: 60px;*/
+        /*line-height: 29px;
+        margin: -7px;
+        padding: 0 .7em;
+        text-align: left;
+        white-space: nowrap;
+        text-overflow: ellipsis;*/
+    }
+</style>
+
+
+
+<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> Lock And Un-Lock</h3>
+
+<div class="tab-design" id="tab_show">
+    <div class="site-tab">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" ng-class="{ active: isSet1(1) }"><a ng-click="setTab1(1)" href="" aria-controls="aria1" role="tab" data-toggle="tab">Lock</a></li>
+            <li role="presentation" ng-class="{ active: isSet2(2) }"><a ng-click="setTab2(2)" href="" aria-controls="aria2" role="tab" data-toggle="tab">Un-Lock</a></li>          
+        </ul>
+    </div>
+    <div class="tab-content" id="tabpaneldiv">
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet1(1), active: isSet1(1) }">
+
+            <h4>Lock</h4>
+            <div class="row form-horizontal form-elements">
+                <div class="col-xs-12 col-sm-6 col-md-6 ">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"> Date<sup>*</sup></label>
+                        <div class="col-sm-8">
+                            <div class="select-style">
+
+                                <input class="form-control" ng-model="customPara.lockDate"  datepicker placeholder="dd-MM-yyyy" @*value="customPara.procdate"*@ type="text" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6 ">
+                    <div class="form-group right">
+                        <button ng-click="SaveLockData()" class="btn btn-success " style="width:80%">Lock</button>
+                    </div>
+                </div>
+
+
+
+            </div>
+
+
+        </div>
+
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(2), active: isSet2(2) }">
+
+
+            <h4>Confirmed</h4>
+           
+
+        </div>
+
+        
+
+    </div>
+</div>
+<div class="row form-horizontal form-elements">
+    <div class="col-xs-12 col-sm-10 col-md-10">
+
+    </div>
+    <div class="col-xs-12 col-sm-2 col-md-2">
+        
+    </div>
+
+
+
+</div>
+
+
+<ej-dialog id="dialogMessage" title="{{messageTitle}}" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target=".site-heading" e-close="onDialogClose" e-minwidth="50%" e-minheight="50" e-open="enableBtn">
+
+    <div>
+        {{messageText}}
+    </div>
+</ej-dialog>

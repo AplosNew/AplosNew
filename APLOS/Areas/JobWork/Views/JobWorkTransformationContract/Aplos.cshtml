@@ -1,0 +1,1234 @@
+﻿<togglable name={{title}}></togglable>
+<div class="form-elements form-horizontal" ng-form name="frmValueAddedContract" style="padding:0px;">
+    <div class="row">
+        <div class="col-sm-12 col-md-3 col-lg-3">
+            <div class="form-group" show-errors>
+                <label class="control-label" for="ddlProcessTypeId">
+                    Process Type<sup>*</sup>
+                </label>
+                <div class="show-message">
+                    <div class="select-style">
+                        <select name="Process Type Id" id="ddlProcessTypeId" class="form-control" submit-required="true" tabindex="1" ng-model="ValueAddedContract.ProcessTypeId" ng-options="item.Id as item.StandardName for item in processTypeList" required></select>
+                        <input type="hidden" id="txtId" name="txtId" ng-model="ValueAddedContract.Id" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-3 col-lg-3">
+            <div class="form-group" show-errors>
+                <label class="control-label" for="txtContractDate">
+                    Contract Date<sup>*</sup>
+                </label>
+                <div class="show-message">
+                    <input id="txtContractDate" name="Contract Date" e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="data.InDate" e-width="100%" ng-model="ValueAddedContract.ContractDate" required tabindex="2" />
+                    @*<input type="text" id="txtContractDate" name="Contract Date" datepicker="" class="form-control" ng-model="ValueAddedContract.ContractDate" required tabindex="2" />*@
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-3 col-lg-3">
+            <div class="form-group" show-errors>
+                <label class="control-label" for="txtContractTime">
+                    Contract Time<sup>*</sup>
+                </label>
+                <div class="show-message">
+                    @*<input type="text" id="txtContractTime" name="Contract Time" class="form-control" ng-model="ValueAddedContract.ContractTime" required tabindex="3" />*@
+                    <input type="text" id="txtContractTime" name="Contract Time" ng-model="ValueAddedContract.ContractTime" required tabindex="3" ej-timepicker e-value="data.InTime" e-width="100%" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-3 col-lg-3">
+            <div class="form-group" show-errors>
+                <label class="control-label" for="ddlPlantId">
+                    Plant<sup>*</sup>
+                </label>
+                <div class="show-message">
+                    <div class="select-style">
+                        <select name="Plant" id="ddlPlantId" class="form-control" submit-required="true" tabindex="4" ng-model="ValueAddedContract.PlantId" ng-options="item.Id as item.StandardName for item in plantList" required ng-change="LoadPlantWiseEntity()"></select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12 col-md-3 col-lg-3">
+            <div class="form-group" show-errors>
+                <label class="control-label" for="ddlEntityId">
+                    Entity<sup>*</sup>
+                </label>
+                <div class="show-message">
+                    <div class="select-style">
+                        <select name="EntityId" id="ddlEntityId" class="form-control" submit-required="true" tabindex="5" ng-model="ValueAddedContract.EntityId" ng-options="item.Id as item.UserName for item in entityList" required ng-change="LoadMaterialLocation()"></select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-3 col-lg-3">
+            <div class="form-group" show-errors>
+                <label class="control-label" for="ddlJobWorkLocationId">
+                    Material Location<sup>*</sup>
+                </label>
+                <div class="show-message">
+                    <div class="select-style">
+                        <select name="Material Location" id="ddlJobWorkLocationId" class="form-control" submit-required="true" tabindex="6" ng-model="ValueAddedContract.JobWorkLocationId" ng-options="item.Id as item.LocationName for item in materialLocationList" required></select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-3 col-lg-3">
+            <div class="form-group" show-errors>
+                <label class="control-label" for="ddlMaterialType">
+                    Material Type<sup>*</sup>
+                </label>
+                <div class="show-message">
+                    <div class="select-style">
+                        <select name="Material Type" id="ddlMaterialType" class="form-control" submit-required="true" tabindex="7" ng-model="ValueAddedContract.MaterialType" ng-options="item.name as item.name for item in materialTypeList" required></select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-3 col-lg-3">
+            <div class="form-group" show-errors>
+                <label class="control-label" for="txtLocationCode">
+                    Final Output Category<sup>*</sup>
+                </label>
+                <div class="show-message">
+                    <div class="select-style">
+                        <select name="Final Output Category" id="ddlFinalOutputCategory" class="form-control" submit-required="true" tabindex="8" ng-model="ValueAddedContract.FinalOutputCategory" ng-options="item.name as item.name for item in finalOutputCategory" required></select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-md-3 col-lg-3">
+            <div class="form-group" show-errors>
+                <label class="control-label">Vendor<sup>*</sup></label>
+                <div class="show-message">
+                    <div class="input-group">
+                        <input type="text" hidden id="masterId" ng-model="ValueAddedContract.PartyId" />
+                        <span class="input-group-addon"> {{ValueAddedContract.PartyCode}}</span>
+                        <input type="text" name="Vendor" id="Vendor" ng-model="ValueAddedContract.PartyName" tabindex="9" class="form-control" readonly required>
+                        <span class="input-group-btn">
+                            <button name="submit" ng-click="showPartyPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                            <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-3 col-lg-3">
+            <div class="form-group" show-errors>
+                <label class="control-label" for="txtProcessStartDate">
+                    Process Start Date<sup>*</sup>
+                </label>
+                <div class="show-message">
+                    <input id="txtProcessStartDate" name="Process Start Date" e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="data.InDate" e-width="100%" ng-model="ValueAddedContract.ProcessStartDate" required tabindex="10" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-3 col-lg-3">
+            <div class="form-group" show-errors>
+                <label class="control-label" for="txtProcessEndDate">
+                    Process End Date<sup>*</sup>
+                </label>
+                <div class="show-message">
+                    <input id="txtProcessEndDate" name="Process End Date" e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="data.InDate" e-width="100%" ng-model="ValueAddedContract.ProcessEndDate" required tabindex="11" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-3 col-lg-3">
+            <div class="form-group" show-errors>
+                <label class="control-label" for="txtContractClosingDate">
+                    Contract Closing Date<sup>*</sup>
+                </label>
+                <div class="show-message">
+                    <input id="txtContractClosingDate" name="Contract Closing Date" e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="data.InDate" e-width="100%" ng-model="ValueAddedContract.ContractClosingDate" required tabindex="12" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12 col-md-12 col-lg-12">
+            <div class="form-group">
+                <label class="control-label" for="txtRemarks">Remarks</label>
+                <input type="text" id="txtRemarks" name="Contract Closing Date" class="form-control" ng-model="ValueAddedContract.Remarks" required tabindex="13" />
+            </div>
+        </div>
+    </div>
+    <div class="row" style="margin-top: 15px;">
+        <div class="col-sm-12 col-md-12 col-lg-12">
+            <div class="site-tab">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="MaterialPlanning" role="tab" data-toggle="tab">Material Planning</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="MaterialInput" role="tab" data-toggle="tab">Material Input</a></li>
+                </ul>
+            </div>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                    <div id="MaterialPlanning">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12" style="padding-top: 0px;">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li><button ng-click="AddNewMaterialPlanning();" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Material Planning</button></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-12 col-lg-12">
+                                <div class="table-responsive modal-table table-wrapper-scroll-y my-custom-scrollbar">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th ng-hide="true">Id</th>
+                                                <th ng-hide="true">JobWorkMaterialMasterId</th>
+                                                <th>Job Work Material</th>
+                                                <th>Specification</th>
+                                                <th>Material Ref</th>
+                                                <th>UOM</th>
+                                                <th>Quantity</th>
+                                                <th ng-hide="true">MaterialMasterId</th>
+                                                <th>Material Code</th>
+                                                <th>Order Specific</th>
+                                                <th>Required Capacity/Day</th>
+                                                <th>By Product Applicable</th>
+                                                <th>Rate Apply</th>
+                                                <th ng-hide="true">CurrencyId</th>
+                                                <th>Currency</th>
+                                                <th>Rate/Unit</th>
+                                                <th>Rejection</th>
+                                                <th>Value Loss</th>
+                                                <th ng-hide="true">ResponsiblePersonId</th>
+                                                <th>Responsible Person</th>
+                                                <th>Remarks</th>
+                                                <th>By Product List</th>
+                                                <th>Requirements</th>
+                                                <th>Attachment</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="x in materialPlanningList">
+                                                <td ng-hide="true">{{x.Id}}</td>
+                                                <td ng-hide="true">{{x.JobWorkMaterialMasterId}}</td>
+                                                <td>{{x.JobWorkMaterialName}}</td>
+                                                <td><input type="text" class="form-control" ng-model="x.MaterialSpecification" style="width: 100px;" /></td>
+                                                <td><input type="text" class="form-control" ng-model="x.MaterialRef" style="width: 100px;" /></td>
+                                                <td>{{x.UOM}}</td>
+                                                <td><input type="text" class="form-control" ng-model="x.Quantity" style="width: 100px;" /></td>
+                                                <td ng-hide="true">{{x.MaterialMasterId}}</td>
+                                                <td>{{x.MaterialMasterName}}</td>
+                                                <td>{{x.OrderSpecific}}</td>
+                                                <td><input type="text" class="form-control" ng-model="x.RequiredCapacityPerDay" style="width: 100px;" /></td>
+                                                <td>{{x.ByProductApplicable}}</td>
+                                                <td>{{x.RateApply}}</td>
+                                                <td ng-hide="true">{{x.CurrencyId}}</td>
+                                                <td>{{x.Currency}}</td>
+                                                <td><input type="text" class="form-control" ng-model="x.RatePerUnit" style="width: 100px;" /></td>
+                                                <td><input type="text" class="form-control" ng-model="x.Rejection" style="width: 100px;" /></td>
+                                                <td><input type="text" class="form-control" ng-model="x.ValueLoss" style="width: 100px;" /></td>
+                                                <td ng-hide="true">{{x.ResponsiblePersonId}}</td>
+                                                <td>{{x.ResponsiblePerson}}</td>
+                                                <td><input type="text" class="form-control" ng-model="x.Remarks" style="width: 200px;" /></td>
+                                                <td>
+                                                    <ul class="list-inline action-list">
+                                                        <li style="width: 100%;"><center><button ng-show="{{x.Id !='' && x.ByProductApplicable=='Yes'}}" ng-click="SetByProductApplicable($index,x)" class="btn btn-action tooltip-here" data-placement="top" title="By Product List"><i class="glyphicon glyphicon-list"></i></button></center></li>
+                                                    </ul>
+                                                </td>
+                                                <td>
+                                                    <ul class="list-inline action-list">
+                                                        <li style="width: 100%;"><center><button ng-show="{{x.Id !='' && x.OrderSpecific=='Yes'}}" ng-click="SetRequirements($index,x)" class="btn btn-action tooltip-here" data-placement="top" title="Order Wise Requirement"><i class="glyphicon glyphicon-list"></i></button></center></li>
+                                                    </ul>
+                                                </td>
+                                                <td>
+                                                    <ul class="list-inline action-list">
+                                                        <li style="width: 100%;"><center><button ng-show="{{x.Id !=''}}" ng-click="SetAttachment($index,x)" class="btn btn-action tooltip-here" data-placement="top" title="Attachment"><i class="glyphicon glyphicon-upload"></i></button></center></li>
+                                                    </ul>
+                                                </td>
+                                                <td class="text-right table-td" style="vertical-align: middle;">
+                                                    <ul class="list-inline action-list">
+                                                        <li><center><button ng-click="removeMaterialPlanning($index,x)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></center></li>
+                                                    </ul>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                    <div id="MaterialInput">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12" style="padding-top: 0px;">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li><button ng-click="AddNewMaterialInput();" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Material Input</button></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-12 col-lg-12">
+                                <div class="table-responsive modal-table table-wrapper-scroll-y my-custom-scrollbar">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th ng-hide="true">Id</th>
+                                                <th ng-hide="true">JobWorkTransformationContractId</th>
+                                                <th ng-hide="true">JobWorkMaterialId</th>
+                                                <th>Job Work Material</th>
+                                                <th>Specification</th>
+                                                <th>UOM</th>
+                                                <th>Net Consumption</th>
+                                                <th>Rejection</th>
+                                                <th>Value Loss</th>
+                                                <th>Gross Consumption</th>
+                                                <th ng-hide="true">ResponsiblePersonId</th>
+                                                <th>Responsible Person</th>
+                                                <th>Remarks</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="x in materialInputList">
+                                                <td ng-hide="true">{{x.Id}}</td>
+                                                <td ng-hide="true">{{x.JobWorkTransformationContractId}}</td>
+                                                <td ng-hide="true">{{x.JobWorkMaterialId}}</td>
+                                                <td>{{x.JobWorkMaterialName}}</td>
+                                                <td>{{x.MaterialSpecification}}</td>
+                                                <td>{{x.UOM}}</td>
+                                                <td>{{x.NetConsumption}}</td>
+                                                <td>{{x.Rejection}}</td>
+                                                <td>{{x.ValueLoss}}</td>
+                                                <td>{{x.GrossConsumption}}</td>
+                                                <td ng-hide="true">{{x.ResponsiblePersonId}}</td>
+                                                <td>{{x.ResponsiblePerson}}</td>
+                                                <td>{{x.Remarks}}</td>
+                                                <td class="text-right table-td" style="vertical-align: middle;">
+                                                    <ul class="list-inline action-list">
+                                                        <li><center><button ng-disabled="{{x.Id==''}}" ng-click="EditMaterialInput($index,x)" class="btn btn-action tooltip-here" data-placement="top" title="Edit"><i class="glyphicon glyphicon-pencil"></i></button></center></li>
+                                                        <li><center><button ng-click="removeMaterialInput($index,x)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></center></li>
+                                                    </ul>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-12 col-lg-12" style="padding-top: 20px;">
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{ValueAddedContract.Id==''?'Save':'Update'}}</button></li>
+                    <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                    <li> <button ng-click="Cancel();" class="btn"><i class="glyphicon glyphicon-remove-circle"></i> Cancel</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="aplos-grid-toggle">
+    <div class="row">
+        <div class="col-sm-12 col-md-12 col-lg-12" style="padding-top: 0px;">
+            <div id="GridData" ej-grid e-datasource="gridDataList" e-gridlines="vertical" e-templaterefresh="refreshGridGridElementCode"
+                 e-allowfiltering="true"
+                 e-allowpaging="true"
+                 e-allowsorting="true"
+                 e-allowResizing="true"
+                 e-allowTextWrap="true"
+                 e-allowscrolling="true"
+                 e-minheight="400px"
+                 e-height="400px"
+                 e-filtersettings-filterType="excel"
+                 e-enabletouch="true"
+                 e-responsive="true"
+                 e-recorddoubleclick="recorddoubleclick">
+                <div e-columns>
+                    <div e-column e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
+                    <div e-column e-field="ProcessTypeId" e-headertext="Process Type" e-width="100"></div>
+                    <div e-column e-field="ContractDate" e-headertext="Contract Date" e-width="100"></div>
+                    <div e-column e-field="ContractTime" e-headertext="Contract Time" e-width="100"></div>
+                    <div e-column e-field="PlantId" e-headertext="Plant" e-width="100"></div>
+                    <div e-column e-field="EntityId" e-headertext="Entity" e-width="100"></div>
+                    <div e-column e-field="JobWorkLocationId" e-headertext="Material Location" e-width="100"></div>
+                    <div e-column e-field="MaterialType" e-headertext="Material Type" e-width="100"></div>
+                    <div e-column e-field="PartyId" e-headertext="Vender / Party" e-width="100"></div>
+                    <div e-column e-field="ProcessStartDate" e-headertext="Process Start Date" e-width="100"></div>
+                    <div e-column e-field="ProcessEndDate" e-headertext="Process End Date" e-width="100"></div>
+                    <div e-column e-field="ContractClosingDate" e-headertext="Contract Closing Date" e-width="100"></div>
+                    <div e-column e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
+                    <div e-column e-template="#GridActions" e-width="75" textAlign='center'></div>
+                </div>
+            </div>
+            <script type="text/template" id="GridActions">
+                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn btnDelete">
+                    <i class="fa fa-trash" title="Delete Data" ng-click="$parent.DeleteSelectedData('GridData');" style="margin: -6px;"></i>
+                </button>
+            </script>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="modalMaterialPlanning" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:75%">
+        <div class="modal-content modal-lg" style="width:100%">
+            <div class="modal-header">Material Planning<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="form-elements form-horizontal" ng-form name="frmMaterialPlanning">
+                    <div class="row">
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group show-errors">
+                                <label class="control-label">Material Planning<sup>*</sup></label>
+                                <div class="show-message">
+                                    <div class="select-style">
+                                        <select id="ddlJobWorkMaterialMasterId" name="JobWorkMaterialMasterId" tabindex="3" class="form-control" submit-required="true" ng-model="MaterialPlanning.JobWorkMaterialMasterId" ng-options="item.Id as item.ItemName for item in valueAddedMasterItemList" required ng-change="LoadItemDetails()"></select>
+                                    </div>
+                                    <input type="hidden" name="Id" ng-model="MaterialPlanning.Id" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group show-errors">
+                                <label class="control-label">Material Specification<sup>*</sup></label>
+                                <div class="show-message">
+                                    <input type="text" id="txtMaterialSpecification" name="Material Specification" tabindex="4" class="form-control" required ng-model="MaterialPlanning.MaterialSpecification" value="" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group show-errors">
+                                <label class="control-label">Material Ref<sup>*</sup></label>
+                                <div class="show-message">
+                                    <input type="text" id="txtMaterialRef" name="Material Ref" tabindex="5" class="form-control" required ng-model="MaterialPlanning.MaterialRef" value="" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group show-errors">
+                                <label class="control-label">UOM<sup>*</sup></label>
+                                <div class="show-message">
+                                    <input type="text" id="txtUOM" name="UOM" tabindex="6" class="form-control" required ng-model="MaterialPlanning.UOM" value="" readonly />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group show-errors">
+                                <label class="control-label">Quantity<sup>*</sup></label>
+                                <div class="show-message">
+                                    <input type="text" id="txtQuantity" name="Quantity" tabindex="7" n-decimals="2" class="form-control" required ng-model="MaterialPlanning.Quantity" value="" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group show-errors">
+                                <label class="control-label">Article Code<sup>*</sup></label>
+                                <div class="show-message">
+                                    <div class="show-message">
+                                        <div class="input-group">
+                                            <input type="text" ng-model="MaterialPlanning.MaterialMasterName" class="form-control" readonly required />
+                                            <input type="hidden" id="txtMaterialMasterId" name="txtMaterialMasterId" ng-model="MaterialPlanning.MaterialMasterId" />
+                                            <span class="input-group-btn">
+                                                <button tabindex="5" ng-click="getMaterialMasterbyTypePopUp();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group" show-errors>
+                                <label class="control-label" for="ddlType">Order Specific<sup>*</sup></label>
+                                <div class="show-message">
+                                    <div class="select-style">
+                                        <div class="select-style">
+                                            <select id="ddlOrderSpecific" name="OrderSpecific" tabindex="9" class="form-control" submit-required="true" ng-model="MaterialPlanning.OrderSpecific" ng-options="item.name as item.name for item in orderSpecificList" required></select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group show-errors">
+                                <label class="control-label">Required Capacity/Day<sup>*</sup></label>
+                                <div class="show-message">
+                                    <input type="text" id="txtRequiredCapacityPerDay" name="Required Capacity/Day" n-decimals="2" tabindex="10" class="form-control" required ng-model="MaterialPlanning.RequiredCapacityPerDay" value="" />
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group" show-errors>
+                                <label class="control-label" for="ddlType">By Product Applicable<sup>*</sup></label>
+                                <div class="show-message">
+                                    <div class="select-style">
+                                        <div class="select-style">
+                                            <select id="ddlByProductApplicable" name="ByProductApplicable" tabindex="9" class="form-control" submit-required="true" ng-model="MaterialPlanning.ByProductApplicable" ng-options="item.ByProductApplicable as item.ByProductApplicable for item in byProductApplicableList" required></select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group show-errors">
+                                <label class="control-label">Rate Apply<sup>*</sup></label>
+                                <div class="show-message">
+                                    <div class="select-style">
+                                        <select id="ddlRateApply" name="Rate Apply" tabindex="11" class="form-control" submit-required="true" ng-model="MaterialPlanning.RateApply" ng-options="item.RateApplicable as item.RateApplicable for item in rateApplicableList" required></select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group" show-errors>
+                                <label class="control-label" for="ddlCurrencyId">Currency<sup>*</sup></label>
+                                <div class="show-message">
+                                    <div class="select-style">
+                                        <select id="ddlCurrencyId" name="CurrencyId" tabindex="12" class="form-control" submit-required="true" ng-model="MaterialPlanning.CurrencyId" ng-options="item.Id as item.Code for item in materialPlanningCurrencyList" required></select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group show-errors">
+                                <label class="control-label">Rate/Unit<sup>*</sup></label>
+                                <div class="show-message">
+                                    <input type="text" id="txtRatePerUnit" name="Rate/Unit" tabindex="13" n-decimals="2" class="form-control" required ng-model="MaterialPlanning.RatePerUnit" value="" />
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group show-errors">
+                                <label class="control-label">Rejection<sup>*</sup></label>
+                                <div class="show-message">
+                                    <input type="text" id="txtRejection" name="Rejection" tabindex="14" n-decimals="2" class="form-control" required ng-model="MaterialPlanning.Rejection" value="" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group show-errors">
+                                <label class="control-label">Value Loss<sup>*</sup></label>
+                                <div class="show-message">
+                                    <input type="text" id="txtValueLoss" name="Value Loss" tabindex="15" n-decimals="2" class="form-control" required ng-model="MaterialPlanning.ValueLoss" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group" show-errors>
+                                <div class="row">
+                                    <label class="control-label">ResponsiblePersonId<sup>*</sup></label>
+                                    <div class="show-message">
+                                        <div class="input-group">
+                                            <input type="text" name="Responsible Person" ng-model="MaterialPlanning.ResponsiblePerson" class="form-control" readonly required />
+                                            <input type="hidden" name="EmployeeId" ng-model="MaterialPlanning.ResponsiblePersonId" />
+                                            <span class="input-group-btn">
+                                                <button ng-click="showResponsiblePersonListPopUp('Planning')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                <button ng-click="clearResponsiblePerson()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group show-errors">
+                                <label class="control-label">Remarks</label>
+                                <div class="show-message">
+                                    <input type="text" id="txtRemarks" name="Remarks" tabindex="17" class="form-control" ng-model="MaterialPlanning.Remarks" value="" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="padding-top:10px">
+                    <div class="col-sm-12 col-md-12 col-lg-12">
+                        <button type="button" class="btn single-small-btn" ng-click="AddNewMaterialPlanningRow();"><i class="glyphicon glyphicon-floppy-disk"></i> {{MaterialPlanning_Child}}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="modalMaterialInput" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:75%">
+        <div class="modal-content modal-lg" style="width:100%">
+            <div class="modal-header">Material Input<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="form-elements form-horizontal" ng-form name="frmMaterialInput">
+                    <div class="row">
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group show-errors">
+                                <label class="control-label">Material<sup>*</sup></label>
+                                <div class="show-message">
+                                    <div class="select-style">
+                                        <select id="ddlJobWorkMaterialInputMasterId" name="Job Work Material" tabindex="3" class="form-control" submit-required="true" ng-model="MaterialInput.JobWorkMaterialId" ng-options="item.Id as item.MaterialName for item in jobWorkMaterialList" required ng-change="LoadItemUOM()"></select>
+                                    </div>
+                                    <input type="hidden" name="Id" ng-model="MaterialInput.Id" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group show-errors">
+                                <label class="control-label">Material Specification<sup>*</sup></label>
+                                <div class="show-message">
+                                    <input type="text" id="txtMaterialSpecification" name="Material Specification" tabindex="4" class="form-control" required ng-model="MaterialInput.MaterialSpecification" value="" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group show-errors">
+                                <label class="control-label">UOM<sup>*</sup></label>
+                                <div class="show-message">
+                                    <input type="text" id="txtUOM" name="UOM" tabindex="6" class="form-control" required ng-model="MaterialInput.UOM" value="" readonly />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group show-errors">
+                                <label class="control-label">Net Consumption<sup>*</sup></label>
+                                <div class="show-message">
+                                    <input type="text" id="txtNetConsumption" name="NetConsumption" tabindex="7" n-decimals="2" class="form-control" required ng-model="MaterialInput.NetConsumption" value="" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group show-errors">
+                                <label class="control-label">Rejection<sup>*</sup></label>
+                                <div class="show-message">
+                                    <input type="text" id="txtRejection" name="Rejection" tabindex="14" n-decimals="2" class="form-control" required ng-model="MaterialInput.Rejection" value="" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group show-errors">
+                                <label class="control-label">Value Loss<sup>*</sup></label>
+                                <div class="show-message">
+                                    <input type="text" id="txtValueLoss" name="Value Loss" tabindex="15" n-decimals="2" class="form-control" required ng-model="MaterialInput.ValueLoss" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group show-errors">
+                                <label class="control-label">Gross Consumption<sup>*</sup></label>
+                                <div class="show-message">
+                                    <input type="text" id="txtGrossConsumption" name="Gross Consumption" tabindex="15" n-decimals="2" class="form-control" required ng-model="MaterialInput.GrossConsumption" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group" show-errors>
+                                <div class="row">
+                                    <label class="col-sm-12 control-label">Responsible Person<sup>*</sup></label>
+                                    <div class="col-sm-12 show-message">
+                                        <div class="input-group">
+                                            <input type="text" name="Responsible Person" ng-model="MaterialInput.ResponsiblePerson" class="form-control" readonly required />
+                                            <input type="hidden" name="EmployeeId" ng-model="MaterialInput.ResponsiblePersonId" />
+                                            <span class="input-group-btn">
+                                                <button ng-click="showResponsiblePersonListPopUp('Input')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                <button ng-click="clearResponsiblePerson()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12 col-md-12 col-lg-12">
+                            <div class="form-group show-errors">
+                                <label class="control-label">Remarks</label>
+                                <div class="show-message">
+                                    <input type="text" id="txtRemarks" name="Remarks" tabindex="17" class="form-control" ng-model="MaterialInput.Remarks" value="" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="padding-top:10px">
+                    <div class="col-sm-12 col-md-12 col-lg-12">
+                        <button type="button" class="btn single-small-btn" ng-click="AddNewMaterialInputRow();"><i class="glyphicon glyphicon-floppy-disk"></i> {{MaterialInput_Child}}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="modalMaterialPlanningAttachment" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">Material Planning Attachment<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body" style="overflow:hidden">
+                <div class="row">
+                    <div class="col-sm-12 col-md-3 col-lg-3">
+                        <div class="upload-btn-wrapper btn-block">
+                            <button class="btnUpload"><i class="fa fa-upload fa-fw"></i> Browse a File</button>
+                            <input type="file" accept=".webm" id="filec" name="file" tabindex="1" />
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-6">
+                        <button type="button" class="btn single-small-btn" ng-click="SaveMaterialPlanningAttachmentFile();"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12" style="padding-top: 0px;">
+                        <div id="GridAttachment" ej-grid e-datasource="gridAttachmentList" e-gridlines="vertical" e-templaterefresh="refreshGridGridElementCode"
+                             e-allowfiltering="true"
+                             e-allowpaging="true"
+                             e-allowsorting="true"
+                             e-allowResizing="true"
+                             e-allowTextWrap="true"
+                             e-allowscrolling="true"
+                             e-minheight="400px"
+                             e-height="400px"
+                             e-filtersettings-filterType="excel"
+                             e-enabletouch="true"
+                             e-responsive="true">
+                            <div e-columns>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
+                                <div e-column e-field="JobWorkTransformationContractMaterialPlanningId" e-headertext="JobWorkTransformationContractMaterialPlanningId" e-visible="false"></div>
+                                <div e-column e-field="OrginalFileName" e-headertext="Orginal File Name" e-width="100"></div>
+                                <div e-column e-field="FileName" e-headertext="File Name" e-width="100"></div>
+                                <div e-column e-template="#GridActionsAttachment" e-width="75" textAlign='center'></div>
+                            </div>
+                        </div>
+                        <script type="text/template" id="GridActionsAttachment">
+                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn btnDelete">
+                                <i class="fa fa-trash" title="Delete Data" ng-click="$parent.removeMaterialPlanningAttachment('GridAttachment');" style="margin: -6px;"></i>
+                            </button>
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="modalMaterialPlanningRequirement" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:75%">
+        <div class="modal-content modal-lg" style="width:100%">
+            <div class="modal-header">Material Planning Attachment<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body" style="overflow:hidden">
+                <div class="form-elements form-horizontal" ng-form name="frmValueAddedRequirement" style="padding:0px;">
+                    <div class="row">
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group show-errors">
+                                <label class="control-label">Order Type<sup>*</sup></label>
+                                <div class="show-message">
+                                    <div class="select-style">
+                                        <select id="ddlOrderType" name="OrderType" tabindex="1" class="form-control" submit-required="true" ng-model="Requirement.OrderType" ng-options="item.name as item.name for item in orderTypeList" required></select>
+                                        <input type="hidden" ng-model="Requirement.Id" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group show-errors">
+                                <label class="control-label">Customer<sup>*</sup></label>
+                                <div class="show-message">
+                                    <div class="select-style">
+                                        <select id="ddlCustomerId" name="CustomerId" tabindex="2" class="form-control" submit-required="true" ng-model="Requirement.CustomerId" ng-options="item.Id as item.UserName for item in buyerList" required></select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group show-errors">
+                                <label class="control-label">Master Oder NO<sup>*</sup></label>
+                                <div class="show-message">
+                                    <div class="input-group">
+                                        <input type="text" ng-model="Requirement.ProductionOrderName" class="form-control" readonly required />
+                                        <input type="hidden" id="txtProductionOrderId" name="txtProductionOrderId" ng-model="Requirement.ProductionOrderId" />
+                                        <span class="input-group-btn">
+                                            <button tabindex="3" ng-click="LoadProductionOrder();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group show-errors">
+                                <label class="control-label">Specification<sup>*</sup></label>
+                                <div class="show-message">
+                                    <input type="text" id="txtSpecification" name="Specification" tabindex="4" class="form-control" ng-model="Requirement.Specification" value="" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group show-errors">
+                                <label class="control-label">Output Material UOM<sup>*</sup></label>
+                                <div class="show-message">
+                                    <input type="text" id="txtOutputMaterialUOM" name="OutputMaterialUOM" tabindex="5" class="form-control" ng-model="Requirement.OutputMaterialUOM" value="" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group show-errors">
+                                <label class="control-label">Quantity<sup>*</sup></label>
+                                <div class="show-message">
+                                    <input type="text" id="txtQuantity" name="Quantity" tabindex="6" class="form-control" ng-model="Requirement.Quantity" value="" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-6 col-lg-6">
+                            <div class="form-group show-errors">
+                                <label class="control-label">Remarks</label>
+                                <div class="show-message">
+                                    <input type="text" id="txtRemarks" name="Remarks" tabindex="7" class="form-control" ng-model="Requirement.Remarks" value="" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="padding: 10px 0px 10px 0px;">
+                        <div class="col-sm-12 col-md-12 col-lg-12">
+                            <button type="button" class="btn single-small-btn" ng-click="SaveMaterialPlanningRequirement();"><i class="glyphicon glyphicon-floppy-disk"></i> {{Requirement_Save}}</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12" style="padding-top: 0px;">
+                        <div id="GridRequirement" ej-grid e-datasource="materialPlanningRequirementsList" e-gridlines="vertical" e-templaterefresh="refreshGridGridElementCode"
+                             e-allowfiltering="true"
+                             e-allowpaging="true"
+                             e-allowsorting="true"
+                             e-allowResizing="true"
+                             e-allowTextWrap="true"
+                             e-allowscrolling="true"
+                             e-filtersettings-filterType="excel"
+                             e-enabletouch="true"
+                             e-responsive="true"
+                             e-recorddoubleclick="recordRequirementdoubleclick">
+                            <div e-columns>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
+                                <div e-column e-field="JobWorkTransformationContractMaterialPlanningId" e-headertext="JobWorkTransformationContractMaterialPlanningId" e-width="50" e-visible="false"></div>
+                                <div e-column e-field="OrderType" e-headertext="Order Type" e-width="100"></div>
+                                <div e-column e-field="Buyer" e-headertext="Buyer" e-width="100"></div>
+                                <div e-column e-field="ProductionOrderId" e-headertext="Production Order" e-width="100"></div>
+                                <div e-column e-field="MasterOrderId" e-headertext="Master OrderId" e-width="100"></div>
+                                <div e-column e-field="Specification" e-headertext="Specification" e-width="100"></div>
+                                <div e-column e-field="OutputMaterialUOM" e-headertext="Output Material UOM" e-width="100"></div>
+                                <div e-column e-field="Quantity" e-headertext="Quantity" e-width="100"></div>
+                                <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
+                                <div e-column e-template="#GridActionsRequirement" e-width="75" textAlign='center'></div>
+                            </div>
+                        </div>
+                        <script type="text/template" id="GridActionsRequirement">
+                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn btnDelete">
+                                <i class="fa fa-trash" title="Delete Data" ng-click="$parent.removeMaterialPlanningRequirement('GridRequirement');" style="margin: -6px;"></i>
+                            </button>
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="modalByProductApplicable" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:75%">
+        <div class="modal-content modal-lg" style="width:100%">
+            <div class="modal-header">By Product Applicable<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body" style="overflow:hidden">
+                <div class="form-elements form-horizontal" ng-form name="frmByProduct" style="padding:0px;">
+                    <div class="row">
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group" show-errors>
+                                <label class="control-label" for="ddlMaterialMasterId">
+                                    Material Master<sup>*</sup>
+                                </label>
+                                <div class="show-message">
+                                    <div class="select-style">
+                                        <select name="ddlMaterialMasterId" class="form-control" ng-model="ByProduct.JobWorkMaterialId" ng-options="item.Id as item.MaterialName for item in jobWorkByProductMaterialList" ng-change="ChangeMaterialPlanningByProductUOM()" style="height: 30px;" tabindex="1"></select>
+                                        <input type="hidden" ng-model="ByProduct.Id" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group" show-errors>
+                                <label class="control-label" for="txtMaterialSpecification">
+                                    Material Specification<sup>*</sup>
+                                </label>
+                                <div class="show-message">
+                                    <input type="text" name="txtMaterialSpecification" class="form-control" ng-model="ByProduct.MaterialSpecification" tabindex="2" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group" show-errors>
+                                <label class="control-label" for="txtInputMaterialUOM">
+                                    Material UOM<sup>*</sup>
+                                </label>
+                                <div class="show-message">
+                                    <input type="text" name="Input Material UOM" class="form-control" ng-model="ByProduct.UOM" tabindex="3" disabled />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group" show-errors>
+                                <label class="control-label" for="StandardQty">
+                                    Std. Qty / Input Unit
+                                </label>
+                                <div class="show-message">
+                                    <input type="text" n-decimals="2" name="StandardQty" class="form-control" ng-model="ByProduct.StandardQty" tabindex="4" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group" show-errors>
+                                <label class="control-label" for="txtRejection">
+                                    Rejection<sup>*</sup>
+                                </label>
+                                <div class="show-message">
+                                    <input type="text" name="txtRejection" class="form-control" n-decimals="2" ng-model="ByProduct.Rejection" tabindex="5" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group" show-errors>
+                                <label class="control-label" for="txtValueLoss">
+                                    Value Loss<sup>*</sup>
+                                </label>
+                                <div class="show-message">
+                                    <input type="text" name="txtValueLoss" n-decimals="2" class="form-control" ng-model="ByProduct.ValueLoss" tabindex="6" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group" show-errors>
+                                <label class="control-label" for="Gross Qty">
+                                    Gross Qty / Input Unit<sup>*</sup>
+                                </label>
+                                <div class="show-message">
+                                    <input type="text" name="Gross Qty" n-decimals="2" class="form-control" ng-model="ByProduct.GrossQty" tabindex="7" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group" show-errors>
+                                <label class="control-label" for="Gross Qty">
+                                    Currency<sup>*</sup>
+                                </label>
+                                <div class="show-message">
+                                    <div class="select-style">
+                                        <select class="form-control" name="Currency" ng-model="ByProduct.CurrencyId" tabindex="8">
+                                            <option ng-repeat="option in materialPlanningCurrencyList" value="{{option.Id}}">{{option.Code}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group" show-errors>
+                                <label class="control-label" for="Standard Rate">
+                                    Std Rate / Unit<sup>*</sup>
+                                </label>
+                                <div class="show-message">
+                                    <input type="text" name="Standard Rate" n-decimals="2" class="form-control" ng-model="ByProduct.StandardRate" tabindex="9" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div class="form-group" show-errors>
+                                <label class="control-label" for="MaterialInputResponsiblePersonId">
+                                    Responsible Person<sup>*</sup>
+                                </label>
+                                <div class="show-message">
+                                    <div class="input-group">
+                                        <input type="text" name="Responsible Person" ng-model="ByProduct.ResponsiblePerson" class="form-control" readonly />
+                                        <input type="hidden" name="EmployeeId" ng-model="ByProduct.ResponsiblePersonId" />
+                                        <span class="input-group-btn">
+                                            <button ng-click="showResponsiblePersonListPopUp('ByProduct')" tabindex="8" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                            <button ng-click="clearResponsiblePerson('ByProduct')" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-6 col-lg-6">
+                            <div class="form-group">
+                                <label class="control-label" for="Remarks">
+                                    Remarks
+                                </label>
+                                <input type="text" name="Remarks" class="form-control" ng-model="ByProduct.Remarks" tabindex="9" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="padding: 10px 0px 10px 0px;">
+                        <div class="col-sm-12 col-md-12 col-lg-12">
+                            <button type="button" class="btn single-small-btn" ng-click="SaveMaterialPlanningByProduct();"><i class="glyphicon glyphicon-floppy-disk"></i> {{ByProduct_Save}}</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12" style="padding-top: 10px;">
+                        <div id="GridByProduct" ej-grid e-datasource="gridByProductList" e-gridlines="vertical" e-templaterefresh="refreshGridGridElementCode"
+                             e-allowfiltering="true"
+                             e-allowpaging="true"
+                             e-allowsorting="true"
+                             e-allowResizing="true"
+                             e-allowTextWrap="true"
+                             e-allowscrolling="true"
+                             e-filtersettings-filterType="excel"
+                             e-enabletouch="true"
+                             e-responsive="true"
+                             e-recorddoubleclick="recordByProductdoubleclick">
+                            <div e-columns>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
+                                <div e-column e-field="JobWorkTransformationContractMaterialPlanningId" e-headertext="JobWorkTransformationContractMaterialPlanningId" e-width="50" e-visible="false"></div>
+                                <div e-column e-field="MaterialName" e-headertext="Material Name" e-width="100"></div>
+                                <div e-column e-field="MaterialSpecification" e-headertext="Material Specification" e-width="120"></div>
+                                <div e-column e-field="UOM" e-headertext="UOM" e-width="100"></div>
+                                <div e-column e-field="StandardQty" e-headertext="Standard Qty" e-width="100"></div>
+                                <div e-column e-field="Rejection" e-headertext="Rejection" e-width="100"></div>
+                                <div e-column e-field="ValueLoss" e-headertext="Value Loss" e-width="100"></div>
+                                <div e-column e-field="GrossQty" e-headertext="Gross Qty" e-width="100"></div>
+                                <div e-column e-field="Currency" e-headertext="Currency" e-width="100"></div>
+                                <div e-column e-field="StandardRate" e-headertext="Standard Rate" e-width="100"></div>
+                                <div e-column e-field="ResponsiblePerson" e-headertext="Responsible Person" e-width="100"></div>
+                                <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
+                                <div e-column e-template="#GridActionsByProduct" e-width="75" textAlign='center'></div>
+                            </div>
+                        </div>
+                        <script type="text/template" id="GridActionsByProduct">
+                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn btnDelete">
+                                <i class="fa fa-trash" title="Delete Data" ng-click="$parent.removeMaterialPlanningByProduct('GridByProduct');" style="margin: -6px;"></i>
+                            </button>
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="modalProductionOrder" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:75%">
+        <div class="modal-content modal-lg" style="width:100%">
+            <div class="modal-header">Production Order<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body" style="overflow:hidden">
+                <div class="col-sm-12 col-md-12 col-lg-12">
+                    <div id="GridProductionData" ej-grid e-datasource="productionOrderList" e-gridlines="vertical" e-templaterefresh="refreshGridGridElementCode"
+                         e-allowfiltering="true"
+                         e-allowpaging="true"
+                         e-allowsorting="true"
+                         e-allowResizing="true"
+                         e-allowTextWrap="true"
+                         e-allowscrolling="true"
+                         e-filtersettings-filterType="excel"
+                         e-enabletouch="true" e-responsive="true"
+                         e-recorddoubleclick="recorddoubleProductionclick">
+                        <div e-columns>
+                            <div e-column e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
+                            <div e-column e-field="MasterOrderId" e-headertext="Master Order" e-width="100"></div>
+                            <div e-column e-field="EntityName" e-headertext="Entity" e-width="100"></div>
+                            <div e-column e-field="buyer" e-headertext="Buyer" e-width="100"></div>
+                            <div e-column e-field="Customer" e-headertext="Customer" e-width="100"></div>
+                            <div e-column e-field="ProductCategory" e-headertext="Product Category" e-width="100"></div>
+                            <div e-column e-field="Product" e-headertext="Product" e-width="200"></div>
+                            <div e-column e-field="Material" e-headertext="Material" e-width="200"></div>
+                            <div e-column e-field="StyleNo" e-headertext="Style No" e-width="150"></div>
+                            <div e-column e-field="OwnStyleNo" e-headertext="Own Style No" e-width="150"></div>
+                            <div e-column e-field="Qty" e-headertext="Qty" e-width="65"></div>
+                            <div e-column e-field="PlannedQty" e-headertext="Planned Qty" e-width="100"></div>
+                            <div e-column e-field="SOQuantity" e-headertext="SO Quantity" e-width="100"></div>
+                            <div e-column e-field="RequiredTimeUnit" e-headertext="Required Time Unit" e-width="100"></div>
+                            <div e-column e-field="Lsd" e-headertext="Latest Start Date" e-width="100"></div>
+                            <div e-column e-field="CommitmentDate" e-headertext="Commitment Date" e-width="100"></div>
+                            <div e-column e-field="DeliveryDate" e-headertext="Delivery Date" e-width="100"></div>
+                            <div e-column e-field="planningStatus" e-headertext="planning Status" e-width="100"></div>
+                            <div e-column e-field="ProductionStatus" e-headertext="Production Status" e-width="100"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUp.cshtml")
+@Html.Partial("~/Areas/Employees/Views/Shared/_ResponsiblePersonPopUp.cshtml")
+@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterByTypePopUp.cshtml")
+@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPopUp.cshtml")
+<confirm-modal></confirm-modal>
+<confirm-archive-generic modalid="removeMaterialPlanningPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="removeMaterialPlanningRow()"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmAttachmentDeletePopUp" title="Confirmation" message={{message_confirmationAttachment}} data-ng-click-right-button="removeAttachmentRow()"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmRequirementDeletePopUp" title="Confirmation" message={{message_confirmationRequirement}} data-ng-click-right-button="removeRequirementRow()"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmByProductDeletePopUp" title="Confirmation" message={{message_confirmationByProduct}} data-ng-click-right-button="removeByProductRow()"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmMaterialInputDeletePopUp" title="Confirmation" message={{message_confirmationMaterialInput}} data-ng-click-right-button="removeMaterialInputRow()"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRow()"></confirm-archive-generic>
+<style type="text/css">
+    .inner-content .form-group {
+        margin-bottom: 0px;
+    }
+
+    .form-horizontal .form-group {
+        margin-right: 0px;
+        margin-left: 0px;
+    }
+
+    .modal-table .table > thead > tr > th {
+        vertical-align: middle;
+        border-bottom: 2px solid #ddd;
+        font-size: 9pt;
+    }
+
+    .table > tbody > tr > th, .modal-table .table > tbody > tr > td, .modal-table .table > tfoot > tr > td, .modal-table .table > tfoot > tr > th, .modal-table .table > thead > tr > td, .modal-table .table > thead > tr > th {
+        vertical-align: middle;
+    }
+
+    .table-condensed > tbody > tr > td, .table-condensed > tbody > tr > th, .table-condensed > tfoot > tr > td, .table-condensed > tfoot > tr > th, .table-condensed > thead > tr > td, .table-condensed > thead > tr > th {
+        padding: 5px;
+        vertical-align: middle;
+        font-size: 12px;
+    }
+
+    .btnGSD {
+        display: block;
+        height: 25px;
+        width: 100%;
+        padding: 0;
+        font-size: 10px;
+        border: none;
+        border-bottom: 1px solid #039;
+        background: none;
+        color: #039;
+        font-weight: bold;
+        border-radius: 1%;
+        font-family: Verdana;
+    }
+
+    .btnET {
+        display: block;
+        height: 25px;
+        width: 100%;
+        padding: 0;
+        font-size: 10px;
+        border: none;
+        border-bottom: 1px solid #039;
+        background: none;
+        color: #039;
+        font-weight: bold;
+        border-radius: 1%;
+        font-family: Verdana;
+    }
+
+    .table-bordered > thead > tr > td, .table-bordered > thead > tr > th {
+        border: none;
+        border-bottom: 2px solid #6678b1;
+        color: #039;
+        font-size: 11px;
+        text-align: center;
+        font-family: verdana;
+    }
+
+    .form-control {
+        border-radius: 0;
+        box-shadow: none;
+        border: 1px solid #34495e;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    .tdAvg .form-control {
+        background: none;
+        border: none;
+        color: #000;
+        font-size: 13px;
+        border-bottom: 1.5px solid #2e3439;
+    }
+
+    .tdRatings .form-control {
+        background: none;
+        border: none;
+        color: #000;
+        font-size: 13px;
+        border-bottom: 1.5px solid #2e3439;
+    }
+
+    .tdBtSec .form-control {
+        background: none;
+        border: none;
+        color: #000;
+        font-size: 13px;
+        border-bottom: 1.5px solid #2e3439;
+    }
+
+    .tdTitle {
+        background: #fff;
+        text-transform: uppercase;
+        font-weight: bold;
+        vertical-align: middle;
+        text-align: center;
+        font-family: verdana;
+    }
+
+    .radio label {
+        font-weight: 400;
+        padding-left: 5px;
+        font-family: verdana;
+        font-size: 10pt;
+    }
+
+    .form-elements .control-label, .master-details-search .control-label, .download-token .control-label, .form-element-ctrl .control-label {
+        font-family: verdana;
+        font-size: 8pt;
+        font-weight: 600;
+    }
+
+    .site-tab ul li a {
+        font-family: verdana;
+        font-size: 10pt;
+    }
+
+    fieldset.scheduler-border {
+        border: 1px groove #ddd !important;
+        padding: 0 1.4em 1.4em 1.4em !important;
+        margin: 0 0 1.5em 0 !important;
+        -webkit-box-shadow: 0px 0px 0px 0px #000;
+        box-shadow: 0px 0px 0px 0px #000;
+    }
+
+    legend.scheduler-border {
+        font-size: 1.2em !important;
+        font-weight: bold !important;
+        text-align: left !important;
+        width: auto;
+        padding: 0 10px;
+        border-bottom: none;
+    }
+    /*Upload button  CSS*/
+    .upload-btn-wrapper {
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+    }
+
+    .btnUpload {
+        border: 1px solid #3e445a;
+        color: #fff;
+        background: #3e445a none repeat scroll 0 0;
+        padding: 6px 25px;
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+    .upload-btn-wrapper input[type=file] {
+        font-size: 100px;
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+    }
+</style>

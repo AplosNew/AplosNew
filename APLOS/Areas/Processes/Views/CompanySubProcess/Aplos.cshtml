@@ -1,0 +1,163 @@
+﻿<style>
+    .selected {
+        background-color: rgba(234, 97, 83, 0.42) !important;
+    }
+</style>
+<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> Company Subprocess</h3>
+<div class="row form-elements form-horizontal">
+    <input type="hidden" ng-model="companySubProcess.Id">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Company<sup>*</sup></label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    <select class="form-control" ng-model="companySubProcess.CompanyId" id="companyId"
+                            ng-change="companyChange(companySubProcess.CompanyId)"
+                            ng-options="item.Value as item.Text for item in companyList">
+                        <option value=""></option>
+                    </select>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Process<sup>*</sup></label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    <select class="form-control" ng-model="companySubProcess.ProcessId" ng-change="getData();processChange();"
+                            ng-options="item.Value as item.Text for item in processList">
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <ul class="common-btn list-inline text-left">
+            <li> <button ng-click="ShowCompanySubProcessListPopUp();" class="btn" tabindex="10"><i class="glyphicon glyphicon-plus"></i> Add SubProcess</button></li>
+        </ul>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <ul class="common-btn list-inline text-right">
+            <li> <button ng-click="Save();" class="btn" tabindex="10"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+        </ul>
+    </div>
+</div>
+<div class="table-responsive modal-table" ng-show="tableShow">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Subprocess Category</th>
+                <th>Subprocess</th>
+                <th>Active</th>
+                <th>Remove</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in companySubProcessList|filter:{Archive:false}|itemsPerPage:$root.pageSize" total-items="$root.total_count"
+                ng-class="{selected : x.class=='new'}">
+                <td>{{x.Code}}</td>
+                <td>{{x.SubProcessCategoryName}}</td>
+                <td>{{x.SubProcessName}}</td>
+                <td>{{x.Active?'Yes':'No'}}</td>
+                <td class="text-right table-td">
+                    <ul class="list-inline action-list">
+                        <li>
+                            <button ng-click="valuePassInDelModal(x, $index)" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
+                                <i class="glyphicon glyphicon-remove"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10"
+                             direction-links="true"
+                             boundary-links="true"
+                             on-page-change="getData(newPageNumber)">
+    </dir-pagination-controls>
+</div>
+<div class="modal fade site-modal in" id="subProcessPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="closeSubProcessListPopUp()">&times;</button>
+                <h4 class="modal-title"><i class="glyphicon glyphicon-info-sign"></i> Sub Process</h4>
+            </div>
+            <div class="modal-body">
+                <label ng-show="subProcesses.length==0">Data not found.!</label>
+                <div class="row text-right" ng-show="subProcesses.length>0">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="popUpParameters.searchBy">
+                                            <option ng-repeat="option in searchSubProcessByList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="popUpParameters.search"  ng-enter="getCompanySubProcessData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getCompanySubProcessData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table" ng-show="subProcesses.length>0">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Select</th>
+                                <th>Code</th>
+                                <th>User Name</th>
+                                <th>Subprocess Category</th>
+                                <th>Active</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in subProcesses|filter:Archive==false|itemsPerPage:popUpParameters.pageSize"
+                                total-items="popUpParameters.total_count" pagination-id="metaData.name + 'subProcesses'">
+                                <td>
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="x.Flag" ng-checked="x.Flag">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.SubProcessCategoryName}}</td>
+                                <td>{{x.Active?'Yes':'No'}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'subProcesses'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getCompanySubProcessData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+                <div class="common-btn" ng-show="subProcesses.length>0">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="addCompanySubProcess()" class="btn">Select</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic modalid="confirmgenericPopUp" title="Confirmation"
+                         message={{message_confirmation}} data-ng-click-right-button="removeRow()">
+</confirm-archive-generic>
+<confirm-modal></confirm-modal>

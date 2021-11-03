@@ -1,0 +1,765 @@
+﻿<togglable name="SOP"></togglable>
+<style>
+    /****************File Upload*/
+    * {
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+    }
+
+    .inputBtnSection {
+        /*display: inline-block;*/
+        vertical-align: top;
+        font-size: 0;
+        font-family: verdana;
+    }
+
+    .disableInputField {
+        /*display: inline-block;*/
+        vertical-align: top;
+        height: 27px;
+        margin: 0;
+        font-size: 14px;
+        padding: 0 3px;
+    }
+
+    .fileUpload {
+        position: relative;
+        overflow: hidden;
+        /*border: solid 1px gray;*/
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    .uploadBtn {
+        display: inline-block;
+        vertical-align: top;
+        background: #242841;
+        font-size: 14px;
+        padding: 0 10px;
+        height: 25px;
+        line-height: 22px;
+        color: #fff;
+    }
+
+    .fileUpload input.upload {
+        position: absolute;
+        top: 0;
+        right: 0;
+        margin: 0;
+        padding: 0;
+        font-size: 20px;
+        cursor: pointer;
+        opacity: 0;
+        filter: alpha(opacity=0);
+    }
+</style>
+
+<div class="form-elements form-horizontal" ng-form id="sopItem" name="sopItemNewForm" enctype="multipart/form-data">
+    <div class="tab-design" id="tab_show">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">General</a></li>
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="activity" role="tab" data-toggle="tab">Activity</a></li>
+                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="document" role="tab" data-toggle="tab">Document</a></li>
+                <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" aria-controls="kpi" role="tab" data-toggle="tab">KPI</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                <div class="row" ng-form name="sopItemNewForm2">
+                    <input type="hidden" ng-model="sopItemNew.Id">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="number" name="Sequence" ng-model="sopItemNew.Sequence" class="form-control" required tabindex="1">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" ng-model="sopItemNew.ShortName" name="Short Name" maxlength="15" class="form-control" required tabindex="3">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">User Define Name<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="User Name" maxlength="50" ng-model="sopItemNew.UserName" class="form-control" required tabindex="5">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">SOP SubCategory</label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="sopItemNew.SOPSubCategoryId" ng-options="item.Value as item.Text for item in sopSubCategoryList" tabindex="7">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Mission</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="2" ng-model="sopItemNew.Mission" name="Mission" maxlength="250" tabindex="9" ng-trim="false"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Description</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="2" ng-model="sopItemNew.Description" name="Description" maxlength="250" tabindex="11" ng-trim="false"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Active</label>
+                            <div class="col-sm-8">
+                                <div class="checkbox-site">
+                                    <label class="control-label">
+                                        <input type="checkbox" ng-model="sopItemNew.Active">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Code" maxlength="10" ng-model="sopItemNew.Code" class="form-control" required tabindex="2">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Standard Name" maxlength="50" ng-model="sopItemNew.StandardName" class="form-control" required tabindex="4">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">SOP Category</label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="sopItemNew.SOPCategoryId" ng-options="item.Value as item.Text for item in sopCategoryList" tabindex="6">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Objective</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="2" ng-model="sopItemNew.Objective" name="Objective" maxlength="250" tabindex="8" ng-trim="false"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Vision</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="2" ng-model="sopItemNew.Vision" name="Vision" maxlength="250" tabindex="10" ng-trim="false"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Remarks</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="2" ng-model="sopItemNew.Remarks" name="Remarks" maxlength="250" tabindex="12" ng-trim="false"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="inputBtnSection common-btn" style="width:867px;">
+                        <label class="fileUpload col-sm-4" style="padding-left:196px;">
+                            <input name="file[]" class="upload" type="file" accept=".xlsx,.xlx,.doc,.docx,.jpg,.png,.gif,.pdf" id="filestoupload" multiple />
+                            <span class="uploadBtn" style="height: 33px;"><i class="fa fa-paperclip" aria-hidden="true"> Attach</i></span>
+                        </label>
+                        <div class="col-sm-6">
+                            <input type="text" id="uploadFile" name="uploadFile" class="disableInputField form-control" disabled="disabled" style="width: 444px;height: 33px;" />
+                        </div>
+                        <div class="col-sm-2">
+                            <btton ng-click="addAttachment();" class="btn single-small-btn"><i class="glyphicon glyphicon-plus"></i></btton>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="col-sm-2"></div>
+                            <div class="col-sm-7">
+                                <div class="table-responsive modal-table">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>File Name</th>
+                                                <th class="text-center">Remove</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="x in sopAttachmentDetailNewList ">
+                                                <td ng-click="FileDownload(x)"><a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{x.name}}" target="_self">{{x.name}}</a></td>
+                                                <td style="width:50px" class="text-center"><button class="btn single-small-btn" ng-click="deleteDocumentSetPopup(x, $index)"><i class="glyphicon glyphicon-remove"></i></button></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-sm-1"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                        <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                        <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                    </ul>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                <div class="row" ng-form name="activityForm">
+                    <input type="hidden" ng-model="activityNew.Id" />
+                    <input type="hidden" ng-model="activityNew.SOPItemId" />
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Activity<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <input type="text" name="Name" ng-model="activityNew.Name" class="form-control" maxlength="50" tabindex="31">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Position<sup>*</sup></label>
+                            <div class="col-sm-5 pdr3" style="Width:295px;">
+                                <input type="hidden" ng-model="activityNew.PositionId" class="form-control" disabled>
+                                <input type="text" name="Position" ng-model="activityNew.PositionName" class="form-control" disabled>
+                            </div>
+                            <div class="pdl3">
+                                <button name="submit" class="btn single-small-btn" ng-click="positionPopUp()" tabindex="3">
+                                    <i class="cr-icon glyphicon glyphicon-search"></i>
+                                </button>
+                                <button class="btn single-small-btn" ng-click="clearPosition()">
+                                    <i class="cr-icon glyphicon glyphicon-refresh"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Activity Category<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select id="ActivityCategoryId" ng-change="checkActivityCategory()" class="form-control" name="Activity Category" ng-model="activityNew.ActivityCategoryId" tabindex="33">
+                                        <option value="">--Select--</option>
+                                        <option ng-repeat="option in activityCategoryList" value="{{option.Value}}">{{option.Text}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" ng-show="otherActivityCategory">
+                            <label class="col-sm-4 control-label"></label>
+                            <div class="col-sm-8">
+                                <input type="text" maxlength="200" name="Other Activity Category" ng-model="activityNew.OtherActivityCategory" placeholder="Other Activity Category" class="form-control" tabindex="33">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Period<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select id="PeriodId" class="form-control" name="Period" ng-model="activityNew.PeriodId" tabindex="35">
+                                        <option value="">--Select--</option>
+                                        <option ng-repeat="option in periodList" value="{{option.Value}}">{{option.Text}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Average Time (Min)<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <input type="number" name="AverageTime" ng-model="activityNew.AverageTime" class="form-control" tabindex="37">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Remarks</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="2" ng-model="activityNew.Remarks" name="Remarks" maxlength="200" tabindex="39"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group" ng-show="hidediv">
+                            <label class="col-sm-4 control-label">KPI</label>
+                            <div class="col-sm-8">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="activityNew.KPI">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" ng-show="hidediv">
+                            <label class="col-sm-4 control-label">Documents</label>
+                            <div class="col-sm-8">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="activityNew.Documents">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Activity Detail<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="2" ng-model="activityNew.ActivityDetail" name="Activity Detail" maxlength="1000" tabindex="32"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Activity Importance<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select id="ActivityImportanceId" class="form-control" name="Activity Importance" ng-model="activityNew.ActivityImportanceId" tabindex="34">
+                                        <option value="">--Select--</option>
+                                        <option ng-repeat="option in activityImportanceList" value="{{option.Value}}">{{option.Text}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Frequency<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <input type="number" name="Frequency" ng-model="activityNew.Frequency" class="form-control" tabindex="36">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" title="Do You Find Value In This Activity">Find Value in this Activity<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select name="Value In Activity" ng-model="activityNew.ValueInActivity" class="form-control" tabindex="38">
+                                        <option value="">--Select--</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Purpose of the activity<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="2" ng-model="activityNew.PurposeOfTheActivity" name="PurposeOfTheActivity" maxlength="200" tabindex="40"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Has Financial Impact</label>
+                            <div class="col-sm-8">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="activityNew.FinancialImpact" tabindex="10">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="SaveActivity();" ng-disabled="disableBtn();savebtndisable;sopItemNew.Id===null" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{ActivityAction}}</button></li>
+                            <li> <button ng-click="clearactivity();" ng-disabled="disableBtn()" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        </ul>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="table-responsive modal-table">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Activity</th>
+                                        <th>Position Name</th>
+                                        <th>Activity Category</th>
+                                        <th>Activity Importance</th>
+                                        <th>Period</th>
+                                        <th class="col-md-2">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in activityDataList">
+                                        <td>{{x.Name}}</td>
+                                        <td>{{x.PositionName}}</td>
+                                        <td>{{x.ActivityCategoryId}}</td>
+                                        <td>{{x.ActivityImportanceId}}</td>
+                                        <td>{{x.PeriodId}}</td>
+                                        <td class="text-center table-td">
+                                            <ul class="list-inline action-list">
+                                                <li>
+                                                    <button ng-click="activityEdit(x, $index)" ng-disabled="disableBtn()" class="btn btn-action tooltip-here" data-placement="top" title="Edit">
+                                                        <i class="glyphicon glyphicon-edit"></i>
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <button ng-click="activityDelete(x, $index)" ng-disabled="disableBtn()" class="btn btn-action tooltip-here" data-placement="top" title="Delete">
+                                                        <i class="glyphicon glyphicon-remove"></i>
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+                <div class="row" ng-form name="documentForm">
+                    <input type="hidden" ng-model="documentActivityNew.Id" />
+                    <div class="col-xs-6 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Activity<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select id="ActivityId" class="form-control" name="Activity" ng-model="documentActivityNew.SOPActivityId" tabindex="41">
+                                        <option value="">--Select--</option>
+                                        <option ng-repeat="option in activitydocumentList" value="{{option.Value}}">{{option.Text}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button ng-click="documentPopUp();" class="btn single-small-btn"><i class="glyphicon glyphicon-plus" tabindex="5"></i> Add Document</button>
+                    </div>
+                    <div class="col-sm-12" ng-show="documentSetDetailList.length>0">
+                        <div class="table-responsive modal-table">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Code</th>
+                                        <th>Document Name</th>
+                                        <th>Data Source Category</th>
+                                        <th>FileName</th>
+                                        <th>Remove</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in documentSetDetailList">
+                                        <td>{{x.Code}}</td>
+                                        <td>{{x.UserName}}</td>
+                                        <td>{{x.DataSourceCategory}}</td>
+                                        <td>{{x.FileName}}</td>
+                                        <td>
+                                            <ul class="list-inline action-list">
+                                                <li><button ng-click="valuePassInDelModal(x,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="common-btn" style="padding-right:18px">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="SaveDocument();" class="btn" ng-disabled="disableBtn();savebtndisable;documentActivityNew.SOPActivityId===null"><i class="glyphicon glyphicon-floppy-disk"></i>{{DocumentAction}}</button></li>
+                                <li> <button ng-click="clearDocument();" class="btn" ng-disabled="disableBtn()" tabindex="9"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="table-responsive modal-table">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Activity</th>
+                                        <th>Document Name</th>
+                                        <th>Data Source Category</th>
+                                        <th>File Name</th>
+                                        <th class="col-md-2">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in documentsDataList">
+                                        <td>{{x.Activity}}</td>
+                                        <td>{{x.UserName}}</td>
+                                        <td>{{x.DataSourceCategory}}</td>
+                                        <td ng-click="SOPActivityDocFileDownload(x)"><a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{x.FileName}}" target="_self">{{x.FileName}}</a></td>
+                                        <td class="text-center table-td">
+                                            <ul class="list-inline action-list">
+                                                <li>
+                                                    <button ng-click="documentDelete(x, $index)" ng-disabled="disableBtn()" class="btn btn-action tooltip-here" data-placement="top" title="Delete">
+                                                        <i class="glyphicon glyphicon-remove"></i>
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
+                <div class="row">
+                    <div class="form-elements form-horizontal">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Activity<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select id="ActivityId" class="form-control" name="Activity" ng-model="kpiNew.SOPActivityId" tabindex="61" @*ng-change="kpiData();"*@>
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in activitykpiList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">KPI Detail<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="2" ng-model="kpiNew.KPIDetail" name="Name" maxlength="200" tabindex="63"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Name of KPI<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="2" ng-model="kpiNew.Name" name="Name" maxlength="200" tabindex="62"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Remarks</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="2" ng-model="kpiNew.Remarks" name="Remarks" maxlength="200" tabindex="64"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="common-btn">
+                            <ul class="list-inline text-right" style="padding-right:18px">
+                                <li> <button ng-click="UpdateKPI();" ng-disabled="disableBtn();savebtndisable;kpiNew.SOPActivityId===null" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>{{KPIAction}}</button></li>
+                                <li> <button ng-click="clearkpibody();" ng-disabled="disableBtn()" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear </button></li>
+                            </ul>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="table-responsive modal-table">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Activity</th>
+                                            <th>Name of KPI</th>
+                                            <th>KPI Detail</th>
+                                            <th class="col-md-2">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="x in kpiList">
+                                            <td>{{x.Activity}}</td>
+                                            <td>{{x.Name}}</td>
+                                            <td>{{x.KPIDetail}}</td>
+                                            <td class="text-center table-td">
+                                                <ul class="list-inline action-list">
+                                                    <li>
+                                                        <button ng-click="kpiEdit(x, $index)" ng-disabled="disableBtn()" class="btn btn-action tooltip-here" data-placement="top" title="Edit">
+                                                            <i class="glyphicon glyphicon-edit"></i>
+                                                        </button>
+                                                    </li>
+                                                    <li>
+                                                        <button ng-click="kpiDelete(x, $index)" ng-disabled="disableBtn()" class="btn btn-action tooltip-here" data-placement="top" title="Delete">
+                                                            <i class="glyphicon glyphicon-remove"></i>
+                                                        </button>
+                                                    </li>
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Sequence</th>
+                <th>SOP Category</th>
+                <th>SOP SubCategory</th>
+                <th>Code</th>
+                <th>Short Name</th>
+                <th>Standard Name</th>
+                <th>User Name</th>
+                <th>Active</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in sopItems|itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get(x.Id, $index);">
+                <td>{{x.Sequence}}</td>
+                <td>{{x.SOPCategory}}</td>
+                <td>{{x.SOPSubCategory}}</td>
+                <td>{{x.Code}}</td>
+                <td>{{x.ShortName}}</td>
+                <td>{{x.StandardName}}</td>
+                <td>{{x.UserName}}</td>
+                <td>{{x.Active?'Yes':'No'}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10"
+                             direction-links="true"
+                             boundary-links="true"
+                             on-page-change="getData(newPageNumber)">
+    </dir-pagination-controls>
+</div>
+<confirm-modal></confirm-modal>
+<div class="modal fade site-modal in" id="documentPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                SOP Document
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="documentListParameters.searchBy">
+                                            <option ng-repeat="option in searchByDocumentList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="documentListParameters.search" ng-enter="getDocumentData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getDocumentData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Select</th>
+                                <th>Code</th>
+                                <th>Document Name</th>
+                                <th>Data Source Category</th>
+                                <th>File Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in documents |itemsPerPage:documentListParameters.pageSize" pagination-id="metaData.name + 'documents'" total-items="documentListParameters.total_count" ng-dblclick="selectDocument(x);">
+                                <td>
+                                    <div class="checkbox-site">
+                                        <label class="control-label">
+                                            <input type="checkbox" ng-model="x.Flag" checked="{{x.Flag}}" ng-click="selectFirstChValue($event,x)">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.DataSourceCategory}}</td>
+                                <td>{{x.FileName}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'documents'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getDocumentData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button type="button" class="btn btn-default" data-dismiss="modal">Close</button></li>
+                        <li> <button type="submit" class="btn btn-default" ng-click="selectDocument();">Select</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="positionPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Position Informations
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="positionParameters.searchBy">
+                                            <option ng-repeat="option in positionSearchList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="positionParameters.search" ng-enter="getPositionData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getPositionData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped" ng-show="positionDataList.length">
+                        <thead>
+                            <tr>
+                                <th ng-repeat="x in positionSearchList">{{x.Text}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in positionDataList|itemsPerPage:positionParameters.pageSize" total-items="positionParameters.total_count" pagination-id="metaData.name + 'positionDataList'" ng-dblclick="selectPositionPopUp(x)">
+                                <td ng-repeat="y in positionSearchList">{{x[y.Value]}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10" pagination-id="metaData.name + 'positionDataList'"
+                                             direction-links="true" boundary-links="true"
+                                             on-page-change="getPositionData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button type="button" class="btn btn-default" ng-click="closePositionPopUp();">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic data-modalid="confirmDocumentdelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeDocumentSetYes()"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmactivityDeletePopUp" title="Confirmation" data-ng-click-left-button="confirmCloseactivityDelete()" message={{message_confirmation}} data-ng-click-right-button="removeActivityRow()"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmdocumentDeletePopUp" title="Confirmation" data-ng-click-left-button="confirmClosedocumentDelete()" message={{message_confirmation}} data-ng-click-right-button="removeDocumentRow()"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmkpiDeletePopUp" title="Confirmation" data-ng-click-left-button="confirmClosekpiDelete()" message={{message_confirmation}} data-ng-click-right-button="removeRow()"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmlngDocPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeDocRow()"></confirm-archive-generic>

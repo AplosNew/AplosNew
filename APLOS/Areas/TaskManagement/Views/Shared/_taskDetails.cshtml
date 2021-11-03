@@ -1,0 +1,186 @@
+﻿<div class="row">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <table>
+            <tr>
+                <td style="width:30px;">
+                    <img onerror="$(arguments[0].currentTarget).attr('src','images/blankuser.png')" src="POPResources/EmployeeProfiles/EmpPic/{{ToDoModel.EmpPicPathTo}}"
+                         style=" height:50px;width:50px; border-radius:50%;" />
+                </td>
+                <td style="width:70px;"><div>{{ToDoModel.EmployeeCodeTo}}</div></td>
+                <td><div>{{ToDoModel.AssignTo}}</div></td>
+            </tr>
+            <tr>
+                <td style="width:30px;">
+                    <img onerror="$(arguments[0].currentTarget).attr('src','images/blankuser.png')" src="POPResources/EmployeeProfiles/EmpPic/{{ToDoModel.EmpPicPathCheckBy}}"
+                         style=" height:50px;width:50px; border-radius:50%;" />
+                </td>
+                <td style="width:50px;"><div>{{ToDoModel.EmployeeCodeCheckBy}}</div></td>
+                <td><div>{{ToDoModel.CheckBy}}</div></td>
+            </tr>
+        </table>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6" style="padding-top:10px;">
+        <table>
+            <tr>
+                <td style="width:30px;">
+                    <img onerror="$(arguments[0].currentTarget).attr('src','images/blankuser.png')" src="POPResources/EmployeeProfiles/EmpPic/{{ToDoModel.EmpPicPathCrossCheckBy}}"
+                         style=" height:50px;width:50px; border-radius:50%;" />
+                </td>
+                <td style="width:50px;"><div> {{ToDoModel.EmployeeCodeCrossCheckBy}}  </div></td>
+                <td><div>{{ToDoModel.CrossCheckBy}}</div></td>
+            </tr>
+            <tr>
+                <td style="width:30px;">
+                    <img onerror="$(arguments[0].currentTarget).attr('src','images/blankuser.png')" src="POPResources/EmployeeProfiles/EmpPic/{{ToDoModel.EmpPicPathApproveBy}}"
+                         style=" height:50px;width:50px; border-radius:50%;" />
+                </td>
+                <td style="width:50px;"><div>{{ToDoModel.EmployeeCodeApproveBy}}</div></td>
+                <td><div {{ToDoModel.ApproveBy}}>{{ToDoModel.ApproveBy}}</div></td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div id="Tab" ej-tab e-create="actionCompleteSingleEmployee">
+    <ul>
+        <li><a href="#TaskDetail">Task Detail</a></li>
+        <li><a href="#SubTasks">Sub Tasks</a></li>
+        <li><a href="#Comments">Comments</a></li>
+        <li><a href="#Files">Files</a></li>
+    </ul>
+    <div id="TaskDetail">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="form-group wrap">
+                    <div class="col-sm-2 col-md-2">Task Desc:</div>
+                    <div class="col-sm-10 col-md-10">{{ToDoModel.TaskDescription}}</div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-12 wrap">
+                <div class="form-group">
+                    <div class="col-sm-2 col-md-2"> Task Det. Desc:  </div>
+                    <div class="col-sm-10 col-md-10">{{ToDoModel.TaskDetailDescription}}</div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group">
+                    <div class="col-sm-4 col-md-4"> Due Date:  </div>
+                    <div class="col-sm-8 col-md-8">
+                        <input e-dateformat="dd-MMM-yyyy" e-watermarktext="" e-enabled="false" ej-datepicker e-value="ToDoModel.DueDate" e-width="100%" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group">
+                    <div class="col-sm-4 col-md-4"> Comm. Date:  </div>
+                    <div class="col-sm-8 col-md-8">
+                        <input e-dateformat="dd-MMM-yyyy" e-watermarktext="" e-enabled="false" ej-datepicker e-value="ToDoModel.CommitmentDate" e-width="100%" />
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group">
+                    <div class="col-sm-4 col-md-4"> Rev. Comm. Date:  </div>
+                    <div class="col-sm-8 col-md-8">
+                        <input e-dateformat="dd-MMM-yyyy" e-watermarktext="" e-enabled="false" ej-datepicker e-value="ToDoModel.RevisedCommitmentDate" e-width="100%" />
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+
+                <div class="form-group">
+                    <div class="col-sm-4 col-md-4">Task Priority: </div>
+                    <div class="col-sm-8 col-md-8">{{ToDoModel.TaskPriority}}</div>
+                </div>
+            </div>
+
+
+
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group">
+                    <div class="col-sm-4 col-md-4">Task Cat.:   </div>
+                    <div class="col-sm-8 col-md-8">{{ToDoModel.TaskCategory}}</div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group">
+                    <div class="col-sm-4 col-md-4">Task Sub Cat.:   </div>
+                    <div class="col-sm-8 col-md-8">{{ToDoModel.TaskSubCategory}}</div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group">
+                    <div class="col-sm-4 col-md-4">Current Status:   </div>
+                    <div class="col-sm-8 col-md-8"> {{ToDoModel.CurrentStatus}}</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="SubTasks">
+        <div style="max-height:300px;padding:10px;overflow:scroll;">
+            <div class="row" ng-repeat="data in SubTasksList">
+                <div class="col-xs-12 col-sm-12 col-md-12 text-left" style="padding-left:20px;margin:0px;">
+                    <div class="row" style="padding:0px;margin:0px;">
+                        <div class="row" style="padding:2px;">
+                            <span> <input type="checkbox" e-enabled="false" ej-checkbox class="nodetext" e-value="data.IsDone" e-checked="data.IsDone" e-change="$parent.UpdateToDoSubTask" /></span>
+                            <span style="text-decoration:{{data.IsDone?'line-through':'inherit'}}"> {{data.TaskDetail}}  </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="Comments">
+        <div style="max-height:300px;overflow:scroll;">
+            <div class="row" ng-repeat="data in CommentsList">
+                <table>
+                    <tr style="padding:10px;">
+                        <td style="height:40px;width:60px;padding-left:20px;">
+                            <img onerror="$(arguments[0].currentTarget).attr('src','images/blankuser.png')" src="POPResources/EmployeeProfiles/EmpPic/{{data.EmpPicPath}}"
+                                 style="height:30px;width:30px;border:2px solid #efefef; border-radius:50%;" />
+
+                        </td>
+                        <td style="padding-left:8px;">
+                            <div class="row" style="padding-left:2px;color:#000000;display:block;">
+                                <span> {{data.CommentText}}  </span>
+                            </div>
+                            <div class="row small" style="padding:2px;">
+                                <b>
+                                    <span style="color:#bcbcbc;"> {{data.EmployeeName}} </span>
+                                    <span style="color:#bcbcbc;"> {{data.CreatedTime}}  </span>
+                                </b>
+                                <br />
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+
+            </div>
+        </div>
+    </div>
+    <div id="Files">
+        <div class="row" style="padding-bottom:4px; padding-top:4px;min-height:0px;">
+            <div class="col-xs-12 col-sm-12 col-md-12">
+
+                <h4>Files:</h4>
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <span ng-repeat="x in FilesList" style="padding:4px;" class="small">
+                            <span class="glyphicon glyphicon-file"></span>
+                            <a href="POPResources/ToDo/{{x.FileName}}" target="_blank">
+                                <span style="color:red;padding:4px;">  </span>
+                                <span style="height:20px;width:20px;color:blue;">
+                                    {{x.FileOriginalName}}
+                                </span>
+                            </a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

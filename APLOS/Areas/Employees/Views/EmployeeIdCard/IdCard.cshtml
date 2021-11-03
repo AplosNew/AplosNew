@@ -1,0 +1,275 @@
+﻿<script src="~/Scripts/dom-to-image.js"></script>
+<script src="~/Scripts/fileSaver.js"></script>
+
+<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Employee Id Card Print</h3>
+<div class="form-elements form-horizontal">
+    <div class="form-group">
+        <label class="col-sm-1 col-md-1 control-label">Employee</label>
+        <div class="col-sm-3 pdr3">
+            <div class="input-group">
+                <span class="input-group-addon">{{emp.EmployeeCode}}</span>
+                <input type="text" ng-model="emp.EmployeeName" class="form-control" required readonly>
+                <span class="input-group-btn">
+                    <button ng-click="ShowEmployeeListPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                </span>
+            </div>
+        </div>
+        <div class="col-sm-4 pdl3">
+            <button ng-click="Print();" id="download" class="btn single-btn" tabindex="2"><i class="glyphicon glyphicon-print"></i> Print</button>
+            <button ng-click="Clear();" class="btn single-btn" tabindex="3"><i class="glyphicon glyphicon-refresh"></i> Clear</button>
+        </div>
+    </div>
+    <div id="editor"></div>
+    <div class="row" id="content">
+        @*<div style="font-family:SolaimanLipi;" ng-show="prinModel.IsEmployee">
+            <div id="empImgFront" style="width: 1080px;height: 1732px;color: black;background: white;-webkit-font-smoothing: antialiased;-moz-osx-font-smoothing: grayscale;">
+                <div style="height: 80px;text-align:center;padding: 30px;font-size: 50px;color: white;background-color: #ef0b40;border-radius: 20px 20px 0px 0px;"></div>
+                <div style="height:1562px;">
+                    <p style="text-align: center;margin: 10px;"><img style="width: 350px;height: 300px;" ng-src="{{prinModel.CompanyLogo}}"></p>
+                    <p style="margin: 76px 0px 60px 0px;font-size: 130px;font-weight: 800;text-align: center;color: green;">{{prinModel.CompanyName}}</p>
+                    <p style="text-align: center;"><img style="width: 450px;height: 450px;border: solid 8px; color:blue" ng-src="{{prinModel.EmployeePic}}"></p>
+                    <p style="font-size: 80px;text-align: center;margin-top: 50px;margin-bottom: 85px;color: #0202a5;">{{prinModel.EmployeeCode}}</p>
+                    <p style="font-size: 80px;text-align: center;margin-bottom: 85px;color: #0202a5;"><b>{{prinModel.EmployeeName}}</b></p>
+                    <p style="font-size: 80px;text-align: center;margin-bottom: 85px;color: #0202a5;"><b>{{prinModel.LegalDesignation}}</b></p>
+                    <p style="font-size: 65px;margin-bottom: 150px;padding-left: 11px;color: #0202a5;" class="col-md-6">DOJ: <b>{{prinModel.DOJ}}</b></p>
+                    <p style="font-size: 65px;margin-bottom: 150px;color: #0202a5;" class="col-md-6 pdr3">Blood Group: <b style="color:red">{{prinModel.BloodGroup}}</b></p>
+                    <p style="text-align: center; margin-bottom: 0px;padding: 10px;" class="col-md-6"><img id="cSrc" style="max-width: 390px;max-height: 100px;min-width:250px;min-height:80px" ng-src="{{prinModel.CardHolderSignature}}"></p>
+                    <p style="text-align: center; margin-bottom: 0px;padding: 10px;" class="col-md-6"><img id="aSrc" style="max-width: 390px;max-height: 100px;min-width:250px;min-height:80px" ng-src="{{prinModel.AuthorizedSignature}}"></p>
+                </div>
+                <div style="height: 80px;font-size: 50px;color: white;background-color: #266b03;border-radius: 0px 0px 20px 20px;">
+                    <p style="text-align: center;margin-top: 30px" class="col-md-6">Holder Signature</p>
+                    <p style="text-align: center;margin-top: 30px" class="col-md-6 pdl3">Authorized Signature</p>
+                </div>
+            </div>
+        </div>
+        <div style="font-family:SolaimanLipi;" ng-show="prinModel.IsEmployee">
+            <div id="empImgBack" style="width: 1080px;height: 1732px;color: black;background: white;-webkit-font-smoothing: antialiased;-moz-osx-font-smoothing: grayscale;">
+                <div style="height: 80px;background-color: #ef0b40;border-radius: 20px 20px 0px 0px;"></div>
+                <div style="height: 1562px;font-size: 56px;color: black;" class="form-control">
+                    <p style="text-align: center;font-size: 56px;margin-top: 70px;margin-bottom:100px">* IMPORTANT *</p>
+                    <p style="font-size: 56px;text-align: center;margin-bottom:100px">Bear the card while On Duty</p>
+                    <p style="font-size: 56px;text-align: center;margin-bottom:150px">This card is not transferable</p>
+                    <p style="font-size: 56px;text-align: center;margin-top: 23px;margin-bottom:30px">Must be returned to HR Department during Job</p>
+                    <p style="font-size: 56px;text-align: center;margin-top: 23px;margin-bottom:60px">Seperation</p>
+                    <p style="font-size: 56px;text-align: center;margin-top: 33px;margin-bottom:100px">If found, please return to:</p>
+                    <p style="font-size: 56px;text-align: center;margin-bottom: 60px;">{{prinModel.CompanyName}}</p>
+                    <p style="font-size: 56px;text-align: center;padding-left: 30px;padding-right: 31px;margin-bottom: 100px;">{{prinModel.CompanyAddress}}</p>
+                    <p style="font-size: 56px;text-align: center;padding-left: 30px;padding-right: 30px;">Mobile: {{prinModel.Phone}}</p>
+                </div>
+                <div style="height: 80px;color: white;background-color: #266b03;border-radius: 0px 0px 20px 20px;"></div>
+            </div>
+        </div>*@
+        <div style="font-family:SolaimanLipi;" ng-show="prinModel.IsEmployee">
+            <div id="empImgFront" style="width: 1080px;height: 1732px;color: black;background: white;-webkit-font-smoothing: antialiased;-moz-osx-font-smoothing: grayscale;">
+                <div style="height: 80px;text-align:center;padding: 30px;font-size: 50px;color: white;background-color: #266b03;border-radius: 20px 20px 0px 0px;">ইস্যুর তারিখঃ {{IssueDate}}</div>
+                <div style="height:1562px;">
+                    <p style="text-align: center;margin: 10px;"><img style="width: 350px;height: 300px;" ng-src="{{prinModel.CompanyLogo}}"></p>
+                    @*<p style="margin: 76px 0px 60px 0px;font-size: 155px;font-weight: 800;text-align: center;color: green;">{{prinModel.CompanyName}}</p>*@
+                    <p style="margin: 76px 0px 60px 0px;font-size: 128px;font-weight: 800;text-align: center;color: green;">{{prinModel.CompanyName}}</p>
+                    <p style="text-align: center;"><img style="width: 450px;height: 450px;border: solid 8px; color:blue" ng-src="{{prinModel.EmployeePic}}"></p>
+                    <p style="font-size: 80px;text-align: center;margin-top: 50px;margin-bottom: 62px;color: #0202a5;">{{prinModel.IDNoLabel}} :<b>{{prinModel.EmployeeCode}}</b></p>
+                    <p style="font-size: 80px;text-align: center;margin-bottom: 62px;color: #0202a5;">{{prinModel.NameLabel}} :<b>{{prinModel.EmployeeName}}</b></p>
+                    <p style="font-size: 70px;text-align: center;margin-bottom: 80px;color: #0202a5;">{{prinModel.DesignationLabel}} :<b>{{prinModel.LegalDesignationLocal}}</b></p>
+                    <p style="font-size: 53px;margin-bottom: 80px;padding-left: 20px;color: #0202a5;" class="col-md-8 ">{{prinModel.DOJLabel}} :<b>{{prinModel.DOJ}}</b></p>
+                    <p style="font-size: 41px;margin-bottom: 80px;color: #0202a5;" class="col-md-4 pdr3 ">{{prinModel.EmploymentTypeLabel}} :<b>{{prinModel.EmploymentTypeName}}</b></p>
+                    <p style="font-size: 55px;padding-left: 20px;color: #0202a5;line-height:45px;" class="col-md-8 ">{{prinModel.DepartmentLabel}} :<b>{{prinModel.Section}}</b></p>
+                    <p style="font-size: 45px;color: #0202a5;line-height:45px;" class="col-md-4 pdr3;">{{prinModel.LineLabel}} :<b>{{prinModel.LineNo}}</b></p>
+                    <p style="text-align: center; margin-bottom: 0px;padding: 10px;" class="col-md-6"><img id="cSrc" style="max-width: 390px;max-height: 100px;min-width:250px;min-height:80px" ng-src="{{prinModel.CardHolderSignature}}"></p>
+                    <p style="text-align: center; margin-bottom: 0px;padding: 10px;" class="col-md-6"><img id="aSrc" style="max-width: 390px;max-height: 100px;min-width:250px;min-height:80px" ng-src="{{prinModel.AuthorizedSignature}}"></p>
+                </div>
+                <div style="height: 80px;font-size: 50px;color: white;background-color: #ef0b40;border-radius: 0px 0px 20px 20px;">
+                    <p style="text-align: center;margin-top: 30px" class="col-md-6">স্টাফের স্বাক্ষর</p>
+                    <p style="text-align: center;margin-top: 30px" class="col-md-6 pdl3">কর্তৃপক্ষের স্বাক্ষর</p>
+                </div>
+            </div>
+        </div>
+        <div style="font-family:SolaimanLipi;" ng-show="prinModel.IsEmployee">
+            <div id="empImgBack" style="width: 1080px;height: 1732px;color: black;background: white;-webkit-font-smoothing: antialiased;-moz-osx-font-smoothing: grayscale;">
+                <div style="height: 80px;background-color: #266b03;border-radius: 20px 20px 0px 0px;"></div>
+                <div style="height: 1562px;font-size: 56px;color: black;" class="form-control">
+                    <div class="col-md-12">
+                        <p class="col-md-5" style="padding-left: 50px;">মেয়াদ</p>
+                        <p class="col-md-7">: {{prinModel.validdate}}</p>
+                    </div>
+                    <div class="col-md-12">
+                        <p class="col-md-5" style="padding-left: 50px;color: blue;">প্রতিষ্ঠানের ঠিকানা</p>
+                        <p class="col-md-7" style="color: blue;">: {{prinModel.CompanyAddress}}</p>
+                        <p style="padding-left: 446px;color: blue;">{{prinModel.CompanyMobileNoLabel}}: {{prinModel.Phone}}</p>
+                    </div>
+                    <div class="col-md-12">
+                        <p class="col-md-5" style="padding-left: 50px;">{{prinModel.MobileNoLabel}}</p>
+                        <p class="col-md-7">: {{prinModel.MobileNo}}</p>
+                    </div>
+                    <div class="col-md-12">
+                        <p class="col-md-5" style="padding-left: 50px;">{{prinModel.EmergencyTellNoLabel}}</p>
+                        <p class="col-md-7">: {{prinModel.EmrCntPer1CellNo}}</p>
+                    </div>
+                    <div class="col-md-12">
+                        <p class="col-md-5" style="padding-left: 50px;">{{prinModel.NIDLabel}}</p>
+                        <p class="col-md-7">: {{prinModel.NationalID}}</p>
+                    </div>
+                    <div class="col-md-12">
+                        <p class="col-md-5" style="padding-left: 50px;">{{prinModel.BloodGroupLabel}}</p>
+                        <p class="col-md-7" style="color:red">: {{prinModel.BloodGroup}}</p>
+                    </div>
+                    <div class="col-md-12">
+                        <p class="col-md-5" style="padding-left: 50px;">{{prinModel.ParmanentAddress}}</p>
+                        <p class="col-md-7" @*style="font-size: 40px;"*@>: {{prinModel.ParmanentAddress1}}</p>
+                    </div>
+                    <div class="col-md-12" style="margin-top:200PX;">
+                        <p style="text-align: center; font-size:50px;">
+                            এই পরিচয় পত্র হারাইয়া গেলে,<br />
+                            তাৎক্ষণিক ব্যবস্থাপনা কর্তৃপক্ষকে জানাইতে হইবে।
+                        </p>
+                    </div>
+                </div>
+                <div style="height: 80px;color: white;background-color: #ef0b40;border-radius: 0px 0px 20px 20px;"></div>
+            </div>
+        </div>
+
+        <div style="font-family:SolaimanLipi;" ng-show="prinModel.IsWorker">
+            <div id="workerImgFront" style="width: 1080px;height: 1732px;color: black;background: white;-webkit-font-smoothing: antialiased;-moz-osx-font-smoothing: grayscale;">
+                <div style="height: 80px;text-align:center;padding: 30px;font-size: 50px;color: white;background-color: #266b03;border-radius: 20px 20px 0px 0px;">ইস্যুর তারিখঃ {{IssueDate}}</div>
+                <div style="height:1562px;">
+                    <p style="text-align: center;margin: 10px;"><img style="width: 350px;height: 300px;" ng-src="{{prinModel.CompanyLogo}}"></p>
+                    <p style="margin: 76px 0px 60px 0px;font-size: 155px;font-weight: 800;text-align: center;color: green;">{{prinModel.CompanyName}}</p>
+                    <p style="text-align: center;"><img style="width: 450px;height: 450px;border: solid 8px; color:blue" ng-src="{{prinModel.EmployeePic}}"></p>
+                    <p style="font-size: 80px;text-align: center;margin-top: 50px;margin-bottom: 62px;color: #0202a5;">{{prinModel.IDNoLabel}} :<b>{{prinModel.EmployeeCode}}</b></p>
+                    <p style="font-size: 80px;text-align: center;margin-bottom: 62px;color: #0202a5;">{{prinModel.NameLabel}} :<b>{{prinModel.EmployeeName}}</b></p>
+                    <p style="font-size: 70px;text-align: center;margin-bottom: 80px;color: #0202a5;">{{prinModel.DesignationLabel}} :<b>{{prinModel.LegalDesignationLocal}}</b></p>
+                    <p style="font-size: 55px;margin-bottom: 80px;padding-left: 20px;color: #0202a5;" class="col-md-8 ">{{prinModel.DOJLabel}} :<b>{{prinModel.DOJ}}</b></p>
+                    <p style="font-size: 50px;margin-bottom: 80px;color: #0202a5;" class="col-md-4 pdr3;">{{prinModel.EmploymentTypeLabel}} :<b>{{prinModel.EmploymentTypeName}}</b></p>
+                    <p style="font-size: 55px;padding-left: 20px;color: #0202a5;line-height:45px;" class="col-md-8 ">{{prinModel.DepartmentLabel}} :<b>{{prinModel.Section}}</b></p>
+                    <p style="font-size: 40px;color: #0202a5;line-height:45px;" class="col-md-4 pdr3;">{{prinModel.LineLabel}} :<b>{{prinModel.LineNo}}</b></p>
+                    <p style="text-align: center; margin-bottom: 0px;padding: 10px;" class="col-md-6"><img id="cSrc" style="max-width: 390px;max-height: 100px;min-width:250px;min-height:80px" ng-src="{{prinModel.CardHolderSignature}}"></p>
+                    <p style="text-align: center; margin-bottom: 0px;padding: 10px;" class="col-md-6"><img id="aSrc" style="max-width: 390px;max-height: 100px;min-width:250px;min-height:80px" ng-src="{{prinModel.AuthorizedSignature}}"></p>
+                </div>
+                <div style="height: 80px;font-size: 50px;color: white;background-color: #ef0b40;border-radius: 0px 0px 20px 20px;">
+                    <p style="text-align: center;margin-top: 30px" class="col-md-6">শ্রমিকের স্বাক্ষর</p>
+                    <p style="text-align: center;margin-top: 30px" class="col-md-6 pdl3">কর্তৃপক্ষের স্বাক্ষর</p>
+                </div>
+            </div>
+        </div>
+        <div style="font-family:SolaimanLipi;" ng-show="prinModel.IsWorker">
+            <div id="workerImgBack" style="width: 1080px;height: 1732px;color: black;background: white;-webkit-font-smoothing: antialiased;-moz-osx-font-smoothing: grayscale;">
+                <div style="height: 80px;background-color: #266b03;border-radius: 20px 20px 0px 0px;"></div>
+                <div style="height: 1562px;font-size: 56px;color: black;" class="form-control">
+                    <div class="col-md-12">
+                        <p class="col-md-5" style="padding-left: 50px;">মেয়াদ</p>
+                        <p class="col-md-7">: {{prinModel.validdate}}</p>
+                    </div>
+                    <div class="col-md-12">
+                        <p class="col-md-5" style="padding-left: 50px;color: blue;">প্রতিষ্ঠানের ঠিকানা</p>
+                        <p class="col-md-7" style="color: blue;">: {{prinModel.CompanyAddress}}</p>
+                        <p style="padding-left: 446px;color: blue;">{{prinModel.CompanyMobileNoLabel}}: {{prinModel.Phone}}</p>
+                    </div>
+                    <div class="col-md-12">
+                        <p class="col-md-5" style="padding-left: 50px;">{{prinModel.MobileNoLabel}}</p>
+                        <p class="col-md-7">: {{prinModel.MobileNo}}</p>
+                    </div>
+                    <div class="col-md-12">
+                        <p class="col-md-5" style="padding-left: 50px;">{{prinModel.EmergencyTellNoLabel}}</p>
+                        <p class="col-md-7">: {{prinModel.EmrCntPer1CellNo}}</p>
+                    </div>
+                    <div class="col-md-12">
+                        <p class="col-md-5" style="padding-left: 50px;">{{prinModel.NIDLabel}}</p>
+                        <p class="col-md-7">: {{prinModel.NationalID}}</p>
+                    </div>
+                    <div class="col-md-12">
+                        <p class="col-md-5" style="padding-left: 50px;">{{prinModel.BloodGroupLabel}}</p>
+                        <p class="col-md-7" style="color:red">: {{prinModel.BloodGroup}}</p>
+                    </div>
+                    <div class="col-md-12">
+                        <p class="col-md-5" style="padding-left: 50px;">{{prinModel.ParmanentAddress}}</p>
+                        <p class="col-md-7" @*style="font-size: 40px;"*@>: {{prinModel.ParmanentAddress1}}</p>
+                    </div>
+                    <div class="col-md-12" style="margin-top:525PX;">
+                        <p style="text-align: center;">
+                            এই পরিচয় পত্র হারাইয়া গেলে,<br />
+                            তাৎক্ষণিক ব্যবস্থাপনা কর্তৃপক্ষকে জানাইতে হইবে।
+                        </p>
+                    </div>
+                </div>
+                <div style="height: 80px;color: white;background-color: #ef0b40;border-radius: 0px 0px 20px 20px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="employeePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Employee<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="$root.parameters.searchBy">
+                                            <option ng-repeat="option in searchEmployeeList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getEmployeeData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getEmployeeData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Employee Code</th>
+                                <th>First Name</th>
+                                <th>Middle Name</th>
+                                <th>Last Name</th>
+                                <th>Employee Name</th>
+                                <th>Date Of Birth</th>
+                                <th>Employee Category</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in employeeList|itemsPerPage:$root.pageSize" total-items="$root.total_count"
+                                ng-dblclick="setData(x);" pagination-id="metaData.name + 'employeeList'">
+                                @*<td>
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="x.Flag" ng-checked="x.Flag" ng-click="pushTempList(x, $event);">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </td>*@
+                                <td>{{x.EmployeeCode}}</td>
+                                <td>{{x.FirstName}}</td>
+                                <td>{{x.MiddleName}}</td>
+                                <td>{{x.LastName}}</td>
+                                <td>{{x.EmployeeName}}</td>
+                                <td>{{x.DateOfBirth}}</td>
+                                <td>{{x.EmployeeCategoryName}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'employeeList'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getEmployeeData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        @*<li> <button ng-click="SelectEmployeeByButton();" class="btn"><i></i> Select</button></li>
+                            <li> <button type="button" class="btn btn-default" ng-click="CloseEmployeePopUp();">Cancel</button></li>*@
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

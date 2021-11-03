@@ -1,0 +1,201 @@
+﻿<h4>Payment Plan Approval</h4>
+<div class="form-elements" ng-form id="form1" ng-show="showform" name="form1">
+    <div class="tab-design" id="tab_show">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Transaction Data</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="address" role="tab" data-toggle="tab">Parallel Currency</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }" ng-form name="tabForm1">
+                <fieldset class="scheduler-border">
+                    <legend class="scheduler-border">Cash/Bank</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-12 form-horizontal">
+                        <div class="col-xs-12 col-sm-4 col-md-4 form-horizontal">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Source</label>
+                                <div class="radio">
+                                    <label>
+                                        <input ng-click="changeSourceFrom('Cash')" type="radio" name="source" ng-model="voucher.SourceFrom" value="Cash">
+                                        <span class="cr" tabindex="11"><i class="cr-icon"></i></span>Cash
+                                    </label>
+                                    <label>
+                                        <input ng-click="changeSourceFrom('Bank')" type="radio" name="source" ng-model="voucher.SourceFrom" value="Bank">
+                                        <span class="cr" tabindex="12"><i class="cr-icon"></i></span>Bank
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-8 col-md-8 form-horizontal">
+                            <div ng-show="voucher.SourceFrom=='Cash'" class="form-group">
+                                <label class="col-sm-2 control-label">Cash</label>
+                                <div class="col-sm-6 show-message">
+                                    <div class="select-style">
+                                        <select ng-change="getCashGL(voucher.CrGLId)" id="cashGLId" class="form-control" name="CashGL" ng-model="voucher.CrGLId" tabindex="9">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in cashGLList" value="{{option.GLGeneralInfoId}}">{{option.GLCode}} - {{option.GLGeneralInfoName}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div ng-show="voucher.SourceFrom=='Bank'" class="form-group">
+                                <label class="col-sm-2 control-label">Bank</label>
+                                <div class="col-sm-8 pdr3">
+                                    <input type="text" name="Code" ng-model="voucher.BankName" class="form-control" readonly>
+                                </div>
+                                <button class="single-btn tooltip-here" data-placement="top" title="Select Bank" ng-click="showBankPopUp();"><i class="fa fa-search"></i></button>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 col-md-4 form-horizontal">
+                            <div class="form-group" ng-show="isBankAmount">
+                                <label class="col-sm-4 control-label">Bank Amount<sup>*</sup></label>
+                                <div class="col-sm-8 pdr3">
+                                    <input type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="Amount" ng-model="voucher.BankAmount">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="scheduler-border">
+                    <legend class="scheduler-border">Plan</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-12 form-horizontal">
+                        <div class="table-responsive modal-table" ng-hide="true">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>{{partyType}}</th>
+                                        <th>Doc Date</th>
+                                        <th>Doc Ref</th>
+                                        <th>Currency</th>
+                                        <th>Amount</th>
+                                        <th>Approved</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr dir-paginate="x in paymentList |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="getById(x.Id);">
+                                        <td>{{x.PartyName}}</td>
+                                        <td>{{x.DocDate | dateFiltering}}</td>
+                                        <td>{{x.DocRefNo}}</td>
+                                        <td>{{x.CurrencyCode}}</td>
+                                        <td class="text-right">{{x.Amount | number:4}}</td>
+                                        <td align="center">
+                                            <div class="checkbox-site ">
+                                                <label>
+                                                    <input type="checkbox" id="active" ng-model="x.Active" ng-click="checkApproved($event,x)">
+                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                </label>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12 form-horizontal">
+                        <div class="table-responsive modal-table">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Action</th>
+                                        <th>Plan</th>
+                                        <th>DueUpToDate</th>
+                                        <th>Tentative Date</th>
+                                        <th>Plan Date</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="plan in paymentList" @*ng-click="planPopUP(plan)"*@>
+                                        <td align="center">
+                                            <div class="checkbox-site ">
+                                                <label>
+                                                    <input type="checkbox" id="active" ng-model="ven.Active" ng-click="checkApproved($event,plan)">
+                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                </label>
+                                                <button ng-click="planPopUP(plan);" class="btn"><i class="glyphicon"></i> Show Detail</button>
+                                            </div>
+                                        </td>
+                                        <td>{{plan.Id}}</td>
+                                        <td>{{plan.DueUpToDate | dateFiltering}}</td>
+                                        <td>{{plan.TentativeDate | dateFiltering}}</td>
+                                        <td>{{plan.RequestedDate | dateFiltering}}</td>
+                                        <td>{{plan.ApprovalStatus}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }" ng-form="tabForm2">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <fieldset class="scheduler-border" ng-show="currencyExchangeRate.length">
+                            @*ng-hide="currencyExchangeRate.length==1" voucher.CurrencyId==null||voucher.CurrencyId==''||*@
+                            <legend class="scheduler-border">Currency Exchange Rate</legend>
+                            <div class="table-responsive modal-table">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Unit</th>
+                                            <th>From</th>
+                                            <th>To</th>
+                                            <th>Rate</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="x in currencyExchangeRate" ng-hide="x.ParallelCurrencyId === x.FromCurrencyId && x.ParallelCurrencyId=== x.ToCurrencyId ">
+                                            <td>{{x.FromCurrencyUnit}}</td>
+                                            <td>{{x.FromCurrencyCode}}</td>
+                                            <td>{{x.ToCurrencyCode}}</td>
+                                            <td>
+                                                <input n-decimals="4" ng-maxlength="3" type="text" class="form-control text-right" ng-model="x.ToCurrencyRate" ng-keyup="changeCurrencyExchangeRate();" />
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12 modal-table">
+                        <table class="table table-responsive table-striped">
+                            <thead compile="parallelCurrencyTableHead">
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in voucherDetailCurrencyList">
+                                    <td>{{x.GLGeneralInfoName}}</td>
+                                    <td>{{x.DocRefNo}}</td>
+                                    <td ng-show="companyConfig.IsVoucherFromBudget">{{x.BudgetName}}</td>
+                                    <td ng-show="companyConfig.IsVoucherFromBudget">{{x.ActivityName}}</td>
+                                    <td ng-repeat="y in parallelCurrencyTypeList"><input type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" ng-disabled="x[y.CurrencyType]==null" ng-model="x[y.CurrencyType]" /></td>
+                                </tr>
+                            </tbody>
+                            <tfoot ng-show="voucherDetailCurrencyList.length">
+                                <tr>
+                                    <td></td>
+                                    <td><b>Sub Total</b></td>
+                                    <td ng-show="companyConfig.IsVoucherFromBudget"></td>
+                                    <td ng-show="companyConfig.IsVoucherFromBudget"></td>
+                                    <td class="text-right" ng-repeat="y in parallelCurrencyTypeList"><b>{{ voucherDetailCurrencyList | sumByKey : y.CurrencyType  }}</b></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+@Html.Partial("~/Areas/Banks/Views/_BankPopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_VendorInvoicePopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_VendorAdvancePopUp.cshtml")
+@Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_VendorPaymentPlanPopUp.cshtml")

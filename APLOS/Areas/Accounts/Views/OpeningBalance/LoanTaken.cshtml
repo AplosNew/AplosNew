@@ -1,0 +1,218 @@
+﻿<togglable name="Loan Taken Opening Balance"></togglable>
+<div class="form-elements form-horizontal row" ng-form id="form1" name="form1">
+    <div class="col-xs-12 col-sm-6 col-md-6 ">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Posting Date<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Posting Date" ng-model="openingBalance.PostingDate" datepicker disabled required class="form-control" tabindex="1">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Doc Ref<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Doc Ref" ng-model="openingBalance.DocRefNo" class="form-control" tabindex="3" required>
+            </div>
+        </div>
+        <div id="div_TransactionType" class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Transaction Type<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select ng-change="getTransactionTypeGL(openingBalance.FinancingTypeId)" name="Transaction Type" class="form-control" ng-model="openingBalance.FinancingTypeId" tabindex="5" required>
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in financingTypeList" value="{{option.FinancingTypeId}}">{{option.LiabilityUserName}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6 ">
+        <div id="div_DocDate" class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Doc Date<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" id="DocDate" name="Doc Date" ng-model="openingBalance.DocDate" datepicker="checkDocDate('div_DocDate', openingBalance.DocDate)" required class="form-control datepicker" tabindex="1">
+            </div>
+        </div>
+        <div id="div_entity" class="form-group" ng-show="isEntityLevel">
+            <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select ng-change="entityValidation()" name="Entity" class="form-control" ng-model="openingBalance.EntityId" tabindex="3">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in entityList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Loan From<sup>*</sup></label>
+            <div class="radio col-sm-8">
+                <label>
+                    <input ng-click="changeSourceTo('@Library.Model.Parties.PartyType.Director.ToString()')" type="radio" name="sourceParty" ng-model="openingBalance.PartyType" value="@Library.Model.Parties.PartyType.Director.ToString()">
+                    <span class="cr" tabindex="6"><i class="cr-icon"></i></span>Director
+                </label>
+                <label>
+                    <input ng-click="changeSourceTo('@Library.Model.Parties.PartyType.Party.ToString()')" type="radio" name="sourceParty" ng-model="openingBalance.PartyType" value="@Library.Model.Parties.PartyType.Party.ToString()">
+                    <span class="cr" tabindex="7"><i class="cr-icon"></i></span>Party
+                </label>
+                <label>
+                    <input ng-click="changeSourceTo('@Library.Model.Parties.PartyType.Bank.ToString()')" type="radio" name="sourceParty" ng-model="openingBalance.PartyType" value="@Library.Model.Parties.PartyType.Bank.ToString()">
+                    <span class="cr" tabindex="8"><i class="cr-icon"></i></span>Bank
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 ">
+        <div class="form-group" show-errors>
+            <label class="col-sm-2 control-label">Narration<sup>*</sup></label>
+            <div class="col-sm-10 show-message">
+                <textarea type="text" name="Narration" class="form-control" rows="3" ng-model="openingBalance.Narration" tabindex="9" required capitalize></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-8 col-md-8 form-horizontal">
+        <div class="common-btn">
+            <ul class="list-inline text-left">
+                <li class="col-md-8"><button ng-show="openingBalance.PartyType=='@Library.Model.Parties.PartyType.Director.ToString()'" ng-disabled="advanceCA==null" ng-click="showDirectorPopUp();" class="btn" tabindex="10"><i class="glyphicon glyphicon-plus-sign"></i> Add Line Items</button></li>
+                <li class="col-md-8"><button ng-show="openingBalance.PartyType=='@Library.Model.Parties.PartyType.Party.ToString()'" ng-disabled="advanceCA==null" ng-click="showPartyPopUpNew();" class="btn" tabindex="10"><i class="glyphicon glyphicon-plus-sign"></i> Add Line Items</button></li>
+                <li class="col-md-8"><button ng-show="openingBalance.PartyType=='@Library.Model.Parties.PartyType.Bank.ToString()'" ng-disabled="advanceCA==null" ng-click="showBankPopUp();" class="btn" tabindex="11"><i class="glyphicon glyphicon-plus-sign"></i> Add Line Items</button></li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-4 col-md-4">
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                <li><button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li><button ng-click="clearFields();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="8"></i> Clear</button></li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 table-responsive  modal-table">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>{{openingBalance.PartyType}}</th>
+                    <th ng-show="openingBalance.PartyType=='@Library.Model.Parties.PartyType.Bank.ToString()'">Account Title</th>
+                    <th>Doc Date</th>
+                    <th>Doc Ref</th>
+                    <th>Narration</th>
+                    <th>Repayment StartDate</th>
+                    <th>Life Of Year</th>
+                    <th>No. Installment/Year</th>
+                    <th>Total No. Installment</th>
+                    <th>No. Paid Installment</th>
+                    <th>Profit Rate</th>
+                    <th>Trn. Currency</th>
+                    <th>Sanction Amount</th>
+                    <th>Remaining Amount</th>
+                    <th>{{companyCurrencyName}}</th>
+                    <th ng-hide="companyGroupCurrencyId==null">{{companyGroupCurrencyName}}</th>
+                    <th ng-hide="hardCurrencyId==null">{{hardCurrencyName}}</th>
+                    <th class="text-right">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="x in openingBalanceDetailList" ng-click="currentRow($index)">
+                    <td ng-show="openingBalance.PartyType!='@Library.Model.Parties.PartyType.Bank.ToString()'">{{x.PartyCode}} - {{x.PartyName}}</td>
+                    <td ng-show="openingBalance.PartyType=='@Library.Model.Parties.PartyType.Bank.ToString()'">{{x.BankName}}</td>
+                    <td ng-show="openingBalance.PartyType=='@Library.Model.Parties.PartyType.Bank.ToString()'">{{x.AccountTitle}}</td>
+                    <td><input type="text" style="width:107px;" class="form-control" ng-model="x.DocDate" datepicker ng-change="checkRowValidation($index)"></td>
+                    <td><input type="text" style="width:83px;" class="form-control" ng-model="x.DocRefNo" placeholder="Doc Ref"></td>
+                    <td><input type="text" class="form-control" style="width:110px;" ng-model="x.Narration" placeholder="Narration"></td>
+                    <td>
+                        <input type="text" name="RepaymentStartDate" ng-model="x.RepaymentStartDate" style="width:107px" title="Repayment Start Date" datepicker="checkDocDate();" required class="form-control" tabindex="3">
+                    </td>
+                    <td>
+                        <input type="text" n-Decimals="4" title="Text, Comma, +, -, Two Dot is not allow" style="width:80px" name="LifeOfYear" ng-model="x.LifeOfYear" class="form-control text-right" tabindex="4" required>
+                    </td>
+                    <td>
+                        <input type="text" n-Decimals="4" title="Text, Comma, +, -, Two Dot is not allow" name="NoOfInstallmentPerYear" ng-model="x.NoOfInstallmentPerYear" class="form-control text-right" tabindex="5" required>
+                    </td>
+                    <td>
+                        <input type="text" name="NoOfInstallmentPerYear" style="width:100px" ng-model="x.NoOfInstallmentPerYear" ng-value="x.LifeOfYear*x.NoOfInstallmentPerYear" readonly class="form-control text-right" tabindex="6" required>
+                    </td>
+                    <td>
+                        <input type="text" n-Decimals="4" style="width:107px" title="Text, Comma, +, -, Two Dot is not allow" name="NoOfPaidInstallment" ng-model="x.NoOfPaidInstallment" class="form-control text-right" tabindex="7" required>
+                    </td>
+                    <td>
+                        <input type="text" name="ProfitRate" style="width:90px" n-Decimals="4" title="Text, Comma, +, -, Two Dot is not allow" ng-model="x.ProfitRate" class="form-control text-right" tabindex="8" required>
+                    </td>
+                    <td>
+                        <div class="select-style">
+                            <select class="col-sm-3 form-control" ng-model="x.CurrencyId" tabindex="9">
+                                <option ng-repeat="option in tranCurrencyList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </td>
+                    <td>
+                        <input type="text" name="SanctionAmount" style="width:90px" n-Decimals="4" title="Text, Comma, +, -, Two Dot is not allow" ng-model="x.SanctionAmount" class="form-control text-right" tabindex="10" required>
+                    </td>
+                    <td><input type="text" n-decimals="2" style="width:90px" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" ng-model="x.Amount" ng-keyup="copyAmount($index)"></td>
+                    <td><input type="text" n-decimals="2" style="width:90px" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" ng-model="x.CompanyCurrencyAmount"></td>
+                    <td ng-hide="companyGroupCurrencyId==null"><input type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" ng-model="x.CompanyGroupCurrencyAmount"></td>
+                    <td ng-hide="hardCurrencyId==null"><input type="text" n-decimals="2" style="width:90px" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" ng-model="x.HardCurrencyAmount"></td>
+                    <td class="text-right">
+                        <button ng-click="removeRow($index)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top" title="Remove">
+                            <i class="glyphicon glyphicon-remove"></i>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Entity</th>
+                <th>VoucherNo</th>
+                <th>Posting Date</th>
+                <th>Doc Date</th>
+                <th>Doc Ref</th>
+                <th>Amount</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in openingBalanceList |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="getById($index);getTransactionTypeGL(x.FinancingTypeId);">
+                <td>{{x.EntityName}}</td>
+                <td>{{x.VoucherNo}}</td>
+                <td>{{x.PostingDate | dateFiltering}}</td>
+                <td>{{x.DocDate | dateFiltering}}</td>
+                <td>{{x.DocRefNo}}</td>
+                <td class="text-right">{{x.Amount | number:4}}</td>
+                <td>{{x.IsPark?'Park':'Post'}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
+</div>
+@Html.Partial("~/Areas/Banks/Views/_BankPopUp.cshtml")
+@Html.Partial("~/Areas/Parties/Views/Party/_DirectorPopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/GLItem/_GLPopUp.cshtml")
+@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
+
+<confirm-modal></confirm-modal>
+<confirm-archive-generic modalid="confirmgenericPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="clearDetail(openingBalance.PartyType)" data-ng-click-left-button="clearDetailNo()"></confirm-archive-generic>

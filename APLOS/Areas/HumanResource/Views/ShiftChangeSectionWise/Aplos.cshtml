@@ -1,0 +1,224 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> {{title}}
+</h3>
+<div class="form-elements form-horizontal" ng-form name="PlantWiseHRMSSettingNewForm">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Section</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select ng-model="SectionId" id="SalaryHeadFormula" class="form-control" name="SalaryHead" ng-options="item.Id as item.UserName for item in SectionList" tabindex="5">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+        </div>
+    </div>
+
+    <div class="tab-design" id="tab_show">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="aria2" role="tab" data-toggle="tab">Post Assign</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="aria2" role="tab" data-toggle="tab">Pre Assign</a></li>
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="aria2" role="tab" data-toggle="tab">View</a></li>
+                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="aria2" role="tab" data-toggle="tab">Select Shift</a></li>
+            </ul>
+        </div>
+        <div class="tab-content" id="tabpaneldiv">
+            <br />
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                <div class="form-elements form-horizontal" ng-form id="OTSlapFormId" name="OTSlapForm">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-elements ">
+                                <div class=" col-sm-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" style="margin-left: 50px;">Work Date</label>
+                                        <div class="col-sm-8 show-message" style="padding-right: 150px ;margin-left: -50px;">
+
+                                            <input type="text" ng-model="date" datepicker class="form-control" tabindex="6">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class=" col-sm-6 col-md-6">
+                                    <div class="form-group">
+                                        <div class="common-btn">
+                                            <ul class="list-inline text-right">
+                                                <li> <button ng-click="LoadEmployee();" class="btn" tabindex="9"><i class="glyphicon glyphicon-repeat"></i> Load Employee</button></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-sm-12" id="NewId">
+                            <div style="color:black;" id="BPolicyId" ej-grid e-datasource="EmpList"
+                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                 e-allowselection="true" e-recorddoubleclick="getTax" e-filtersettings-filterType="excel" e-actioncomplete="actionCompleteSelected">
+                                <div e-columns>
+                                    <div e-column e-field="employeecode" e-headertext="Employee Code" e-width="3"></div>
+                                    <div e-column e-field="employeename" e-headertext="Employee Name" e-width="6"></div>
+                                    <div e-column e-field="GivenDesignation" e-headertext="Given Designation" e-width="4"></div>
+                                    <div e-column e-field="Department" e-headertext="Department" e-width="4"></div>
+                                    <div e-column e-field="effectivedate" e-headertext="Effective Date" e-width="4"></div>
+                                    <div e-column e-field="CurrentShift" e-headertext="Current Shift" e-width="4"></div>
+                                    <div e-column e-field="ShiftInTime" e-headertext="Shift In Time" e-width="4"></div>
+                                    <div e-column e-field="LeastInTime" e-headertext="Least In Time" e-width="4"></div>
+                                    <div e-column e-field="daystatus" e-headertext="Day Status" e-width="4"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                <div class="form-elements form-horizontal" ng-form id="OTSlapFormId" name="OTSlapForm">
+                    <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class=" col-sm-6 col-md-6">
+                        </div>
+                        <div class=" col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-right">
+                                        <li> <button ng-click="LoadEmp();" class="btn" tabindex="9"><i class="glyphicon glyphicon-repeat"></i> Load Employee</button></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-sm-12" id="NewId">
+                            <div style="color:black;" id="BPolicyId" ej-grid e-datasource="EmployeeList"
+                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                 e-allowselection="true" e-recorddoubleclick="getTax" e-filtersettings-filterType="excel" e-actioncomplete="actionCompleteSelected">
+                                <div e-columns>
+                                    <div e-column e-field="employeecode" e-headertext="Employee Code" e-width="3"></div>
+                                    <div e-column e-field="employeename" e-headertext="Employee Name" e-width="6"></div>
+                                    <div e-column e-field="GivenDesignation" e-headertext="Given Designation" e-width="4"></div>
+                                    <div e-column e-field="Department" e-headertext="Department" e-width="4"></div>
+                                    <div e-column e-field="effectivedate" e-headertext="Effective Date" e-width="4"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                <div class="form-elements form-horizontal" ng-form id="OTSlapFormId" name="OTSlapForm">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <div class="col-xs-6 radio">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" name="Fixed" ng-model="TaxPolicyMaster.IsFixedTaxRebate" ng-change="setRadioF()">
+                                            <span class="cr"><i class="cr-icon"></i></span>Fixed
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-xs-6" ng-show="radioB1Value" style="margin-left: -425px; padding-right: 405px; ">
+                                    <input type="text" ng-model="TaxPolicyMaster.TaxFixedTaxRebate" class="form-control" maxlength="100" tabindex="2" only-numbers>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-xs-4 radio">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" name="Formula" ng-model="TaxPolicyMaster.IsPercentageTaxRebate" value="Formula" ng-change="setRadioP()">
+                                            <span class="cr"><i class="cr-icon"></i></span>Percentage
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-xs-6" style=" margin-left: -246px; padding-right: 405px;">
+                                    <input type="text" only-numbers ng-show="radioB2Value" ng-model="TaxPolicyMaster.TaxPercentageRebate" class="form-control" maxlength="100" tabindex="2">
+                                </div>
+                                <label class="col-sm-2 control-label" ng-show="radioB2Value" style=" margin-left: -400px;">of Investment Allowance</label>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-xs-4 radio">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" name="Base On Tax Able Income" ng-model="TaxPolicyMaster.BaseOnIncomeTaxRebate" value="Base On Tax Able Income" ng-change="setRadioI()">
+                                            <span class="cr"><i class="cr-icon"></i></span>Base On Tax Able Income
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-xs-2" ng-show="radioB3Value">
+                                    <button ng-click="AddLineItemF();" ng-disabled="TaxPolicyMaster.SystemID == null" class="btn"><i class="glyphicon glyphicon-plus"></i>Taxable Income</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+                            @*<li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+                <div class="form-elements form-horizontal" ng-form id="OTSlapFormId" name="OTSlapForm">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <div class="col-xs-6 ">
+                                    <div class="checkbox-site radio">
+                                        <label>
+                                            <input type="checkbox" name="Fixed" ng-model="TaxPolicyMaster.IsFixedTaxBonusDefine" ng-change="setRadioFi()">
+                                            <span class="cr"><i class="cr-icon"></i></span>Fixed
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-xs-6" ng-show="radioB4Value" style=" margin-left: -440px; padding-right: 365px;">
+                                    <input type="text" ng-model="TaxPolicyMaster.TaxFixedBonusDefine" class="form-control" maxlength="100" tabindex="2" only-numbers>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-xs-4 ">
+                                    <div class="checkbox-site radio">
+                                        <label>
+                                            <input type="checkbox" name="Formula" ng-model="TaxPolicyMaster.IsTaxAsPerActual" ng-change="setRadioPi()">
+                                            <span class="cr"><i class="cr-icon"></i></span>As per actual (after disbursement of Bonus)
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-xs-4 radio">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" name="Formula" ng-model="TaxPolicyMaster.IsTaxAsPerProjection" value="Formula" ng-change="setRadioIi()">
+                                            <span class="cr"><i class="cr-icon"></i></span>As per projection (based on pre-assign)
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+                            @*<li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="loader" data-loader>
+    Please wait
+    <div class="bounce1"></div>
+    <div class="bounce2"></div>
+    <div class="bounce3"></div>
+</div>
+<confirm-modal></confirm-modal>

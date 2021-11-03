@@ -1,0 +1,51 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>Leaves Check List Report</h3>
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    @*<input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="FromDate" e-width="100%" />*@
+                    <input type="text" name="From Date" placeholder="dd-MM-yyyy" ng-model="LeavesCheckListReport.FromDate" datepicker class="form-control datepicker" tabindex="1">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    @*<input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="FromDate" e-width="100%" />*@
+                    <input type="text" name="From Date" placeholder="dd-MM-yyyy" ng-model="LeavesCheckListReport.ToDate" datepicker class="form-control datepicker" tabindex="1">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4"style="margin-top: -11px;">
+            <div class="form-group">
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li><button ng-click="LeavesCheckListReportData();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+                        <li>
+                            <a class="btn" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" href="HumanResource/AttendanceManagement/GetleavesChecklistReport?reportFormat=@Library.Model.Enums.ReportFormat.PdfView.ToString()&FromDate={{LeavesCheckListReport.FromDate}}&ToDate={{LeavesCheckListReport.ToDate}}" target="_blank"><i class="fa fa-eye" style="margin: -6px;"> View</i></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>   
+</div>
+
+<div class="loader" data-loader>
+    Please wait
+    <div class="bounce1"></div>
+    <div class="bounce2"></div>
+    <div class="bounce3"></div>
+    <div class="bounce3"></div>
+</div>
+
+
+
+
+
+
+

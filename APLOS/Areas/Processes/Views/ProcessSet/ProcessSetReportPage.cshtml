@@ -1,0 +1,60 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Testing Standard Report
+</h3>
+<div class="form-elements form-horizontal" ng-form id="from" name="from">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Process</label>
+            <div class="col-sm-2">
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="Process" ng-model="processSetReportNew.Process" ng-click="CompanyHideShowFn();" value="Process">
+                        <span class="cr"><i class="cr-icon"></i></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Process Set</label>
+            <div class="col-sm-2">
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="Process" ng-model="processSetReportNew.Process" ng-click="CompanyHideShowFn();" value="ProcessSet">
+                        <span class="cr"><i class="cr-icon"></i></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-3 control-label">Company<sup>*</sup></label>
+            <div class="col-sm-7 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="processSetReportNew.CompanyId" name="Company" required tabindex="1" ng-change="getEntityList();"
+                            ng-options="item.Value as item.Text for item in companyList">
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" ng-show="EntityHideShow">
+            <label class="col-sm-3 control-label">Entity<sup>*</sup></label>
+            <div class="col-sm-7">
+                <div class="select-style">
+                    <select class="form-control" ng-model="processSetReportNew.EntityId" name="Entity"
+                            ng-options="item.Value as item.Text for item in entityList" tabindex="2">
+                        <option value="">All</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li><button ng-click="processSetReport();" class="btn"><i class="glyphicon glyphicon-print"></i> Print</button></li>
+        </ul>
+    </div>
+</div>
+
+<confirm-modal></confirm-modal>

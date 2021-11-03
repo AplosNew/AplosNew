@@ -1,0 +1,79 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Legal Salary Report
+</h3>
+<div class="form-elements form-horizontal" ng-form id="form" name="form">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Grade</label>
+            <div class="col-sm-8">
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="GradeLevel" ng-model="legalSalaryReport.GradeLevel" ng-click="GradeHideShowFn();" value="Grade">
+                        <span class="cr"><i class="cr-icon"></i></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" ng-show="CompanyHideShow">
+            <label class="col-sm-4 control-label">Company<sup>*</sup></label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    <select class="form-control" ng-model="legalSalaryReport.CompanyId" ng-change="companyOnChange()"
+                            ng-options="item.Value as item.Text for item in companyList" name="Company" tabindex="1">
+                        <option></option>
+                    </select>
+                </div>
+                <p ng-show="selectMessageCompany" style="color:red" class="show-message">{{selectMessageCompany}}</p>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Effective Date<sup>*</sup></label>
+            <div class="col-sm-8  show-message">
+                <input type="text" name="Date" ng-model="legalSalaryReport.EffectiveDate" datepicker class="form-control datepicker" required tabindex="3">
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Grade with Designation</label>
+            <div class="col-sm-8">
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="GradeLevel" ng-model="legalSalaryReport.GradeLevel" ng-click="GradeHideShowFn();" value="GradeWithDesignation">
+                        <span class="cr"><i class="cr-icon"></i></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" ng-show="CompanyHideShow">
+            <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    <select class="form-control" ng-model="legalSalaryReport.PlantId"
+                            ng-options="item.Value as item.Text for item in plantList" name="Plant" tabindex="2">
+                        <option></option>
+                    </select>
+                </div>
+                <p ng-show="selectMessagePlant" style="color:red" class="show-message">{{selectMessagePlant}}</p>
+            </div>
+        </div>
+        @*<div class="form-group" ng-show="CompanyHideShow">
+            <label class="col-sm-4 control-label">Legal Salary Grade</label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="legalSalaryReport.LegalSalaryGradeId" name="Legal Salary Grade"
+                            ng-options="item.Value as item.Text for item in legalSalaryGradeList" tabindex="4">
+                        <option value="">All</option>
+                    </select>
+                </div>
+            </div>
+        </div>*@
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li><button ng-click="legalSalaryReport();" class="btn"><i class="glyphicon glyphicon-print"></i> Print</button></li>
+        </ul>
+    </div>
+</div>
+
+<confirm-modal></confirm-modal>

@@ -1,0 +1,98 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign" id="MainContainer"></span>SPT Efficiency Slab</h3>
+<div class="form-elements  form-horizontal" id="mainContainer">
+       <div class="row">
+         <div class="col-xs-12 " ng-hide="ModelNew.AreaType == ''">
+            @*<fieldset class="scheduler-border">*@
+                @*<legend class="scheduler-border">Height </legend>*@
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Company<sup>*</sup></label>
+                                <div class="col-sm-2">
+                                    <input id="ddlCompanyList" ej-dropdownlist e-value="SelectedId" e-change="changeCompany" e-datasource="CompanyList" e-fields-value="Id" e-fields-text="CompanyName" />
+                                </div>
+                                <div class="col-sm-8">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
+                                    <div class="col-sm-2">
+                                        <input id="ddlPlantList" ej-dropdownlist e-value="SelectedPlantId" e-change="ChangePlant" e-datasource="PlantList" e-fields-value="Value" e-fields-text="Text" />
+                                    </div>
+                                    <div class="col-sm-8">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 table-responsive modal-table">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>Minimum SPT</th>
+                                            <th>Maximum SPT</th>
+                                            <th>First Day Efficiency %</th>
+                                            <th>Increment %</th>
+                                            <th>Last Day Efficiency %</th>
+
+                                            <th>Add</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                        <tr ng-repeat="item in DataList">
+                                            <th>{{$index>0?'Above':''}}</th>
+                                            <td><input type="number" min="0" ng-model="item.Minimum" class="form-control" ng-disabled="DataList.length>1" /></td>
+                                            <td><input type="number" min="0" ng-model="item.Maximum" class="form-control" ng-disabled="$index<DataList.length-1" /></td>
+                                            <td><input type="number" ng-model="item.FirstDayEfficiency" class="form-control" /></td>
+                                            <td><input type="number" ng-model="item.Increment" class="form-control" /></td>
+                                            <td><input type="number" ng-model="item.LastDayEfficiency" class="form-control" /></td>
+                                            <td class="text-right" ng-hide="$index<DataList.length-1">
+                                                <ul class="list-inline">
+                                                    <li><button ng-click="SubmitH(item);Clear();" class="btn btn-action "><i class="glyphicon glyphicon-plus"></i></button></li>
+                                                    <li><button ng-hide="DataList.length<2" ng-click="Remove($index);Clear();" class="btn btn-action "><i class="glyphicon glyphicon-minus"></i></button></li>
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>             
+            @*</fieldset>*@
+        </div>
+
+        @*<div class="col-xs-12 col-sm-6 col-md-6" ng-hide="ModelNew.AreaType == 'Circle' || ModelNew.AreaType == null">
+            
+        </div>*@
+
+
+        <div class="col-xs-12 col-sm-12 col-md-12 text-right">
+            <div class="common-btn text-left" >
+                <ul class="list-inline small">
+                    <li>
+                        <button ng-click="Save();" class="btn small">
+                            <i class="glyphicon glyphicon-saved"></i> Save
+                        </button>
+                    </li>
+                    <li>
+                        <button ng-click="openPopupAngular('confirmDelete');" class="btn small">
+                            <i class="glyphicon glyphicon-trash"></i> Delete
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-modal></confirm-modal>
+<confirm-archive-generic modalid="confirmDelete" title="Confirmation" data-ng-click-left-button="closePopup('confirmDelete')" message="Are you sure to delete this transaction?" data-ng-click-right-button="Delete()"></confirm-archive-generic>
+
+<!-- #region Costingitem With operation popup -->
+
+
+<!-- #endregion -->

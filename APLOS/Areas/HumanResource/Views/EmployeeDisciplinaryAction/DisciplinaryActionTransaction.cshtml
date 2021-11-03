@@ -1,0 +1,496 @@
+﻿
+
+
+
+
+
+<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> Disciplinary Action-Transaction</h3>
+
+<hr />
+
+<div class="tab-design" id="tab_show">
+    <div class="site-tab">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" ng-class="{ active: isSet11(11) }"><a ng-click="setTab11(11)" href="" aria-controls="aria1" role="tab" data-toggle="tab">Due</a></li>
+            <li role="presentation" ng-class="{ active: isSet22(22) }"><a ng-click="setTab22(22)" href="" aria-controls="aria2" role="tab" data-toggle="tab">Completed</a></li>
+
+        </ul>
+    </div>
+
+    <div class="tab-content" id="tabpaneldiv">
+
+        @*DUE*@
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet11(11), active: isSet11(11) }">
+            <div id="TabEmployee">
+
+                <div class="row" id="tabpaneldiv">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+
+                        <div style="color:black;"
+                             id="GridLeaveYearEndProcessSummary"
+                             ej-grid e-datasource="DueEmployeeDisciplinaryActionsList"
+                             @*e-templaterefresh="refreshTemplateemployee"*@
+                             e-actioncomplete="actionCompleteSelected"
+                             e-rowdatabound="onrowdatabound"
+                             e-pagesettings-pagesize="25"
+                             e-gridlines="vertical"
+                             e-allowfiltering="true"
+                             e-allowpaging="true"
+                             e-allowsorting="true"
+                             e-allowselection="true"
+                             e-filtersettings-filterType="excel" e-allowtouch="true">
+                            <div e-columns>
+                                <div e-column e-template="#add" e-headertext="Take Action" e-width="90"></div>
+                                @*<div e-column e-field="EmpSystemId" e-headertext="EmpSystemId" e-allowediting="false" e-width="50"></div>*@
+                                <div e-column e-field="EmployeeCode" e-headertext="Emp Code" e-allowediting="false" e-width="100"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Emp Name" e-allowediting="false" e-width="140"></div>
+                                <div e-column e-field="DisciplinaryActionCategory" e-headertext="DA Category" e-allowediting="false" e-width="120"></div>
+                                <div e-column e-field="CaseNo" e-headertext="Case No" e-allowediting="false" e-width="120"></div>
+                                <div e-column e-field="DueLetter" e-headertext="Due Letter" e-allowediting="false" e-width="120"></div>
+                                <div e-column e-field="NextLetterDueDate" e-headertext="Due Date" e-allowediting="false" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                                <div e-column e-field="EntryDate" e-headertext="Incidence Date" e-allowediting="false" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                                <div e-column e-field="LetterIssueDate" e-headertext="Issue Date" e-allowediting="false" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                                <div e-column e-field="DueStatus" e-headertext="Status" e-allowediting="false" e-width="80"></div>
+                                <div e-column e-field="DOJ" e-headertext="DOJ" e-allowediting="false" e-width="80"></div>
+                                <div e-column e-field="GivenDesignation" e-headertext="Designation" e-allowediting="false" e-width="80"></div>
+                                <div e-column e-field="Department" e-headertext="Department" e-allowediting="false" e-width="80"></div>
+                                <div e-column e-field="Section" e-headertext="Section" e-allowediting="false" e-width="80"></div>
+                                <div e-column e-field="SubSection" e-headertext="SubSection" e-allowediting="false" e-width="80"></div>
+                                @*<div e-column e-field="Designation" e-headertext="Designation" e-allowediting="false" e-width="80"></div>*@
+                                <div e-column e-field="Letters" e-headertext="Letters" e-allowediting="false" e-width="250"></div>
+                            </div>
+                            <script type="text/template" id="add">
+                                <li><button ng-click="$parent.AddFunction($event);" class="btn"><i class="glyphicon glyphicon-plus" tabindex="10"></i>Take DA</button></li>
+                            </script>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+            </div>
+
+
+
+        </div>
+
+        @*Completed*@
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet22(22), active: isSet22(22) }">
+            <div id="TabEmployee">
+
+                <div style="color:black;"
+                     id="GridCompletedEmployeeDisciplinaryActionsList"
+                     ej-grid e-datasource="CompletedEmployeeDisciplinaryActionsList"
+                     @*e-templaterefresh="refreshTemplateemployee"*@
+                     e-actioncomplete="actionCompletedEmployeeDisciplinaryActionsList"
+                     e-rowdatabound="onrowdatabound"
+                     e-pagesettings-pagesize="25"
+                     e-gridlines="vertical"
+                     e-allowfiltering="true"
+                     e-allowpaging="true"
+                     e-allowsorting="true"
+                     e-allowselection="true"
+                     e-filtersettings-filterType="excel" e-allowtouch="true">
+                    <div e-columns>
+                        <div e-column e-template="#addCompleted" e-headertext="Actions" e-width="90"></div>
+                        @*<div e-column e-field="EmpSystemId" e-headertext="EmpSystemId" e-allowediting="false" e-width="50"></div>*@
+                        <div e-column e-field="EmployeeCode" e-headertext="Emp Code" e-allowediting="false" e-width="100"></div>
+                        <div e-column e-field="EmployeeName" e-headertext="Emp Name" e-allowediting="false" e-width="140"></div>
+
+                        <div e-column e-field="DisciplinaryActionCategory" e-headertext="DA Category" e-allowediting="false" e-width="120"></div>
+                        <div e-column e-field="CaseNo" e-headertext="Case No" e-allowediting="false" e-width="120"></div>
+                        @*<div e-column e-field="DueLetter" e-headertext="Due Letter" e-allowediting="false" e-width="120"></div>
+                            <div e-column e-field="NextLetterDueDate" e-headertext="Due Date" e-allowediting="false" e-width="100"></div>*@
+                        <div e-column e-field="EntryDate" e-headertext="Incidence Date" e-allowediting="false" e-width="100"></div>
+                        <div e-column e-field="LetterIssueDate" e-headertext="Issue Date" e-allowediting="false" e-width="100"></div>
+                        @*<div e-column e-field="DueStatus" e-headertext="Status" e-allowediting="false" e-width="80"></div>*@
+                        <div e-column e-field="DOJ" e-headertext="DOJ" e-allowediting="false" e-width="80"></div>
+                        <div e-column e-field="GivenDesignation" e-headertext="Designation" e-allowediting="false" e-width="80"></div>
+                        <div e-column e-field="Department" e-headertext="Department" e-allowediting="false" e-width="80"></div>
+                        <div e-column e-field="Section" e-headertext="Section" e-allowediting="false" e-width="80"></div>
+                        <div e-column e-field="SubSection" e-headertext="SubSection" e-allowediting="false" e-width="80"></div>
+                        @*<div e-column e-field="Designation" e-headertext="Designation" e-allowediting="false" e-width="80"></div>*@
+                        <div e-column e-field="Letters" e-headertext="Letters" e-allowediting="false" e-width="250"></div>
+                    </div>
+                    <script type="text/template" id="addCompleted">
+                        <li><button ng-click="$parent.AddFunctionCompletedDAList($event);" class="btn"><i class="glyphicon glyphicon-list" tabindex="10"></i>Details</button></li>
+                    </script>
+
+                </div>
+
+
+
+
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<ej-dialog id="LongAbsenteeismInfo"
+           title="Employee Disciplinary Action"
+           e-enablemodal="true"
+           e-position-y="0"
+           e-showoninit="false"
+           e-target="#tabpaneldiv"
+           e-close="onDialogClose"
+           e-minwidth="800"
+           e-minheight="300"
+           e-open="enableBtn">
+    <div class="row form-horizontal form-elements" ng-form>
+
+
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Employee Name:</label>
+                    <label class="col-sm-6 control-label">{{EmployeeName}} </label>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Employee Code:</label>
+                    <label class="col-sm-6 control-label">{{EmployeeCode}} </label>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                @*<div class="form-group">
+                        <label class="col-sm-4 control-label">Category<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="select-style">
+                                <select id="LeaveTypeID" class="form-control" ng-change="getLetterDescription()" ng-model="LongAbsModel.DisciplinaryActionCategoryId" name="Leave Type" required tabindex="1">
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in Actionlist" value="{{option.Id}}">{{option.UserName}}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                    </div>*@
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Category:</label>
+                    <label class="col-sm-6 control-label">{{LongAbsModel.DisciplinaryActionCategory}} </label>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Description</label>
+                    <div class="col-sm-8">
+                        <input type="text" name="User Name" ng-model="LongAbsModel.Description" class="form-control" ng-change="ChangeDuration()" tabindex="2" maxlength="50">
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="form-group" ng-show="ShowcaseLetter=='Yes'">
+                    <label class="col-sm-4 control-label">Show Cause Letter:</label>
+                    <label class="col-sm-6 control-label">{{ShowcaseLetter}} </label>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="form-group" ng-show="ShowcaseLetter=='Yes'">
+                    <label class="col-sm-4 control-label">Letter Name:</label>
+                    <label class="col-sm-4 control-label">{{UserName}} </label>
+                    <label class="col-sm-2 control-label" style="text-transform:lowercase"> ({{Sequence}} of {{count}})</label>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">designation:</label>
+                    <label class="col-sm-6 control-label">{{designation}} </label>
+                </div>
+            </div>
+
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Department:</label>
+                    <label class="col-sm-6 control-label">{{Department}} </label>
+                </div>
+            </div>
+
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="col-sm-5 control-label">Incidence Date</label>
+                    <div class="col-sm-7">
+                        <input type="text" ej-datepicker e-width="80%" e-dateformat="dd-MMM-yyyy" e-value="LongAbsModel.EntryDate" e-enabled="false" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="col-sm-5 control-label">Letter Issue Date</label>
+                    <div class="col-sm-7">
+                        <input type="text" ej-datepicker e-width="80%" e-dateformat="dd-MMM-yyyy" e-value="LongAbsModel.LetterIssueDate" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="col-sm-5 control-label">Next Letter Due Date</label>
+                    <div class="col-sm-7">
+                        <input type="text" ej-datepicker e-width="80%" e-dateformat="dd-MMM-yyyy" e-value="LongAbsModel.NextLetterDueDate" />
+                    </div>
+                </div>
+            </div>
+
+
+
+
+            <div class="col-sm-12">
+                <div class="form-group" ng-show="ShowcaseLetter=='Yes'">
+                    <label class="col-sm-5 control-label">Letter Format<sup>*</sup></label>
+                    <div class="col-sm-7 show-message">
+                        <div class="select-style">
+                            <select id="LeaveTypeID" class="form-control" ng-model="LongAbsModel.LettersFormat" name="Leave Type" required tabindex="1">
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in LetterFormatList" value="{{option.Id}}">{{option.LetterName}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+
+            <div style="color:black;"
+                 id="GridEmployeeDisciplinaryActionDetailsList"
+                 ej-grid e-datasource="EmployeeDisciplinaryActionDetailsList"
+                 @*e-templaterefresh="refreshTemplateemployee"*@
+                 e-actioncomplete="actionCompleteSelected"
+                 e-pagesettings-pagesize="25"
+                 e-gridlines="vertical"
+                 e-allowfiltering="true"
+                 e-allowpaging="true"
+                 e-allowsorting="true"
+                 e-allowselection="true"
+                 e-filtersettings-filterType="excel" e-allowtouch="true">
+                <div e-columns>
+
+                    <div e-column e-field="ActionName" e-headertext="Letter Name" e-allowediting="false" e-width="150"></div>
+                    <div e-column e-field="LetterName" e-headertext="Letter Format" e-allowediting="false" e-width="150"></div>
+
+                    <div e-column e-field="LetterIssueDate" e-headertext="Letter Issue Date" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="NextLetterDueDate" e-headertext="Next Letter Due Date" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-template="#printandupload" e-headertext="Actions" e-width="100"></div>
+
+                </div>
+                <script type="text/template" id="printandupload">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="$parent.PrintDisciplinaryActionLetter($event);" class="btn"><i class="glyphicon glyphicon-print" tabindex="10"></i></button></li>
+                        @*<li><button ng-click="$parent.AddFunction($event);" class="btn"><i class="glyphicon glyphicon-upload" tabindex="10"></i></button></li>*@
+                    </ul>
+                </script>
+
+            </div>
+        </div>
+
+        <div class="col-sm-12">
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="saveChild();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                </ul>
+            </div>
+        </div>
+
+        @*<confirm-archive-generic modalid="confirmPopUpChild" title="Confirmation" message="Are you sure to delete ?" data-ng-click-right-button="DeleteChild();"></confirm-archive-generic>*@
+    </div>
+
+</ej-dialog>
+
+
+<ej-dialog id="dialogCompletedDAList"
+           title="Employee Disciplinary Action"
+           e-enablemodal="true"
+           e-position-y="0"
+           e-showoninit="false"
+           e-target="#tabpaneldiv"
+           e-close="onDialogClose"
+           e-minwidth="800"
+           e-minheight="300"
+           e-open="enableBtn">
+    <div class="row form-horizontal form-elements" ng-form>
+
+
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Employee Name:</label>
+                    <label class="col-sm-6 control-label">{{EmployeeName}} </label>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Employee Code:</label>
+                    <label class="col-sm-6 control-label">{{EmployeeCode}} </label>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Category:</label>
+                    <label class="col-sm-6 control-label">{{LongAbsModel.DisciplinaryActionCategory}} </label>
+                </div>
+            </div>
+            
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">designation:</label>
+                    <label class="col-sm-6 control-label">{{designation}} </label>
+                </div>
+            </div>
+
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Department:</label>
+                    <label class="col-sm-6 control-label">{{Department}} </label>
+                </div>
+            </div>
+
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="col-sm-5 control-label">Incidence Date</label>
+                    <div class="col-sm-7">
+                        <input type="text" ej-datepicker e-width="80%" e-dateformat="dd-MMM-yyyy" e-value="LongAbsModel.EntryDate" e-enabled="false" />
+                    </div>
+                </div>
+            </div>
+
+            
+
+        </div>
+
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+
+            <div style="color:black;"
+                 id="GridCompletedEmployeeDisciplinaryActionDetailsList"
+                 ej-grid e-datasource="EmployeeDisciplinaryActionDetailsList"
+                 @*e-templaterefresh="refreshTemplateemployee"*@
+                 e-actioncomplete="actionCompleteSelected"
+                 e-pagesettings-pagesize="25"
+                 e-gridlines="vertical"
+                 e-allowfiltering="true"
+                 e-allowpaging="true"
+                 e-allowsorting="true"
+                 e-allowselection="true"
+                 e-filtersettings-filterType="excel" e-allowtouch="true">
+                <div e-columns>
+
+                    <div e-column e-field="ActionName" e-headertext="Letter Name" e-allowediting="false" e-width="150"></div>
+                    <div e-column e-field="LetterName" e-headertext="Letter Format" e-allowediting="false" e-width="150"></div>
+
+                    <div e-column e-field="LetterIssueDate" e-headertext="Letter Issue Date" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="NextLetterDueDate" e-headertext="Next Letter Due Date" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-template="#printandupload" e-headertext="Actions" e-width="100"></div>
+
+                </div>
+              
+
+            </div>
+        </div>
+
+       
+       
+    </div>
+
+</ej-dialog>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@*<div class="row" id="tabpaneldiv">
+        <div class="col-sm-12">
+
+
+
+
+            <div id="GridemployeeDisciplinaryActions" ej-grid
+                 e-datasource="employeeDisciplinaryActionsCount"
+
+                 e-responsive="true"
+                 e-allowselection="true" e
+                 -filtersettings-filterType="excel">
+                <div e-columns>
+
+                    <div e-column e-field="EmployeeCode" e-headertext="EmployeeCode" e-width="80"></div>
+                    <div e-column e-field="EmployeeName" e-headertext="EmployeeName" e-width="80"></div>
+                    <div e-column e-field="Designation" e-headertext="Designation" e-width="80"></div>
+                    <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                    <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                    <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                    <div e-column e-field="TotalAction" e-headertext="TotalAction" e-width="80"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+
+
+
+
+
+
+
+    <confirm-archive-generic modalid="confirm_PopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRow()"></confirm-archive-generic>*@

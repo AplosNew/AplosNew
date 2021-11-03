@@ -1,0 +1,168 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>  Task Replacement(Transfer)
+</h3>
+
+<div class="form-horizontal form-elements" id="mainContent" ng-form="modelNewForm">
+    <div class="col-md-12 col-md-6 col-md-6">
+        <div class="form-group">
+
+
+            <table>
+                <tr>
+                    <td></td>
+                    <td colspan="3" style="color:royalblue;"> From Employee</td>
+                </tr>
+                <tr>
+                    <td style="width:30px;">
+                        <img onerror="$(arguments[0].currentTarget).attr('src','images/blankuser.png')" src="POPResources/EmployeeProfiles/EmpPic/{{ReplacementModel.FromEmployeeImage}}"
+                             style=" height:30px;width:30px; border-radius:50%;" />
+                    </td>
+                    <td style="width:50px;"><input class="form-control" type="text" ng-disabled="true" ng-model="ReplacementModel.FromEmployeeCode" /></td>
+                    <td><input class="form-control" name="Owner" type="text" placeholder="From Employee" ng-disabled="true" ng-model="ReplacementModel.FromEmployeeName" /></td>
+                    <td style="width:70px;">
+                        <ul class="common-btn list-inline text-left small" style="padding: 0px;">
+                            <li style="padding: 0px;"><button ng-click="OpenEmployeeSearchBox('FromEmployee');" class="btn" style="height:30px;width:30px; padding:0px;"><i class="glyphicon glyphicon-search small"></i></button></li>
+                            <li style="padding: 0px;"><button ng-click="DeleteEmployee('FromEmployee');" class="btn" style="height:30px;width:30px; padding:0px;"><i class="glyphicon glyphicon-remove"></i></button></li>
+                        </ul>
+                    </td>
+                </tr>
+            </table>
+
+
+
+
+        </div>
+    </div>
+    <div class="col-md-12 col-md-6 col-md-6">
+        <div class="form-group">
+
+
+            <table>
+                <tr>
+                    <td></td>
+                    <td colspan="3" style="color:royalblue;"> To Employee</td>
+                </tr>
+                <tr>
+                    <td style="width:30px;">
+                        <img onerror="$(arguments[0].currentTarget).attr('src','images/blankuser.png')" src="POPResources/EmployeeProfiles/EmpPic/{{ReplacementModel.ToEmployeeImage}}"
+                             style=" height:30px;width:30px; border-radius:50%;" />
+                    </td>
+                    <td style="width:50px;"><input class="form-control" type="text" ng-disabled="true" ng-model="ReplacementModel.ToEmployeeCode" /></td>
+                    <td><input class="form-control" name="Owner" type="text" placeholder="To Employee" ng-disabled="true" ng-model="ReplacementModel.ToEmployeeName" /></td>
+                    <td style="width:70px;">
+                        <ul class="common-btn list-inline text-left small" style="padding: 0px;">
+                            <li style="padding: 0px;"><button ng-click="OpenEmployeeSearchBox('ToEmployee');" class="btn" style="height:30px;width:30px; padding:0px;"><i class="glyphicon glyphicon-search small"></i></button></li>
+                            <li style="padding: 0px;"><button ng-click="DeleteEmployee('ToEmployee');" class="btn" style="height:30px;width:30px; padding:0px;"><i class="glyphicon glyphicon-remove"></i></button></li>
+                        </ul>
+                    </td>
+                </tr>
+            </table>
+
+
+
+
+        </div>
+    </div>
+
+    <div class="row">
+
+        <label class="col-md-2 control-label">From Date<sup class="redFont"> *</sup></label>
+        <div class="col-md-4 text-left">
+            <input type="text" ng-model="ReplacementModel.FromDate" datepicker class="form-control" placeholder="dd-MM-yyyy" required>
+        </div>
+
+        <label class="col-md-2 control-label">To Date<sup class="redFont"> *</sup></label>
+        <div class="col-md-4 text-left">
+
+            <input type="text" ng-model="ReplacementModel.ToDate" datepicker class="form-control" placeholder="dd-MM-yyyy" required>
+        </div>
+        <div class="col-md-12 col-md-12 col-md-12">
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li><button ng-click="getTaskList();" class="btn"><i class="glyphicon glyphicon-file" tabindex="9"></i> Show Tasks</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" ng-hide="hideTaskDetails">
+        <div class="col-md-12 col-md-12 col-md-12">
+            <div id="GridEdit" ng-init="chkinit()" ej-grid e-datasource="TaskList" e-templaterefresh="refreshTemplateTaskList"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                <div e-columns>
+                    <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="1"></div>
+                    <div e-column e-field="TaskCategory" e-headertext="Category" e-width="2"></div>
+                    <div e-column e-field="TaskSubCategory" e-headertext="Sub Category" e-width="2"></div>
+                    <div e-column e-field="TaskDescription" e-headertext="Task" e-width="5"></div>
+                    <div e-column e-field="CurrentStatus" e-headertext="Status" e-width="2"></div>
+                    <div e-column e-field="TaskPriority" e-headertext="Priority" e-width="2"></div>
+
+                    <div e-column e-field="DueDate" e-headertext="Due Date" e-width="2"></div>
+                    <div e-column e-field="CommitmentDate" e-headertext="Commitment Date" e-width="2"></div>
+                </div>
+            </div>
+            <script type="text/template" id="checkboxTemplate">
+                <input type="checkbox"e-checked="data.Checked" ej-checkbox class="nodetext" e-value="data.Checked" />
+            </script>
+            <script type="text/template" id="headerTemplate">
+                <input type="checkbox" id="headchk" />
+            </script>
+        </div>
+        <div class="col-md-12 col-md-12 col-md-12">
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li><button ng-click="Update();" class="btn"><i class="glyphicon glyphicon-upload" tabindex="9"></i> Transfer</button></li>
+                    <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-ban-circle" tabindex="9"></i> Cancel</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<ej-dialog id="dialogSearchEmployee" title="Employees" e-enablemodal="true" e-position-y="0" e-position-x="0" e-showoninit="false" e-target="#mainContent" e-close="onDialogClose" e-width="900" e-open="enableBtn">
+    <div class="col-xs-12" style="border:1px solid #dfdfdf">
+        <div class="row text-right">
+            <div class="col-xs-12 col-sm-12 col-sm-12">
+                <div class="search-form">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-3 col-md-3">
+                            <div class="select-style">
+                                <select id="listEmployeeSearchFields" ng-model="EmployeeSearchCol">
+                                    <option ng-repeat="option in EmployeemodelFilterByList" value="{{option.value}}">{{option.name}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-7 col-md-7">
+                            <input type="text" id="txtSearchEmployee" class="form-control" placeholder="Search" ng-model="EmployeeSearchVal" ng-enter="getEmployeeData()">
+                        </div>
+                        <div class="col-xs-12 col-sm-2 col-md-2">
+                            <button type="button" ng-click="getEmployeeData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="SearchEmployee" ng-init="chkinit()" ej-grid e-datasource="EmployeeList" e-gridlines="horizontal"
+             e-allowtextwrap="true" e-textwrapsettings-wrapmode="content" e-allowsearching="false"
+             e-recorddoubleclick="AddEmployee" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel">
+            <div e-columns>
+                <div e-column e-field="Id" e-headertext="Id" e-width="30" e-primarykey="true" e-visible="false"></div>
+                <div e-column e-headertext="" e-template="#empimage" e-textalign="center" e-width="40"></div>
+                <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="30"></div>
+                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                <div e-column e-field="Designation" e-headertext="Designation" e-width="80"></div>
+                <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="80"></div>
+            </div>
+        </div>
+        <script type="text/x-jsrender" id="empimage">
+            <img onerror="$(arguments[0].currentTarget).attr('src','images/blankuser.png')"
+                 src="POPResources/EmployeeProfiles/EmpPic/{{:EmpPicPath}}" style="height:48px;width:48px;border:2px solid #efefef; border-radius:50%;" />
+        </script>
+    </div>
+</ej-dialog>
+

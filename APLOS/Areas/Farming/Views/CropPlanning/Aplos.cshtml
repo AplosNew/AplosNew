@@ -1,0 +1,428 @@
+﻿<togglable name="{{title}}"></togglable>
+<style>
+
+    .filled {
+        background-color: #ff0000 !important;
+    }
+</style>
+@*To Accept only Numbers*@
+<script>
+    function isNumber(evt) {
+        evt = (evt) ? evt : window.event;
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+            return false;
+        }
+        return true;
+    }
+</script>
+<div class="form-elements form-horizontal" ng-form name="CropPlanningForm">
+    <div class="row" ng-form name="General">
+        <input type="hidden" ng-model="CropPlanning.Id">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Year<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Year" ng-model="CropPlanning.Year" class="form-control" required tabindex="1" maxlength="50">
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="User Name" ng-model="CropPlanning.UserName" class="form-control" required tabindex="3" maxlength="50">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Close Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Close Date" ng-model="CropPlanning.CloseDate" datepicker class="form-control" required tabindex="5">
+
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Active</label>
+                <div class="col-sm-8">
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" ng-model="CropPlanning.Active" tabindex="7">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Season<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Season" ng-model="CropPlanning.Season" class="form-control" maxlength="50" required tabindex="2">
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Start Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Start Date" ng-model="CropPlanning.StartDate" datepicker class="form-control" required tabindex="4">
+
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">ICS Master<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="CropPlanning.ICSMasterID" name="ICS Master"
+                                ng-options="item.Value as item.Text for item in ICSMasterList" required tabindex="6">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <br />
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Save()" class="btn" tabindex="8"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear()" class="btn" tabindex="10"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+    </div>
+    <confirm-modal></confirm-modal>
+
+    <div class="row">
+        <div class="form-elements form-horizontal" ng-form id="QMTab">
+            <div class="tab-design" id="tab_show">
+
+                <div class="site-tab">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="cropplanningchild" role="tab" data-toggle="tab">Crop Planning</a></li>
+
+                    </ul>
+                </div>
+
+                <div class="tab-content">
+
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+
+                        <div class="row">
+
+                            <div ng-form name="cropplanningchildForm" class="form-horizontal form-element-ctrl">
+
+                                <div class="form-elements">
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Crop<sup>*</sup> </label>
+                                            <div class="col-sm-8 show-message">
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="cropplanningchild.CropId" name="Crop" ng-change="GetCropType();"
+                                                            ng-options="item.Value as item.Text for item in CropList" required tabindex="11">
+                                                        <option value="">--Select--</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Crop Type<sup>*</sup> </label>
+                                            <div class="col-sm-8 show-message">
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="cropplanningchild.CropTypeId" name="Crop Type" ng-change="GetLandStatus();"
+                                                            ng-options="item.Value as item.Text for item in CropTypeList" required tabindex="12">
+                                                        <option value="">--Select--</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                        
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Land/Plot Status</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" ng-model="cropplanningchild.LandStatus" class="form-control" readonly maxlength="50">
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="clearfix"></div>
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Village </label>
+                                            <div class="col-sm-8">
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="cropplanningchild.VillageId" ng-change="GetFarmer();"
+                                                            ng-options="item.Value as item.Text for item in VillageList" tabindex="13">
+                                                        <option value="">--Select--</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Farmer<sup>*</sup> </label>
+                                            <div class="col-sm-8 show-message">
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="cropplanningchild.FarmerId" name="Farmer" ng-change="GetFarmerFather();"
+                                                            ng-options="item.Value as item.Text for item in FarmerList" required tabindex="14">
+                                                        <option value="">--Select--</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Farmer Father/ Husband Name</label>
+                                            <div class="col-sm-8">
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="cropplanningchild.FarmerFatherHusbandNameId" ng-change="GetFarmerRegistrationId();"
+                                                            ng-options="item.Value as item.Text for item in FarmerFatherHusbandNameList" tabindex="15">
+                                                        <option value="">--Select--</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
+
+
+                                    <div class="clearfix"></div>
+
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Farmer Registration ID/ Tracenet Id<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="cropplanningchild.FarmerRegId" name="Farmer Registration Id/ Tracenet Id"
+                                                            ng-options="item.Value as item.Text for item in FarmerRegistrationList" required tabindex="16" ng-change="GetFarmerPlot();">
+                                                        <option value="">--Select--</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Total Area</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" ng-model="cropplanningchild.TotalArea" class="form-control" readonly maxlength="50">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Plot<sup>*</sup> </label>
+                                            <div class="col-sm-8 show-message">
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="cropplanningchild.FarmerPlotId" name="Plot" ng-change="GetPlotStatus();"
+                                                            ng-options="item.Value as item.Text for item in FarmerPlotList" required tabindex="17">
+                                                        <option value="">--Select--</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
+                                    <div class="clearfix"></div>
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Plot Status</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" ng-model="cropplanningchild.PlotStatus" class="form-control" readonly maxlength="50">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Plot Area</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" ng-model="cropplanningchild.PlotArea" class="form-control" readonly maxlength="50">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Crop Area<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <input type="text" name="Crop Area" ng-model="cropplanningchild.CropArea" class="form-control" ng-change="GetValue();" tabindex="18" required maxlength="15" onkeypress="return isNumber(event)">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="clearfix"></div>
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Productivity Index<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <input type="text" ng-model="cropplanningchild.ProductivityIndex" name="Productivity Index" required class="form-control" tabindex="19" maxlength="15" onkeypress="return isNumber(event)">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Average Output<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <input type="text" ng-model="cropplanningchild.AverageOutput" class="form-control" readonly maxlength="50" name="Average Output" required>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Plan Quantity<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <input type="text" ng-model="cropplanningchild.PlanQuantity" class="form-control" readonly maxlength="15" name="Plan Quantity" required>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="clearfix"></div>
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Farming Category<sup>*</sup> </label>
+                                            <div class="col-sm-8 show-message">
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="cropplanningchild.FarmerCategoryId" name="Farmer Category"
+                                                            ng-options="item.Value as item.Text for item in FarmerCategoryList" required tabindex="20">
+                                                        <option value="">--Select--</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Remarks</label>
+                                            <div class="col-sm-8">
+                                                <textarea class="form-control" ng-model="cropplanningchild.Remarks" tabindex="21" maxlength="250"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Active</label>
+                                            <div class="col-sm-8">
+                                                <div class="checkbox-site">
+                                                    <label>
+                                                        <input type="checkbox" ng-model="cropplanningchild.Active" tabindex="22">
+                                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="common-btn">
+                                    <ul class="list-inline text-right">
+
+                                        <li><button ng-click="SaveCropPlanningChild();" tabindex="23" ng-disabled="CropPlanning.Id==null" class="btn"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
+                                        <li> <button ng-click="ClearCropPlanningChild()" class="btn" tabindex="24"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-xs-12">
+                                <div style="color:black;" id="GridCropPlanningChildTab" ej-grid e-datasource="SelectedCropPlanningChildTabList"
+                                     e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="GetCropPlanningChild"
+                                     e-allowselection="true" e-filtersettings-filterType="excel">
+                                    <div e-columns>
+                                        <div e-column e-type="string" e-field="CropPlanningMasterId" e-headertext="Crop Planning Master" e-width="10"></div>
+                                        <div e-column e-type="string" e-field="Crop" e-headertext="Crop" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="CropType" e-headertext="Crop Type" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="Farmer" e-headertext="Farmer" e-width="30"></div>
+                                        <div e-column e-type="string" e-field="Plot" e-headertext="Farmer Plot" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="CropArea" e-headertext="Crop Area" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="ProductivityIndex" e-headertext="Productivity Index" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="PlanQuantity" e-headertext="Plan Quantity" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="FarmingCategory" e-headertext="Farmer Category" e-width="30"></div>
+                                        <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="30"></div>
+                                        <div e-column e-type="string" e-field="Active" e-headertext="Active" e-width="15"></div>
+
+
+
+                                        <div e-column e-template="#DeleteCropPlanningChildTab" e-width="15"></div>
+                                    </div>
+                                </div>
+
+                                <script type="text/template" id="DeleteCropPlanningChildTab">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li><button ng-click="$parent.ConfirmDeleteCropPlanningChildTab(data.Id);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
+                                        </ul>
+                                    </div>
+                                </script>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive aplos-grid-toggle">
+
+    <div id="CropPlanningListGrid" ej-grid e-datasource="CropPlanningList"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-recorddoubleclick="Get">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+            <div e-column e-field="Year" e-headertext="Year" e-width="1"></div>
+            <div e-column e-field="Season" e-headertext="Season" e-width="2"></div>
+            <div e-column e-field="UserName" e-headertext="User Name" e-width="2"></div>
+            <div e-column e-field="CPStartDate" e-headertext="Start Date" e-width="2"></div>
+            <div e-column e-field="CPCloseDate" e-headertext="Close Date" e-width="2" e-visible="true"></div>
+            <div e-column e-field="ICSMaster" e-headertext="ICS Master" e-width="2" e-visible="true"></div>
+            <div e-column e-field="Active" e-headertext="Active" e-width="2" e-visible="true"></div>
+
+        </div>
+    </div>
+</div>
+<confirm-archive-generic modalid="DeleteCropPlanningChildTabPopUp" title="Confirmation" message="Are you sure want to Delete?" data-ng-click-right-button="DeleteCropPlanningChild();"></confirm-archive-generic>
+

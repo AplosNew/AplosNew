@@ -1,0 +1,443 @@
+﻿
+<style type="text/css">
+    #myDIV {
+        width: 100%;
+        text-align: center;
+    }
+    .e-gridheader .e-headercell { /* grid header color and grid row select color*/
+        background: #a2f1ff;
+        color: #080076;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+    }
+
+
+    
+</style>
+<div class="container-fluid" id="MainDiv">
+    <div>
+        <div class="row" style="margin-top:-10px;margin-bottom:25px;">
+            <div class="col-md-12">
+                <div class="col-md-6" style="margin-bottom:10px;">
+                    <div class="row">
+                        <div class="col-md-6"><span style="font-size: 19px;margin-left: -15%;"><span class="glyphicon glyphicon-stats"></span>&nbsp;Farming Dashboard</span></div>
+
+                    </div>
+                </div>
+                <div class="row" style="margin-top:10px;">
+
+                    <div class="col-md-12">
+                        <div>
+                            <div class="col-md-1 ">
+                                <span>
+                                    Crop Type :
+                                </span>
+                            </div>
+                            <div class="col-md-2  ">
+                                <div class="select-style">
+                                    <select ng-model="farmingDropDown.CropTypeId">
+                                        <option value="">Select All</option>
+                                        <option ng-repeat="option in cropType" value="{{option.Id}}">{{option.UserName}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="col-md-1 col-md-offset-1">
+                                <span>
+                                    Crop Category :
+                                </span>
+                            </div>
+                            <div class="col-md-2  ">
+                                <div class="select-style">
+                                    <select ng-model="farmingDropDown.CropCategoryId">
+                                        <option value="">Select All</option>
+                                        <option ng-repeat="option in cropCategory" value="{{option.Id}}">{{option.UserName}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="col-md-1 col-md-offset-1 ">
+                                <span>
+                                    Crop Sub-Category:
+                                </span>
+                            </div>
+                            <div class="col-md-2  ">
+                                <div class="select-style">
+                                    <select ng-model="farmingDropDown.CropSubCategoryId">
+                                        <option value="">Select All</option>
+                                        <option ng-repeat="option in cropSubCategory" value="{{option.Id}}">{{option.UserName}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="margin-top:15px;">
+                    <div class="col-md-12">
+                        <div>
+                            <div class="col-md-1  ">
+                                <span>
+                                    Crop :
+                                </span>
+                            </div>
+                            <div class="col-md-2  ">
+                                <div class="select-style">
+                                    <select ng-model="farmingDropDown.CropId">
+                                        <option value="">Select All</option>
+                                        <option ng-repeat="option in crop" value="{{option.Id}}">{{option.UserName}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="col-md-1 col-md-offset-1 ">
+                                <span>
+                                    Land Category:
+                                </span>
+                            </div>
+                            <div class="col-md-2  ">
+                                <div class="select-style">
+                                    <select ng-model="farmingDropDown.LandId">
+                                        <option value="">Select All</option>
+                                        <option ng-repeat="option in land" value="{{option.Id}}">{{option.UserName}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-1 text-right">
+                    <button type="button" ng-click="dropDown()" class="btn single-btn"><i class="glyphicon glyphicon-arrow-down"></i> Generate </button>
+                </div>
+                <div class="col-md-1 text-right">
+                    <button type="button" ng-click="reset()" class="btn single-btn"><i class="glyphicon glyphicon-repeat"></i> Reset </button>
+                </div>
+            </div>
+
+
+
+
+
+
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="container" id="headerNav" style="margin-left: -1.5%; margin-top:.5%;">
+                        <div id="wizard-container">
+                            <ul style="cursor:pointer; margin-bottom:-22px;">
+                                <li ng-click="navClick(j)" ng-repeat="j in ColList">
+                                    <a>
+                                        <b>{{j.columnName}}</b><br />
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="margin:10px;">
+                <div class="col-lg-8">
+                   
+                    <div class="row table-responsive modal-table" style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
+                        <table class="table table-hover " style="border:0px !important;">
+                            <tbody style="cursor:pointer; ">
+                                <tr>
+                                    <th style="border-bottom:1px solid ghostwhite; text-align:left; ">{{TableData[0].columnName}}</th>
+                                    <th ng-style="TableData[0].numberOfICS?{'display':'block'} : {'display':'none'}" style="border-bottom:1px solid ghostwhite; text-align:left; ">Number Of ICS</th>
+                                    <th style="border-bottom:1px solid ghostwhite; text-align:left; ">Active Farmers</th>
+                                    <th style="border-bottom:1px solid ghostwhite; text-align:left; background-color:red;">Inactive Farmers</th>
+                                    <th style="border-bottom:1px solid ghostwhite; text-align:left; ">Total Area</th>
+                                    <th style="border-bottom:1px solid ghostwhite; text-align:left; ">Planned Area</th>
+
+                                </tr>
+
+
+                                <tr ng-repeat=" k in TableData">
+                                    <td ng-click="(k.noClick==0)  && getDrillDownData(k)" ng-style="k.noClick==0?{'cursor':'pointer'} : {'cursor':'default'}">{{k.Group}}</td>
+                                    <td ng-style="k.numberOfICS?{'display':'block'} : {'display':'none'}">{{k.numberOfICS}}</td>
+                                    <td ng-click="showActiveFarmerModal(k)" style="cursor:pointer;">{{k.ActiveFarmers}}</td>
+                                    <td ng-click="showInactiveFarmerModal(k)" style="cursor:pointer; background-color:red;">{{k.InactiveFarmers}}</td>
+                                    <td ng-click="showTotalArea(k)" style="cursor:pointer;">{{k.TotalArea}}</td>
+                                    <td ng-click="showPlannedArea(k)" style="cursor:pointer;">{{k.PlannedArea}}</td>
+
+                                </tr>
+
+                                <tr>
+                                    <th style="border-bottom:1px solid ghostwhite; text-align:left; ">Total</th>
+                                    <th ng-style="Total.number?{'display':'block'} : {'display':'none'}">{{Total.number}}</th>
+                                    <th>{{Total.active}}</th>
+                                    <th style="background-color:red;">{{Total.inactive}}</th>
+                                    <th>{{Total.totarea}}</th>
+                                    <th>{{Total.planarea}}</th>
+
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ICSNumber Charts -->
+                <div class=" col-lg-4 ">
+                    <div style="border : solid; border-color:transparent;  box-shadow: 3px 7px 5px grey; ">
+                        <h2 style="text-align:center ; font-style:oblique; font-size:medium;">Total Number Of ICS</h2>
+                        <canvas id="ICSNoChart"></canvas>
+                    </div>
+
+                </div>
+            </div>
+            <div class="row" style="margin:20px; margin-top:30px; ">
+                <!-- Total Farmers Chart -->
+                <div class="card col-lg-6 ">
+                    <div style="box-shadow: 3px 7px 5px grey; border : solid; border-color:transparent; ">
+                        <h2 style="text-align:center ; font-style:oblique; font-size:medium;">Total Active Farmers</h2>
+                        <canvas id="FarmersChart"></canvas>
+                    </div>
+
+                </div>
+
+                <!-- Total Area VS Planned Area CHart -->
+                <div class="card col-lg-6 ">
+                    <div style="box-shadow: 3px 7px 5px grey;border : solid; border-color:transparent; ">
+                        <h2 style="text-align:center ; font-style:oblique; font-size:medium;">Total Area V/S Planned Area</h2>
+                        <canvas id="AreaChart"></canvas>
+                    </div>
+
+                </div>
+
+            </div>
+            <br />
+
+        </div>
+
+
+
+        <!--Dynamic MODALS -->
+
+        <div class="modal fade site-modal in" id="ShowActiveFarmers" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button class="close" data-dismiss="modal">&times;</button>
+                        <h1 class="modal-title" style="font-size:50px; text-align:center; margin:-10px;">Farmers</h1>
+                    </div>
+                    <div class="modal-body" style="min-height:300px; min-width:100%;">
+                        <div class="row" style="margin: 20px; font-style:italic">Active Farmers of {{currentGroup.Group}} </div>
+
+                        <div>
+                            <button type="button" ng-click="ActiveFarmersReport(currentGroup)" class="btn single-btn"><i class="glyphicon glyphicon-arrow-down"></i> Download </button>
+
+                            <div style="color:black;" ej-grid e-datasource="ActiveFarmersModal"
+                                 e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enableColumnResizing="true"
+                                 e-allowselection="true" e-filtersettings-filterType="excel">
+
+                                <div e-columns>
+                                    <div e-column e-type="string" e-field="Snum" e-headertext="S. No" e-width="10" textAlign="center"></div>
+                                    <div e-column e-type="string" e-field="FarmerId" e-headertext="Farmer ID" e-width="20"></div>
+                                    <div e-column e-type="string" e-field="TracenetId" e-headertext="Tracenet ID" e-width="20"></div>
+                                    <div e-column e-type="string" e-field="FarmerName" e-headertext="Farmer Name" e-width="20"></div>
+                                    <div e-column e-type="string" e-field="FarmerFatherName" e-headertext="Farmer Father Name" e-width="20"></div>
+                                    <div e-column e-type="string" e-field="TotalArea" e-headertext="Total Area" e-width="20"></div>
+                                    <div e-column e-type="number" e-field="TotalPlots" e-headertext="Total Plots" e-width="20"></div>
+                                    <div e-column e-type="string" e-field="RegistrationDate" e-headertext="Registration Date" e-width="20"></div>
+                                    <div e-column e-template="#PrintFileTab" e-headertext="Print" e-width="10"></div>
+
+
+                                </div>
+                            </div>
+                            <script type="text/template" id="PrintFileTab">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li><button ng-click="$parent.ConfirmPrintTab(data.FarmerId);" class="btn" tabindex="9"><i class="fa fa-file-excel-o" style="top: 1px;"></i></button></li>
+                                    </ul>
+                                </div>
+                            </script>
+
+                            @*<div class="col-lg-offset-10">
+            <button style="margin-bottom:10px; border-radius:25px;" type="button" ng-click="dFunction()" class="btn btn-primary"><i class="glyphicon glyphicon-arrow-down"></i> Generate </button>
+        </div>
+
+
+        <div id="Grid2"></div>
+        <div class="panel table-responsive " >
+            <table class="table table-hover text-center">
+                <tbody id="table-body">
+                    <tr style="color: white;">
+                        <th>S.No.</th>
+                        <th>Farmer Id</th>
+                        <th>Tracenet Id</th>
+                        <th>Farmer Name</th>
+                        <th>Farmer Father Name</th>
+                        <th>Total Area</th>
+                        <th>Total Plots</th>
+                        <th>Registration Date</th>
+                    </tr>
+
+
+                        <tr ng-repeat=" i in FarmersModal">
+                            <td style="width:5px; text-align:left; padding:5px">{{i.Snum}}</td>
+                            <td style="width:40px; text-align:left;">{{i.FarmerId}}</td>
+                            <td style="width:37px; text-align:center; padding-left:5px;">{{i.TracenetId}}</td>
+                            <td style="width:20px;  text-align:center; padding-left:5px;">{{i.FarmerName}}</td>
+                            <td style="width:30px;  text-align:left;">{{i.FarmerFatherName}}</td>
+                            <td style="width:30px;  text-align:left;">{{i.TotalArea}}</td>
+                            <td style="width:30px;  text-align:left;">{{i.TotalPlots}}</td>
+                            <td style="width:30px;  text-align:left;">{{i.RegistrationDate}}</td>
+                        </tr>
+
+                        </tbody>
+                        </table>
+                    </div>
+                    <div id="tableBar"></div>*@
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" data-dismiss="modal" ng-click="pageSet();">Close</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+        <div class="modal fade site-modal in" id="ShowInactiveFarmers" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button class="close" data-dismiss="modal">&times;</button>
+                        <h1 class="modal-title" style="font-size:50px; text-align:center; margin:-10px;">Farmers</h1>
+                    </div>
+                    <div class="modal-body" style="min-height:300px; min-width:100%;">
+                        <div class="row" style="margin: 20px; font-style:italic">Inactive Farmers of {{currentGroup.Group}} </div>
+
+                        <div>
+                            <button type="button" ng-click="InactiveFarmersReport(currentGroup)" class="btn single-btn"><i class="glyphicon glyphicon-arrow-down"></i> Download </button>
+
+                            <div style="color:black;" ej-grid e-datasource="InactiveFarmersModal"
+                                 e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enableColumnResizing="true"
+                                 e-allowselection="true" e-filtersettings-filterType="excel">
+
+                                <div e-columns>
+                                    <div e-column e-type="string" e-field="Snum" e-headertext="S. No" e-width="10" textAlign="center"></div>
+                                    <div e-column e-type="string" e-field="FarmerId" e-headertext="Farmer ID" e-width="20"></div>
+                                    <div e-column e-type="string" e-field="TracenetId" e-headertext="Tracenet ID" e-width="20"></div>
+                                    <div e-column e-type="string" e-field="FarmerName" e-headertext="Farmer Name" e-width="20"></div>
+                                    <div e-column e-type="string" e-field="FarmerFatherName" e-headertext="Farmer Father Name" e-width="20"></div>
+                                    <div e-column e-type="string" e-field="TotalArea" e-headertext="Total Area" e-width="20"></div>
+                                    <div e-column e-type="number" e-field="TotalPlots" e-headertext="Total Plots" e-width="20"></div>
+                                    <div e-column e-type="string" e-field="RegistrationDate" e-headertext="Registration Date" e-width="20"></div>
+                                    <div e-column e-template="#PrintFileTab" e-headertext="Print" e-width="10"></div>
+
+
+                                </div>
+                            </div>
+                            <script type="text/template" id="PrintFileTab">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li><button ng-click="$parent.ConfirmPrintTab(data.FarmerId);" class="btn" tabindex="9"><i class="fa fa-file-excel-o" style="top: 1px;"></i></button></li>
+                                    </ul>
+                                </div>
+                            </script>
+
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" data-dismiss="modal" ng-click="pageSet();">Close</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+        <!--The total Area Modal-->
+        <div class="modal fade site-modal in" id="ShowTotalArea" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button class="close" data-dismiss="modal">&times;</button>
+                        <h1 class="modal-title" style="font-size:50px; text-align:center; margin:-10px;">Total Area</h1>
+                    </div>
+                    <div class="modal-body" style="min-height:300px;">
+                        <div class="row" style="margin: 20px; font-style:italic"> Total Area under {{currentGroup.Group}} </div>
+
+                        <div>
+                            <button type="button" ng-click="TotalAreaReport(currentGroup)" class="btn single-btn"><i class="glyphicon glyphicon-arrow-down"></i> Download </button>
+                            <div style="color:black;" ej-grid e-datasource="TotalAreaModal"
+                                 e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enableColumnResizing="true"
+                                 e-allowselection="true" e-filtersettings-filterType="excel">
+
+                                <div e-columns>
+                                    <div e-column e-type="string" e-field="Snum" e-headertext="S. No" e-width="10" textAlign="center"></div>
+                                    <div e-column e-type="string" e-field="FarmerId" e-headertext="Farmer ID" e-width="20"></div>
+                                    <div e-column e-type="string" e-field="TracenetId" e-headertext="Tracenet ID" e-width="20"></div>
+                                    <div e-column e-type="string" e-field="FarmerName" e-headertext="Farmer Name" e-width="30"></div>
+                                    <div e-column e-type="string" e-field="FarmerFatherName" e-headertext="Farmer Father Name" e-width="30"></div>
+                                    <div e-column e-type="string" e-field="TotalArea" e-headertext="Total Area" e-width="30"></div>
+                                    <div e-column e-type="number" e-field="TotalPlots" e-headertext="Total Plots" e-width="30"></div>
+
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn" data-dismiss="modal" ng-click="pageSet();">Close</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+        <!--The Planned Area Modal-->
+        <div class="modal fade site-modal in" id="ShowPlannedArea" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button class="close" data-dismiss="modal">&times;</button>
+                        <h1 class="modal-title" style="font-size:50px; text-align:center; margin:-10px;">Planned Area</h1>
+                    </div>
+                    <div class="modal-body" style="min-height:300px;">
+                        <div class="row" style="margin: 20px; font-style:italic"> Planned Area under {{currentGroup.Group}} </div>
+                        <button type="button" ng-click="PlannedAreaReport(currentGroup)" class="btn single-btn"><i class="glyphicon glyphicon-arrow-down"></i> Download </button>
+                        <div>
+
+                            <div style="color:black;" ej-grid e-datasource="PlannedAreaModal"
+                                 e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enableColumnResizing="true"
+                                 e-allowselection="true" e-filtersettings-filterType="excel">
+
+                                <div e-columns>
+                                    <div e-column e-type="string" e-field="Snum" e-headertext="S. No" e-width="10" textAlign="center"></div>
+                                    <div e-column e-type="string" e-field="FarmerId" e-headertext="Farmer ID" e-width="20"></div>
+                                    <div e-column e-type="string" e-field="TracenetId" e-headertext="Tracenet ID" e-width="20"></div>
+                                    <div e-column e-type="string" e-field="FarmerName" e-headertext="Farmer Name" e-width="30"></div>
+                                    <div e-column e-type="string" e-field="FarmerFatherName" e-headertext="Farmer Father Name" e-width="30"></div>
+                                    <div e-column e-type="string" e-field="PlannedArea" e-headertext="Planned Area" e-width="30"></div>
+                                    <div e-column e-type="number" e-field="TotalPlots" e-headertext="Total Plots" e-width="30"></div>
+
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn" data-dismiss="modal" ng-click="pageSet();">Close</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    
+
+</div>
+
+

@@ -1,0 +1,107 @@
+﻿@using Library.Service.Enums
+<div class="modal fade site-modal in" id="oprationAttributeEntryPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content row">
+            <div class="modal-header">Attribute <button type="button" ng-click="closeAttribute();" class="close">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal" ng-form="oprationAttributeNewForm">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group" id="div_Sequence">
+                        <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" n-decimals="2" name="Sequence" ng-model="oprationAttributeNew.Sequence" ng-keyup="manualValidationAddRemove('div_Sequence', oprationAttributeNew, 'Sequence');" class="form-control text-right" tabindex="41">
+                        </div>
+                    </div>
+                    <div class="form-group" id="div_ShortName">
+                        <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="ShortName" ng-model="oprationAttributeNew.ShortName" ng-keyup="manualValidationAddRemove('div_ShortName', oprationAttributeNew, 'ShortName');" class="form-control" maxlength="15" tabindex="43">
+                        </div>
+                    </div>
+                    <div class="form-group" id="div_UserName">
+                        <label class="col-sm-4 control-label">User Define Name<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="UserName" ng-model="oprationAttributeNew.UserName" ng-keyup="manualValidationAddRemove('div_UserName', oprationAttributeNew, 'UserName');" class="form-control" tabindex="45" maxlength="50">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="border: 1px solid #d8d7d7;margin-right: 0px;">
+                        <label class="col-sm-2 control-label">Free Field</label>
+                        <div class="col-sm-1">
+                            <div class="checkbox-site">
+                                <label class="control-label">
+                                    <input type="checkbox" ng-model="oprationAttributeNew.IsFreeField">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                        <label class="col-sm-3 control-label">Pre-Defined Field</label>
+                        <div class="col-sm-1">
+                            <div class="checkbox-site">
+                                <label class="control-label">
+                                    <input type="checkbox" ng-model="oprationAttributeNew.IsPreDefinedField">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                        <label class="col-sm-2 control-label">Mandatory</label>
+                        <div class="col-sm-1">
+                            <div class="checkbox-site">
+                                <label class="control-label">
+                                    <input type="checkbox" ng-model="oprationAttributeNew.IsMandatory">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group" id="div_Code">
+                        <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Code" ng-model="oprationAttributeNew.Code" ng-keyup="manualValidationAddRemove('div_Code', oprationAttributeNew, 'Code');" class="form-control" tabindex="42" maxlength="10">
+                        </div>
+                    </div>
+                    <div class="form-group" id="div_StandardName">
+                        <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="StandardName" ng-model="oprationAttributeNew.StandardName" ng-keyup="manualValidationAddRemove('div_StandardName', oprationAttributeNew, 'StandardName');" class="form-control" tabindex="44" maxlength="50">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Property<sup>*</sup></label>
+                        <div class="col-sm-8">
+                            <div class="select-style">
+                                <select ng-model="oprationAttributeNew.AttributeProperty" class="form-control"
+                                        ng-options="item.Value as item.Text for item in attributePropertyList" tabindex="6"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" style="border: 1px solid #d8d7d7;margin-right: 0px;" ng-show="oprationAttributeNew.AttributeProperty=='@Html.Raw(AttributePropertiesEnum.Alphanumeric.ToString())'">
+                        <label class="col-sm-4 control-label">Fixed (No Of Character)</label>
+                        <div class="col-sm-1">
+                            <div class="checkbox-site">
+                                <label class="control-label">
+                                    <input type="checkbox" ng-model="oprationAttributeNew.IsFixedNoOfCharacter">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div show-errors>
+                            <label class="col-sm-4 control-label">No. of Character<sup>*</sup></label>
+                            <div class="col-sm-3 show-message">
+                                <input type="text" name="NoOfCharacter" only-numbers ng-model="oprationAttributeNew.NoOfCharacter" class="form-control text-right" ng-required="oprationAttributeNew.AttributeProperty=='@Html.Raw(AttributePropertiesEnum.Alphanumeric.ToString())'" tabindex="8">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="addAttribute();" class="btn" tabindex="47"><i class="glyphicon glyphicon-plus"></i> {{attributeAction}}</button></li>
+                        <li><button ng-click="clearAttribute();" class="btn" tabindex="48"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        <li><button ng-click="closeAttribute();" class="btn" tabindex="49"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

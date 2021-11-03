@@ -1,0 +1,742 @@
+﻿<togglable name="{{title}}"></togglable>
+<style>
+
+    .filled {
+        background-color: #ff0000 !important;
+    }
+</style>
+<div class="form-elements form-horizontal" ng-form name="CropMasterForm">
+    @*<div class="row" ng-form name="General">
+        <input type="hidden" ng-model="CropMaster.Id">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Sequence" ej-numerictextbox e-decimalplaces="2" e-minvalue="1" e-enablertl="false" e-value="CropMaster.Sequence" e-width="100" required tabindex="1" />
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Short Name" ng-model="CropMaster.ShortName" class="form-control" required tabindex="3" maxlength="15">
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="User Name" ng-model="CropMaster.UserName" class="form-control" required tabindex="5" maxlength="50">
+                </div>
+            </div>
+
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Category<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="CropMaster.CropCategoryId" name="Category"
+                                ng-options="item.Value as item.Text for item in CropCategoryList" required tabindex="7">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Sub-Category<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="CropMaster.CropSubCategoryId" name="Sub Category"
+                                ng-options="item.Value as item.Text for item in CropSubCategoryList" required tabindex="9">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Area UOM<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="CropMaster.AreaUOMId" name="Area UOM"
+                                ng-options="item.Value as item.Text for item in AreaUOMList" required tabindex="11">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Output UOM<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="CropMaster.OutputUOMId" name="Output UOM"
+                                ng-options="item.Value as item.Text for item in OutputUOMList" required tabindex="13">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Responsible Person"><span>Responsible Person</span></label>
+                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                    <span class="input-group-addon" ng-class="{filled:CropMaster.EmployeeStatus==='Separated'}">{{CropMaster.EmployeeCode}}</span>
+                    <input type="text" ng-model="CropMaster.ResponsiblePerson" class="form-control" readonly ng-class="{filled:CropMaster.EmployeeStatus==='Separated'}">
+                    <span class="input-group-btn">
+                        <button ng-click="ResponsiblePersonPopUp()" tabindex="15" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="ResponsiblePersonClear()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Transaction Type<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="CropMaster.TransactionTypeId" name="Transaction Type"
+                                ng-options="item.Value as item.Text for item in TransactionTypeList" required tabindex="17">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Code" ng-model="CropMaster.Code" class="form-control" maxlength="10" required tabindex="2">
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Standard Name" ng-model="CropMaster.StandardName" class="form-control" required tabindex="4" maxlength="50">
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Minimum Output<sup>*</sup></label>
+                <div class="col-sm-8  show-message">
+                    <input type="text" name="Minimum Output" ng-model="CropMaster.MinimumOutput" class="form-control" required tabindex="6" maxlength="50">
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Maximum Output<sup>*</sup></label>
+                <div class="col-sm-8  show-message">
+                    <input type="text" name="Maximum Output" ng-model="CropMaster.MaximumOutput" class="form-control" required tabindex="8" maxlength="50">
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Average Output<sup>*</sup></label>
+                <div class="col-sm-8  show-message">
+                    <input type="text" name="Average Output" ng-model="CropMaster.AverageOutput" class="form-control" required tabindex="10" maxlength="50">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Maximum Rate</label>
+                <div class="col-sm-8">
+                    <input type="text" ng-model="CropMaster.MaximumRate" class="form-control" tabindex="12" maxlength="50">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Minimum Rate</label>
+                <div class="col-sm-8">
+                    <input type="text" ng-model="CropMaster.MinimumRate" class="form-control" tabindex="14" maxlength="50">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Average Rate</label>
+                <div class="col-sm-8">
+                    <input type="text" ng-model="CropMaster.AverageRate" class="form-control" tabindex="16" maxlength="50">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Remarks</label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" ng-model="CropMaster.Remarks" tabindex="18" maxlength="250"></textarea>
+                </div>
+            </div>
+
+        </div>
+        <br />
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Save()" class="btn" tabindex="19"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="20"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear()" class="btn" tabindex="21"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+    </div>*@
+    <confirm-modal></confirm-modal>
+
+    <div class="row">
+        <div class="form-elements form-horizontal" ng-form id="QMTab">
+            <div class="tab-design" id="tab_show">
+
+                <div class="site-tab">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="processconstraints" role="tab" data-toggle="tab">Process Constraints</a></li>
+                        <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="resourcesconstraints" role="tab" data-toggle="tab">Resources Constraints</a></li>
+                    </ul>
+                </div>
+
+                <div class="tab-content">
+
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+
+                        <div class="row">
+
+                            <div ng-form name="processconstraintsForm" class="form-horizontal form-element-ctrl">
+
+                                <div class="form-elements">
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Effective Date From<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <input type="text" ng-model="ProcessConstraints.EffectiveDateFrom" datepicker class="form-control" name="Effective Date From" required tabindex="1">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Effective Date To<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <input type="text" ng-model="ProcessConstraints.EffectiveDateTo" datepicker class="form-control" name="Effective Date To" required tabindex="2">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Process Name<sup>*</sup> </label>
+                                            <div class="col-sm-8 show-message">
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="ProcessConstraints.ProcessNameId" name="Process Name"
+                                                            ng-options="item.Value as item.Text for item in ProcessNameList" required tabindex="3">
+                                                        <option value="">--Select--</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="clearfix"></div>
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Entity Name</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" ng-model="ProcessConstraints.EntityName" class="form-control" tabindex="4" maxlength="50">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Work Center Name</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" ng-model="ProcessConstraints.WorkCenterName" class="form-control" tabindex="5" maxlength="50">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Working Hours/ Day</label>
+                                            <div class="col-sm-8">
+                                                <input type="number" ng-model="ProcessConstraints.WorkingHoursPerDay" class="form-control" tabindex="6" maxlength="15">
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="clearfix"></div>
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Working Days/ Week</label>
+                                            <div class="col-sm-8">
+                                                <input type="number" ng-model="ProcessConstraints.WorkingDaysPerWeek" class="form-control" tabindex="7" maxlength="15">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Working Hours/ Week</label>
+                                            <div class="col-sm-8">
+                                                <input type="number" ng-model="ProcessConstraints.WorkingHoursPerWeek" class="form-control" tabindex="8" maxlength="15">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Working Days/ Month</label>
+                                            <div class="col-sm-8">
+                                                <input type="number" ng-model="ProcessConstraints.WorkingDaysPerMonth" class="form-control" tabindex="9" maxlength="15">
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="clearfix"></div>
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Working Hours/ Month</label>
+                                            <div class="col-sm-8">
+                                                <input type="number" ng-model="ProcessConstraints.WorkingHoursPerMonth" class="form-control" tabindex="10" maxlength="15">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Capacity UOM</label>
+                                            <div class="col-sm-8">
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="ProcessConstraints.CapacityUOMId" name="Capacity UOM"
+                                                            ng-options="item.Value as item.Text for item in CapacityUOMList" tabindex="11">
+                                                        <option value="">--Select--</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Capacity/ Day</label>
+                                            <div class="col-sm-8">
+                                                <input type="number" ng-model="ProcessConstraints.CapacityPerDay" class="form-control" tabindex="12" maxlength="15">
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="clearfix"></div>
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Capacity/ Week</label>
+                                            <div class="col-sm-8">
+                                                <input type="number" ng-model="ProcessConstraints.CapacityPerWeek" class="form-control" tabindex="13" maxlength="15">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Capacity/ Month</label>
+                                            <div class="col-sm-8">
+                                                <input type="number" ng-model="ProcessConstraints.CapacityPerMonth" class="form-control" tabindex="14" maxlength="15">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label" title="Responsible Person"><span>Responsible Person</span></label>
+                                            <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                                                <span class="input-group-addon" ng-class="{filled:ProcessConstraints.EmployeeStatus==='Separated'}">{{ProcessConstraints.EmployeeCode}}</span>
+                                                <input type="text" ng-model="ProcessConstraints.ResponsiblePerson" class="form-control" readonly ng-class="{filled:ProcessConstraints.EmployeeStatus==='Separated'}">
+                                                <span class="input-group-btn">
+                                                    <button ng-click="ResponsiblePersonPopUp()" tabindex="15" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                    <button ng-click="ResponsiblePersonClear()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="clearfix"></div>
+
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Remarks</label>
+                                            <div class="col-sm-8">
+                                                <textarea class="form-control" ng-model="ProcessConstraints.Remarks" tabindex="16" maxlength="250"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="common-btn">
+                                    <ul class="list-inline text-right">
+                                        <li> <button ng-click="Save()" class="btn" tabindex="17"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                                        <li> <button ng-click="Clear()" class="btn" tabindex="18"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-xs-12">
+                                <div style="color:black;" id="ProcessConstraintsTab" ej-grid e-datasource="SelectedProcessConstraintsTabList"
+                                     e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                     e-allowselection="true" e-filtersettings-filterType="excel" e-recorddoubleclick="Get">
+                                    <div e-columns>
+                                        <div e-column e-type="string" e-field="EffectiveDateFrom" e-headertext="Effective Date From" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="EffectiveDateTo" e-headertext="Effective Date To" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="Process" e-headertext="Process Name" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="EntityName" e-headertext="Entity Name" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="WorkCenterName" e-headertext="Work Center" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="WorkingHoursPerDay" e-headertext="Working Hours/ Day" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="WorkingDaysPerWeek" e-headertext="Working Days/ Week" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="WorkingHoursPerWeek" e-headertext="Working Hours/ Week" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="WorkingDaysPerMonth" e-headertext="Working Days/ Month" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="WorkingHoursPerMonth" e-headertext="Working Hours/ Month" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="CapacityUOM" e-headertext="Capacity UOM" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="CapacityPerDay" e-headertext="Capacity/ Day" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="CapacityPerWeek" e-headertext="Capacity/ Week" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="CapacityPerMonth" e-headertext="Capacity/ Month" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="ResponsiblePerson" e-headertext="Responsible Person" e-width="30"></div>
+                                        <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="20"></div>
+
+
+                                        <div e-column e-template="#DeleteProcessConstraintsTab" e-width="15"></div>
+                                    </div>
+                                </div>
+
+                                <script type="text/template" id="DeleteProcessConstraintsTab">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li><button ng-click="$parent.ConfirmDeleteProcessConstraintsTab(data.Id);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
+                                        </ul>
+                                    </div>
+                                </script>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+
+                        <div class="row">
+
+                            <div ng-form name="resourcesconstraintsForm" class="form-horizontal form-element-ctrl">
+
+                                <div class="form-elements">
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Effective Date From<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <input type="text" ng-model="ResourcesConstraints.EffectiveDateFrom" datepicker class="form-control" name="Effective Date From" required tabindex="19">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Effective Date To<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <input type="text" ng-model="ResourcesConstraints.EffectiveDateTo" datepicker class="form-control" name="Effective Date To" required tabindex="20">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Process Name<sup>*</sup> </label>
+                                            <div class="col-sm-8 show-message">
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="ResourcesConstraints.ProcessNameId" name="Process Name"
+                                                            ng-options="item.Value as item.Text for item in ProcessList" required tabindex="21">
+                                                        <option value="">--Select--</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="clearfix"></div>
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Resource Name</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" ng-model="ResourcesConstraints.ResourcesName" class="form-control" tabindex="22" maxlength="50">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Entity Name</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" ng-model="ResourcesConstraints.EntityName" class="form-control" tabindex="23" maxlength="50">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Work Center Name</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" ng-model="ResourcesConstraints.WorkCenterName" class="form-control" tabindex="24" maxlength="50">
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
+
+                                    <div class="clearfix"></div>
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Working Hours/ Day</label>
+                                            <div class="col-sm-8">
+                                                <input type="number" ng-model="ResourcesConstraints.WorkingHoursPerDay" class="form-control" tabindex="25" maxlength="15">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Working Days/ Week</label>
+                                            <div class="col-sm-8">
+                                                <input type="number" ng-model="ResourcesConstraints.WorkingDaysPerWeek" class="form-control" tabindex="26" maxlength="15">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Working Hours/ Week</label>
+                                            <div class="col-sm-8">
+                                                <input type="number" ng-model="ResourcesConstraints.WorkingHoursPerWeek" class="form-control" tabindex="27" maxlength="15">
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
+
+                                    <div class="clearfix"></div>
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Working Days/ Month</label>
+                                            <div class="col-sm-8">
+                                                <input type="number" ng-model="ResourcesConstraints.WorkingDaysPerMonth" class="form-control" tabindex="28" maxlength="15">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Working Hours/ Month</label>
+                                            <div class="col-sm-8">
+                                                <input type="number" ng-model="ResourcesConstraints.WorkingHoursPerMonth" class="form-control" tabindex="29" maxlength="15">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Capacity UOM</label>
+                                            <div class="col-sm-8">
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="ResourcesConstraints.CapacityUOMId" name="Capacity UOM"
+                                                            ng-options="item.Value as item.Text for item in CapacityList" tabindex="30">
+                                                        <option value="">--Select--</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
+
+                                    <div class="clearfix"></div>
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Capacity/ Day</label>
+                                            <div class="col-sm-8">
+                                                <input type="number" ng-model="ResourcesConstraints.CapacityPerDay" class="form-control" tabindex="31" maxlength="15">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Capacity/ Week</label>
+                                            <div class="col-sm-8">
+                                                <input type="number" ng-model="ResourcesConstraints.CapacityPerWeek" class="form-control" tabindex="32" maxlength="15">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Capacity/ Month</label>
+                                            <div class="col-sm-8">
+                                                <input type="number" ng-model="ResourcesConstraints.CapacityPerMonth" class="form-control" tabindex="33" maxlength="15">
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="clearfix"></div>
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label" title="Responsible Person"><span>Responsible Person</span></label>
+                                            <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                                                <span class="input-group-addon" ng-class="{filled:ResourcesConstraints.EmployeeStatusResCons==='Separated'}">{{ResourcesConstraints.EmployeeCodeResCons}}</span>
+                                                <input type="text" ng-model="ResourcesConstraints.ResponsiblePersonResCons" class="form-control" readonly ng-class="{filled:ResourcesConstraints.EmployeeStatusResCons==='Separated'}">
+                                                <span class="input-group-btn">
+                                                    <button ng-click="ResponsiblePersonPopUpResCons()" tabindex="34" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                    <button ng-click="ResponsiblePersonClearResCons()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Remarks</label>
+                                            <div class="col-sm-8">
+                                                <textarea class="form-control" ng-model="ResourcesConstraints.Remarks" tabindex="35" maxlength="250"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="common-btn">
+                                    <ul class="list-inline text-right">
+                                        <li> <button ng-click="SaveResourcesConstraints()" class="btn" tabindex="36"><i class="glyphicon glyphicon-floppy-disk"></i> {{ActionResConst}}</button></li>
+                                        <li> <button ng-click="ClearResourcesConstraints()" class="btn" tabindex="37"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-xs-12">
+                                <div style="color:black;" id="ResourcesConstraintsTab" ej-grid e-datasource="SelectedResourcesConstraintsTabList"
+                                     e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                     e-allowselection="true" e-filtersettings-filterType="excel" e-recorddoubleclick="GetResourcesConstraints">
+                                    <div e-columns>
+                                        <div e-column e-type="string" e-field="EffectiveDateFrom" e-headertext="Effective Date From" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="EffectiveDateTo" e-headertext="Effective Date To" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="Process" e-headertext="Process Name" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="ResourcesName" e-headertext="Resources Name" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="EntityName" e-headertext="Entity Name" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="WorkCenterName" e-headertext="Work Center" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="WorkingHoursPerDay" e-headertext="Working Hours/ Day" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="WorkingDaysPerWeek" e-headertext="Working Days/ Week" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="WorkingHoursPerWeek" e-headertext="Working Hours/ Week" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="WorkingDaysPerMonth" e-headertext="Working Days/ Month" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="WorkingHoursPerMonth" e-headertext="Working Hours/ Month" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="CapacityUOM" e-headertext="Capacity UOM" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="CapacityPerDay" e-headertext="Capacity/ Day" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="CapacityPerWeek" e-headertext="Capacity/ Week" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="CapacityPerMonth" e-headertext="Capacity/ Month" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="ResponsiblePersonResCons" e-headertext="Responsible Person" e-width="30"></div>
+                                        <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="20"></div>
+
+
+                                        <div e-column e-template="#DeleteResourcesConstraintsTab" e-width="15"></div>
+                                    </div>
+                                </div>
+
+                                <script type="text/template" id="DeleteResourcesConstraintsTab">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li><button ng-click="$parent.ConfirmDeleteResourcesConstraintsTab(data.Id);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
+                                        </ul>
+                                    </div>
+                                </script>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<div class="modal fade site-modal in" id="EmployeePopUpResPerson" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> Responsible Person List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="GridEmployeeResPerson" ej-grid e-datasource="EmpResPersonList"
+                             e-allowfiltering="true" e-recorddoubleclick="setEmpData" e-allowpaging="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+
+                                <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="40"></div>
+                                <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee Name" e-width="140"></div>
+                                <div e-column e-type="string" e-field="PositionName" e-headertext="Position" e-width="140"></div>
+                                <div e-column e-type="string" e-field="Designation" e-headertext="Designation" e-width="80"></div>
+                                <div e-column e-type="string" e-field="DepartmentName" e-headertext="Department Name" e-width="80"></div>
+                                <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="80"></div>
+                                <div e-column e-type="string" e-field="SubSection" e-headertext="Sub Section" e-width="80"></div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+
+                            <button ng-click="closeEmpResPersonPopUp('EmployeePopUpResPerson');" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="modal fade site-modal in" id="EmployeePopUpResPersonResCons" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> Responsible Person List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="GridEmployeeResPersonResCons" ej-grid e-datasource="EmpResPersonListResCons"
+                             e-allowfiltering="true" e-recorddoubleclick="setEmpDataResCons" e-allowpaging="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+
+                                <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="40"></div>
+                                <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee Name" e-width="140"></div>
+                                <div e-column e-type="string" e-field="PositionName" e-headertext="Position" e-width="140"></div>
+                                <div e-column e-type="string" e-field="Designation" e-headertext="Designation" e-width="80"></div>
+                                <div e-column e-type="string" e-field="DepartmentName" e-headertext="Department Name" e-width="80"></div>
+                                <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="80"></div>
+                                <div e-column e-type="string" e-field="SubSection" e-headertext="Sub Section" e-width="80"></div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+
+                            <button ng-click="closeEmpResPersonPopUpResCons('EmployeePopUpResPersonResCons');" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<confirm-archive-generic modalid="DeleteProcessConstraintsTabPopUp" title="Confirmation" message="Are you sure want to Delete?" data-ng-click-right-button="DeleteProcessConstraints();"></confirm-archive-generic>
+<confirm-archive-generic modalid="DeleteResourceConstTabPopUp" title="Confirmation" message="Are you sure want to Delete?" data-ng-click-right-button="DeleteResourceConst();"></confirm-archive-generic>

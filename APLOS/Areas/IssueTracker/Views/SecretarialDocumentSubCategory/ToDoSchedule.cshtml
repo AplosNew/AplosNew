@@ -1,0 +1,217 @@
+﻿<div class="row text-right">
+    <div class="form-horizontal" ng-form>
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="form-group" show-errors>
+                <label class="col-sm-2 control-label" style="text-align:left">Repeat: </label>
+                <div class="col-sm-3 col-md-3 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-change="checkRepeatedStatus()" ng-model="taskSchedule.RepeatType" name="Repeat">
+                            <option value="Daily">Daily</option>
+                            <option value="Weekly">Weekly</option>
+                            <option value="Monthly">Monthly</option>
+                            <option value="Yearly">Yearly</option>
+                            <option value="Every">Every WeekDay</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="col-xs-12 col-sm-12" ng-hide="taskSchedule.EveryWeekDay">
+            <div class="form-group" show-errors>
+                <label class="col-sm-2 control-label" style="text-align:left">Every: </label>
+                <div class="col-sm-2" show-errors style="display:inline-block">
+                    <input type="text" e-enabled="true" ej-numerictextbox e-decimalplaces="0" e-enablertl="false" e-minvalue="1" e-value="taskSchedule.EveryInterval" e-width="100" />
+                </div>
+                <div class="col-sm-2" style="text-align:left; padding-left:0px;">{{EveryRepeatedFlag}}(s)</div>
+            </div>
+
+        </div>
+        <div ng-show="taskSchedule.isWeekly" class="col-xs-12 col-sm-12">
+            <div class="form-group" show-errors>
+                <label class="col-sm-2 control-label" style="text-align:left">Repeat on: </label>
+                <div ng-repeat="NewDay in dayList">
+                    <div class="form-check col-sm-1">
+                        <input ng-model="NewDay.isChecked" ng-change="checkSelectedWeeks()" type="checkbox" class="form-check-input" id="{{NewDay.day}}">
+                        <label class="form-check-label" for="{{NewDay.day}}">{{NewDay.day}}</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div ng-hide="(taskSchedule.isDaily == true || taskSchedule.EveryWeekDay == true || taskSchedule.isWeekly == true)" class="col-xs-12 col-sm-12">
+            <div class="form-group" show-errors>
+                <label class="col-sm-2 control-label" style="text-align:left;">Repeat by: </label>
+                <div ng-hide="(taskSchedule.isYearly == true || taskSchedule.isDaily== true || taskSchedule.EveryWeekDay == true)" class="form-check col-sm-1" style="text-align:center">
+                    <input class="form-check-input" type="radio" name="monthly" id="isRepeatByDay" ng-model="taskSchedule.isRepeatByDay" ng-value="true" ng-checked="taskSchedule.isRepeatByDay" ng-click="ChangeToRepeatByDay()">
+                    @*<input e-type="radiobutton" id="isRepeatByDay" name="radioButton1" e-checked="taskSchedule.isRepeatByDay"  ej-radiobutton e-value="taskSchedule.isRepeatByDay" e-change="ChangeToRepeatByDay" />*@
+                    <label class="form-check-label" for="isRepeatByDay">
+                        Day
+                    </label>
+                </div>
+                <div ng-show="taskSchedule.isYearly" class="form-check col-sm-1" style="text-align:left;">
+                    <input class="form-check-input" type="radio" name="yearly" id="isRepeatByTheMonth" ng-model="taskSchedule.isRepeatByTheMonth" ng-checked="taskSchedule.isRepeatByTheMonth" ng-value="true" ng-click="ChangeToRepeatByTheMonth()">
+                    @*<input e-type="radiobutton" id="isRepeatByTheMonth" name="radioButton2" ej-radiobutton e-value="taskSchedule.isRepeatByTheMonth" e-change="ChangeToRepeatByTheMonth" />*@
+                    <label class="form-check-label" for="isRepeatByTheMonth">
+                        The
+                    </label>
+                </div>
+                <div ng-show="taskSchedule.isYearly">
+                    <div class="col-sm-2 col-md-2 show-message">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="taskSchedule.RepeatByMonth" name="Repeat" required tabindex="9">
+                                <option value="January">January</option>
+                                <option value="February">February</option>
+                                <option value="March">March</option>
+                                <option value="April">April</option>
+                                <option value="May">May</option>
+                                <option value="June">June</option>
+                                <option value="July">July</option>
+                                <option value="August">August</option>
+                                <option value="September">September</option>
+                                <option value="October">October</option>
+                                <option value="November">November</option>
+                                <option value="December">December</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <!--Days-->
+                <div class="col-sm-1" show-errors style="display:inline-block">
+                    <input type="text" e-enabled="true" ej-numerictextbox e-decimalplaces="0" e-enablertl="false" e-minvalue="1" e-maxvalue="31" e-value="taskSchedule.RepeatByDayNumber" e-width="100" />
+                </div>
+            </div>
+        </div>
+        <div ng-hide="(taskSchedule.isDaily == true || taskSchedule.EveryWeekDay == true || taskSchedule.isWeekly == true)" class="col-xs-12 col-sm-12">
+            <div class="form-group" show-errors>
+                <div ng-hide="!(taskSchedule.isYearly)" class="form-check col-sm-1 col-sm-offset-2" style="text-align:left">
+                    <input class="form-check-input" type="radio" name="yearly" id="isRepeatByTheNthWeekForYearly" ng-model="taskSchedule.isRepeatByTheNthWeekForYearly" ng-checked="taskSchedule.isRepeatByTheNthWeekForYearly" ng-value="true" ng-click="ChangeToRepeatByTheNthWeekForYearly()">
+
+                    <label class="form-check-label" for="isRepeatByTheNthWeek">
+                        The
+                    </label>
+                </div>
+                <div ng-hide="taskSchedule.isYearly" class="form-check col-sm-1 col-sm-offset-2" style="text-align:left">
+                    <input class="form-check-input" type="radio" name="monthly" id="isRepeatByTheNthWeekForMonthly" ng-model="taskSchedule.isRepeatByTheNthWeekForMonthly" ng-checked="taskSchedule.isRepeatByTheNthWeekForMonthly" ng-value="true" ng-click="ChangeToRepeatByTheNthWeekForMonthly()">
+
+                    <label class="form-check-label" for="isRepeatByTheNthWeekForMonthly">
+                        The
+                    </label>
+                </div>
+                <!--interval for repeatType weekly-->
+                <div>
+                    <div class="col-sm-2 col-md-2 show-message">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="taskSchedule.RepeatbyNthWeek" name="Repeat" required tabindex="9">
+                                <option value="First">First</option>
+                                <option value="Second">Second</option>
+                                <option value="Third">Third</option>
+                                <option value="Fourth">Fourth</option>
+                                <option value="LastWeekDay">Last</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="col-sm-2 col-md-2 show-message">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="taskSchedule.RepeatByWeek" name="Repeat" required tabindex="9">
+                                <option value="Sunday">Sunday</option>
+                                <option value="Monday">Monday</option>
+                                <option value="Tuesday">Tuesday</option>
+                                <option value="Wednesday">Wednesday</option>
+                                <option value="Thursday">Thursday</option>
+                                <option value="Friday">Friday</option>
+                                <option value="Saturday">Saturday</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div ng-show="taskSchedule.isYearly">
+                    <div class="col-sm-1" style="text-align:left">of</div>
+                    <div class="col-sm-2 col-md-2 show-message">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="taskSchedule.RepeatbyOfEarly" name="Repeat" required tabindex="9">
+                                <option value="January">January</option>
+                                <option value="February">February</option>
+                                <option value="March">March</option>
+                                <option value="April">April</option>
+                                <option value="May">May</option>
+                                <option value="June">June</option>
+                                <option value="July">July</option>
+                                <option value="August">August</option>
+                                <option value="September">September</option>
+                                <option value="October">October</option>
+                                <option value="November">November</option>
+                                <option value="December">December</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12">
+            <div class="form-group" show-errors>
+                <label class="col-sm-2 control-label" style="text-align:left">Start on: </label>
+                <div class="col-sm-3 col-md-3 show-message">
+                    <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="taskSchedule.StartDate" e-width="100%" />
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-12">
+            <div class="form-group" show-errors>
+                <label class="col-sm-2 control-label" style="text-align:left">Ends: </label>
+                <div class="form-check col-sm-3 col-md-3" style="text-align:left">
+                    <input class="form-check-input" style="text-align:left" type="radio" name="End" id="IsNever" ng-model="taskSchedule.IsNever" ng-checked="taskSchedule.IsNever" ng-value="true" ng-click="ChangeToNever()">
+                    <label class="form-check-label" for="IsNever">
+                        Never
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12">
+            <div class="form-group" show-errors>
+                <div class="form-check col-sm-3">
+                    <input class="form-check-input" type="radio" name="End" id="IsAfter" ng-model="taskSchedule.IsAfter" ng-checked="taskSchedule.IsAfter" ng-value="true" ng-click="ChangeToAfter()">
+                    <label class="form-check-label" for="IsAfter">
+                        After
+                    </label>
+
+                </div>
+                <div class="col-sm-2" show-errors>
+                    <input type="text" e-enabled="true" ej-numerictextbox e-decimalplaces="0" e-enablertl="false" e-minvalue="1" e-value="taskSchedule.AfterNoOfAccurence" e-width="100" />
+                </div>
+                <div class="col-sm-3" style="text-align:left">
+                    Occurrence(s)
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12">
+
+            <div class="form-group" show-errors>
+                <div class="form-check col-sm-1 col-sm-offset-2" style="text-align:left">
+                    <input class="form-check-input" type="radio" name="End" id="IsOn" ng-model="taskSchedule.IsOn" ng-value="true" ng-checked="taskSchedule.IsOn" ng-click="ChangeToOn()">
+                    <label class="form-check-label" for="IsOn">
+                        On
+                    </label>
+                </div>
+                <div class="col-sm-2 show-message">
+                    <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="taskSchedule.EndDate" e-width="100%" />
+                </div>
+
+            </div>
+        </div>
+      
+        <div class="modal-footer common-btn">
+            <div class="col-xs-12 col-sm-6 text-left">
+                <input type="checkbox" e-value="taskSchedule.OnPreviousAccomplishment" e-checked="taskSchedule.OnPreviousAccomplishment" ej-checkbox class="nodetext" />
+                <span>Generate task only after accomplishment of previous task</span>
+            </div>
+            <div class="col-xs-12 col-sm-6">
+                <button ng-click="SaveReccuringData()" class="btn" tabindex="6"><i class="glyphicon glyphicon-floppy-disk"></i> Done  </button>
+                <button ng-click="hideSchedulerPopUp()" class="btn"><i class=""></i> Cancel </button>
+            </div>
+
+        </div>
+    </div>
+</div>

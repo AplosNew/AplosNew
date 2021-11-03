@@ -1,0 +1,162 @@
+﻿<style>
+    .e-filterset:before {
+        color: white;
+    }
+
+    .e-gridheader .e-headercell { /* grid header color and grid row select color*/
+        background-color: #1c1f32;
+        color: White;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+        font-size: 10px;
+    }
+
+    .e-grid .e-rowcell {
+        line-height: 25px;
+        /*font-size: 14px;*/
+        padding: 0px 2px 0px 2px;
+    }
+
+    element.style {
+        height: 20px;
+        width: 50px;
+    }
+
+    .e-grid .e-headercelldiv {
+        font-size: 12px;
+        height: 24px;
+        line-height: 14px;
+    }
+</style>
+<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> Salary Head</h3>
+<div id="salaryHead" class="form-elements form-horizontal" ng-form name="salaryHeadForm">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="number" name="Sequence" ng-model="salaryHeadNew.Sequence" class="form-control" required tabindex="1">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Salary Head Type<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select ng-model="salaryHeadNew.HeadType" class="form-control" name="Salary Head Type" tabindex="3" ng-change="HeadTypeChange()" required>
+                        <option value="">--Select--</option>
+                        <option value="Earning">Earning</option>
+                        <option value="Deduction">Deduction</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Salary Head Category</label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    <select id="HeadCategory" ng-model="salaryHeadNew.HeadCategory" class="form-control" name="Salary Head Category" ng-options="item.Value as item.Text for item in headCategoryList" ng-change="getDisable();" tabindex="5">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Is Gross Component</label>
+            <div class="col-sm-2">
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" ng-model="salaryHeadNew.IsGrossComponent" ng-disabled="disabledIsGrossComponent" ng-change="IsGrossComponentChange()">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+            <label class="col-sm-4 control-label">External Data Upload Applicable</label>
+            <div class="col-sm-2">
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" ng-model="salaryHeadNew.ExtDataUpload" ng-disabled="disabledExternalDataUpload">
+                        <span class="cr" style="margin-top: 5px;"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Part Of Net Pay</label>
+            <div class="col-sm-2">
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" ng-model="salaryHeadNew.PartOfNetPay" ng-disabled="disabledNetpay" ng-click="CheckUnCheckIsRetained();">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+            <label class="col-sm-4 control-label">Is Retained</label>
+            <div class="col-sm-2">
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" ng-model="salaryHeadNew.IsRetained" ng-disabled="salaryHeadNew.PartOfNetPay===true">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Salary Head<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Salary Head" ng-model="salaryHeadNew.SalaryHead" class="form-control" required tabindex="2" maxlength="50">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Transaction Type</label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    <select class="form-control" ng-model="salaryHeadNew.TransactionType" name="Transaction Type">
+                        <option value="">--Select--</option>
+                        <option value="Dr.">Dr.</option>
+                        <option value="Cr.">Cr.</option>
+                        <option value="Both">Both</option>
+                        <option value="NotApplicable">Not Applicable</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Description</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" rows="3" ng-model="salaryHeadNew.Description" tabindex="4" maxlength="150"></textarea>
+            </div>
+        </div>
+        
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+    <div class="body-content" style="color:black">
+        <div id="Grid" ej-grid e-datasource="salaryHeadList" e-gridlines="vertical" e-allowfiltering="true" e-allowsorting="true" e-allowselection="true" e-filtersettings-filterType="excel">
+            <div e-columns>
+                <div e-column e-headertext="Actions" e-width="30">
+                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 28px;" class="btn"><i class="glyphicon glyphicon-pencil" ng-click="$parent.EditData($event);" style="margin: -4px;"></i></button>
+                </div>
+                <div e-column e-field="	SalaryHeadID" e-headertext="SalaryHeadID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false"></div>
+                <div e-column e-field="Sequence" e-headertext="Sequence" e-headertext-color="black" e-textalign="left" e-width="30"></div>
+                <div e-column e-field="SalaryHead" e-headertext="Salary Head" e-headertext-color="black" e-textalign="left" e-width="80"></div>
+                <div e-column e-field="Description" e-headertext="Description" e-width="100"></div>
+                <div e-column e-field="HeadType" e-headertext="Head Type" e-width="50"></div>
+                <div e-column e-field="HeadCategory" e-headertext="Head Category" e-width="80"></div>
+                <div e-column e-field="PartOfNetPay" e-headertext="Part Of Net Pay" e-width="40"></div>
+                <div e-column e-field="IsRetained" e-headertext="Is Retained" e-width="40"></div>
+                <div e-column e-field="IsGrossComponent" e-headertext="Is Gross Component" e-width="40"></div>
+                <div e-column e-field="ExtDataUpload" e-headertext="External Data Upload" e-width="50"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-modal></confirm-modal>

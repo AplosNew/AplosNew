@@ -1,0 +1,66 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> Late Deduction </h3>
+<div class="row">
+    <div class="col-md-3">
+        <input id="ddlYearList" e-watermarktext="Year" ej-dropdownlist e-datasource="yearList" e-enablefiltersearch="true"  e-value="year" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+
+
+    </div>
+    <div class="col-md-3">
+        <input id="ddlMonthList" e-watermarktext="Month" ej-dropdownlist e-datasource="monthList" e-enablefiltersearch="true" e-value="month" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+
+
+    </div>
+    <div class="col-md-6">
+
+
+    </div>
+
+</div>
+<br />
+<div class="row">
+
+    <div class="col-md-12">
+
+        <div class="form-group row">
+            <label class="col-sm-4 col-form-label">Basic of single day will be deducted for every </label>
+            <div class="col-sm-2">
+                <input id="ddldayList" e-watermarktext="Day" ej-dropdownlist e-datasource="dayList" e-enablefiltersearch="true" e-value="day" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+
+            </div>
+            <label for="inputEmail3" class="col-sm-6 col-form-label">days</label>
+
+
+
+        </div>
+    </div>
+
+
+    
+</div>
+<br />
+<div class="row">
+
+    <div class="col-md-10">
+
+        <div class="form-group row">
+            <label class="col-sm-5 col-form-label">Per Day Basic is determined by dividing monthly Basic by </label>
+            <div class="col-sm-2" style="margin-right:0px;padding-right:0px">
+                <input id="ddlworkingdayList" e-watermarktext="WorkingDay" ej-dropdownlist e-datasource="workingdayList" e-enablefiltersearch="true" e-value="workingday" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+
+            </div>
+            <label for="inputEmail3" class="col-sm-5 col-form-label"></label>
+
+
+
+        </div>
+    </div>
+
+
+    <div class="col-md-2">
+        <div class="form-group alignright">
+            <div class="common-btn">
+                <button ng-click="GetData();" class="btn"> <i class="glyphicon glyphicon-download"></i> Download</button>
+            </div>
+        </div>
+    </div>
+</div>

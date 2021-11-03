@@ -1,0 +1,631 @@
+﻿<togglable name="Sample Packing List"></togglable>
+<div class="form-horizontal form-elements row" ng-form name="samplePackingNewForm">
+    <input type="hidden" ng-model="samplePackingNew.Id">
+	<div class="col-xs-12 col-sm-6 col-md-6">
+		<div class="form-group" show-errors>
+			<label class="col-sm-4 control-label">Customer<sup>*</sup></label>
+			<div class="col-sm-8 show-message">
+				<div class="input-group">
+					<input type="text" name="PartyName" ng-model="samplePackingNew.PartyName" class="form-control" readonly required>
+					<span class="input-group-btn">
+						<button ng-click="getCustomerPopUp();" ng-disabled="" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
+						<button ng-click="clearCustomer()" ng-disabled="" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+					</span>
+				</div>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-4 control-label">Ship To</label>
+			<div class="col-sm-8">
+				<div class="select-style">
+					<select class="form-control" ng-model="samplePackingNew.DeliveryPartyPlantId" ng-options="item.Value as item.Text for item in partyPlantList| filter:{ PartyId: x.PartyId }" ng-change="billShippAddress(samplePackingNew.DeliveryPartyPlantId,'shipTo')">
+						<option value=""></option>
+					</select>
+				</div>
+				<p>{{samplePackingNew.DeliveryState}}</p>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-4 control-label">Shipping by Address</label>
+			<div class="col-sm-8">
+				<textarea type="text" rows="3" ng-model="samplePackingNew.DeliveryByAddress" class="form-control"></textarea>
+			</div>
+		</div>
+		<div class="form-group" show-errors>
+			<label class="col-sm-4 control-label">Pending Qty<sup>*</sup></label>
+			<div class="col-sm-8 show-message">
+				<input type="text" n-decimals="2" name="Pending Qty" ng-disabled="samplePackingNew.PartyName==null" ng-model="samplePackingNew.PendingQty" class="form-control text-right" tabindex="5" required>
+			</div>
+		</div>
+	</div>
+	<div class="col-xs-12 col-sm-6 col-md-6">
+		<div class="form-group" show-errors>
+			<label class="col-sm-4 control-label">Packing Date<sup>*</sup></label>
+			<div class="col-sm-8 show-message">
+				<input type="text" name="Date" ng-disabled="samplePackingNew.PartyName==null" ng-model="samplePackingNew.PackingDate" datepicker class="form-control" tabindex="2">
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-4 col-md-4 control-label">Bill To</label>
+			<div class="col-sm-8">
+				<div class="select-style">
+					<select ng-model="samplePackingNew.InvoicingPartyPlantId" class="col-sm-3 form-control" ng-options="item.Value as item.Text for item in partyPlantList| filter:{ PartyId: x.PartyId }" ng-change="billShippAddress(samplePackingNew.InvoicingPartyPlantId,'billTo')">
+						<option value=""></option>
+					</select>
+				</div>
+				<p>{{samplePackingNew.InvoicingState}}</p>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-4 control-label">Billing Address</label>
+			<div class="col-sm-8">
+				<textarea type="text" rows="3" ng-model="samplePackingNew.InvoicingByAddress" class="form-control"></textarea>
+			</div>
+		</div>
+	</div>
+    <div class="clearfix"></div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="common-btn">
+            <ul class="list-inline text-left">
+                <li><button ng-click="packingPopUp();" class="btn" ng-disabled="samplePackingNew.Id==null">Add Packing Form</button></li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{samplePackingNew.Id==null?'Save':'Update'}}</button></li>
+                <li><button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="tab-design" id="tab_show">
+            <div class="site-tab">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" ng-class="{ active: isSetMain(1) }"><a ng-click="setTabMain(1)" href="" aria-controls="PackLessMaterial" role="tab" data-toggle="tab" ng-show="packLessMaterialList.length>0">Pack Less Material</a></li>
+                    <li role="presentation" ng-class="{ active: isSetMain(2) }"><a ng-click="setTabMain(2)" href="" aria-controls="Packing" role="tab" data-toggle="tab" ng-show="packingList.length>0">Packing</a></li>
+                    <li role="presentation" ng-class="{ active: isSetMain(3) }"><a ng-click="setTabMain(3)" href="" aria-controls="AllMaterial" role="tab" data-toggle="tab" ng-show="allMaterialList.length>0">Materials</a></li>
+                </ul>
+            </div>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetMain(1), active: isSetMain(1) }" ng-show="packLessMaterialList.length>0">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="table-responsive modal-table">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Action</th>
+                                            <th>Ref. DocNo</th>
+                                            <th>Material Group (Mst)</th>
+                                            <th>Material Master</th>
+                                            <th>SubMaterial</th>
+                                            <th>Detail</th>
+                                            <th>Order Qty</th>
+                                            <th>Packing Qty</th>
+                                            <th>Rate</th>
+                                            <th>Currency</th>
+                                            <th>DeliveryDate</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="x in packLessMaterialList">
+                                            <td class="text-center">
+                                                <ul class="list-inline action-list">
+                                                    <li><button ng-click="editPackLessMaterial(x,$index)" class="btn btn-action single-small-btn tooltip-here" data-placement="top" title="Edit"><i class="glyphicon glyphicon-pencil"></i></button></li>
+                                                    <li><button ng-click="deletePackLessMaterialModal(x,$index)" class="btn btn-action single-small-btn tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+                                                </ul>
+                                            </td>
+                                            <td>{{x.ReferenceDocNo}}</td>
+                                            <td>{{x.MaterialGroupMasterName}}</td>
+                                            <td>{{x.MaterialMasterName}}</td>
+                                            <td>{{x.SubMaterialName}}</td>
+                                            <td>{{x.Detail}}</td>
+                                            <td>{{x.OrderQty}} {{x.OrderUoM}}</td>
+                                            <td>{{x.Qty}} {{x.UoMName}}</td>
+                                            <td>{{x.Rate}}</td>
+                                            <td>{{x.CurrencyName}}</td>
+                                            <td>{{x.DeliveryDate|dateFiltering}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetMain(2), active: isSetMain(2) }" ng-show="packingList.length>0">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 table-responsive modal-table">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th style="width:10px;">Action</th>
+                                        <th>Packing Form No</th>
+                                        <th>Container Qty</th>
+                                        <th>Content Qty</th>
+                                        <th style="width:10px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in packingList">
+                                        <td class="text-center">
+                                            <ul class="list-inline action-list">
+                                                <li><button ng-click="editFirstForm(x.Id,x.SamplePackingListMaterialId);" class="btn btn-action tooltip-here" data-placement="top" title="Edit" tooltip><i class="glyphicon glyphicon-pencil"></i></button></li>
+                                                @*<li><button ng-click="deleteFirstForm(x,'packingList',$index);" class="btn btn-action tooltip-here" data-placement="top" title="Remove" tooltip><i class="glyphicon glyphicon-remove"></i></button></li>*@
+                                            </ul>
+                                        </td>
+                                        <td>{{x.PackingFormNo}}</td>
+                                        <td>{{x.ContainerQty}} {{x.PackingForm}}</td>
+                                        <td>{{x.ContentQty}} {{x.UoMName}}</td>
+                                        <td>
+                                            <ul class="list-inline action-list">
+                                                <li><button ng-click="getViewMaterial(x.Id,x.SamplePackingListMaterialId)" class="btn btn-action tooltip-here" data-placement="top" title="View Material" tooltip><i class="glyphicon glyphicon-eye-open"></i></button></li>
+                                                <li><button ng-click="secondFormPopup(x)" ng-disabled="x.Count<2" class="btn btn-action tooltip-here" data-placement="top" title="Second Form" tooltip><i class="glyphicon glyphicon-list"></i></button></li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetMain(3), active: isSetMain(3) }" ng-show="allMaterialList.length>0">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 table-responsive modal-table">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Ref. DocNo</th>
+                                        <th>Material Group (Mst)</th>
+                                        <th>Material Master</th>
+                                        <th>SubMaterial</th>
+                                        <th>Detail</th>
+                                        <th>Packing Qty</th>
+                                        <th>Rate</th>
+                                        <th>DeliveryDate</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in allMaterialList">
+                                        <td>{{x.ReferenceDocNo}}</td>
+                                        <td>{{x.MaterialGroupMasterName}}</td>
+                                        <td>{{x.MaterialMasterName}}</td>
+                                        <td>{{x.SubMaterialName}}</td>
+                                        <td>{{x.Detail}}</td>
+                                        <td>{{x.Qty}} {{x.UoMName}}</td>
+                                        <td>{{x.Rate}} {{x.CurrencyName}}</td>
+                                        <td>{{x.DeliveryDate|dateFiltering}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchMasterList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                @*<th>Plant</th>
+                    <th>Entity</th>
+                    <th>Sales Org.</th>*@
+                <th>Customer</th>
+                <th>Packing Date</th>
+                <th>Pending Qty</th>
+                <th>Billing Address</th>
+                <th>Shipping Address</th>
+                <th>Id</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in masterList|itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get(x.Id, $index);">
+                @*<td>{{x.Plant}}</td>
+                    <td>{{x.Entity}}</td>
+                    <td>{{x.SalesOrganisation}}</td>*@
+                <td>{{x.PartyName}}</td>
+                <td>{{x.PackingDate}}</td>
+                <td>{{x.PendingQty}}</td>
+                <td>{{x.InvoicingByAddress}}</td>
+                <td>{{x.DeliveryByAddress}}</td>
+                <td>{{x.Id}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10"
+                             direction-links="true"
+                             boundary-links="true"
+                             on-page-change="getData(newPageNumber)">
+    </dir-pagination-controls>
+</div>
+<confirm-modal></confirm-modal>
+<!-- #region Customer -->
+<modal-table modalid="customerPopUp"
+             data-title={{customerTitle}}
+             data-search-parameters="customerParameters"
+             data-exclued-column-list="excluedColumnList"
+             data-field-list="customerList"
+             data-data-list="customerDataList"
+             data-search-function="getCustomerData"
+             data-single-click="customerSingleClick(data)"
+             data-double-click="customerDoubleClick(data)"
+             data-right-button="true"
+             data-left-button="true"
+             data-ng-click-left-button="customerByButton()"
+             data-ng-click-cancel="closeCustomer()">
+</modal-table>
+<!-- #endregion -->
+<!-- #region First Packing Form -->
+<div class="modal fade site-modal in" id="firstPackingPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" style="width:1000px;">
+        <div class="modal-content">
+            <div class="modal-header">Packing Form <button type="button" class="close" ng-click="closePackingPopUp();">&times;</button></div>
+            <div class="modal-body form-element-ctrl">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li><button ng-click="getMaterialMasterPopUp();" class="btn" ng-disabled="packLess">Select Material</button></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="tab-design" id="tab_show">
+                    <div class="site-tab">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1);" href="" aria-controls="general" role="tab" data-toggle="tab">Material</a></li>
+                            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);checkUoMInMaterial(materialList,firstPackingList);" href="" aria-controls="address" role="tab" data-toggle="tab" ng-show="firstPackingNew.PackingForm!=null&&materialList.length>0">Packing Form</a></li>
+                        </ul>
+                    </div>
+                    <div class="tab-content">
+                        <input type="hidden" ng-model="samplePackingListMaterialId" />
+                        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                            <div class="row" ng-form name="packingListFormTab1">
+                                <div class="table-responsive modal-table col-xs-12 col-sm-12 col-md-12">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th ng-show="packLessCol">Action</th>
+                                                <th>Ref. DocNo</th>
+                                                <th>Material Group (Mst)</th>
+                                                <th>Material Master</th>
+                                                <th>SubMaterial</th>
+                                                <th>Detail</th>
+                                                <th>Sample</th>
+                                                <th>Req.Ref.Date</th>
+                                                <th>Order Qty</th>
+                                                <th>Balance Qty</th>
+                                                <th>Order UoM</th>
+                                                <th>Qty</th>
+                                                <th>UoM</th>
+                                                <th>Rate</th>
+                                                <th>DeliveryDate</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="x in materialList">
+                                                <td class="text-center" ng-show="packLessCol">
+                                                    <ul class="list-inline action-list">
+                                                        <li><button ng-click="deleteModal(x.MaterialMasterName,'materialList',$index)" class="btn btn-action single-small-btn tooltip-here" tooltip data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+                                                    </ul>
+                                                </td>
+                                                <td>{{x.ReferenceDocNo}}</td>
+                                                <td>{{x.MaterialGroupMasterName}}</td>
+                                                <td>{{x.MaterialMasterName}}</td>
+                                                <td>{{x.SubMaterialName}}</td>
+                                                <td>{{x.Detail}}</td>
+                                                <td>{{x.SampleSubMaterial}}</td>
+                                                <td>{{x.RequestReferenceDate}}</td>
+                                                <td>{{x.OrderQty}}</td>
+                                                <td>{{x.PendingQty}}</td>
+                                                <td>{{x.OrderUoM}}</td>
+                                                <td>
+                                                    <input type="text" n-decimals="2" class="form-control text-right" ng-model="x.Qty" ng-keyup="sumQty(materialList,x.Qty)"
+                                                           style="margin-bottom: -6px; margin-top: -6px;width:100px;" value="0">
+                                                </td>
+                                                <td>
+                                                    <div class="col-sm-12">
+                                                        <div class="select-style">
+                                                            <select class="form-control" ng-model="x.UoMId" ng-options="item.Value as item.Text for item in x.materialUoMList|orderBy:'Text'" style="width:100px;"></select>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>{{x.Rate}} {{x.CurrencyName}}</td>
+                                                <td>{{x.DeliveryDate|dateFiltering}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }" ng-show="firstPackingNew.PackingForm!=null&&materialList.length>0">
+                            <div class="row" ng-form name="packingListFormTab2">
+                                <div class="form-group col-xs-12 col-sm-12 col-md-12">
+                                    <div class="col-md-4" style="margin-left: -26px;">
+                                        <label class="col-sm-4 control-label">{{firstPackingNew.PackingForm}} No : </label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control" ng-model="firstPackingNew.PackingFormNo" ng-disabled="!firstPackingNew.IsSingleEntry">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="col-sm-4 control-label">{{firstPackingNew.PackingForm}} Qty : </label>
+                                        <div class="col-sm-8">
+                                            <input type="text" only-numbers class="form-control text-right" ng-model="firstPackingNew.ContainerQty" ng-disabled="firstPackingNew.IsSingleEntry">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="col-sm-4 control-label">Content Qty : </label>
+                                        <div class="col-sm-8 input-group ">
+                                            <input type="text" class="form-control text-right" ng-model="firstPackingNew.ContentQty">
+                                            <span class="input-group-btn">
+                                                <input type="text" class="col-xs-1 form-control text-right" ng-model="firstPackingNew.UoMName" readonly>
+                                                <button class="btn single-small-btn" ng-click="add1stList();" ng-disabled="firstPackingNew.PackingFormId==null">{{firstPackingNew.Id==null?'Add':'Update'}}</button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="table-responsive modal-table col-xs-12 col-sm-12 col-md-12">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Action</th>
+                                                <th>Packing FormNo</th>
+                                                <th>Container Qty</th>
+                                                <th>Packing Form</th>
+                                                <th>Content Qty</th>
+                                                <th>UoM</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="x in firstPackingList">
+                                                <td class="text-center">
+                                                    <ul class="list-inline action-list">
+                                                        <li><button ng-click="editFirstPackingList(x,$index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Edit"><i class="glyphicon glyphicon-pencil"></i></button></li>
+                                                        <li><button ng-click="deleteModal(x.PackingFormNo,'firstPackingList',$index)" class="btn btn-action single-small-btn tooltip-here" tooltip data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+                                                    </ul>
+                                                </td>
+                                                <td>{{x.PackingFormNo}}</td>
+                                                <td>{{x.ContainerQty}}</td>
+                                                <td>{{x.PackingForm}}</td>
+                                                <td>{{x.ContentQty}}</td>
+                                                <td>{{x.UoMName}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="SavePackingForm();" ng-disabled="materialList.length==0" ng-show="packLessCol" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{PackingAction}}</button></li>
+                        <li><button ng-click="UpdatePackLessMaterial();" ng-disabled="materialList.length==0" ng-show="!packLessCol" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{PackingAction}}</button></li>
+                        <li><button ng-click="closePackingPopUp();" class="btn">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion -->
+<!-- #region Material Master -->
+<div class="modal fade site-modal in" id="materialMasterPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Material Master<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-element-ctrl">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="materialMasterParameters.searchBy">
+                                            <option ng-repeat="option in searchMaterialMaster|orderBy :'name'" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="materialMasterParameters.search" ng-enter="getMaterialMasterData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getMaterialMasterData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Select</th>
+                                <th>Material Group (Mst)</th>
+                                <th>Code</th>
+                                <th>Material</th>
+                                <th>Article</th>
+                                <th>Detail</th>
+                                <th>Sample</th>
+                                <th>Ref.DocNo</th>
+                                <th>Req.Ref.Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in materialMasterDataList|itemsPerPage:materialMasterParameters.pageSize"
+                                total-items="materialMasterParameters.total_count" pagination-id="metaData.name + 'materialMasterDataList'">
+                                <td class="text-center">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="x.Flag" ng-checked="x.Flag" ng-click="selectMaterial($event,x,$index)">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>{{x.MaterialGroupMaster}}</td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.SubMaterial}}</td>
+                                <td>{{x.Detail}}</td>
+                                <td>{{x.SampleSubMaterial}}</td>
+                                <td>{{x.ReferenceDocNo}}</td>
+                                <td>{{x.RequestReferenceDate}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'materialMasterDataList'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getMaterialMasterData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="closeMaterialPopUp()" class="btn">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion -->
+<!-- #region 2nd Packing Form -->
+<div class="modal fade site-modal in" id="secondPackingPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" style="width:1000px;">
+        <div class="modal-content">
+            <div class="modal-header">Second Packing Form <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-element-ctrl">
+                <div class="col-xs-12 col-sm-12 col-md-12 form-group" style="color:red;">*The first packing form Quantity is <b>{{firstTotalQty}} {{fUoM}}</b></div>
+                <div class="form-group col-xs-12 col-sm-12 col-md-12">
+                    <div class="col-md-4" style="margin-left: -26px;">
+                        <label class="col-sm-4 control-label">{{secondPackingNew.PackingForm}} No : </label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" ng-model="secondPackingNew.PackingFormNo" ng-disabled="!secondPackingNew.IsSingleEntry">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="col-sm-4 control-label">{{secondPackingNew.PackingForm}} Qty : </label>
+                        <div class="col-sm-8">
+                            <input type="text" only-numbers class="form-control text-right" ng-model="secondPackingNew.ContainerQty" ng-disabled="secondPackingNew.IsSingleEntry">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="col-sm-4 control-label">Content Qty : </label>
+                        <div class="col-sm-8 input-group ">
+                            <input type="text" class="form-control text-right" ng-model="secondPackingNew.ContentQty">
+                            <span class="input-group-btn">
+                                <input type="text" class="col-xs-1 form-control text-right" ng-model="secondPackingNew.UoMName" readonly>
+                                <button class="btn single-small-btn" ng-click="addSecondList();">{{secondPackingNew.Id==null?'Add':'Update'}}</button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table col-xs-12 col-sm-12 col-md-12">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Action</th>
+                                <th>Packing FormNo</th>
+                                <th>Container Qty</th>
+                                <th>Packing Form</th>
+                                <th>Content Qty</th>
+                                <th>UoM</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in secondPackingList">
+                                <td class="text-center">
+                                    <ul class="list-inline action-list">
+                                        <li><button ng-click="edit2ndPackingList(x,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Edit"><i class="glyphicon glyphicon-pencil"></i></button></li>
+                                        <li><button ng-click="deleteModal('','secondPackingList',$index)" ng-disabled="x.Id==secondPackingNew.Id" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+                                    </ul>
+                                </td>
+                                <td>{{x.PackingFormNo}}</td>
+                                <td>{{x.ContainerQty}}</td>
+                                <td>{{x.PackingForm}}</td>
+                                <td>{{x.ContentQty}}</td>
+                                <td>{{x.UoMName}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right" style="padding-top:10px;">
+                        <li><button ng-click="saveSecondPackingForm()" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{SecondAction}}</button></li>
+                        <li><button ng-click="closeSecondPacking()" class="btn"> Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion -->
+<!-- #region View Material Master -->
+<div class="modal fade site-modal in" id="viewMaterialMasterPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Material Master<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-element-ctrl">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Ref. DocNo</th>
+                                <th>Material Group (Mst)</th>
+                                <th>Material Master</th>
+                                <th>SubMaterial</th>
+                                <th>Detail</th>
+                                <th>DeliveryDate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in viewMaterialList">
+                                <td>{{x.ReferenceDocNo}}</td>
+                                <td>{{x.MaterialGroupMasterName}}</td>
+                                <td>{{x.MaterialMasterName}}</td>
+                                <td>{{x.SubMaterialName}}</td>
+                                <td>{{x.Detail}}</td>
+                                <td>{{x.DeliveryDate|dateFiltering}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="closeViewMaterialPopUp()" class="btn">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion -->
+<confirm-modal></confirm-modal>
+<confirm-archive-generic modalid="confirm_PackLessMaterial" title="Confirmation" message={{confirm_msg}} data-ng-click-right-button="removeRowFromPackLessMaterialList()"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirm_PopUp" title="Confirmation" message={{confirm_msg}} data-ng-click-right-button="removeRowFromList()"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirm_FirstPack" title="Confirmation" message={{firstPack_msg}} data-ng-click-right-button="deleteFirstPack()"></confirm-archive-generic>

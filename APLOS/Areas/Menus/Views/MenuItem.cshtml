@@ -1,0 +1,175 @@
+﻿<togglable name="Menu Item"></togglable>
+<div class="form-elements form-horizontal" ng-form id="menuItem" name="menuItemForm">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input tabindex="1" min="1" type="number" name="Sequence" ng-model="menuItem.Sequence" class="form-control" required>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">User Code<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input tabindex="3" maxlength="20" name="User Code" type="text" ng-model="menuItem.UserCode" class="form-control" required>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">User Define Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input tabindex="5" maxlength="50" name="User Name" type="text" ng-model="menuItem.UserName" class="form-control" required>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Menu Item Group<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input ng-trim="true" tabindex="7" maxlength="30" name="MenuItem group" type="text" ng-model="menuItem.MenuItemGroup" class="form-control" required>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Area<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" tabindex="9" name="Area" ng-model="menuItem.Area" ng-change="onChange(menuItem.Area)"
+                            ng-options="item.Value as item.Text for item in areaList" required>
+                        <option></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Max Inactive Time<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input tabindex="11" min="0" max="100" name="Maximum inactive time" type="number" ng-model="menuItem.MaximumInactiveTime" class="form-control" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Description</label>
+            <div class="col-sm-8">
+                <textarea tabindex="13" maxlength="250" class="form-control" rows="3" ng-model="menuItem.Description"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Remarks</label>
+            <div class="col-sm-8">
+                <textarea tabindex="15" maxlength="250" class="form-control" rows="3" ng-model="menuItem.Remarks"></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input tabindex="2" maxlength="20" type="text" name="Code" ng-model="menuItem.Code" class="form-control" required>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input tabindex="4" maxlength="50" type="text" name="Standard name" ng-model="menuItem.StandardName" class="form-control" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">TooltipName</label>
+            <div class="col-sm-8">
+                <input tabindex="6" maxlength="150" name="Interface No" type="text" ng-model="menuItem.TooltipName" class="form-control">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Interface No<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input tabindex="8" maxlength="50" name="Interface No" type="text" ng-model="menuItem.InterfaceNo" class="form-control" required>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Controller<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" tabindex="10" name="Controller" ng-model="menuItem.MenuId" ng-options="item.Value as item.Text for item in menuList" required>
+                        <option value="">--Select--</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Max User<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input tabindex="11" min="0" max="100" name="Maximum User" type="number" ng-model="menuItem.MaximumUser" class="form-control" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Image</label>
+            <div class="col-sm-8">
+                <input tabindex="13" maxlength="20" type="text" ng-model="menuItem.Image" class="form-control">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Active</label>
+            <div class="col-sm-8">
+                <div class="checkbox-site">
+                    <label>
+                        <input tabindex="8" type="checkbox" ng-model="menuItem.Active">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button tabindex="15" ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li> <button tabindex="16" data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li> <button tabindex="17" ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select tabindex="18" ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input tabindex="19" type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button tabindex="20" type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Sequence</th>
+                <th>Menu Id</th>
+                <th>Interface No</th>
+                <th>Code</th>
+                <th>User Code</th>
+                <th>Standard Name</th>
+                <th>User Name</th>
+                <th>Active</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in menuItems |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get(x.Id, $index);">
+                <td>{{x.Sequence}}</td>
+                <td>{{x.MenuId}}</td>
+                <td>{{x.InterfaceNo}}</td>
+                <td>{{x.Code}}</td>
+                <td>{{x.UserCode}}</td>
+                <td>{{x.StandardName}}</td>
+                <td>{{x.UserName}}</td>
+                <td>{{x.Active?'Yes':'No'}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
+</div>
+<confirm-modal></confirm-modal>

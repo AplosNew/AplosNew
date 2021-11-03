@@ -1,0 +1,81 @@
+﻿<!DOCTYPE html>
+<html lang="en" ng-app="loginApp" spellcheck="true">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <base href="@ViewBag.BasePath">
+    <link rel="shortcut icon" href="images/title.gif" />
+    <title>{{title}}</title>
+    <title>Authtoken Download</title>
+    @Styles.Render("~/bundles/css")
+    @Styles.Render("~/bundles/fonts")
+    @Scripts.Render("~/bundles/jq")
+    @Scripts.Render("~/bundles/angular")
+    @Scripts.Render("~/bundles/login")
+</head>
+<body class="login-bg">
+    <div ng-controller="downloadAuthTokenController" class="login-portal">
+        <div class="login-portal-inner">
+            <div class="container">
+                <div class="download-token">
+                    <h3 class="text-center site-heading">Download Authentiction Token</h3>
+                    <div class="form-horizontal" ng-form="modelForm">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-3 control-label">User Id<sup>*</sup></label>
+                            <div class="col-sm-9 show-message">
+                                <input type="text" name="User Id" ng-model="model.username" maxlength="30" class="form-control" required tabindex="1">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-3 control-label">Password<sup>*</sup></label>
+                            <div class="col-sm-9 show-message">
+                                <input type="password" name="Password" ng-model="model.password" class="form-control" required tabindex="2">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-3 control-label">Date of Birth<sup>*</sup></label>
+                            <div class="col-sm-9 show-message">
+                                <input type="text" name="Date of Birth" ng-model="model.dateOfBirth" class="form-control" datepicker required tabindex="3" placeholder="dd-MMM-yyy">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-3 control-label">Email<sup>*</sup></label>
+                            <div class="col-sm-9 show-message">
+                                <input type="text" name="Email" ng-model="model.email" class="form-control" required tabindex="4" placeholder="example@mail.com">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Enter Captcha<sup>*</sup></label>
+                            <div class="col-sm-9">
+                                <img src="@Url.Action("Index","Captcha")" alt="image" />
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-3 control-label"></label>
+                            <div class="col-sm-9 show-message">
+                                <input type="text" name="Captcha" ng-model="model.captcha" class="form-control" required placeholder="Input The Above Captcha">
+                                <p class="msg-error">{{errorText}}</p>
+                            </div>
+                        </div>
+                        <div class="common-btn text-right">
+                            <a href="javascript:history.back()" class="btn btn-default"><i class="glyphicon glyphicon-arrow-left"></i> Go Back</a>
+                            <button ng-click="download();" class="btn btn-default"><i class="glyphicon glyphicon-save"></i> Download</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="loader" id="loadingDiv">
+                Loading
+                <div class="bounce1"></div>
+                <div class="bounce2"></div>
+                <div class="bounce3"></div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $('#loadingDiv').hide().ajaxStart(function () { $(this).show(); })
+            .ajaxStop(function () { $(this).hide(); });
+    </script>
+</body>
+</html>

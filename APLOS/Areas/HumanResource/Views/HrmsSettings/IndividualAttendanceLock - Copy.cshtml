@@ -1,0 +1,399 @@
+﻿
+
+<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> Individual Attendance Lock</h3>
+
+<div class="row">
+
+    <div class="col-sm-12">
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="From Date" placeholder="dd-MM-yyyy" ng-model="customPara.fromdate" datepicker class="form-control datepicker" tabindex="1">
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="To Date" placeholder="dd-MM-yyyy" ng-model="customPara.todate" datepicker class="form-control datepicker" tabindex="1">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class="col-sm-8 control-label">Select Employee<sup>*</sup></label>
+                <div class="col-sm-4 show-message">
+                    <div class="common-btn">
+                        <ul class="common-btn list-inline text-right">
+                            <li><button ng-click="getAllEmployee()" class="btn" tabindex="10"><i class="glyphicon glyphicon-search"></i></button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="tab-design" id="tab_show">
+    <div class="site-tab">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" ng-class="{ active: isSet11(11) }"><a ng-click="setTab11(11)" href="" aria-controls="aria1" role="tab" data-toggle="tab">To be Locked(Separated)</a></li>
+            <li role="presentation" ng-class="{ active: isSet22(22) }"><a ng-click="setTab22(22)" href="" aria-controls="aria2" role="tab" data-toggle="tab">To be Un-Locked(Separated)</a></li>
+            <li role="presentation" ng-class="{ active: isSet33(33) }"><a ng-click="setTab33(33)" href="" aria-controls="aria3" role="tab" data-toggle="tab">To be Locked(MLV)</a></li>
+            <li role="presentation" ng-class="{ active: isSet44(44) }"><a ng-click="setTab44(44)" href="" aria-controls="aria3" role="tab" data-toggle="tab">To be Un-Locked(MLV)</a></li>
+
+
+        </ul>
+    </div>
+
+    <div class="tab-content" id="tabpaneldiv">
+
+        @*To be Locked(Separated)*@
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet11(11), active: isSet11(11) }">
+            <div id="TabEmployee">
+
+
+
+
+                <div class="row form-horizontal form-elements">
+                    <div class="col-xs-12 col-sm-6 col-md-6 ">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"> Date<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+
+                                    <input class="form-control datepicker" datepicker autocomplete="off" ng-change="getUnLockDateList();" ng-model="customPara.lockDate" placeholder="dd-MM-yyyy" type="text" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6 ">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li> <button ng-click="SaveUnLockDateList();" class="btn"><i class="glyphicon glyphicon-check"></i> Lock</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <br /><br />
+
+
+
+
+            </div>
+            <div id="GridUnLockEmployeeData" ej-grid
+                 e-datasource="UnLockEmployeeData"
+                 e-recorddoubleclick="Get"
+                 e-actioncomplete="actionCompleteSelected"
+                 e-templaterefresh="refreshTemplateemployee"
+                 e-endedit="updatedata"
+                 e-allowfiltering="true"
+                 e-allowpaging="true"
+                 e-pagesettings-pagesize="17"
+                 @*e-editsettings-allowediting="true"
+
+                 e-editsettings-editmode="dialogtemplate"*@
+                 e-allowsorting="true"
+                 e-enabletouch="false"
+                 e-responsive="true"
+                 e-allowselection="true"
+                 e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column @*e-headertext="All" e-headertemplateid="#headerTemplate4"*@ e-template="#checkboxTemplate4" e-textalign="center" e-width="30"></div>
+                    @*<div e-column e-field="SystemID" e-headertext="Id" e-width="30" e-primarykey="true"></div>*@
+                    @*<div e-column e-field="CheckBoxSelect" e-headertext="CheckBoxSelect" e-allowediting="false" e-width="200"></div>
+                        <div e-column e-field="SystemID" e-headertext="SystemID" e-allowediting="false" e-width="200"></div>*@
+                    <div e-column e-field="EmployeeCode" e-headertext="EmployeeCode" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="EmployeeName" e-headertext="EmployeeName" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="DOJ" e-headertext="DOJ" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                    <div e-column e-field="DOS" e-headertext="DOS" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                    <div e-column e-field="GivenDesignation" e-headertext="GivenDesignation" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="Department" e-headertext="Department" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="PositionName" e-headertext="PositionName" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="Designation" e-headertext="Designation" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="DesignationId" e-headertext="DesignationId" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="PayRollGroupName" e-headertext="PayRollGroupName" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="PayRollGroupId" e-headertext="PayRollGroupId" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="LegalDesignation" e-headertext="LegalDesignation" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="Section" e-headertext="Section" e-allowediting="false" e-width="200"></div>
+
+                </div>
+            </div>
+            <script type="text/template" id="checkboxTemplate4">
+
+                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
+            </script>
+            <script type="text/x-jsrender" id="headerTemplate4">
+                <input type="checkbox" id="headchk4" />
+
+            </script>
+
+
+        </div>
+
+        @*To be Un-Locked(Separated)*@
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet22(22), active: isSet22(22) }">
+            <div id="TabEmployee">
+
+
+
+
+                <div class="row form-horizontal form-elements">
+                    <div class="col-xs-12 col-sm-6 col-md-6 ">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"> Date<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+
+                                    <input class="form-control datepicker" autocomplete="off" datepicker ng-change="getLockDateList()" ng-model="customPara.UnlockDate" placeholder="dd-MM-yyyy" type="text" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6 ">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li> <button ng-click="SaveLockDateList();" class="btn"><i class="glyphicon glyphicon-check"></i> Un-Lock</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <br /><br />
+
+
+
+
+            </div>
+            <div id="GridLockEmployeeData" ej-grid
+                 e-datasource="LockEmployeeData"
+                 e-recorddoubleclick="Get"
+                 e-actioncomplete="actionCompleteSelected1"
+                 e-templaterefresh="refreshTemplateemployee1"
+                 e-endedit="updatedata"
+                 e-allowfiltering="true"
+                 e-allowpaging="true"
+                 e-editsettings-allowediting="true"
+                 e-editsettings-editmode="dialogtemplate"
+                 e-allowsorting="true"
+                 e-enabletouch="false"
+                 e-responsive="true"
+                 e-allowselection="true"
+                 e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column @*e-headertext="All" e-headertemplateid="#headerTemplate4"*@ e-template="#checkboxTemplate5" e-textalign="center" e-width="30"></div>
+                    <div e-column e-field="EmployeeCode" e-headertext="EmployeeCode" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="EmployeeName" e-headertext="EmployeeName" e-allowediting="false" e-width="200"></div>
+
+                    <div e-column e-field="DOJ" e-headertext="DOJ" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                    <div e-column e-field="DOS" e-headertext="DOS" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+
+                    <div e-column e-field="GivenDesignation" e-headertext="GivenDesignation" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="Department" e-headertext="Department" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="PositionName" e-headertext="PositionName" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="Designation" e-headertext="Designation" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="DesignationId" e-headertext="DesignationId" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="PayRollGroupName" e-headertext="PayRollGroupName" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="PayRollGroupId" e-headertext="PayRollGroupId" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="LegalDesignation" e-headertext="LegalDesignation" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="Section" e-headertext="Section" e-allowediting="false" e-width="200"></div>
+                </div>
+            </div>
+            <script type="text/template" id="checkboxTemplate5">
+
+                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
+            </script>
+            <script type="text/x-jsrender" id="headerTemplate5">
+                <input type="checkbox" id="headchk5" />
+
+            </script>
+        </div>
+
+        @*To be Locked(MLV)*@
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet33(33), active: isSet33(33) }">
+            <div id="TabEmployee">
+
+
+
+
+                <div class="row form-horizontal form-elements">
+                    <div class="col-xs-12 col-sm-6 col-md-6 ">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"> Date<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+
+                                    <input class="form-control datepicker" autocomplete="off" datepicker ng-change="getMLVUnLockDateList()" ng-model="customPara.MLVlockDate" placeholder="dd-MM-yyyy" type="text" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6 ">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li> <button ng-click="SaveMLVLockDateList();" class="btn"><i class="glyphicon glyphicon-check"></i> Lock</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <br /><br />
+
+
+
+
+            </div>
+            <div id="GridUnLockMLVEmployeeData" ej-grid
+                 e-datasource="MLVUnLockEmployeeData"
+                 e-recorddoubleclick="Get"
+                 e-actioncomplete="MLVactionCompleteSelected"
+                 e-templaterefresh="MLVrefreshTemplateemployee"
+                 e-endedit="updatedata"
+                 e-allowfiltering="true"
+                 e-allowpaging="true"
+                 e-editsettings-allowediting="true"
+                 e-editsettings-editmode="dialogtemplate"
+                 e-allowsorting="true"
+                 e-enabletouch="false"
+                 e-responsive="true"
+                 e-allowselection="true"
+                 e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column @*e-headertext="All" e-headertemplateid="#headerTemplate4"*@ e-template="#checkboxTemplate5" e-textalign="center" e-width="30"></div>
+                    <div e-column e-field="EmployeeCode" e-headertext="EmployeeCode" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="EmployeeName" e-headertext="EmployeeName" e-allowediting="false" e-width="200"></div>
+
+                    <div e-column e-field="DOJ" e-headertext="DOJ" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                    <div e-column e-field="DOS" e-headertext="DOS" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+
+                    <div e-column e-field="GivenDesignation" e-headertext="GivenDesignation" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="Department" e-headertext="Department" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="PositionName" e-headertext="PositionName" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="Designation" e-headertext="Designation" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="DesignationId" e-headertext="DesignationId" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="PayRollGroupName" e-headertext="PayRollGroupName" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="PayRollGroupId" e-headertext="PayRollGroupId" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="LegalDesignation" e-headertext="LegalDesignation" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="Section" e-headertext="Section" e-allowediting="false" e-width="200"></div>
+                </div>
+            </div>
+            <script type="text/template" id="checkboxTemplate5">
+
+                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
+            </script>
+            <script type="text/x-jsrender" id="headerTemplate5">
+                <input type="checkbox" id="headchk5" />
+
+            </script>
+        </div>
+
+        @*To be Un-Locked(MLV)*@
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet44(22), active: isSet44(22) }">
+            <div id="TabEmployee">
+
+
+
+
+                <div class="row form-horizontal form-elements">
+                    <div class="col-xs-12 col-sm-6 col-md-6 ">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"> Date<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+
+                                    <input class="form-control datepicker" autocomplete="off" datepicker ng-change="getLockDateList()" ng-model="customPara.UnlockDate" placeholder="dd-MM-yyyy" type="text" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6 ">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li> <button ng-click="SaveLockDateList();" class="btn"><i class="glyphicon glyphicon-check"></i> Un-Lock</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <br /><br />
+
+
+
+
+            </div>
+            <div id="GridMLVLockEmployeeData" ej-grid
+                 e-datasource="MLVLockEmployeeData"
+                 e-recorddoubleclick="Get"
+                 e-actioncomplete="MLVactionCompleteSelected1"
+                 e-templaterefresh="MLVrefreshTemplateemployee1"
+                 e-endedit="updatedata"
+                 e-allowfiltering="true"
+                 e-allowpaging="true"
+                 e-editsettings-allowediting="true"
+                 e-editsettings-editmode="dialogtemplate"
+                 e-allowsorting="true"
+                 e-enabletouch="false"
+                 e-responsive="true"
+                 e-allowselection="true"
+                 e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column @*e-headertext="All" e-headertemplateid="#headerTemplate4"*@ e-template="#checkboxTemplate5" e-textalign="center" e-width="30"></div>
+                    <div e-column e-field="EmployeeCode" e-headertext="EmployeeCode" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="EmployeeName" e-headertext="EmployeeName" e-allowediting="false" e-width="200"></div>
+
+                    <div e-column e-field="DOJ" e-headertext="DOJ" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                    <div e-column e-field="DOS" e-headertext="DOS" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+
+                    <div e-column e-field="GivenDesignation" e-headertext="GivenDesignation" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="Department" e-headertext="Department" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="PositionName" e-headertext="PositionName" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="Designation" e-headertext="Designation" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="DesignationId" e-headertext="DesignationId" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="PayRollGroupName" e-headertext="PayRollGroupName" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="PayRollGroupId" e-headertext="PayRollGroupId" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="LegalDesignation" e-headertext="LegalDesignation" e-allowediting="false" e-width="200"></div>
+                    <div e-column e-field="Section" e-headertext="Section" e-allowediting="false" e-width="200"></div>
+                </div>
+            </div>
+            <script type="text/template" id="checkboxTemplate5">
+
+                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
+            </script>
+            <script type="text/x-jsrender" id="headerTemplate5">
+                <input type="checkbox" id="headchk5" />
+
+            </script>
+        </div>
+    </div>
+
+
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+

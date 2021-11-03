@@ -1,0 +1,66 @@
+﻿<div class="modal fade site-modal in" id="texCodePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" ng-form name="taxCodeForm">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="closeTaxCodePopUp()">&times;</button>
+                <h4 class="modal-title"><i class="glyphicon glyphicon-info-sign"></i> Tax Code</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-xs-12 col-sm-12 col-md-12 form-element-ctrl form-horizontal" ng-hide="voucher.Id">
+                    <div class="common-btn">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-3 col-md-2 control-label">Tax Code<sup>*</sup></label>
+                            <div class="col-sm-4  show-message">
+                                <div class="select-style">
+                                    <select name="TaxCode" ng-model="taxCode.Id" class="col-sm-3 form-control"
+                                            ng-options="item.Value as item.Text for item in taxCodCboList" required>
+                                        <option></option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-default"  ng-click="addTaxCodeonList(taxCode.Id);">Add</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>UserName</th>
+                                <th>Description</th>
+                                <th>Sequence</th>
+                                <th>TaxAuto</th>
+                                <th>Percentage</th>
+                                <th>Tax </th>
+                                <th ng-hide="voucher.Id"><i class="glyphicon glyphicon-trash"></i></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in taxCodDataList |filter:{VoucherDetailId:voucherDetailId}">
+                                <td>{{x.Code}}</td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.Description}}</td>
+                                <td><input type="number" class="form-control" ng-model="x.Sequence" /></td>
+                                <td><input type="number" class="form-control" ng-model="x.TaxAutoAmount" ng-disabled="true" /></td>
+                                <td><input type="number" class="form-control" ng-model="x.ValueOfFixed" ng-disabled="true" /></td>
+                                <td><input type="text" class="form-control" n-decimals="2" ng-disabled="!x.ManuallyEditable" ng-model="x.TaxAmount" ng-keyup="updateTaxAmount(x,x.TaxAmount);calculateTax(x.VoucherDetailId);" /></td>
+                                <td class="table-td" ng-hide="voucher.Id">
+                                    <button ng-click="taxCodeDelModal(x.TaxCodeId,x.VoucherDetailId,x.UserName)" class="btn-action tooltip-here" data-placement="top" title="Remove">
+                                        <i class="glyphicon glyphicon-remove"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer  common-btn">
+                <button type="button" class="btn btn-default" ng-click="vendorInvoiceTaxPush();closeTaxCodePopUp()">Done</button>
+            </div>
+        </div>
+    </div>
+</div>

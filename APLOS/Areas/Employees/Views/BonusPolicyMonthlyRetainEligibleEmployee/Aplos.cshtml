@@ -1,0 +1,175 @@
+﻿<style>
+    .CellWithComment {
+        position: relative;
+    }
+
+    .CellComment {
+        display: none;
+        position: absolute;
+        z-index: 100;
+        border: 1px;
+        background-color: white;
+        border-style: solid;
+        border-width: 1px;
+        border-color: red;
+        padding: 3px;
+        color: red;
+        top: 20px;
+        left: 20px;
+    }
+
+    .CellWithComment:hover span.CellComment {
+        display: block;
+    }
+</style>
+<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>Bonus Eligible Employee</h3>
+<div class="form-elements row">
+    <div class="col-xs-12">
+        <div class="tab-design" id="tab_show">
+            <div class="site-tab">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Bonus Mandatory  Employee</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="address" role="tab" data-toggle="tab">Bonus Optional Employee</a></li>
+                </ul>
+            </div>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                    <div class="row">
+                        <div class="row text-right">
+                            <div class="col-xs-12 col-sm-12 col-sm-12">
+                                <div class="search-form">
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-3 col-md-3">
+                                            <div class="select-style">
+                                                <select ng-model="popUpBonusPolicyMandatoryEmployeeParameters.searchBy">
+                                                    <option ng-repeat="option in SearchByBonusPolicyMandatoryEmployeeList" value="{{option.value}}">{{option.name}}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-7 col-md-7">
+                                            <input type="text" class="form-control" placeholder="Search" ng-model="popUpBonusPolicyMandatoryEmployeeParameters.search" ng-enter="getBonusPolicyMandatoryEmployeeData()">
+                                        </div>
+                                        <div class="col-xs-12 col-sm-2 col-md-2">
+                                            <button type="button" ng-click="getBonusPolicyMandatoryEmployeeData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-responsive modal-table">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Employee Code</th>
+                                        <th>Employee Name</th>
+                                        <th>Designation</th>
+                                        <th>Department</th>
+                                        <th>Section</th>
+                                        <th>Sub Section</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr dir-paginate="x in BonusPolicyMandatoryEmployeeList |itemsPerPage:popUpBonusPolicyMandatoryEmployeeParameters.pageSize" total-items="popUpBonusPolicyMandatoryEmployeeParameters.total_count" pagination-id="metaData.name + 'BonusPolicyMandatoryEmployeeList'">
+                                        <td>{{x.EmployeeCode}}</td>
+                                        <td>{{x.EmployeeName}}</td>
+                                        <td>{{x.EmpDesignation}}</td>
+                                        <td>{{x.EMPDepartment}}</td>
+                                        <td>{{x.EMPSection}}</td>
+                                        <td>{{x.EMPSubSection}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <dir-pagination-controls max-size="10"
+                                                     pagination-id="metaData.name + 'BonusPolicyMandatoryEmployeeList'"
+                                                     direction-links="true"
+                                                     boundary-links="true"
+                                                     on-page-change="getBonusPolicyMandatoryEmployeeData(newPageNumber)">
+                            </dir-pagination-controls>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                    <div class="row">
+                        <div class="row text-right">
+                            <div class="col-xs-12 col-sm-12 col-sm-12">
+                                <div class="search-form">
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-3 col-md-3">
+                                            <div class="select-style">
+                                                <select ng-model="popUpBonusPolicyOptionalEmployeeParameters.searchBy">
+                                                    <option ng-repeat="option in searchByBonusPolicyOptionalEmployeeList" value="{{option.value}}">{{option.name}}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-7 col-md-7">
+                                            <input type="text" class="form-control" placeholder="Search" ng-model="popUpBonusPolicyOptionalEmployeeParameters.search" ng-enter="getBonusPolicyOptionalEmployeeData()">
+                                        </div>
+                                        <div class="col-xs-12 col-sm-2 col-md-2">
+                                            <button type="button" ng-click="getBonusPolicyOptionalEmployeeData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-responsive modal-table">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Select</th>
+                                        <th>Employee Code</th>
+                                        <th>Employee Name</th>
+                                        <th>Designation</th>
+                                        <th>Department</th>
+                                        <th>Section</th>
+                                        <th>Sub Section</th>
+                                        <th>Start Date</th>
+                                        <td>Effective Date</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr dir-paginate="x in BonusPolicyOptionalEmployeeList |itemsPerPage:popUpBonusPolicyOptionalEmployeeParameters.pageSize" total-items="popUpBonusPolicyOptionalEmployeeParameters.total_count" pagination-id="metaData.name + 'BonusPolicyOptionalEmployeeList'">
+                                        <td id="x.EmployeeCode" ng-class="{CellWithComment:x.IsIndividual===false}">
+                                            <div class="checkbox-site">
+                                                <label>
+                                                    <input type="checkbox" ng-model="x.IsActive" ng-disabled="x.IsIndividual===false" ng-click="getDefaultDate($index,$event)">
+                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                </label>
+                                            </div>
+                                            <span ng-show="x.IsIndividual===false" ng-class="{CellComment:x.IsIndividual===false}">Individual lavel changing is not allowed</span>
+                                        </td>
+                                        <td>{{x.EmployeeCode}}</td>
+                                        <td>{{x.EmployeeName}}</td>
+                                        <td>{{x.EmpDesignation}}</td>
+                                        <td>{{x.EMPDepartment}}</td>
+                                        <td>{{x.EMPSection}}</td>
+                                        <td>{{x.EMPSubSection}}</td>
+                                        <td>{{x.StartDate}}</td>
+                                        <th>
+                                            <input type="text" name="EffectiveDate" id="EmployeeCode" ng-model="x.EndDate" datepicker class="form-control datepicker">
+                                        </th>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <dir-pagination-controls max-size="10"
+                                                     pagination-id="metaData.name + 'BonusPolicyOptionalEmployeeList'"
+                                                     direction-links="true"
+                                                     boundary-links="true"
+                                                     on-page-change="getBonusPolicyOptionalEmployeeData(newPageNumber)">
+                            </dir-pagination-controls>
+                        </div>
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic data-modalid="confirmgenericPopUp" title="Confirmation"
+                         message={{message_confirmation}} data-ng-click-right-button="DeletePFEmployeeAppliedList()">
+</confirm-archive-generic>
+<confirm-modal></confirm-modal>
+

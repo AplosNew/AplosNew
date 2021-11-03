@@ -1,0 +1,174 @@
+﻿<togglable name="Access Controller List"></togglable>
+<div class="form-horizontal" ng-form name="biometricDeviceAsAccessListNewForm">
+    <input type="hidden" ng-model="biometricDeviceAsAccessListNew.Id">
+    <div class="clearfix"></div>
+    <div class="form-elements">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Machine IP<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Machine IP" ng-model="biometricDeviceAsAccessListNew.MachineIP" class="form-control" maxlength="50" required tabindex="3">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Description</label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" rows="3" ng-model="biometricDeviceAsAccessListNew.Description" tabindex="5" maxlength="200"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Data <span>auto download by<br /> scheduler</span> </label>
+                <div class="col-sm-8">
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" ng-model="biometricDeviceAsAccessListNew.IsDataAutoDownloadBySched" tabindex="8">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Data Clear After Download</label>
+                <div class="col-sm-8">
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" ng-model="biometricDeviceAsAccessListNew.IsDataClearAftDW" tabindex="8">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Active</label>
+                <div class="col-sm-8">
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" ng-model="biometricDeviceAsAccessListNew.IsActive" tabindex="8">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Machine ID<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="number" name="Machine ID " ng-model="biometricDeviceAsAccessListNew.MachineID " class="form-control" required tabindex="2">
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-12">
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="IsDeviceBasedInOut" ng-model="biometricDeviceAsAccessListNew.IsDeviceBasedInOut" ng-value="false" ng-click="show()">
+                            <span class="cr"><i class="cr-icon"></i></span>Flag Based InOut
+                        </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <label>
+                            <input type="radio" name="IsDeviceBasedInOut" ng-model="biometricDeviceAsAccessListNew.IsDeviceBasedInOut" ng-value="true" ng-click="hide()">
+                            <span class="cr"><i class="cr-icon"></i></span>Deviced Based InOut
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" id="deviced" ng-init="show()">
+                <label class="col-sm-4 control-label">Deviced Based</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="biometricDeviceAsAccessListNew.DeviceInOutFlag" name="DeviceInOutFlag" tabindex="4">
+                            <option value="">--Select--</option>
+                            <option value="IN">IN</option>
+                            <option value="OUT">OUT</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" id="flag1">
+                <label class="col-sm-4 control-label">0</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="biometricDeviceAsAccessListNew.ZeroFlag" name="ZeroFlag" tabindex="4">
+                            <option value="">--Select--</option>
+                            <option value="0">0</option>
+                            <option value="IN">IN</option>
+                            <option value="OUT">OUT</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" id="flag2">
+                <label class="col-sm-4 control-label">1</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="biometricDeviceAsAccessListNew.OneFlag" name="OneFlag" tabindex="6">
+                            <option value="">--Select--</option>
+                            <option value="1">1</option>
+                            <option value="IN">IN</option>
+                            <option value="OUT">OUT</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Remarks</label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" rows="3" ng-model="biometricDeviceAsAccessListNew.Remarks" maxlength="200" tabindex="7"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Plant</th>
+                <th>Machine Id</th>
+                <th>Machine IP</th>
+                <th>Active</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in biometricDeviceAsAccessLists |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get(x.Id, $index);">
+                <td>{{x.Plant}}</td>
+                <td>{{x.MachineID}}</td>
+                <td>{{x.MachineIP}}</td>
+                <td>{{x.IsActive?'Yes':'No'}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10"
+                             direction-links="true"
+                             boundary-links="true"
+                             on-page-change="getData(newPageNumber)">
+    </dir-pagination-controls>
+</div>
+<confirm-modal></confirm-modal>

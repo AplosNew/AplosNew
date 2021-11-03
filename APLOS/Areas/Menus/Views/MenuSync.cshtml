@@ -1,0 +1,187 @@
+﻿<div class="row" id="mainContainer">
+    <div class="col-md-12">
+        <div class="col-md-6">
+            <div class="row">
+                <div class="col-md-6"><span style="font-size: 19px;"><span class="glyphicon glyphicon-download"></span>&nbsp;Synchronization</span></div>
+                <div class="col-md-4">
+
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="col-md-12">
+            </div>
+        </div>
+        <div class="col-md-3 text-right">
+            <div class="common-btn">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ng-click="GetMenuSyncFromAPI()"> <i class="glyphicon glyphicon-download"></i>Sync Menu</button>
+
+            </div>
+        </div>
+        <div>
+            <div class="row">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="col-md-8">{{AplosCorePath}}</div>
+                        <div class="col-md-4">
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <div class="site-tab">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li role="presentation" ng-class="{ active: AttachmentisSet(1) }"><a ng-click="AttachmentsetTab(1)" href="" data-toggle="tab">Menu List</a></li>
+                        <li role="presentation" ng-class="{ active: AttachmentisSet(2) }"><a ng-click="AttachmentsetTab(2)" href="" data-toggle="tab">Menu Tree</a></li>
+                    </ul>
+                </div>
+                <div class="tab-content" id="OuterContainer">
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':AttachmentisSet(1), active: AttachmentisSet(1) }">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div id="GridMenuList" ng-init="chkinit()" ej-grid e-datasource="MenuList" @*e-recorddoubleclick="GetMenuData"*@ e-load="loadGridEdit" e-rowdatabound="changeBckCol"
+                                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                     e-allowscrolling="true"
+                                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                                    <div e-columns>
+                                        <div e-column e-checked="true" e-headertext="" e-field="isSelect" @*e-headertemplateid="#headerTemplate"*@ e-template="#checkboxTemplate" e-textalign="center" e-width="40"></div>
+                                        <div e-column e-template="#gridSVGImage" e-headertext="Icon" e-width="40"></div>
+                                        <div e-column e-field="IsCompanyGroupAssigned" e-headertext="Assigned" e-width="40"></div>
+                                        <div e-column e-field="PanelName" e-headertext="Panel" e-width="120"></div>
+                                        <div e-column e-field="Module" e-headertext="Module" e-width="120" e-isprimarykey="true"></div>
+                                        <div e-column e-field="SubModule" e-headertext="Sub Module" e-width="120"></div>
+                                        <div e-column e-field="MenuFrame" e-headertext="Menu Frame" e-width="120"></div>
+                                        <div e-column e-field="MenuGroup" e-headertext="Menu Group" e-width="120"></div>
+                                        <div e-column e-field="SubMenuGroup" e-headertext="Menu Sub Group" e-width="120"></div>
+                                        <div e-column e-field="MenuName" e-headertext="Menu Name" e-width="120"></div>
+                                        <div e-column e-field="Href" e-headertext="Href" e-width="120"></div>
+                                        <div e-column e-field="Controller" e-headertext="Controller" e-width="120"></div>
+                                        <div e-column e-field="TobeChecked" e-headertext="To be Checked" e-width="50"></div>
+                                        <div e-column e-field="Specialdecision" e-headertext="Special Decision" e-width="120"></div>
+                                        <div e-column e-field="MarkForDeletionC" e-headertext="Mark For Deletion" e-width="120"></div>
+                                        <div e-column e-field="Active" e-headertext="Active" e-width="120"></div>
+
+                                        <div e-column e-headertext="Actions" e-width="150"  e-template="#deleteButton"></div>
+                                    </div>
+                                </div>
+                                <script type="text/template" id="gridSVGImage">
+                                    <div style="height:52px; width:52px;" ng-bind-html="data.Image"></div>
+                                </script>
+                                <script type="text/template" id="deleteButton">
+                                    <ul class="common-btn list-inline text-left">
+                                        <li>
+                                            <button ng-click="$parent.GetMenuInfoDoc(data);" class="btn small" style="height: 30px;width: 30px; padding: 0px; margin: 0px;">
+                                                <i class="glyphicon glyphicon-file"></i>
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <button  ng-click="$parent.saveCompanyGroupMenuMasterSingle(data);" class="btn small" style="height: 30px;width: 30px; padding: 0px; margin: 0px;">
+                                                <i class="glyphicon glyphicon-unchecked"></i>
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="fa fa-trash-o" ng-click="$parent.DeleteMenu(data);" style="margin: -6px;"></i></button>
+                                        </li>
+                                    </ul>
+
+                                    @*<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon-pencil" ng-click="$parent.GetMenuData(this);" style="margin: -6px;"></i></button>*@
+                                </script>
+
+
+                                <script type="text/template" id="checkboxTemplate">
+                                    <input type="checkbox" ej-checkbox class="nodetext" e-value="data.isToBeSelect" e-checked="data.isToBeSelect" />
+                                </script>
+                                <script type="text/x-jsrender" id="headerTemplate">
+                                    <input type="checkbox" id="headchk" />
+                                </script>
+                            </div>
+
+                            <div class="col-md-12">
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                </div>
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    <div class="common-btn alignright" style="text-align:right">
+                                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ng-click="saveCompanyGroupMenuMaster()"> <i class="glyphicon glyphicon-save"></i>Save</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':AttachmentisSet(2), active: AttachmentisSet(2) }">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="row">
+                                    <div class="col-sm-2">
+                                        <div class="frame">
+                                            <div class="ctrllabel">Panel Name</div>
+                                            <div class="select-style">
+                                                <select class="form-control" name="Group Name" ng-change="hierarchy()" ng-model="SelectedItems.PanelName" tabindex="6" required>
+                                                    @*<option value="">--Select--</option>*@
+                                                    <option value="Application">Application</option>
+                                                    <option value="Master">Master</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div ng-hide="SelectedItems.PanelName==null || SelectedItems.PanelName==''" style="padding-top:10px;padding-bottom:10px; font-size:16pt;color:midnightblue;">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left small">
+                                            <li>
+                                                <button ng-click="hierarchy();" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                                    <i class="glyphicon glyphicon-refresh" style="color:white"></i>
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button ng-click="TreeExpandAll()" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                                    <i class="glyphicon glyphicon-collapse-down" style="color:white;"></i>
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button ng-click="TreeCollapseAll();" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                                    <i class="glyphicon glyphicon-collapse-up" style="color:white"></i>
+                                                </button>
+                                            </li>
+                                            <li>
+
+                                                <button ng-click="TreeSelectAll();" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                                    <i class="glyphicon  glyphicon-check" style="color:white"></i>
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button ng-click="TreeUnselectAll();" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                                    <i class="glyphicon glyphicon-unchecked" style="color:white"></i>
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button ng-click="TreeUpdateCheckedItems();" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                                    <i class="glyphicon glyphicon-floppy-save" style="color:lawngreen"></i>
+                                                </button>
+                                            </li>
+
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div id="treeView" ej-treeview e-fields-datasource="menuHierarchy" e-showcheckbox="true"
+                                     e-autocheckparentnode="true" e-autocheck="true"
+                                     @*e-allowdraganddrop="true" e-nodedropped="nodeDropped" e-nodedragstop="nodeDragStop"*@
+                                     e-fields-id="id" e-fields-parentid="pid" @*e-nodeselect="nodeclick"*@ @*e-nodeclick="nodeclick"*@
+                                     e-fields-text="MenuText" @*e-fields-haschild="hasChild"*@
+                                     e-fields-expanded="collapsed" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row">
+    <ej-dialog id="dialogEntry" title=" Menu Entry" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#mainContainer" e-minwidth="900" e-open="enableBtn">
+        <div class="form-element-ctrl form-horizontal">
+            @Html.Partial("~/Areas/Menus/Views/MenuCreation/MenuEntry.cshtml")
+        </div>
+    </ej-dialog>
+</div>

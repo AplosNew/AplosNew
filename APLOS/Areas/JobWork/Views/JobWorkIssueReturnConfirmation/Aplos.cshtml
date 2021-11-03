@@ -1,0 +1,360 @@
+﻿<style>
+    .listClass {
+        width: auto;
+        text-align: right;
+    }
+
+    .listClassLbl {
+        width: 170px;
+        text-align: left;
+        font-weight: normal;
+    }
+
+    .customLbl {
+        padding-right: 0px;
+    }
+
+    .customControl {
+        padding-left: 0px;
+        padding-right: 20px;
+    }
+
+    .selected {
+        background-color: rgba(234, 97, 83, 0.42) !important;
+    }
+
+    .filled {
+        background-color: #ff0000 !important;
+    }
+</style>
+@*To Accept only Numbers with decimals*@
+<script>
+
+    function isNumber(evt) {
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode != 46 && charCode > 31
+            && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+
+     @*To Accept only Numbers*@
+    function OnlyNumber(evt) {
+        evt = (evt) ? evt : window.event;
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+            return false;
+        }
+        return true;
+    }
+</script>
+
+<h3>Issue Confirmation</h3>
+
+
+<div class="form-elements form-horizontal">
+    <div class="row">
+        <div class="tab-design" id="tab_show">
+            <div class="site-tab">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="ValueAdded" role="tab" data-toggle="tab"> Confirmation Issue Value Added</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="Transformation" role="tab" data-toggle="tab"> Confirmation Issue Transformation</a></li>
+                </ul>
+            </div>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                    <div class="row">
+                        <div class="form-horizontal form-element-ctrl">
+                            <div ng-form name="ConfirmationIssueGeneralForm">
+                                <input type="hidden" ng-model="ConfirmationIssue.Id">
+                                <div class="col-xs-12 divborder mark">
+                                    <input type="hidden" ng-model="ConfirmationIssue.Id">
+                                    <div class="col-xs-12 col-sm-6 col-md-6 pdl3 pdr3">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <input type="text" name="From Date" ng-model="ConfirmationIssue.FromDate" datepicker ng-disabled="Disable" class="form-control" required tabindex="2">
+                                            </div>
+                                        </div>
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Status<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="ConfirmationIssue.Status" name="Status" required tabindex="5" ng-disabled="Disable">
+                                                        <option value="">--Select--</option>
+                                                        <option value="0">To Confirm</option>
+                                                        <option value="1">Confirmed</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-xs-12 col-sm-6 col-md-6 pdr3">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <input type="text" name="To Date" ng-model="ConfirmationIssue.ToDate" datepicker class="form-control" required tabindex="2" ng-disabled="Disable">
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label" title="Vendor/ Party"><span>Vendor/ Party</span><sup>*</sup></label>
+                                            <div class="col-sm-8 input-group show-message" style="padding-left: 15px;padding-right: 14px;">
+                                                <span class="input-group-addon">{{ConfirmationIssue.PartyCode}}</span>
+                                                <input type="text" ng-model="ConfirmationIssue.PartyName" name="Party Name" required class="form-control" readonly>
+                                                <span class="input-group-btn">
+                                                    <button ng-click="PartyPopUp()" tabindex="2" ng-disabled="Disable" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                    <button ng-click="PartyClear()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                                <div class="common-btn">
+                                    <ul class="list-inline text-right">
+                                        <li> <button ng-click="Search();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Search</button></li>
+                                        <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                       
+                            <div class="col-xs-12 content-container-fluid" style="color:black;overflow:scroll">
+                                <div style="color:black;overflow:scroll" id="GridConfirmationIssueChildTab" ej-grid e-datasource="ConfirmationIssueChildList"
+                                     e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                     e-allowselection="true" e-filtersettings-filterType="excel">
+                                    <div e-columns>
+                                        <div e-column e-template="#checkedPBSChildTabItem" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="IssueId" e-headertext="Issue Id" e-width="50"></div>
+                                        <div e-column e-type="string" e-field="IssueDate" e-headertext="Issue Date" e-width="50"></div>
+                                        <div e-column e-type="string" e-field="ValueAddedContractId" e-headertext="Value Added Contract Id" e-width="50"></div>
+                                        <div e-column e-type="string" e-field="Party" e-headertext="Party" e-width="50"></div>
+                                        <div e-column e-type="string" e-field="JWOutputItem" e-headertext="JW Output Item" e-width="50"></div>
+                                        <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="50"></div>
+                                        <div e-column e-type="string" e-field="TotalIssuedQuantity" e-headertext="Total Issued Quantity" e-width="50"></div>
+                                        <div e-column e-template="#ConfirmedQty" e-headertext="Confirmed Quantity" e-width="50"></div>
+
+                                    </div>
+                                </div>
+                                <script type="text/template" id="checkedPBSChildTabItem">
+                                    <input type="checkbox" ej-checkbox class="nodetext" e-value="data.isSelected" e-checked="data.isSelected" />
+                                </script>
+                                <script type="text/ng-template" id="ConfirmedQty">
+                                    
+                                    <input type="text" ng-model="data.ConfirmedQty" class="form-control" maxlength="15" e-width="100" ng-change="$parent.ValidateQuantity(data)" onkeypress="return OnlyNumber(event)">
+                                </script>
+                            </div>
+                         
+                            <div class="common-btn" style="padding-right: 15px;">
+                                <ul class="list-inline text-right">
+                                    <li>
+                                        <button ng-click="SaveConfirmedIssueChildTab();" ng-disabled="ConfirmationIssue.Status==1" tabindex="17" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button>
+
+                                    </li>
+                                </ul>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                    <div class="row">
+                        <div class="form-horizontal form-element-ctrl">
+                            <div ng-form name="TransConfirmationIssueGeneralForm">
+                                <input type="hidden" ng-model="TransConfirmationIssue.Id">
+                                <div class="col-xs-12 divborder mark">
+                                    <input type="hidden" ng-model="TransConfirmationIssue.Id">
+                                    <div class="col-xs-12 col-sm-6 col-md-6 pdl3 pdr3">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <input type="text" name="From Date" ng-model="TransConfirmationIssue.FromDate" ng-disabled="TransDisable" datepicker class="form-control" required tabindex="2">
+                                            </div>
+                                        </div>
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Status<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="TransConfirmationIssue.Status" ng-disabled="TransDisable" name="Status" required tabindex="5">
+                                                        <option value="">--Select--</option>
+                                                        <option value="0">To Confirm</option>
+                                                        <option value="1">Confirmed</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-xs-12 col-sm-6 col-md-6 pdr3">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <input type="text" name="To Date" ng-model="TransConfirmationIssue.ToDate" ng-disabled="TransDisable" datepicker class="form-control" required tabindex="2">
+                                            </div>
+                                        </div>
+
+                                        @*<div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label" title="Vendor/ Party"><span>Vendor/ Party</span><sup>*</sup></label>
+                                            <div class="col-sm-8 input-group show-message" style="padding-left: 15px;padding-right: 14px;">
+                                                <span class="input-group-addon">{{TransConfirmationIssue.PartyVendorCode}}</span>
+                                                <input type="text" ng-model="TransConfirmationIssue.PartyVendorName" name="Party Name" required class="form-control" readonly>
+                                                <span class="input-group-btn">
+                                                    <button ng-click="PartyVendorPopUp()" ng-disabled="TransDisable" tabindex="2" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                    <button ng-click="PartyVendorClear()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                                </span>
+                                            </div>
+                                        </div>*@
+
+                                    </div>
+
+                                </div>
+                                <div class="common-btn">
+                                    <ul class="list-inline text-right">
+                                        <li> <button ng-click="SearchTransConfirmationIssue();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Search</button></li>
+                                        <li> <button ng-click="ClearTransConfirmationIssue();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                                    </ul>
+                                </div>
+                            </div>
+
+
+                            <div class="col-xs-12 content-container-fluid" style="color:black;overflow:scroll">
+                                <div style="color:black;overflow:scroll" id="GridTransConfirmationIssueChildTab" ej-grid e-datasource="TransConfirmationIssueChildList"
+                                     e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                     e-allowselection="true" e-filtersettings-filterType="excel">
+                                    <div e-columns>
+                                        <div e-column e-template="#checkedPBSChildTabItem" e-width="20"></div>
+                                        <div e-column e-type="string" e-field="TransContractId" e-headertext="Contract Id" e-width="30"></div>
+                                        <div e-column e-type="string" e-field="IssueId" e-headertext="Issue Id" e-width="50"></div>
+                                        <div e-column e-type="string" e-field="IssueDate" e-headertext="Issue Date" e-width="50"></div>
+                                        <div e-column e-type="string" e-field="Party" e-headertext="Party" e-width="50"></div>
+                                        <div e-column e-type="string" e-field="JWOutputItem" e-headertext="JW Output Item" e-width="50"></div>
+                                        <div e-column e-type="string" e-field="JWInputItem" e-headertext="JW Input Item" e-width="50"></div>
+                                        <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="50"></div>
+                                        <div e-column e-type="string" e-field="TotalIssuedQuantity" e-headertext="Requested Issue Quantity" e-width="50"></div>
+                                        <div e-column e-template="#PrintFileTab" e-headertext="Print" e-width="20"></div>
+                                        <div e-column e-template="#TransConfirmedQty" e-headertext="Confirmed Quantity" e-width="50"></div>
+
+                                    </div>
+                                </div>
+                                <script type="text/template" id="checkedPBSChildTabItem">
+                                    <input type="checkbox" ej-checkbox class="nodetext" e-value="data.isSelected" e-checked="data.isSelected" />
+                                </script>
+                                <script type="text/ng-template" id="TransConfirmedQty">
+
+                                    <input type="text" ng-model="data.TransConfirmedQty" class="form-control" maxlength="15" e-width="100" ng-change="$parent.ValidateTransQuantity(data)" onkeypress="return OnlyNumber(event)">
+                                </script>
+                                <script type="text/template" id="PrintFileTab">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li><button ng-click="$parent.ConfirmPrintTab(data);" class="btn" tabindex="9"><i class="fa fa-file-excel-o" style="top: 1px;"></i></button></li>
+                                        </ul>
+                                    </div>
+                                </script>
+                            </div>
+
+                            <div class="common-btn" style="padding-right: 15px;">
+                                <ul class="list-inline text-right">
+                                    <li>
+                                        <button ng-click="SaveTransConfirmationIssueChildTab();" ng-disabled="TransConfirmationIssue.Status==1" tabindex="17" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button>
+                       
+                                    </li>
+                                </ul>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="modal fade site-modal in" id="PosPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> Vendor/ Party List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="GridPosition" ej-grid e-datasource="PositionList"
+                             e-allowfiltering="true" e-recorddoubleclick="setPositionData" e-allowpaging="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-type="string" e-field="Sequence" e-headertext="Sequence" e-width="40"></div>
+                                <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="40"></div>
+                                <div e-column e-type="string" e-field="ShortName" e-headertext="ShortName" e-width="40"></div>
+                                <div e-column e-type="string" e-field="StandardName" e-headertext="StandardName" e-width="40"></div>
+                                <div e-column e-type="string" e-field="UserName" e-headertext="Party" e-width="40"></div>
+                                <div e-column e-type="string" e-field="PartyGroup" e-headertext="Party Group" e-width="40"></div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+
+                            <button ng-click="closePositionPopUp('PosPopUp');" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@*<div class="modal fade site-modal in" id="PartyVendorPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> Vendor/ Party List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="GridPartyVendor" ej-grid e-datasource="PartyVendorList"
+                             e-allowfiltering="true" e-recorddoubleclick="setPartyVendorData" e-allowpaging="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-type="string" e-field="Sequence" e-headertext="Sequence" e-width="40"></div>
+                                <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="40"></div>
+                                <div e-column e-type="string" e-field="ShortName" e-headertext="ShortName" e-width="40"></div>
+                                <div e-column e-type="string" e-field="StandardName" e-headertext="StandardName" e-width="40"></div>
+                                <div e-column e-type="string" e-field="UserName" e-headertext="Party" e-width="40"></div>
+                                <div e-column e-type="string" e-field="PartyGroup" e-headertext="Party Group" e-width="40"></div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+
+                            <button ng-click="closePartyVendorPopUp('PartyVendorPopUp');" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>*@

@@ -1,0 +1,285 @@
+﻿<togglable name="Maternity Leave Policy"></togglable>
+<style>
+    .e-filterset:before {
+        color: white;
+    }
+
+    .e-gridheader .e-headercell { /* grid header color and grid row select color*/
+        background-color: #1c1f32;
+        color: White;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+        font-size: 10px;
+    }
+
+    .e-grid .e-rowcell {
+        line-height: 14px;
+        font-size: 11px;
+        padding: 1px 2px 0px 2px !important;
+    }
+
+    .e-grid .e-headercelldiv {
+        font-size: 9px;
+        height: 20px;
+        line-height: 10px;
+    }
+</style>
+<div ng-form name="maternityLeavePolicyNewForm">
+    <div class="col-xs-12 col-sm-6 col-md-6 form-element-ctrl form-horizontal">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Company <sup>*</sup></label>
+            <div class="col-sm-8  show-message">
+                <div class="select-style">
+                    <select id="CompanyId" class="form-control" ng-model="maternityLeavePolicyNew.CompanyId" ng-change="getPlantList();ClearFields();" name="Company" required tabindex="1">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in companyList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6 form-element-ctrl form-horizontal">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Plant <sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select id="PlantId" class="form-control" ng-model="maternityLeavePolicyNew.PlantId" ng-change="getListData();ClearFields();" name="Plant" required tabindex="1">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in plantList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-elements form-horizontal">
+        <div class="clearfix"></div>
+        <input type="hidden" ng-model="maternityLeavePolicyNew.Id">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Child No<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="maternityLeavePolicyNew.ChildNo" name="Child No" required>
+                            <option value="">--Select--</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Policy Effective Date<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="maternityLeavePolicyNew.EffectiveDate" e-width="100%" />
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label ">Can Avail After<sup>*</sup></label>
+                <div class="col-sm-4 show-message">
+                    <input type="text" ng-model="maternityLeavePolicyNew.CanAvailAfterDOJ" class="form-control" name="Can Avail After" tabindex="4" required only-numbers>
+                </div>
+                <label class="col-sm-4 control-label">Days From DOJ</label>
+            </div>
+        </div>
+
+        <div class="col-xs-12" ng-form>
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border">Based on Expected Delivery Date</legend>
+
+                <div class="col-xs-12 col-sm-6 col-md-6 ">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Required Gap Between(Day)<sup>*</sup></label>
+                        <div class="col-sm-4 show-message">
+                            <input type="text" ng-model="maternityLeavePolicyNew.GapeBetweenConsecutiveIssue" class="form-control" name="Required Gap" tabindex="4" required only-numbers>
+                        </div>
+                        <label class="col-sm-4 control-label">To Consecutive Issues</label>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Leave Start Day<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" ng-model="maternityLeavePolicyNew.MaternityLeaveStartDay" name="Leave Start Day" class="form-control" tabindex="4" required only-numbers>
+                        </div>
+                    </div>
+                    
+                </div>
+
+                <div class="col-xs-12 col-sm-6 col-md-6">
+
+                    <div class="form-group">
+                        <label class="col-sm-12 control-label"></label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-12 control-label"></label>
+                    </div>
+
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Leave End Day<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" ng-model="maternityLeavePolicyNew.MaternityLeaveEndDay" class="form-control" name="Leave End Day" tabindex="4" required only-numbers>
+                        </div>
+                    </div>
+
+                   </div>
+            </fieldset>
+        </div>
+        <div class="col-xs-12">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">FollowUp start Before<sup>*</sup></label>
+                <div class="col-sm-4 show-message">
+                    <input type="text" ng-model="maternityLeavePolicyNew.MaternityStartDay" class="form-control" name="FollowUp start Day" tabindex="4" required only-numbers>
+                </div>
+                <label class="col-sm-4 control-label ">Days from Leave Start Date</label>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label ">FollowUp End After<sup>*</sup></label>
+                <div class="col-sm-4 show-message">
+                    <input type="text" ng-model="maternityLeavePolicyNew.MaternityEndDay" class="form-control" name="FollowUp End Day" tabindex="4" required only-numbers>
+                </div>
+                <label class="col-sm-4 control-label ">Days from Leave End Date</label>
+            </div>
+        </div>
+
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">No Benefit</label>
+                    <div class="col-sm-8">
+                        <div class="checkbox-site">
+                            <label>
+                                <input tabindex="8" type="checkbox" ng-model="maternityLeavePolicyNew.IsNoBenefit" ng-change="setVisible();">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-12" ng-show="IsNoBenefit === false">
+                <fieldset class="scheduler-border">
+                    <legend class="scheduler-border">Salary</legend>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        @*<div class="form-group">
+                            <div class="col-sm-12">
+                                <input e-type="radiobutton" name="radioButton" ej-rad./iobutton e-checked="maternityLeavePolicyNew.IsMonthly" e-value="maternityLeavePolicyNew.IsMonthly" e-change="ChangeToRegular" />
+                                <label for="radioButton">Regular</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <input e-type="radiobutton" name="radioButton" ej-radiobutton e-checked="maternityLeavePolicyNew.IsDistributed" e-value="maternityLeavePolicyNew.IsDistributed" e-change="ChangeToDistributed" />
+                                <label for="radioButton">Distributed</label>
+                            </div>
+                        </div>*@
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <div class="radio">
+                                    <label>
+                                        <input type="radio" name="radioButton" ng-model="maternityLeavePolicyNew.IsMonthly" ng-checked="maternityLeavePolicyNew.IsMonthly" ng-value="true" ng-click="ChangeToRegular()">
+                                        <span class="cr"><i class="cr-icon"></i></span>Regular
+                                    </label>
+                                    <br />
+                                    <br />
+                                    <label>
+                                        <input type="radio" name="radioButton" ng-model="maternityLeavePolicyNew.IsDistributed" ng-checked="maternityLeavePolicyNew.IsDistributed" ng-value="true" ng-click="ChangeToDistributed()">
+                                        <span class="cr"><i class="cr-icon"></i></span>Distributed
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" ng-show="salaryShow">
+                            <label class="col-sm-4 control-label">IsBefore</label>
+                            <div class="col-sm-8">
+                                <div class="col-sm-2 checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="maternityLeavePolicyNew.IsBefore">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                                <div class="col-sm-5" ng-show="maternityLeavePolicyNew.IsBefore===true">
+                                    <input class="form-control" ng-model="maternityLeavePolicyNew.BeforePercentage" name="before" oninput="validity.valid || (value = '');" type="number" />
+                                </div>
+                                <div class="col-sm-1" ng-show="maternityLeavePolicyNew.IsBefore===true">
+                                    <label class="control-label">%</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" ng-show="salaryShow">
+                            <label class="col-sm-4 control-label">IsAfter</label>
+                            <div class="col-sm-8">
+                                <div class="col-sm-2 checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="maternityLeavePolicyNew.IsAfter">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                                <div class="col-sm-5" ng-show="maternityLeavePolicyNew.IsAfter===true">
+                                    <input class="form-control" ng-model="maternityLeavePolicyNew.AfterPercentage" name="after" oninput="validity.valid || (value = '');" type="number" />
+                                </div>
+                                <div class="col-sm-1" ng-show="maternityLeavePolicyNew.IsAfter===true">
+                                    <label class="control-label">%</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                    <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                    <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="content-container-fluid" style="color:black;">
+            <div style="color:black;" id="Grid" ej-grid e-datasource="MaternityLeave"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                 e-allowselection="true" e-recorddoubleclick="recorddoubleclick" e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-field="Id" e-headertext="Id" e-width="70" e-visible="false"></div>
+                    <div e-column e-field="ChildNo" e-headertext="Child No" e-width="70"></div>
+                    <div e-column e-field="ED" e-headertext="Effective Date" e-width="80"></div>
+                    <div e-column e-field="MaternityStartDay" e-headertext="FollowUp Start Date" e-width="60"></div>
+                    <div e-column e-field="MaternityEndDay" e-headertext="FollowUp End Date" e-width="60"></div>
+                    <div e-column e-field="MaternityLeaveStartDay" e-headertext="Leave Start Date" e-width="60"></div>
+                    <div e-column e-field="MaternityLeaveEndDay" e-headertext="Leave End Date" e-width="60"></div>
+                    <div e-column e-field="CanAvailAfterDOJ" e-headertext="Can Avail After DOJ" e-width="60"></div>
+                    <div e-column e-field="GapeBetweenConsecutiveIssue" e-headertext="Gap Between" e-width="60"></div>                  
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+<confirm-modal></confirm-modal>
+<div class="loader" data-loader>
+    Please wait
+    <div class="bounce1"></div>
+    <div class="bounce2"></div>
+    <div class="bounce3"></div>
+</div>
+
+
+<confirm-modal></confirm-modal>

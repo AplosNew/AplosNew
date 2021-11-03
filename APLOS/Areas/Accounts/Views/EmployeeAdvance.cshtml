@@ -1,0 +1,343 @@
+﻿<togglable name="{{title}}"></togglable>
+<div class="form-horizontal form-elements" ng-form="form0">
+    <div class="col-xs-12 col-sm-4 col-md-4">
+        <div class="form-group" show-errors>
+            <label class="col-sm-3 control-label">@Library.Model.Parties.PartyType.Employee.ToString()<sup>*</sup></label>
+            <div class="col-sm-9 show-message">
+                <div class="input-group">
+                    <input tabindex="1" type="text" name="@Library.Model.Parties.PartyType.Employee.ToString()" ng-model="advance.EmployeeName" class="form-control" readonly required>
+                    <span class="input-group-btn">
+                        <button ng-click="showEmployeeListPopUp();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div id="div_TransactionType" class="form-group" show-errors>
+            <label class="col-sm-3 control-label">Transaction Type<sup>*</sup></label>
+            <div class="col-sm-6 show-message">
+                <div class="select-style">
+                    <select ng-change="getTransactionTypeGL(advance.EmployeeTransactionTypeId)" name="Transaction Type" class="form-control" ng-model="advance.EmployeeTransactionTypeId" tabindex="7" required>
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in employeeTransactionTypeList" value="{{option.EmployeeTransactionTypeId}}">{{option.EmployeeTransactionTypeName}}</option>
+                    </select>
+                </div>
+            </div>
+            <label class="col-sm-3 control-label">{{advance.JournalType}}</label>
+
+        </div>
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-3 control-label">Amount<sup>*</sup></label>
+            <div class="col-sm-6 show-message" style="padding-right:0px;">
+                <input tabindex="19" name="Amount" ng-model="advance.Amount" type="text" n-decimals="2" class="form-control text-right" required autocomplete="off">
+            </div>
+            <div class="col-sm-3 show-message" style="padding-left:0px;">
+                <div class="select-style">
+                    <select id="CurrencyId" class="form-control" tabindex="14" name="Currency" ng-model="advance.CurrencyId" ng-change="GetCurrencyExchangeRateList(); checkBankAmount();" required>
+                        <option ng-repeat="option in tranCurrencyList" value="{{option.CurrencyId}}">{{option.Code}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-3 control-label">Rate<sup>*</sup></label>
+            <div class="col-sm-9 show-message">
+                <input type="number" maxlength="50" n-decimals="4" id="Rate" name="Rate" ng-disabled="advance.CurrencyId==companyCurrencyId" ng-model="advance.CompanyCurrencyRate" class="form-control" tabindex="5" required autocomplete="off">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Payment Source<sup>*</sup></label>
+            <div class="col-sm-9 radio">
+                <label>
+                    <input ng-click="clearBankPopUp()" type="radio" ng-disabled="advance.Id" name="source" ng-model="advance.PaymentSource" value="@Library.Model.Payments.PaymentSource.Bank.ToString()">
+                    <span class="cr" tabindex="17"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.Bank.ToString()
+                </label>
+                <label>
+                    <input ng-click="clearCashPopUp()" type="radio" ng-disabled="advance.Id" name="source" ng-model="advance.PaymentSource" value="@Library.Model.Payments.PaymentSource.Cash.ToString()">
+                    <span class="cr" tabindex="18"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.Cash.ToString()
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-4 col-md-4">
+        <div class="form-group" show-errors>
+            <label class="col-sm-3 control-label">Entry Date<sup>*</sup></label>
+            <div class="col-sm-9 show-message">
+                <input tabindex="7" type="text" name="Entry Date" ng-model="advance.VoucherDate" datepicker class="form-control" disabled required>
+            </div>
+        </div>
+        <div id="div_PostingDate" class="form-group" show-errors>
+            <label class="col-sm-3 control-label">Posting Date<sup>*</sup></label>
+            <div class="col-sm-9 show-message">
+                <input required datepicker="checkPostingDate();checkDocDate();" id="postingDate" type="text" name="PostingDate" ng-model="advance.PostingDate" class="form-control">
+            </div>
+        </div>
+        <div id="div_DocDate" class="form-group" show-errors>
+            <label class="col-sm-3 control-label">Doc Date<sup>*</sup></label>
+            <div class="col-sm-9 show-message">
+                <input type="text" name="DocDate" ng-model="advance.DocDate" datepicker="checkPostingDate();checkDocDate();" required class="form-control">
+            </div>
+        </div>
+        <div class="form-group" id="div_ReviewDate">
+            <label class="col-sm-3 control-label">Review Date</label>
+            <div class="col-sm-9 show-message">
+                <input type="text" name="DocDate" ng-model="advance.ReviewDate" datepicker="checkReviewDate();" class="form-control">
+            </div>
+        </div>
+        <div class="form-group" ng-show="advance.PaymentSource=='@Library.Model.Payments.PaymentSource.Bank.ToString()'">
+            <label class="col-sm-3 control-label">Bank<sup>*</sup></label>
+            <div class="col-sm-9 show-message">
+                <div class="input-group">
+                    <input type="text" name="CashName" ng-model="advance.BankName" class="form-control" readonly data-toggle="tooltip" data-placement="top" title="{{advance.BankName}}" tooltip>
+                    <span class="input-group-btn">
+                        <button ng-click="showBankPopUp(advance.EntityId);" class="btn single-small-btn" tabindex="23"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" ng-show="advance.PaymentSource=='@Library.Model.Payments.PaymentSource.Cash.ToString()'">
+            <label class="col-sm-3 control-label">Cash<sup>*</sup></label>
+            <div class="col-sm-9 show-message">
+                <div class="input-group">
+                    <input type="text" name="CashName" ng-model="advance.CashName" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="showCashPopUp(null, advance.EntityId);" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        @*<div class="form-group" ng-show="advance.PaymentSource=='@Library.Model.Payments.PaymentSource.Bank.ToString()'">
+                <label class="col-sm-3 control-label">Bank<sup>*</sup></label>
+                <div class="col-sm-9 show-message">
+                    <div class="select-style">
+                        <select name="Bank" class="form-control" ng-model="advance.BankMasterId" ng-options="item.Id as item.AccountTitle for item in bankMasterList">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" ng-show="advance.PaymentSource=='@Library.Model.Payments.PaymentSource.Cash.ToString()'">
+                <label class="col-sm-3 control-label">Cash<sup>*</sup></label>
+                <div class="col-sm-9 show-message">
+                    <div class="select-style">
+                        <select name="Cash" class="form-control" ng-model="advance.CashMasterId" ng-options="item.Id as item.UserName for item in cashMasterList">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>*@
+    </div>
+    <div class="col-xs-12 col-sm-4 col-md-4">
+        <div class="form-group" show-errors>
+            <label class="col-sm-3 control-label">Voucher Type<sup>*</sup></label>
+            <div class="col-sm-9 show-message">
+                <div class="select-style">
+                    <select ng-disabled="voucherTypeList.length==1" class="form-control" name="Voucher Type" ng-model="advance.VoucherTypeId" tabindex="11" ng-change="changeVoucherType(advance.VoucherTypeId);GetCurrencyExchangeRateList()" required>
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in voucherTypeList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div id="div_entity" class="form-group" show-errors>
+            <label class="col-sm-3 control-label">Entity<sup>*</sup></label>
+            <div class="col-sm-9 show-message">
+                <div class="select-style">
+                    <select id="entityId" class="form-control" name="Entity" ng-model="advance.EntityId" tabindex="16" required>
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in entityList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-3 control-label">Doc Ref<sup>*</sup></label>
+            <div class="col-sm-9 show-message">
+                <input type="text" maxlength="20" id="Doc Ref" name="Doc Ref" ng-model="advance.DocRefNo" class="form-control" autocomplete="off" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label title="Responsible Person" class="col-sm-3 control-label">Res.Person</label>
+            <div class="col-sm-9">
+                <div class="input-group">
+                    <input type="text" name="Responsible Person" ng-model="advance.ResponsiblePersonName" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="showResponsiblePersonListPopUp()" class="btn single-small-btn" tabindex="20"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="clearResponsiblePersonPopUp()" class="btn single-small-btn" tabindex="21"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class=" row form-group" show-errors>
+            <label class="col-sm-3 control-label">Narration<sup>*</sup></label>
+            <div class="col-sm-9 show-message">
+                <textarea rows="2" type="text" name="Narration" tabindex="24" class="form-control" ng-model="advance.Narration" required capitalize></textarea>
+            </div>
+        </div>
+    </div>
+
+    @*hr*@
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        @*<div class="form-group" ng-show="true">*@
+        <fieldset class="scheduler-border" ng-show="isVisibleInstallment">
+            <legend class="scheduler-border">Advance Schedule</legend>
+            <div class="col-xs-12 col-sm-4 col-md-4">
+                <div id="div_DocDate" class="form-group" show-errors>
+                    <label class="col-sm-4 control-label" title="Repayment Start Date" tooltip>First Installment Date<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="Repayment Start Date" ng-model="voucher.RepaymentStartDate" datepicker="checkDocDate(); LoadRepamentDetail()" class="form-control" tabindex="8">
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+
+                    <label class="col-sm-4 control-label">Total Payments </label>
+                    <div class="col-sm-8 show-message">
+                        {{TotalPayments}}
+                    </div>
+                    <input type="text" maxlength="4" ng-show="false" name="Life Of Year" ng-keyup="totalInstallment();LoadRepamentDetail()" ng-model="voucher.LifeOfYear" class="form-control text-right" tabindex="10" autocomplete="off">
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-4 col-md-4">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Interest Rate<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="number" ng-keyup="LoadRepamentDetail()" maxlength="5" name="Interest Rate" ng-model="voucher.ProfitRate" class="form-control" tabindex="12" autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+
+                    <label class="col-sm-4 control-label">Total Interest Paid</label>
+                    <div class="col-sm-8 show-message">
+                        {{TotalInterestPaid}}
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-4 col-md-4">
+                @*<div class="form-group col-sm-12">
+                    </div>*@
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label" title="No. Of Installment Per Year" tooltip>Advance Loan Term (monthly)<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" maxlength="4" name="No. Of Installment Per Year" ng-keyup="totalInstallment();LoadRepamentDetail()" ng-model="voucher.NoOfInstallmentPerYear" class="form-control text-right" tabindex="11" autocomplete="off">
+                        <input type="text" maxlength="10" ng-show="false" name="Total No Of Installment" ng-model="voucher.TotalNoOfInstallment" class="form-control text-right" tabindex="9" disabled autocomplete="off">
+                    </div>
+                    @*<label class="col-sm-3 control-label" title="Total No. Of Installment " tooltip>Total No.Install<sup>*</sup></label>
+                        <div class="col-sm-9 show-message">*@
+                    @*</div>*@
+                </div>
+            </div>
+
+
+            <div class="col-xs-12 col-sm-4 col-md-4">
+                <div class="form-group">
+                    @*<label class="col-sm-3 control-label">Total Payments </label>
+                        <div class="col-sm-9 show-message">
+                            {{TotalPayments}}
+                        </div>*@
+                </div>
+                @*<div class="form-group">
+                        <label class="col-sm-3 control-label"></label>
+                        <div class="col-sm-9 show-message">
+
+                        </div>
+                    </div>*@
+            </div>
+            <div class="col-xs-12 col-sm-4 col-md-4">
+                <div class="form-group">
+                    @*<label class="col-sm-3 control-label">Total Interest Paid</label>
+                        <div class="col-sm-9 show-message">
+                            {{TotalInterestPaid}}
+                        </div>*@
+                </div>
+                @*<div class="form-group">
+                        <label class="col-sm-3 control-label">Total Payments </label>
+                        <div class="col-sm-9 show-message">
+                            {{TotalPayments}}
+                        </div>
+                    </div>*@
+            </div>
+
+        </fieldset>
+        @*</div>*@
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 modal-table" id="loanDetails">
+    </div>
+    @*hr*@
+
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li ng-hide="advance.Id==null"><button ng-click="confirmPost(advance.Id);" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Post</button></li>
+            <li><button ng-click="clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<div class="aplos-grid-toggle">
+    <div class="row text-right">
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="search-form">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-3">
+                        <div class="select-style">
+                            <select ng-model="$root.parameters.searchBy">
+                                <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-7 col-md-7">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="table-responsive modal-table">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>VoucherNo</th>
+                    <th>@Library.Model.Parties.PartyType.Employee.ToString()</th>
+                    <th>Posting Date</th>
+                    <th>Currency</th>
+                    <th>Amount</th>
+                    <th>Set-off Amount</th>
+                    <th>Balance</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr dir-paginate="x in voucherList |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="getById(x.Id,x.EmployeeCode,x.EmployeeName,x.ResponsibleCode,x.ResponsibleName);">
+                    <td>{{x.VoucherNo}}</td>
+                    <td>{{x.EmployeeCode}} - {{x.EmployeeName}}</td>
+                    <td>{{x.PostingDate | dateFiltering}}</td>
+                    <td>{{x.CurrencyCode}}</td>
+                    <td class="text-right">{{x.Amount | number:2}}</td>
+                    <td class="text-right">{{x.WrittenOffAmount | number:2}}</td>
+                    <td class="text-right">{{x.Amount-x.WrittenOffAmount | number:2}}</td>
+                    <td>{{x.IsPark?'Parked':'Posted'}}</td>
+                    <td class="text-right">
+                        <ul class="list-inline action-list">
+                            <li ng-show="x.IsPark"><a ng-click="confirmPost(x.Id);" href="" class="btn btn-action tooltip-here">Post</a></li>
+                            <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x.VoucherId);" href="" class="btn btn-action tooltip-here">Delete</a></li>
+                            <li><a class="btn btn-action" href="Accounts/Advance/GetEmployeeAdvanceReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
+                            <li><a class="btn btn-action" href="Accounts/Advance/GetEmployeeAdvanceReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
+                        </ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
+    </div>
+</div>
+@Html.Partial("~/Areas/Banks/Views/_CashPopUp.cshtml")
+@Html.Partial("~/Areas/Banks/Views/_BankPopUp.cshtml")
+@Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")
+@Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
+@Html.Partial("~/Areas/Employees/Views/Shared/_ResponsiblePersonPopUp.cshtml")
+
+<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(advanceId)"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(advanceId,voucherId)"></confirm-archive-generic>

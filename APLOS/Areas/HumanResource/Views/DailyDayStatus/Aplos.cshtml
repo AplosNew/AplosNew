@@ -1,0 +1,137 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> Daily Day Status</h3>
+<div class="form-elements form-horizontal" ng-form="modelForm">
+    <div class="row">
+        <div class="form-elements form-horizontal" ng-form="modelForm">
+            <div class="col-md-12 col-sm-6 col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Entity</label>
+
+                    <div class="col-sm-8">
+                        <div class="select-style">
+                            <select id="Entity" class="form-control" ng-model="Entity"  tabindex="3" ng-change="getDept();">
+                                <option value=""> </option>
+                                <option ng-repeat="option in EntityList" value="{{option.Id}}">{{option.Entity}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Department<sup></sup></label>
+                    <div class="col-sm-8">
+                        <div class="select-style">
+                            <select id="Department" class="form-control" ng-model="sDepID" name="Department" required tabindex="3" ng-change="changeSectionByDept();">
+                                <option value="All">--All--</option>
+                                <option ng-repeat="option in DeptList" value="{{option.Id}}">{{option.Depertment}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Sub Section<sup></sup></label>
+                    <div class="col-sm-8">
+                        <div class="select-style">
+                            <select id="subSectionId" class="form-control" ng-model="sSubSecID" name="subSectionId" tabindex="3" ng-change="changeLineBySubSection();">
+                                <option value="All">--All--</option>
+                                <option ng-repeat="option in subSectionList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Date<sup>*</sup></label>
+                    <div class="col-sm-8">
+                        <input type="text" name="Form Date" ng-model="attdnDate" datepicker class="form-control" ng-change="PreviousDate()">
+                    </div>
+                </div>                
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Employee Category</label>
+                    <div class="col-sm-8">
+                        <div class="select-style">
+                            <select id="Category" class="form-control" ng-model="EmployeeCategory" name="subSectionId" tabindex="3" @*ng-change="changeLineBySubSection();"*@>
+                                <option value="All">--All--</option>
+                                <option ng-repeat="option in EmployeeCategoryList" value="{{option.Id}}">{{option.EmployeeCategory}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="form-group">
+                    <div class="col-xs-6" style="margin:1px;">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">                                
+                                <li>
+                                    <a class="btn" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;"
+                                       href="humanresource/dailydaystatus/GetDailyDayStatusReportView?workDate={{attdnDate}}&PrevWorkDate={{Prev}}&sDepID={{sDepID}}&sSecID={{sSecID}}&sSubSecID={{sSubSecID}}&sLineID={{sLineID}}&dayStatus={{dayStatus}}&Dep={{Dep}}&Sec={{Sec}}"
+                                       target="_blank"><i class="fa fa-eye" style="margin: -6px;"> View</i></a>
+                                </li>
+                                <li><button ng-click="GetdailyDayStatusReport();" class="btn"> <i class="glyphicon glyphicon-download"></i> Download</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12 col-sm-6 col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Shift</label>
+                    <div class="col-sm-8">
+                        <div class="select-style">
+                            <select id="shiftList" class="form-control" ng-model="shift" name="subSectionId" tabindex="3" @*ng-change="changeLineBySubSection();"*@>
+                                <option value="All">--All--</option>
+                                <option ng-repeat="option in ShiftList" value="{{option.SystemID}}">{{option.ShiftType}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Section</label>
+                    <div class="col-sm-8">
+                        <div class="select-style">
+                            <select id="Section" class="form-control" ng-model="sSecID" name="Section" tabindex="3" ng-change="changeSubSectionBySection();">
+                                <option value="All">--All--</option>
+                                <option ng-repeat="option in sectionList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Line</label>
+                    <div class="col-sm-8">
+                        <div class="select-style">
+                            <select id="Line" class="form-control" ng-model="sLineID" name="Line" tabindex="3">
+                                <option value="All">--All--</option>
+                                <option ng-repeat="option in lineList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Previous Date<sup>*</sup></label>
+                    <div class="col-sm-8">
+                        @*<input type="text" name="Previous Date" ng-model="Prev" datepicker class="form-control">*@
+                        <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="Prev" e-width="100%" e-enabled="PreviousDateEnabled" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Day Status<sup></sup></label>
+                    <div class="col-sm-8">
+                        <div class="select-style">
+                            <input id="AttendanceDayStatusList" ej-dropdownlist e-create="create" e-multiselectmode="visualmode" e-datasource="AttendanceDayStatusList" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-showcheckbox="true" />
+                            @*<select id="subSectionId" class="form-control" ng-model="dayStatus" name="subSectionId" tabindex="3" ng-change="changeLineBySubSection();">
+                                <option value="All">--All--</option>
+                                <option ng-repeat="option in AttendanceDayStatusList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="loader" data-loader>
+    Please wait
+    <div class="bounce1"></div>
+    <div class="bounce2"></div>
+    <div class="bounce3"></div>
+</div>
+

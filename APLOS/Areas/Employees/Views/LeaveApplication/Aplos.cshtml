@@ -1,0 +1,166 @@
+﻿<togglable name="Leave Application"></togglable>
+<div class="form-elements form-horizontal" ng-form name="leaveApplicationNewForm">
+    <div class="clearfix"></div>
+    <input type="hidden" ng-model="leaveApplicationNew.Id">
+    <input type="text" ng-model="leaveApplicationNew.Id" hidden />
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Approval Person</label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    <select id="ID" class="form-control" ng-model="leaveApplicationNew.ApprovalPerson" name="Approval Person">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in empList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Calender Year</label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    <select id="ID" class="form-control" ng-model="YearNo" name="YearNo" ng-change="LeaveTypes();getData()">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in leaveYearlist" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-12">
+                <div class="radio">
+                    <label>
+                        <input type="radio" id="fullDay" name="LeaveDayType" ng-model="leaveApplicationNew.LeaveDayType" value="FullDay" ng-checked="leaveApplicationNew.LeaveDayType" ng-click="setEnable()">
+                        <span class="cr"><i class="cr-icon"></i></span>Full Day
+                    </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <label>
+                        <input type="radio" id="fHalfDay" name="LeaveDayType" ng-model="leaveApplicationNew.LeaveDayType" value="FirstHalfDay" ng-click="setDisable()">
+                        <span class="cr"><i class="cr-icon"></i></span>First Half Day
+                    </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <label>
+                        <input type="radio" id="sHalfDay" name="LeaveDayType" ng-model="leaveApplicationNew.LeaveDayType" value="SecondHalfDay" ng-click="setDisableSec()">
+                        <span class="cr"><i class="cr-icon"></i></span>Second Half Day
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Leave Type<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select id="ID" class="form-control" ng-model="leaveApplicationNew.LTSystemID" name="Leave Type" required tabindex="1">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in leaveTypelist" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label" id="fDate">From Date<sup>*</sup></label>
+            <div class="col-sm-8  show-message">
+                <input type="text" name="From Date" ng-model="leaveApplicationNew.FromDate" datepicker class="form-control" placeholder="dd-MM-yyyy" required tabindex="2">
+            </div>
+        </div>
+        <div class="form-group" ng-hide="lvTodate">
+            <label class="col-sm-4 control-label" id="tDate">To Date<sup>*</sup></label>
+            <div class="col-sm-8">
+                <input type="text" name="To Date" ng-model="leaveApplicationNew.ToDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="3">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Leave Reason<sup>*</sup></label>
+            <div class="col-sm-8  show-message">
+                <textarea type="text" name="Leave Reason" ng-model="leaveApplicationNew.LvReason" rows="3" class="form-control" required tabindex="4"></textarea>
+            </div>
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-left">
+                <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="table-responsive modal-table">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Leave Name</th>
+                        <th>Brought Forward</th>
+                        <th>Current Year Allocation</th>
+                        <th>Leave Days Allowed</th>
+                        <th>Applied</th>
+                        <th>Availed</th>
+                        <th>Encashed</th>
+                        <th>Balance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="x in LeaveBalanceList">
+                        <td>{{x.LeaveName}}</td>
+                        <td>{{x.BroughtForward}}</td>
+                        <td>{{x.CurrentAllocation}}</td>
+                        <td>{{x.LeaveDays}}</td>
+                        <td>{{x.Applied}}</td>
+                        <td>{{x.Availed}}</td>
+                        <td>{{x.EncashedInbetween}}</td>
+                        <td>{{x.Balance}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="leaveParameters.searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="leaveParameters.search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table  aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Leave Name</th>
+                <th>Leave Day Type</th>
+                <th>From Date</th>
+                <th>To Date</th>
+                <th>Leave Reason</th>
+                <th>Approved</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in LeaveTransactionList |itemsPerPage:leaveParameters.pageSize" total-items="leaveParameters.total_count" ng-dblclick="Get(x.Id, $index);">
+                <td>{{x.leaveTypeName}}</td>
+                <td>{{x.LeaveDayType}}</td>
+                <td>{{x.FromDate|dateFiltering}}</td>
+                <td>{{x.ToDate|dateFiltering}}</td>
+                <td>{{x.LvReason}}</td>
+                <td>{{x.IsApproved?'Yes':'No'}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10"
+                             direction-links="true"
+                             boundary-links="true"
+                             on-page-change="getData(newPageNumber)">
+    </dir-pagination-controls>
+</div>
+<confirm-modal></confirm-modal>

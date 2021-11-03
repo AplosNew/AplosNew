@@ -1,0 +1,379 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> Sample Order Pending</h3>
+<div class="form-horizontal form-elements" ng-form name="sampleOrderNewForm">
+    <fieldset style="border:1px solid;padding-left: 1.4em;margin-bottom:10px;">
+        <legend style="width: auto;font-size: 12px;margin-bottom: 6px;"> Select pending sample order</legend>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Entity<sup>*</sup></label>
+                <div class="col-sm-9 input-group">
+                    <div class="select-style">
+                        <select ng-model="sampleOrderPendingNew.EntityId" class="form-control"
+                                ng-options="item.Value as item.Text for item in entityList" tabindex="2">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                    <span class="input-group-btn">
+                        <button ng-click="sampleOrderPopUp();" class="btn single-small-btn" ng-disabled="sampleOrderPendingNew.EntityId==null">Go</button>
+                        <button ng-click="ClearSampleOrder();" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+    <div class="clearfix"></div>
+    <div class="table-responsive modal-table" ng-show="pendingList.length>0">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Confirm</th>
+                    <th>Ref.DocNo</th>
+                    <th>MaterialGroup (Mst)</th>
+                    <th>Material Master</th>
+                    <th>Article</th>
+                    <th>Detail</th>
+                    <th>Name</th>
+                    <th>Qty</th>
+                    <th>UoM</th>
+                    <th>Rate</th>
+                    <th>DeliveryDate</th>
+                    <th>Req.Ref.Date</th>
+                    <th>Id</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="x in pendingList">
+                    <td>
+                        <ul class="list-inline action-list">
+                            <li style="margin-left: -6px;"><button ng-click="materialAttach(x.Id,x.MaterialGroupMasterId,x.UoMId,$index)" class="btn-action single-small-btn tooltip-here" data-placement="right" title="Material Attach" tooltip><i class="glyphicon glyphicon-paperclip"></i></button></li>
+                            <li style="margin-left: -6px;"><button ng-click="materialDetachedPopUp (x.Id,x.Name,x.MaterialMasterName,$index)" class="btn-action single-small-btn tooltip-here" data-placement="top" title="Material Detached" tooltip><i class="fa fa-chain-broken"></i></button></li>
+                            <li style="margin-left: -6px;"><button ng-click="dispatchDatePopUp (x.Id,x.Name,$index)" class="btn-action single-small-btn tooltip-here" data-placement="top" title="Set dispatch date" tooltip><i class="glyphicon glyphicon-calendar"></i></button></li>
+                        </ul>
+                    </td>
+                    <td>
+                        <div class="checkbox-site">
+                            <label>
+                                <input type="checkbox" class="css-checkbox" ng-model="x.IsConfirmed" ng-checked="x.IsConfirmed" ng-click="confirmation(x.Id,$event)">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </td>
+                    <td>{{x.ReferenceDocNo}}</td>
+                    <td>{{x.MaterialGroupMasterName}}</td>
+                    <td>{{x.MaterialMasterName}}</td>
+                    <td>{{x.ArticleName}}</td>
+                    <td>{{x.Detail}}</td>
+                    <td>{{x.Name}}</td>
+                    <td>{{x.Qty}}</td>
+                    <td>{{x.UoM}}</td>
+                    <td>{{x.Rate}} {{x.CurrencyName}}</td>
+                    <td>{{x.DeliveryDate|dateFiltering}}</td>
+                    <td>{{x.RequestReferenceDate}}</td>
+                    <td>{{x.Id}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<!-- #region Sample Order -->
+<div class="modal fade site-modal in" id="sampleOrderId" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Pending Sample Order<button type="button" class="close" ng-click="closeSampleOrder();">&times;</button></div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="sampleOrderParameters.searchBy">
+                                            <option ng-repeat="option in searchSampleOrderList|orderBy:'name'" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="sampleOrderParameters.search" ng-enter="getSampleOrderData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getSampleOrderData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Select</th>
+                                <th>Ref.DocNo</th>
+                                <th>Confirmed</th>
+                                <th>MaterialGroup (Mst)</th>
+                                <th>Material Master</th>
+                                <th>Article</th>
+                                <th>Detail</th>
+                                <th>Name</th>
+                                <th>Qty</th>
+                                <th>UoM</th>
+                                <th>Rate</th>
+                                <th>DeliveryDate</th>
+                                <th>Customer</th>
+                                <th>Req.Ref.Date</th>
+                                <th>Id</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in sampleOrderList|itemsPerPage:sampleOrderParameters.pageSize" total-items="sampleOrderParameters.total_count" pagination-id="metaData.name + 'sampleOrderList'">
+                                <td>
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" class="css-checkbox" ng-model="x.Flag" ng-checked="x.Flag" ng-click="pushTempList(x.Id,$event)">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>{{x.ReferenceDocNo}}</td>
+                                <td>{{x.IsConfirmed?'Yes':'No'}}</td>
+                                <td>{{x.MaterialGroupMasterName}}</td>
+                                <td>{{x.MaterialMasterName}}</td>
+                                <td>{{x.ArticleName}}</td>
+                                <td>{{x.Detail}}</td>
+                                <td>{{x.Name}}</td>
+                                <td>{{x.Qty}}</td>
+                                <td>{{x.UoM}}</td>
+                                <td>{{x.Rate}} {{x.CurrencyName}}</td>
+                                <td>{{x.DeliveryDate}}</td>
+                                <td>{{x.CustomerName}}</td>
+                                <td>{{x.RequestReferenceDate}}</td>
+                                <td>{{x.Id}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'sampleOrderList'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getSampleOrderData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="selectSampleOrder();" class="btn">Select</button></li>
+                        <li> <button ng-click="closeSampleOrder();" class="btn">Cancel</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion -->
+<!-- #region Attach Material -->
+<div class="modal fade site-modal in" id="materialAttachId" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Material Attach<button type="button" class="close" ng-click="CloseMaterialAttach();">&times;</button></div>
+            <div class="modal-body form-horizontal form-elements">
+                <fieldset class="scheduler-border">
+                    <legend class="scheduler-border"> Material</legend>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" id="div_mm">
+                            <label class="col-sm-4 control-label">Material</label>
+                            <div class="col-sm-8 show-message">
+                                <div class="input-group">
+                                    <input type="text" ng-model="sampleOrderMaterial.MaterialMasterName" class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button tabindex="1" ng-click="getMaterialMasterSearchData();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" id="div_ar" ng-show="hasArticle">
+                            <label class="col-sm-4 control-label">Article</label>
+                            <div class="col-sm-8 show-message">
+                                <div class="input-group">
+                                    <input type="text" name="Finished Goods" ng-model="sampleOrderMaterial.ArticleName" class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button tabindex="1" ng-click="getArticleSearchList(sampleOrderMaterial.MaterialMasterId);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Material Group</label>
+                            <label class="col-sm-8 control-label">{{sampleOrderMaterial.MaterialGroupMasterName}}</label>
+                        </div>
+                        <div class="form-group" ng-show="sampleOrderMaterial.IsProductMstRequired">
+                            <label class="col-sm-4 control-label">Prd Master</label>
+                            <label class="col-sm-8 control-label">{{sampleOrderMaterial.ProductMasterName}}</label>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Base UoM</label>
+                            <label class="col-sm-8 control-label">{{sampleOrderMaterial.BaseUoM}}</label>
+                        </div>
+                        <div class="form-group" ng-show="sampleOrderMaterial.IsOurStyleRequired">
+                            <label class="col-sm-4 control-label">OurStyle</label>
+                            <label class="col-sm-8 control-label">{{sampleOrderMaterial.OurStyleName}}</label>
+                        </div>
+                    </div>
+                </fieldset>
+                <!--sampleOrderMaterial Entry Rigt-->
+                <hr ng-show="char1.CharacteristicsId.length>0;" />
+                <div class="col-xs-12 col-sm-6 col-md-6" ng-show="char1.CharacteristicsId.length>0;">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">{{char1.Name}}<sup>*</sup></label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <input type="text" ng-model="char1.FreeText" class="form-control"
+                                       ng-keyup="nullByFreeText('char1')" disabled ng-required="char1.IsMandatory">
+                                <span class="input-group-btn">
+                                    <button ng-click="findCharValueSearchData(char1, 'char1')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                    <button ng-click="clearCharValueField('char1');" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                </span>
+                            </div>
+                            <p class="msg-error" ng-show="IsMandatoryButNull(char1.IsMandatory, char1.FreeText)">value is required.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6" ng-show="char2.CharacteristicsId.length>0;">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">{{char2.Name}}<sup>*</sup></label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <input type="text" ng-model="char2.FreeText" class="form-control"
+                                       ng-keyup="nullByFreeText('char2')" disabled ng-required="char2.IsMandatory">
+                                <span class="input-group-btn">
+                                    <button ng-click="findCharValueSearchData(char2, 'char2')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                    <button ng-click="clearCharValueField('char2');" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                </span>
+                            </div>
+                            <p class="msg-error" ng-show="IsMandatoryButNull(char2.IsMandatory, char2.FreeText)">value is required.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6" ng-show="char3.CharacteristicsId.length>0;">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">{{char3.Name}}<sup>*</sup></label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <input type="text" ng-model="char3.FreeText" class="form-control"
+                                       ng-keyup="nullByFreeText('char3')" disabled ng-required="char3.IsMandatory">
+                                <span class="input-group-btn">
+                                    <button ng-click="findCharValueSearchData(char3, 'char3')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                    <button ng-click="clearCharValueField('char3');" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                </span>
+                            </div>
+                            <p class="msg-error" ng-show="IsMandatoryButNull(char3.IsMandatory, char3.FreeText)">value is required.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="MaterialAttachSave();" class="btn"><i class="glyphicon glyphicon-paperclip"></i> Attach</button></li>
+                        <li> <button ng-click="CloseMaterialAttach();" class="btn">Cancel</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion -->
+<!-- #region Material -->
+<div class="modal fade site-modal in" id="materialmastersearchpopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Material<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body text-center">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="mmPopUpParameters.searchBy">
+                                            <option ng-repeat="option in searchbyMaterialMasterDatalist" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="mmPopUpParameters.search" ng-enter="loadMMData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="loadMMData();" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped text-left">
+                        <thead>
+                            <tr>
+                                <th>Material Type</th>
+                                <th>Material Group</th>
+                                <th>Product</th>
+                                <th>Code</th>
+                                <th>Material Name</th>
+                                <th>Id</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in materialmasterSearchData  |itemsPerPage:$root.pageSize" pagination-id="metaData.name + 'materialmasterSearchData'"
+                                total-items="mmPopUpParameters.total_count" ng-dblclick="setMaterialMasterData(x);">
+                                <td>{{x.MaterialTypeName}}</td>
+                                <td>{{x.MaterialGroupMasterName}}</td>
+                                <td>{{x.ProductMasterName}}</td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.Id}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls pagination-id="metaData.name + 'materialmasterSearchData'"
+                                             max-size="2"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="loadMMData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPopUp.cshtml")
+@Html.Partial("~/Areas/Materials/Views/Shared/_CharacteristicsValuePopUp.cshtml")
+<!-- #endregion -->
+@*<confirm-archive-generic modalid="confirm_PopUp" title="Confirmation" message={{confirmationMessage}} data-ng-click-right-button="removeRow()"></confirm-archive-generic>*@
+<confirm-archive-generic modalid="detachedPopUp" title="Confirmation" message={{confirmationMessage}} data-ng-click-right-button="materialDetached()"></confirm-archive-generic>
+<div class="modal fade site-modal in" id="dispatchDatePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-sm" style="width:450px;">
+        <div class="modal-content">
+            <div class="modal-header">Set dispatch<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-horizontal form-elements">
+                <p>{{confirmationMessage}}</p>
+                <br />
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Select Date</label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" ng-model="date" datepicker class="form-control" placeholder="dd-Mmm-yyyy">
+                    </div>
+                </div>
+                <p ng-show="errorText!=null||date==null" style="font-size:8px;color:red;">{{errorText}}</p>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button class="btn" data-dismiss="modal">No</button></li>
+                        <li><button ng-click="dispatchDate();" class="btn"> Yes</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,42 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>Gratuity</h3>
+<div class="form-elements form-horizontal" ng-form="modelForm">
+    <div class="row">
+        <div class="col-md-12 col-lg-12 col-sm-12">
+            <div class="col-xs-4 col-sm-4 col-md-4">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Calculation Date<sup>*</sup></label>
+                    <div class="col-sm-8  show-message">
+                        <input type="text" name="Form Date" ng-model="calculationDate" datepicker class="form-control">
+                        <p ng-show="dateMessageFrom" style="color:red" class="show-message">{{dateMessageFrom}}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-4 col-sm-4 col-md-4">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Payroll Group<sup></sup></label>
+                    <div class="col-sm-8">
+                        <div class="select-style">
+                            <select id="YearId" class="form-control" ng-model="payrollGroupId" name="PayrollGroup" required tabindex="3">
+                                <option ng-repeat="option in payrollGroupList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-4 col-sm-4 col-md-4">
+                <div class="form-group">
+                    <div class="common-btn">
+                        <button ng-click="getGratuityReport('EXCEL');" class="btn"> <i class="glyphicon glyphicon-download"></i>Excel</button>
+                        <button ng-click="getGratuityReport('PDF');" class="btn"> <i class="glyphicon glyphicon-download"></i>PDF</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="loader" data-loader>
+        Please wait
+        <div class="bounce1"></div>
+        <div class="bounce2"></div>
+        <div class="bounce3"></div>
+    </div>
+</div>

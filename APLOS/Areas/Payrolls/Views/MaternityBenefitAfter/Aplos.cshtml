@@ -1,0 +1,286 @@
+﻿<togglable name="Maternity Benefit Disbursement"></togglable>
+<div class="form-elements" ng-form id="FinalSettlement" name="FinalSettlementForm">
+    <div class="row">
+
+        <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Employee<sup>*</sup></label>
+                <div class="col-sm-6 show-message">
+                    <input type="text" name="Employee" ng-model="EmployeeModel.EmployeeCode" disabled class="form-control" required tabindex="1">
+                </div>
+                <div class="col-sm-2 show-message" style="margin-left:0px;padding-left:0px">
+                    <button style="color: #f3f3ec;background-color: #1c1f32; " class="btn"><i class="glyphicon glyphicon-search" ng-click="LoadEmployeeList()" style="margin: -4px;"></i></button>
+                </div>
+            </div>
+
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">DOJ  </label>
+                <label class="col-sm-8 control-label">: {{EmployeeModel.DOJ}}</label>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Department   </label>
+                <label class="col-sm-8 control-label">: {{EmployeeModel.Department}}</label>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">SubSection  </label>
+                <label class="col-sm-8 control-label">: {{EmployeeModel.Subsection}}</label>
+            </div>
+
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Employee Name  </label>
+                <label class="col-sm-8 control-label">: {{EmployeeModel.EmployeeName}}</label>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Designation  </label>
+                <label class="col-sm-8 control-label">: {{EmployeeModel.LegalDesignation}}</label>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Section  </label>
+                <label class="col-sm-8 control-label">: {{EmployeeModel.Section}}</label>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Line  </label>
+                <label class="col-sm-8 control-label">: {{EmployeeModel.Line}}</label>
+            </div>
+        </div>
+        <div class="common-btn">
+            <div style="font-size:medium;font-weight:bold"> Leave Info </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Child No  </label>
+                <label class="col-sm-8 control-label">: {{EmployeeModel.ChildNo}}</label>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Leave Start Date  </label>
+                <label class="col-sm-8 control-label">: {{EmployeeModel.LeaveStartDate}}</label>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Expected Delivery Date  </label>
+                <label class="col-sm-8 control-label">: {{EmployeeModel.EDD}}</label>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Leave Days </label>
+                <label class="col-sm-8 control-label">: {{EmployeeModel.LeaveDays}}</label>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Leave End Date  </label>
+                <label class="col-sm-8 control-label">: {{EmployeeModel.LeaveEndDate}}</label>
+            </div>
+
+        </div>
+
+        <div class="common-btn">
+            <div class="common-btn">
+                <div style="font-size:medium;font-weight:bold"> Salary Info </div>
+            </div>
+        </div>
+        <br />
+        <div class="col-xs-12 col-sm-12 col-md-12 ">
+
+            <div id="GridSalaryInfo" ej-grid e-datasource="EmpSalaryInfo">
+                <div e-columns>
+                    <div e-column e-field="MonthName" e-headertext="Month" e-width="100"></div>
+                    <div e-column e-field="StructureAmount" e-headertext="Gross" e-width="100"></div>
+                    <div e-column e-field="WorkingDays" e-headertext="Working Days" e-width="100"></div>
+                    <div e-column e-field="StructureAmount" e-headertext="Structure Amount" e-width="100"></div>
+                    <div e-column e-field="EarnedAmount" e-headertext="Earned Amount" e-width="100"></div>
+                    <div e-column e-field="BonusAmount" e-headertext="Festival Bonus" e-width="80"></div>
+                    <div e-column e-field="OtherAmount" e-headertext="Other Earning" e-width="100"></div>
+                    <div e-column e-field="TotalEarnedAmount" e-headertext="Total Earning" e-width="100"></div>
+                </div>
+            </div>
+
+            @*<script type="text/template" id="Total">
+                <div class="col-sm-10" style="padding:1px; width:100%;height:20px;">
+                    <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.Total" e-change="data.EarnedAmount+data.BonusAmount+data.OtherAmount+data.Total" style="color:black;" />
+                </div>
+            </script>*@
+
+        </div>
+
+        <div class="col-xs-12 col-sm-12 col-md-12 form-horizontal">
+            <div class="form-group">
+
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Additional Payable</label>
+                <label class="col-sm-4 control-label">: {{EmployeeModel.AdditionalAmount}} </label>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Remark</label>
+                <label class="col-sm-4 control-label">: {{EmployeeModel.Remark}} </label>
+            </div>
+        </div>
+
+        <hr />
+        <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">           
+            <hr />
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Total Earning  </label>
+                <label class="col-sm-8 control-label">: {{EmployeeModel.TotalPayable}}</label>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Total Working Days </label>
+                <label class="col-sm-8 control-label">: {{EmployeeModel.TotalWorkingDays}}</label>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Daily Wage </label>
+                <label class="col-sm-8 control-label">: {{EmployeeModel.WageRate}}</label>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Total Payable </label>
+                <label class="col-sm-8 control-label">: {{EmployeeModel.TotalPayable}} ( In {{EmployeeModel.LeaveDays}} Days )</label>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">          
+            <hr />
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Additional Amount Before</label>
+                <label class="col-sm-8 control-label">: {{EmployeeModel.AdditionalAmountBefore}}</label>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Additional Amount After</label>
+                <label class="col-sm-8 control-label">: {{EmployeeModel.AdditionalAmountAfter}}</label>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Amount Before Leave </label>
+                <label class="col-sm-8 control-label">: {{EmployeeModel.BeforeAmount}}</label>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Amount After Leave </label>
+                <label class="col-sm-8 control-label">: {{EmployeeModel.AfterAmount}}</label>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Is Before</label>
+                <div class="col-sm-9">
+                    <div class="checkbox-site">
+                        <label>
+                            <input tabindex="8" type="checkbox" @*ng-change="changeBefore()"*@ ng-model="EmployeeModel.IsPaidBefore">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Is After</label>
+                <div class="col-sm-9">
+                    <div class="checkbox-site">
+                        <label>
+                            <input tabindex="8" type="checkbox"  @*ng-change="changeAfter()"*@  ng-model="EmployeeModel.IsPaidAfter">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Before Date<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text"  name="From Date" placeholder="dd-MM-yyyy" ng-model="EmployeeModel.BeforePaymentDate" datepicker class="form-control datepicker" tabindex="1">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">After Date<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text"  name="From Date" placeholder="dd-MM-yyyy" ng-model="EmployeeModel.AfterPaymentDate" datepicker class="form-control datepicker" tabindex="1">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> {{Action}}</button></li>                   
+                    <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="11"></i> Clear</button></li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+    <confirm-modal></confirm-modal>
+
+    <ej-dialog id="dialogEmployeeInfo"
+               title=" Employee Information"
+               e-enablemodal="true"
+               e-position-y="0"
+               e-showoninit="false"
+               e-target=".site-heading"
+               e-close="onDialogClose"
+               e-minwidth="95%"
+               e-minheight="500" e-open="enableBtn">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-sm-12">
+
+                <div style="color:black;"
+                     id="GridEmployeeInfoList"
+                     e-recorddoubleclick="SelectEmployee"
+                     ej-grid e-datasource="EmployeeInformationList"
+                     e-gridlines="vertical"
+                     e-allowfiltering="true"
+                     e-allowpaging="true"
+                     e-allowsorting="true"
+                     e-allowselection="true"
+                     e-pagesettings-pagesize="25"
+                     e-filtersettings-filterType="excel" e-allowtouch="true">
+                    <div e-columns>
+                        <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="50"></div>
+                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                        <div e-column e-field="DOJ" e-headertext="DOJ" e-width="70"></div>
+                        <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                        <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                        <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                        <div e-column e-field="Subsection" e-headertext="Subsection" e-width="80"></div>
+                        <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                        <div e-column e-field="EmpSystemId" e-headertext="EmpSystemId" e-width="80" e-visible="false"></div>
+                        <div e-column e-field="LeaveStartDate" e-headertext="LeaveStartDate" e-width="80" e-visible="false"></div>
+                        <div e-column e-field="LeaveDays" e-headertext="LeaveDays" e-width="80" e-visible="false"></div>
+                        <div e-column e-field="LeaveTransactionId" e-headertext="LeaveTransactionId" e-width="80" e-visible="false"></div>
+
+                        <div e-column e-field="IsBefore" e-headertext="IsBefore" e-width="80" e-visible="false"></div>
+                        <div e-column e-field="BeforePercentage" e-headertext="BeforePercentage" e-width="80" e-visible="false"></div>
+                        <div e-column e-field="IsAfter" e-headertext="IsAfter" e-width="80" e-visible="false"></div>
+                        <div e-column e-field="AfterPercentage" e-headertext="AfterPercentage" e-width="80" e-visible="false"></div>
+                        <div e-column e-field="ChildNo" e-headertext="ChildNo" e-width="80" e-visible="false"></div>
+                        <div e-column e-field="LeaveEndDate" e-headertext="LeaveEndDate" e-width="80" e-visible="false"></div>
+                        <div e-column e-field="EDD" e-headertext="EDD" e-width="80" e-visible="false"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </ej-dialog>

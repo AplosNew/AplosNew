@@ -1,0 +1,970 @@
+﻿<togglable name="Inter Company Party"></togglable>
+<div ng-form name="partyForm">
+    <div class="form-elements form-horizontal">
+        <input type="hidden" ng-model="party.Id">
+        <input type="hidden" ng-model="addressMaster.Id">
+        <div class="tab-design" id="tab_show">
+            <div class="site-tab">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="basic" role="tab" data-toggle="tab">General</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="address" role="tab" data-toggle="tab">Address</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="contact" role="tab" data-toggle="tab">Contact</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="vendor" role="tab" data-toggle="tab">Vendor</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" aria-controls="customer" role="tab" data-toggle="tab">Customer</a></li>
+                    <li ng-hide="true" role="presentation" ng-class="{ active: isSet(6) }"><a ng-click="setTab(6)" href="" aria-controls="vendorpf" role="tab" data-toggle="tab">Vendor PartnerFunction</a></li>
+                    <li ng-hide="true" role="presentation" ng-class="{ active: isSet(7) }"><a ng-click="setTab(7)" href="" aria-controls="customerpf" role="tab" data-toggle="tab">Customer PartnerFunction</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(8) }"><a ng-click="setTab(8)" href="" aria-controls="plants" role="tab" data-toggle="tab">Plant</a></li>
+                </ul>
+            </div>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                    <div class="row" ng-form name="partyForm2">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Company Group</label>
+                                <div class="col-sm-8">
+                                    @ViewBag.CompanyGroup
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Company<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select id="CompanyId" class="form-control" name="Company" ng-model="party.CompanyId" tabindex="1" ng-change="GetAddressContact(party.CompanyId);getVendorCompanyData(party.Id,party.CompanyId);" ng-disabled="party.Id!=null" required>
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in companyList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" ng-form name="partyForm2">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="number" name="Sequence" ng-model="party.Sequence" class="form-control" required placeholder="0" tabindex="1">
+                                    <span class="msg-error" ng-show="partyForm2.Sequence.$error.number">
+                                        Not valid number!
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" name="Short Name" maxlength="15" ng-model="party.ShortName" class="form-control" required disabled tabindex="3">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Pin Code</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="PINCode" maxlength="50" ng-model="party.PINCode" class="form-control" tabindex="5">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">BIN No</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="BIN NO" maxlength="50" ng-model="party.BINNO" class="form-control" tabindex="7">
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Commission Rate<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="number" name="Commission Rate" ng-model="party.CommissionRate" class="form-control" tabindex="9" required>
+                                    <span class="msg-error" ng-show="partyForm2.CommissionRate.$error.number">
+                                        Not valid number!
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Transaction Type</label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select name="TransactionType" ng-model="party.TransactionType" class="form-control" tabindex="11">
+                                            <option value="">--Select--</option>
+                                            <option value="Bank">Bank</option>
+                                            <option value="Check">Chaque</option>
+                                            <option value="Cash">Cash</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">VAT Registration No</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="VATResistrationNo" maxlength="20" ng-model="party.VATResistrationNo" class="form-control" disabled tabindex="13">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Debit Limit</label>
+                                <div class="col-sm-8">
+                                    <input type="number" name="DebitLimit" ng-model="party.DebitLimit" class="form-control" tabindex="19">
+                                    <span class="msg-error" ng-show="partyForm2.DebitLimit.$error.number">
+                                        Not valid number!
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Central Sale Tax No</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="CentralSaleTaxNO" maxlength="30" ng-model="party.CSTNO" class="form-control" tabindex="21">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Certification Of Incorporation No</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="CertificationOfIncorporationNo" maxlength="20" ng-model="party.CertificationOfIncorporationNo" class="form-control" tabindex="23">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Remarks</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" name="Remarks" maxlength="250" rows="3" ng-model="party.Remarks" tabindex="25"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Code</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Code" ng-model="party.Code" class="form-control" placeholder="Internal" readonly>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" name="Standard Name" maxlength="50" ng-model="party.StandardName" class="form-control" required disabled tabindex="3">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Excise Range</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="ExciseRange" maxlength="100" ng-model="party.ExciseRange" class="form-control" tabindex="7">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">GSTIN</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="TINNO" maxlength="50" ng-model="party.TINNO" class="form-control" disabled tabindex="9">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Trade License No</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="TradeLicenseNo" maxlength="20" ng-model="party.TradeLicenseNo" class="form-control" tabindex="11">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">IEC No</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="IECNo" maxlength="50" ng-model="party.IECNo" class="form-control" tabindex="13">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Credit Limit</label>
+                                <div class="col-sm-8">
+                                    <input type="number" name="CreditLimit" ng-model="party.CreditLimit" class="form-control" tabindex="19">
+                                    <span class="msg-error" ng-show="partyForm2.CreditLimit.$error.number">
+                                        Not valid number!
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Local Sale Tax No</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="LocalSaleTaxNo" maxlength="40" ng-model="party.LSTNO" class="form-control" tabindex="21">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Ref No</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="RefNo" maxlength="50" ng-model="party.RefNo " class="form-control" tabindex="23">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Description</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" name="Description" maxlength="250" rows="3" ng-model="party.Description" tabindex="25"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Active</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="party.Active" tabindex="27">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                    <div class="row" ng-form name="partyForm3">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Continent<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select name="Continent" ng-model="addressMaster.ContinentId" ng-change="onContinentChange(addressMaster.ContinentId)" class="col-sm-3 form-control"
+                                                ng-options="item.Value as item.Text for item in ContinentList" tabindex="1" required disabled></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">State<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select name="State" ng-model="addressMaster.StateId" class="col-sm-3 form-control"
+                                                ng-options="item.Value as item.Text for item in StateList" tabindex="3" required disabled></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Area</label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select name="Area" ng-model="addressMaster.AreaId" class="col-sm-3 form-control"
+                                                ng-options="item.Value as item.Text for item in AreaList" tabindex="5" disabled></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Thana</label>
+                                <div class="col-sm-8">
+                                    <input name="Thana" maxlength="50" type="text" ng-model="addressMaster.Thana" class="form-control" tabindex="7" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Ward</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Ward" maxlength="50" ng-model="addressMaster.Ward" class="form-control" tabindex="9" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Phone</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Phone" maxlength="20" ng-model="addressMaster.Phone" class="form-control" tabindex="11" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Website</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Website" maxlength="50" ng-model="addressMaster.Website" class="form-control" tabindex="13" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Address Line1<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <textarea class="form-control" rows="3" ng-model="addressMaster.Address1" name="Address Line1" maxlength="300" tabindex="15" required disabled></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Country<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select name="Country" ng-model="addressMaster.CountryId" ng-change="onCountryChange(addressMaster.CountryId);onStateChange(addressMaster.CountryId)" class="col-sm-3 form-control"
+                                                ng-options="item.Value as item.Text for item in CountryList" tabindex="2" required disabled></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">City<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select name="City" ng-model="addressMaster.CityId" ng-change="onCityChange(addressMaster.CityId)" class="col-sm-3 form-control"
+                                                ng-options="item.Value as item.Text for item in CityList" tabindex="4" required disabled></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Circle</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Circle" maxlength="50" ng-model="addressMaster.Circle" class="form-control" tabindex="6" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Village</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Village" maxlength="100" ng-model="addressMaster.Village" class="form-control" tabindex="8" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Postcode</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Postcode" maxlength="50" ng-model="addressMaster.Postcode" class="form-control" tabindex="10" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Email</label>
+                                <div class="col-sm-8">
+                                    <input type="email" name="Email" maxlength="50" ng-model="addressMaster.Email" class="form-control" tabindex="12" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Address Line2</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="3" ng-model="addressMaster.Address2" name="Address Line2" maxlength="300" tabindex="14" disabled></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped" ng-show="contactMasters.length>0">
+                            <thead>
+                                <tr>
+                                    <th>Person Name</th>
+                                    <th>Designation</th>
+                                    <th>Phone</th>
+                                    <th>Mobile</th>
+                                    <th>Email</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="c in contactMasters">
+                                    <td>{{c.ContactPerson}}</td>
+                                    <td>{{c.ContactPersonDesignation}}</td>
+                                    <td>{{c.Phone1}}</td>
+                                    <td>{{c.Phone3}}</td>
+                                    <td>{{c.Email1}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Apply</th>
+                                    <th>Company</th>
+                                    <th>Plant</th>
+                                    <th>Party Account Group</th>
+                                    <th>Transaction Currency</th>
+                                    <th>Payment Term</th>
+                                    <th>Payment Term Changeable</th>
+                                    <th>GL</th>
+                                    <th>Bank</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="v in companyPartyList| filter: {'PartyType':'Vendor'}">
+                                    <td>
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="v.Active" checked="{{v.Active}};" ng-change="GetVendorAccountGroup(v.Active,v.COAId,$index);">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <td>{{v.CompanyName}}</td>
+                                    <td>{{v.PlantName}}</td>
+                                    <td>
+                                        <select class="form-control" name="Vendor Account Group" id="VendorAccountGroupId" ng-model="v.PartyAccountGroupId" ng-disabled="!v.Active" ng-change="changePartyAccountGroupCbo(c.PartyAccountGroupId)">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in partyAccountGroupList | filter: { 'AccountType': 'Vendor', 'IsInterCompany': true}" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select id="CurrencyIds" class="form-control" name="Currency" ng-model="v.CurrencyId" ng-disabled="!v.Active">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in tranCurrencyList | filter: {'CompanyId': v.CompanyId}" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select id="PaymentTermId" class="form-control" name="Payment Term" ng-model="v.PaymentTermId" ng-disabled="!v.Active">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in paymentTermList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="v.IsPaymentTermChangeable" checked="{{v.IsPaymentTermChangeable}}" ng-disabled="!v.Active">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button class="btn" ng-click="GetGLList(v.CompanyId, v.Id, v.PartyAccountGroupId)" ng-disabled="!v.Active || v.Id==null"><i class="fa fa-search"></i></button>
+                                    </td>
+                                    <td class="text-right">
+                                        <button name="submit" class="btn" ng-click="GetPartyBankList(v.CompanyId,v.Id);" ng-disabled="!v.Active || v.Id==null"><i class="fa fa-search"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Apply</th>
+                                    <th>Company</th>
+                                    <th>Plant</th>
+                                    <th>Party Account Group</th>
+                                    <th>Transaction Currency</th>
+                                    <th>Payment Term</th>
+                                    <th>Payment Term Changeable</th>
+                                    <th>GL</th>
+                                    <th>Bank</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="c in companyPartyList| filter: {'PartyType':'Customer'}">
+                                    <td>
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="c.Active" checked="{{c.Active}};" ng-change="GetCustomerAccountGroup(c.Active,c.COAId,$index);">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <td>{{c.CompanyName}}</td>
+                                    <td>{{c.PlantName}}</td>
+                                    <td>
+                                        <select class="form-control" name="Customer Account Group" id="CustomerAccountGroupId" ng-disabled="!c.Active" ng-model="c.PartyAccountGroupId" ng-change="changePartyAccountGroupCbo(c.PartyAccountGroupId)">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in partyAccountGroupList | filter: { 'AccountType': 'Customer', 'IsInterCompany': true}" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select id="CurrencyId" class="form-control" name="Currency" ng-model="c.CurrencyId" ng-disabled="!c.Active">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in tranCurrencyList | filter: {'CompanyId': c.CompanyId}" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select id="PaymentTermId" class="form-control" name="Payment Term" ng-model="c.PaymentTermId" ng-disabled="!c.Active">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in customerpaymentTermList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="c.IsPaymentTermChangeable" checked="{{c.IsPaymentTermChangeable}}" ng-disabled="!c.Active">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button class="btn" ng-click="GetGLList(c.CompanyId, c.Id, c.PartyAccountGroupId)" ng-disabled="!c.Active || c.Id==null"><i class="fa fa-search"></i></button>
+                                    </td>
+                                    <td class="text-right">
+                                        <button name="submit" class="btn" ng-click="GetPartyBankList(c.CompanyId,c.Id);" ng-disabled="!c.Active || c.Id==null"><i class="fa fa-search"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(6), active: isSet(6) }">
+                    <div class="row" ng-form name="partyForm5">
+                        <div class="col-xs-12 col-sm-6 col-md-6 form-element">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Vendor Account Group<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select class="form-control" name="Vendor Account Group" id="VendorAccountGroupId" ng-model="party.VendorAccountGroupId" ng-change="getVendorAccountGroupDataList(party.VendorAccountGroupId);changePartyAccountGroupCbo(party.VendorAccountGroupId)">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in partyAccountGroupList | filter: 'Vendor'" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-sm-6 form-elements">
+                            <div class="common-btn" style="float:right">
+                                <ul class="list-inline text-left">
+                                    <li><button class="btn" ng-click="addVendorRow()"><i class="glyphicon glyphicon-plus"></i>Add Row</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Delete</th>
+                                    <th>Partner Function</th>
+                                    <th>Vendor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="a in partyPartnerFunctionList | filter:{PartyType: 'Vendor'}">
+                                    <td class="text-right table-td">
+                                        <ul class="list-inline action-list">
+                                            <li>
+                                                <button ng-click="valuePassInVendorAccountModal(a.Id)" class="btn btn-action tooltip-here" data-placement="top" title="Remove" ng-disabled="a.IsDefault">
+                                                    <i class="glyphicon glyphicon-remove"></i>
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                    <td>{{a.PFName}}</td>
+                                    <td>
+                                        <div class="col-sm-6 input-group" style="padding-left: 15px;padding-right: 15px;">
+                                            <span class="input-group-addon">{{a.VendorId}}</span>
+                                            <input type="text" name="party" ng-model="a.UserName" class="form-control" required readonly>
+                                            <span class="input-group-btn">
+                                                <button name="submit" class="btn single-small-btn" ng-click="popUp('vendor','Code',$index)" ng-disabled="IsDisabled(a);">
+                                                    <i class="cr-icon glyphicon glyphicon-search"></i>
+                                                </button>
+                                            </span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(7), active: isSet(7) }">
+                    <div class="col-xs-12 col-sm-6 col-sm-6 form-elements">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Customer Account Group<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <div class="select-style">
+                                        <select class="form-control" name="Customer Account Group" id="CustomerAccountGroupId" ng-model="party.CustomerAccountGroupId" ng-change="getCustomerAccountGroupDataList(party.CustomerAccountGroupId);changePartyAccountGroupCbo(party.CustomerAccountGroupId)">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in partyAccountGroupList | filter: 'Customer'" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-sm-6 form-elements">
+                        <div class="common-btn" style="float:right">
+                            <ul class="list-inline text-left">
+                                <li><button class="btn" ng-click="addCustomerRow()"><i class="glyphicon glyphicon-plus"></i>Add Row</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Delete</th>
+                                    <th>Partner Function</th>
+                                    <th>Customer</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="b in partyPartnerFunctionList | filter:{PartyType: 'Customer'}">
+                                    <td class="text-right table-td">
+                                        <ul class="list-inline action-list">
+                                            <li>
+                                                <button ng-click="valuePassInCustomerAccountModal(b.Id)" class="btn btn-action tooltip-here"
+                                                        data-placement="top" title="Remove" ng-disabled="b.IsDefault">
+                                                    <i class="glyphicon glyphicon-remove"></i>
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                    <td>{{b.PFName}}</td>
+                                    <td>
+                                        <div class="col-sm-6 input-group" style="padding-left: 15px; padding-right: 15px;">
+                                            <span class="input-group-addon">{{b.CustomerId}}</span>
+                                            <input type="text" name="party" ng-model="b.UserName" class="form-control" required readonly>
+                                            <span class="input-group-btn">
+                                                <button name="submit" class="btn single-small-btn" ng-click="popUp('customer','Code',$index)" ng-disabled="IsDisabledCust(b);">
+                                                    <i class="cr-icon glyphicon glyphicon-search"></i>
+                                                </button>
+                                            </span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(8), active: isSet(8) }">
+                    <div class="row" ng-form name="partyForm6">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <ul class="common-btn list-inline text-left">
+                                <li><button class="btn" ng-click="GetPlantData();" ng-disabled="party.Id===null ||party.Id===undefined"><i class="glyphicon glyphicon-plus"></i> Add</button></li>
+                            </ul>
+                        </div>
+                        <div class="table-responsive modal-table col-md-12">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Code</th>
+                                        <th>Short Name</th>
+                                        <th>Standard Name</th>
+                                        <th>User Name</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="p in partyPlantList">
+                                        <td>{{p.Code}}</td>
+                                        <td>{{p.ShortName}}</td>
+                                        <td>{{p.StandardName}}</td>
+                                        <td>{{p.UserName}}</td>
+                                        <td class="text-right table-td">
+                                            <ul class="list-inline action-list">
+                                                <li>
+                                                    <button data-toggle="modal" data-target="#confirmPartyPlantDelete" ng-click="confirmPartyPlantDelete(p)"
+                                                            class="btn btn-action tooltip-here" data-placement="top" title="Delete" tooltip>
+                                                        <i class="glyphicon glyphicon-trash"></i>
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                    <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                    <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Sequence</th>
+                <th>Code</th>
+                <th>Short Name</th>
+                <th>Standard Name</th>
+                <th>User Name</th>
+                <th>Country</th>
+                <th>City</th>
+                <th>Active</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in parties |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get(x.Id, $index);">
+                <td>{{x.Sequence}}</td>
+                <td>{{x.Code}}</td>
+                <td>{{x.ShortName}}</td>
+                <td>{{x.StandardName}}</td>
+                <td>{{x.UserName}}</td>
+                <td>{{x.Country}}</td>
+                <td>{{x.City}}</td>
+                <td>{{x.Active? 'Yes':'No'}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
+</div>
+<confirm-modal></confirm-modal>
+@Html.Partial("~/Areas/Parties/Views/Party/_CompanyPartyGL.cshtml")
+@Html.Partial("~/Areas/Parties/Views/Party/_PartyBank.cshtml")
+<div class="modal fade site-modal in" id="popUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                {{popUpTitle}}
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="popUpParameters.searchBy">
+                                            <option ng-repeat="option in popUpList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="popUpParameters.search" ng-enter="popUpData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="popUpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th ng-repeat="x in popUpList">{{x.Text}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in popUpDataList|itemsPerPage:popUpParameters.pageSize" total-items="popUpParameters.total_count"
+                                ng-dblclick="selectdblClick(x);">
+                                <td ng-repeat="hh in popUpList">{{x[hh.Value]}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="popUpData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="PartnerFunctionPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> Select Partner Function</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="partnerfunctionparameters.searchBy">
+                                            <option ng-repeat="option in searchpartnerFunctionList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="partnerfunctionparameters.search" ng-enter="addVendorRow()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="addVendorRow()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Apply</th>
+                                <th>Code</th>
+                                <th>PF Name</th>
+                                <th>Account Type</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="pf in vendorAccountGroupDataListpopup|itemsPerPage:$root.pageSize" total-items="$root.total_count">
+                                <td>
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="pf.Flag">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>{{pf.Code}}</td>
+                                <td>{{pf.PFName}}</td>
+                                <td>{{pf.AccountType}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button type="submit" class="btn btn-default" ng-click="closePartnerFunctionPopUp();">Add</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="CustomerPartnerFunctionPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> Select Partner Function</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="customerpartnerfunctionparameters.searchBy">
+                                            <option ng-repeat="option in searchcustomerpartnerFunctionList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="customerpartnerfunctionparameters.search" ng-enter="addCustomerRow()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="addCustomerRow()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Apply</th>
+                                <th>Code</th>
+                                <th>PF Name</th>
+                                <th>Account Type</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="cpf in customerAccountGroupDataListpopup|itemsPerPage:$root.pageSize" total-items="$root.total_count">
+                                <td>
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="cpf.Flag">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>{{cpf.Code}}</td>
+                                <td>{{cpf.PFName}}</td>
+                                <td>{{cpf.AccountType}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button type="submit" class="btn btn-default" ng-click="closeCustomerPartnerFunctionPopUp();">Add</button></li>
+                        </ul>
+                    </div>
+                </div>
+                @*<dir-pagination-controls max-size="5"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="addCustomerRow(newPageNumber)">
+                    </dir-pagination-controls>*@
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="PlantPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> Search Plant</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="PlantParameters.searchBy">
+                                            <option ng-repeat="option in searchPlantList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="PlantParameters.search" ng-enter="GetPlantData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="GetPlantData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Select</th>
+                                <th>Code</th>
+                                <th>Short Name</th>
+                                <th>Standard Name</th>
+                                <th>User Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="dr in plantDataList |itemsPerPage:PlantParameters.pageSize" pagination-id="metaData.name + 'plantDataList'"
+                                total-items="PlantParameters.total_count">
+                                <td>
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="dr.Flag" ng-checked="dr.Flag" ng-click="selectCheckedPlant($event,dr)">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>{{dr.Code}}</td>
+                                <td>{{dr.ShortName}}</td>
+                                <td>{{dr.StandardName}}</td>
+                                <td>{{dr.UserName}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <dir-pagination-controls max-size="10"
+                                         pagination-id="metaData.name + 'plantDataList'"
+                                         direction-links="true"
+                                         boundary-links="true"
+                                         on-page-change="GetPlantData(newPageNumber)">
+                </dir-pagination-controls>
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="PlantToTable();" class="btn">Select</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<toaster-container toaster-options="{'close-button':true, 'animation-class': 'toast-top-center'}"></toaster-container>
+<confirm-archive-generic data-modalid="confirmContactdelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeContactMasterRow()"></confirm-archive-generic>
+<confirm-archive-generic data-modalid="confirmPartybankdelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removePartyBankRow()"></confirm-archive-generic>
+<confirm-archive-generic data-modalid="confirmPartybankVendordelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removePartyBankVendorRow()"></confirm-archive-generic>
+<confirm-archive-generic data-modalid="confirmPartyPlantDelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeletePartyPlant()"></confirm-archive-generic>
+<confirm-archive-generic data-modalid="confirmDelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteCompanyPartyGL()"></confirm-archive-generic>
+<confirm-archive-generic data-modalid="confirmPartyBankDelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeletePartyBank()"></confirm-archive-generic>

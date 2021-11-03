@@ -1,0 +1,41 @@
+﻿<div class="modal fade site-modal in" id="issueSelectedBuyerListPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Selected Buyers <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="col-xs-12 col-sm-12 " ng-click="showBuyerListPopUp()">
+                    <span class="glyphicon glyphicon-plus-sign" ></span>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Buyer Code</th>
+                                    <th>Buyer Name</th>
+                                    <th>#Action</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in buyers ">
+                                    <td>{{x.BuyerCode }}</td>
+                                    <td>{{x.Name}}</td>
+                                    <td>
+                                        <i class="glyphicon glyphicon-trash" ng-click="removeBuyer(x.BuyerId)"></i>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="hideSelectedBuyerListPopUp();" class="btn" tabindex="4"><i class=""></i> Done </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+

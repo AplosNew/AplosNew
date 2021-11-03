@@ -1,0 +1,131 @@
+﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Trial Balance</h3>
+<div class="row">
+    <div class="form-elements form-horizontal" ng-form id="from" name="from">
+
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <fieldset class="scheduler-border">
+                <div class="form-group" show-errors>
+                    
+                    <div class="col-sm-12 radio">
+                        <label>
+                            <input type="radio" name="source2" ng-model="dateRange" value=false ng-change="viewChange()" >
+                            <span class="cr" tabindex="1"><i class="cr-icon"></i></span>As On Date
+                        </label>
+                        <label>
+                            <input type="radio" name="source2" ng-model="dateRange" value=true ng-change="viewChange()" >
+                            <span class="cr" tabindex="2"><i class="cr-icon"></i></span>For the Period
+                        </label>
+                    </div>
+                </div>
+                <legend class="scheduler-border">{{legendTitle}}</legend>
+                <div class="form-group" show-errors id="div_FromDate">
+                    <label class="col-sm-3 control-label">{{fromDateTitle}}<sup>*</sup></label>
+                    <div class="col-sm-7 show-message">
+                        <input type="text" name="Date" ng-model="report.FromDate" datepicker class="form-control" required tabindex="3">
+                    </div>
+                </div>
+                <div ng-show="toDateShow" class="form-group" show-errors id="div_WDToDate">
+                    <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
+                    <div class="col-sm-7 show-message">
+                        <input type="text" name="Date" ng-model="report.ToDate" datepicker class="form-control" required tabindex="4">
+                    </div>
+                </div>
+                            @*<div class="form-group">
+                        <label class="col-sm-3 control-label">Budget</label>
+                        <div class="checkbox-site">
+                            <label class="col-sm-9">
+                                <input type="checkbox" id="IsBudgetLevel" ng-model="report.IsBudgetLevel" ng-click="uncheck()">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">Activity</label>
+                        <div class="checkbox-site">
+                            <label class="col-sm-9">
+                                <input type="checkbox" id="IsActivityLevel" ng-model="report.IsActivityLevel" ng-disabled="!report.IsBudgetLevel" ng-checked="report.IsActivityLevel">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                         </div>
+                          </div>*@
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Up To<sup>*</sup></label>
+                    <div class="col-sm-7 show-message">
+                        <div class="select-style">
+                            <select class="form-control" name="CurrencyTransaction" ng-model="report.IsUpToLevel" ng-change="LevelAssaign(report.IsUpToLevel)" required tabindex="3">
+                                <option ng-repeat="option in upToLevelList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-3 control-label">Format<sup>*</sup></label>
+                    <div class="col-sm-9 radio">
+                        <label>
+                            <input type="radio" name="source" ng-model="report.ReportFormat" value="@Library.Model.Enums.ReportFormat.Pdf.ToString()">
+                            <span class="cr" tabindex="1"><i class="cr-icon"></i></span>@Library.Model.Enums.ReportFormat.Pdf.ToString()
+                        </label>
+                        <label>
+                            <input type="radio" name="source" ng-model="report.ReportFormat" value="@Library.Model.Enums.ReportFormat.Excel.ToString()">
+                            <span class="cr" tabindex="2"><i class="cr-icon"></i></span>@Library.Model.Enums.ReportFormat.Excel.ToString()
+                        </label>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li><button @*ng-click="getReport();"*@ ng-click="reportFunctionCaller();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+                    </ul>
+                </div>
+            </fieldset>
+
+        </div>
+        <div class="col-xs-12 col-sm-8 col-md-8">
+            @*<fieldset class="scheduler-border">
+                <legend class="scheduler-border">Within Date Range</legend>
+                <div class="form-group" show-errors id="div_WDFromDate">
+                    <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
+                    <div class="col-sm-7 show-message">
+                        <input type="text" name="Date" ng-model="reportDateWise.FromDate" datepicker class="form-control" required tabindex="3">
+                    </div>
+                </div>
+                <div class="form-group" show-errors id="div_WDToDate">
+                    <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
+                    <div class="col-sm-7 show-message">
+                        <input type="text" name="Date" ng-model="reportDateWise.ToDate" datepicker class="form-control" required tabindex="4">
+                    </div>
+                </div>
+               
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Up To<sup>*</sup></label>
+                    <div class="col-sm-7 show-message">
+                        <div class="select-style">
+                            <select class="form-control" name="CurrencyTransaction" ng-model="reportDateWise.IsUpToLevel" ng-change="LevelAssaign(reportDateWise.IsUpToLevel)" required tabindex="5">
+                                <option ng-repeat="option in upToLevelList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-3 control-label">Format<sup>*</sup></label>
+                    <div class="col-sm-9 radio">
+                        <label>
+                            <input type="radio" name="source" ng-model="reportDateWise.ReportFormat" value="@Library.Model.Enums.ReportFormat.Pdf.ToString()">
+                            <span class="cr" tabindex="1"><i class="cr-icon"></i></span>@Library.Model.Enums.ReportFormat.Pdf.ToString()
+                        </label>
+                        <label>
+                            <input type="radio" name="source" ng-model="reportDateWise.ReportFormat" value="@Library.Model.Enums.ReportFormat.Excel.ToString()">
+                            <span class="cr" tabindex="2"><i class="cr-icon"></i></span>@Library.Model.Enums.ReportFormat.Excel.ToString()
+                        </label>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li><button ng-click="getDateWiseTrialBalanceReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+                    </ul>
+                </div>
+            </fieldset>*@
+        </div>
+
+    </div>
+</div>
+

@@ -1,0 +1,702 @@
+﻿<togglable name="Buyer Definition"></togglable>
+<div class="form-horizontal" ng-form name="buyerMasterNewForm">
+    <div class="col-xs-6 col-sm-6 col-md-6 form-element-ctrl">
+        <div class="form-group" show-errors style="margin-left:-30px">
+            <label class="col-sm-4 control-label">Buyer<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="buyerMasterNew.BuyerId" required name="Buyer"
+                            ng-options="item.Value as item.Text for item in buyerList" ng-change="getData();getBuyerActivity();GetBuyerDivisionCbo();GetBuyerDepartmentCbo()">
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="form-elements">
+        <input type="hidden" ng-model="buyerMasterNew.Id">
+        <div class="row">
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Department<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select class="form-control" name="Department" id="Department" ng-model="buyerMasterNew.BuyerDepartmentId" required>
+                                <option value="ALL">ALL</option>
+                                <option ng-repeat="option in departmentList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">User Defined Name<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="User Defined Name" ng-model="buyerMasterNew.UserName" class="form-control" required tabindex="3" maxlength="50">
+                    </div>
+                </div>
+                <hr />
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Repeat Order Lead Time</label>
+                    <div class="col-sm-8">
+                        <input type="text" name="Repeat Order Lead Time" ng-model="buyerMasterNew.RepeatOrderLeadTime" class="form-control" tabindex="5" maxlength="50">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Repeat Production Lead Time</label>
+                    <div class="col-sm-8">
+                        <input type="text" name="Repeat Production Lead Time" ng-model="buyerMasterNew.RepeatProductionLeadTime" class="form-control" tabindex="7" maxlength="50">
+                    </div>
+                </div>
+                <hr />
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Task Template Master</label>
+                    <div class="col-sm-8">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="buyerMasterNew.TaskTemplateMasterId" name="TaskTemplateMaster" tabindex="2" ng-change="getTaskTemplateData();"
+                                    ng-options="item.Value as item.Text for item in taskTemplateMasterCboList">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Division<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select class="form-control" name="Division" id="Division" ng-model="buyerMasterNew.BuyerDivisionId" required>
+                                <option value="ALL">ALL</option>
+                                <option ng-repeat="option in divisionList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <hr style="margin-top: 32px;margin-left: -30px;" />
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Normal Order Lead Time</label>
+                    <div class="col-sm-8">
+                        <input type="text" name="Normal Order Lead Time" ng-model="buyerMasterNew.NormalOrderLeadTime" class="form-control" tabindex="6" maxlength="50">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Normal Production Lead Time</label>
+                    <div class="col-sm-8">
+                        <input type="text" name="Normal Production Lead Time" ng-model="buyerMasterNew.NormalProductionLeadTime" class="form-control" tabindex="8" maxlength="50">
+                    </div>
+                </div>
+                <hr style="margin-top: 20px;margin-left: -30px;" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                        <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                        <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="tab-design" id="tab_show">
+            <div class="site-tab">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Entity Assignment</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);" href="" aria-controls="address" role="tab" data-toggle="tab">Task</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);" href="" aria-controls="address" role="tab" data-toggle="tab">Costing Authorization</a></li>
+                </ul>
+            </div>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                    <div class="form-group">
+                        <div class="col-sm-3">
+                            <button name="submit" class="btn single-small-btn" ng-click="entityPopUp(entityAllowanceNew.CompanyId)" tabindex="3">Entity</button>
+                        </div>
+                    </div>
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Action</th>
+                                    <th>Entity</th>
+                                    <th>Plant</th>
+                                    <th>Division</th>
+                                    <th>Unit</th>
+                                    <th>Activity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in buyerMasterEntityList | filter:EntityId:true">
+                                    <td class="text-right table-td">
+                                        <ul class="list-inline action-list">
+                                            <li>
+                                                <button ng-click="removeRowModal(x,$index)" class="btn btn-action tooltip-here" title="Delete">
+                                                    <i class="glyphicon glyphicon-trash"></i>
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                    <td>{{x.UserName}}</td>
+                                    <td>{{x.Plant}}</td>
+                                    <td>{{x.Division}}</td>
+                                    <td>{{x.Unit}}</td>
+                                    <td class="text-right table-td">
+                                        <ul class="list-inline action-list">
+                                            <li>
+                                                <button ng-click="showBuyerActivityPopUp(x.Id,$index)" class="btn btn-action tooltip-here" title="Activity" ng-disabled="x.Id==null">
+                                                    <i class="glyphicon glyphicon-list"></i>
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                    @*<div id="GridTask" ng-init="chkinit()" ej-grid e-datasource="taskTemplateList" e-gridlines="vertical" e-templaterefresh="refreshTemplateOperation"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel">
+                            <div e-columns>
+                                <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
+                                <div e-column e-field="TaskTemplateMaster" e-headertext="TaskTemplateMaster" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false"></div>
+                                <div e-column e-field="TaskTemplate" e-headertext="TaskTemplate" e-width="50"></div>
+                                <div e-column e-field="TaskType" e-headertext="TaskType" e-width="40"></div>
+                                <div e-column e-field="Duration" e-headertext="Duration" e-width="40"></div>
+                            </div>
+                        </div>
+                        <script type="text/x-jsrender" id="checkboxTemplate">
+                            <input type="checkbox" ng-model="{{:TaskTemplateId}}" class="rowCheckbox" value="{{:TaskTemplateId}}" />
+                        </script>*@
+                    @*<script type="text/x-jsrender" id="headerTemplate">
+                            <input type="checkbox" id="headchk" />
+                        </script>*@
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Action</th>
+                                    <th>Standard Name</th>
+                                    <th>User Define Task</th>
+                                    <th>Task Type</th>
+                                    <th>Duration</th>
+                                    <th>Employee</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in taskTemplateList">
+                                    <td>
+                                        <div class="checkbox-site" style="margin-top: -4px;margin-bottom: -2px;">
+                                            <label class="control-label">
+                                                <input type="checkbox" ng-model="x.Active" ng-checked="x.Active">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <td>{{x.StandardName}}</td>
+                                    <td>{{x.UserDefineTask}}</td>
+                                    <td>{{x.TaskType}}</td>
+                                    <td>{{x.StandardDays}}</td>
+                                    <td>
+                                        <div class="form-group">
+                                            <div class="col-sm-10">
+                                                <input type="text" name="Responsible Person" ng-model="x.TaskEmployeeName" class="form-control" readonly>
+                                            </div>
+                                            <div class="col-sm-1 show-message">
+                                                <button tabindex="13" ng-click="showEmployeeInformationByRowModal('EmpSystemId','TaskEmployeeName',$index);" type="submit" class="btn single-small-btn pull-right"><i class="glyphicon glyphicon-search"></i></button>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    <li> <button ng-click="SaveTask();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                    <div class="form-group">
+                       
+                        <div class="col-sm-2">
+                            Create By
+                        </div>
+                        <div class="col-sm-4">
+                            <input type="text" name="Responsible Person" ng-model="buyerMasterNew.CostingCreatedByName" class="form-control" readonly>
+                        </div>
+                        <div class="col-sm-6 text-left">
+                            <button tabindex="13" ng-click="showEmployeeInformationByRowModal('EmpSystemId','CostingCreatedBy',0);" type="submit" class="btn single-small-btn pull-left"><i class="glyphicon glyphicon-search"></i></button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-2">
+                            Check By
+                        </div>
+                        <div class="col-sm-4">
+                            <input type="text" name="Responsible Person" ng-model="buyerMasterNew.CostingCheckedByName" class="form-control" readonly>
+                        </div>
+                        <div class="col-sm-6  text-left">
+                            <button tabindex="13" ng-click="showEmployeeInformationByRowModal('EmpSystemId','CostingCheckedBy',0);" type="submit" class="btn single-small-btn pull-left"><i class="glyphicon glyphicon-search"></i></button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-2">
+                            Approve By
+                        </div>
+                        <div class="col-sm-4">
+                            <input type="text" name="Responsible Person" ng-model="buyerMasterNew.CostingApprovedByName" class="form-control" readonly>
+                        </div>
+                        <div class="col-sm-6  text-left">
+                            <button tabindex="13" ng-click="showEmployeeInformationByRowModal('EmpSystemId','CostingApprovedBy',0);" type="submit" class="btn single-small-btn pull-left"><i class="glyphicon glyphicon-search"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Buyer</th>
+                <th>Department</th>
+                <th>Division</th>
+                <th>User Define Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in buyerMasters |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get(x.Id, $index);">
+                <td>{{x.BuyerName}}</td>
+                <td>{{x.DepartmentName}}</td>
+                <td>{{x.DivisionName}}</td>
+                <td>{{x.UserName}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10"
+                             direction-links="true"
+                             boundary-links="true"
+                             on-page-change="getData(newPageNumber)">
+    </dir-pagination-controls>
+</div>
+<confirm-modal></confirm-modal>
+<modal-table modalid="search_popup"
+             data-title="Search (Finished Goods) Data"
+             data-search-parameters="popUpParameters"
+             data-exclued-column-list=""
+             data-field-list="popUpList"
+             data-data-list="popUpDataList"
+             data-search-function="getPopUpData"
+             data-single-click=""
+             data-double-click="getFinishedGoods(data)"
+             data-right-button="false"
+             data-left-button="false"
+             data-ng-click-left-button=""
+             data-ng-click-cancel="">
+</modal-table>
+
+<div class="modal fade site-modal in" id="entityPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Entity Informations</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="entityParameters.searchBy">
+                                            <option ng-repeat="option in entitySearchList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="entityParameters.search" ng-enter="getEntityData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getEntityData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped" ng-show="entityDataList.length">
+                        <thead>
+                            <tr>
+                                <th>Select</th>
+                                <th ng-repeat="x in entitySearchList">{{x.Text}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in entityDataList|itemsPerPage:entityParameters.pageSize" total-items="entityParameters.total_count" pagination-id="metaData.name + 'entityDataList'">
+                                <td>
+                                    <div class="checkbox-site">
+                                        <label class="control-label">
+                                            <input type="checkbox" id="{{x.Id}}" ng-model="x.Flag" ng-checked="x.Flag">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td ng-repeat="y in entitySearchList">{{x[y.Value]}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'entityDataList'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getEntityData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <ul class="list-inline text-right">
+                    <li><button ng-click="selectEntityPopUp();" class="btn">Select</button></li>
+                    <li><button type="button" class="btn btn-default" ng-click="closeEntityPopUp();">Close</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="buyerActivityPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" style="width:75%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Buyer Activity</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row form-elements form-horizontal">
+                    <div class="col-xs-6 col-sm-6 col-md-5">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Activity<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="BuyerMasterActivity.BuyerActivityId" id="activityId"
+                                            ng-options="item.Value as item.Text for item in buyerActivityList">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 col-sm-6 col-md-2">
+                        <button class="btn single-small-btn" ng-click="addActivity()" tabindex="23"><i class="cr-icon glyphicon glyphicon-plus"></i></button>
+                    </div>
+                    <div class="col-md-12 table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-1">Action</th>
+                                    <th>Activity</th>
+                                    <th>Responsible Person1</th>
+                                    <th>Responsible Person2</th>
+                                    <th>Responsible Person3</th>
+                                    <th>Responsible Person4</th>
+                                    <th>Responsible Person5</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @*<tr ng-repeat="x in buyerMasterEntityList[activityIndex].SelectedActivityList">*@
+                                <tr ng-repeat="x in SelectedActivityList">
+                                    <td>
+                                        <ul class="list-inline action-list">
+                                            <li><button ng-click="valuePassInActivityFormDelModal($index,x)" class="btn btn-action tooltip-here" data-placement="top" title="Remove" tooltip><i class="glyphicon glyphicon-remove"></i></button></li>
+                                        </ul>
+                                    </td>
+                                    <td>{{x.BuyerActivityName}}</td>
+                                    <td>
+                                        <div class="form-group">
+                                            <div class="col-sm-10">
+                                                <input type="text" name="Responsible Person" ng-model="x.EmployeeOneName" class="form-control" readonly>
+                                            </div>
+                                            <div class="col-sm-1 show-message">
+                                                <button tabindex="13" ng-click="showEmployeeInformationByRowModal('EmployeeOneId','EmployeeOneName',$index);" type="submit" class="btn single-small-btn pull-right"><i class="glyphicon glyphicon-search"></i></button>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-group">
+                                            <div class="col-sm-10">
+                                                <input type="text" name="Responsible Person" ng-model="x.EmployeeTwoName" class="form-control" readonly>
+                                            </div>
+                                            <div class="col-sm-1 show-message">
+                                                <button tabindex="13" ng-click="showEmployeeInformationByRowModal('EmployeeTwoId','EmployeeTwoName',$index);" type="submit" class="btn single-small-btn pull-right"><i class="glyphicon glyphicon-search"></i></button>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-group">
+                                            <div class="col-sm-10">
+                                                <input type="text" name="Responsible Person" ng-model="x.EmployeeThreeName" class="form-control" readonly>
+                                            </div>
+                                            <div class="col-sm-1 show-message">
+                                                <button tabindex="13" ng-click="showEmployeeInformationByRowModal('EmployeeThreeId','EmployeeThreeName',$index);" type="submit" class="btn single-small-btn pull-right"><i class="glyphicon glyphicon-search"></i></button>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-group">
+                                            <div class="col-sm-10">
+                                                <input type="text" name="Responsible Person" ng-model="x.EmployeeFourName" class="form-control" readonly>
+                                            </div>
+                                            <div class="col-sm-1 show-message">
+                                                <button tabindex="13" ng-click="showEmployeeInformationByRowModal('EmployeeFourId','EmployeeFourName',$index);" type="submit" class="btn single-small-btn pull-right"><i class="glyphicon glyphicon-search"></i></button>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-group">
+                                            <div class="col-sm-10">
+                                                <input type="text" name="Responsible Person" ng-model="x.EmployeeFiveName" class="form-control" readonly>
+                                            </div>
+                                            <div class="col-sm-1 show-message">
+                                                <button tabindex="13" ng-click="showEmployeeInformationByRowModal('EmployeeFiveId','EmployeeFiveName',$index);" type="submit" class="btn single-small-btn pull-right"><i class="glyphicon glyphicon-search"></i></button>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <ul class="list-inline text-right">
+                    <li><button type="button" class="btn btn-default" ng-click="ActivitySave();">Save</button></li>
+                    @*<li><button type="button" class="btn btn-default" ng-click="closeBuyerActivityPopUp();">Close</button></li>*@
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="employeepopupByEntity" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{popUpTitle}}</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="popUpEmpByEntityParameters.searchBy">
+                                            <option ng-repeat="option in sbEmployeeInformation" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="popUpEmpByEntityParameters.search" ng-enter="loadEIData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="loadEIByEntityData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped" ng-show="employeeinformationData.length">
+                        <thead>
+                            <tr>
+                                <th ng-repeat="x in sbEmployeeInformation">{{x.Text}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in employeeinformationData|itemsPerPage:popUpEmpByEntityParameters.pageSize" total-items="popUpEmpByEntityParameters.total_count" pagination-id="metaData.name + 'employeeinformationData'" ng-dblclick="getEmployeeByEntity(x)">
+                                <td ng-repeat="y in sbEmployeeInformation">{{x[y.Value]}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'employeeinformationData'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="loadEIByEntityData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <ul class="list-inline text-right">
+                    <li><button type="button" class="btn btn-default" ng-click="closeResponsiblePersonByEntity();">Close</button></li>
+                    <li><button ng-click="getEmployeeByEntity();" class="btn">Select</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="employeepopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{popUpTitle}}</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="popUpEmpParameters.searchBy">
+                                            <option ng-repeat="option in sbEmployeeInformation" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="popUpEmpParameters.search" ng-enter="loadEIData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="loadEIData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped" ng-show="employeeinformationData.length">
+                        <thead>
+                            <tr>
+                                <th>Select</th>
+                                <th ng-repeat="x in sbEmployeeInformation">{{x.Text}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in employeeinformationData|itemsPerPage:popUpEmpParameters.pageSize" total-items="popUpEmpParameters.total_count" pagination-id="metaData.name + 'employeeinformationData'">
+                                <td>
+                                    <div class="checkbox-site">
+                                        <label class="control-label">
+                                            <input type="checkbox" id="{{x.Id}}" ng-model="x.Flag" ng-checked="x.Flag">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td ng-repeat="y in sbEmployeeInformation">{{x[y.Value]}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'employeeinformationData'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="loadEIData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <ul class="list-inline text-right">
+                    <li><button type="button" class="btn btn-default" ng-click="closeResponsiblePerson();">Close</button></li>
+                    <li><button ng-click="getEmployee();" class="btn">Select</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="Taskemployeepopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{popUpTitle}}</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="popUpEmpByEntityParameters.searchBy">
+                                            <option ng-repeat="option in sbEmployeeInformation" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="popUpEmpByEntityParameters.search" ng-enter="loadEIData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="loadEIByEntityData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped" ng-show="employeeinformationData.length">
+                        <thead>
+                            <tr>
+                                <th ng-repeat="x in sbEmployeeInformation">{{x.Text}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in employeeinformationData|itemsPerPage:popUpEmpByEntityParameters.pageSize" total-items="popUpEmpByEntityParameters.total_count" pagination-id="metaData.name + 'employeeinformationData'" ng-dblclick="getTaskEmployee(x)">
+                                <td ng-repeat="y in sbEmployeeInformation">{{x[y.Value]}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'employeeinformationData'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="loadEIByEntityData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <ul class="list-inline text-right">
+                    <li><button type="button" class="btn btn-default" ng-click="closeResponsiblePersonByEntity();">Close</button></li>
+                    <li><button ng-click="getEmployeeByEntity();" class="btn">Select</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<confirm-archive-generic modalid="confirmActivityPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteActivitySavedItem()"></confirm-archive-generic>
+<confirm-archive-generic modalid="removePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRow();"></confirm-archive-generic>

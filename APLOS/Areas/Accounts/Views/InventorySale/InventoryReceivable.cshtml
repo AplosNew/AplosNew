@@ -1,0 +1,607 @@
+﻿
+
+<togglable name="Inventory Sales Posting"></togglable>
+<div class="form-elements form-horizontal" ng-form="modelNewForm">
+    <fieldset class="scheduler-border">
+        <legend class="scheduler-border">General Infromation</legend>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Doc Ref & Date<sup>*</sup></label>
+                <div class="col-sm-9 show-message">
+                    <div class="input-group">
+                        <span class="input-group-addon">{{modelNew.DocRefNo}}</span>
+                        <input type="text" ng-model="modelNew.DocDate" class="form-control" readonly>
+                        <span class="input-group-btn">
+                            <button ng-click="popUp();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-3 control-label">Voucher Type<sup>*</sup></label>
+                <div class="col-sm-9 show-message">
+                    <div class="select-style">
+                        <select class="form-control" name="Voucher Type" ng-disabled="voucherTypeList.length==1" ng-model="modelNew.VoucherTypeId"
+                                ng-options="item.Value as item.Text for item in voucherTypeList" tabindex="2">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" style="margin-bottom: 0px;" ng-hide="modelNew.EmployeeId==null">
+                <label class="col-sm-3 control-label"><b>EmployeeCode :</b></label>
+                <label class="col-sm-9 control-label"><b>{{modelNew.EmployeeCode}}</b></label>
+            </div>
+            <div class="form-group" style="margin-bottom: 0px;">
+                <label class="col-sm-3 control-label">Customer :</label>
+                <label class="col-sm-9 control-label">{{modelNew.PartyCode}} - {{modelNew.PartyName}}</label>
+            </div>
+            <div class="form-group" style="margin-bottom: 0px;">
+                <label class="col-sm-3 control-label">Invoicing By :</label>
+                <label class="col-sm-9 control-label">{{modelNew.InvoicingBy}}</label>
+            </div>
+            <div class="form-group" style="margin-bottom: 0px;">
+                <label class="col-sm-3 control-label">Invoicing Address :</label>
+                <label class="col-sm-9 control-label" style="white-space: pre-line;">{{modelNew.InvoicingByAddress}}</label>
+            </div>
+            <div class="form-group" style="margin-bottom: 0px;">
+                <label class="col-sm-3 control-label">Invoice No :</label>
+                <label class="col-sm-9 control-label">{{modelNew.Id}}</label>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-3 control-label">Posting Date<sup>*</sup></label>
+                <div class="col-sm-9 show-message">
+                    <input required datepicker="checkPostingDate();checkDocDate();" id="postingDate" type="text" name="PostingDate" ng-model="modelNew.PostingDate" class="form-control" tabindex="1">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" style="margin-bottom: 0px;">
+                <label class="col-sm-3 control-label">Party Account Group :</label>
+                <label class="col-sm-9 control-label">{{modelNew.PartyAccountGroupName}}</label>
+            </div>
+            <div class="form-group" style="margin-bottom: 0px;">
+                <label class="col-sm-3 control-label">Delivery By :</label>
+                <label class="col-sm-9 control-label">{{modelNew.DeliveryBy}}</label>
+            </div>
+            <div class="form-group" style="margin-bottom: 0px;">
+                <label class="col-sm-3 control-label">Delivery Address :</label>
+                <label class="col-sm-9 control-label" style="white-space: pre-line;">{{modelNew.DeliveryByAddress}}</label>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0px;">
+                <label class="col-sm-3 control-label">Currency :</label>
+                <label class="col-sm-9 control-label">{{modelNew.CurrencyCode}}</label>
+            </div>
+            <div class="form-group" style="margin-bottom: 0px;">
+                <label class="col-sm-3 control-label">Non Creditable :</label>
+                <label class="col-sm-9 control-label">{{modelNew.IsNonCreditable?'Yes':'No'}}</label>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-3 control-label">Note For Accounts<sup>*</sup></label>
+                <div class="col-sm-9 show-message">
+                    <textarea name="Description" class="form-control" rows="2" ng-model="modelNew.NoteForAccounts" tabindex="7"></textarea>
+                </div>
+            </div>
+        </div>
+        <div></div>
+    </fieldset>
+    <fieldset class="scheduler-border" ng-show="inventoryReceivedList.length">
+        <legend class="scheduler-border">Payment Term</legend>
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="form-group" show-errors>
+                <label class="col-sm-2 control-label">Payment Term<sup>*</sup></label>
+                <div class="col-sm-2 show-message">
+                    <div class="select-style">
+                        <select tabindex="10" required id="paymentTermId" ng-disabled="modelNew.IsPaymentTermChangeable==false" class="form-control" name="Payment Term" ng-model="modelNew.PaymentTermId" ng-change="changePaymentTerm(modelNew.PaymentTermId);">
+                            <option ng-repeat="option in paymentTermList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+                <label class="col-sm-2 control-label">Due Date BaseOn<sup>*</sup></label>
+                <div class="col-sm-2 show-message">
+                    <input type="text" name="BaseOnDueDate" ng-disabled="IsBaseOnDueDateEnable==false" ng-model="modelNew.BaseOnDueDate" ng-change="getMatureDate(modelNew.BaseOnDueDate,modelNew.BaseNoOfDays)" datepicker class="form-control datepicker" tabindex="11" required>
+                </div>
+                <label class="col-sm-1 control-label">No Of Days</label>
+                <div class="col-sm-1 show-message">
+                    <input id="baseNoOfday" type="number" name="No Of Days" ng-model="modelNew.BaseNoOfDays" ng-change="getMatureDate(modelNew.BaseOnDueDate, modelNew.BaseNoOfDays)" class="form-control" tabindex="12" required>
+                </div>
+                <label class="col-sm-1 control-label">Mature Date</label>
+                <div class="col-sm-1 show-message">
+                    <input type="text" name="Mature Date" ng-model="modelNew.MatureDate" class="form-control" readonly required>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+    <div class="tab-design">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Material Info</a></li>
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="Transaction" role="tab" data-toggle="tab">{{Journal}}</a></li>
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(4)" href="" aria-controls="Transaction" ng-show="companyConfig.IsInventorySalesBook==true" role="tab" data-toggle="tab">Inventory Journal</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }" ng-form="tabForm1">
+                <div class="clearfix"></div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Material Group</th>
+                                <th>Material Master</th>
+                                <th>Article</th>
+                                <th>SKU1</th>
+                                <th>SKU2</th>
+                                <th>SKU3</th>
+                                <th>HSN</th>
+                                <th>Asset</th>
+                                <th>Qty</th>
+                                <th>Rate</th>
+                                <th>Amount (TRN)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in inventoryReceivedList">
+                                <td>{{x.MaterialGroupMasterName}}</td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.StandardName}}</td>
+                                <td>{{x.FirstCharacteristicsValue}}</td>
+                                <td>{{x.SecondCharacteristicsValue}}</td>
+                                <td>{{x.ThirdCharacteristicsValue}}</td>
+                                <td>{{x.HSNCode}}</td>
+                                <td>{{x.IsAsset?'Yes':'No'}}</td>
+                                <td class="text-right">{{x.Qty}}  {{x.TransactionUoM}}</td>
+                                <td class="text-right">{{x.TransactionRate | number| setDecimal:2}}  {{x.CurrencyName}}</td>
+                                <td class="text-right">{{x.Amount | number| setDecimal:2}}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="8" class="text-right"><strong>Total : </strong></td>
+                                <td class="text-right" ng-hide="sumORnot"></td>
+                                <td class="text-right" ng-show="sumORnot"><strong>{{inventoryReceivedList | sumByKey : 'Qty' }}</strong></td>
+                                <td class="text-right"><strong>{{inventoryReceivedList | sumByKey : 'TransactionRate'| number| setDecimal:2}}</strong></td>
+                                <td class="text-right"><strong>{{inventoryReceivedList | sumByKey : 'Amount'| number| setDecimal:2 }}</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }" ng-form="tabForm3" ng-keypress="materialConfigMassege()">
+                @*<div class="form-group" style="margin-bottom: 0px;color:red">
+                        <label class="col-sm-9 control-label">{{MaterialAssetBudgetMessage}}</label>
+
+                    </div>*@
+                <div class="common-btn">
+                    <ul class="common-btn list-inline text-left">
+                        <li> <button ng-click="materialConfigMassege();" class="btn"> Show Reason</button></li>
+                    </ul>
+                </div>
+                <div class="clearfix"></div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>GL</th>
+                                <th>Budget</th>
+                                <th>Activity</th>
+                                <th>Dr</th>
+                                <th>Cr</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in inventorySalesJV">
+                                <td>{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</td>
+                                <td>{{x.BudgetName}}</td>
+                                <td>{{x.ActivityName}}</td>
+                                <td class="text-right">{{x.Dr | number| setDecimal:4}}</td>
+                                <td class="text-right">{{x.Cr | number| setDecimal:4}}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"></td>
+                                <td class="text-right"><strong>{{inventorySalesJV | sumByKey : 'Dr' | number| setDecimal:4}}</strong></td>
+                                <td class="text-right"><strong>{{inventorySalesJV | sumByKey : 'Cr' | number| setDecimal:4}}</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="clearfix"></div>
+                <fieldset class="scheduler-border">
+                    <legend class="scheduler-border">Receivable From Others</legend>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <div class="form-group">
+                            <label class="col-sm-8 control-label">Is Receivable From Others</label>
+                            <div class="checkbox-site">
+                                <label class="col-sm-4">
+                                    <input type="checkbox" id="IsGovtSubsidy" ng-model="otherVoucher.IsGovtSubsidy" tabindex="14">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-4 col-md-4" ng-show="otherVoucher.IsGovtSubsidy">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Other Customer</label>
+                            <div class="col-sm-9 show-message">
+                                <div class="input-group">
+                                    <input type="text" name="PartyName" ng-model="otherVoucher.PartyName" class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button ng-click="showPartyOtherPopUpNew();" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button ng-click="clearOtherPartyData()" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-refresh"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-3 control-label">Other Bill To<sup>*</sup></label>
+                            <div class="col-sm-9 show-message">
+                                <div class="input-group">
+                                    <div class="select-style">
+                                        <select class="form-control" name="Other Bill To" ng-model="otherVoucher.PartyPlantId" ng-options="item.Value as item.Text for item in otherPartyPlantList| filter:{ PartyId: x.PartyId }" ng-change="billShippAddress(otherVoucher.PartyPlantId,'billTo')">
+                                            <option value=""></option>
+                                        </select>
+                                    </div>
+                                    <span class="input-group-btn">
+                                        <button ng-click="showPartyPlantPopUp(otherVoucher.PartyPlantId);" class="btn single-small-btn"><i class="glyphicon glyphicon-list"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Amount</label>
+                            <div class="col-sm-8 show-message">
+                                <input tabindex="6" ng-model="otherVoucher.Amount" name="Amount"
+                                       autocomplete="off" type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right">
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }" ng-form="tabForm4" ng-keypress="materialConfigMassege()">
+
+                <div class="clearfix"></div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>GL</th>
+                                <th>Budget</th>
+                                <th>Activity</th>
+                                <th>Dr</th>
+                                <th>Cr</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in inventoryJV">
+                                <td>{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</td>
+                                <td>{{x.BudgetName}}</td>
+                                <td>{{x.ActivityName}}</td>
+                                <td class="text-right">{{x.Dr | number| setDecimal:4}}</td>
+                                <td class="text-right">{{x.Cr | number| setDecimal:4}}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"></td>
+                                <td class="text-right"><strong>{{inventoryJV | sumByKey : 'Dr' | number| setDecimal:4}}</strong></td>
+                                <td class="text-right"><strong>{{inventoryJV | sumByKey : 'Cr' | number| setDecimal:4}}</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            @*<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }" ng-form="tabForm4" ng-hide="(modelNew.CurrencyId==null||modelNew.CurrencyId=='') ||(currencyExchangeRate.length==1 && companyCurrencyId==modelNew.CurrencyId)">
+                    <div class="clearfix"></div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <fieldset ng-hide="(modelNew.CurrencyId==null||modelNew.CurrencyId=='') ||(currencyExchangeRate.length==1 && companyCurrencyId==modelNew.CurrencyId)" class="scheduler-border">
+                                <legend class="scheduler-border">Currency Exchange Rate</legend>
+                                <div class="table-responsive modal-table">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Unit</th>
+                                                <th>From</th>
+                                                <th>To</th>
+                                                <th>Rate</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="x in currencyExchangeRate" ng-hide="x.ParallelCurrencyId==modelNew.CurrencyId">
+                                                <td>{{x.FromCurrencyUnit}}</td>
+                                                <td>{{x.FromCurrencyCode}}</td>
+                                                <td>{{x.CompanyCurrencyRate}}</td>
+                                                <td>
+                                                    <input n-decimals="4" ng-maxlength="3" type="text" class="form-control text-right" ng-model="x.ToCurrencyRate" ng-keyup="changeCurrencyExchangeRate();" />
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>*@
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="common-btn">
+        <ul class="common-btn list-inline text-right">
+            <li> <button ng-click="Post();" class="btn"> Post</button></li>
+            <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+
+<div class="aplos-grid-toggle">
+    <div class="tab-design" id="tab_show">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSetSalesList(1) }"><a ng-click="setTabSalesList(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Sales</a></li>
+                <li role="presentation" ng-class="{ active: isSetSalesList(2) }"><a ng-click="setTabSalesList(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Inventory Sales</a></li>
+            </ul>
+
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetSalesList(1), active: isSetSalesList(1) }">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="searchByPostedSales">
+                                            <option ng-repeat="option in searchByPostedSaleList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchSales" ng-enter="getDataList();">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getDataList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="GridPrint" ej-grid e-datasource="products" e-allowfiltering="true" e-allowpaging="true"
+                         e-allowsorting="true" e-allowResizing="true" e-filtersettings-filterType="excel" e-enabletouch="true"
+                         e-actioncomplete="actionCompleteSelected" e-allowscrolling="true" e-showstackedheader="true">
+                        <div e-columns>
+                            <div e-column e-field="GRNType" e-headertext="Type" e-width="60" e-filter="false"></div>
+                            <div e-column e-field="PartyName" e-headertext="Party" e-width="150"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee" e-width="150"></div>
+                            <div e-column e-field="Id" e-headertext="Sales No" e-width="50" textAlign='Center'></div>
+                            <div e-column e-field="SalesDate" e-headertext="Sales Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                            <div e-column e-field="VoucherNo" e-headertext="VoucherNo" e-width="100"></div>
+                            <div e-column e-field="PostingDate" e-headertext="PostingDate" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                            <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="100"></div>
+                            <div e-column e-field="DocDate" e-headertext="Doc Ref Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                            <div e-column e-field="TransactionQty" e-headertext="Tran.Qty" e-width="100" textAlign='Right'></div>
+                            <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="60" textAlign='Right'></div>
+                            <div e-column e-field="TransactionAmount" e-headertext="Tran Amount" e-width="100" textAlign='Right'></div>
+                            <div e-column e-field="MaterialStorageName" e-headertext="Storage Location" e-width="130"></div>
+                            <div e-column e-field="OtherVoucherNo" e-headertext="Sub VoucherNo" e-width="100" textAlign='Right'></div>
+                            <div e-column e-field="OtherAmount" e-headertext=" TDS " e-width="100" textAlign='Right'></div>
+                            <div e-column e-field="OtherIsPark" e-headertext="Status" e-width="100" textAlign='Right'></div>
+                            @*<div e-column e-headertext="AdditionalTax" e-commands="additionalTaxPop" e-isunbound=true e-textalign="center" e-width="100"></div>*@
+
+                            @*<div e-column e-headertext="Govt Subsidy" e-template="#AdditionalTaxTemplate" e-width="100"></div>*@
+                            <div e-column e-headertext="Report" e-template="#ReportTemplate" e-width="100"></div>
+                            <div e-column e-headertext=" Action " e-template="#DeleteTemplate" e-width="130"></div>
+                        </div>
+
+                    </div>
+                    @*<script id="AdditionalTaxTemplate" type="text/template">
+                        <ul class="common-btn list-inline text-right">
+                            <li> <button type="button" class="btn" ng-disabled="data.OtherInvoiceId==null" ng-click="$parent.onClickadditionalTaxPop(data);">Govt Subsidy Post</button></li>
+                        </ul>
+
+                    </script>*@
+                    <script id="ReportTemplate" type="text/template">
+                        <div class="common-btn">
+                            <ul class="common-btn list-inline text-center">
+                                <li>
+                                    <button ng-click="$parent.onClickReportDownloadWord(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Pdf">
+                                        <i class="fa fa-file-pdf-o"></i>
+                                    </button>
+                                    <button ng-click="$parent.onClickReportDownloadExcel(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Excel">
+                                        <i class="fa fa-file-excel-o"></i>
+                                    </button>
+                                    <button ng-click="$parent.downloadSalesReport(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Sales">
+                                        <i class="glyphicon glyphicon-file" style="color:orangered;"></i>
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </script>
+                    <script id="DeleteTemplate" type="text/template">
+                        <div class="common-btn">
+                            <ul class="common-btn list-inline text-center">
+                                <li>
+                                    <button type="button" class="btn" ng-disabled="data.OtherInvoiceId==null" ng-click="$parent.onClickadditionalTaxPop(data);" title="Govt Subsidy Post">G.S.Post</button>
+                                    <button ng-disabled="data.IsPark==false" ng-click="$parent.onClickDeletePopUp(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Delete">
+                                        <i class="glyphicon glyphicon-trash" style="color:orangered;"></i>
+                                    </button>
+
+                                </li>
+                            </ul>
+                        </div>
+                    </script>
+
+
+                </div>
+                <i>**Showing top 300 Posted Sales  order by PostingDate</i>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetSalesList(2), active: isSetSalesList(2) }">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="searchByPostedSales2">
+                                            <option ng-repeat="option in searchByPostedSaleList2" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchSales2" ng-enter="getInventorySalesDataList();">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getInventorySalesDataList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="GridInventory" ej-grid e-datasource="inventorySales" e-allowfiltering="true" e-allowpaging="true"
+                         e-allowsorting="true" e-allowResizing="true" e-filtersettings-filterType="excel" e-enabletouch="true"
+                         e-actioncomplete="actionCompleteSelected" e-allowscrolling="true" e-showstackedheader="true">
+                        <div e-columns>
+                            <div e-column e-field="GRNType" e-headertext="Type" e-width="60" e-filter="false"></div>
+                            <div e-column e-field="PartyName" e-headertext="Party" e-width="150"></div>
+                            <div e-column e-field="Id" e-headertext="Sales No" e-width="50" textAlign='Center'></div>
+                            <div e-column e-field="SalesDate" e-headertext="Sales Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                            <div e-column e-field="VoucherNo" e-headertext="VoucherNo" e-width="100"></div>
+                            <div e-column e-field="PostingDate" e-headertext="PostingDate" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                            <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="100"></div>
+                            <div e-column e-field="DocDate" e-headertext="Doc Ref Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                            <div e-column e-field="TransactionQty" e-headertext="Tran.Qty" e-width="100" textAlign='Right'></div>
+                            <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="60" textAlign='Right'></div>
+                            <div e-column e-field="TransactionAmount" e-headertext="Tran Amount" e-width="100" textAlign='Right'></div>
+                            <div e-column e-field="MaterialStorageName" e-headertext="Storage Location" e-width="130"></div>
+                            <div e-column e-headertext="Report" e-template="#InvReportTemplate" e-width="100"></div>
+                        </div>
+                    </div>
+                    <script id="InvReportTemplate" type="text/template">
+                        <div class="common-btn">
+                            <ul class="common-btn list-inline text-center">
+                                <li>
+                                    <button ng-click="$parent.downloadInventorySalePDF(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Pdf">
+                                        <i class="fa fa-file-pdf-o"></i>
+                                    </button>
+                                    <button ng-click="$parent.downloadInventorySaleExcel(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Excel">
+                                        <i class="fa fa-file-excel-o"></i>
+                                    </button>
+                                    <button ng-click="$parent.downloadInventorySales(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Sales">
+                                        <i class="glyphicon glyphicon-file" style="color:orangered;"></i>
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </script>
+                    <i>**Showing top 300 Posted Sales  order by PostingDate</i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Partial("~/Areas/Accounts/Views/InventoryPayable/_ApprovedSalesDetailPopUp.cshtml")
+@Html.Partial("~/Areas/Parties/Views/Party/_PartyOtherPopUpNew.cshtml")
+
+<div class="modal fade site-modal in" id="JournalPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" ng-form name="PopUpForm1">
+            <div class="modal-content">
+                <div class="modal-header"> Journal</div>
+                <div class="modal-body">
+                    <div class="form-horizontal">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Entry Date<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" name="VoucherDate" ng-model="otherVoucher.VoucherDate" datepicker class="form-control" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Posting Date<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input datepicker id="DocDate" type="text" name="Doc Date" ng-model="otherVoucher.PostingDate" class="form-control" readonly>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Doc Ref<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" maxlength="50" name="Doc Ref No" ng-model="otherVoucher.DocRefNo" class="form-control" tabindex="4" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Voucher Type<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select id="VoucherType" class="form-control" name="VoucherType" ng-model="otherVoucher.VoucherTypeId" ng-disabled="voucherTypeListnew.length==1" tabindex="7">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in voucherTypeListnew" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="div_PostingDate" class="form-group" >
+                                <label class="col-sm-4 control-label">Doc Date<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input datepicker id="DocDate" type="text" name="Doc Date" ng-model="otherVoucher.DocDate" class="form-control" readonly>
+                                </div>
+                            </div>
+                            <div class="form-group" >
+                                <label class="col-sm-4 control-label">Narration<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <textarea rows="1" type="text" ng-maxlength="250" name="Narration"  class="form-control" ng-model="otherVoucher.Narration"  capitalize></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="table-responsive modal-table">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Particulars</th>
+                                        <th>GL</th>
+                                        <th>Budget</th>
+                                        <th>Activity</th>
+                                        <th>Dr</th>
+                                        <th>Cr</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in otherInvoiceDetailList| orderBy:'Dr'">
+                                        <td>{{x.Customer}}</td>
+                                        <td>{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</td>
+                                        <td>{{x.BudgetName}}</td>
+                                        <td>{{x.ActivityName}}</td>
+                                        <td class="text-right">{{x.Dr | number| setDecimal:4}}</td>
+                                        <td class="text-right">{{x.Cr | number| setDecimal:4}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4"></td>
+                                        <td class="text-right"><strong>{{otherInvoiceDetailList | sumByKey : 'Dr' | number| setDecimal:4}}</strong></td>
+                                        <td class="text-right"><strong>{{otherInvoiceDetailList | sumByKey : 'Cr' | number| setDecimal:4}}</strong></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li><button type="button" class="btn btn-default" ng-disabled="otherVoucher.OtherIsPark=='OtherInvoiceParked'" ng-click="OtherInvoiceVouchereReport();">Print</button></li>
+
+                                <li><button ng-click="confirmotherInvoicePost(OtherInvoiceJournalId,otherVoucher,otherInvoiceDetailList)" title="Post" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Post</button></li>
+                                <li><button ng-click="closeJournalPopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic modalid="confirmotherInvoicePostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="otherInvoicepost(otherinvoiceId,data,otherInvoiceJVlist)"></confirm-archive-generic>
+
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(SalesId,VoucherId,InventoryVoucherId)"></confirm-archive-generic>

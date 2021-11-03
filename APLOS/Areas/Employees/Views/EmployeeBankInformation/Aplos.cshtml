@@ -1,0 +1,188 @@
+﻿
+<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Employee Bank Information
+</h3>
+<div ng-form name="EmployeeBankInformationForm">
+    <div class="col-xs-12 col-sm-12 col-md-12 form-element-ctrl form-horizontal">
+        <input type="hidden" ng-model="EmployeeBankInformation.Id">
+    </div>
+    <div class="form-elements form-horizontal">
+        <div class="form-group" show-errors>
+            <div class="col-sm-12">
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li><button class="btn" ng-click="GetEmployeeModalData()"><i class="glyphicon glyphicon-search" tabindex="1"></i> Search Employee</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <input type="text" ng-model="employeeBankInformation.RowID" hidden/>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Employee Code :</label>
+                <label class="col-sm-8 control-label">{{employeeBankInformation.EmployeeCode}}</label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Employee Name :</label>
+                <label class="col-sm-8 control-label">{{employeeBankInformation.EmployeeName}}</label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Date of Join :</label>
+                <label class="col-sm-8 control-label">{{employeeBankInformation.DOJ|dateFiltering}}</label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Given Designation :</label>
+                <label class="col-sm-8 control-label">{{employeeBankInformation.GivenDesignation}}</label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Department :</label>
+                <label class="col-sm-8 control-label">{{employeeBankInformation.Department}}</label>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label  class="col-sm-4 control-label">Bank Name :</label>
+                <label  class="col-sm-8 control-label">{{employeeBankInformation.BankName}}</label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Bank Branch Name:</label>
+                <label class="col-sm-8 control-label">{{employeeBankInformation.BankBranchName}}</label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Account No :</label>
+                <label class="col-sm-8 control-label">{{employeeBankInformation.BankAccNo}}</label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Salary Percentage :</label>
+                <label class="col-sm-8 control-label">{{employeeBankInformation.SalaryPercentage}}</label>
+            </div>
+            <div class="form-group">
+                    <label class="col-sm-4 control-label">Is Approved :</label>
+                    <div class="col-sm-8">
+                        <div class="checkbox-site">
+                            <label>
+                                <input type="checkbox" ng-model="employeeBankInformation.IsApproved" ng-checked="employeeBankInformation.IsApproved">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+            </div>
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Update();" class="btn" tabindex=""><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex=""><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear();" class="btn" tabindex=""><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+        <div class="table-responsive modal-table aplos-grid-toggle" ng-show="dataList.length>0">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Employee Code</th>
+                        <th>Employee Name</th>
+                        <th>DOJ</th>
+                        <th>Given Designation</th>
+                        <th>Department</th>
+                        <th>Bank Name</th>
+                        <th>Bank Branch Name</th>
+                        <th>Account No</th>
+                        <th>Salary Percentage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr dir-paginate="x in dataList |itemsPerPage:EmployeeBackUpParameters.pageSize" pagination-id="metaData.name + 'dataList'" total-items="EmployeeBackUpParameters.total_count">
+                        <td>{{x.EmployeeCode}}</td>
+                        <td>{{x.EmployeeName}}</td>
+                        <td>{{x.DOJ}}</td>
+                        <td>{{x.GivenDesignation}}</td>
+                        <td>{{x.Department}}</td>
+                        <td>{{x.BankName}}</td>
+                        <td>{{x.BankBranchName}}</td>
+                        <td>{{x.BankAccNo}}</td>
+                        <td>{{x.SalaryPercentage}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <dir-pagination-controls max-size="10"
+                                     pagination-id="metaData.name + 'dataList'"
+                                     direction-links="true"
+                                     boundary-links="true"
+                                     on-page-change="GetBackUpData(newPageNumber)">
+            </dir-pagination-controls>
+        </div>
+
+    </div>
+</div>
+<confirm-modal></confirm-modal>
+<div class="modal fade site-modal in" id="PopUpEmployee" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> Select Employee</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="EmployeePopUpParameters.searchBy">
+                                            <option ng-repeat="option in searchingEmployeeList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="EmployeePopUpParameters.search" ng-enter="GetEmployeeModalData()"> 
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="GetEmployeeModalData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Employee Code</th>
+                                <th>Employee Name</th>
+                                <th>DOJ</th>
+                                <th>Designation</th>
+                                <th>Department</th>
+                                <th>Bank Name</th>
+                                <th>Bank Branch Name</th>
+                                <th>Account No</th>
+                                <th>Salary Percentage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="dr in dataListEmployee|itemsPerPage:EmployeePopUpParameters.pageSize" pagination-id="metaData.name + 'dataListEmployee'"
+                                total-items="EmployeePopUpParameters.total_count" ng-dblclick="getEmployeeDataOnLabels(dr)">
+                                <td>{{dr.EmployeeCode}}</td>
+                                <td>{{dr.EmployeeName}}</td>
+                                <td>{{dr.DOJ|dateFiltering}}</td>
+                                <td>{{dr.GivenDesignation}}</td>
+                                <td>{{dr.Department}}</td>
+                                <td>{{dr.BankName}}</td>
+                                <td>{{dr.BankBranchName}}</td>
+                                <td>{{dr.BankAccNo}}</td>
+                                <td>{{dr.SalaryPercentage}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <dir-pagination-controls max-size="10"
+                                         pagination-id="metaData.name + 'dataListEmployee'"
+                                         direction-links="true"
+                                         boundary-links="true"
+                                         on-page-change="GetEmployeeModalData(newPageNumber)">
+                </dir-pagination-controls>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,593 @@
+﻿using Library.Crosscutting.Security;
+using Library.Data.Sql;
+using Library.Service.Helpers;
+using OTSBD;
+using Syncfusion.XlsIO;
+using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Data;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Library.OrderManagement.Production
+{
+    public class ProductionOrder
+    {
+
+        SqlRepository _sqlRepository;
+        public ProductionOrder()
+        {
+            _sqlRepository = new SqlRepository();
+        }
+
+        public string ProductionOrderList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return @"SELECT 
+case when PO.PlantId='" + identity.PlantId + @"' AND PO.PlantId=EN.PlantId then 'OWN' else 
+case when PO.PlantId='" + identity.PlantId + @"' and EN.PlantId<>PO.PlantId then 'OUT' ELSE
+case when PO.PlantId<>'" + identity.PlantId + @"' AND EN.PlantId='" + identity.PlantId + @"' THEN 'IN' ELSE '' END END END AS Owner,
+PO.*,isnull(po.Remarks,'') AS ProductionRemarks,isnull(s.UserName,'') AS ProductionStatus, isnull(EN.UserName,'') AS EntityName, 
+FORMAT(PO.AddedDate,'dd-MMM-yyyy') CreationDate,
+                                        isnull(PS.UserName,'') AS ProductionStatusName,SO.*
+                                FROM [TRN].[ProductionOrder] AS PO
+                            JOIN [ORG].[Entity] AS EN ON PO.EntityId = EN.Id
+                            LEFT JOIN [HKP].[ProductionStatus] AS PS ON PO.EntityId = PS.Id
+                            LEFT OUTER  JOIN (select
+                                                    pod.ProductionOrderId,
+                                                    mm.userName AS Material,PM.UserName AS Product,pc.UserName AS ProductCategory,PM.Id ProductMasterId,
+                                                    -- Min(LSD) AS LSD,max(CommitmentDate) AS CommitmentDate ,
+                                                    sum(so.Qty) AS SOQuantity, Format(Min(so.DeliveryDate),'dd-MMM-yyyy') DeliveryDate,
+                                                    MasterOrderId=STUFF((select distinct ','+XMOI.MasterOrderId from 
+								                            trn.MasterOrderItem XMOI 	 
+								                            INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+								                            INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                            where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+											 
+					                                BuyerRefNo =STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+																			trn.MasterOrder XMOI 	 
+								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+
+                                                    OwnRefNo =STUFF((select distinct ','+XMOI.OwnReferenceNo from 
+																			trn.MasterOrder XMOI 	 
+								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+
+													StyleNo=STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+																			trn.MasterOrderItem XMOI 	  
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+	                                                
+                                                    OwnStyleNo=STUFF((select distinct ','+XMOI.OwnReferenceNo from 
+																			trn.MasterOrderItem XMOI 	  
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+
+                                                    SONo=STUFF((select distinct ','+sox.Id from 
+								                                trn.MasterOrderItem XMOI 	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+                                                    SODesc=STUFF((select distinct ','+sox.[Description] from 
+								                                trn.MasterOrderItem XMOI 	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+                                                    buyer=STUFF((select distinct ','+XB.UserName from 
+	                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
+			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+
+                                                    Customer=STUFF((select distinct ','+XP.UserName from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                                     
+from 
+ 
+ 
+                                                     trn.SalesOrder SO 
+                                                      JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id
+                                                    left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
+                                                    left outer join mst.MaterialMaster mm on mm.id=MOI.MaterialMasterId
+                                                    left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
+                                                    left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
+                                                    left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
+
+                                                    group by pod.ProductionOrderId,mm.userName,PM.UserName,pc.UserName,PM.Id) AS SO ON so.ProductionOrderId=po.Id
+                            LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId";
+
+        }
+        public string SalesOrderListForCostingBOQ(string CustomerId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return @"SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN,0 AS Selected
+	                            , MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,MOI.OrderCostingMasterTemplateId
+	                            , SO.Id AS SalesOrderId, P.UserName AS Customer
+	                            , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName
+	                            , MOI.ArticleId, ART.StandardName AS ArticleName
+	                            , DeliveryDate = REPLACE(CONVERT(CHAR(11), DeliveryDate, 106),' ','-')
+	                            , CommitmentDate = REPLACE(CONVERT(CHAR(11), CommitmentDate, 106),' ','-')
+	                            , DEST.UserName AS DestinationName, SHP.UserName AS ShipmentModeName
+	                            , PO.PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
+	                            , SO.Qty, SO.Rate,SO.Description,
+	                            moi.BuyerReferenceNo BuyerItemNo,
+	                            moi.OwnReferenceNo OwnItemNo,  mo.BuyerReferenceNo BuyerOrderNo,
+	                            mo.OwnReferenceNo OwnOrderNo
+	                            , Flag = CAST(0 AS BIT)
+								,ItemList=STUFF((SELECT distinct ','+cix.UserName FROM CostingBOQ AS cbx
+													JOIN hkp.CostingItem AS cix ON cix.Id=cbx.CostingItemId
+                                    where cbx.SalesOrderId=so.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								,BOMList=STUFF((SELECT distinct ','+cbx.CostingBOQMasterId FROM CostingBOQSalesOrder AS cbx
+                                    where cbx.SalesOrderId=so.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                       FROM [TRN].[SalesOrder] AS SO 
+                       JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
+                       JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
+                       LEFT JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id 
+                       LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON MOI.ArticleId = ART.Id
+                       LEFT JOIN [HKP].[Party] AS P ON MO.PartyId = P.Id
+                       LEFT JOIN [MST].[Destination] AS DEST ON SO.DestinationId = DEST.Id
+                       LEFT JOIN [MST].[ShipMode] AS SHP ON SO.ShipmentModeId = SHP.Id
+                       LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
+                       LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
+                       join hkp.OrderCategory AS oc on OC.Id=SO.OrderCategoryId and OC.UserName IN ('Confirmed','To Confirm')
+			where MO.PartyId='" + CustomerId + @"' AND (mo.OrderStatusId<>'Closed' AND so.OrderStatusId NOT IN ('Closed','Cancelled'))";
+
+        }
+        public string SalesOrderListForExistingProcess(string SalesOrderIds, string OrderProcurementCostingDirectMaterialId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return @"SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN,0 AS Selected
+	                            , MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,so.OrderCostingMasterTemplateId
+	                            , SO.Id AS SalesOrderId, P.UserName AS Customer
+	                            , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName
+	                            , MOI.ArticleId, ART.StandardName AS ArticleName
+	                            , DeliveryDate = REPLACE(CONVERT(CHAR(11), DeliveryDate, 106),' ','-')
+	                            , CommitmentDate = REPLACE(CONVERT(CHAR(11), CommitmentDate, 106),' ','-')
+	                            , DEST.UserName AS DestinationName, SHP.UserName AS ShipmentModeName
+	                            , PO.PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
+	                            , SO.Qty, SO.Rate,SO.Description,
+	                            moi.BuyerReferenceNo BuyerItemNo,
+	                            moi.OwnReferenceNo OwnItemNo,  mo.BuyerReferenceNo BuyerOrderNo,
+	                            mo.OwnReferenceNo OwnOrderNo
+	                            , Flag = CAST(0 AS BIT)
+								,ItemList=STUFF((SELECT distinct ','+cix.UserName FROM CostingBOQ AS cbx
+													JOIN hkp.CostingItem AS cix ON cix.Id=cbx.CostingItemId
+                                    where cbx.SalesOrderId=so.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								,BOMList=STUFF((SELECT distinct ','+cbx.CostingBOQMasterId FROM CostingBOQSalesOrder AS cbx
+                                    where cbx.SalesOrderId=so.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                       FROM [TRN].[SalesOrder] AS SO 
+                       JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
+                       JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
+                       LEFT JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id 
+                       LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON MOI.ArticleId = ART.Id
+                       LEFT JOIN [HKP].[Party] AS P ON MO.PartyId = P.Id
+                       LEFT JOIN [MST].[Destination] AS DEST ON SO.DestinationId = DEST.Id
+                       LEFT JOIN [MST].[ShipMode] AS SHP ON SO.ShipmentModeId = SHP.Id
+                       LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
+                       LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
+                       LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
+			  where SO.Id IN (SELECT distinct SalesOrderId
+			  FROM CostingBOQItems WHERE SalesOrderId IN (" + SalesOrderIds + @") AND OrderProcurementCostingDirectMaterialId='" + OrderProcurementCostingDirectMaterialId + @"')";
+
+        }
+        public string GetExistingSalesOrderList(string BOMMasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return @"SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN,0 AS Selected
+	                            , MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,so.OrderCostingMasterTemplateId
+	                            , SO.Id AS SalesOrderId, P.UserName AS Customer
+	                            , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName
+	                            , MOI.ArticleId, ART.StandardName AS ArticleName
+	                            , DeliveryDate = REPLACE(CONVERT(CHAR(11), DeliveryDate, 106),' ','-')
+	                            , CommitmentDate = REPLACE(CONVERT(CHAR(11), CommitmentDate, 106),' ','-')
+	                            , DEST.UserName AS DestinationName, SHP.UserName AS ShipmentModeName
+	                            , PO.PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
+	                            , SO.Qty, SO.Rate,SO.Description,
+	                            moi.BuyerReferenceNo BuyerItemNo,
+	                            moi.OwnReferenceNo OwnItemNo,  mo.BuyerReferenceNo BuyerOrderNo,
+	                            mo.OwnReferenceNo OwnOrderNo
+	                            , Flag = CAST(0 AS BIT)
+								,ItemList=STUFF((SELECT distinct ','+cix.UserName FROM CostingBOQ AS cbx
+													JOIN hkp.CostingItem AS cix ON cix.Id=cbx.CostingItemId
+                                    where cbx.SalesOrderId=so.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								,BOMList=STUFF((SELECT distinct ','+cbx.CostingBOQMasterId FROM CostingBOQSalesOrder AS cbx
+                                    where cbx.SalesOrderId=so.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                       FROM [TRN].[SalesOrder] AS SO 
+                       JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
+                       JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
+                       LEFT JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id 
+                       LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON MOI.ArticleId = ART.Id
+                       LEFT JOIN [HKP].[Party] AS P ON MO.PartyId = P.Id
+                       LEFT JOIN [MST].[Destination] AS DEST ON SO.DestinationId = DEST.Id
+                       LEFT JOIN [MST].[ShipMode] AS SHP ON SO.ShipmentModeId = SHP.Id
+                       LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
+                       LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
+                       LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
+			  where SO.Id IN (SELECT SalesOrderId
+			  FROM CostingBOQSalesOrder WHERE CostingBOQMasterId='" + BOMMasterId + "')";
+
+        }
+        public string GetExistingSalesOrderListForReport(string BOMMasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return @"SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN,0 AS Selected
+	                            , MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,so.OrderCostingMasterTemplateId
+	                            , SO.Id AS SalesOrderId, P.UserName AS Customer
+	                            , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName
+	                            , MOI.ArticleId, ART.StandardName AS ArticleName
+	                            , DeliveryDate = REPLACE(CONVERT(CHAR(11), DeliveryDate, 106),' ','-')
+	                            , CommitmentDate = REPLACE(CONVERT(CHAR(11), CommitmentDate, 106),' ','-')
+	                            , DEST.UserName AS DestinationName, SHP.UserName AS ShipmentModeName
+	                            , PO.PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
+	                            , SO.Qty, SO.Rate,SO.Description,
+	                            moi.BuyerReferenceNo BuyerItemNo,
+	                            moi.OwnReferenceNo OwnItemNo,  mo.BuyerReferenceNo BuyerOrderNo,
+	                            mo.OwnReferenceNo OwnOrderNo
+	                            , Flag = CAST(0 AS BIT)
+								,ItemList=STUFF((SELECT distinct ','+cix.UserName FROM CostingBOQ AS cbx
+													JOIN hkp.CostingItem AS cix ON cix.Id=cbx.CostingItemId
+                                    where cbx.SalesOrderId=so.Id and CBX.CostingBOQMasterId='" + BOMMasterId + @"' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								,BOMList=STUFF((SELECT distinct ','+cbx.CostingBOQMasterId FROM CostingBOQSalesOrder AS cbx
+                                    where cbx.SalesOrderId=so.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								,BOMRemarks=STUFF((SELECT distinct ','+cbx.Remarks FROM CostingBOQMaster AS cbx
+								INNER JOIN CostingBOQSalesOrder SX ON sx.CostingBOQMasterId=cbx.Id
+                                    where sx.SalesOrderId=so.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                       FROM [TRN].[SalesOrder] AS SO 
+                       JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
+                       JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
+                       LEFT JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id 
+                       LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON MOI.ArticleId = ART.Id
+                       LEFT JOIN [HKP].[Party] AS P ON MO.PartyId = P.Id
+                       LEFT JOIN [MST].[Destination] AS DEST ON SO.DestinationId = DEST.Id
+                       LEFT JOIN [MST].[ShipMode] AS SHP ON SO.ShipmentModeId = SHP.Id
+                       LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
+                       LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
+                       LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
+			  where SO.Id IN (SELECT SalesOrderId
+			  FROM CostingBOQSalesOrder WHERE CostingBOQMasterId='" + BOMMasterId + "')";
+
+        }
+        public string SalesOrderListForCostingBOQMaster(string CostingMasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return @"SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN,0 AS Selected
+	                            , MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,so.OrderCostingMasterTemplateId
+	                            , SO.Id AS SalesOrderId, P.UserName AS Customer
+	                            , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName
+	                            , MOI.ArticleId, ART.StandardName AS ArticleName
+	                            , DeliveryDate = REPLACE(CONVERT(CHAR(11), DeliveryDate, 106),' ','-')
+	                            , CommitmentDate = REPLACE(CONVERT(CHAR(11), CommitmentDate, 106),' ','-')
+	                            , DEST.UserName AS DestinationName, SHP.UserName AS ShipmentModeName
+	                            , PO.PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
+	                            , SO.Qty, SO.Rate,SO.Description,
+	                            moi.BuyerReferenceNo BuyerItemNo,
+	                            moi.OwnReferenceNo OwnItemNo,  mo.BuyerReferenceNo BuyerOrderNo,
+	                            mo.OwnReferenceNo OwnOrderNo
+	                            , Flag = CAST(0 AS BIT)
+                       FROM [TRN].[SalesOrder] AS SO 
+					   join CostingBOQSalesOrder BSO on SO.SalesOrderId=SO.Id
+                       JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
+                       JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
+                       LEFT JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id 
+                       LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON MOI.ArticleId = ART.Id
+                       LEFT JOIN [HKP].[Party] AS P ON MO.PartyId = P.Id
+                       LEFT JOIN [MST].[Destination] AS DEST ON SO.DestinationId = DEST.Id
+                       LEFT JOIN [MST].[ShipMode] AS SHP ON SO.ShipmentModeId = SHP.Id
+                       LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
+                       LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
+                       LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
+			where BSO.CostingBOQMasterId='" + CostingMasterId + @"'";
+
+        }
+
+
+        public string GetProductionHistorySql(string ProductionOrderId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return @"SELECT ps.Id,FORMAT(ps.ProductionDate,'dd-MMM-yyyy') AS ProductionDate,PLN.UserName AS Plant, E.UserName Entity ,ISNULL(fp.UserName,fs.UserName) AS FromLocation,fw.UserName AS FromWorkCenter,bp.UserName AS ProductionHour,
+                               ISNULL(tp.UserName,ts.UserName) AS ToLocation,Tw.UserName AS ToWorkCenter,ps.ProductionGrade,ps.Quantity,ps.AddedBy,FORMAT(ps.AddedDate,'dd-MMM-yyyy') AS AddedDate
+                                FROM trn.ProductionSummary AS ps
+                                LEFT JOIN hkp.ProductionBookingPeriod AS BP ON bp.Id=ps.ProductionBookingPeriodId
+                                LEFT JOIN hkp.Process AS Fp ON Fp.id=ps.ProcessId
+                                LEFT JOIN hkp.SFGInventory AS FS ON fs.id=ps.FromSFGInventoryId
+                                LEFT JOIN hkp.Process AS SFGF ON SFGF.id=FS.ProcessId
+                                LEFT JOIN scs.WorkCenterMaster AS Fw ON fw.Id=ps.WorkCenterMasterId
+								LEFT JOIN ORG.Entity E on E.Id=ps.EntityId
+								LEFT JOIN ORG.Plant PLN on PLN.Id=E.PlantId
+
+
+                                LEFT JOIN hkp.Process AS Tp ON Tp.id=ps.ToProcessId
+                                LEFT JOIN hkp.SFGInventory AS TS ON TS.id=ps.ToSFGInventoryId
+                                LEFT JOIN hkp.Process AS SFGT ON SFGT.id=ts.ProcessId
+                                LEFT JOIN scs.WorkCenterMaster AS Tw ON Tw.Id=ps.ToWorkCenterMasterId
+
+                                WHERE ps.ProductionOrderId='" + ProductionOrderId + @"'
+                                ORDER BY ISNULL(fp.Sequence,ISNULL(SFGF.Sequence,0)+ISNULL(SFGF.Sequence,0)*0.05),ps.ProductionDate,fw.Sequence,BP.Sequence ";
+
+        }
+
+        public IWorkbook GetProductionHistory(string ProductionOrderId)
+        {
+
+            #region declare
+
+            ReportUtility oru = new ReportUtility();
+
+
+            DataTable dtMainData = new DataTable();
+            DataTable dtSFGinventory = new DataTable();
+
+            StringCollection strColPrId = new StringCollection();
+
+
+
+            clsStaticInfo objStatic = null;
+            objStatic = new clsStaticInfo();
+
+            #endregion
+            try
+            {
+
+                DataTable dtData = _sqlRepository.GetDataTable(GetProductionHistorySql(ProductionOrderId));
+                if (dtData.Rows.Count == 0)
+                    throw new Exception("No production data found");
+
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                excelEngine.Excel.DefaultVersion = ExcelVersion.Excel2013;
+
+                IWorkbook workbook = application.Workbooks.Create(1);
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+
+                int ROW = 1, COL = 1;
+                int endCol = 1;
+
+
+                IWorksheet sheet1 = null;
+
+                sheet1 = workbook.Worksheets[0];
+
+
+
+                ROW = 5;
+
+
+                string Key = "";
+                int Serial = 0;
+                int colSL = 0, colTransactionId = 0, colProductionDate = 0, colProductionHour = 0, colEntity = 0, colPlant = 0, colFromLocation = 0, colFromWorkCenter = 0, colToLocation = 0, colToWorkCenter = 0, colProductionGrade = 0, colQuantity = 0, colAddedBy = 0, colAddedDate = 0;
+
+                int startRow = ROW;
+                for (int i = 0; i < dtData.Rows.Count; i++)
+                {
+                    string tempKey = dtData.Rows[i]["FromLocation"].ToString() + "-" + dtData.Rows[i]["ToLocation"].ToString();
+                    if (Key != tempKey)
+                    {
+                        //do sum
+                        if (i > 0)
+                        {
+                            sheet1[ROW, 1].Text = "Total";
+                            sheet1.Range[ROW, 1, ROW, colQuantity - 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                            sheet1.Range[ROW, 1, ROW, colQuantity].CellStyle.Font.Bold = true;
+                            sheet1[ROW, colQuantity].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colQuantity) + startRow.ToString() + ":" + clsStaticInfo.GetxlsCol(colQuantity) + (ROW - 1).ToString() + ")";
+                            sheet1.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                            sheet1.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                            sheet1.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
+
+                            ROW++;
+                        }
+
+                        Serial = 0;
+                        COL = 1; endCol = 1;
+                        ROW++;
+
+                        sheet1[ROW, 1].Text = "From:";
+                        sheet1[ROW, 3].Text = dtData.Rows[i]["FromLocation"].ToString();
+
+                        sheet1[ROW, 5].Text = "To:";
+                        sheet1[ROW, 6].Text = dtData.Rows[i]["ToLocation"].ToString();
+
+                        sheet1.Range[ROW, 1, ROW, 6].CellStyle.Font.Bold = true;
+                        sheet1.Range[ROW, 1, ROW, 6].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_yellow;
+
+                        ROW++;
+
+                        #region ------------------Column Header------------------
+                        colSL = COL;
+                        sheet1.Range[ROW, COL].Text = "SL#";
+                        sheet1.Range[ROW, COL].ColumnWidth = 6;
+                        COL++;
+                        colTransactionId = COL;
+                        sheet1.Range[ROW, COL].Text = "Transaction Id";
+                        sheet1.Range[ROW, COL].ColumnWidth = 12;
+                        COL++;
+                        colProductionDate = COL;
+                        sheet1.Range[ROW, COL].Text = "Production Date";
+                        sheet1.Range[ROW, COL].ColumnWidth = 12;
+                        COL++;
+                        colProductionHour = COL;
+                        sheet1.Range[ROW, COL].Text = "Production Hour";
+                        sheet1.Range[ROW, COL].ColumnWidth = 12;
+                        COL++;
+                        colPlant = COL;
+                        sheet1.Range[ROW, COL].Text = "Plant";
+                        sheet1.Range[ROW, COL].ColumnWidth = 12;
+                        COL++;
+                        colEntity = COL;
+                        sheet1.Range[ROW, COL].Text = "Entity";
+                        sheet1.Range[ROW, COL].ColumnWidth = 12;
+                        COL++;
+                        colFromLocation = COL;
+                        sheet1.Range[ROW, COL].Text = "From Location";
+                        sheet1.Range[ROW, COL].ColumnWidth = 15;
+                        COL++;
+                        colFromWorkCenter = COL;
+                        sheet1.Range[ROW, COL].Text = "From WorkCenter";
+                        sheet1.Range[ROW, COL].ColumnWidth = 15;
+
+                        COL++;
+                        colToLocation = COL;
+                        sheet1.Range[ROW, COL].Text = "To Location";
+                        sheet1.Range[ROW, COL].ColumnWidth = 15;
+                        COL++;
+                        colToWorkCenter = COL;
+                        sheet1.Range[ROW, COL].Text = "To WorkCenter";
+                        sheet1.Range[ROW, COL].ColumnWidth = 15;
+
+                        COL++;
+                        colProductionGrade = COL;
+                        sheet1.Range[ROW, COL].Text = "Grade";
+                        sheet1.Range[ROW, COL].ColumnWidth = 10;
+
+
+                        COL++;
+                        colQuantity = COL;
+                        sheet1.Range[ROW, COL].Text = "Quantity";
+                        sheet1.Range[ROW, COL].ColumnWidth = 10;
+                        sheet1.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                        COL++;
+                        colAddedBy = COL;
+                        sheet1.Range[ROW, COL].Text = "Added By";
+                        sheet1.Range[ROW, COL].ColumnWidth = 15;
+
+                        COL++;
+                        colAddedDate = COL;
+                        sheet1.Range[ROW, COL].Text = "Added Date";
+                        sheet1.Range[ROW, COL].ColumnWidth = 12;
+
+
+                        endCol = COL;
+                        sheet1.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                        sheet1.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                        sheet1.Range[ROW, 1, ROW, endCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
+                        sheet1.Range[ROW, 1, ROW, endCol].WrapText = true;
+                        sheet1.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                        sheet1.Range[ROW, 1, ROW, endCol].RowHeight = 23;
+                        #endregion ------------------Column Header------------------
+
+                        ROW++;
+                        startRow = ROW;
+
+                    }
+                    Serial++;
+                    sheet1[ROW, colSL].Number = Serial;
+                    sheet1[ROW, colTransactionId].Text = dtData.Rows[i]["Id"].ToString();
+                    sheet1[ROW, colProductionDate].Text = dtData.Rows[i]["ProductionDate"].ToString();
+                    sheet1[ROW, colProductionHour].Text = dtData.Rows[i]["ProductionHour"].ToString();
+                    sheet1[ROW, colEntity].Text = dtData.Rows[i]["Entity"].ToString();
+                    sheet1[ROW, colPlant].Text = dtData.Rows[i]["Plant"].ToString();
+                    sheet1[ROW, colFromLocation].Text = dtData.Rows[i]["FromLocation"].ToString();
+                    sheet1[ROW, colFromWorkCenter].Text = dtData.Rows[i]["FromWorkCenter"].ToString();
+                    sheet1[ROW, colToLocation].Text = dtData.Rows[i]["ToLocation"].ToString();
+                    sheet1[ROW, colToWorkCenter].Text = dtData.Rows[i]["ToWorkCenter"].ToString();
+                    sheet1[ROW, colProductionGrade].Text = dtData.Rows[i]["ProductionGrade"].ToString();
+                    sheet1[ROW, colQuantity].Number = clsStaticInfo.dbl(dtData.Rows[i]["Quantity"].ToString());
+                    sheet1[ROW, colAddedBy].Text = dtData.Rows[i]["AddedBy"].ToString();
+                    sheet1[ROW, colAddedDate].Text = dtData.Rows[i]["AddedDate"].ToString();
+
+                    if (dtData.Rows[i]["ProductionGrade"].ToString().ToUpper() != "A")
+                        sheet1[ROW, colProductionGrade].CellStyle.Font.Color = ExcelKnownColors.Red;
+
+                    sheet1.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet1.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    ROW++;
+
+                    Key = tempKey;
+
+                }
+
+
+                sheet1[ROW, 1].Text = "Total";
+                sheet1.Range[ROW, 1, ROW, colQuantity - 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet1.Range[ROW, 1, ROW, colQuantity].CellStyle.Font.Bold = true;
+                sheet1[ROW, colQuantity].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colQuantity) + startRow.ToString() + ":" + clsStaticInfo.GetxlsCol(colQuantity) + (ROW - 1).ToString() + ")";
+                sheet1.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet1.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet1.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
+
+                ROW = 1;
+                COL = 3;
+
+
+                string FactoryName = string.Empty;
+
+                string FactoryAddress = string.Empty;
+
+
+
+                #region Freeze Panes
+
+                sheet1.IsDisplayZeros = false;
+
+
+                #endregion Freeze Panes
+
+                #region UsedRange Alignment
+
+                sheet1.UsedRange.WrapText = true;
+                sheet1.UsedRange.NumberFormat = clsStaticInfo.NumberFormat(0);
+
+                sheet1.UsedRange.CellStyle.Font.Size = 10;
+                sheet1.Range["A1"].CellStyle.Font.Size = 14;
+                sheet1.Range["A2"].CellStyle.Font.Size = 10;
+                sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                sheet1.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                #endregion UsedRange Alignment
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet1, endCol, "Production History PRNo-" + ProductionOrderId, identity.PlantId);
+                reportUtility.PageSetup(ref sheet1, 6, ExcelPageOrientation.Landscape);
+                sheet1.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+
+
+                #region Page Setup
+                sheet1.PageSetup.TopMargin = 0.5;
+                sheet1.PageSetup.BottomMargin = 0.7;
+                sheet1.PageSetup.PrintTitleRows = "$1:$8";
+                sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + "" + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
+                sheet1.PageSetup.LeftMargin = 0.5;
+                sheet1.PageSetup.RightMargin = 0.2;
+                sheet1.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet1.PageSetup.FitToPagesTall = 0;
+                sheet1.PageSetup.FitToPagesWide = 1;
+                sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet1.IsDisplayZeros = false;
+                sheet1.Name = "Production Data";
+                #endregion Page Setup    
+                return workbook;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+    }
+}

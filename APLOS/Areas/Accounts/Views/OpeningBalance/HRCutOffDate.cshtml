@@ -1,0 +1,62 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> HR Opening Balance CutOff Date
+</h3>
+<div class="col-sm-6 col-md-6 form-element-ctrl form-horizontal">
+    <div class="form-group">
+        <label class="col-sm-4 col-md-4 control-label">Company Group</label>
+        <div class="col-sm-8 col-md-8">
+            <div class="select-style">
+                <select class="form-control" ng-model="openingBalanceCutOffDate.CompanyGroupId"
+                        ng-options="item.Value as item.Text for item in companyGroupList" ng-change="getCboCompanyByCompanyGroup(openingBalanceCutOffDate.CompanyGroupId)">
+                    <option value=""></option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-xs-6 col-sm-6 col-md-6 form-element-ctrl">
+    <div class="form-group">
+        <label class="col-sm-4 control-label">Company</label>
+        <div class="col-sm-8">
+            <div class="select-style">
+                <select class="form-control" ng-model="openingBalanceCutOffDate.CompanyId" name="Company" ng-options="item.Value as item.Text for item in companyList" ng-change="getData()" required>
+                    <option value=""></option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="clearfix"></div>
+<div class="table-responsive modal-table aplos-grid-toggle" ng-form id="openingBalanceCutOffDate" name="comSRForm" ng-show="ngShowTbl">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Plant</th>
+                <th>CutOff Date</th>
+                <th>Entity Level</th>
+                <th>Remarks</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="x in openingBalanceList">
+                <td>{{x.PlantName}}</td>
+                <td><input type="text" name="CutOffDate" ng-model="x.CutOffDate" datepicker class="form-control" tabindex="1"></td>
+                <td>
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" ng-model="x.IsEntityLevel" id="IsEntityLevel" class="css-checkbox center-block">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok center-block"></i></span>
+                        </label>
+                    </div>
+                </td>
+                <td><input class="form-control" rows="3" ng-model="x.Remarks" tabindex="3" maxlength="250"></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div class="common-btn">
+    <ul class="list-inline text-right">
+        <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+    </ul>
+</div>
+<confirm-modal></confirm-modal>

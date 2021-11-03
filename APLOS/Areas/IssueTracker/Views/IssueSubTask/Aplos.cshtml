@@ -1,0 +1,69 @@
+﻿<togglable name="Issue SubTask"></togglable>
+<div class="form-elements form-horizontal" ng-form name="issueSubTaskNewForm">
+    <input type="hidden" ng-model="issueSubTaskNew.Id">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+
+        <div class="form-group show-errors">
+            <label class="col-sm-4 control-label">Task Details</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" name="TaskDetail" rows="5" ng-model="issueSubTaskNew.TaskDetail" maxlength="1024" required tabindex="55" autofocus></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Remarks</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" name="Remarks" rows="3" ng-model="issueSubTaskNew.Remarks" maxlength="250" tabindex="57"></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
+            <div class="col-sm-8 ">
+                <div class="input-group">
+                    <input type="text" name="ResponsiblePerson" ng-model="issueSubTaskNew.IssueSubTaskResponsiblePerson" tabindex="56" class="form-control" readonly required>
+                    <span class="input-group-btn">
+                        <button ng-click="showIssueSubTaskResponsiblePersonPopUp();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="clearIssueSubTaskResponsiblePerson()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label" show-errors>Required Date</label>
+            <div class="col-sm-8 show-message">
+                <input required datepicker id="RequiredDate" type="text" name="RequiredDate" ng-model="issueSubTaskNew.RequiredDate" class="form-control" tabindex="58">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Issue</th>
+                <th>Task Detail</th>
+                <th>Required Date</th>
+                <th>IsDone</th>
+                <th>Responsible Person</th>
+                <th>Remarks</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in issueSubTasks |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get(x.Id, $index);">
+                <td>{{x.Issue}}</td>
+                <td>{{x.TaskDetail}}</td>
+                <td>{{x.RequiredDate}}</td>
+                <td>{{x.StandardName}}</td>
+                <td>{{x.ResponsiblePerson}}</td>
+                <td>{{x.Remarks}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10"
+                             direction-links="true"
+                             boundary-links="true"
+                             on-page-change="getData(newPageNumber)">
+    </dir-pagination-controls>
+</div>
+<confirm-modal></confirm-modal>
