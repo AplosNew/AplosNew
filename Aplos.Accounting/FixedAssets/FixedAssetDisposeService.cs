@@ -1078,7 +1078,9 @@ namespace Library.Accounting.FixedAssets
                                    		,format( FR.CapitalizationDate,'dd-MMM-yyyy')CapitalizationDate
 									,format(IR.GRNDate,'dd-MMM-yyyy') PurchaseDate
 									,format( ii.IssueDate,'dd-MMM-yyyy')IssueDate
-		                            ,FAD.Remarks
+		                            ,FAD.Remarks,
+									Customer.UserName CustomerName
+									,CU.Code Currency
 
                                     FROM[TRN].[FixedAssetRegister] FR
                                    LEFT JOIN MST.MaterialMaster MM ON FR.MaterialMasterId= MM.Id
@@ -1103,9 +1105,16 @@ namespace Library.Accounting.FixedAssets
 								   LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=BM.GLGeneralInfoId
 								   LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
 								   LEFT JOIN HKP.Activity A ON A.Id=FR.FAActivityId
-								   LEFT JOIN ( SELECT FixedAssetRegisterId,ISNULL(Sum(Amount),0) subAssetAmount,ISNULL(Sum(BaseAmount),0) subAssetBaseAmount FROM TRN.SubFixedAssetRegister group by FixedAssetRegisterId) SAR ON SAR.FixedAssetRegisterId=FR.Id
+								   LEFT JOIN ( SELECT FixedAssetRegisterId,ISNULL(Sum(Amount),0) subAssetAmount,ISNULL(Sum(BaseAmount),0) subAssetBaseAmount FROM
+								   TRN.SubFixedAssetRegister 
+								   group by FixedAssetRegisterId) SAR ON SAR.FixedAssetRegisterId=FR.Id
                                     LEFT JOIN TRN.FixedAssetRegisterDisposedDetail FARD ON FARD.FixedAssetRegisterId=FR.Id
+
                                     LEFT JOIN TRN.FixedAssetRegisterDisposed FAD ON FAD.Id=FARD.FixedAssetRegisterDisposedId
+	                                LEFT JOIN HKP.Party Customer ON Customer.Id = FAD.PartyId
+                                    LEFT JOIN SCS.Currency CU ON CU.Id =FAD.CurrencyId
+
+                               
                                    WHERE FR.CompanyId= '" + identity.CompanyId + @"'  and FR.Archive= 0 and FR.IsAUC= 0 
                                     AND FARD.FixedAssetRegisterDisposedId='" + fixedAssetRegisterDisposeId + @"'";
                 return _sqlRepository.GetDataTable(sql);

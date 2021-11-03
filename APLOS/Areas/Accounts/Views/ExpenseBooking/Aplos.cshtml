@@ -41,17 +41,28 @@
             </div>
         </div>
         @*<div class="form-group">
-                <label class="col-sm-4 control-label">Approving Authority (additional)</label>
-                <div class="col-sm-8 show-message">
-                    <div class="input-group">
-                        <input type="text" name="EmployeeName" ng-model="budgetTransactionMaster.ResponsiblePersonName" class="form-control" readonly>
-                        <span class="input-group-btn">
-                            <button ng-click="showResponsiblePersonListPopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                            <button ng-click="clearResponsiblePerson()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                        </span>
-                    </div>
+            <label class="col-sm-4 control-label">Approving Authority (additional)</label>
+            <div class="col-sm-8 show-message">
+                <div class="input-group">
+                    <input type="text" name="EmployeeName" ng-model="budgetTransactionMaster.ResponsiblePersonName" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="showResponsiblePersonListPopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="clearResponsiblePerson()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </span>
                 </div>
-            </div>*@
+            </div>
+        </div>*@
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select id="entityId" class="form-control" name="entity" ng-model="budgetTransactionMaster.EntityId" tabindex="7" required>
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in entityList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
         <div class="form-group">
             <label class="col-sm-4 control-label">Remarks</label>
             <div class="col-sm-8">

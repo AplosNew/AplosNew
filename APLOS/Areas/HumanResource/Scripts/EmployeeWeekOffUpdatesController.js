@@ -130,4 +130,40 @@ function EmployeeWeekOffUpdatesController(commonMessage, $scope, $rootScope, bas
         $scope.WekId = null;
     }
 
+    // Tab Attendance Process Code
+
+    $scope.EmployeeList = [];
+
+    $scope.EmployeePopUp = function () {
+        if ($scope.selectedValues.FromDate != null) {
+
+            angular.element(document.querySelector("#EmployeePop")).modal("show");
+            $scope.getEmpDetailsData();
+        }
+        else {
+            ShowResult("Please Select Effective Date", 'failure');
+        }
+    }
+    $scope.getEmpDetailsData = function () {
+
+        $http({
+            method: 'POST',
+            data: { EffectiveDate: $scope.selectedValues.FromDate },
+            url: $scope.path + 'getDistinctEmployeesToBeProcessed'
+        }).then(function successCallback(response) {
+            $scope.EmployeeList = response.data;
+        });
+    }
+
+    $scope.closeEmpPopUp = function (popupName) {
+        angular.element(document.querySelector("#" + popupName + "")).modal("hide");
+
+    }
+
+    $scope.selectedValues = {
+        FromDate: null
+    };
+
+
+
 }
