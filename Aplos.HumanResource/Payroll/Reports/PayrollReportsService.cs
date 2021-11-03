@@ -18172,7 +18172,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
         private void GetSalaryIntegrationWithThirdparty(string plantId, string Year, string Month, out DataTable dtData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"Select AccountsGroupId,AccountGroup,GL,GLName,Sum(IsNull(DrAmt,0)) Debit, Sum(IsNull(CrAmt,0)) Credit--,SalHeadId SalaryHeadId,SalHeadName SalaryHead
+            string sql = @"Select ISNULL(AccountsGroupId,'')AccountsGroupId,ISNULL(AccountGroup,'')AccountGroup,ISNULL(GL,'') GL,ISNULL(GLName,'') GLName,Sum(IsNull(DrAmt,0)) Debit, Sum(IsNull(CrAmt,0)) Credit--,SalHeadId SalaryHeadId,SalHeadName SalaryHead
                         from                                                 
                         (
                         Select C.UserName as Company,P.UserName Plant,ENT.ThirdPartyBusinessArea,ENT.ThirdPartyProfitCenter,ENT.UserName Entity,
@@ -18296,7 +18296,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                 for (int i = 0; i < dtData.Rows.Count; i++)
                 {
 
-                    sheet[ROW, colAccountsGroup].Text = dtData.Rows[i]["AccountsGroup"].ToString();
+                    sheet[ROW, colAccountsGroup].Text = dtData.Rows[i]["AccountGroup"].ToString();
                     sheet[ROW, colGLCode].Text = dtData.Rows[i]["GL"].ToString();
                     sheet[ROW, colGLName].Text = dtData.Rows[i]["GLName"].ToString();
 
