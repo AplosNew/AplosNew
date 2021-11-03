@@ -13904,7 +13904,7 @@ INNER JOIN
                                     ,CASE WHEN ISNULL(PO.DirectManpowerCost,0) = 0 THEN 'No' ELSE 'Yes' END DirectManpowerCost
 
                                      FROM EmployeeInformation E
-                                          Left JOIN (
+                                          INNER JOIN (
                                     SELECT DISTINCT EmpInfoSystemID,SlrProcMstSystemID,PlantID ,m.Description,m.SalaryProcFlag
                                     FROM SalaryProcChild c
                                     JOIN SalaryProcMaster m on m.SystemID=c.SlrProcMstSystemID
