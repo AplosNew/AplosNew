@@ -306,6 +306,7 @@ function expenseBookingController(cboService, commonMessage, $scope, $rootScope,
 
         });
     };
+    $scope.entityList = [];
     baseService.getCompanyConfiguration(function (result) {
         $scope.companyConfig = result;
         cboService.getCboEntityByPlant(null, null, "", function (result) {

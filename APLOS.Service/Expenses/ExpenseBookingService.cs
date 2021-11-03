@@ -530,12 +530,10 @@ namespace Library.Service.Expenses
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 _unitOfWork.BeginTransaction();
                 flag = true;
-                var entityId = _expenseBookingDetailRepository.SqlQuery<string>(@"SELECT MB.EntityId FROM dbo.EmployeeInformation AS EI LEFT JOIN MST.ManpowerBudget AS MB ON MB.Id=EI.BudgetCode WHERE EI.SystemId='" + entity.EmployeeId + "'").First();
                 entity.Id = base.GetAutoNumber("ExpenseBooking", PKGeneratorEnum.Yearly, null, DateTime.Now);
                 entity.ApprovalStatus = ApprovalStatus.ToBeChecked.ToString();
                 entity.IsPosted = false;
                 entity.InvoiceDate = entity.InvoiceDate;
-                entity.EntityId = entityId;
                 AuditService.AddedLog(entity);
                 
                 InsertGraph(entity);

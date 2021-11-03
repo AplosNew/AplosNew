@@ -71,6 +71,10 @@ function FinalDeductionReportController(commonMessage, $scope, $rootScope, baseS
     $scope.month = new Date().getMonth().toString();
 
 
+    $scope.report = {
+        ReportFormat: '1'    
+    };
+
     $scope.yearList = [];
     cboService.getCboLeaveYear(function (result) {
         $scope.yearList = result;
@@ -80,7 +84,11 @@ function FinalDeductionReportController(commonMessage, $scope, $rootScope, baseS
         ShowResult('Press the Go Button  After Year/Month Change.', 'success');
         $scope.empGrid = false;
     };
+    $scope.Format = {
 
+        Format: 'BeforeSalary',
+     
+    };
     $scope.SelectDefaultValue = function (args) {
         var x = new Date();
         x.setDate(10);
@@ -166,7 +174,9 @@ function FinalDeductionReportController(commonMessage, $scope, $rootScope, baseS
                 data: {
                     'month': $scope.month,
                     'year': $scope.year,
-                    'PlantId': PlantId
+                    'PlantId': PlantId,
+                    'format': $scope.report.ReportFormat
+
                 }
             }).then(function successCallback(response) {
                 if (response.data.length > 0) {
@@ -319,9 +329,9 @@ function FinalDeductionReportController(commonMessage, $scope, $rootScope, baseS
                 url: 'humanresource/FinalDeductionReport/GetEmployeeSalaryProcessedReportSalLogWiseNew',
                 data: {
                     'month': $scope.month,
-                    'year': $scope.year,                    
+                    'year': $scope.year,                
                     'parameters': parameters,
-                   
+                    'format': $scope.report.ReportFormat
                 }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
