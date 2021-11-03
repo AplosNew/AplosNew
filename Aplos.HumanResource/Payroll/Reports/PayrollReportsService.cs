@@ -18172,46 +18172,53 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
         private void GetSalaryIntegrationWithThirdparty(string plantId, string Year, string Month, out DataTable dtData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT k.AccountsGroup, k.GL, k.GLName, SUM(k.Debit)AS Debit, SUM(k.Credit) AS Credit
-                      FROM (SELECT ag.UserName AS AccountsGroup,  sh.SalaryHead,ac.SalaryHeadID,
-                                                        mb.Id AS ManpowerBudgetId, mb.EntityId, mb.PositionId,mb.AccountsGroupId,e.PlantId,
-                                                        e.ThirdPartyBusinessArea, e.ThirdPartyProfitCenter,ecc.CostCenterId,
-
-									                    GL=CASE WHEN POS.DirectManpowerCost=1 and SH.TransactionType in ('Dr.','Both')  THEN SGL.DrDirectOtherGLCode
-											                    WHEN POS.DirectManpowerCost=0 and SH.TransactionType in ('Dr.','Both')  THEN SGL.DrInDirectOtherGLCode
-											                    WHEN POS.DirectManpowerCost=1 and SH.TransactionType in ('Cr.','Both')  THEN SGL.CrDirectOtherGLCode
-											                    WHEN POS.DirectManpowerCost=0 and SH.TransactionType in ('Cr.','Both')  THEN SGL.CrInDirectOtherGLCode
-											                     END,
-									                    GLName=CASE WHEN POS.DirectManpowerCost=1 and SH.TransactionType in ('Dr.','Both')  THEN SGL.DrDirectOtherGL
-											                    WHEN POS.DirectManpowerCost=0 and SH.TransactionType in ('Dr.','Both')  THEN SGL.DrInDirectOtherGL
-											                    WHEN POS.DirectManpowerCost=1 and SH.TransactionType in ('Cr.','Both')  THEN SGL.CrDirectOtherGL
-											                    WHEN POS.DirectManpowerCost=0 and SH.TransactionType in ('Cr.','Both')  THEN SGL.CrInDirectOtherGL
-											                     END,
-								
-                                                        SUM(CASE WHEN ISNULL(sh.TransactionType,'') IN ('Dr.','Both') THEN ABS(ac.DisbusmentAmount) ELSE 0 END) AS Debit,
-                                                        SUM(CASE WHEN ISNULL(sh.TransactionType,'') IN ('Cr.','Both') THEN ABS(ac.DisbusmentAmount) ELSE 0 END) AS Credit
-		                                                        FROM SalaryProcMaster AS AM
-		                                                        JOIN SalaryProcChild AS AC ON am.SystemID=ac.SlrProcMstSystemID
-		                                                        LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=ac.EmpInfoSystemID
-		                                                        LEFT JOIN mst.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode 
-		                                                        Left Join ORG.Position POS on MB.PositionId=POS.Id
-		                                                        LEFT JOIN [MST].[SalaryHeadGL] SGL ON sgl.SalaryHeadId=ac.SalaryHeadID AND sgl.AccountsGroupId=mb.AccountsGroupId
-		                                                        JOIN SalaryHead AS sh ON sh.SalaryHeadID=ac.SalaryHeadID
-                                                                      
-		                                                        LEFT JOIN org.Entity AS e ON e.Id=mb.EntityId
-		                                                        LEFT JOIN org.EntityCostCenter AS ecc ON ecc.EntityId=e.Id
-		                                                        LEFT JOIN AccountsGroup AS ag ON AG.Id=mb.AccountsGroupId
-		                   
-
-                    WHERE am.MonthNo=" + Month + @"  AND am.YearNo=" + Year + @" 
-                                                        AND ISNULL(sh.TransactionType,'') IN ('Dr.','Cr.','Both')
-                                                        AND ei.PlantId IN (" + plantId + @" )
-                    GROUP BY sh.TransactionType,POS.DirectManpowerCost, ag.UserName, sh.SalaryHead,ac.SalaryHeadID,
-                    SGL.DrDirectOtherGLCode, SGL.DrInDirectOtherGLCode,SGL.CrDirectOtherGLCode, SGL.CrInDirectOtherGLCode,
-                    SGL.DrDirectOtherGL, SGL.DrInDirectOtherGL,SGL.CrDirectOtherGL, SGL.CrInDirectOtherGL,
-                                                        mb.Id, mb.EntityId, mb.PositionId, mb.AccountsGroupId,e.PlantId,
-                                                        e.ThirdPartyBusinessArea, e.ThirdPartyProfitCenter,ecc.CostCenterId
-                    ) AS K GROUP BY  k.AccountsGroup, k.GL, k.GLName";
+            string sql = @"Select AccountsGroupId,AccountGroup,GL,GLName,Sum(IsNull(DrAmt,0)) Debit, Sum(IsNull(CrAmt,0)) Credit--,SalHeadId SalaryHeadId,SalHeadName SalaryHead
+                        from                                                 
+                        (
+                        Select C.UserName as Company,P.UserName Plant,ENT.ThirdPartyBusinessArea,ENT.ThirdPartyProfitCenter,ENT.UserName Entity,
+                        MB.AccountsGroupId,AGRP.UserName AccountGroup,POS.Code PostionCode,MB.Code BudgetCode,
+                        E.SystemId EmpId,E.EmployeeCode EmpCode,E.EmployeeName EmpName,SH.SalaryHead SalHeadName,TransactionType,TransactionTypeNew
+                        ,CC.UserName CostCenter
+                        ,GL=CASE WHEN POS.DirectManpowerCost=1 and SH.TransactionTypeNew= 'Dr.' THEN SHGL.DrDirectOtherGLCode
+                        		WHEN POS.DirectManpowerCost=0 and SH.TransactionTypeNew = 'Dr.' THEN SHGL.DrInDirectOtherGLCode
+                        		WHEN POS.DirectManpowerCost=1 and SH.TransactionTypeNew = 'Cr.'  THEN SHGL.CrDirectOtherGLCode
+                        		WHEN POS.DirectManpowerCost=0 and SH.TransactionTypeNew = 'Cr.'  THEN SHGL.CrInDirectOtherGLCode
+                        		 END
+                        , abs(SPC.DisbusmentAmount) DisbusmentAmount
+                        ,GLName=CASE WHEN POS.DirectManpowerCost=1 and SH.TransactionTypeNew ='Dr.' THEN SHGL.DrDirectOtherGL
+                        		WHEN POS.DirectManpowerCost=0 and SH.TransactionTypeNew = 'Dr.'  THEN SHGL.DrInDirectOtherGL
+                        		WHEN POS.DirectManpowerCost=1 and SH.TransactionTypeNew = 'Cr.'  THEN SHGL.CrDirectOtherGL
+                        		WHEN POS.DirectManpowerCost=0 and SH.TransactionTypeNew = 'Cr.'  THEN SHGL.CrInDirectOtherGL
+                        		 END
+                        ,SPM.SystemID SalProcessId,SH.SalaryHeadID SalHeadId
+                        ,E.PlantId EmpPlantId, ENT.PlantId EntityPlantId, SPLD.PlantId,E.BudgetCode EmpBudgetId,SPLD.BudgetCode SalBudgetId
+                        ,ENT.UserName SalEntity,POS.Id SalPosId,POS.UserName SalPositon,POS.DirectManpowerCost
+                        ,DrAmt=CASE WHEN SH.TransactionTypeNew in ('Dr.')  THEN abs(isnull(SPC.DisbusmentAmount,0)) END
+                        ,CrAmt=CASE WHEN SH.TransactionTypeNew in ('Cr.')  THEN abs(isnull(SPC.DisbusmentAmount,0)) END
+                        from SalaryProcChild SPC
+                        Inner Join SalaryProcMaster SPM on SPC.SlrProcMstSystemID=SPM.SystemID and SPM.MonthNo='" + Month + "' and SPM.YearNo='" + Year + @"'
+                        Inner Join SalaryProcessLogDetail SPLD on SPM.SystemID=SPLD.SalaryProcessId and SPLD.EmpSystemId=SPC.EmpInfoSystemID
+                        Left Join EmployeeInformation E on SPLD.EmpSystemId=E.SystemId
+                        Left Join ORG.Plant P on SPLD.PlantId=P.Id
+                        Left Join ORG.Company C on P.CompanyId=C.Id
+                        Left Join MST.ManpowerBudget MB on SPLD.BudgetCode=MB.Id
+                        Left Join ORG.Entity ENT on MB.EntityId=ENT.Id
+                        Left Join ORG.Position POS on MB.PositionId=POS.Id
+                        Left Join ORG.CostCenter CC on POS.CostCenterId=CC.Id
+                        Left Join HKP.LegalDesignation LD on SPLD.LegalDesignationId=LD.Id
+                        Left Join AccountsGroup AGRP on MB.AccountsGroupId=AGRP.Id
+                        Left Join MST.SalaryHeadGL SHGL on SPC.SalaryHeadID=SHGL.SalaryHeadID and P.CompanyID=SHGL.CompanyID and ISNULL(MB.AccountsGroupId,'')=ISNULL(SHGL.AccountsGroupId,'')
+                        Inner Join
+                        (
+                        	SELECT *,CASE WHEN ISNULL(sh.TransactionType,'')='Both' THEN 'Dr.' ELSE sh.TransactionType END AS TransactionTypeNew
+                            FROM SalaryHead AS sh WHERE  ISNULL(sh.TransactionType,'') IN ('Dr.','Both') 
+                        		UNION ALL 
+                        	SELECT *,CASE WHEN ISNULL(sh.TransactionType,'')='Both' THEN 'Cr.' ELSE sh.TransactionType END AS TransactionTypeNew
+                            FROM SalaryHead AS sh WHERE  ISNULL(sh.TransactionType,'') IN ('Cr.','Both') 
+                        ) SH on SPC.SalaryHeadID=SH.SalaryHeadID
+                        Where SPM.MonthNo='" + Month + "' and SPM.YearNo='"+ Year + @"'  
+                        ) TempTbl
+                        group by AccountsGroupId,AccountGroup,GL,GLName--,SalHeadId,SalHeadName";
             dtData = _sqlRepository.GetDataTable(sql);
         }
 
