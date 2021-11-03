@@ -4142,6 +4142,7 @@ UNION ALL
                         dr["POBOQQty"] = item["POBOQQty"];
                         dr["POUoMId"] = item["POUoMId"];
                         dr["SalesOrderId"] = item["SalesOrderId"];
+                        dr["OSPOBOQMAPId "] = item["OSPOBOQMAPId "];
                         dr["RejectQty"] = DBNull.Value;
                         dr["RejectBaseQty"] = DBNull.Value;
                         dr["AddedBy"] = identity.Name;
@@ -4168,6 +4169,7 @@ UNION ALL
                         dr["POBOQQty"] = item["POBOQQty"];
                         dr["POUoMId"] = item["POUoMId"];
                         dr["SalesOrderId"] = item["SalesOrderId"];
+                        dr["OSPOBOQMAPId "] = item["OSPOBOQMAPId "];
                         dr["RejectQty"] = item["RejectQty"];
                         dr["RejectBaseQty"] = item["RejectBaseQty"];
                         dr["UpdatedBy"] = identity.Name;
