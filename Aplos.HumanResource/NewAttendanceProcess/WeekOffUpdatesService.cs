@@ -254,6 +254,30 @@ left join dbo.EmployeeInformation ei on ei.SystemId = ew.EmpSystemId
             }
         }
 
+
+        public IEnumerable<object> getDistinctEmployeesToBeProcessed(string EffectiveDate)
+        {
+            try
+            {
+                var str = @"select distinct ex.EmpSystemId,e.EmployeeCode,e.EmployeeName,l.UserName as Designation,
+                s.UserName AS Section,ss.UserName as SubSection,d.UserName as Department
+                from EmployeeWeeklyOff ex 
+                join EmployeeInformation e on e.SystemId=ex.EmpSystemId
+                left join org.Department d on d.Id=e.DepartmentId
+                left join org.Section s on s.Id=e.SectionId
+                left join org.SubSection ss on ss.Id=e.SubSectionId
+                left join hkp.LegalDesignation l on l.Id=e.LegalDesignationId
+                where E.DOJ <= '"+EffectiveDate+@"' -- Effective Date 
+                AND (E.DOS >= '"+EffectiveDate+"' OR ISNULL(E.DOS,'') = '' OR E.DOS = '01/01/1901')";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
         public void saveSingle(string EmpId , string EffectiveDate , string WeekId)
         {
             try
