@@ -430,7 +430,7 @@ namespace Library.Accounting.FixedAssets
 									,isnull( FR.ADBaseAmount,0)ADBaseAmount
                                     , isnull(FR.FABaseAmount,0)+ISNULL(SAR.subAssetBaseAmount,0)-ISNULL(FR.ADBaseAmount,0) NetBaseBookValue 
 										,isnull( rdd.NegotiationValue,0)NegotiationValue
-                               	,isnull( rdd.NagotiationBooksValue,0)NagotiationBooksValue
+                               	,isnull( rdd.BaseNagotiationValue,0)BaseNagotiationValue
 
                 , MMA.StandardName Article, FR.IsFinancial,IsOBBalance=case when FR.IsOpeningBalance=0 then 'No' Else 'Yes' End
                 , GL.AccountCode GLGeneralInfoCode,GL.UserName GLGeneralInfoName,GL.Id GLGeneralInfoId
@@ -603,23 +603,23 @@ namespace Library.Accounting.FixedAssets
 						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, FR.ADBudgetMasterId, B.Code, B.UserName, FR.ADActivityId, A.Code, A.UserName
 						
 					    UNION
-						SELECT  OtherName=CASE WHEN SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FR.NegotiationValue)>0 THEN 'LossOnSale' ELSE 'GainOnSale' End 
+						SELECT  OtherName=CASE WHEN SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FR.BaseNagotiationValue)>0 THEN 'LossOnSale' ELSE 'GainOnSale' End 
 						
-						,TrnType= CASE WHEN SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FR.NegotiationValue)>0 THEN 'Dr' ELSE 'Cr' End 
+						,TrnType= CASE WHEN SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FR.BaseNagotiationValue)>0 THEN 'Dr' ELSE 'Cr' End 
 
-							,GLGeneralInfoId= CASE WHEN SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FR.NegotiationValue)>0 THEN FGL.LossOnSaleOfAssetGLId ELSE FGL.GainOnSaleOfAssetGLId END      
-							,GLGeneralInfoCode= CASE WHEN SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FR.NegotiationValue)>0 THEN GL.AccountCode ELSE GLG.AccountCode END      
-							,GLGeneralInfoName= CASE WHEN SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FR.NegotiationValue)>0 THEN GL.UserName ELSE GLG.UserName END      
-							,BudgetMasterId= CASE WHEN SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FR.NegotiationValue)>0 THEN FGL.LossOnSaleOfAssetBudgetMasterId ELSE FGL.GainOnSaleOfAssetBudgetMasterId END      
-							,BudgetCode= CASE WHEN SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FR.NegotiationValue)>0 THEN B.Code ELSE BG.Code END      
-							,BudgetName= CASE WHEN SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FR.NegotiationValue)>0 THEN B.UserName ELSE BG.UserName END      
-							,ActivityId= CASE WHEN SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FR.NegotiationValue)>0 THEN FGL.LossOnSaleOfAssetActivityId ELSE FGL.GainOnSaleOfAssetActivityId END      
-							,ActivityCode= CASE WHEN SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FR.NegotiationValue)>0 THEN A.Code ELSE AG.Code END      
-							,ActivityName= CASE WHEN SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FR.NegotiationValue)>0 THEN A.UserName ELSE AG.UserName END      
-							, Dr= CASE WHEN SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FR.NegotiationValue)>0 THEN SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FR.NegotiationValue) ELSE 0 END 
-							, Cr= CASE WHEN SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FR.NegotiationValue)<0 THEN SUM(FR.ADBaseAmount+FR.NegotiationValue- FR.Price-SAR.subAssetAmount) ELSE 0 END 
-							, Amount=CASE WHEN SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FR.NegotiationValue)>0 THEN SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FR.NegotiationValue) 
-									ELSE SUM(FR.ADBaseAmount+FR.NegotiationValue- FR.Price-SAR.subAssetAmount) END 
+							,GLGeneralInfoId= CASE WHEN SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FR.BaseNagotiationValue)>0 THEN FGL.LossOnSaleOfAssetGLId ELSE FGL.GainOnSaleOfAssetGLId END      
+							,GLGeneralInfoCode= CASE WHEN SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FR.BaseNagotiationValue)>0 THEN GL.AccountCode ELSE GLG.AccountCode END      
+							,GLGeneralInfoName= CASE WHEN SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FR.BaseNagotiationValue)>0 THEN GL.UserName ELSE GLG.UserName END      
+							,BudgetMasterId= CASE WHEN SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FR.BaseNagotiationValue)>0 THEN FGL.LossOnSaleOfAssetBudgetMasterId ELSE FGL.GainOnSaleOfAssetBudgetMasterId END      
+							,BudgetCode= CASE WHEN SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FR.BaseNagotiationValue)>0 THEN B.Code ELSE BG.Code END      
+							,BudgetName= CASE WHEN SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FR.BaseNagotiationValue)>0 THEN B.UserName ELSE BG.UserName END      
+							,ActivityId= CASE WHEN SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FR.BaseNagotiationValue)>0 THEN FGL.LossOnSaleOfAssetActivityId ELSE FGL.GainOnSaleOfAssetActivityId END      
+							,ActivityCode= CASE WHEN SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FR.BaseNagotiationValue)>0 THEN A.Code ELSE AG.Code END      
+							,ActivityName= CASE WHEN SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FR.BaseNagotiationValue)>0 THEN A.UserName ELSE AG.UserName END      
+							, Dr= CASE WHEN SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FR.BaseNagotiationValue)>0 THEN SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FR.BaseNagotiationValue) ELSE 0 END 
+							, Cr= CASE WHEN SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FR.BaseNagotiationValue)<0 THEN SUM(FR.ADBaseAmount+FR.BaseNagotiationValue- FR.Price-SAR.subAssetAmount) ELSE 0 END 
+							, Amount=CASE WHEN SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FR.BaseNagotiationValue)>0 THEN SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FR.BaseNagotiationValue) 
+									ELSE SUM(FR.ADBaseAmount+FR.BaseNagotiationValue- FR.Price-SAR.subAssetAmount) END 
 						FROM  TRN.FixedAssetRegisterDisposedDetail FRDD
 						LEFT JOIN TRN.FixedAssetRegisterDisposed FRD ON FRD.Id=FRDD.FixedAssetRegisterDisposedId
 						LEFT JOIN TRN.FixedAssetRegister FR ON FR.Id=FRDD.FixedAssetRegisterId
@@ -675,9 +675,9 @@ namespace Library.Accounting.FixedAssets
 							,ActivityId = MGPGL.ActivityId
 							,ActivityCode = A.Code
 							,ActivityName =A.UserName
-							, SUM(FR.NegotiationValue) AS Dr
+							, SUM(FR.BaseNagotiationValue) AS Dr
 							, NULL Cr
-							, SUM(FR.NegotiationValue) AS Amount
+							, SUM(FR.BaseNagotiationValue) AS Amount
 						FROM  TRN.FixedAssetRegisterDisposedDetail FRDD
 						LEFT JOIN TRN.FixedAssetRegisterDisposed FRD ON FRD.Id=FRDD.FixedAssetRegisterDisposedId
 						LEFT JOIN TRN.FixedAssetRegister FR ON FR.Id=FRDD.FixedAssetRegisterId

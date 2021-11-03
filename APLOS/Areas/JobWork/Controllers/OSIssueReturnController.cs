@@ -7026,7 +7026,12 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 							,IRD.BaseUOMFactor
 							--,aa.BaseUOMFactor
 							--,IIH.Qty AS GRNIssueQty--
-							,GRNIssueQty=Round(IIH.Qty/IRD.BaseUOMFactor,2)
+							,GRNIssueQty=case	when (ird.TransactionUoMId=IID.TransactionUoMId and IID.TransactionUoMId=IID.BaseUOMId)  then ROUND(IIH.Qty,2) 
+												when (ird.TransactionUoMId=IID.TransactionUoMId and IID.TransactionUoMId!=IID.BaseUOMId)  then ROUND(IIH.Qty/IRD.BaseUoMFactor,2)
+												when (ird.TransactionUoMId !=IID.TransactionUoMId and IID.TransactionUoMId=IID.BaseUOMId)  then ROUND(IIH.Qty,2)
+												when (ird.TransactionUoMId !=IID.TransactionUoMId and IID.TransactionUoMId!=IID.BaseUOMId)  then ROUND(IIH.Qty/mmu.BaseUoMFactor,2)
+												 end
+                            --,ird.TransactionUoMId,IID.TransactionUoMId,IID.BaseUOMId,IRD.BaseUoMFactor
                             ,FCV.UserName AS FirstCharacteristicsValue
 							,SCV.UserName AS SecondCharacteristicsValue
 							,TCV.UserName AS ThirdCharacteristicsValue
@@ -7034,8 +7039,8 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                         LEFT JOIN TRN.InventoryIssueDetail IID ON II.Id = IID.InventoryIssueId
                         LEFT JOIN TRN.InventoryIssueHistory IIH ON IIH.InventoryIssueDetailId = IID.Id
                         LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id = IIH.InventoryReceiveDetailId
-                        LEFT JOIN SCS.UnitOfMeasurement tuom ON tuom.Id = IRD.TransactionUoMId
-                        LEFT JOIN SCS.UnitOfMeasurement uom ON uom.Id = IRD.BaseUOMId                        
+                        LEFT JOIN SCS.UnitOfMeasurement tuom ON tuom.Id = IID.TransactionUoMId
+                        LEFT JOIN SCS.UnitOfMeasurement uom ON uom.Id = IID.BaseUOMId                        
                         LEFT JOIN TRN.InventoryMaterial IM ON IM.Id = IID.InventoryMaterialId
                         LEFT JOIN MST.MaterialMasterArticle mma ON mma.Id = IM.ArticleId
                         LEFT JOIN MST.MaterialMaster mm ON mm.Id = IM.MaterialMasterId

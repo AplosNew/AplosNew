@@ -176,7 +176,7 @@
                             <td><input type="text" class="form-control text-right" ng-disabled="true" id="ADBaseAmount" ng-model="x.ADBaseAmount " n-decimals="2"></td>
                             <td><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="NetBookValue" ng-model="x.NetBaseBookValue " n-decimals="2"></td>
                             <td><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="NegotiationValue" ng-disabled="voucher.Status == 'Scrap'" ng-model="x.NegotiationValue " n-decimals="2"></td>
-                            <td><input type="text" class="form-control text-right" ng-disabled="true" id="NegotiationValue" ng-model="x.NagotiationBooksValue " n-decimals="2"></td>
+                            <td><input type="text" class="form-control text-right" ng-disabled="true" id="BaseNagotiationValue" ng-model="x.BaseNagotiationValue " n-decimals="2"></td>
                             <td>{{x.Vendor}}</td>
                             <td>{{x.InvoiceNo}}</td>
                             <td>{{x.TrnCurrency}}</td>
@@ -193,7 +193,7 @@
                             <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'ADBaseAmount' }}</b></td>
                             <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'NetBaseBookValue' }}</b></td>
                             <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'NegotiationValue' }}</b></td>
-                            <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'NagotiationBooksValue' }}</b></td>
+                            <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'BaseNagotiationValue' }}</b></td>
                         </tr>
                     </tfoot>
                 </table>

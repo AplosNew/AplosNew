@@ -1183,7 +1183,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
             var sheet = workbook.Worksheets[0];
 
-            sheet.Name = "BulletinTemplate";
+            sheet.Name = "Fixed asset dispose all";
 
 
             int ROW = 6;
@@ -1196,183 +1196,88 @@ namespace Aplos.Areas.FixedAssets.Controllers
             DataTable data = fixedAssetDisposeService.GetFixedAssetDisposeServiceData( fixedAssetRegisterDisposeId);
 
             #region Headers
-            report.SetHeaderText(ref sheet, ROW, COL, "ID", 12, ExcelHAlign.HAlignLeft);
-            int ColId = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Customer:", 15, ExcelHAlign.HAlignLeft);
+            int ColCustomer = COL;
             COL++;
+            sheet[ROW, COL].Text = data.Rows[0]["CustomerName"].ToString();
+            COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "Currency", 15, ExcelHAlign.HAlignLeft);
+            int ColCurrency = COL;
+            COL++;
+            sheet[ROW, COL].Text = data.Rows[0]["Currency"].ToString();
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Fixed Asset Register Id", 25, ExcelHAlign.HAlignLeft);
+            COL = 1;
+            ROW = 8;
+            report.SetHeaderText(ref sheet, ROW, COL, "Asset No", 10, ExcelHAlign.HAlignLeft);
             int ColFixedAssetRegisterId = COL;
             COL++;
 
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Material Master Article Id", 25, ExcelHAlign.HAlignLeft);
-            int ColMaterialMasterArticleId = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Material Master Id", 25, ExcelHAlign.HAlignLeft);
-            int ColMaterialMasterId = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Fixed Asset Master Id", 11, ExcelHAlign.HAlignLeft);
-            int ColFixedAssetMasterId = COL;
-            COL++;
-
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Serial No", 25, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Serial No", 10, ExcelHAlign.HAlignLeft);
             int ColSerialNo = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Asset No", 25, ExcelHAlign.HAlignLeft);
-            int ColAssetNo = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Invoice No", 25, ExcelHAlign.HAlignLeft);
-            int ColInvoiceNo = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Material Master Name", 30, ExcelHAlign.HAlignLeft);
-            int ColMaterialMasterName = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Fixed Asset Master Name", 30, ExcelHAlign.HAlignLeft);
-            int ColFixedAssetMasterName = COL;
-            COL++;
-            report.SetHeaderText(ref sheet, ROW, COL, "Fixed Asset Category", 15, ExcelHAlign.HAlignCenter);
-            int ColFixedAssetCategory = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Fixed Asset SubCategory", 15, ExcelHAlign.HAlignCenter);
-            int ColFixedAssetSubCategory = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Fixed Asset SubCategory Id", 15, ExcelHAlign.HAlignCenter);
-            int ColFixedAssetSubCategoryId = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Fixed Asset Category Id", 25, ExcelHAlign.HAlignCenter);
-            int ColFixedAssetCategoryId = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Asset Type", 15, ExcelHAlign.HAlignCenter);
-            int ColAssetType = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Vendor", 25, ExcelHAlign.HAlignCenter);
-            int ColVendor = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "TrnCurrency", 15, ExcelHAlign.HAlignLeft);
-            int ColTrnCurrency = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "DocDate", 15, ExcelHAlign.HAlignLeft);
-            int ColDocDate = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Price", 15, ExcelHAlign.HAlignLeft);
-            int ColPrice = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "SubAssetAmount", 15, ExcelHAlign.HAlignLeft);
-            int ColSubAssetAmount = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Purchase Price", 15, ExcelHAlign.HAlignLeft);
-            int ColPurchasePrice = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Net Book Value", 15, ExcelHAlign.HAlignLeft);
-            int ColNetBookValue = COL;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Base Currency", 15, ExcelHAlign.HAlignLeft);
-            int ColBaseCurrency = COL;
-            COL++;
-            report.SetHeaderText(ref sheet, ROW, COL, "FA Base Amount", 15, ExcelHAlign.HAlignLeft);
-            int ColFABaseAmount = COL;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "SubAsset Base Amount", 15, ExcelHAlign.HAlignLeft);
-            int ColSubAssetBaseAmount = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Purchase Base Amount", 15, ExcelHAlign.HAlignLeft);
-            int ColPurchaseBaseAmount = COL;
-            COL++;
-
-
-            report.SetHeaderText(ref sheet, ROW, COL, "ADBase Amount", 15, ExcelHAlign.HAlignLeft);
-            int ColADBaseAmount = COL;
-            COL++;
-
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Net Base Book Value", 15, ExcelHAlign.HAlignLeft);
-            int ColNetBaseBookValue = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Base Nagotiation Value", 15, ExcelHAlign.HAlignLeft);
-            int ColBaseNagotiationValue = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Negotiation Value", 15, ExcelHAlign.HAlignLeft);
-            int ColNegotiationValue = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Article", 25, ExcelHAlign.HAlignLeft);
-            int ColArticle = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "IsFinancial", 15, ExcelHAlign.HAlignLeft);
-            int ColIsFinancial = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "IsOpeningBalance", 15, ExcelHAlign.HAlignLeft);
-            int ColIsOpeningBalance = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "GL General InfoCode", 15, ExcelHAlign.HAlignLeft);
-            int ColGLGeneralInfoCode = COL;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "GL General Info Name", 25, ExcelHAlign.HAlignLeft);
-            int ColGLGeneralInfoName = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "GL General Info Id", 25, ExcelHAlign.HAlignLeft);
-            int ColGLGeneralInfoId = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Budget Master Id", 25, ExcelHAlign.HAlignLeft);
-            int ColBudgetMasterId = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Budget Name", 25, ExcelHAlign.HAlignLeft);
-            int ColBudgetName = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Budget Ref No", 15, ExcelHAlign.HAlignLeft);
-            int ColBudgetRefNo = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Activity Name", 15, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Material", 30, ExcelHAlign.HAlignLeft);
             int ColActivityName = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Activity Id", 25, ExcelHAlign.HAlignLeft);
-            int ColActivityId = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Article", 22, ExcelHAlign.HAlignLeft);
+            int ColArticle = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Capitalization Date", 15, ExcelHAlign.HAlignLeft);
-            int ColCapitalizationDate = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Fixed Asset Master", 28, ExcelHAlign.HAlignLeft);
+            int ColFixedAssetMasterName = COL;
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "Purchase Date", 15, ExcelHAlign.HAlignLeft);
             int ColPurchaseDate = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Issue Date", 15, ExcelHAlign.HAlignLeft);
-            int ColIssueDate = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Capitalization Date", 18, ExcelHAlign.HAlignLeft);
+            int ColCapitalizationDate = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Remarks", 50, ExcelHAlign.HAlignLeft);
-            int ColRemarks = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "FA Base Amount", 15, ExcelHAlign.HAlignLeft);
+            int ColFABaseAmount = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Base SubAsset", 12, ExcelHAlign.HAlignLeft);
+            int ColSubAssetBaseAmount = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Total Base Amount", 18, ExcelHAlign.HAlignLeft);
+            int ColPurchaseBaseAmount = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Depreciation", 15, ExcelHAlign.HAlignLeft);
+            int ColADBaseAmount = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Net Base Amount", 15, ExcelHAlign.HAlignLeft);
+            int ColNetBaseBookValue = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Negotiation Amount", 18, ExcelHAlign.HAlignLeft);
+            int ColNegotiationValue = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Books Nagotiation Amount", 22, ExcelHAlign.HAlignLeft);
+            int ColBaseNagotiationValue = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Vendor", 8, ExcelHAlign.HAlignCenter);
+            int ColVendor = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Invoice No", 12, ExcelHAlign.HAlignLeft);
+            int ColInvoiceNo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Trn Currency", 12, ExcelHAlign.HAlignLeft);
+            int ColTrnCurrency = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "OB", 8, ExcelHAlign.HAlignLeft);
+            int ColIsOpeningBalance = COL;
             COL++;
 
 
@@ -1387,19 +1292,42 @@ namespace Aplos.Areas.FixedAssets.Controllers
             for (int i = 0; i < data.Rows.Count; i++)
             {
 
-                sheet[ROW, ColId].Text = data.Rows[i]["Id"].ToString();
                 sheet[ROW, ColFixedAssetRegisterId].Text = data.Rows[i]["FixedAssetRegisterId"].ToString();
-                sheet[ROW, ColMaterialMasterArticleId].Text = data.Rows[i]["MaterialMasterArticleId"].ToString();
-                sheet[ROW, ColMaterialMasterId].Text = data.Rows[i]["MaterialMasterId"].ToString();
-                sheet[ROW, ColFixedAssetMasterId].Text = data.Rows[i]["FixedAssetMasterId"].ToString();
-
                 sheet[ROW, ColSerialNo].Text = data.Rows[i]["SerialNo"].ToString();
-                sheet[ROW, ColAssetNo].Text = data.Rows[i]["AssetNo"].ToString();
-
-                sheet[ROW, ColInvoiceNo].Text = data.Rows[i]["InvoiceNo"].ToString();
-                sheet[ROW, ColMaterialMasterName].Text = data.Rows[i]["MaterialMasterName"].ToString();
-
+                sheet[ROW, ColActivityName].Text = data.Rows[i]["ActivityName"].ToString();
+                sheet[ROW, ColArticle].Text = data.Rows[i]["Article"].ToString();
                 sheet[ROW, ColFixedAssetMasterName].Text = data.Rows[i]["FixedAssetMasterName"].ToString();
+                sheet[ROW, ColPurchaseDate].Text = data.Rows[i]["PurchaseDate"].ToString();
+                sheet[ROW, ColCapitalizationDate].Text = data.Rows[i]["CapitalizationDate"].ToString();
+                
+                sheet[ROW, ColFABaseAmount].Number = clsStaticInfo.dbl(data.Rows[i]["FABaseAmount"].ToString());
+                sheet[ROW, ColFABaseAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                sheet[ROW, ColSubAssetBaseAmount].Number = clsStaticInfo.dbl(data.Rows[i]["SubAssetBaseAmount"].ToString());
+                sheet[ROW, ColSubAssetBaseAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+                
+                sheet[ROW, ColPurchaseBaseAmount].Number = clsStaticInfo.dbl(data.Rows[i]["PurchaseBaseAmount"].ToString());
+                sheet[ROW, ColPurchaseBaseAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                sheet[ROW, ColADBaseAmount].Number = clsStaticInfo.dbl(data.Rows[i]["ADBaseAmount"].ToString());
+                sheet[ROW, ColADBaseAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                sheet[ROW, ColNetBaseBookValue].Number = clsStaticInfo.dbl(data.Rows[i]["NetBaseBookValue"].ToString());
+                sheet[ROW, ColNetBaseBookValue].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                sheet[ROW, ColNegotiationValue].Number = clsStaticInfo.dbl(data.Rows[i]["NegotiationValue"].ToString());
+                sheet[ROW, ColNegotiationValue].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                sheet[ROW, ColBaseNagotiationValue].Number = clsStaticInfo.dbl(data.Rows[i]["BaseNagotiationValue"].ToString());
+                sheet[ROW, ColBaseNagotiationValue].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                sheet[ROW, ColVendor].Text = data.Rows[i]["Vendor"].ToString();
+                sheet[ROW, ColInvoiceNo].Text = data.Rows[i]["InvoiceNo"].ToString();
+                sheet[ROW, ColTrnCurrency].Text = data.Rows[i]["TrnCurrency"].ToString();
+                sheet[ROW, ColIsOpeningBalance].Text = data.Rows[i]["IsOpeningBalance"].ToString();
+
+
+
 
                 //sheet[ROW, ColSPT].Number = Convert.ToDouble(data.Rows[i]["TotalSPT"].ToString());
                 //sheet[ROW, ColSPT].NumberFormat = clsStaticInfo.NumberFormat(2);
@@ -1422,64 +1350,26 @@ namespace Aplos.Areas.FixedAssets.Controllers
                 //sheet[ROW, ColNoofWS].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 //sheet[ROW, ColNoofWS].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 
-                sheet[ROW, ColFixedAssetCategory].Text = data.Rows[i]["FixedAssetCategory"].ToString();
+                //sheet[ROW, ColFixedAssetCategory].Text = data.Rows[i]["FixedAssetCategory"].ToString();
                 
-                sheet[ROW, ColFixedAssetCategoryId].Text = data.Rows[i]["FixedAssetCategoryId"].ToString();
-                sheet[ROW, ColFixedAssetSubCategoryId].Text = data.Rows[i]["FixedAssetSubCategoryId"].ToString();
-                sheet[ROW, ColAssetType].Text = data.Rows[i]["AssetType"].ToString();
-                sheet[ROW, ColVendor].Text = data.Rows[i]["Vendor"].ToString();
-                sheet[ROW, ColTrnCurrency].Text = data.Rows[i]["TrnCurrency"].ToString();
-                sheet[ROW, ColDocDate].Text = data.Rows[i]["DocDate"].ToString();
-
-                sheet[ROW, ColPrice].Number =clsStaticInfo.dbl( data.Rows[i]["Price"].ToString());
-                sheet[ROW, ColPrice].NumberFormat = clsStaticInfo.NumberFormat(2);
-
-                sheet[ROW, ColSubAssetAmount].Number = clsStaticInfo.dbl(data.Rows[i]["SubAssetAmount"].ToString());
-                sheet[ROW, ColSubAssetAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
-
-                sheet[ROW, ColPurchasePrice].Number = clsStaticInfo.dbl(data.Rows[i]["PurchasePrice"].ToString());
-                sheet[ROW, ColPurchasePrice].NumberFormat = clsStaticInfo.NumberFormat(2);
-
-                sheet[ROW, ColNetBookValue].Number = clsStaticInfo.dbl(data.Rows[i]["NetBookValue"].ToString());
-                sheet[ROW, ColNetBookValue].NumberFormat = clsStaticInfo.NumberFormat(2);
-
-                sheet[ROW, ColBaseCurrency].Text = data.Rows[i]["BaseCurrency"].ToString();
-
-                sheet[ROW, ColFABaseAmount].Number = clsStaticInfo.dbl(data.Rows[i]["FABaseAmount"].ToString());
-                sheet[ROW, ColFABaseAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
-
-                sheet[ROW, ColSubAssetBaseAmount].Number = clsStaticInfo.dbl(data.Rows[i]["SubAssetBaseAmount"].ToString());
-                sheet[ROW, ColSubAssetBaseAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
-
-                sheet[ROW, ColPurchaseBaseAmount].Number = clsStaticInfo.dbl(data.Rows[i]["PurchaseBaseAmount"].ToString());
-                sheet[ROW, ColPurchaseBaseAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
-
-                sheet[ROW, ColADBaseAmount].Number = clsStaticInfo.dbl(data.Rows[i]["ADBaseAmount"].ToString());
-                sheet[ROW, ColADBaseAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
-
-                sheet[ROW, ColNetBaseBookValue].Number = clsStaticInfo.dbl(data.Rows[i]["NetBaseBookValue"].ToString());
-                sheet[ROW, ColNetBaseBookValue].NumberFormat = clsStaticInfo.NumberFormat(2);
-
-                sheet[ROW, ColBaseNagotiationValue].Number = clsStaticInfo.dbl(data.Rows[i]["BaseNagotiationValue"].ToString());
-                sheet[ROW, ColBaseNagotiationValue].NumberFormat = clsStaticInfo.NumberFormat(2);
-
-                sheet[ROW, ColNegotiationValue].Number = clsStaticInfo.dbl(data.Rows[i]["NegotiationValue"].ToString());
-                sheet[ROW, ColNegotiationValue].NumberFormat = clsStaticInfo.NumberFormat(2);
-
-                sheet[ROW, ColArticle].Text = data.Rows[i]["Article"].ToString();
-                sheet[ROW, ColIsFinancial].Text = data.Rows[i]["IsFinancial"].ToString();
-                sheet[ROW, ColIsOpeningBalance].Text = data.Rows[i]["IsOpeningBalance"].ToString();
-                sheet[ROW, ColGLGeneralInfoCode].Text = data.Rows[i]["GLGeneralInfoCode"].ToString();
-                sheet[ROW, ColGLGeneralInfoName].Text = data.Rows[i]["GLGeneralInfoName"].ToString();
-                sheet[ROW, ColGLGeneralInfoId].Text = data.Rows[i]["GLGeneralInfoId"].ToString();
-                sheet[ROW, ColBudgetMasterId].Text = data.Rows[i]["BudgetMasterId"].ToString();
-                sheet[ROW, ColBudgetName].Text = data.Rows[i]["BudgetName"].ToString();
-                sheet[ROW, ColBudgetRefNo].Text = data.Rows[i]["BudgetRefNo"].ToString();
-                sheet[ROW, ColActivityName].Text = data.Rows[i]["ActivityName"].ToString();
-                sheet[ROW, ColActivityId].Text = data.Rows[i]["ActivityId"].ToString();
-                sheet[ROW, ColCapitalizationDate].Text = data.Rows[i]["CapitalizationDate"].ToString();
-                sheet[ROW, ColPurchaseDate].Text = data.Rows[i]["PurchaseDate"].ToString();
-                sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
+                //sheet[ROW, ColFixedAssetCategoryId].Text = data.Rows[i]["FixedAssetCategoryId"].ToString();
+                //sheet[ROW, ColFixedAssetSubCategoryId].Text = data.Rows[i]["FixedAssetSubCategoryId"].ToString();
+                //sheet[ROW, ColAssetType].Text = data.Rows[i]["AssetType"].ToString();
+                
+                
+                //sheet[ROW, ColIsFinancial].Text = data.Rows[i]["IsFinancial"].ToString();
+                
+                //sheet[ROW, ColGLGeneralInfoCode].Text = data.Rows[i]["GLGeneralInfoCode"].ToString();
+                //sheet[ROW, ColGLGeneralInfoName].Text = data.Rows[i]["GLGeneralInfoName"].ToString();
+                //sheet[ROW, ColGLGeneralInfoId].Text = data.Rows[i]["GLGeneralInfoId"].ToString();
+                //sheet[ROW, ColBudgetMasterId].Text = data.Rows[i]["BudgetMasterId"].ToString();
+                //sheet[ROW, ColBudgetName].Text = data.Rows[i]["BudgetName"].ToString();
+                //sheet[ROW, ColBudgetRefNo].Text = data.Rows[i]["BudgetRefNo"].ToString();
+                
+                //sheet[ROW, ColActivityId].Text = data.Rows[i]["ActivityId"].ToString();
+                
+                
+                //sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
              
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
