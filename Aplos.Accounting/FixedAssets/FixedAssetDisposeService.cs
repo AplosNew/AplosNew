@@ -726,15 +726,17 @@ namespace Library.Accounting.FixedAssets
             ,AddedBy=CASE WHEN U.FullName<>'' THEN U.FullName ELSE V.AddedBy END
             ,PostedBy=CASE WHEN U.FullName<>'' THEN U.FullName ELSE V.PostedBy END
             , UPPER(V.Narration) AS Narration, CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
-            --, P.UserName AS Vendor, PP.UserName AS VendorPlant
+            , P.UserName AS Vendor, PP.UserName AS VendorPlant
 			, V.CurrencyId, C.Code AS CurrencyCode
-			,EI.EmployeeName
+			,EI.EmployeeName,BJ.Status DisposedStatus
             FROM [TRN].FixedAssetRegisterDisposed AS BJ
             LEFT JOIN [TRN].[Voucher] AS V ON V.Id=BJ.DisposedVoucherId
             LEFT JOIN [SCS].[VoucherType] AS VT ON VT.Id=V.VoucherTypeId
             LEFT JOIN [SCS].[Currency] AS C ON C.Id=V.CurrencyId
 			LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=BJ.EmployeeId
             LEFT JOIN SEC.[User] U ON U.UserId=V.AddedBy
+			LEFT JOIN HKP.Party P ON P.Id = BJ.PartyId
+			LEFT JOIN HKP.PartyPlant PP ON PP.Id = BJ.PartyPlantId
             WHERE v.Archive=0 AND v.CompanyGroupId='" + companyGroupId + "' AND v.CompanyId='" + companyId + "' AND v.PlantId='" + plantId + "' AND BJ.DisposedVoucherId='" + disposedVoucherId + "' AND v.SourceType='" + sourceType + "'";
             return _sqlRepository.GetData(cmdText);
         }
@@ -789,14 +791,26 @@ namespace Library.Accounting.FixedAssets
             reportUtility.SetText(ref sheet, row, 5, header["DocDate"].ToString());
             row++;
 
-            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Employee");
-            //  reportUtility.SetText(ref sheet, row, 2, header["Vendor"].ToString());
+            if(header["DisposedStatus"].ToString()== "CompensateByEmployee")
+            {
+                reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Employee");
+                reportUtility.SetText(ref sheet, row, 2, header["EmployeeName"].ToString());
+            }
+            if (header["DisposedStatus"].ToString() == "Sales")
+            {
+                reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Customer");
+                reportUtility.SetText(ref sheet, row, 2, header["Vendor"].ToString());
+            }
             reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Doc Ref");
             reportUtility.SetText(ref sheet, row, 5, header["DocRefNo"].ToString());
             row++;
 
-            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Vendor Plant");
-            //reportUtility.SetText(ref sheet, row, 2, header["VendorPlant"].ToString());
+            if (header["DisposedStatus"].ToString() == "Sales")
+            {
+                reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Customer Plant");
+                reportUtility.SetText(ref sheet, row, 2, header["VendorPlant"].ToString());
+            }
+
             reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Status");
             reportUtility.SetText(ref sheet, row, 5, header["Status"].ToString());
             row++;
