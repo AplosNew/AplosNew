@@ -1,0 +1,99 @@
+﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Notification Setting</h3>
+<div class="form-elements form-horizontal" ng-form="NotificationSettingForm">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Company<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="notificationSetting.CompanyId"
+                                ng-change="getPlant();" ng-options="item.Value as item.Text for item in companyList">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Plant<sup>*</sup> </label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select id="PlantId" class="form-control" ng-model="notificationSetting.PlantId" name="Plant" ng-change="getSaveList();" required tabindex="1">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in PlantList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-saved" tabindex="3"></i> Save</button></li>
+                </ul>
+            </div>
+        </div>
+       
+        <div class="col-lg-12">
+            <div class="content-container-fluid" style="color:black;">
+                <div style="color:black;" id="Grid" ej-grid e-datasource="ActionStatusList" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                   e-pageSettings-pageSize="10"  e-rowdatabound="onrowdatabound" e-allowselection="true" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-field="Id" e-headertext="Id" e-width="70" e-visible="false"></div>
+                        <div e-column e-field="Value" e-headertext="Business Flow" e-width="80"></div>
+                        <div e-column e-template="#NotificationAfterCreation" e-headertext="Notification After Creation" e-width="40"></div>
+                        <div e-column e-template="#RequiredChecking" e-headertext="Required Checking" e-width="40"></div>
+                        <div e-column e-template="#NotificationAfterChecking" e-headertext="Notification After Checking" e-width="40"></div>
+                        <div e-column e-template="#RequiredApproval" e-headertext="Required Approval" e-width="40"></div>
+                        <div e-column e-template="#NotificationAfterApproval" e-headertext="Notification After Approval" e-width="40"></div>
+                    </div>
+                </div>
+                <script type="text/template" id="NotificationAfterCreation">
+                    <div class="checkbox-site" style="margin-top: 6px;">
+                        <label>
+                            <input tabindex="8" type="checkbox" ng-model="data.NotificationAfterCreation">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </script>
+                <script type="text/template" id="RequiredChecking">
+                    <div class="checkbox-site" style="margin-top: 6px;">
+                        <label>
+                            <input tabindex="8" type="checkbox" ng-model="data.RequiredChecking">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </script>
+                <script type="text/template" id="NotificationAfterChecking">
+                    <div class="checkbox-site" style="margin-top: 6px;">
+                        <label>
+                            <input tabindex="8" type="checkbox" ng-model="data.NotificationAfterChecking">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </script>
+                <script type="text/template" id="RequiredApproval">
+                    <div class="checkbox-site" style="margin-top: 6px;">
+                        <label>
+                            <input tabindex="8" type="checkbox" ng-model="data.RequiredApproval">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </script>
+                <script type="text/template" id="NotificationAfterApproval">
+                    <div class="checkbox-site" style="margin-top: 6px;">
+                        <label>
+                            <input tabindex="8" type="checkbox" ng-model="data.NotificationAfterApproval">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="loader" data-loader>
+    Please wait
+    <div class="bounce1"></div>
+    <div class="bounce2"></div>
+    <div class="bounce3"></div>
+</div>

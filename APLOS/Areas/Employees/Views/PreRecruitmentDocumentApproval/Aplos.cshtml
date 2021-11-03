@@ -1,0 +1,362 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Pre Recruitment Document Approval
+</h3>
+<div ng-form name="preRecruitmentDocumentApprovalForm" class="form-horizontal form-element-ctrl">
+    <input type="hidden" ng-model="preRecruitmentEmployee.Id">
+    <p style="text-decoration:underline;cursor:pointer;" ng-show="message==null" ng-click="showEntityPopUp();">My Entity List</p>
+    <p class="msg-success" ng-show="message!=null">*{{message}}</p>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchDataByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="LoadDataList()" >
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="LoadDataList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Candidate Id</th>
+                <th>Employee Code</th>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Date of Borth</th>
+                <th>Budget Id</th>
+                <th>Entity</th>
+                <th>Position</th>
+                <th>Department</th>
+                <th>Designation</th>
+                <th>Given Designation</th>
+                <th>App Added Date</th>
+                <th>Check Document</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="e in preRecruitmentEmployees |itemsPerPage:$root.pageSize" total-items="$root.total_count">
+                <td>{{e.Id}}</td>
+                <td>{{e.EmployeeCode}}</td>
+                <td>{{e.FullName | uppercase}}</td>
+                <td>{{e.Email}}</td>
+                <td>{{e.DOB | dateFiltering}}</td>
+                <td>{{e.BudgetId}}</td>
+                <td>{{e.EntityName}}</td>
+                <td>{{e.PositionName}}</td>
+                <td>{{e.Department}}</td>
+                <td>{{e.Designation}}</td>
+                <td>{{e.GivenDesignation}}</td>
+                <td>{{e.AppAddedDateTime | dateFiltering}}</td>
+                <td>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="showDocumentPopUp(e,$index);" class="btn"> Check Document</button></li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10"
+                             direction-links="true"
+                             boundary-links="true"
+                             on-page-change="LoadDataList(newPageNumber)">
+    </dir-pagination-controls>
+</div>
+<div class="modal fade site-modal in" id="DocumentPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" style="width: 75%; height: 520px;overflow-y: auto;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Candidate Basic Information</h4>
+            </div>
+            <div class="form-elements form-horizontal modal-body" style="width: 99%;padding-left: 3%;">
+                <div class="row" style="line-height:4px">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Employee Name</label>
+                            <label class="col-sm-8 control-label">
+                                : {{employee.FullName}}
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Father's Name</label>
+                            <label class="col-sm-8 control-label">
+                                : {{employee.FatherName}}
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Mother's Name</label>
+                            <label class="col-sm-8 control-label">
+                                : {{employee.MotherName}}
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">National ID</label>
+                            <label class="col-sm-8 control-label">
+                                : {{employee.NationalID}}
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Gender</label>
+                            <label class="col-sm-8 control-label">
+                                : {{employee.Gender}}
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Phone</label>
+                            <label class="col-sm-8 control-label">
+                                : {{employee.Phone}}
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Email</label>
+                            <label class="col-sm-8 control-label" style="text-transform: lowercase;">
+                                : {{employee.Email}}
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Date of birth</label>
+                            <label class="col-sm-8 control-label">
+                                : {{employee.DOB | dateFiltering}}
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Birthday Celebration Date</label>
+                            <label class="col-sm-8 control-label">
+                                : {{employee.BirthdayCelebrationDate | dateFiltering}}
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Present Address</label>
+                            <label class="col-sm-8 control-label">
+                                : {{employee.PresentAddress1+", "+employee.PresCountry}}
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Parmanent  Address</label>
+                            <label class="col-sm-8 control-label">
+                                : {{employee.ParmanentAddress1+", "+employee.ParmCountry}}
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Approve Image</label>
+                            <div class="col-sm-4" style="margin-top: 9px;">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="employee.IsImage">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <div class="col-sm-8">
+                                <div>
+                                    <img id="uploadImageSrc" ng-src="{{imageSrc}}" style="margin-left: 180px; border: 1px solid; height: 200px; width: 200px;" />
+                                </div>
+                            </div>
+                        </div>
+                       
+                    </div>
+                    <div class="clearfix" style="margin:-28px"></div>
+                    <div class="tab-design" id="tab_show">
+                        <div class="tab-content">
+                            <div class="site-tab">
+                                <ul class="nav nav-tabs" role="tablist">
+                                    <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="qualification" role="tab" data-toggle="tab">Qualification</a></li>
+                                    <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="training" role="tab" data-toggle="tab">Training</a></li>
+                                    <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="experience" role="tab" data-toggle="tab">Experience</a></li>
+                                    <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="document" role="tab" data-toggle="tab">Other Document</a></li>
+                                </ul>
+                            </div>
+                            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                                <div class="table-responsive modal-table">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Level of Education</th>
+                                                <th>Exam/Degree</th>
+                                                <th>Institute Name</th>
+                                                <th>Year of Passing</th>
+                                                <th>Stream</th>
+                                                <th>File</th>
+                                                <th>Approve</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="q in preRecruitmentEmpQualifications">
+                                                <td>{{q.EducationLevel}}</td>
+                                                <td>{{q.ExamDegreeType}}</td>
+                                                <td>{{q.InstituteName}}</td>
+                                                <td>{{q.YearOfPass}}</td>
+                                                <td>{{q.Stream}}</td>
+                                                <td ng-click="FileDownload(q)"><a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{q.FileName}}" target="_self">{{q.FileName}}</a></td>
+                                                <td>
+                                                    <div class="checkbox-site">
+                                                        <label>
+                                                            <input type="checkbox" ng-model="q.IsQualificationApproved" checked="{{q.IsQualificationApproved}}">
+                                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                        </label>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                                <div class="table-responsive modal-table">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Training Title</th>
+                                                <th>Institute Name</th>
+                                                <th>Training Year</th>
+                                                <th>Topic(Covered)</th>
+                                                <th>Duration</th>
+                                                <th>File</th>
+                                                <th>Approve</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="t in preRecruitmentEmpTrainings">
+                                                <td>{{t.TrainingTitle}}</td>
+                                                <td>{{t.InstituteName}}</td>
+                                                <td>{{t.TrainingYear}}</td>
+                                                <td>{{t.TopicCovered}}</td>
+                                                <td>{{t.Duration}}&nbsp;{{t.DurationUOM}}</td>
+                                                <td ng-click="TrainingFileDownload(t)"><a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{t.FileName}}" target="_self">{{t.FileName}}</a></td>
+                                                <td>
+                                                    <div class="checkbox-site">
+                                                        <label>
+                                                            <input type="checkbox" ng-model="t.IsTrainingApproved" checked="{{t.IsTrainingApproved}}">
+                                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                        </label>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                                <div class="table-responsive modal-table">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Employer</th>
+                                                <th>Designation</th>
+                                                <th>Start Date</th>
+                                                <th>End Date</th>
+                                                <th>Job Description</th>
+                                                <th>File</th>
+                                                <th>Approve</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="e in preRecruitmentEmpExperiences">
+                                                <td>{{e.Employer}}</td>
+                                                <td>{{e.Designation}}</td>
+                                                <td>{{e.StartDate | dateFiltering}}</td>
+                                                <td>{{e.EndDate | dateFiltering}}</td>
+                                                <td>{{e.JobDescription}}</td>
+                                                <td ng-click="ExperienceFileDownload(e)"><a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{e.FileName}}" target="_self">{{e.FileName}}</a></td>
+                                                <td>
+                                                    <div class="checkbox-site">
+                                                        <label>
+                                                            <input type="checkbox" ng-model="e.IsExperienceApproved" checked="{{e.IsExperienceApproved}}">
+                                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                        </label>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+                                <div class="table-responsive modal-table">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Compliance Document</th>
+                                                <th>File Name</th>
+                                                <th>Optional Or Mandatory</th>
+                                                <th>Due Date</th>
+                                                <th>Approve</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="e in documentdataList">
+                                                <td>{{e.ComplianceDocument}}</td>
+                                                <td ng-click="DocFileDownload(e)"><a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{e.FileName}}" target="_self">{{e.FileName}}</a></td>
+                                                <td>{{e.OptionalOrMandatory}}</td>
+                                                <td>{{e.DueDate | dateFiltering}}</td>
+                                                <td>
+                                                    <div class="checkbox-site">
+                                                        <label>
+                                                            <input type="checkbox" ng-model="e.IsDocumentApproved" checked="{{e.IsDocumentApproved}}">
+                                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                        </label>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn" style="padding-right:18px">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="confirmSubmit();" class="btn"> {{Action}}</button></li>
+                        @*<li> <button ng-click="Approved();" ng-disabled="savedisable" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>*@
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic data-modalid="confirmSubmit" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="Approved()"></confirm-archive-generic>
+<div class="modal fade site-modal in" id="entityPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header"> My Entity List<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Entity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in entityList">
+                                <td>{{x.Code}}</td>
+                                <td>{{x.EntityName}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

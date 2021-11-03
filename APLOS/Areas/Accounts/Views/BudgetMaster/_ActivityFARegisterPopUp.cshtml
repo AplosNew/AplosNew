@@ -1,0 +1,58 @@
+﻿<div class="modal fade site-modal in" id="activityFARegisterPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Fixed Asset Register</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <ul class="common-btn list-inline text-left">
+                            <li>
+                                <button ng-click="faRegisterPopUp();" class="btn" tabindex="10"><i class="glyphicon glyphicon-plus-sign"></i> Add Fixed Asset Register</button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Serial No</th>
+                                <th>Asset No</th>
+                                <th>Invoice No</th>
+                                <th>Material Master</th>
+                                <th>Asset Category</th>
+                                <th>Asset Subcategory</th>
+                                <th>Asset Type</th>
+                                <th>Asset Master</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in activityFARegisterList">
+                                <td>{{x.SerialNo}}</td>
+                                <td>{{x.AssetNo}}</td>
+                                <td>{{x.InvoiceNo}}</td>
+                                <td>{{x.MaterialMaster}}</td>
+                                <td>{{x.AssetCategory}}</td>
+                                <td>{{x.AssetSubCategory}}</td>
+                                <td>{{x.AssetType}}</td>
+                                <td>{{x.AssetMaster}}</td>
+                                <td class="text-right">
+                                    <button ng-click="confirmFARegisterRemoveRow($index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove">
+                                        <i class="glyphicon glyphicon-remove"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn btn-default" ng-click="faPopUpClose();">OK</button>
+            </div>
+        </div>
+    </div>
+</div>

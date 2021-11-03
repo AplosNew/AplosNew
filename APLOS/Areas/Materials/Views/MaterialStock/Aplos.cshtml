@@ -1,0 +1,338 @@
+﻿<style>
+    .listClass {
+        width: auto;
+        text-align: right;
+    }
+
+    .listClassLbl {
+        width: 170px;
+        text-align: left;
+        font-weight: normal;
+    }
+
+    .customLbl {
+        padding-right: 0px;
+    }
+
+    .customControl {
+        padding-left: 0px;
+        padding-right: 20px;
+    }
+</style>
+<h3 class="site-heading" style="cursor:unset;"><span class="glyphicon glyphicon-info-sign"></span> Material Stock</h3>
+<div class="form-elements form-horizontal" ng-form="form">
+    <div class="col-md-12 divborder mark">
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Material (Mst)<sup>*</sup></label>
+                <div class="col-sm-4 show-message">
+                    <div class="input-group">
+                        <input type="text" name="Mterial (Mst)" ng-model="modelNew.UserName" class="form-control" readonly>
+                        <span class="input-group-btn">
+                            <button ng-click="GetList();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
+                            <button ng-click="popUp();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-plus"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Code :</label>
+                <label class="col-sm-8 control-label">{{modelNew.Code}}</label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Standard Name :</label>
+                <label class="col-sm-8 control-label">{{modelNew.StandardName}}</label>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">ShortName :</label>
+                <label class="col-sm-8 control-label">{{modelNew.ShortName}}</label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">BaseUoM :</label>
+                <label class="col-sm-8 control-label">{{modelNew.BaseUoM}}</label>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-4">
+        <div class="form-group">
+            <label class="col-sm-5 control-label">Usage Type</label>
+            <div class="col-sm-7">
+                <div class="select-style">
+                    <select ng-model="modelNew.UsageType" class="form-control" ng-options="item.Value as item.Text for item in usageTypeList" tabindex="1">
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-5 control-label">Flammability<sup>*</sup></label>
+            <div class="col-sm-7 show-message">
+                <div class="select-style">
+                    <select ng-model="modelNew.Flammability" class="form-control" name="Flammability" required ng-options="item.Value as item.Text for item in flammabilityList" tabindex="4">
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-4">
+        <div class="form-group">
+            <label class="col-sm-5 control-label">Requirement Type</label>
+            <div class="col-sm-7">
+                <div class="select-style">
+                    <select ng-model="modelNew.RequirementType" class="form-control" ng-options="item.Value as item.Text for item in requirementTypeList" tabindex="2">
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-5 control-label">Purchase Frequency</label>
+            <div class="col-sm-7">
+                <div class="select-style">
+                    <select ng-model="modelNew.PurchaseFrequency" class="form-control" ng-options="item.Value as item.Text for item in purchaseFrequencyList" tabindex="5">
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-4">
+        <div class="form-group" show-errors>
+            <label class="col-sm-5 control-label">Hazards Level<sup>*</sup></label>
+            <div class="col-sm-7 show-message">
+                <div class="select-style">
+                    <select ng-model="modelNew.HazardsLevel" class="form-control" name="HazardsLevel" required
+                            ng-options="item.Value as item.Text for item in hazardsLevelList" tabindex="3">
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-5 control-label">Life Time in Days</label>
+            <div class="col-sm-7">
+                <input type="text" only-numbers ng-model="modelNew.LifeTimeinDays" class="form-control text-right" tabindex="6" placeholder="Days">
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" style="border:1px solid #d8d7d7; width:103%; margin-left:-15px; padding-left:0px;">
+            <label class="col-sm-4 control-label customLbl">Local</label>
+            <div class="col-sm-1 customControl">
+                <div class="checkbox-site">
+                    <label class="control-label">
+                        <input type="checkbox" ng-model="modelNew.Local">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+            <label class="col-sm-4 control-label customLbl">Import</label>
+            <div class="col-sm-1 customControl">
+                <div class="checkbox-site">
+                    <label class="control-label">
+                        <input type="checkbox" ng-model="modelNew.IsImport">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" style="border:1px solid #d8d7d7; width:103%; margin-left:-3px; padding-left:0px;">
+            <label class="col-sm-4 control-label">Standard Rate</label>
+            <div class="col-sm-8" style="padding-right:1px;">
+                <input type="text" style="width:20%;float:left;" only-numbers ng-model="modelNew.StandardRate" class="form-control text-right" tabindex="8" placeholder="Qty">
+                <div class="select-style" style="width:30%;float:left;">
+                    <select class="form-control" ng-model="modelNew.StandardRateCurrencyId" ng-disabled="modelNew.StandardRate==null"
+                            ng-options="item.Value as item.Text for item in currencyList" tabindex="9">
+                        <option value=""></option>
+                    </select>
+                </div>
+                <label class="control-label" style="float:left;font-size: 20px;">/</label>
+                <div class="select-style" style="width:44%;float:left;">
+                    <select class="form-control" ng-model="modelNew.StandardRateUoMId" ng-disabled="modelNew.StandardRate==null"
+                            ng-options="item.Value as item.Text for item in materialUoMList|orderBy:'Text'" tabindex="10">
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="col-xs-12 col-sm-12 col-md-12" style="border:1px solid #d8d7d7; width:100%; padding-top: 12px; padding-left:0px; padding-right:1px;">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Order Quantity(min)</label>
+                <div class="col-sm-8">
+                    <input type="text" n-decimals="2" ng-model="modelNew.MinimumOrderQuantity" class="form-control" tabindex="11">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Reorder Level</label>
+                <div class="col-sm-8">
+                    <input type="text" n-decimals="2" ng-model="modelNew.ReorderLevel" class="form-control" tabindex="13">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Inventory Level(min)</label>
+                <div class="col-sm-8">
+                    <input type="text" n-decimals="2" ng-model="modelNew.MinimumInventoryLevel" class="form-control" tabindex="12">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">UoM</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="modelNew.InventoryUoMId" ng-options="item.Value as item.Text for item in materialUoMList|orderBy:'Text'" tabindex="14">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="10"></i> {{Action}}</button></li>
+            <li><button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="12"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<confirm-modal></confirm-modal>
+<!-- #region Material Master -->
+<div class="modal fade site-modal in" id="popUpId" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Material (Mst)<button type="button" class="close" data-dismiss="modal">&times;</button> </div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Material Type</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" ng-model="materialModel.materialTypeId" ng-enter="getPopUpData();">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Material Category</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" ng-model="materialModel.materialCategoryId" ng-enter="getPopUpData();">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Material Group(Mst)</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" ng-model="materialModel.materialGroupMasterId" ng-enter="getPopUpData();">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Material SubCategory</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" ng-model="materialModel.materialSubCategoryId" ng-enter="getPopUpData();">
+                        </div>
+                    </div>
+                </div>
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="popUpParameters.searchBy">
+                                            <option ng-repeat="option in popUpList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="popUpParameters.search" ng-enter="getPopUpData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getPopUpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr><th ng-repeat="x in popUpList">{{x.Text}}</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in popUpDataList|itemsPerPage:popUpParameters.pageSize" total-items="popUpParameters.total_count"
+                                pagination-id="metaData.name + 'popUpDataList'" ng-dblclick="selectDoubleClick(x)">
+                                <td ng-repeat="hh in popUpList">{{x[hh.Value]}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'popUpDataList'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getPopUpData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="closePopUp()" class="btn">Cancel</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion -->
+<!-- #region Fabric Roll Management -->
+<div class="modal fade site-modal in" id="stockId" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Fabric Roll Management<button type="button" class="close" data-dismiss="modal">&times;</button> </div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>ShortName</th>
+                                <th>StandardName</th>
+                                <th>UserName</th>
+                                <th>BaseUoM</th>
+                            </tr>
+                            <tr>
+                                <th><div><input type="text" class="form-control" ng-model="searchModel.Code" ng-enter="getData();"></div></th>
+                                <th><div><input type="text" class="form-control" ng-model="searchModel.ShortName" ng-enter="getData();"></div></th>
+                                <th><div><input type="text" class="form-control" ng-model="searchModel.StandardName" ng-enter="getData();"></div></th>
+                                <th><div><input type="text" class="form-control" ng-model="searchModel.UserName" ng-enter="getData();"></div></th>
+                                <th><div><input type="text" class="form-control" ng-model="searchModel.BaseUoM" ng-enter="getData();"></div></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in buyerStyles |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get(x.Id, $index);">
+                                <td>{{x.Code}}</td>
+                                <td>{{x.ShortName}}</td>
+                                <td>{{x.StandardName}}</td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.BaseUoM}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion -->

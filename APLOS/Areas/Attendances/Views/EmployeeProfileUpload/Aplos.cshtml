@@ -1,0 +1,554 @@
+﻿
+<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>Employee Profile Upload<label style="float:right"></label>
+</h3>
+<style>
+    /****************File Upload*/
+    * {
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+    }
+
+    .inputBtnSection {
+        /*display: inline-block;*/
+        vertical-align: top;
+        font-size: 0;
+        font-family: verdana;
+    }
+
+    .disableInputField {
+        /*display: inline-block;*/
+        vertical-align: top;
+        height: 27px;
+        margin: 0;
+        font-size: 14px;
+        padding: 0 3px;
+    }
+
+    .fileUpload {
+        position: relative;
+        overflow: hidden;
+        /*border: solid 1px gray;*/
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    .uploadBtn {
+        display: inline-block;
+        vertical-align: top;
+        background: #242841;
+        font-size: 14px;
+        padding: 0 10px;
+        height: 25px;
+        line-height: 22px;
+        color: #fff;
+    }
+
+    .fileUpload input.upload {
+        position: absolute;
+        top: 0;
+        right: 0;
+        margin: 0;
+        padding: 0;
+        font-size: 20px;
+        cursor: pointer;
+        opacity: 0;
+        filter: alpha(opacity=0);
+    }
+</style>
+<div class="form-elements form-horizontal row" ng-form name="ModelNewForm" id="mainmain">
+    <div class="tab-design" id="tab_show">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(11) }"><a ng-click="setTab(11)" href="" aria-controls="aria1" role="tab" data-toggle="tab">Profile</a></li>
+                <li role="presentation" ng-class="{ active: isSet(22) }"><a ng-click="setTab(22)" href="" aria-controls="aria1" role="tab" data-toggle="tab">Shift Assignment</a></li>
+                <li role="presentation" ng-class="{ active: isSet(33) }"><a ng-click="setTab(33)" href="" aria-controls="aria1" role="tab" data-toggle="tab">Week off Assignment</a></li>
+                <li role="presentation" ng-class="{ active: isSet(44) }"><a ng-click="setTab(44)" href="" aria-controls="aria1" role="tab" data-toggle="tab">BankInfo</a></li>
+                <li role="presentation" ng-class="{ active: isSet(55) }"><a ng-click="setTab(55)" href="" aria-controls="aria1" role="tab" data-toggle="tab">Leave Info</a></li>
+            </ul>
+        </div>
+        <div class="tab-content" id="tabpaneldiv">
+            @*Profile*@
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(11), active: isSet(11) }">
+                <div class="col-md-10">
+                    @*<input type="hidden" ng-model="EmployeeProfileFromExcel.EmployeeCode">*@
+                    <div class="inputBtnSection common-btn">
+                        <label class="fileUpload col-sm-4 ">
+                            <input id="uploadImage" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
+                        </label>
+                        <input type="button" value="Import Data" class="btn btn-success"
+                               ng-click="ImportData()" />
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="GetSampleFile();" class="btn"><i class="glyphicon glyphicon-file"></i> Sample File</button></li>
+                        </ul>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div id="GridWorkCenterProduct"
+                             ng-init="chkinit()"
+                             ej-grid e-datasource="AttdnRawData"
+                             e-recorddoubleclick="selectSignleEmployee"
+                             @*e-rowdatabound="onrowdatabound"*@
+                             e-allowfiltering="true"
+                             e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             @*e-allowscrolling="true" e-minwidth="1100" e-minheight="500"*@
+                             e-pagesettings-pagesize="25"
+                             @*e-allowselection="true"*@
+                             e-filtersettings-filterType="excel">
+                            <div e-columns>
+                                @*<div e-column e-field="LogDownLoadNum" e-headertext="Emp SystemId" e-width="50" e-primarykey="true"></div>*@
+                                <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="30" e-primarykey="true"></div>
+                                <div e-column e-field="Salutation" e-headertext="Salutation" e-width="80"></div>
+                                <div e-column e-field="FirstName" e-headertext="FirstName" e-width="80"></div>
+                                <div e-column e-field="LastName" e-headertext="LastName" e-width="80"></div>
+
+                                <div e-column e-field="FatherName" e-headertext="FatherName" e-width="80"></div>
+                                <div e-column e-field="MotherName" e-headertext="MotherName" e-width="80"></div>
+                                <div e-column e-field="MaritalStatus" e-headertext="MaritalStatus" e-width="80"></div>
+
+                                <div e-column e-field="SpouseName" e-headertext="SpouseName" e-width="80"></div>
+                                <div e-column e-field="PresentAddress1" e-headertext="PresentAddress1" e-width="80"></div>
+                                <div e-column e-field="PresentAddress2" e-headertext="PresentAddress2" e-width="80"></div>
+
+                                <div e-column e-field="PermanentAddress1" e-headertext="PermanentAddress1" e-width="80"></div>
+                                <div e-column e-field="PermanentAddress2" e-headertext="PermanentAddress2" e-width="80"></div>
+                                <div e-column e-field="EmpType" e-headertext="EmpType" e-width="80"></div>
+
+                                <div e-column e-field="EmploymentType" e-headertext="EmploymentType" e-width="80"></div>
+                                <div e-column e-field="Gender" e-headertext="Gender" e-width="80"></div>
+                                <div e-column e-field="Religion" e-headertext="Religion" e-width="80"></div>
+
+                                <div e-column e-field="BloodGroup" e-headertext="BloodGroup" e-width="80"></div>
+                                <div e-column e-field="PhoneNo" e-headertext="PhoneNo" e-width="80"></div>
+                                <div e-column e-field="CardNumber" e-headertext="CardNumber" e-width="80"></div>
+
+                                <div e-column e-field="NID" e-headertext="NID" e-width="80"></div>
+                                <div e-column e-field="DOB" e-headertext="DOB" e-width="80"></div>
+                                <div e-column e-field="CelebrationDOB" e-headertext="CelebrationDOB" e-width="80"></div>
+
+                                <div e-column e-field="DOJ" e-headertext="DOJ" e-width="80"></div>
+                                <div e-column e-field="PPeriod_Date" e-headertext="PPeriod_Date" e-width="80"></div>
+                                @*<div e-column e-field="ShiftEffectiveDate" e-headertext="ShiftEffectiveDate" e-width="80"></div>*@
+
+                                @*<div e-column e-field="RosterShiftName" e-headertext="RosterShiftName" e-width="80"></div>*@
+                                @*<div e-column e-field="AssignShiftName" e-headertext="AssignShiftName" e-width="80"></div>*@
+                                @*<div e-column e-field="WeekOffEffectiveDate" e-headertext="WeekOffEffectiveDate" e-width="80"></div>*@
+
+                                @*<div e-column e-field="AlignWithCompany" e-headertext="AlignWithCompany" e-width="80"></div>*@
+                                @*<div e-column e-field="IndividualWeekOff" e-headertext="IndividualWeekOff" e-width="80"></div>*@
+                                <div e-column e-field="JobLocation" e-headertext="JobLocation" e-width="80"></div>
+
+                                <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="80"></div>
+                                <div e-column e-field="BudgetCode" e-headertext="BudgetCode" e-width="80"></div>
+                                <div e-column e-field="PaymentMode" e-headertext="PaymentMode" e-width="80"></div>
+
+                                <div e-column e-field="Country_permanent" e-headertext="Country_permanent" e-width="80"></div>
+                                <div e-column e-field="Citizen" e-headertext="Citizen" e-width="80"></div>
+                                <div e-column e-field="State_Division" e-headertext="State_Division" e-width="80"></div>
+                                <div e-column e-field="District" e-headertext="District" e-width="80"></div>
+                                <div e-column e-field="City" e-headertext="City" e-width="80"></div>
+                                <div e-column e-field="IsConfirmed" e-headertext="IsConfirmed" e-width="80"></div>
+
+
+
+                                @*<div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>*@
+
+
+
+
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12 ">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="save();" ng-disabled="!btnshow();" class="btn"><i class="glyphicon glyphicon-check"></i> Save</button></li>
+
+                            </ul>
+                            <ul class="list-inline text-left bold" style="color:green;font-size:larger;font-weight:bolder;">
+                                <li>    <i>{{msg}}</i> </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @*Shift Assignment*@
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(22), active: isSet(22) }">
+
+                @*<div class="row">
+                <div class="col-md-12">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="LoadEmployeeList();" class="btn"><i class="glyphicon glyphicon-download"></i> Load Employee</button></li>
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <hr />*@
+
+                <div class="col-md-10">
+                    @*<input type="hidden" ng-model="EmployeeProfileFromExcel.EmployeeCode">*@
+                    <div class="inputBtnSection common-btn">
+                        <label class="fileUpload col-sm-4 ">
+                            <input id="uploadshift" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadshift" accept=".xls,.xlsx" />
+                        </label>
+                        <input type="button" value="Import Data" class="btn btn-success" ng-click="ImportDataShift()" />
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="GetSampleFileShift();" class="btn"><i class="glyphicon glyphicon-file"></i> Sample File</button></li>
+                        </ul>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div id="GridShiftAssignment"
+                             ng-init="chkinit()"
+                             ej-grid e-datasource="ShiftAssignment"
+                             @*e-recorddoubleclick="selectSignleEmployee"*@
+                             @*e-rowdatabound="onrowdatabound"*@
+                             e-allowfiltering="true"
+                             e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             @*e-allowscrolling="true" e-minwidth="1100" e-minheight="500"*@
+                             e-pagesettings-pagesize="25"
+                             @*e-allowselection="true"*@
+                             e-actioncomplete="actionComplete"
+                             e-filtersettings-filterType="excel">
+                            <div e-columns>
+                                @*<div e-column e-field="LogDownLoadNum" e-headertext="Emp SystemId" e-width="50" e-primarykey="true"></div>*@
+                                <div e-column e-field="SystemId" e-headertext="SystemId" e-width="30" e-primarykey="true"></div>
+                                <div e-column e-field="EmployeeCode" e-headertext="EmployeeCode" e-width="80"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="EmployeeName" e-width="80"></div>
+                                <div e-column e-field="JobLocation" e-headertext="JobLocation" e-width="80"></div>
+                                <div e-column e-field="ShiftSystemId" e-headertext="ShiftSystemId" e-width="80"></div>
+                                @*<div e-column e-field="EffectiveDate" e-headertext="EffectiveDate" e-width="80"></div>*@
+
+
+
+
+                                @*<div e-column e-field="IsRoster" e-headertext="IsRoster" e-width="80"></div>
+                            <div e-column e-field="MotherName" e-headertext="MotherName" e-width="80"></div>
+                            <div e-column e-field="Gender" e-headertext="Gender" e-width="80"></div>
+                            <div e-column e-field="Religion" e-headertext="Religion" e-width="80"></div>
+
+                            <div e-column e-field="DOJ" e-headertext="DOJ" e-width="80"></div>
+                            <div e-column e-field="PPeriod_Date" e-headertext="PPeriod_Date" e-width="80"></div>*@
+                                <div e-column e-field="IsRoster" e-headertext="IsRoster" e-width="80"></div>
+
+                                <div e-column e-field="RosterSystemID" e-headertext="RosterSystemID" e-width="80"></div>
+                                <div e-column e-field="RosterStartShiftID" e-headertext="RosterStartShiftID" e-width="80"></div>
+                                @*<div e-column e-field="WeekOffEffectiveDate" e-headertext="WeekOffEffectiveDate" e-width="80"></div>*@
+
+                                @*<div e-column e-field="AlignWithCompany" e-headertext="AlignWithCompany" e-width="80"></div>*@
+                                @*<div e-column e-field="IndividualWeekOff" e-headertext="IndividualWeekOff" e-width="80"></div>*@
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12 ">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li ng-show="ShowSaveBtn"> <button ng-click="saveShift();" class="btn"><i class="glyphicon glyphicon-check"></i> Save</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @*weekoff Assignment*@
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(33), active: isSet(33) }">
+                @*<div class="row">
+                <div class="col-md-12">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="LoadEmployeeList();" class="btn"><i class="glyphicon glyphicon-download"></i> Load Employee</button></li>
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <br />*@
+                <div class="row">
+                    <div class="col-md-10">
+                        <div class="inputBtnSection common-btn">
+                            <label class="fileUpload col-sm-4 ">
+                                <input id="uploadweekoff" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadweeekoff" accept=".xls,.xlsx" />
+                            </label>
+                            <input type="button" value="Import Data" class="btn btn-success" ng-click="ImportDataWeekOff()" />
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="GetSampleFileWeekOff();" class="btn"><i class="glyphicon glyphicon-file"></i> Sample File</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div id="GridWeekOffAssignment"
+                             ng-init="chkinit()"
+                             ej-grid e-datasource="WeekOffAssignment"
+                             @*e-recorddoubleclick="selectSignleEmployee"*@
+                             @*e-rowdatabound="onrowdatabound"*@
+                             e-allowfiltering="true"
+                             e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             @*e-allowscrolling="true" e-minwidth="1100" e-minheight="500"*@
+                             e-pagesettings-pagesize="25"
+                             e-filtersettings-filterType="excel">
+                            <div e-columns>
+
+                                <div e-column e-field="EmpSystemID" e-headertext="EmpSystemID" e-width="30" e-primarykey="true"></div>
+                                @*<div e-column e-field="EffectiveDate" e-headertext="EffectiveDate" e-width="80"></div>*@
+                                <div e-column e-field="AlignWithCC" e-headertext="AlignWithCC" e-width="80"></div>
+                                <div e-column e-field="IndividualWeekOff" e-headertext="IndividualWeekOff" e-width="80"></div>
+                                <div e-column e-field="FstOffDay" e-headertext="FstOffDay" e-width="80"></div>
+                                @*<div e-column e-field="FstDayLengthType" e-headertext="FstDayLengthType" e-width="80"></div>*@
+
+
+
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12 ">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li ng-show="ShowSaveBtn"> <button ng-click="SaveWeekOff();" class="btn"><i class="glyphicon glyphicon-check"></i> Save</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @*Bank*@
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(44), active: isSet(44) }">
+               
+                <div class="row">
+                    <div class="col-md-10">
+                        <div class="inputBtnSection common-btn">
+                            <label class="fileUpload col-sm-4 ">
+                                <input id="uploadBank" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadBank" accept=".xls,.xlsx" />
+                            </label>
+                            <input type="button" value="Import Data" class="btn btn-success" ng-click="ImportDataBank()" />
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="GetSampleFileBank();" class="btn"><i class="glyphicon glyphicon-file"></i> Sample File</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div id="GridBankInfo"
+                             ng-init="chkinit()"
+                             ej-grid e-datasource="BankInfoList"
+                          
+                             e-allowfiltering="true"
+                             e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             @*e-allowscrolling="true" e-minwidth="1100" e-minheight="500"*@
+                             e-pagesettings-pagesize="25"
+                             e-filtersettings-filterType="excel">
+                            <div e-columns>
+
+                                <div e-column e-field="EmpSystemID" e-headertext="EmpSystemID" e-width="30" e-primarykey="true"></div>
+
+                                <div e-column e-field="EmployeeCode" e-headertext="EmployeeCode" e-width="80"></div>
+                                <div e-column e-field="BankName" e-headertext="BankName" e-width="80"></div>
+                                <div e-column e-field="BankAccNo" e-headertext="BankAccNo" e-width="80"></div>
+                                @*<div e-column e-field="SalaryPercentage" e-headertext="SalaryPercentage" e-width="80"></div>*@
+                                <div e-column e-field="IFSCCode" e-headertext="IFSCCode" e-width="80"></div>
+                                <div e-column e-field="MICRCode" e-headertext="MICRCode" e-width="80"></div>                                
+                                @*<div e-column e-field="SalaryPercentage" e-headertext="SalaryPercentage" e-width="80"></div>*@
+
+
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12 ">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li ng-show="ShowSaveBtn"> <button ng-click="saveBank();" class="btn"><i class="glyphicon glyphicon-check"></i> Save</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            @*LeaveInfo*@
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(55), active: isSet(55) }">
+
+                @*<div class="row">
+                <div class="col-md-12">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="LoadEmployeeList();" class="btn"><i class="glyphicon glyphicon-download"></i> Load Employee</button></li>
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <hr />*@
+
+                <div class="col-md-10">
+                    @*<input type="hidden" ng-model="EmployeeProfileFromExcel.EmployeeCode">*@
+                    <div class="inputBtnSection common-btn">
+                        <label class="fileUpload col-sm-4 ">
+                            <input id="uploadleave" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadleave" accept=".xls,.xlsx" />
+                        </label>
+                        <input type="button" value="Import Data" class="btn btn-success" ng-click="ImportDataLeave()" />
+                    </div>
+
+
+
+
+                </div>
+                <div class="col-md-2">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="GetSampleFileLeave();" class="btn"><i class="glyphicon glyphicon-file"></i> Sample File</button></li>
+                        </ul>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div id="GridLeave"
+                             ng-init="chkinit()"
+                             ej-grid e-datasource="LeaveList"
+                             @*e-recorddoubleclick="selectSignleEmployee"*@
+                             @*e-rowdatabound="onrowdatabound"*@
+                             e-allowfiltering="true"
+                             e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             @*e-allowscrolling="true" e-minwidth="1100" e-minheight="500"*@
+                             e-pagesettings-pagesize="25"
+                             @*e-allowselection="true"*@
+                             e-filtersettings-filterType="excel">
+                            <div e-columns>
+                                @*<div e-column e-field="LogDownLoadNum" e-headertext="Emp SystemId" e-width="50" e-primarykey="true"></div>*@
+                                <div e-column e-field="EmpSystemID" e-headertext="EmpSystemID" e-width="30" e-primarykey="true"></div>
+                                <div e-column e-field="EmployeeCode" e-headertext="EmployeeCode" e-width="80"></div>
+                                <div e-column e-field="LTSystemID" e-headertext="LTSystemID" e-width="80"></div>
+                                @*<div e-column e-field="FromDate" e-headertext="FromDate" e-width="80"></div>*@
+                                <div e-column e-field="LvDate" e-headertext="LvDate" e-width="80"></div>
+                                <div e-column e-field="LvReason" e-headertext="LvReason" e-width="80"></div>
+                                <div e-column e-field="AppliedDate" e-headertext="AppliedDate" e-width="80"></div>
+
+
+                                @*<div e-column e-field="IsRoster" e-headertext="IsRoster" e-width="80"></div>
+                            <div e-column e-field="MotherName" e-headertext="MotherName" e-width="80"></div>
+                            <div e-column e-field="Gender" e-headertext="Gender" e-width="80"></div>
+                            <div e-column e-field="Religion" e-headertext="Religion" e-width="80"></div>
+
+                            <div e-column e-field="DOJ" e-headertext="DOJ" e-width="80"></div>
+                            <div e-column e-field="PPeriod_Date" e-headertext="PPeriod_Date" e-width="80"></div>*@
+                                @*<div e-column e-field="IsRoster" e-headertext="IsRoster" e-width="80"></div>
+
+                            <div e-column e-field="RosterSystemID" e-headertext="RosterSystemID" e-width="80"></div>
+                            <div e-column e-field="RosterStartShiftID" e-headertext="RosterStartShiftID" e-width="80"></div>*@
+                                @*<div e-column e-field="WeekOffEffectiveDate" e-headertext="WeekOffEffectiveDate" e-width="80"></div>*@
+
+                                @*<div e-column e-field="AlignWithCompany" e-headertext="AlignWithCompany" e-width="80"></div>*@
+                                @*<div e-column e-field="IndividualWeekOff" e-headertext="IndividualWeekOff" e-width="80"></div>*@
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12 ">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li ng-show="ShowSaveBtn"> <button ng-click="saveLeave();" class="btn"><i class="glyphicon glyphicon-check"></i> Save</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>@*tabpaneldiv*@
+
+        
+
+    </div>
+</div>
+<ej-dialog id="dialogEmployeeInfo"
+           title=" Employee Information"
+           e-enablemodal="true"
+           e-position-y="0"
+           e-showoninit="false"
+           e-target=".site-heading"
+           e-close="onDialogClose"
+           e-minwidth="95%"
+           e-minheight="400" e-open="enableBtn">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+
+            <div style="color:black;"
+                 id="GridEmployeeInfoList"
+                 e-recorddoubleclick="SelectEmployee"
+                 ej-grid e-datasource="EmployeeInformationList"
+                 e-templaterefresh="refreshTemplateemployee"
+                 e-gridlines="vertical"
+                 e-allowfiltering="true"
+                 e-allowpaging="true"
+                 e-allowsorting="true"
+                 e-allowselection="true"
+                 e-pagesettings-pagesize="15"
+                 e-filtersettings-filterType="excel" e-allowtouch="true">
+                <div e-columns>
+                    <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
+                    <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="50"></div>
+                    <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                    <div e-column e-field="DOJ" e-headertext="DOJ" e-width="70"></div>
+                    @*<div e-column e-field="DOS" e-headertext="DOS" e-width="70"></div>*@
+                    <div e-column e-field="Designation" e-headertext="Designation" e-width="80"></div>
+                    <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                    <div e-column e-field="EmpCategoryName" e-headertext="Category" e-width="80"></div>
+                    <div e-column e-field="Unit" e-headertext="Unit" e-width="70"></div>
+                    <div e-column e-field="Division" e-headertext="Division" e-width="80"></div>
+                    <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                    <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                    <div e-column e-field="SubSection" e-headertext="Sub-Section" e-width="80"></div>
+                    <div e-column e-field="Line" e-headertext="Line" e-width="60"></div>
+                </div>
+            </div>
+
+            <script type="text/template" id="checkboxTemplate">
+                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
+            </script>
+            <script type="text/x-jsrender" id="headerTemplate">
+                <input type="checkbox" id="headchk" />
+            </script>
+
+
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 ">
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="SelectEmployee();" class="btn"><i class="glyphicon glyphicon-check"></i> Select</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</ej-dialog>

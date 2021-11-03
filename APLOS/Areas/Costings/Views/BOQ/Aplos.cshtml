@@ -1,0 +1,223 @@
+﻿<togglable name="BOQ"></togglable>
+<div class="form-elements" id="mainContainer">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Customer</label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <input type="text" name="Customer" ng-model="Model.CustomerName" class="form-control" readonly>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Remarks</label>
+                <div class="col-sm-8">
+
+                    <input type="text" ng-model="Model.Remarks" name="Remarks" class="form-control" readonly>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input type="text" name="SalesOrder" ng-model="Model.UserName" class="form-control" readonly>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Responsible Person</label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <input type="text" name="ResponsiblePerson" ng-model="Model.EmployeeName" class="form-control" readonly>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="site-tab">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Material Attachment</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">Quantity Distribution</a></li>
+                </ul>
+            </div>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div id="GridMaterialAttachment" ng-init="chkinit()" ej-grid e-actioncomplete="syncfusiongriddatabound" e-datasource="MaterialAttachmentList" e-allowfiltering="true"
+                                 e-allowscrolling="true"
+                                 e-allowpaging="true" e-enabletouch="false" e-responsive="true"
+                                 e-allowselection="true" e-filtersettings-filterType="excel">
+                                <div e-columns>
+                                    <div e-column e-type="string" e-field="CostingItem" e-headertext="CostingItem" e-width="120px"></div>
+                                    <div e-column e-type="string" e-field="BOMMaterialRefNo" e-headertext="Material Ref#" e-width="80px"></div>
+                                    <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="160px"></div>
+                                    <div e-column e-template="#SearchMaterialTemplate" e-headertext="" e-width="32px"></div>
+                                    <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="160px"></div>
+                                    <div e-column e-template="#SearchArticleTemplate" e-headertext="" e-width="32px"></div>
+                                    <div e-column e-type="string" e-field="Vendor" e-headertext="Vendor" e-width="160px"></div>
+                                    <div e-column e-template="#SearchVendorTemplate" e-headertext="" e-width="32px"></div>
+                                </div>
+                            </div>
+
+                            <script type="text/template" id="SearchMaterialTemplate">
+                                <div class="common-btn">
+                                    <ul class="list-inline small">
+                                        <li>
+                                            <button ng-click="$parent.getMaterial(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                                <i class="glyphicon glyphicon-search"></i>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </script>
+                            <script type="text/template" id="SearchArticleTemplate">
+                                <div class="common-btn">
+                                    <ul class="list-inline small">
+                                        <li>
+                                            <button ng-click="$parent.getArticle(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                                <i class="glyphicon glyphicon-search"></i>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </script>
+                            <script type="text/template" id="SearchVendorTemplate">
+                                <div class="common-btn">
+                                    <ul class="list-inline small">
+                                        <li>
+                                            <button ng-click="$parent.showPartyPopUp(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                                <i class="glyphicon glyphicon-search"></i>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </script>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div id="GridMaterialQuantity" ng-init="chkinit()" ej-grid e-actioncomplete="syncfusiongriddatabound" e-datasource="MaterialQtyEditList" e-allowfiltering="true"
+                                 e-allowscrolling="true"
+                                 e-allowpaging="true" e-enabletouch="false" e-responsive="true"
+                                 e-allowselection="true" e-filtersettings-filterType="excel">
+                                <div e-columns>
+                                    <div e-column e-type="string" e-field="ItemDesc" e-headertext="Item Desc" e-width="120px"></div>
+                                    <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="120px"></div>
+                                    <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="120px"></div>
+                                    <div e-column e-type="string" e-field="BOQCriteria" e-headertext="BOQCriteria" e-width="80px"></div>
+                                    <div e-column e-type="string" e-field="SalesOrderId" e-headertext="SO" e-width="60px"></div>
+                                    <div e-column e-type="string" e-field="Destination" e-headertext="Destination" e-width="60px"></div>
+                                    <div e-column e-type="string" e-field="SKU1" e-headertext="SKU1" e-width="50px"></div>
+                                    <div e-column e-type="string" e-field="SKU2" e-headertext="SKU2" e-width="50px"></div>
+                                    <div e-column e-type="number" e-field="BOMQty" e-headertext="BOMQty" e-width="60px"></div>
+
+                                    @*WithSKU	SalesOrderId	Destination	SKU1	SKU2	IncompleteMaterial	PreparedBy	CostingDate	Id	Sequence
+        ItemDesc	Material	Article	ItemRefNo	Vendor	MaterialCode
+        ArticleCode	ResponsiblePerson	BOMQty	RequiredQty	UOM	BOMAmount	BOQCriteria	Currency*@
+
+                                    <div e-column e-template="#EnterSKUTemplate" e-headertext="Required Qty" e-width="120px"></div>
+                                    <div e-column e-type="number" e-field="BalanceToPurchase" e-headertext="Reuse From Inventory" e-format="{0:N2}" e-width="100px"></div>
+                                    
+                                    <div e-column e-type="string" e-field="UOM" e-headertext="UOM" e-width="50px"></div>
+                                    <div e-column e-type="string" e-field="Vendor" e-headertext="Vendor" e-width="120px"></div>
+
+                                </div>
+                            </div>
+                            <script type="text/template" id="EnterSKUTemplate">
+                                <div class="col-xs-12 col-sm-10 col-md-10" style="padding:0px;margin:0px;">
+                                    <input type="number" min="0" ng-model="data.RequiredQty" class="form-control">
+                                </div>
+                                @*<div class="col-xs-12 col-sm-2 col-md-2" style="padding:0px;margin:0px;" ng-show="data.WithSKU">
+                                    <div class="common-btn">
+                                        <ul class="list-inline small">
+                                            <li>
+                                                <button ng-click="$parent.showPartyPopUp(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                                    <i class="glyphicon glyphicon-th-list"></i>
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>*@
+                            </script>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 text-right">
+            <div class="common-btn">
+                <ul class="list-inline small">
+                    <li>
+                        <button ng-click="Update();" class="btn small">
+                            <i class="glyphicon glyphicon-search"></i>Update
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<div class="aplos-grid-toggle">
+    <div class="row text-right">
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="search-form">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-3">
+                        <div class="select-style">
+                            <select ng-model="searchEdit">
+                                <option ng-repeat="option in searchByEdit" value="{{option.value}}">{{option.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-7 col-md-7">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="searchEditValue" ng-enter="GetEditList()">
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button type="button" ng-click="GetEditList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="GridEditList" ng-init="chkinit()" ej-grid e-actioncomplete="syncfusiongriddatabound" e-datasource="EditList" e-allowfiltering="true"
+         e-allowscrolling="true"
+         e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-recorddoubleclick="SelectEdit"
+         e-allowselection="true" e-filtersettings-filterType="excel">
+        <div e-columns>
+            <div e-column e-type="string" e-field="Id" e-headertext="BOM Id" e-width="80px"></div>
+            <div e-column e-field="BOMCreationDate" e-headertext="BOM Creation Dt" e-width="80px"></div>
+            <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="200px"></div>
+            <div e-column e-type="string" e-field="EmployeeName" e-headertext="Responsible Person" e-width="100px"></div>
+            <div e-column e-type="string" e-field="OwnOrderNo" e-headertext="Own Order#" e-width="100px"></div>
+            <div e-column e-type="string" e-field="BuyerItemNo" e-headertext="Customer Item No" e-width="100px"></div>
+            <div e-column e-type="string" e-field="OwnItemNo" e-headertext="Own Item No" e-width="100px"></div>
+            <div e-column e-type="string" e-field="Description" e-headertext="SO Description" e-width="120px"></div>
+            <div e-column e-type="string" e-field="ItemList" e-headertext="Selected Items" e-width="300px"></div>
+            <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="300px"></div>
+            <div e-column e-type="string" e-field="BuyerOrderNo" e-headertext="Customer Order#" e-width="100px"></div>
+            <div e-column e-type="string" e-field="SalesOrderId" e-headertext="Sales Order" e-width="80px"></div>
+            <div e-column e-type="string" e-field="MasterOrderId" e-headertext="Master Order#" e-width="100px"></div>
+        </div>
+    </div>
+</div>
+
+
+@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUp.cshtml")
+@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterByTypePopUp.cshtml")
+@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPopUp.cshtml")
+<confirm-modal></confirm-modal>
+<confirm-archive-generic modalid="confirmDelete" title="Confirmation" data-ng-click-left-button="closePopup('confirmDelete')" message="Are you sure to delete this transaction?" data-ng-click-right-button="Delete()"></confirm-archive-generic>
+
+

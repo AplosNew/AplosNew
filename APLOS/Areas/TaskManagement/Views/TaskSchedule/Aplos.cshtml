@@ -1,0 +1,108 @@
+﻿<div class="row" style="height:34px;">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <span style="height:30px;width:30px;background-color:#3498DB;color:#3498DB;">[][][][]</span> <span>Master Order</span>
+        <span style="height:30px;width:30px;background-color:#DAF7A6;color:#DAF7A6;">[][][][]</span> <span>Line Item</span>
+        <span style="height:30px;width:30px;background-color:#FFC300;color:#FFC300;">[][][][]</span> <span>Sales Order</span>
+        <span style="height:30px;width:30px;background-color:#BB8FCE;color:#BB8FCE;">[][][][]</span> <span>Prod. Order</span>
+        <span style="height:30px;width:30px;background-color:transparent;color:transparent;border:2px solid red">[][][][]</span><span>Not Required</span>
+        <span style="height:30px;width:30px;background-color:transparent;color:transparent;border:2px solid #000000">[][][][]</span><span>Missing Own Date</span>
+        <span style="height:30px;width:30px;background-color:transparent;color:transparent;border:2px solid #EAECEE">[][][][]</span><span>Missing.Pred. Date</span>
+
+    </div>
+</div>
+
+<div class="row" style="height:34px;">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <span><b>TNA Start Date</b></span>
+        <span>{{GVProjectStartDate}}  </span>
+        <span><b>&nbsp;&nbsp;&nbsp;&nbsp;TNA End Date</b></span>
+        <span> {{GVProjectEndDate}}  </span>
+        <span><b>&nbsp;&nbsp;&nbsp;&nbsp;Duration</b></span>
+        <span> {{GVDuration}}</span>
+    </div>
+</div>
+<div class="row" id="ganttContainer">
+    <div class="col-xs-12">
+        <div class="form-group">
+            <div id="angulargantt" ej-gantt e-datasource="GVganttdata"
+                 e-allowganttchartediting="false"
+                 e-allowresizing="true"
+                 e-enableresize="true"
+                 e-enablecontextmenu="true"
+                 e-allowdraganddrop="false"
+                 e-allowcolumnresize="true"
+                 e-taskidmapping="taskID"
+                 e-tasknamemapping="taskName"
+                 e-childmapping="subtasks"
+                 e-startdatemapping="startDate"
+                 e-enddatemapping="endDate"
+                 e-durationmapping="duration"
+                 e-predecessormapping="predecessor"
+                 e-resources="GVcolumnTemplateResource"
+                 e-resourceinfomapping="resourceId"
+                 e-resourcenamemapping="resourceName"
+                 e-resourceidmapping="resourceId"
+                 e-righttasklabeltemplate="GVrightlabelTemplate"
+                 e-querytaskbarinfo="GVganttqueryTaskbarInfo"
+                 e-treecolumnindex="1"
+                 e-enablevirtualization="true"
+                 e-isresponsive="true"
+                 e-splitterposition="280"
+                 e-schedulestartdate="01/01/2017"
+                 e-scheduleenddate="03/16/2017"
+                 e-load="GVganttquerycellinfo"
+                 @*e-taskbartooltiptemplateid="GVtaskbarTooltipTemplateId"
+                 e-taskbareditingtooltiptemplateid="GVtaskbarTooltipTemplateId"*@
+                 @*e-actionbegin="GVganttactionbegin"
+                 e-beginedit="GVganttedit"
+             e-toolbarclick="GVtoolclick"
+             e-contextmenuopen="GVContextMenuOpen"*@
+                 style="width:100%;height:450px;">
+            </div>
+
+            <script id="GVrightlabelTemplate" type="text/x-jsrender">
+                {{if #data['resourceNames']}}
+                <div>
+                    {{for resourceInfo}}
+                    <img onerror="$(arguments[0].currentTarget).attr('src','images/blankuser.png')" src="POPResources/EmployeeProfiles/EmpPic/{{:EmpPicPath}}" style="height:24px;border-radius: 50%;border:1px solid darkgray" />
+                    <span style="margin-left:5px;">{{:resourceName}}</span>
+                    {{:~_getSeparator(#get("array").data.length,#index)}}
+                    {{/for}}
+                </div>
+                {{/if}}
+            </script>
+            <script>
+                function _getSeparator(length, idx) {
+                    if (idx < length - 1) {
+                        return ","
+                    }
+                }
+                var helpers = {};
+                helpers["_getSeparator"] = _getSeparator;
+                $.views.helpers(helpers);
+            </script>
+
+
+        </div>
+    </div>
+</div>
+<style type="text/css">
+    .e-gantt .e-treegrid .e-headercelldiv {
+        color: #ffffff;
+    }
+
+    .e-treegrid .e-headercelldiv {
+        color: #ffffff;
+    }
+
+    .e-tab .e-active-content {
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+</style>
+@*<ej-dialog id="dialogViewIssueDetail" title=" Gantt Chart" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#ganttContainer" e-minwidth="900" e-open="enableBtn">
+        <div class="col-xs-12">
+            @Html.Partial("~/Areas/TaskManagement/Views/MasterOrderTaskTemplate/Aplos.cshtml")
+        </div>
+    </ej-dialog>*@
+

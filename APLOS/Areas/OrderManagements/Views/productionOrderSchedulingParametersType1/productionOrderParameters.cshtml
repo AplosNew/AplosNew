@@ -1,0 +1,180 @@
+﻿<div class="row" style="padding:10px;" id="entrypop">
+    @Html.Partial("~/Areas/OrderManagements/Views/productionOrderSchedulingParametersType1/parametersEntry.cshtml")
+    @*<div ass="form-group">
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            Recommended work centers for this production order
+            <div id="GRIDPRODUCTIONPARAMS" ng-init="chkinit()" ej-grid e-datasource="PRODUCTIONPARAMSWorkCenterList"
+                 e-enabletouch="false" e-responsive="true" e-recordclick="workcenterclickbyid">
+                <div e-columns>
+
+                    <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
+                    <div e-column e-field="UserName" e-headertext="Work Center" e-width="180"></div>
+
+                </div>
+            </div>
+        </div>
+    </div>*@
+    @*<div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="row">
+            <div class="col-xs-6 col-sm-6 col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-7 control-label">Workstations</label>
+                    <label class="col-sm-5">
+                        <input type="text" e-enabled="true" e-minvalue="0" e-change="calculationsDashboard" ej-numerictextbox e-decimalplaces="0" e-enablertl="false" e-value="PRODUCTIONPARAMS.NoOfWorkStation" e-width="100" />
+
+                    </label>
+
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-7 control-label">Efficiency %</label>
+                    <label class="col-sm-5">
+                        <input type="text" e-enabled="true" e-minvalue="0" e-change="calculationsDashboard" ej-numerictextbox e-decimalplaces="2" e-enablertl="false" e-value="PRODUCTIONPARAMS.Efficiency" e-width="100" />
+
+                    </label>
+
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-7 control-label">SPT</label>
+                    <label class="col-sm-5">
+                        <input type="text" e-enabled="true" e-minvalue="0" e-change="calculationsDashboard" ej-numerictextbox e-decimalplaces="2" e-enablertl="false" e-value="PRODUCTIONPARAMS.SPT" e-width="100" />
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-7 control-label">Plan Working Hours/Per Day</label>
+                    <label class="col-sm-5">
+                        <input type="text" e-enabled="true" e-minvalue="0" e-change="calculationsDashboard" ej-numerictextbox e-decimalplaces="2" e-enablertl="false" e-value="PRODUCTIONPARAMS.PlanWorkingHoursPerDay" e-width="100" />
+
+                    </label>
+
+
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-7 control-label">First Day Output/Hour</label>
+                    <label class="col-sm-5">
+                        <input type="text" e-enabled="true" e-minvalue="0" e-change="calculationsDashboard" ej-numerictextbox e-decimalplaces="0" e-enablertl="false" e-value="PRODUCTIONPARAMS.FirstDayOutPut" e-width="100" />
+                    </label>
+
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Increment Value</label>
+                    <label class="col-sm-2 control-label right">
+                        <input type="text" e-enabled="true" e-minvalue="0" ej-numerictextbox e-decimalplaces="2" e-enablertl="false" e-value="PRODUCTIONPARAMS.IncrementValue" e-width="80" />
+                    </label>
+                    <div class="col-sm-6">
+                        <label class="col-sm-12">
+                            <label class="col-sm-2">
+                            </label>
+                            <label class="col-sm-10">
+                                <input type="radio" name="IncrementType" ng-change="calculationsDashboard()" ng-model="PRODUCTIONPARAMS.IncrementType" value="FIXED">
+                                <span>FIXED</span><br />
+                                <input type="radio" name="IncrementType" ng-change="calculationsDashboard()" ng-model="PRODUCTIONPARAMS.IncrementType" value="PERCENTAGE">
+                                <span>PERCENTAGE</span>
+                            </label>
+                        </label>
+
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-7 control-label">Day To Reach The Target</label>
+                    <label class="col-sm-5">
+                        <input type="text" e-enabled="false" e-minvalue="0" e-change="calculationsDashboard" ej-numerictextbox e-decimalplaces="2" e-enablertl="false" e-value="PRODUCTIONPARAMS.DayToReachTheTarget" e-width="100" />
+                    </label>
+
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-7 control-label">LSD</label>
+                    <label class="col-sm-5">
+                        <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="PRODUCTIONPARAMS.LSD" e-width="100%" />
+
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-7 control-label">Commitment Date</label>
+                    <label class="col-sm-5">
+                        <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="PRODUCTIONPARAMS.CommitmentDate" e-width="100%" />
+                    </label>
+
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-7 control-label">First Production Date</label>
+                    <label class="col-sm-5 control-label">{{PRODUCTIONPARAMS.FirstInputDate}}</label>
+                </div>
+
+            </div>
+
+            <div class="col-xs-6 col-sm-6 col-md-6">
+
+                <div class="form-group">
+                    <label class="col-sm-7 control-label">Priority</label>
+                    <label class="col-sm-5">
+                        <input type="text" e-enabled="true" e-minvalue="0" e-change="calculationsDashboard" ej-numerictextbox e-decimalplaces="2" e-enablertl="false" e-value="PRODUCTIONPARAMS.ProductionPriority" e-width="100" />
+                    </label>
+
+                </div>
+                <div class="form-group">
+                    <a id="test" ej-tooltip e-content="targetperhourtooltip" e-width="width">
+                        <label class="col-sm-7 control-label">Target/Hour</label>
+                    </a>
+                    <label class="col-sm-5">
+                        <input type="text" e-enabled="false" e-minvalue="0" e-change="calculationsDashboard" ej-numerictextbox e-decimalplaces="2" e-enablertl="false" e-value="PRODUCTIONPARAMS.TargetPerHour" e-width="100" />
+                    </label>
+                </div>
+                <div class="form-group">
+                    <a id="test" ej-tooltip e-content="targetperdaytooltip" e-width="width">
+                        <label class="col-sm-7 control-label">Target/Day</label>
+                    </a>
+                    <label class="col-sm-5">
+                        <input type="text" e-enabled="false" e-minvalue="0" e-change="calculationsDashboard" ej-numerictextbox e-decimalplaces="2" e-enablertl="false" e-value="PRODUCTIONPARAMS.TargetPerDay" e-width="100" />
+                    </label>
+
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-7 control-label">{{PRODUCTIONPARAMS.Efficiency}}% Efficiency/Day</label>
+                    <label class="col-sm-5">
+                        <input type="text" e-enabled="false" e-minvalue="0" ej-numerictextbox e-decimalplaces="2" e-enablertl="false" e-value="PRODUCTIONPARAMS.TargetPerDay/100*PRODUCTIONPARAMS.Efficiency" e-width="100" />
+                    </label>
+
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-7 control-label">Min. Line Days</label>
+                    <label class="col-sm-5">
+                        <input type="text" e-enabled="false" e-minvalue="0" ej-numerictextbox e-decimalplaces="2" e-enablertl="false" e-value="PRODUCTIONPARAMS.MinimumLineDays" e-width="100" />
+                    </label>
+
+                </div>
+                <div class="form-group">
+                    <a id="test" ej-tooltip e-content="linedaystooltip" e-width="width">
+                        <label class="col-sm-7 control-label">Required Line Days</label>
+                    </a>
+                    <label class="col-sm-5">
+                        <input type="text" e-enabled="false" e-minvalue="0" ej-numerictextbox e-decimalplaces="2" e-enablertl="false" e-value="PRODUCTIONPARAMS.RequiredLineDays" e-width="100" />
+
+                    </label>
+
+                </div>
+                <div class="form-group">
+                    <a id="test" ej-tooltip e-content="requiredNoOfLines" e-width="width">
+                        <label class="col-sm-7 control-label">Required No. Line</label>
+                    </a>
+                    <label class="col-sm-5">
+                        <input type="text" e-enabled="false" e-minvalue="2" ej-numerictextbox e-decimalplaces="0" e-enablertl="false" e-value="PRODUCTIONPARAMS.RequiredNoOfLines" e-width="100" />
+                    </label>
+
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-7 control-label">Allocated Line</label>
+                    <label class="col-sm-5">
+                        <input type="text" e-enabled="false" e-minvalue="3" ej-numerictextbox e-decimalplaces="0" e-enablertl="false" e-value="PRODUCTIONPARAMS.AllocatedLines" e-width="100" />
+                    </label>
+
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-7 control-label">Production Display Color</label>
+                    <div class="col-sm-5 text-left">
+                        <input id="picker" ej-colorpicker e-value="PRODUCTIONPARAMS.Color" e-modeltype="palette" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>*@
+</div>

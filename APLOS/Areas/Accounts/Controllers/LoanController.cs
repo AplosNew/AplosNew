@@ -1,0 +1,1058 @@
+﻿using Aplos.Controllers;
+using Aplos.Properties;
+using Library.Accounting.Accounts;
+using Library.Core;
+using Library.Crosscutting.Security;
+using Library.Data;
+using Library.Data.Sql;
+using Library.Model.Enums;
+using Library.Model.Parties;
+using Library.Service.Currencies;
+using Library.Service.Enums;
+using Library.Service.Finances;
+using Library.Service.Helpers;
+using Library.Service.Logs;
+using Library.ViewModel.Accounts;
+using Library.ViewModel.Vouchers;
+using OTSBD;
+using Syncfusion.XlsIO;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Drawing;
+using System.IO;
+using System.Reflection;
+using System.Threading;
+using System.Web.Mvc;
+
+namespace Aplos.Areas.Accounts.Controllers
+{
+    public class LoanController : BaseController
+    {
+        private readonly ILoanService _loanService;
+        private readonly ILoanReportService _loanReportService;
+        private readonly IFinancingService _financingService;
+        private readonly ISqlRepository _sqlRepository;
+        public LoanController(
+            ILoanService loanService
+            , ILoanReportService loanReportService
+            , IFinancingService financingService
+            , ISqlRepository sqlRepository
+            )
+        {
+            _loanService = loanService;
+            _loanReportService = loanReportService;
+            _financingService = financingService;
+            _sqlRepository = sqlRepository;
+        }
+
+        #region Loan
+        
+        public ActionResult Loan()
+        {
+            return View("~/Areas/Accounts/Views/Loan/Loan.cshtml");
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetLoanList(GridParameter parameters)
+        {
+            AccountsLoanService _accountsLoanService = new AccountsLoanService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsLoanService.LoanQuery(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.Loan), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetLoan(string id)
+        {
+            AccountsLoanService _accountsLoanService = new AccountsLoanService(_sqlRepository);
+            return Json(_accountsLoanService.GetLoanById(id), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult InsertLoan(VoucherViewModel voucherVM, IEnumerable<VoucherViewModel> existingLoanList, IEnumerable<FinancingScheduleViewModel> loanRepaymentSchedulelist)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            voucherVM.IsPark = true;
+            voucherVM.SourceType = SourceType.Loan.ToString();
+            if (voucherVM.CurrencyId == null)
+                throw new CustomException("Please Select Currency !");
+            if (voucherVM.Amount < 0 || voucherVM.Amount == 0)
+                throw new CustomException("Please Input Amount !");
+            if (voucherVM.CompanyCurrencyRate < 0 || voucherVM.CompanyCurrencyRate == 0)
+                throw new CustomException("Rate can not Empty!");
+            //if (voucherVM.IsLoanSetOff == true && voucherVM.LoanSetOffAmount==0|| voucherVM.LoanSetOffAmount < 0)
+            //    throw new CustomException("Please Input Loan SetOff Amount!");
+            if (voucherVM.IsLoanSetOff == true && voucherVM.LoanSetOffAmount > voucherVM.Balance)
+                throw new CustomException("Loan SetOff Amount can't more than Existing Loan Balance Amount!");
+            if (voucherVM.TransactionType == null)
+                throw new CustomException("Please Select Loan Type !");
+            if (voucherVM.PartyType == PartyType.Bank.ToString() && voucherVM.OtherBankMasterId == null)
+                throw new CustomException("Please Select Bank !");
+            if (voucherVM.PartyType == PartyType.Customer.ToString() && voucherVM.PartyId == null)
+                throw new CustomException("Please Select Customer!");
+            if (voucherVM.PartyType == PartyType.Vendor.ToString() && voucherVM.PartyId == null)
+                throw new CustomException("Please Select Vendor!");
+            if (voucherVM.PartyType == PartyType.Director.ToString() && voucherVM.PartyId == null)
+                throw new CustomException("Please Select Director!");
+            if (voucherVM.IsSchedule)
+            {
+                if (voucherVM.RepaymentStartDate == null)
+                    throw new CustomException("Please Input  Repayment Date!");
+                if (voucherVM.ProfitRate == 0)
+                    throw new CustomException("Please Input  Profit Rate!");
+                if (voucherVM.LifeOfYear == 0)
+                    throw new CustomException("Please Input  Life Of Year!");
+                if (voucherVM.NoOfInstallmentPerYear == 0)
+                    throw new CustomException("Please Input  No Of Installment!");
+            }
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _loanService.InsertLoan(voucherVM, existingLoanList, loanRepaymentSchedulelist)) });
+        }
+
+        [HttpPost]
+        public JsonResult UpdateLoan(VoucherViewModel voucherVM, IEnumerable<VoucherViewModel> existingLoanList, IEnumerable<FinancingScheduleViewModel> loanRepaymentSchedulelist)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            voucherVM.SourceType = SourceType.Loan.ToString();
+            if (voucherVM.CurrencyId == null)
+                throw new CustomException("Please Select Currency !");
+            if (voucherVM.Amount < 0 || voucherVM.Amount == 0)
+                throw new CustomException("Please Select Currency !");
+            if (voucherVM.CompanyCurrencyRate > 0 || voucherVM.CompanyCurrencyRate == 0)
+                throw new CustomException("Rate can not Empty!");
+            if (voucherVM.TransactionType == null)
+                throw new CustomException("Please Select Loan Type !");
+            if (voucherVM.PartyType == PartyType.Customer.ToString() && voucherVM.PartyId == null)
+                throw new CustomException("Please Select Customer!");
+            if (voucherVM.PartyType == PartyType.Vendor.ToString() && voucherVM.PartyId == null)
+                throw new CustomException("Please Select Vendor!");
+            if (voucherVM.PartyType == PartyType.Director.ToString() && voucherVM.PartyId == null)
+                throw new CustomException("Please Select Director!");
+            if (voucherVM.IsSchedule)
+            {
+                if (voucherVM.RepaymentStartDate == null)
+                    throw new CustomException("Please Input  Repayment Date!");
+                if (voucherVM.ProfitRate == 0)
+                    throw new CustomException("Please Input  Profit Rate!");
+                if (voucherVM.LifeOfYear == 0)
+                    throw new CustomException("Please Input  Life Of Year!");
+                if (voucherVM.NoOfInstallmentPerYear == 0)
+                    throw new CustomException("Please Input  No Of Installment!");
+            }
+            _loanService.InsertLoan(voucherVM, existingLoanList, loanRepaymentSchedulelist);
+            return Json(new { Message = AplosMessage.Updated });
+        }
+
+        [HttpPost]
+        public JsonResult PostLoan(string financingId)
+        {
+            _financingService.Post(financingId);
+            return Json(new { Message = AplosMessage.Posted });
+        }
+
+        [HttpPost]
+        public JsonResult DeleteLoan(string financingId, string voucherId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            _financingService.DeleteLoan(identity.CompanyId, identity.PlantId, voucherId);
+            return Json(new { Message = AplosMessage.Posted });
+        }
+
+
+        [HttpGet, Authorize]
+        public ActionResult LoanReport(ReportFormat reportFormat, string voucherId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = _loanReportService.GetLoanReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantName, identity.PlantId, voucherId, SourceType.Loan.ToString());
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+        }
+        #endregion
+
+
+        #region Loan Payment
+       
+        public ActionResult LoanPayment()
+        {
+            return View("~/Areas/Accounts/Views/Loan/LoanPayment.cshtml");
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetLoanPopUpList(string transactionType)
+        {
+            AccountsLoanService _accountsLoanService = new AccountsLoanService(_sqlRepository);
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsLoanService.GetLoanList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, transactionType), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetLoanPaymentList(GridParameter parameters)
+        {
+            AccountsLoanService _accountsLoanService = new AccountsLoanService(_sqlRepository);
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsLoanService.GetLoanWriteOffList(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.LoanPayment), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult InsertLoanPayment(VoucherViewModel voucherVM, IEnumerable<FinancingScheduleViewModel> loanRepaymentSchedulelist)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            voucherVM.IsPark = true;
+            voucherVM.SourceType = SourceType.LoanPayment.ToString();
+            if (voucherVM.CurrencyId == null)
+                throw new CustomException("Please Select Currency !");
+            if (voucherVM.Amount < 0 || voucherVM.Amount == 0)
+                throw new CustomException("Please Input Total Amount !");
+            if (voucherVM.Amount > voucherVM.Balance)
+                throw new CustomException("Payment Amount can't more than Loan Balance Amount");
+
+            if (voucherVM.CompanyCurrencyRate < 0 || voucherVM.CompanyCurrencyRate == 0)
+                throw new CustomException("Rate can not Empty!");
+            if (voucherVM.TransactionType == null)
+                throw new CustomException("Please Select Loan Type !");
+            if (voucherVM.PartyType == PartyType.Bank.ToString() && voucherVM.OtherBankMasterId == null)
+                throw new CustomException("Please Select Other Bank !");
+            if (voucherVM.PartyType == PartyType.Customer.ToString() && voucherVM.PartyId == null)
+                throw new CustomException("Please Select Customer!");
+            if (voucherVM.PartyType == PartyType.Vendor.ToString() && voucherVM.PartyId == null)
+                throw new CustomException("Please Select Vendor!");
+            if (voucherVM.PartyType == PartyType.Director.ToString() && voucherVM.PartyId == null)
+                throw new CustomException("Please Select Director!");
+            if (voucherVM.IsSchedule)
+            {
+                if (voucherVM.RepaymentStartDate == null)
+                    throw new CustomException("Please Input  Repayment Date!");
+                if (voucherVM.ProfitRate == 0)
+                    throw new CustomException("Please Input  Profit Rate!");
+                if (voucherVM.LifeOfYear == 0)
+                    throw new CustomException("Please Input  Life Of Year!");
+                if (voucherVM.NoOfInstallmentPerYear == 0)
+                    throw new CustomException("Please Input  No Of Installment!");
+            }
+
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _loanService.InsertLoanWriteOff(voucherVM, loanRepaymentSchedulelist)) });
+        }
+
+        [HttpPost]
+        public JsonResult UpdateLoanPayment(VoucherViewModel voucherVM, IEnumerable<VoucherViewModel> existingLoanList, IEnumerable<FinancingScheduleViewModel> loanRepaymentSchedulelist)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            voucherVM.SourceType = SourceType.Loan.ToString();
+            if (voucherVM.CurrencyId == null)
+                throw new CustomException("Please Select Currency !");
+            if (voucherVM.Amount < 0 || voucherVM.Amount == 0)
+                throw new CustomException("Please Select Currency !");
+            if (voucherVM.CompanyCurrencyRate > 0 || voucherVM.CompanyCurrencyRate == 0)
+                throw new CustomException("Rate can not Empty!");
+            if (voucherVM.TransactionType == null)
+                throw new CustomException("Please Select Loan Type !");
+            if (voucherVM.PartyType == PartyType.Customer.ToString() && voucherVM.PartyId == null)
+                throw new CustomException("Please Select Customer!");
+            if (voucherVM.PartyType == PartyType.Vendor.ToString() && voucherVM.PartyId == null)
+                throw new CustomException("Please Select Vendor!");
+            if (voucherVM.PartyType == PartyType.Director.ToString() && voucherVM.PartyId == null)
+                throw new CustomException("Please Select Director!");
+            if (voucherVM.IsSchedule)
+            {
+                if (voucherVM.RepaymentStartDate == null)
+                    throw new CustomException("Please Input  Repayment Date!");
+                if (voucherVM.ProfitRate == 0)
+                    throw new CustomException("Please Input  Profit Rate!");
+                if (voucherVM.LifeOfYear == 0)
+                    throw new CustomException("Please Input  Life Of Year!");
+                if (voucherVM.NoOfInstallmentPerYear == 0)
+                    throw new CustomException("Please Input  No Of Installment!");
+            }
+            _loanService.InsertLoan(voucherVM, existingLoanList, loanRepaymentSchedulelist);
+            return Json(new { Message = AplosMessage.Updated });
+        }
+
+        [HttpPost]
+        public JsonResult PostLoanPayment(string voucherId)
+        {
+            _financingService.PostFinancingWriteOff(voucherId);
+            return Json(new { Message = AplosMessage.Posted });
+        }
+
+        [HttpPost]
+        public JsonResult DeleteLoanPayment(string financingId, string voucherId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            _financingService.DeleteLoanPayment(identity.CompanyId, identity.PlantId, voucherId);
+            return Json(new { Message = AplosMessage.Updated });
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult LoanPaymentReport(ReportFormat reportFormat, string voucherId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = _loanReportService.GetLoanWriteOffReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId,identity.PlantName, voucherId, SourceType.LoanPayment.ToString());
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+        }
+        #endregion
+
+        #region Loan Interest Payable
+
+       
+        public ActionResult LoanInterestPayable()
+        {
+            return View("~/Areas/Accounts/Views/Loan/LoanInterestPayable.cshtml");
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetLoanInterestPayableList(GridParameter parameters)
+        {
+            AccountsLoanService _accountsLoanService = new AccountsLoanService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsLoanService.GetLoanInterestPayableList(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.LoanInterestPayable), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult InsertLoanInterestPayable(VoucherViewModel voucherVM, IEnumerable<FinancingScheduleViewModel> loanRepaymentSchedulelist)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            voucherVM.IsPark = true;
+            if (voucherVM.CurrencyId == null)
+                throw new CustomException("Please Select Currency !");
+            if (voucherVM.Amount < 0 || voucherVM.Amount == 0)
+                throw new CustomException("Please Input Amount !");
+            if (voucherVM.CompanyCurrencyRate < 0 || voucherVM.CompanyCurrencyRate == 0)
+                throw new CustomException("Rate can not Empty!");
+            if (voucherVM.TransactionType == null)
+                throw new CustomException("Please Select Loan Type !");
+            if (voucherVM.PartyType == PartyType.Customer.ToString() && voucherVM.PartyId == null)
+                throw new CustomException("Please Select Customer!");
+            if (voucherVM.PartyType == PartyType.Vendor.ToString() && voucherVM.PartyId == null)
+                throw new CustomException("Please Select Vendor!");
+            if (voucherVM.PartyType == PartyType.Director.ToString() && voucherVM.PartyId == null)
+                throw new CustomException("Please Select Director!");
+            if (voucherVM.IsSchedule)
+            {
+                if (voucherVM.RepaymentStartDate == null)
+                    throw new CustomException("Please Input  Repayment Date!");
+                if (voucherVM.ProfitRate == 0)
+                    throw new CustomException("Please Input  Profit Rate!");
+                if (voucherVM.LifeOfYear == 0)
+                    throw new CustomException("Please Input  Life Of Year!");
+                if (voucherVM.NoOfInstallmentPerYear == 0)
+                    throw new CustomException("Please Input  No Of Installment!");
+            }
+
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _loanService.InsertLoanInterestPayable(voucherVM, loanRepaymentSchedulelist)) });
+        }
+
+        [HttpPost]
+        public JsonResult PostLoanInterestPayable(string voucherId)
+        {
+            _financingService.PostLoanInterestPayable(voucherId);
+            return Json(new { Message = AplosMessage.Posted });
+        }
+
+        [HttpPost]
+        public JsonResult DeleteLoanInterestPayable(string loanIntPayableId, string voucherId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            _financingService.DeleteLoanInterestPayable(identity.CompanyId, identity.PlantId, loanIntPayableId, voucherId);
+            return Json(new { Message = AplosMessage.Updated });
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult LoanIntersetPayableReport(ReportFormat reportFormat, string voucherId, string sourceType)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = _loanReportService.GetLoanInterestPayableReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId,identity.PlantName, voucherId, sourceType);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+        }
+
+        #endregion
+        #region Loan Interest Payable Reverse
+
+       
+       
+        public ActionResult LoanInterestPayableReverse()
+        {
+            return View("~/Areas/Accounts/Views/Loan/LoanInterestPayableReverse.cshtml");
+
+        }
+
+        [HttpGet]
+        public ActionResult GetLoanInterestPayableReverseList(GridParameter parameters/*string column, string value*/)
+        {
+            AccountsLoanService _accountsLoanService = new AccountsLoanService(_sqlRepository);
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsLoanService.GetLoanInterestPayableReserveList(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.LoanInterestPayableReverse), JsonRequestBehavior.AllowGet);
+            //string strkey = "1=1";
+            //if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+            //    strkey = column + " like '%" + value + "%'";
+
+            //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            //string sql = @"select top 100 * from (SELECT * FROM " + LoanInterestPayableTableName + ") AS TEMP WHERE " + strkey + " order by sequence";
+
+            //return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+     
+        [HttpPost]
+        public JsonResult CreateLoanInterestPayableReverse(VoucherViewModel voucherVM, IEnumerable<FinancingScheduleViewModel> loanRepaymentSchedulelist)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            voucherVM.IsPark = true;
+            voucherVM.SourceType = SourceType.LoanInterestPayableReverse.ToString();
+            if (voucherVM.CurrencyId == null)
+                throw new CustomException("Please Select Currency !");
+            if (voucherVM.Amount < 0 || voucherVM.Amount == 0)
+                throw new CustomException("Please Input Amount !");
+            if (voucherVM.CompanyCurrencyRate < 0 || voucherVM.CompanyCurrencyRate == 0)
+                throw new CustomException("Rate can not Empty!");
+            if (voucherVM.TransactionType == null)
+                throw new CustomException("Please Select Loan Type !");
+            if (voucherVM.PartyType == PartyType.Customer.ToString() && voucherVM.PartyId == null)
+                throw new CustomException("Please Select Customer!");
+            if (voucherVM.PartyType == PartyType.Vendor.ToString() && voucherVM.PartyId == null)
+                throw new CustomException("Please Select Vendor!");
+            if (voucherVM.PartyType == PartyType.Director.ToString() && voucherVM.PartyId == null)
+                throw new CustomException("Please Select Director!");
+            if (voucherVM.SettlementType == LoanTransactionType.ChargesPayableReverse.ToString() && voucherVM.GLGeneralInfoId == null)
+                throw new CustomException("Please Select Expenses GL!");
+            if (voucherVM.IsSchedule)
+            {
+                if (voucherVM.RepaymentStartDate == null)
+                    throw new CustomException("Please Input  Repayment Date!");
+                if (voucherVM.ProfitRate == 0)
+                    throw new CustomException("Please Input  Profit Rate!");
+                if (voucherVM.LifeOfYear == 0)
+                    throw new CustomException("Please Input  Life Of Year!");
+                if (voucherVM.NoOfInstallmentPerYear == 0)
+                    throw new CustomException("Please Input  No Of Installment!");
+            }
+
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _loanService.InsertLoanInterestPayableReverse(voucherVM, loanRepaymentSchedulelist)) });
+        }
+        [HttpPost]
+        public ActionResult DeleteLoanInterestPayableReverse(string loanIntPayableId,string voucherId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            _financingService.DeleteLoanInterestPayableReverse(identity.CompanyId, identity.PlantId, loanIntPayableId, voucherId);
+            return Json(new { Message = AplosMessage.Updated });
+
+        }
+        [HttpPost]
+        public JsonResult PostLoanInterestPayableReverse(string voucherId)
+        {
+            _financingService.PostLoanInterestPayable(voucherId);
+            return Json(new { Message = AplosMessage.Posted });
+        }
+
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr.EndEdit();
+        }
+        [HttpGet, Authorize]
+        public ActionResult LoanIntersetPayableReverseReport(ReportFormat reportFormat, string voucherId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = _loanReportService.GetLoanInterestPayableReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId,identity.PlantName, voucherId, SourceType.LoanInterestPayableReverse.ToString());
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+        }
+        #endregion
+
+        #region Loan Close
+        public ActionResult LoanClose()
+        {
+            return View("~/Areas/Accounts/Views/Loan/LoanClose.cshtml");
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetLoanZeroBalanceList(string transactionType)
+        {
+            AccountsLoanService _accountsLoanService = new AccountsLoanService(_sqlRepository);
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsLoanService.GetLoanZeroBalanceList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, transactionType), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult InsertLoanClose(IEnumerable<VoucherViewModel> existingLoanList)
+        {
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _loanService.InsertLoanClose(existingLoanList)) });
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetLoanClosedList(GridParameter parameters)
+        {
+            AccountsLoanService _accountsLoanService = new AccountsLoanService(_sqlRepository);
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsLoanService.GetLoanClosedList(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+        #endregion
+        #region Loan Ledger
+
+        public ActionResult LoanLedgerReport()
+        {
+            return View("~/Areas/Accounts/Views/LoanLedgerReport.cshtml");
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetLoanRegisterList(string transactionType)
+        {
+            AccountsLoanService _accountsLoanService = new AccountsLoanService(_sqlRepository);
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsLoanService.GetLoanRegisterDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, transactionType), JsonRequestBehavior.AllowGet);
+        }
+
+    
+        //Specify loan ledger report
+        [HttpGet, Authorize]
+        public ActionResult GetLoanLedgerReport(ReportFormat reportFormat, TransactionType transactionType, string voucherId, string financingId)
+        {
+            if(financingId==null)
+                throw new CustomException("Please Select Loan !");
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+           
+                var workbook = _loanReportService.GetLoanLedgerReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId,identity.PlantName, transactionType, voucherId, financingId);
+                var reportFileName = DateTime.Now.ToString("yyMMdd") + " Loan Register";
+                switch (reportFormat)
+                {
+                    case ReportFormat.Pdf:
+                        return RenderReportAsPdf(workbook, reportFileName);
+
+                    case ReportFormat.Excel:
+                        return RenderReportAsExcel(workbook, reportFileName);
+
+                    default:
+                        return RenderReportAsExcel(workbook, reportFileName);
+                }
+        }
+
+
+        //All register report
+        [Authorize]
+        public ActionResult GetAllRegisterReportExcel(TransactionType transactionType)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+              
+                ExcelEngine excelEngine = new ExcelEngine();
+
+                IWorkbook workbook = AllLoanRegisterList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, transactionType);
+
+                string strFileName = "All Loan Register Report.xlsx";
+                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                workbook.Close();
+            }
+            catch (CustomException ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+
+            }
+            return null;
+        }
+
+
+        private IWorkbook AllLoanRegisterList(string companyGroupId, string companyId, string plantId, TransactionType transactionType)
+        {
+
+            //Start EmployeeAdvanceDueList
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            ExcelEngine excelEngine = new ExcelEngine();
+            //Instantiate the Excel application object
+            IApplication application = excelEngine.Excel;
+
+            //Set the default application version
+            application.DefaultVersion = ExcelVersion.Excel2013;
+
+            //Load the existing Excel workbook into IWorkbook
+            IWorkbook workbook = application.Workbooks.Create(1);
+
+            //Get the first worksheet in the workbook into IWorksheet
+            IWorksheet worksheet = workbook.Worksheets[0];
+            AccountsLoanService _accountsLoanService = new AccountsLoanService(_sqlRepository);
+
+            DataTable dtAllLoanRegisterList = _accountsLoanService.GetAllLoanRegisterReportData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId,transactionType);
+
+
+
+            if (dtAllLoanRegisterList.Rows.Count == 0)
+                throw new Exception("No data found");
+            // throw new Exception("To date must be above or equal to From Date.");
+
+
+
+            worksheet.Name = "AllRegisterReport";
+
+            int COL = 1; int ROW = 5;
+            int startCol = COL;
+
+            // worksheet[ROW, COL].Text = "Employee Advance Due List Details:";
+            // worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //  ROW++;
+
+            worksheet[ROW, COL].Text = "FinancingNo";
+            int colFinancingNo  = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+           // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            //worksheet[ROW, COL].Text = "Transaction Type";
+            //int colTransactionType  = COL;
+            //worksheet[ROW, COL].ColumnWidth = 12;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //COL++;
+
+
+            
+            
+
+            worksheet[ROW, COL].Text = "LoanType";
+            int colLoanType  = COL;
+            worksheet[ROW, COL].ColumnWidth = 14;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+
+            
+           
+
+            worksheet[ROW, COL].Text = "Posting Date";
+            int colPostingDate  = COL;
+            worksheet[ROW, COL].ColumnWidth = 13;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+
+
+
+            worksheet[ROW, COL].Text = "VoucherNo";
+            int colVoucherNo  = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Voucher Date";
+            int colVoucherDate  = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "DocRefNo";
+            int colDocRefNo  = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+          //  worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            
+
+            worksheet[ROW, COL].Text = "DocDate";
+            int colDocDate  = COL;
+            worksheet[ROW, COL].ColumnWidth = 13;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Narration";
+            int colNarration = COL;
+            worksheet[ROW, COL].ColumnWidth = 40;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+           // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Currency";
+            int colCurrencyCode = COL;
+            worksheet[ROW, COL].ColumnWidth = 8;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+        
+            COL++;
+
+
+            worksheet[ROW, COL].Text = "Loan To";
+            int colParticulars  = COL;
+            worksheet[ROW, COL].ColumnWidth = 25;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+           // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+            worksheet[ROW, COL].Text = "Party Type";
+            int colPartyType = COL;
+            worksheet[ROW, COL].ColumnWidth = 16;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+
+            worksheet[ROW, COL].Text = "Loan From";
+            int colLoanFrom = COL;
+            worksheet[ROW, COL].ColumnWidth = 20;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Payment Source";
+            int colPaymentSource = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "BankAccount Type ";
+            int colBankAccountType = COL;
+            worksheet[ROW, COL].ColumnWidth = 16;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Bank";
+            int colBank = COL;
+            worksheet[ROW, COL].ColumnWidth = 16;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Bank Branch";
+            int colBankBranch = COL;
+            worksheet[ROW, COL].ColumnWidth = 16;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            
+
+            worksheet[ROW, COL].Text = "Is Opening";
+            int colIsOpening = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "GL";
+            int colGLBUDGETACTIVITY = COL;
+            worksheet[ROW, COL].ColumnWidth = 35;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            //reportUtility.SetHeaderText(ref sheet, row - 1, col, "Principle", 12, ExcelHAlign.HAlignRight); int colPrinciple = col;
+
+            worksheet[ROW -1, COL].Text = "Principle";
+            int colPrinciple  = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW-1, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
+            worksheet[ROW, COL].Text = "Amount";
+            int colScantionAmount  = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Written-Off";
+            int colWrittenOffAmount  = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Balance";
+            int colBalancePrinciple  = COL;
+            worksheet[ROW, COL].ColumnWidth = 13;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet.Range[ROW - 1, colPrinciple, ROW - 1, colBalancePrinciple].Merge();
+            worksheet.Range[ROW - 1, colPrinciple, ROW - 1, colBalancePrinciple].BorderAround(ExcelLineStyle.Thin);
+            worksheet.Range[ROW - 1, colPrinciple, ROW - 1, colBalancePrinciple].BorderInside(ExcelLineStyle.Thin);
+            worksheet.Range[ROW - 1, colPrinciple, ROW - 1, colBalancePrinciple].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
+
+            worksheet[ROW - 1, COL].Text = "Interest";
+            int colInterest  = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW - 1, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
+            worksheet[ROW, COL].Text = "Amount";
+            int colInterestAmount  = COL;
+            worksheet[ROW, COL].ColumnWidth = 14;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Written-Off";
+            int colWrittenOffInterestAmount = COL;
+            worksheet[ROW, COL].ColumnWidth = 18;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Balance";
+            int colInterestBalanceAmount  = COL;
+            worksheet[ROW, COL].ColumnWidth = 18;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+
+            worksheet.Range[ROW - 1, colInterest, ROW - 1, colInterestBalanceAmount].Merge();
+            worksheet.Range[ROW - 1, colInterest, ROW - 1, colInterestBalanceAmount].BorderAround(ExcelLineStyle.Thin);
+            worksheet.Range[ROW - 1, colInterest, ROW - 1, colInterestBalanceAmount].BorderInside(ExcelLineStyle.Thin);
+            worksheet.Range[ROW - 1, colInterest, ROW - 1, colInterestBalanceAmount].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
+
+            worksheet[ROW, COL].Text = "Remaning Balance";
+            int colRemaningBalance  = COL;
+            worksheet[ROW, COL].ColumnWidth = 17;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+          //  COL++;
+
+            int endCol = COL;
+            worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+            worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+            worksheet.Range[ROW, startCol, ROW, COL].CellStyle.ColorIndex = ExcelKnownColors.Grey_40_percent;
+            ROW++;
+
+            for (int i = 0; i < dtAllLoanRegisterList.Rows.Count; i++)
+            {
+                var glName = dtAllLoanRegisterList.Rows[i]["Budget"].ToString();
+
+
+                //reportUtility.SetText(ref sheet, row, colGl, dsLocal.Rows[i]["GLGeneralInfoCode"] + " - " + glName + " - " + dtAllLoanRegisterList.Rows[i]["Activity"]);
+                worksheet[ROW, colGLBUDGETACTIVITY].Text = dtAllLoanRegisterList.Rows[i]["GLGeneralInfoCode"] + " - " + glName + " - " + dtAllLoanRegisterList.Rows[i]["Activity"];
+
+                //worksheet[reportUtility.GetColumnNameForXls(colGl) + row + ":" + reportUtility.GetColumnNameForXls(2) + row].Merge();
+
+
+                // int i = 0; i < dtMasterOrderItem.Rows.Count; i++
+                worksheet[ROW, colFinancingNo].Text = dtAllLoanRegisterList.Rows[i]["FinancingNo"].ToString();
+               // worksheet[ROW, colTransactionType].Text = dtAllLoanRegisterList.Rows[i]["TransactionType"].ToString();
+              
+                worksheet[ROW, colLoanType].Text = dtAllLoanRegisterList.Rows[i]["LoanType"].ToString();
+                worksheet[ROW, colBankAccountType].Text = dtAllLoanRegisterList.Rows[i]["FromBankAccountType"].ToString();
+                worksheet[ROW, colLoanFrom].Text = dtAllLoanRegisterList.Rows[i]["LoanFrom"].ToString();
+                worksheet[ROW, colPaymentSource].Text = dtAllLoanRegisterList.Rows[i]["PaymentSource"].ToString();
+                worksheet[ROW, colIsOpening].Text = dtAllLoanRegisterList.Rows[i]["IsOpening"].ToString();
+                worksheet[ROW, colPostingDate].Text = (dtAllLoanRegisterList.Rows[i]["PostingDate"].ToString());
+
+                worksheet[ROW, colVoucherNo].Text = dtAllLoanRegisterList.Rows[i]["VoucherNo"].ToString();
+                worksheet[ROW, colVoucherDate].Text = dtAllLoanRegisterList.Rows[i]["VoucherDate"].ToString();
+                worksheet[ROW, colDocRefNo].Text = dtAllLoanRegisterList.Rows[i]["DocRefNo"].ToString();
+
+                worksheet[ROW, colDocDate].Text = dtAllLoanRegisterList.Rows[i]["DocDate"].ToString();
+                worksheet[ROW, colNarration].Text = dtAllLoanRegisterList.Rows[i]["Narration"].ToString();
+                worksheet[ROW, colCurrencyCode].Text = dtAllLoanRegisterList.Rows[i]["CurrencyCode"].ToString();
+              
+               // worksheet[ROW, colPurchasePrice].NumberFormat = clsStaticInfo.NumberFormat();
+                worksheet[ROW, colParticulars].Text = dtAllLoanRegisterList.Rows[i]["LoanTo"].ToString();
+                worksheet[ROW, colPartyType].Text = dtAllLoanRegisterList.Rows[i]["PartyType"].ToString();
+                worksheet[ROW, colBank].Text = dtAllLoanRegisterList.Rows[i]["FromBankName"].ToString();
+                worksheet[ROW, colBankBranch].Text = dtAllLoanRegisterList.Rows[i]["FromBankBranch"].ToString();
+                worksheet[ROW, colScantionAmount].Number = clsStaticInfo.dbl(dtAllLoanRegisterList.Rows[i]["ScantionAmount"].ToString());
+                worksheet[ROW, colScantionAmount].NumberFormat = clsStaticInfo.NumberFormat();
+                worksheet[ROW, colScantionAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+              
+                worksheet[ROW, colWrittenOffAmount].Number =clsStaticInfo.dbl(dtAllLoanRegisterList.Rows[i]["WrittenOffAmount"].ToString());
+                worksheet[ROW, colWrittenOffAmount].NumberFormat = clsStaticInfo.NumberFormat();
+                worksheet[ROW, colWrittenOffAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colBalancePrinciple].Number = clsStaticInfo.dbl(dtAllLoanRegisterList.Rows[i]["BalancePrinciple"].ToString());
+                worksheet[ROW, colBalancePrinciple].NumberFormat = clsStaticInfo.NumberFormat();
+                worksheet[ROW, colBalancePrinciple].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                worksheet[ROW, colInterestAmount].Number = clsStaticInfo.dbl(dtAllLoanRegisterList.Rows[i]["InterestAmount"].ToString());
+                worksheet[ROW, colInterestAmount].NumberFormat = clsStaticInfo.NumberFormat();
+                worksheet[ROW, colInterestAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                worksheet[ROW, colWrittenOffInterestAmount].Number = clsStaticInfo.dbl(dtAllLoanRegisterList.Rows[i]["WrittenOffInterestAmount"].ToString());
+                worksheet[ROW, colWrittenOffInterestAmount].NumberFormat = clsStaticInfo.NumberFormat();
+                worksheet[ROW, colWrittenOffInterestAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                worksheet[ROW, colInterestBalanceAmount].Number = clsStaticInfo.dbl(dtAllLoanRegisterList.Rows[i]["InterestBalanceAmount"].ToString());
+                worksheet[ROW, colInterestBalanceAmount].NumberFormat = clsStaticInfo.NumberFormat();
+                worksheet[ROW, colInterestBalanceAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colRemaningBalance].Number = clsStaticInfo.dbl(dtAllLoanRegisterList.Rows[i]["RemaningBalance"].ToString());
+                worksheet[ROW, colRemaningBalance].NumberFormat = clsStaticInfo.NumberFormat();
+                worksheet[ROW, colRemaningBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                ROW++;
+
+            }
+
+            worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+            worksheet.UsedRange.CellStyle.Font.Size = 8f;
+
+
+         
+            ReportUtility reportUtility = new ReportUtility();
+
+            reportUtility.PlantHeader(ref worksheet, endCol, "All '"+ transactionType + "' Register", identity.PlantId);
+            reportUtility.PageSetup(ref worksheet, 5, ExcelPageOrientation.Landscape);
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            // worksheet.Range[1, 1, 4, endCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            worksheet.Range[1, 1, 3, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+            worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+            worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+            worksheet.IsGridLinesVisible = false;
+
+            #region Freeze Panes
+
+            worksheet.IsDisplayZeros = false;
+            worksheet.UsedRange["A6"].FreezePanes();
+            worksheet.FirstVisibleColumn = 1;
+            worksheet.FirstVisibleRow = 6;
+
+            #endregion Freeze Panes
+
+            return workbook;
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetLoanRegisterLedgerReport(ReportFormat reportFormat, TransactionType transactionType, string voucherId, string financingId)
+        {
+            if (financingId == null)
+                throw new CustomException("Please Select Interest !");
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            var workbook = _loanReportService.GetLoanRegisterLedgerReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, transactionType, voucherId, financingId);
+            var reportFileName = DateTime.Now.ToString("yyMMdd") + " Loan Register";
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+        }
+
+        #endregion
+        #region AutoLoan
+        [HttpGet, Authorize]
+        public ActionResult AutoLoanReport(ReportFormat reportFormat, string voucherId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = _loanReportService.GetLoanReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantName, identity.PlantId, voucherId, SourceType.AutoLoan.ToString());
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+        }
+        #endregion
+    }
+}

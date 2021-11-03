@@ -1,0 +1,323 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Budget Code Change
+</h3>
+<style>
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 40px;
+        height: 24px;
+    }
+
+        .switch input {
+            display: none;
+        }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 5px;
+            bottom: 4px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+    input:checked + .slider {
+        background-color: #20384c;
+    }
+
+    input:focus + .slider {
+        box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked + .slider:before {
+        -webkit-transform: translateX(16px);
+        -ms-transform: translateX(16px);
+        transform: translateX(16px);
+    }
+
+    /* Rounded sliders */
+    .slider.round {
+        border-radius: 14px;
+    }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+</style>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Employee Code</th>
+                <th>Employee Name</th>
+                <th>DOJ</th>
+                <th>DOB</th>
+                <th>Budget Code</th>
+                <th>Department</th>
+                <th>Designation</th>
+                <th>Given Designation</th>
+                <th>Phone Number</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in employees |itemsPerPage:$root.pageSize" total-items="$root.total_count">
+                <td>{{x.EmployeeCode}}</td>
+                <td>{{x.EmployeeName}}</td>
+                <td>{{x.DOJ | dateFiltering}}</td>
+                <td>{{x.DOB | dateFiltering}}</td>
+                <td>{{x.Code}}</td>
+                <td>{{x.Department}}</td>
+                <td>{{x.Designation}}</td>
+                <td>{{x.GivenDesignation}}</td>
+                <td>{{x.CellPhnNo}}</td>
+                <td class="text-right table-td">
+                    <ul class="list-inline action-list">
+                        <li>
+                            <button ng-click="Get(x, $index);" class="btn btn-action tooltip-here" data-placement="top" title="Edit" tooltip>
+                                <i class="glyphicon glyphicon-pencil"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
+</div>
+<div class="modal fade site-modal in" id="EntryPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" name="budgetCodeChangeForm">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> Employee Information</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row form-elements form-horizontal">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Employee Code</label>
+                            <div class="col-sm-8">
+                                <label class="control-label"><b>:</b> {{budgetCodeChangeNew.EmployeeCode}}</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">DOJ</label>
+                            <div class="col-sm-8">
+                                <label class="control-label"><b>:</b> {{budgetCodeChangeNew.DOJ | dateFiltering}}</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Budget Code<sup>*</sup></label>
+                            <div class="col-sm-8 input-group show-message" style="padding-left: 15px;padding-right: 14px;">
+                                <input type="hidden" name="Budget Code" ng-model="budgetCodeChangeNew.BudgetCode" class="form-control">
+                                <input type="text" name="Code" ng-model="budgetCodeChangeNew.Code" class="form-control" readonly>
+                                <span class="input-group-btn">
+                                    <button ng-click="popUp('Budget');" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
+                                    <button ng-click="clearCode('Budget')" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Current Position</label>
+                            <div class="col-sm-8">
+                                <label class="control-label" style="font-size:8pt"><b>:</b> {{budgetCodeChangeNew.PositionName}}</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">New Position</label>
+                            <div class="col-sm-8">
+                                <label class="control-label"><b>:</b> {{NewbudgetCodeChange.PositionName}}</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Employee Name</label>
+                            <div class="col-sm-8">
+                                <label class="control-label"><b>:</b> {{budgetCodeChangeNew.EmployeeName}}</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" hidden></label>
+                            <div class="col-sm-8">
+                                <label class="control-label" hidden></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        @*<div class="form-group">
+                                <label class="col-sm-4 control-label">Legal Designation<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="budgetCodeChangeNew.LegalDesignationId" name="Legal Designation" tabindex="1">
+                                            <option ng-repeat="option in LegalDesignationList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+
+                                    </div>
+
+                                </div>
+                            </div>*@
+
+                        @*<div class="form-group">
+                            <label class="col-sm-4 control-label">Legal Designation<sup>*</sup></label>
+                            <div class="col-sm-8 input-group show-message" style="padding-left: 15px;padding-right: 14px;">
+                                <input type="hidden" name="Legal Designation" ng-model="budgetCodeChangeNew.LegalDesignationId" class="form-control">
+                                <input type="text" name="Legal Designation" ng-model="budgetCodeChangeNew.LegalDesignation" class="form-control" readonly>
+                                <span class="input-group-btn">
+                                    <button ng-click="popUpLD('Legal');" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
+                                    <button ng-click="clearCode('Legal')" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-group" ng-show="legalDesignationMessage!==null">
+                            <label class="col-sm-12 control-label" style="color:red">*This<span style="text-transform:lowercase;">{{legalDesignationMessage}}</span></label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Given Designation<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="budgetCodeChangeNew.GivenDesignationId" disabled name="Given Designation" tabindex="1">
+                                        <option value="">--Select--</option>
+                                        <option ng-repeat="option in givenDesignationList" value="{{option.Value}}">{{option.Text}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>*@
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Current Entity</label>
+                            <div class="col-sm-8">
+                                <label class="control-label"><b>:</b> {{budgetCodeChangeNew.EntityName}}</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">New Entity</label>
+                            <div class="col-sm-8">
+                                <label class="control-label"><b>:</b> {{NewbudgetCodeChange.EntityName}}</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="Update();" style="margin-right: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<modal-table modalid="popUpId"
+             data-title={{popUpTitle}}
+             data-search-parameters="popUpParameters"
+             data-exclued-column-list="Code"
+             data-field-list="popUpList"
+             data-data-list="popUpDataList"
+             data-search-function="getPopUpData"
+             data-single-click="selectSingleClick(data)"
+             data-double-click="selectDoubleClick(data)"
+             data-right-button="true"
+             data-left-button="true"
+             data-ng-click-left-button="selectByButton()"
+             data-ng-click-cancel="closePopUp()">
+</modal-table>
+
+
+<div class="modal fade site-modal in" id="LDPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Legal Designation<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="popUpParameters.searchBy">
+                                            <option ng-repeat="option in popUpList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="popUpParameters.search" ng-enter="getPopUpData();">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getPopUpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+
+                                <th>Sequence</th>
+                                <th>Code</th>
+                                <th>Short Name</th>
+                                <th>Standard Name</th>
+                                <th>User Define Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in popUpDataList|itemsPerPage:popUpParameters.pageSize" pagination-id="metaData.name + 'popUpDataList'" total-items="popUpParameters.total_count" ng-dblclick="selectDoubleClick(x)">
+
+                                <td>{{x.Sequence}}</td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.ShortName}}</td>
+                                <td>{{x.StandardName}}</td>
+                                <td>{{x.UserName}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls pagination-id="metaData.name + 'popUpDataList'"
+                                             max-size="10"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getPopUpData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

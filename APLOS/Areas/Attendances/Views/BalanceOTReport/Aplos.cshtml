@@ -1,0 +1,55 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>  Balance OT Report
+</h3>
+
+<div class="form-elements form-horizontal" ng-form name="BalanceOTForm">
+
+    <div class="row" ng-form name="General">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="col-xs-12">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="loadGrid()" class="btn"><i class="glyphicon glyphicon-arrow-down"></i> Load Data</button></li>
+                        @*<li> <button ng-click="clearFliters()" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row" style="margin-top:10px;">
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div style="color:black;" id="GridData" ej-grid e-datasource="MainData"
+                 e-allowfiltering="true" e-allowpaging="true" e-pagesettings-pagesize="20"
+                 e-allowselection="true"  e-filtersettings-filterType="excel"
+                  e-enabletouch="true" e-responsive="true" e-allowtextwrap="true" e-allowscrolling="true">
+                <div e-columns>
+
+                    <div e-column e-field="PositionCode" e-headertext="Position Code" e-width="50"></div>
+                    <div e-column e-field="BudgetCode" e-headertext="Budget" e-width="50"></div>
+                    <div e-column e-field="LegalDesg" e-headertext="Legal Designation" e-width="50"></div>
+                    <div e-column e-field="Unit" e-headertext="Unit" e-width="50"></div>
+                    <div e-column e-field="Section" e-headertext="Section" e-width="50"></div>
+                    <div e-column e-field="SubSection" e-headertext="sub Section" e-width="50"></div>
+                    <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="50"></div>
+                    <div e-column e-field="EmployeeName" e-headertext="Name" e-width="50"></div>
+                    <div e-column e-field="CellPhnNo" e-headertext="Phone No" e-width="50"></div>
+                    <div e-column e-field="PresentAddress1" e-headertext="Address" e-width="80"></div>
+                    <div e-column e-field="BalanceOT" e-headertext="Balance Hours" e-width="50"></div>
+                    
+
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+        <div class="common-btn" style="margin-top:20px;">
+            <ul class="list-inline text-left">
+                <li> <button id="but" ng-click="filteringData()" style="display:none;" class="btn" tabindex="6"><i class="glyphicon glyphicon-arrow-down"></i> Transfer to Excel</button></li>
+            </ul>
+        </div>
+    </div>
+
+

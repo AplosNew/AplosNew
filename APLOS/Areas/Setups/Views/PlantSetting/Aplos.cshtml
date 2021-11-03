@@ -1,0 +1,104 @@
+﻿<togglable name="Plant Signatory"></togglable>
+<div ng-form id="plantSetting" name="plantSettingForm" class="form-elements form-horizontal">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select id="PlantId" class="form-control" ng-model="plantSetting.PlantId" name="Plant" tabindex="1" required>
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in plantList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="number" name="Sequence" ng-model="plantSetting.Sequence" class="form-control" required tabindex="1">
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Module Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select id="ModuleName" class="form-control" ng-model="plantSetting.ModuleName" name="Module Name" tabindex="2" required>
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in moduleList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-8">
+                <div>
+                    <img id="uploadImageSrc" ng-src="{{imageSrc}}" style="margin-left: 180px; border: 1px solid; height: 50px; width: 250px;" />
+                </div>
+            </div>
+            <div class="inputBtnSection common-btn">
+                <label class="fileUpload col-sm-6" style="margin-left: 180px;">
+                    <input id="uploadImage" ng-file-select="onFileSelect($files)" type="file" name="uploadFile" class="upload" />
+                    <span class="uploadBtn"><i class="fa fa-paperclip" aria-hidden="true"> Upload</i></span>
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="Save();" class="btn" tabindex="10"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Plant</th>
+                <th>Sequence</th>
+                <th>Module Name</th>
+                <th>Authorized Signature</th>
+                <th>Active</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in plantSettings |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-click="Get(x.Id, $index);">
+                <td>{{x.Plant}}</td>
+                <td>{{x.Sequence}}</td>
+                <td>{{x.ModuleName}}</td>
+                <td>{{x.AuthorizedSignature}}</td>
+                <td>{{x.Active?'Yes':'No'}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10"
+                             direction-links="true"
+                             boundary-links="true"
+                             on-page-change="getData(newPageNumber)">
+    </dir-pagination-controls>
+</div>
+<confirm-modal></confirm-modal>

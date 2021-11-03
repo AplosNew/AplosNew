@@ -1,0 +1,47 @@
+﻿<div class="modal fade site-modal in" id="issueGroupAddPopUp" role="dialog" data-backdrop="static" >
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">Create Task Group<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body" ng-form name="issueGroupNewForm">
+                <input type="hidden" ng-model="issueGroupNew.Id">
+                <div class="form-horizontal form-elements">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Group Name</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="Name" ng-model="issueGroupNew.Name" class="form-control" tabindex="1" autocomplete="off" maxlength="50">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                                <label class="col-sm-4  control-label">Create Date</label>
+                                <div class="col-sm-8">
+                                    <input datepicker id="CreateDate" type="text" name="CreateDate" ng-model="issueGroupNew.CreateDate" class="form-control" tabindex="2">
+                                </div>
+                            </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label" title="Responsible person">Res. Person<sup>*</sup></label>
+                            <div class="col-sm-8 input-group">
+                                <input type="text" name="ResponsiblePersonName" ng-model="issueGroupNew.ResponsiblePersonName" tabindex="3" class="form-control" readonly required>
+                                <span class="input-group-btn">
+                                    <button ng-click="showIssueGroupResponsiblePersonListPopUp();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6" style="color:red;text-align:left">{{ResMessage}}</div>
+                </div>
+                
+            </div>
+            <div class="modal-footer common-btn">
+                <button type="submit" ng-click="addIssueGroup();" class="btn" tabindex="4"><i class=""></i> Add</button>
+                <button ng-click="hideIssueGroupPopUp();" class="btn" tabindex="4"><i class=""></i> Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+

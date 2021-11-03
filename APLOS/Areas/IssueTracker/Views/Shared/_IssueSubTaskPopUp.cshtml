@@ -1,0 +1,44 @@
+﻿<div class="modal fade site-modal in" id="issueSubTaskPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Issue Sub Task<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="form-elements form-horizontal" ng-form name="issueTransactionSubTaskForm">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+
+                                <div class="form-group show-errors">
+                                    <label class="col-sm-4 control-label">Task Details</label>
+                                    <div class="col-sm-8">
+                                        <textarea class="form-control" name="TaskDetail" rows="3" ng-model="issueSubTaskNew.TaskDetail"  maxlength="250" required tabindex="55" autofocus></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Required Date</label>
+                                    <div class="col-sm-8">
+                                        <input e-dateformat="dd-MMM-yyyy" e-enabled="true" ej-datepicker e-value="issueSubTaskNew.RequiredDate" e-width="100%" />
+                                        @*<input datepicker type="text" ng-model="issueSubTaskNew.RequiredDate" class="form-control datepicker">*@
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Remarks</label>
+                                    <div class="col-sm-8">
+                                        <textarea class="form-control" name="Remarks" rows="3" ng-model="issueSubTaskNew.Remarks" maxlength="250" tabindex="57"></textarea>
+                                    </div>
+                                </div>
+                                
+                               
+                            </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="SaveIssueSubTask();" class="btn" tabindex="6"><i class="glyphicon glyphicon-floppy-disk"></i> {{(issueSubTaskNew.Id.length>0?'Update':'Save')}}</button>
+                <button ng-click="hideIssueTaskPopUp();" class="btn"><i class=""></i> Close</button>
+            </div>
+        </div>
+    </div>
+</div>

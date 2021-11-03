@@ -1,0 +1,528 @@
+﻿<style>
+    #wizard-container ul li {
+        display: inline;
+    }
+
+        #wizard-container ul li a {
+            display: block;
+            font-size: 12px;
+            font-family: 'open Sans';
+            float: left;
+            height: 40px;
+            background: #242841;
+            text-align: center;
+            padding: .5px 1px 0 18px;
+            position: relative;
+            margin: 0 5px 0px 0;
+            text-decoration: none;
+            color: #fff;
+            display: inline-block;
+        }
+
+            #wizard-container ul li a:after {
+                content: "";
+                border-top: 20px solid transparent;
+                border-bottom: 20px solid transparent;
+                border-left: 20px solid #242841;
+                position: absolute;
+                right: -20px;
+                top: 0;
+                z-index: 1;
+            }
+
+            #wizard-container ul li a:before {
+                content: "";
+                position: absolute;
+                border-top: 20px solid transparent;
+                border-bottom: 20px solid transparent;
+                border-left: 20px solid #FFFFFF;
+                left: 0;
+                top: 0;
+            }
+
+        #wizard-container ul li:first-child a:before {
+            display: none;
+        }
+
+    .exceess {
+        background-color: orangered;
+    }
+
+    .compare {
+        background-color: orangered;
+        color: white !important;
+    }
+
+    .short {
+        background-color: #f1c40f;
+    }
+
+    canvas #ManPowerbarChart {
+        width: 85% !important;
+        height: 50% !important;
+    }
+
+    canvas #salBarChart {
+        width: 85% !important;
+        height: 30% !important;
+    }
+
+    .sortorder {
+        content: '\25b3';
+        content: '\25BD';
+    }
+
+        .sortorder:after {
+            content: '\25b3';
+        }
+
+        .sortorder.reverse:after {
+            content: '\25BD';
+        }
+</style>
+<div class="col-md-11">
+    <h4 style="margin-top:-10px;margin-bottom:25px;"><span class="glyphicon glyphicon-stats"></span>&nbsp;Manpower Budget Dashboard</h4>
+</div>
+<div class="col-md-1 text-right">
+    <h4>&nbsp;&nbsp;&nbsp;   @*<i class="glyphicon glyphicon-repeat" style="cursor:pointer;" ng-click="refresh();" data-placement="top" title="Refresh" tooltip></i>*@</h4>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="container" id="headerNav" style="margin-left: -5.1%; margin-top:.5%;">
+            <div id="wizard-container">
+                <ul style="cursor:pointer; margin-bottom:-22px;">
+                    <li hidden ng-repeat="x in ColList" ng-click="headerNav(x)" ng-show="x.Sequence < index">
+                        <a>
+                            <b>{{x.ColumnName}}</b><br />{{x.Name}}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+<div class="row" id="date" style="border:1px solid #d8d7d7; margin:-2px;">
+    <div class="col-md-3">
+        <div class="form-group form-element-ctrl">
+            <div class="show-message">
+                <p>
+                    <input type="text" name="Date" ng-model="Date" datepicker class="form-control datepicker" required tabindex="1" style="margin-top: 7px;margin-bottom: -4px;">
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-1"><button ng-click="dFunction()" class="btn" style="margin-top:4px;"><i class="glyphicon glyphicon-refresh"></i></button> </div>
+    <div class="col-md-4">
+        <div class="col-md-12">
+            <div class="col-md-6" style="margin-top: 7px;margin-bottom: -4px;">
+                <span style="margin-top: 7px;margin-bottom: -4px;"> Employee Category:</span>               
+            </div>
+            <div class="col-md-6">               
+                <div class="select-style" style="margin-top: 7px;margin-bottom: -4px;">
+                    <select ng-model="mpDrpDownModel.EmplyeeTypeOrCategoryId" ng-change="EmpCategory(mpDrpDownModel.EmplyeeTypeOrCategoryId);">
+                        <option value="">Select All</option>
+                        <option ng-repeat="option in docEmployeeCategoryList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="radio">
+            <label style="margin-left: 37%;"><input type="radio" name="status" ng-model="hrStatus.pstatus" value="Default" ng-change="directIndirect();"><span class="cr"><i class="cr-icon"></i></span>Overall</label>
+            <label style="position:relative;"><input type="radio" name="status" ng-model="hrStatus.pstatus" value="Direct" ng-change="directIndirect()"><span class="cr"><i class="cr-icon"></i></span>Direct</label>
+            <label style="position:relative;"><input type="radio" name="status" ng-model="hrStatus.pstatus" value="Indirect" ng-change="directIndirect()"><span class="cr"><i class="cr-icon"></i></span>Indirect</label>
+        </div>
+    </div>
+</div>
+<br />
+<div class="row" id="overall" style="background-color:white;">
+    <div class="col-lg-5" id="chartSummary">
+        <div class="row">
+            <div class="col-lg-9" id="chart" style="box-shadow:1px 1px 1px 1px grey;margin-left: 4%; margin-bottom: 3%;">
+                <canvas id="ManPowerbarChart" width="350" height="350"></canvas>
+            </div>
+            <br />
+            <div id="summary" class="col-lg-10 table-responsive">
+                <table class="table  table-hover" style="box-shadow:1px 1px 1px 1px grey; padding:2px;">
+                    <thead><tr><td colspan="3" style="border-top: 1px solid darkgrey;"><b>Manpower Budget Status</b></td></tr></thead>
+                    <tbody>
+                        <tr ng-click="GetModalBudgetSummaryJS(0);">
+                            <td>Budgeted</td>
+                            <td><span style="background-color:rgba(46, 204, 113,.6); border:.5px solid rgba(46, 204, 113,.6)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+                            <td style="text-align:right;cursor:pointer;" class="hoverItem">{{proposedTotalEmp}}</td>
+                        </tr>
+                        <tr ng-click="getModalEmployeeSummaryJS(0);">
+                            <td>On Role</td>
+                            <td><span style="background-color:rgba(240, 52, 52, .6); border:.5px solid rgba(240, 52, 52, .8)"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+                            <td style="text-align:right;cursor:pointer;" class="hoverItem">{{currentTotalEmp}}</td>
+                        </tr>
+                        <tr ng-click="GetShortSummary(0);" class="hoverItem">
+                            <td>Short</td>
+                            <td></td>
+                            <td style="text-align:right;cursor:pointer;" class="hoverItem">{{Short}}</td>
+                        </tr>
+                        <tr ng-click="ExcessSummary(0);">
+                            <td>Excess</td>
+                            <td></td>
+                            <td style="text-align:right;cursor:pointer;" class="hoverItem">{{excess}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="Detail" class="col-lg-7" style="padding-left:0%">
+        <div class="row">
+            <div class="" style="margin-left:0%;  max-height:375px; max-width:100%;">
+                <table class="table table-hover" style="overflow-y:scroll;border:1px solid black; box-shadow:1px 1px 1px 1px grey;">
+                    <thead>
+                        <tr>
+                            <th>{{ColList[index+2].ColumnName}}</th>
+                            <th>On Role</th>
+                            <th>Budgeted</th>
+                            <th>Short</th>
+                            <th>Excess</th>
+                            <th>On Role Salary <br /><span style="background-color:rgba(240, 52, 52, .6); border:.5px solid rgba(240, 52, 52, .8)"> &nbsp;&nbsp; &nbsp;&nbsp;</span></th>
+                            <th>Budgeted Salary <br /> <span style="background-color:rgba(46, 204, 113,.6); border:.5px solid rgba(46, 204, 113,.6)">&nbsp;&nbsp; &nbsp;&nbsp;</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in list">
+                            <td style="padding:2px; cursor:pointer;" class="hoverItem" ng-click="setIndex(x);GetDetailDrillDownTableJS(x)" >{{x.UserName}}</td>
+                            <td style="padding:2px; text-align:right;cursor:pointer;" class="hoverItem" ng-click="GetModalEmployeeDetailJS(0,x);">{{x.TotalManpower}}</td>
+                            <td style="padding:2px; text-align:right;cursor:pointer;" class="hoverItem" ng-click="GetModalBudgetDetailJS(0,x)">{{x.ProposedManpowerBudget}}</td>
+                            <td style="padding:2px; cursor:pointer;text-align:right" class="hoverItem" ng-click="GetShortDetail(0,x)">{{x.Short}}</td>
+                            <td style="padding:2px; cursor:pointer; text-align:right" class="hoverItem" ng-click="GetExcessDetail(0,x)">{{x.Excess}}</td>
+                            <td style="padding:2px; text-align:right">{{x.OnRoleSalaryC| number:0}}</td>
+                            <td style="padding:2px; text-align:right">{{x.ProposedSalaryC| number:0}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <br /><div class="col-lg-1"></div>
+            <div class="col-lg-10" style="box-shadow:1px 1px 1px 1px grey;">
+
+                <canvas id="salBarChart" width="300" height="150"></canvas>
+            </div>
+            <div class="col-lg-1"></div>
+        </div>
+    </div>
+</div>
+
+<div id="EmployeeModalSummary" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="padding-left:115px;">
+       <div class="modal-dialog " style="width:95%">
+        <div class="modal-content" style="width:95%">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">List of On Role Employees</h4>
+            </div>
+            <div class="content-container-fluid" style="color:black;">
+                <div id="onRoleEmpGrid"></div>
+            </div>
+
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn glyphicon-arrow-down" ng-click="Print();">Download</button>
+                <button type="button" class="btn" data-dismiss="modal">Close</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div id="EModalDetail" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="padding-left:115px;">
+   
+    <div class="modal-dialog " style="width:95%">
+        <div class="modal-content" style="width:95%">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">List of On Role Employees</h4>
+            </div>
+            <div class="content-container-fluid" style="color:black;">
+                <div id="onRoleEmpGridDetail"></div>
+            </div>
+
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn glyphicon-arrow-down" ng-click="Print();">Download</button>
+                <button type="button" class="btn" data-dismiss="modal">Close</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div id="BudgetSummaryModal" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="padding-left:115px;">
+    
+    <div class="modal-dialog " style="width:95%">
+        <div class="modal-content" style="width:95%">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Manpower Budget Allowance</h4>
+            </div>
+            <div class="content-container-fluid" style="color:black;">
+                <div id="ManpowerBudgetInfo"></div>ggcc
+            </div>
+
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn glyphicon-arrow-down" ng-click="Print();">Download</button>
+                <button type="button" class="btn" data-dismiss="modal">Close</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div id="BudgetDetailModal" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="padding-left:115px;">
+    
+    <div class="modal-dialog " style="width:95%">
+        <div class="modal-content" style="width:95%">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Manpower Budget Allowance</h4>
+            </div>
+            <div class="content-container-fluid" style="color:black;">
+                <div id="ManpowerBudgetDetail"></div>
+            </div>
+
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn glyphicon-arrow-down" ng-click="Print();">Download</button>
+                <button type="button" class="btn" data-dismiss="modal">Close</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div id="ExcessModalSummary" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="padding-left:115px;">
+    
+    <div class="modal-content" style="width:95%">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title" id="myModalLabel">Budget wise Excess</h4>
+        </div>
+        <div class="content-container-fluid" style="color:black;">
+            <div id="ManpowerBudgeExcesstDetail"></div>
+        </div>
+
+        <div class="modal-footer common-btn">
+            <button type="button" class="btn glyphicon-arrow-down" ng-click="Print();">Download</button>
+            <button type="button" class="btn" data-dismiss="modal">Close</button>
+        </div>
+
+    </div>
+</div>
+
+
+<div id="ExcessDetailList" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="padding-left:115px;">
+    
+    <div class="modal-content" style="width:95%">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title" id="myModalLabel">Budget wise Excess</h4>
+        </div>
+        <div class="content-container-fluid" style="color:black;">
+            <div id="ManpowerBudgeExcesstDetailList"></div>
+        </div>
+
+        <div class="modal-footer common-btn">
+            <button type="button" class="btn glyphicon-arrow-down" ng-click="Print();">Download</button>
+            <button type="button" class="btn" data-dismiss="modal">Close</button>
+        </div>
+
+    </div>
+</div>
+
+<div id="ShortSummaryModal" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="padding-left:115px;">
+   
+    <div class="modal-content" style="width:95%">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title" id="myModalLabel">Budget wise Excess</h4>
+        </div>
+        <div class="content-container-fluid" style="color:black;">
+            <div id="ShortSummaryModalList"></div>
+        </div>
+
+        <div class="modal-footer common-btn">
+            <button type="button" class="btn glyphicon-arrow-down" ng-click="Print();">Download</button>
+            <button type="button" class="btn" data-dismiss="modal">Close</button>
+        </div>
+
+    </div>
+</div>
+
+<div id="ShortDetailModal" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="padding-left:115px;">
+    @*<div class="modal-dialog" style="width:1250px;">
+            <div class="modal-content" style="width:1250px; ">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h4 class="modal-title" id="myModalLabel">List of Budget wise Short</h4>
+                </div>
+                <div class="modal-body table-responsive modal-table" style="overflow-y:scroll; max-height:375px;">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>SL</th>
+                                <th ng-click="sortBy('budgetCode')">
+                                    Budget Code
+                                </th>
+                                <th ng-click="sortBy('Proposed')">
+                                    Budgeted
+                                </th>
+                                <th ng-click="sortBy('onRole')">
+                                    On Role
+                                </th>
+
+                                <th ng-click="sortBy('Short')">
+                                    Short
+                                </th>
+                                <th ng-click="sortBy('Designation')">
+                                    Designation
+                                </th>
+                                <th ng-click="sortBy('DesGName')">
+                                    Desg. Group
+                                </th>
+                                <th>
+                                    Emp. Category
+                                </th>
+                                <th ng-repeat="x in ColList" ng-show="x.Sequence >-2">
+                                    {{x.ColumnName}}
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in ShortDetailList | itemsPerPage:ShortDetailParameters.pageSize" total-items="ShortDetailParameters.total_count" pagination-id="metaData.name + 'ShortDetailList'">
+                                <td>{{$index +1}}</td>
+                                <td>{{x.BudgetCode}}</td>
+                                <td>{{x.Proposed}}</td>
+                                <td style="cursor:pointer" class="hoverItem" ng-click="getBudgetCodeWiseEmpList(0,x);">
+                                    <u> {{x.onRole}}</u>
+                                </td>
+                                <td>{{x.Short}}</td>
+                                <td>{{x.Designation}}</td>
+                                <td>{{x.DesGName}}</td>
+                                <td>{{x.EmployeeCategory}}</td>
+                                <td>{{x.CompanyName}}</td>
+                                <td ng-repeat="y in ColList" ng-show="y.Sequence > -1">
+                                    {{x[y.ColumnName]}}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer common-btn">
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'ShortDetailList'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="GetModalShortDetailJSPagination(newPageNumber)">
+                    </dir-pagination-controls>
+                    <button type="button" class="btn" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>*@
+    <div class="modal-content" style="width:95%">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title" id="myModalLabel">Budget wise Excess</h4>
+        </div>
+        <div class="content-container-fluid" style="color:black;">
+            <div id="ShortDetailModalList"></div>
+        </div>
+
+        <div class="modal-footer common-btn">
+            <button type="button" class="btn glyphicon-arrow-down" ng-click="Print();">Download</button>
+            <button type="button" class="btn" data-dismiss="modal">Close</button>
+        </div>
+
+    </div>
+</div>
+
+<div id="BudgetWiseEmpList" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="padding-left:115px;">
+    @*<div class="modal-dialog" style="width:1250px;">
+            <div class="modal-content" style="width:1250px; ">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h4 class="modal-title" id="myModalLabel">List of Employees &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   <strong>BudgetCode:{{BEmpBudgetCode}}&nbsp;</strong></h4>
+                </div>
+                <div class="modal-body table-responsive modal-table" style="overflow-y:scroll; max-height:375px;">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>SL</th>
+                                <th ng-click="sortBy('EmployeeCode')">
+                                    Employee Code
+                                </th>
+
+                                <th ng-click="sortBy('EmployeeName')">
+                                    Employee Name
+                                </th>
+                                <th>DOJ</th>
+                                <th ng-click="sortBy('GivDesignation')">
+                                    Given Designation
+                                </th>
+                                <th ng-click="sortBy('pDesname')">
+                                    Designation
+                                </th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in BudgetCWiseEmp | itemsPerPage:BudgetCodeWiseEmpParameters.pageSize" total-items="BudgetCodeWiseEmpParameters.total_count" pagination-id="metaData.name + 'BudgetCWiseEmp'">
+                                <td>{{$index +1}}</td>
+                                <td>{{x.EmployeeCode}}</td>
+                                <td ng-class="{compare: x.GivDesignation != x.pDesname}">{{x.EmployeeName}}</td>
+                                <td>{{x.DOJ}}</td>
+                                <td>{{x.GivDesignation}}</td>
+                                <td>{{x.pDesname}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer common-btn">
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'BudgetCWiseEmp'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="GetModalBudgetCodeWiseEmpJSPagination(newPageNumber)">
+                    </dir-pagination-controls>
+
+                    <div class="row">
+                        <div class="col-md-2 table-responsive modal-table">
+                            <table class="table table-striped" style="border:none !important">
+                                <tbody>
+                                    <tr>
+                                        <td> Mismatched  Designation </td>
+                                        <td> <span style="background-color:orangered;"> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-7">
+                        </div>
+                        <div class="col-md-3"></div>
+                    </div>
+                    <button type="button" class="btn" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>*@
+    <div class="modal-content" style="width:95%">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title" id="myModalLabel">Budget wise Excess</h4>
+        </div>
+        <div class="content-container-fluid" style="color:black;">
+            <div id="ShortDetailModalList"></div>
+        </div>
+
+        <div class="modal-footer common-btn">
+            <button type="button" class="btn glyphicon-arrow-down" ng-click="Print();">Download</button>
+            <button type="button" class="btn" data-dismiss="modal">Close</button>
+        </div>
+
+    </div>
+</div>

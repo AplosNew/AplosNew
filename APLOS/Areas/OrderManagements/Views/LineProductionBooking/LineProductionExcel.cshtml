@@ -1,0 +1,65 @@
+﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Line Production Excel Upload</h3>
+<div ng-form="modelNewForm" class=" form-elements form-horizontal">
+    <fieldset class="scheduler-border">
+        <legend class="scheduler-border">Excel Upload</legend>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Upload Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Production Date" ng-model="modelNew.ProductionDate" class="form-control" datepicker="getList();" tabindex="1" required>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6 tab-design">
+            <div class="form-group">
+                <div class="col-sm-6">
+                    <input ng-file-select="" type="file" accept=".xls,.xlsx" id="upload" name="file">
+                </div>
+                <div class="col-sm-4">
+                    <button ng-click="getExcelData();" class="btn single-small-btn"><i class="glyphicon glyphicon-repeat"></i></button>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+</div>
+<div class="table-responsive modal-table" ng-hide="productionList.length==0">
+    <table class="table table-striped">
+        <thead>
+			<tr>
+				<th>Line</th>
+				<th>Prd Shift</th>
+				<th>Sales Order</th>
+				<th>Fabrication</th>
+				<th>Style</th>
+				<th>Pdr Qty</th>
+				<th>Total Machine Operation</th>
+				<th>Total Machine</th>
+				<th>Total Emp Attach</th>
+				<th>Total Pending Machine</th>
+				<th>No Applicable Pcs Rate</th>
+			</tr>
+        </thead>
+        <tbody>
+			<tr ng-repeat="x in productionList">
+				<td>{{x.Line}}</td>
+				<td>{{x.ProductionShift}}</td>
+				<td>{{x.SalesOrder}}</td>
+				<td>{{x.Fabrication}}</td>
+				<td>{{x.Style}}</td>
+				<td>{{x.ProductionQty}}</td>
+				<td>{{x.TotalMachineOperation}}</td>
+				<td>{{x.TotalMachine}}</td>
+				<td>{{x.TotalEmpAttach}}</td>
+				<td>{{x.TotalPendingMachine}}</td>
+				<td class="text-right">
+					<div class="checkbox-site">
+						<label>
+							<input type="checkbox" ng-model="x.NoApplicablePcsRate" ng-click="noApplicablePcsRate(x.Id);">
+							<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+						</label>
+					</div>
+				</td>
+			</tr>
+        </tbody>
+    </table>
+</div>

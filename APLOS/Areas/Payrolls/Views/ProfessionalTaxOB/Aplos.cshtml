@@ -1,0 +1,109 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Professional Tax Opening Balance
+</h3>
+<div class="form-elements form-horizontal" ng-form name="leaveApplicationNewForm">
+    <div class="clearfix"></div>
+    <input type="hidden" ng-model="leaveApplicationNew.Id">
+    <input type="text" ng-model="leaveApplicationNew.Id" hidden />
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Employee Select<sup>*</sup></label>
+            <div class="input-group">
+                <div class="col-sm-2">
+                    <span class="input-group-btn">
+                        <button name="submit" ng-click="getPopUpData();" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Employee Name :</label>
+            <div class="col-sm-8">
+                <label>{{leaveApplicationNew.EmployeeName}}</label>                
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Employee DOJ :</label>
+            <div class="col-sm-8">
+                <label>{{leaveApplicationNew.DOJ}}</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Designation :</label>
+            <div class="col-sm-8">
+                <label>{{leaveApplicationNew.LegalDesignation}}</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Tax Year</label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="ProfessionalTaxOB.TaxYearId">
+                        <option value=""></option>
+                        <option ng-repeat="option in YearList" value="{{option.TaxYearID}}">{{option.TaxYearName}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Taxable Income (Earned)</label>
+            <div class="col-sm-8">
+                <input type="text" onkeypress="return (event.charCode == 8 || event.charCode == 0) ? null : event.charCode >= 48 && event.charCode <= 57" ng-model="ProfessionalTaxOB.OpeningTaxableIncomeEarned" class="form-control" maxlength="100" tabindex="2">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Tax Paid </label>
+            <div class="col-sm-8">
+                <input type="text" onkeypress="return (event.charCode == 8 || event.charCode == 0) ? null : event.charCode >= 48 && event.charCode <= 57" ng-model="ProfessionalTaxOB.OpeningTaxPaid" class="form-control" maxlength="100" tabindex="2">
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <div class="col-sm-8">
+                <div>
+                    <img id="uploadImageSrc" ng-src="{{imageSrc}}" style="margin-left: 200px; border: 1px solid; height: 200px; width: 200px;" />
+                </div>
+            </div>
+        </div>
+    </div>    
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            @*<li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
+        </ul>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="employeeNewPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" ng-click="closeEmployeePopUp();">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="Grid" ej-grid e-datasource="employee" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-modal></confirm-modal>

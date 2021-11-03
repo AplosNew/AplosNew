@@ -1,0 +1,95 @@
+﻿<togglable name="Costing Type Component"></togglable>
+<div class="form-elements form-horizontal" ng-form="costingTypeComponentNewForm" id="costingType">
+
+
+    <div class="col-xs-12 col-sm-4">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Costing Type<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="CostingTypeComponent.CostingType"
+                            ng-options="item.Value as item.Text for item in CostingTypeList" id="CostingType" ng-change="GetCostingTypeComponent();" name="Costing Type" tabindex="7" required>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-4">
+        <button ng-disabled="CostingTypeComponent.CostingType == 'null' && SelectedCostingComponetList.length > 0" ng-click="ShowCostingSubCategoryPopUp();" class="btn single-small-btn"><i class="glyphicon glyphicon-plus" tabindex="10"></i> Add Costing Component</button>
+        @*<button class="btn" ng-disabled="CostingTypeComponent.CostingType == null && SelectedCostingComponetList.length > 0" ng-click="ShowCostingSubCategoryPopUp()"> Add Costing Component</button>*@
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 modal-table">
+        <table class="table table-responsive table-striped" ng-show="CostingTypeComponent.CostingType != null">
+            <thead>
+                <tr>
+                    <th ng-show="SelectedCostingComponetList.length>1">Sequence</th>
+                    <th>Code</th>
+                    <th>ShortName</th>
+                    <th>StandardName</th>
+                    <th>UserName</th>
+                    <th>Costing Segment</th>
+                    <th class="text-right">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="x in SelectedCostingComponetList">
+                    <td ng-show="SelectedCostingComponetList.length>1">
+                        <span ng-show="!$first" ng-click="moveUp($index,'SelectedCostingComponetList')"><i class="glyphicon glyphicon-triangle-top"></i></span>
+                        <br />
+                        <span ng-show="!$last" ng-click="moveDown($index,'SelectedCostingComponetList')"><i class="glyphicon glyphicon-triangle-bottom"></i></span>
+                    </td>
+                    <td>{{x.Code}}</td>
+                    <td>{{x.ShortName}}</td>
+                    <td>{{x.StandardName}}</td>
+                    <td>{{x.UserName}}</td>
+                    <td>{{x.CostingSegment}}</td>
+                    <td class="text-right">
+                        <a ng-click="RemoveCostingComponentConfirmation($index);" class="btn" tabindex="5"><i class="glyphicon glyphicon-trash"></i></a>
+                    </td>
+                </tr>
+            </tbody>
+            
+        </table>
+       
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="Save();" class="btn" tabindex="8"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+        </ul>
+    </div>
+</div>
+
+
+
+<ej-dialog id="CostingSubCategoryPoUp" title="Costing Component" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#costingType"
+           e-close="onDialogClose" e-minwidth="1000" e-minheight="80" e-open="enableBtn">
+    <div class="row">
+        <div id="GridOperation" ej-grid e-datasource="CostingSubCategoryList" e-gridlines="vertical" e-templaterefresh="refreshTemplateOperation"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel">
+            <div e-columns>
+                <div e-column e-field="Id" e-headertext="Id" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false"></div>
+                <div e-column e-template="#checkboxTemplateMaster" e-textalign="center" e-width="30"></div>
+                <div e-column e-field="Sequence" e-headertext="Sequence" e-width="50"></div>
+
+                <div e-column e-field="Code" e-headertext="Code" e-width="40"></div>
+                <div e-column e-field="ShortName" e-headertext="ShortName" e-width="100"></div>
+                <div e-column e-field="StandardName" e-headertext="StandardName" e-width="80"></div>
+                <div e-column e-field="UserName" e-headertext="UserName" e-width="80"></div>
+                <div e-column e-field="CostingSegment" e-headertext="Costing Segment" e-width="80"></div>
+            </div>
+        </div>
+        <script type="text/template" id="checkboxTemplateMaster">
+            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.flag" e-checked="data.flag" />
+        </script>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="AddCostingComponentToList();" class="btn" tabindex="8"><i class="glyphicon glyphicon-floppy-disk"></i> Add</button></li>
+            
+        </ul>
+    </div>
+</ej-dialog>
+
+<confirm-archive-generic modalid="RemoveCostingComponentConfirmationPopup" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="RemoveCostingComponentRow()"></confirm-archive-generic>

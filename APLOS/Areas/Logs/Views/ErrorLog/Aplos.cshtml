@@ -1,0 +1,68 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> Error Log</h3>
+<form class="form-horizontal form-elements">
+    <div class="row">
+        <div class="col-xs-4 col-sm-4 col-md-4">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
+                <div class="col-sm-9">
+                    <input type="text" ng-model="errorLog.fromDate" datepicker class="form-control datepicker">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-4 col-sm-4 col-md-4">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
+                <div class="col-sm-9">
+                    <input type="text" ng-model="errorLog.toDate" datepicker class="form-control datepicker">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-4 col-sm-4 col-md-4">
+            <button type="button" ng-click="getData()" class="btn single-btn"><i class="glyphicon glyphicon-search"></i> Search </button>
+            <button type="button" ng-click="Delete(errorLog.fromDate,errorLog.toDate)" class="btn  single-btn"><i class="glyphicon glyphicon-trash"></i> Delete </button>
+        </div>
+    </div>
+</form>
+<div class="table-responsive modal-table">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>User Name</th>
+                <th>App Version</th>
+                <th>Module Name</th>
+                <th>Error Type</th>
+                <th>Error Code</th>
+                <th>Error Message</th>
+                <th>Exception</th>
+                <th>Service Name</th>
+                <th>Method Name </th>
+                <th>Controller Name</th>
+                <th>Action Name</th>
+                <th>Email Required</th>
+                <th>Record Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in errorLogs |itemsPerPage:$root.pageSize" total-items="$root.total_count">
+                <td>{{x.UserId}}</td>
+                <td>{{x.AppVersion}}</td>
+                <td>{{x.ModuleName}}</td>
+                <td>{{x.ErrorType}}</td>
+                <td>{{x.ErrorCode}}</td>
+                <td>{{x.ErrorMessage}}</td>
+                <td>{{x.Exception}}</td>
+                <td>{{x.ServiceName}}</td>
+                <td>{{x.MethodName}}</td>
+                <td>{{x.ControllerName}}</td>
+                <td>{{x.ActionName}}</td>
+                <td>{{x.IsEmailRequired ? "Required" : "N/A"}}</td>
+                <td>{{x.RecordTime.replace('/Date(','').replace(')/','') | date: "dd-MMM-yyyy"}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10"
+                             direction-links="true"
+                             boundary-links="true"
+                             on-page-change="getData(newPageNumber)">
+    </dir-pagination-controls>
+</div>

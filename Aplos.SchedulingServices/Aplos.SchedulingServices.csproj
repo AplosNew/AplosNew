@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{FA72C0C8-C14D-4894-9986-11F891BA400C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Library.SchedulingServices</RootNamespace>
+    <AssemblyName>Aplos.SchedulingServices</AssemblyName>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="ConnectionManager">
+      <HintPath>..\APLOS\Library\ConnectionManager.dll</HintPath>
+    </Reference>
+    <Reference Include="Library.Core">
+      <HintPath>..\Aplos.OrderManagement\bin\Debug\Library.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Library.Crosscutting">
+      <HintPath>..\APLOS\Library\Library.Crosscutting.dll</HintPath>
+    </Reference>
+    <Reference Include="Library.Data">
+      <HintPath>..\APLOS\Library\Library.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Library.Model.Core">
+      <HintPath>..\APLOS\Library\Library.Model.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Library.Service.Core">
+      <HintPath>..\APLOS\Library\Library.Service.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Library.ViewModel.Core">
+      <HintPath>..\APLOS\Library\Library.ViewModel.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Pdf.Base">
+      <HintPath>..\APLOS\Library\Syncfusion.Pdf.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.XlsIO.Base">
+      <HintPath>..\APLOS\Library\Syncfusion.XlsIO.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="MailLogService.cs" />
+    <Compile Include="MailReceiverService.cs" />
+    <Compile Include="MailSenderService.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\APLOS.Domain\Aplos.Model.csproj">
+      <Project>{7f2fcb85-b5bd-457e-ae20-8793d0c72f20}</Project>
+      <Name>Aplos.Model</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aplos.HumanResource\Aplos.HumanResource.csproj">
+      <Project>{1bcbb17e-2613-43a1-a634-b38419425bef}</Project>
+      <Name>Aplos.HumanResource</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aplos.Service.Extension\Aplos.Service.Extension.csproj">
+      <Project>{20086d6a-e384-4de1-8486-6eb0fdca39f9}</Project>
+      <Name>Aplos.Service.Extension</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\APLOS.Service\Aplos.Service.csproj">
+      <Project>{aa817a3e-2bf1-4f54-9008-2df78294c1c8}</Project>
+      <Name>Aplos.Service</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Scheduler\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

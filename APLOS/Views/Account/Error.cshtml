@@ -1,0 +1,33 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta charset="utf-8" />
+    <title>Login</title>
+    <meta name="description" content="User login page" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    @Styles.Render("~/bundles/css")
+    @Styles.Render("~/bundles/fonts")
+    @Scripts.Render("~/bundles/jq")
+</head>
+<body class="login-bg">
+    <div class="login-portal">
+        <a class="download-btn" href="/Download/AuthToken"><i aria-hidden="true" class="glyphicon glyphicon-save"></i> Download</a>
+        <div class="login-portal-inner">
+            <div class="container">
+                @*<img class="logo" src="images/logo.png" alt="logo">*@
+                <div class="row">
+                    <div class="col-xs-12 col-sm-4 col-md-8 col-md-offset-2">
+                        <div class="widget-btn">
+                            <p><i aria-hidden="true" class="glyphicon glyphicon-exclamation-sign"></i> @ViewBag.Error </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

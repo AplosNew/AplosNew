@@ -1,0 +1,189 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Maternity Leave Application
+</h3>
+<div class="form-elements form-horizontal" ng-form name="maternityLeaveTransactionNewForm">
+    <div class="clearfix"></div>
+    <input type="hidden" ng-model="maternityLeaveTransactionNew.Id">
+
+
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <ul class="common-btn list-inline text-left">
+            <li><button class="btn" ng-click="GetFemaleEmployee();"><i class="glyphicon glyphicon-search"></i> Search Employee</button></li>
+        </ul>
+    </div>
+    <input type="text" ng-model="maternityLeaveTransactionNew.Id" hidden />
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Employee Name :</label>
+            <div class="col-sm-8">
+                <label>{{employeeInfo.EmployeeName}}</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Employee Code :</label>
+            <div class="col-sm-8">
+                <label>{{employeeInfo.EmployeeCode}}</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Employee DOJ :</label>
+            <div class="col-sm-8">
+                <label>{{employeeInfo.DOJ}}</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label"> Designation :</label>
+            <div class="col-sm-8">
+                <label>{{employeeInfo.LegalDesignation}}</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Department :</label>
+            <div class="col-sm-8">
+                <label>{{employeeInfo.Department}}</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <div class="col-sm-8">
+                <div>
+                    <img id="uploadImageSrc" ng-src="{{employeeInfo.EmpPic}}" style="margin-left: 180px; border: 1px solid; height: 200px; width: 200px;" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-12 col-sm-6 col-md-6">
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Expected Delivary Date</label>
+            <div class="col-sm-8">
+                <input type="text" ng-model="maternityLeaveTransactionNew.ExpectedDelivaryDate" ng-disabled="maternityLeaveTransactionNew.BabyNo===null" datepicker class="form-control" ng-change="GetEffectiveDatePolicy();" placeholder="dd-MM-yyyy" tabindex="4">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Baby No<sup>*</sup></label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    <select class="form-control" id="Baby" ng-model="maternityLeaveTransactionNew.MaternityLeavePolicyId" name="Baby No" ng-change="TakeBabyPolicy();" ng-disabled="employeeInfo.EmpSystemID===null || employeeInfo.EmpSystemID===undefine">
+                        <option value="">Select</option>
+                        <option ng-repeat="option in cboBabyList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Leave Start Date</label>
+            <div class="col-sm-8">
+                <input type="text" ng-change="TakeEndDate();" ng-model="maternityLeaveTransactionNew.MaternityLeaveStartDay" datepicker disabled ng-disabled="maternityLeaveTransactionNew.BabyNo===null" class="form-control" tabindex="4">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">FollowUp Start Date</label>
+            <div class="col-sm-8">
+                <input type="text" ng-model="maternityLeaveTransactionNew.MaternityStartDay" class="form-control" disabled tabindex="4">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Duration</label>
+            <div class="col-sm-8">
+                <label>{{maternityLeaveTransactionNew.LeaveDays}} Days</label>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Policy Effective Date</label>
+            <div class="col-sm-8">
+                <input type="text" ng-model="maternityLeaveTransactionNew.EffectiveDate" class="form-control" disabled placeholder="dd-MM-yyyy" tabindex="4">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-12 control-label"></label>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-12 control-label"></label>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Leave End Date</label>
+            <div class="col-sm-8">
+                <input type="text" disabled ng-model="maternityLeaveTransactionNew.MaternityLeaveEndDay" class="form-control" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">FollowUp End Date</label>
+            <div class="col-sm-8">
+                <input type="text" ng-model="maternityLeaveTransactionNew.MaternityEndDay" disabled class="form-control" tabindex="4">
+            </div>
+        </div>
+
+    </div>
+    <div class="clearfix"></div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+    <div class="table-responsive aplos-grid-toggle">
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="content-container-fluid" style="color:black;">
+                <div style="color:black;" id="Grid" ej-grid e-datasource="maternityLeaveTransactions"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                     e-allowselection="true" e-recorddoubleclick="recorddoubleclick" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-field="Id" e-headertext="Id" e-width="70" e-visible="false"></div>
+                        <div e-column e-field="ChildNo" e-headertext="Baby No" e-width="70"></div>
+                        <div e-column e-field="FromDate" e-headertext="From Date" e-width="80"></div>
+                        <div e-column e-field="ToDate" e-headertext="To Date" e-width="60"></div>
+                        <div e-column e-field="ExpectedDelivaryDate" e-headertext="Expected Delivary Date" e-width="60"></div>
+                        <div e-column e-field="LeaveDays" e-headertext="Leave Days" e-width="60"></div>
+                        <div e-column e-field="Approved" e-headertext="Approved" e-width="60"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<confirm-modal></confirm-modal>
+
+
+
+<div class="modal fade site-modal in" id="employeeNewPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" ng-click="closeEmployeePopUp();">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="GridEmp" ej-grid e-datasource="dataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="SetData" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                            <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                            <div e-column e-field="DOJ" e-headertext="DOJ" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Close</button>
+            </div>
+        </div>
+    </div>
+</div>

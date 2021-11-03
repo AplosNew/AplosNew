@@ -1,0 +1,38 @@
+﻿
+
+<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> Un-Lock</h3>
+<div class="row form-horizontal form-elements">
+    <div class="col-xs-12 col-sm-6 col-md-6 ">
+        <div class="form-group">
+            <label class="col-sm-4 control-label"> Date<sup>*</sup></label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    @*<input class="form-control" id="txtLockDate" ng-model="customPara.lockDate" ng-disabled="DatePickerEnable" datepicker placeholder="dd-MM-yyyy" type="text" />*@
+                    <input class="form-control datepicker" ng-change="getEmpListData()" id="txtLockDate" ng-model="customPara.lockDate" placeholder="dd-MM-yyyy" type="text" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6 ">
+        <div class="form-group right">
+            <button ng-click="SaveUnLockData()" class="btn btn-success " style="width:80%">Un-Lock </button>
+
+        </div>
+    </div>
+    @*<div id="calendar"></div>*@
+
+
+
+
+</div>
+
+
+
+<ej-dialog id="dialogMessage" title="{{messageTitle}}" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target=".site-heading" e-close="onDialogClose" e-minwidth="50%" e-minheight="50" e-open="enableBtn">
+
+    <div>
+        {{messageText}}
+    </div>
+</ej-dialog>
+
+

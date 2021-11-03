@@ -1,0 +1,153 @@
+﻿<togglable name="HSN Tax Percentage"></togglable>
+<div class="form-horizontal form-element-ctrl" ng-form name="HSNTaxPercentageForm">
+    <div class="col-xs-12">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-2 control-label">Country<sup>*</sup></label>
+                <div class="col-sm-4 show-message">
+                    <div class="select-style">
+                        <select class="form-control" name="Country" ng-model="hSNTaxPercentage.CountryId" ng-change="getTaxCategoryCbo();getData()" required tabindex="1">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in countryList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+                <label class="col-sm-2 control-label">Tax Type<sup>*</sup></label>
+                <div class="col-sm-4 show-message">
+                    <div class="select-style">
+                        <select class="form-control" name="Country" ng-model="SpecialTax" required tabindex="1">
+                            <option ng-repeat="option in SpecialTaxCollection" value="{{option.Id}}">{{option.SpecialTax}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Tax Category<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="angularbind">
+                        <div id="control">
+                            <ul id="selecttax" ej-listbox e-datasource="taxCategoryList" e-showcheckbox="true" e-fields-text="Code" e-width="100%"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <ul class="common-btn list-inline text-left">
+                <li><button ng-click="Clear();openDialog('add')" class="btn" tabindex="10"><i class="glyphicon glyphicon-plus-sign"></i> ADD NEW</button></li>
+                <li><button ng-click="Clear();openDialog('edit')" class="btn" tabindex="10"><i class="glyphicon glyphicon-info-sign"></i> EDIT</button></li>
+            </ul>
+            @*<div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Effective Date<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="EffectiveDate" id="EffectiveDate" ng-model="hSNTaxPercentage.EffectiveDate"
+                               datepicker class="form-control datepicker" tabindex="3" required>
+                    </div>
+                </div>*@
+
+        </div>
+
+        <div class="col-xs-12">
+
+            @*<div>
+                    <div id="Grid"></div>
+                </div>
+
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="savetaxdata();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                        <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                    </ul>
+                </div>*@
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="form-elements">
+        <input type="hidden" ng-model="hSNTaxPercentage.Id">
+        @*<div class="col-xs-12">
+                <div>
+                    <div id="Grid"></div>
+                </div>
+            </div>
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li><button ng-click="savetaxdata();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                    <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                </ul>
+            </div>*@
+    </div>
+</div>
+<div class="modal fade site-modal in" id="recipeMaterialPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Tax Percentage Entry<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+
+
+            <div class="modal-body form-horizontal form-element-ctrl">
+                <div class="row" id="dateselection" ng-show="paramvisible">
+                    <div class="col-xs-6 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Effective Date<sup>*</sup></label>
+                            <div class="col-sm-6">
+                                <input type="text" name="EffectiveDate" id="EffectiveDate" ng-model="hSNTaxPercentage.EffectiveDate"
+                                       datepicker class="form-control datepicker" tabindex="3">
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="col-xs-6 col-sm-6 col-md-6">
+                        <div class="common-btn">
+                            <button ng-click="getupdatedata('add')" class="btn" tabindex="10"><i class="glyphicon glyphicon-plus-sign"></i> Load Tax Codes</button>
+                        </div>
+                    </div>
+                    @*<div class="col-xs-12 col-sm-6 col-md-6">
+
+                        <ul class="common-btn list-inline text-left" ng-hide="panelshow">
+                                 <li>
+
+                                 </li>
+                             </ul>
+                                </div>*@
+                </div>
+
+
+
+
+                <div id="panelgrid" ng-show="panelsaveshow">
+                    <div>
+                        <div id="Grid"></div>
+                    </div>
+
+
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            @*<li><button ng-click="savetaxdata();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Update</button></li>*@
+                            <li><button ng-click="Print();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Print</button></li>
+                            <li><button ng-click="Back();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Cancel</button></li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic data-modalid="confirmDocumentdelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRow()"></confirm-archive-generic>
+<confirm-archive-generic data-modalid="confirmDelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="Delete()"></confirm-archive-generic>
+
+<style type="text/css">
+
+
+    .e-filterset:before {
+        color: white;
+    }
+
+    .e-gridheader .e-headercell { /* grid header color and grid row select color*/
+        /*background: #a2f1ff;
+        color: #080076;
+        min-height: 100%;
+        border-bottom-color: #8B4513;*/
+        background-color: #1c1f32;
+        color: White;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+    }
+</style>

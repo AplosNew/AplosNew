@@ -1,0 +1,72 @@
+﻿<div class="modal fade site-modal in" id="viewAssignToMeDetail" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Task<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="site-tab">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="Update" role="tab" data-toggle="tab2">Taks Info</a></li>
+                        <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="address" role="tab" data-toggle="tab2">Sub Task</a></li>
+                    </ul>
+                </div>
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                        <div class="row" ng-form name="Form1">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" show-errors>Commitment Date</label>
+                                    <div class="col-sm-8 show-message">
+                                        @*<input required datepicker id="CommitmentDate" type="text" name="CommitmentDate" ng-model="taskAuditNew.CommitmentDate" ng-disabled="!isCommitmentDateNull" class="form-control" tabindex="1">*@
+                                        <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="taskAuditNew.CommitmentDate" e-width="100%" />
+                                    </div>
+                                </div>
+                                <div class="form-group" ng-show="!isCommitmentDateNull">
+                                    <label class="col-sm-4 control-label" show-errors>Revised Commitment Date</label>
+                                    <div class="col-sm-8 show-message">
+                                        @*<input required datepicker id="RevisedCommitmentDate" type="text" name="RevisedCommitmentDate" ng-model="taskAuditNew.RevisedCommitmentDate" class="form-control" tabindex="2">*@
+                                        <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="taskAuditNew.RevisedCommitmentDate" e-width="100%" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Remarks</label>
+                                    <div class="col-sm-8">
+                                        <textarea class="form-control" name="Remarks" rows="3" ng-model="taskAuditNew.Remarks" maxlength="250" tabindex="3"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                        <div class="row" ng-form name="Form2">
+                            <div id="GridIssueTransaction" ng-init="isDoneChange()" ej-grid e-datasource="SubTaskList" @*e-templaterefresh="refreshTemplateIssueTransaction"*@
+                                 e-recorddoubleclick="EditAssignToMeDetail" e-allowfiltering="true" e-gridlines="none" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                 e-allowselection="true" e-filtersettings-filterType="excel">
+                                <div e-columns>
+                                    <div e-column e-headertext="Status" e-template="#chkDone" e-textalign="center" e-width="40"></div>
+                                    <div e-column e-field="TaskDetail" e-headertext="Sub Task Detail"></div>
+                                    <div e-column e-headertext="Status" e-template="#chkDone" e-textalign="center" e-width="40"></div>
+                                </div>
+                            </div>
+                            <script type="text/template" id="chkDone">
+                                <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Id" e-checked="data.IsDone" e-change="$parent.isDoneChange" />
+                            </script>
+                           
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="saveAssignToMeDetail();" class="btn" tabindex="6"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button>
+                <button ng-click="hideIssueTaskPopUp();" class="btn"><i class=""></i> Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+

@@ -1,0 +1,191 @@
+﻿<togglable name="Lay Off Assign"></togglable>
+<div class="form-elements form-horizontal" ng-form name="LayOffForm">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Description<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <textarea name="Description" class="form-control" rows="3" ng-model="LayOff.Description" required maxlength="250"></textarea>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Original Date" ng-model="LayOff.FromDate" datepicker class="form-control datepicker" required tabindex="1">
+                </div>
+            </div>
+
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Compensatory Date" ng-model="LayOff.ToDate" datepicker class="form-control datepicker" maxlength="15" required tabindex="3">
+                </div>
+            </div>
+
+        </div>
+        <div class="common-btn">
+            <ul class="common-btn list-inline text-right">
+                <li><button ng-click="selectemployee()" ng-show="employeeSave" class="btn" tabindex="10"><i class="glyphicon glyphicon-plus-sign"></i> Select Employee</button></li>
+                <li><button ng-click="saveplantdata()" class="btn" tabindex="10"><i class="glyphicon glyphicon-save"></i> Save</button></li>
+                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                @*<li><button ng-click="deleteplantdata()" class="btn" tabindex="10"><i class="glyphicon glyphicon-save"></i> Delete</button></li>*@
+                <li><button ng-click="Clear()" class="btn" tabindex="10"><i class="glyphicon glyphicon-save"></i> Clear</button></li>
+
+            </ul>
+        </div>
+        <div id="Gridselectedemployee" ng-init="chkinit()" ng-show="selectedemployees.length>0" ej-grid e-datasource="selectedemployees"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel">
+            <div e-columns>
+                <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="60"></div>
+                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                <div e-column e-field="DOJ" e-headertext="DOJ" e-width="60"></div>
+                <div e-column e-field="JoinedAfter" e-headertext="New Join" e-width="60"></div>
+                <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                <div e-column e-field="Designation" e-headertext="Designation" e-width="80"></div>
+                <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                <div e-column e-headertext="" e-template="#btnDelete" e-textalign="center" e-width="20"></div>
+            </div>
+        </div>
+
+        <script type="text/template" id="btnDelete">
+            <button class="common-btn" ng-click="$parent.deleteEmployee(this)"><i class="glyphicon glyphicon-trash"></i></button>
+           
+        </script>
+    </div>
+</div>
+<div class="aplos-grid-toggle">
+    @*<div class="col-xs-12 col-sm-12 col-sm-12">*@
+    <div class="content-container-fluid">
+        <div id="Grid" ng-init="chkinit()" ej-grid e-datasource="editdata" e-recorddoubleclick="editdoubleclick"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel">
+            <div e-columns>
+                <div e-column e-field="Description" e-headertext="Description" e-width="200"></div>
+                <div e-column e-field="FromDate" e-headertext="From Date" e-width="80"></div>
+                <div e-column e-field="ToDate" e-headertext="To Date" e-width="80"></div>
+
+            </div>
+        </div>
+
+    </div>
+
+
+    <script type="text/x-jsrender" id="OTApplicable">
+        <div>{{:IsOriginalDateOTApplicable?'Yes':'No'}}</div>
+    </script>
+    <script type="text/x-jsrender" id="EntirePlant">
+        <div>{{:ForEntirePlant?'Yes':'No'}}</div>
+    </script>
+    @*</div>*@
+</div>
+
+
+<div class="modal fade site-modal in" id="recipeMaterialPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Select Employees<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="row">
+                <div class="col-sm-6">
+                    Also Include Employees Who Joined After {{minDate}}
+
+                </div>
+                <div class="col-sm-6" style="margin-top: 6px;">
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" ng-model="IsFutureDOJAccepted" ng-change="FutureDateAccepted()" tabindex="8">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-sm-12">
+                <div class="search-form">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-3 col-md-3">
+                            <div class="select-style">
+                                <select ng-model="searchfield">
+                                    <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-7 col-md-7">
+                            <input type="text" class="form-control" placeholder="Search" ng-model="searchtext" ng-enter="searchEmployee()">
+                        </div>
+                        <div class="col-xs-12 col-sm-2 col-md-2  text-right">
+                            <button type="button" ng-click="searchEmployee()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-sm-12">
+                <div class="content-container-fluid">
+
+                    <div id="Gridemployee" ng-init="chkinit()" ej-grid e-datasource="searchdata" e-actioncomplete="actionCompleteSelected"
+                         e-templaterefresh="refreshTemplateemployee"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="20"></div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="50" e-primarykey="true"></div>
+                            <div e-column e-field="DOJ" e-headertext="DOJ" e-width="60"></div>
+                            <div e-column e-field="JoinedAfter" e-headertext="New Join" e-width="60"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-field="Designation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                            @*<div e-column e-headertext="" e-template="#sample" e-textalign="center" e-width="50"></div>*@
+                        </div>
+                    </div>
+
+
+                    <script type="text/x-jsrender" id="sample">
+                        <div class="form-elements">
+                            <input type="text" name="edittext" value="{{:SubSection}}" ng-model="searchdata[0].SubSection" class="form-control">
+                        </div>
+                    </script>
+                </div>
+            </div>
+            <ul class="common-btn list-inline text-right" style="        padding: 20px;">
+                <li><button ng-click="saveemployeedata();" class="btn" tabindex="10"><i class="glyphicon glyphicon-info-sign right"></i> Add</button></li>
+                <li><button ng-click="Back();" class="btn" tabindex="10"><i class="glyphicon glyphicon-info-sign right"></i> Back</button></li>
+            </ul>
+
+        </div>
+    </div>
+</div>
+<confirm-modal></confirm-modal>
+<script type="text/x-jsrender" id="checkboxTemplate">
+    <input type="checkbox" ng-model="{{:Id}}" class="rowCheckbox" value="{{:Id}}" />
+</script>
+<script type="text/x-jsrender" id="headerTemplate">
+    <input type="checkbox" id="headchk" />
+</script>
+<style type="text/css">
+
+
+    .e-grid .e-templatecell {
+        padding: 0px 4px 0px 0px;
+    }
+
+    .e-filterset:before {
+        color: white;
+    }
+
+    .e-gridheader .e-headercell { /* grid header color and grid row select color*/
+        background-color: #1c1f32;
+        color: White;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+    }
+</style>

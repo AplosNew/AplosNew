@@ -1,0 +1,103 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> {{FormTitle}}
+</h3>
+
+<div class="form-elements form-horizontal" ng-form name="MovementScanDataForm">
+    <div class="row" ng-form name="General">
+
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="selectedValues.EntityId" name="Entity"
+                                ng-options="item.Value as item.Text for item in EntityList" ng-change="nullAll()" required tabindex="1">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="From Date" ng-model="selectedValues.FromDate" datepicker class="form-control" required tabindex="3">
+
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">From Location</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="selectedValues.FromId" name="FromLoc" ng-change="GetTo()"
+                                ng-options="item.Value as item.Text for item in FromList" tabindex="5">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+
+
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Purpose<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="selectedValues.PurposeId" name="Purpose" ng-change="GetFrom()"
+                                ng-options="item.Value as item.Text for item in PurposeList" required tabindex="2">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="To Date" ng-model="selectedValues.ToDate" datepicker class="form-control" required tabindex="4">
+
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">To Location</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="selectedValues.ToId" name="ToLoc"
+                                ng-options=" item.Value as item.Text for item in ToList" tabindex="6">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <br />
+
+        <div class="common-btn" style="padding-right:20px;">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="loadGrid()" class="btn" tabindex="4"><i class="glyphicon glyphicon-arrow-down"></i> View</button></li>
+                <li> <button ng-click="clearFliters()" class="btn" tabindex="5"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+
+
+    </div>
+    <confirm-modal></confirm-modal>
+
+
+    <div id="GridData" style="margin-top:30px;"></div>
+
+    <div class="common-btn" style="margin-top:20px;">
+        <ul class="list-inline text-left">
+            <li> <button id="but" ng-click="filteringData()" style="display:none;" class="btn" tabindex="6"><i class="glyphicon glyphicon-arrow-down"></i> Transfer to Excel</button></li>
+        </ul>
+    </div>
+</div>
+
+

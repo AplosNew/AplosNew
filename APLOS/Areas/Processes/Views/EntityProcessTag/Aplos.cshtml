@@ -1,0 +1,335 @@
+﻿<style>
+    .selected {
+        background-color: rgba(234, 97, 83, 0.42) !important;
+    }
+</style>
+<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> Entity Production Process</h3>
+<div class="row form-elements form-horizontal" ng-form="modelForm">
+    <input type="hidden" ng-model="entityProcessTag.Id">
+    <div class="col-xs-12 col-sm-4 col-md-4">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Company<sup>*</sup></label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    <select id="CompanyId" class="form-control" ng-model="entityProcessTag.CompanyId" name="Company" ng-change="getPlant();" required tabindex="1">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in companyList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="col-xs-12 col-sm-4 col-md-4">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Plant<sup>*</sup> </label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select id="PlantId" class="form-control" ng-model="entityProcessTag.PlantId" name="Plant" ng-change="getEntity();" required tabindex="1">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in PlantList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-4 col-md-4">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Production Entity<sup>*</sup></label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    <select id="EntityId" class="form-control" ng-model="entityProcessTag.EntityId" name="Production Entity" ng-change="getEntityMapData();getData();" required tabindex="1">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in entityList" value="{{option.Id}}">{{option.UserName}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" ng-repeat="x in entities" ng-if="$index % 2 == 0">
+            <label class="col-sm-4 control-label">{{x.Text}}</label>
+            <div class="col-sm-8" ng-repeat="y in entityValue">
+                <label class="col-sm-8 control-label"><b>{{y[x.Value]}}</b></label>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" ng-repeat="x in entities" ng-if="$index % 2 != 0">
+            <label class="col-sm-4 control-label">{{x.Text}}</label>
+            <div class="col-sm-8" ng-repeat="y in entityValue">
+                <label class="col-sm-8 control-label"><b>{{y[x.Value]}}</b></label>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <ul class="common-btn list-inline text-left">
+            <li><button ng-click="processPopUp();" class="btn" tabindex="10"><i class="glyphicon glyphicon-plus"></i> Add Production Process</button></li>
+        </ul>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <ul class="common-btn list-inline text-right">
+            <li><button ng-click="Save();" class="btn" tabindex="10"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li><button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li><button ng-click="Clear();" class="btn" tabindex="10"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<div class="table-responsive modal-table" ng-show="entityProcessTagList.length>0">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Sequence</th>
+                <th>Code</th>
+                <th>Short Name</th>
+                <th>Standard Name</th>
+                <th>User Name</th>
+                <th>Production Process</th>
+                <th>Active</th>
+                <th>Process Nature</th>
+                <th>Production Booking Level</th>
+                <th>Lot No. Capture</th>
+                <th>Lot No. Mandatory</th>
+                <th>Remove</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="x in entityProcessTagList" ng-class="{selected : x.Id==null}">
+                <td>{{x.Sequence}}</td>
+                <td>{{x.Code}}</td>
+                <td>{{x.ShortName}}</td>
+                <td>{{x.StandardName}}</td>
+                <td>{{x.UserName}}</td>
+                <td>{{x.IsProductionProcess?'Yes':'No'}}</td>
+                <td>{{x.Active?'Yes':'No'}}</td>
+                <td>
+                    @*<button ng-click="ProcessNature(x,$index)" class="btn">Nature</button>*@
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li>
+                                <btton ng-click="ProcessNature(x,$index);" tooltip data-placement="top" title="Nature" class="btn single-small-btn">Nature</btton>
+                            </li>
+                        </ul>
+                    </div>
+                </td>
+                <td>
+                    <div class="select-style">
+                        <select class="form-control" ng-model="x.ProductionBookingLevel" ng-options="item.Value as item.Text for item in productionBookingLevelList">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </td>
+                <td>
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" ng-model="x.LotNumberCapture" ng-change="UncheckMandatory(x);">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </td>
+                <td>
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" ng-model="x.LotNumberMandatory" ng-disabled="!x.LotNumberCapture">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </td>
+                <td class="text-right table-td">
+                    <ul class="list-inline action-list">
+                        <li>
+                            <button ng-click="removeRowModal(x.UserName, $index,'entityProcessTagList', 'Id', 'ProcessId');" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
+                                <i class="glyphicon glyphicon-remove"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </td>
+
+            </tr>
+        </tbody>
+    </table>
+</div>
+<!-- #region Process -->
+<div class="modal fade site-modal in" id="processPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"><i class="glyphicon glyphicon-info-sign"></i> Process</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="processParameters.searchBy">
+                                            <option ng-repeat="option in searchProcessByList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="processParameters.search" ng-enter="getProcessData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getProcessData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Select</th>
+                                <th>Sequence</th>
+                                <th>Code</th>
+                                <th>Short Name</th>
+                                <th>Standard Name</th>
+                                <th>User Name</th>
+                                <th>Production Process</th>
+                                <th>Active</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in processList|itemsPerPage:processParameters.pageSize"
+                                pagination-id="metaData.name + 'processList'" total-items="processParameters.total_count">
+                                <td>
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="x.Flag" ng-checked="x.Flag" ng-click="genericPushInTempList(x, $event, entityProcessTagList, 'Id', 'ProcessId');">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>{{x.Sequence}}</td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.ShortName}}</td>
+                                <td>{{x.StandardName}}</td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.IsProductionProcess?'Yes':'No'}}</td>
+                                <td>{{x.Active?'Yes':'No'}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'processList'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getProcessData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="addProcess()" class="btn">Done</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion -->
+<confirm-modal></confirm-modal>
+<confirm-archive-generic modalid="confirmProcessPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRow()"></confirm-archive-generic>
+<div class="modal fade site-modal in" id="NaturePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">{{entityProcess.UserName}} Process Nature <button type="button" class="close" data-dismiss="modal">&times;</button> </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="form-elements">
+                        <div class="col-xs-12 form-horizontal">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Process Nature<sup>*</sup></label>
+                                    <div class="col-sm-8">
+                                        <div class="select-style">
+                                            <select id="ProcessNature" class="form-control" name="Process Nature" ng-model="entityProcess.ProcessNature" tabindex="1" required ng-change="ClearProcessNatureFields();">
+                                                <option value="">--Select--</option>
+                                                <option ng-repeat="option in processNatureList" value="{{option.Value}}">{{option.Text}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" ng-show="entityProcess.ProcessNature==='Packing'">
+                                    <label class="col-sm-8 control-label">Is Packing SKU Required?</label>
+                                    <div class="col-sm-4">
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="entityProcess.IsPackingSKURequired" tabindex="8">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group" ng-show="entityProcess.ProcessNature==='Dispatch'">
+                                    <label class="col-sm-8 control-label">Is Dispatch SKU Required?</label>
+                                    <div class="col-sm-4">
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="entityProcess.IsDispatchSKURequired" tabindex="8">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group" ng-show="entityProcess.ProcessNature==='Packing'">
+                                    <label class="col-sm-8 control-label">Output will go to finish goods?</label>
+                                    <div class="col-sm-4">
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="entityProcess.IsFinishGoods" tabindex="8">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group" ng-show="entityProcess.IsPackingSKURequired===true">
+                                    <label class="col-sm-4 control-label">Packing Form<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="Employee Code" ng-model="entityProcess.PackingForm" class="form-control" maxlength="30" required tabindex="1">
+                                    </div>
+                                </div>
+                                <div class="form-group" ng-show="entityProcess.IsDispatchSKURequired===true">
+                                    <label class="col-sm-4 control-label">Dispatch Form<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="Employee Code" ng-model="entityProcess.DispatchForm" class="form-control" maxlength="30" required tabindex="1">
+                                    </div>
+                                </div>
+                                <div class="form-group" ng-show="entityProcess.IsDispatchSKURequired===true">
+                                    <label class="col-sm-4 control-label">Dispatch Type<sup>*</sup></label>
+                                    <div class="col-sm-8">
+                                        <div class="select-style">
+                                            <select class="form-control" ng-model="entityProcess.DispatchType" name="Dispatch Type">
+                                                <option value="">--Select--</option>
+                                                <option value="Fresh">Fresh</option>
+                                                <option value="Same as Packing">Same as Packing</option>
+                                                <option value="Packing SKU Put Together">Packing SKU Put Together</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="closePopUp()" class="btn">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

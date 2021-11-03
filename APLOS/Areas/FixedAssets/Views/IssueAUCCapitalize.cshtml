@@ -1,0 +1,399 @@
+﻿<togglable name="FixedAsset Capitalize"></togglable>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <div class="aplos-grid-toggle">
+        <div class="tab-design" id="tab_show">
+            <div class="site-tab">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1);capitalizetype('AssetCapatalized')" href="" aria-controls="general" role="tab" data-toggle="tab">Asset AUC Capitalize</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);capitalizetype('AssetNonCapitalized')" href="" aria-controls="Service" role="tab" data-toggle="tab">Inventory AUC Capitalize</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);capitalizetype('PostedCapitalized')" href="" aria-controls="Service" role="tab" data-toggle="tab">Posted Capitalize</a></li>
+                </ul>
+            </div>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                    <div class="row">
+                        <div class="content-container-fluid" style="color:black;">
+                            <div style="color:black;" id="popUpData" ej-grid e-datasource="popUpDataList"
+                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                                 e-filtersettings-filterType="excel" e-recorddoubleclick="Done"
+                                 e-enabletouch="true" e-allowselection="true" e-templaterefresh="refreshTemplate"
+                                 e-rowdatabound="rowDataBound"  e-allowscrolling="true">
+
+                                <div e-columns>
+                                    @*<div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="20"></div>*@
+                                    <div e-column e-field="IssueNo" e-headertext="Issue No" e-width="60"></div>
+                                    <div e-column e-field="IssueDate" e-headertext="IssueDate" e-width="60"></div>
+                                    <div e-column e-field="GRNNo" e-headertext="GRNNo" e-width="60"></div>
+                                    <div e-column e-field="GRNDate" e-headertext="GRN Date" e-width="60"></div>
+                                    <div e-column e-field="GateEntryNo" e-headertext="GateEntry No" e-width="60"></div>
+                                    <div e-column e-field="POId" e-headertext="PO No" e-width="60"></div>
+                                    <div e-column e-field="GRNCurrency" e-headertext="GRN Currency" e-width="60"></div>
+                                    <div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="80"></div>
+                                    <div e-column e-field="GRNAmount" e-headertext="Amount (TRN)" textAlign='Right' e-width="80"></div>
+                                    <div e-column e-field="CurrencyCode" e-headertext="Books Currency" e-width="60"></div>
+                                    <div e-column e-field="Amount" e-headertext="Amount (Books)" textAlign='Right' e-width="80"></div>
+                                    <div e-column e-field="MaterialGroupMasterName" e-headertext="MaterialGroup" e-width="120"></div>
+                                    <div e-column e-field="UserName" e-headertext="Material" e-width="140"></div>
+                                    <div e-column e-field="StandardName" e-headertext="Article" e-width="160"></div>
+                                    <div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="100"></div>
+                                    <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="100"></div>
+                                    <div e-column e-field="PartyName" e-headertext="Vendor" e-width="100"></div>
+                                    <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="100"></div>
+                                    <div e-column e-field="UnitOfMeasurement" e-headertext="UOM" e-width="30"></div>
+                                </div>
+                            </div>
+                        </div>
+                        @*<script type="text/x-jsrender" id="checkboxTemplate">
+                    <input type="checkbox" ng-model="{{:InventoryIssueHistoryId}}" class="rowCheckbox" value="{{:InventoryIssueHistoryId}}" />
+                </script>*@
+                        @*<script type="text/x-jsrender" id="headerTemplate">
+                    <input type="checkbox" id="headchk" />
+                </script>*@
+                        @*<div class="common-btn">
+                    <ul class="common-btn list-inline text-right">
+                        <li> <button ng-click="Done();" class="btn"> Done</button></li>
+                    </ul>
+                </div>*@
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                    <div class="row">
+                        <div class="content-container-fluid" style="color:black;">
+                            <div style="color:black;" id="issueInventoryAUC" ej-grid e-datasource="issueInventoryAUCDataList" @*ng-init="chkinit()"*@
+                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                                 e-rowdatabound="dataBoundInventory" e-filtersettings-filterType="excel"
+                                 e-enabletouch="true" e-allowselection="true" e-templaterefresh="refreshInventoryTemplate"
+                                 e-recorddoubleclick="InventoryDone" e-scrollsettings="scroll">
+                                <div e-columns>
+                                    @*<div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemp" e-textalign="center" e-width="20"></div>*@
+                                    <div e-column e-field="IssueNo" e-headertext="Issue No" e-width="60"></div>
+                                    <div e-column e-field="IssueDate" e-headertext="IssueDate" e-width="60"></div>
+                                    <div e-column e-field="GRNNo" e-headertext="GRNNo" e-width="60"></div>
+                                    <div e-column e-field="GateEntryNo" e-headertext="GateEntry No" e-width="60"></div>
+                                    <div e-column e-field="POId" e-headertext="PO No" e-width="60"></div>
+                                    <div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="80"></div>
+                                    <div e-column e-field="Amount" e-headertext="Amount (TRN)" textAlign='Right' e-width="80"></div>
+                                    <div e-column e-field="MaterialGroupMasterName" e-headertext="MaterialGroup" e-width="120"></div>
+                                    <div e-column e-field="UserName" e-headertext="Material" e-width="140"></div>
+                                    <div e-column e-field="StandardName" e-headertext="Article" e-width="160"></div>
+                                    <div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="100"></div>
+                                    <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="100"></div>
+                                </div>
+                            </div>
+                        </div>
+                        @*<script type="text/x-jsrender" id="checkboxTemp">
+                    <input type="checkbox" ng-model="{{:InventoryIssueHistoryId}}" class="rowCheckbox" value="{{:InventoryIssueHistoryId}}" />
+                </script>*@
+                        @*<script type="text/x-jsrender" id="headerTemplate">
+                    <input type="checkbox" id="headchk" />
+                </script>*@
+                        @*<div class="common-btn">
+                    <ul class="common-btn list-inline text-right">
+                        <li> <button ng-click="InventoryDone();" class="btn"> Done</button></li>
+                    </ul>
+                </div>*@
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                    <div class="row">
+                        <div class="content-container-fluid" style="color:black;">
+                                <div style="color:black;" id="postedAUC" ej-grid e-datasource="PostedAUCList" e-allowfiltering="true" e-allowpaging="true"
+                                     e-allowsorting="true" e-allowResizing="true" e-filtersettings-filterType="excel" e-enabletouch="true"
+                                     e-actioncomplete="actionCompleteSelected" e-allowscrolling="true" e-showstackedheader="true">
+                                    <div e-columns>
+                                        <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="60"></div>
+                                        <div e-column e-field="IssueNo" e-headertext="Issue No" e-width="60"></div>
+                                        <div e-column e-field="GRNNo" e-headertext="GRN No" e-width="60"></div>
+                                        <div e-column e-field="PostingDate" e-headertext="PostingDate" e-width="60" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                                        <div e-column e-field="DocRefNo" e-headertext="DocRefNo" e-width="60"></div>
+                                        <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="60"></div>
+                                        <div e-column e-field="TotalAmount" e-headertext="Amount" e-width="60"></div>
+                                        <div e-column e-headertext="PDF" e-commands="commandPDF" e-isunbound=true e-textalign="center" e-width="60"></div>
+                                        <div e-column e-headertext="Excel" e-commands="commandExcel" e-isunbound=true e-textalign="left" e-width="60"></div>
+                                        <div e-column e-headertext="Issue" e-commands="commandIssue" e-isunbound=true e-textalign="left" e-width="60"></div>
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="form-elements form-horizontal" ng-form="modelNewForm">
+   
+    <fieldset class="scheduler-border">
+        <legend class="scheduler-border">Capitalize Journal :</legend>
+
+        <div class="tab-design">
+            <div class="site-tab">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" ng-class="{ active: isSet2(1) }"><a ng-click="setTab2(1)" href="" aria-controls="general" role="tab" data-toggle="tab2">Issue Material</a></li>
+                    <li role="presentation" ng-class="{ active: isSet2(2) }"><a ng-click="setTab2(2);issueJournal()" href="" aria-controls="Service" role="tab" data-toggle="tab2">Journal</a></li>
+                </ul>
+            </div>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(1), active: isSet2(1) }" ng-form="tabForm1">
+                    <div class="row">
+                        <div class="table-responsive modal-table" style="overflow:scroll">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Issue No</th>
+                                        <th>Issue Date</th>
+                                        <th>PO No</th>
+                                        <th>Qty</th>
+                                        <th>Currency</th>
+                                        <th>Amount (TRN)</th>
+                                        <th>MaterialGroup</th>
+                                        <th>Material</th>
+                                        <th>Article</th>
+                                        <th>SKU1</th>
+                                        <th>SKU2</th>
+                                        <th style="width: 200px;">Asset Master</th>
+                                        <th style="width: 200px;">Budget</th>
+                                        <th style="width: 150px;">Activity</th>
+                                        <th>AUC Budget</th>
+                                        <th>AUC Activity</th>
+                                        <th>Vendor</th>
+                                        <th>Employee Name</th>
+                                        <th>UoM</th>
+                                        <th>GRNNo</th>
+                                        <th>GRN Date</th>
+                                        <th>Gate EntryNo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in selectFixedAssetDataList">
+                                        <td>{{x.IssueNo}}</td>
+                                        <td>{{x.IssueDate}}</td>
+                                        <td>{{x.POId}}</td>
+                                        <td>{{x.TransactionQty}}</td>
+                                        <td>{{x.GRNCurrency}}</td>
+                                        <td>{{x.Amount}}</td>
+                                        <td>{{x.MaterialGroupMasterName}}</td>
+                                        <td>{{x.UserName}}</td>
+                                        <td>{{x.StandardName}}</td>
+                                        <td>{{x.FirstCharacteristicsValue}}</td>
+                                        <td>{{x.SecondCharacteristicsValue}}</td>
+                                        <td>{{x.AssetMasterName}}</td>
+                                        <td>
+                                            <div class="input-group" style="margin-top: -7px;margin-bottom: -7px;">
+                                                <input type="text" ng-model="x.DrBudgetName" class="form-control" readonly style="width: 100px;">
+                                                <span class="input-group-btn">
+                                                    <button tabindex="1" ng-click="GetIssueAUC($index,x);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                    <button class="btn single-small-btn" ng-click="refreshGLMB($index);"><i class="cr-icon glyphicon glyphicon-refresh"></i></button>
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="input-group">
+                                                <div class="select-style" style="width: 150px;">
+                                                    <span>
+                                                        <select class="form-control" ng-model="x.PostDrActivityId" ng-options="item.ActivityId as item.ActivityName for item in activityList|
+                                                                filter:{ BudgetMasterId: x.PostDrBudgetMasterId}:true">
+                                                            <option></option>
+                                                        </select>
+                                                    </span>
+                                                </div>
+
+                                            </div>
+
+                                        </td>
+                                        <td>{{x.CrBudgetName}}</td>
+                                        <td>{{x.CrActivityCode}}</td>
+                                        <td>{{x.PartyName}}</td>
+                                        <td>{{x.EmployeeName}}</td>
+                                        <td>{{x.UnitOfMeasurement}}</td>
+                                        <td>{{x.GRNNo}}</td>
+                                        <td>{{x.GRNDate}}</td>
+                                        <td>{{x.GateEntryNo}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(2), active: isSet2(2) }">
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>GL</th>
+                                    <th>Budget</th>
+                                    <th>Activity</th>
+                                    <th>Dr</th>
+                                    <th>Cr</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in capitalizeJournalList">
+                                    <td>{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</td>
+                                    <td>{{x.BudgetName}}</td>
+                                    <td>{{x.ActivityName}}</td>
+                                    <td class="text-right">{{x.Dr | number| setDecimal:2}}</td>
+                                    <td class="text-right">{{x.Cr | number| setDecimal:2}}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="text-right"><strong>Total : </strong></td>
+                                    <td class="text-right"><strong>{{capitalizeJournalList | sumByKey : 'Dr'| number| setDecimal:2 }}</strong></td>
+                                    <td class="text-right"><strong>{{capitalizeJournalList | sumByKey : 'Cr'| number| setDecimal:2 }}</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="clearfix"></div>
+            <div class="common-btn">
+                <ul class="common-btn list-inline text-right">
+                    <li> <button ng-click="Post();" class="btn"> Post</button></li>
+                    <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                </ul>
+            </div>
+        </div>
+
+
+    </fieldset>
+</div>
+@Html.Partial("~/Areas/Accounts/Views/GLItem/_AssetMasterGLBudgetPopUp.cshtml")
+
+<style>
+    .modellgModify {
+        width: 1400px;
+    }
+</style>
+<!-- #region Inventory Issue Data -->
+<div class="modal fade site-modal in" id="popUpId" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> {{popUpTitle}}<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="popUpData" ej-grid e-datasource="popUpDataList"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                         e-recorddoubleclick="selectDoubleClick" e-filtersettings-filterType="excel"
+                         e-enabletouch="true" e-allowselection="true"
+                         e-scrollsettings="scroll">
+                        <div e-columns>
+                            <div e-column e-field="IssueNo" e-headertext="Issue No" e-width="60"></div>
+                            <div e-column e-field="IssueDate" e-headertext="IssueDate" e-width="60"></div>
+                            <div e-column e-field="POId" e-headertext="PO No" e-width="60"></div>
+                            <div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="80"></div>
+                            <div e-column e-field="Amount" e-headertext="Amount (TRN)" textAlign='Right' e-width="80"></div>
+                            <div e-column e-field="MaterialGroupMasterName" e-headertext="MaterialGroup" e-width="120"></div>
+                            <div e-column e-field="UserName" e-headertext="Material" e-width="140"></div>
+                            <div e-column e-field="StandardName" e-headertext="Article" e-width="160"></div>
+                            <div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="100"></div>
+                            <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="100"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="common-btn">
+                </div>
+            </div>
+            <div class="modal-footer  common-btn">
+                <button type="button" class="btn btn-default" ng-click="closePopUp()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion -->
+<!-- #region Inventory Issue Data -->
+<div class="modal fade site-modal in" id="issueInventoryAUC" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> {{popUpTitle}}<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="popUpData" ej-grid e-datasource="issueInventoryAUCDataList"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                         e-recorddoubleclick="selectIssueInventoryAUCDoubleClick" e-filtersettings-filterType="excel"
+                         e-enabletouch="true" e-allowselection="true"
+                         e-scrollsettings="scroll">
+                        <div e-columns>
+                            <div e-column e-field="IssueNo" e-headertext="Issue No" e-width="60"></div>
+                            <div e-column e-field="IssueDate" e-headertext="IssueDate" e-width="60"></div>
+                            <div e-column e-field="POId" e-headertext="PO No" e-width="60"></div>
+                            <div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="80"></div>
+                            <div e-column e-field="Amount" e-headertext="Amount (TRN)" textAlign='Right' e-width="80"></div>
+                            <div e-column e-field="MaterialGroupMasterName" e-headertext="MaterialGroup" e-width="120"></div>
+                            <div e-column e-field="UserName" e-headertext="Material" e-width="140"></div>
+                            <div e-column e-field="StandardName" e-headertext="Article" e-width="160"></div>
+                            <div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="100"></div>
+                            <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="100"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="common-btn">
+                </div>
+            </div>
+            <div class="modal-footer  common-btn">
+                <button type="button" class="btn btn-default" ng-click="closeIssueInventoryAUCPopUp()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion -->
+<!-- #region GL -->
+<div class="modal fade site-modal in" id="gltListPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Down Payment GL<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="glListParameters.searchBy">
+                                            <option ng-repeat="option in searchGLByList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="glListParameters.search" ng-enter="getGLData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getGLData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive  modal-table ">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Account Group</th>
+                                <th>GL </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in glList |itemsPerPage:glListParameters.pageSize" pagination-id="metaData.name + 'glList'" total-items="glListParameters.total_count" ng-dblclick="setGL(x)">
+                                <td>{{x.AccountGroupName}}</td>
+                                <td>{{x.GLGeneralInfoName}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <dir-pagination-controls max-size="10"
+                                         pagination-id="metaData.name + 'glList'"
+                                         direction-links="true"
+                                         boundary-links="true"
+                                         on-page-change="getGLData(newPageNumber)">
+                </dir-pagination-controls>
+            </div>
+            <div class="modal-footer  common-btn">
+                <button type="button" class="btn btn-default" ng-click="closeGltListPopUp()">Select</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion -->

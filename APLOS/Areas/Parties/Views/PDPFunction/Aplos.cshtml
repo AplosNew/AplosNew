@@ -1,0 +1,169 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Partner Determination Procedure Function<label style="float:right"></label>
+</h3>
+<div class="form-elements form-horizontal" ng-form id="PDPFunction" name="pDPFunctionForm">
+    <div class="col-xs-14 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-6 control-label">Partner Determination Procedure<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select name="Partner Determination Procedure" ng-model="pDPFunction.PartnerDeterminationProcedureId" class="col-sm-3 form-control"
+                            ng-change="getPDPFunction(pDPFunction.PartnerDeterminationProcedureId);"
+                            ng-options="item.Value as item.Text for item in partnerDetarminationProcedureList" required></select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Active</label>
+            <div class="col-sm-8">
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" ng-model="pDPFunction.Active" tabindex="8">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="common-btn">
+        <button name="submit" data-toggle="modal" class="btn" ng-click="getPartnerFunctionList()">Select Partner Function</button>
+    </div>
+    <br />
+    <div class="table-responsive modal-table">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Delete</th>
+                    <th>Code</th>
+                    <th>PF Name</th>
+                    <th>Account Type</th>
+                    <th>Mandatory</th>
+                    <th>Modifiable</th>
+                    <th>Default Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="p in partnerFunctionDataList">
+                    <td class="text-right table-td">
+                        <ul class="list-inline action-list">
+                            <li>
+                                <button ng-click="valuePassInDelModal($index,p.Id, p.PFName)" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
+                                    <i class="glyphicon glyphicon-remove"></i>
+                                </button>
+                            </li>
+                        </ul>
+                    </td>
+                    <td>{{p.Code}}</td>
+                    <td>{{p.PFName}}</td>
+                    <td>{{p.AccountType}}</td>
+                    <td>
+                        <div class="checkbox-site">
+                            <label>
+                                <input type="checkbox" ng-model="p.IsMandatory">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="checkbox-site">
+                            <label>
+                                <input type="checkbox" ng-model="p.IsModifiable">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="checkbox-site">
+                            <label>
+                                <input type="checkbox" ng-model="p.IsDefaultValue">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="Save();" class="btn" tabindex="10"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="12"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<confirm-modal></confirm-modal>
+<div class="modal fade site-modal in" id="PartnerFunctionPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> Select Partner Function</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="partnerfunctionparameters.searchBy">
+                                            <option ng-repeat="option in searchpartnerFunctionList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="partnerfunctionparameters.search" ng-enter="getPartnerFunctionList()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getPartnerFunctionList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Apply</th>
+                                <th>Code</th>
+                                <th>PF Name</th>
+                                <th>Account Type</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="pf in partnerFunctionList |itemsPerPage:accountcodemodaldataparameters.pageSize" pagination-id="metaData.name + 'partnerFunctionList'" total-items="partnerfunctionparameters.total_count">
+                                @*<tr dir-paginate="pf in partnerFunctionList|itemsPerPage:$root.pageSize" total-items="$root.total_count">*@
+                                <td>
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="pf.Active" checked="{{pf.Active}}">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>{{pf.Code}}</td>
+                                <td>{{pf.PFName}}</td>
+                                <td>{{pf.AccountType}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button type="submit" class="btn btn-default" ng-click="closePartnerFunctionPopUp();">Add</button></li>
+                    </ul>
+                </div>
+                <dir-pagination-controls max-size="10"
+                                         pagination-id="metaData.name + 'partnerFunctionList'"
+                                         direction-links="true"
+                                         boundary-links="true"
+                                         on-page-change="getPartnerFunctionList(newPageNumber)">
+                </dir-pagination-controls>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic data-modalid="confirmdelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRow()"></confirm-archive-generic>

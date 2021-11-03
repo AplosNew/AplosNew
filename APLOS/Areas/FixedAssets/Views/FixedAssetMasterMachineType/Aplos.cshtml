@@ -1,0 +1,234 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Fixed Asset Master Machine Type
+</h3>
+<div ng-form id="fixedAssetMasterMachineType" name="fixedAssetMasterMachineTypeForm" class="form-elements">
+
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Fixed Asset Master</label>
+                <div class="col-sm-7">
+                    <input type="text" name="FixedAssetRegister" tabindex="5" ng-model="fixedAssetMaster.UserName" class="form-control" readonly>
+                </div>
+                <div class="col-sm-1">
+                    <button ng-click="fixedAssetMasterSearchPopup();" type="submit" class="btn single-small-btn pull-right"><i class="glyphicon glyphicon-search"></i></button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Subcategory</label>
+                <div class="col-sm-7">
+                    <input type="text" name="FixedAssetRegister" tabindex="5" ng-model="fixedAssetMaster.FixedAssetCategory" class="form-control" readonly>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Subclass</label>
+                <div class="col-sm-7">
+                    <input type="text" name="FixedAssetRegister" tabindex="5" ng-model="fixedAssetMaster.FixedAssetSubCategory" class="form-control" readonly>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Category</label>
+                <div class="col-sm-7">
+                    <input type="text" name="FixedAssetRegister" tabindex="5" ng-model="fixedAssetMaster.FixedAssetClass" class="form-control" readonly>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Class</label>
+                <div class="col-sm-7">
+                    <input type="text" name="FixedAssetRegister" tabindex="5" ng-model="fixedAssetMaster.FixedAssetSubClass" class="form-control" readonly>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Fixed Asset</label>
+                <div class="col-sm-7">
+                    <input type="text" name="FixedAssetRegister" tabindex="5" ng-model="fixedAssetMaster.FixedAsset" class="form-control" readonly>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div class="row" ng-form name="companySSFormTab2">
+                <div class="col-xs-12">
+                    <ul class="common-btn list-inline">
+                        <li>
+                            <button ng-click="addMachineType();" class="btn"><i class="glyphicon glyphicon-plus"></i> Macine Type</button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-xs-12">
+                    <div class="table-responsive common-table" ng-show="tableShow">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Sequence</th>
+                                    <th>Code</th>
+                                    <th>Machine Type</th>
+                                    <th>Machine Class</th>
+                                    <th>Remove</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in machineTypeSelectedList | filter:{Archive:false}" ng-class="{unsaveRow : x.Id==null}">
+                                    <td>{{x.Sequence}}</td>
+                                    <td>{{x.Code}}</td>
+                                    <td>{{x.MachineType}}</td>
+                                    <td>{{x.MachineClass}}</td>
+                                    <td class="text-right table-td">
+                                        <ul class="list-inline action-list">
+                                            <li>
+                                                <button ng-click="valuePassInDelModal($index, x.Id,x.MachineTypeId)" class="btn-action tooltip-here" data-placement="top" title="Remove">
+                                                    <i class="glyphicon glyphicon-remove"></i>
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li><button ng-click="Delete()" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="machineTypePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"><i class="glyphicon glyphicon-info-sign"></i> Machine Type</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="machineTypeParameters.searchBy">
+                                            <option ng-repeat="option in searchByMachineTypeList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="machineTypeParameters.search">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="loadRegisterData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive common-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th ng-repeat="h in searchByMachineTypeList">{{h.Text}}</th>
+                                <th>Apply</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in machineTypeList |itemsPerPage:machineTypeParameters.pageSize" total-items="machineTypeParameters.total_count" ng-dblclick="Get(x.Id, $index);">
+                                <td ng-repeat="hh in searchByMachineTypeList">{{x[hh.Value]}}</td>
+                                <td>
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" id="{{x.Id}}" ng-model="x.Flag" ng-checked="x.Flag">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="loadRegisterData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="machineTypeSelectdCloseListPopUp();" class="btn">Select</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--FixedAssetMaster Search Popup-->
+<div class="modal fade site-modal in" id="mastersearchpopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Fixed Asset Master</h4>
+            </div>
+            <div class="modal-body text-center">
+
+                <!--Search Filter-->
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="fixedAssetMasterParameters.searchBy">
+                                            <option ng-repeat="option in popUpList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="fixedAssetMasterParameters.search">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getPopUpData()" class="btn"><i class="glyphicon glyphicon-search"></i>Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Search Grid-->
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th ng-repeat="h in popUpList">{{h.Text}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in fixedAssetMasterList |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="getFixedAssetMaster(x);" ng-class="{unsaveRow : x.Id==selectedRow}">
+                                <td ng-repeat="h in popUpList">{{x[h.Value]}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getPopUpData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic data-modalid="confirmgenericPopUp" title="Confirmation"
+                         message={{message_confirmation}} data-ng-click-right-button="deleteMachineTypeSelectedList()">
+</confirm-archive-generic>  

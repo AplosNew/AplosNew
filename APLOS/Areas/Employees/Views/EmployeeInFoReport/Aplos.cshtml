@@ -1,0 +1,101 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>Employee Information</h3>
+<div class="form-horizontal form-elements">
+    <div class="row">
+
+        <div class="col-sm-12">
+
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="IsProrataMonthlyColu" ng-model="EmployeeInFoReport.EmployeeCatagory" value="Active">
+                            <span class="cr"><i class="cr-icon"></i></span>Active Employee
+                        </label>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="IsProrataMonthlyColu" ng-model="EmployeeInFoReport.EmployeeCatagory" value="Separated">
+                            <span class="cr"><i class="cr-icon"></i></span>InActive Employee
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="IsProrataMonthlyColu" ng-model="EmployeeInFoReport.EmployeeCatagory" value="All">
+                            <span class="cr"><i class="cr-icon"></i></span>All Employee
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                @*<label class="col-sm-8 control-label">All Plant</label>*@
+                <div class="col-sm-12">
+                    <div class="checkbox-site" style="margin-top: 6px;">
+                        <label>
+                            <input tabindex="8" type="checkbox" ng-model="EmployeeInFoReport.CheckBox">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>All Plant
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            @*<li><button ng-click="GetdailyattendanceReport('EXCEL');" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>*@
+                            <li><button ng-click="GetEmployeeInFoReport('EXCEL');" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-sm-12">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">LONG ABSENTEEISM</label>
+                    <div class="col-sm-8">
+                        <div class="checkbox-site">
+                            <label>
+                                <input type="checkbox" ng-model="EmployeeInFoReport.LONGABSENTEEISM" tabindex="8">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">TBS</label>
+                    <div class="col-sm-8">
+                        <div class="checkbox-site">
+                            <label>
+                                <input type="checkbox" ng-model="EmployeeInFoReport.TBS" tabindex="8">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+

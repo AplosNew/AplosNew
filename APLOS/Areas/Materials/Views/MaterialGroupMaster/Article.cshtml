@@ -1,0 +1,310 @@
+﻿<togglable name="Material Group Article"></togglable>
+<div class="form-horizontal" ng-form="modelForm">
+    <div class="form-element-ctrl col-xs-12 col-sm-12 col-md-12">
+        <div class="form-group" show-errors>
+            <label class="col-sm-2 control-label">Material Group (Mst)<sup>*</sup></label>
+            <div class="col-sm-4 input-group show-message" style="padding-left: 15px;padding-right: 14px;">
+                <input type="text" name="Material Group(Mst)" ng-model="articleNew.MaterialGroupMasterName" class="form-control" readonly required>
+                <span class="input-group-btn">
+                    <button ng-click="matarialGroupPopUp();" ng-disabled="articleNew.Id!=null" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="form-elements">
+        <div class="col-xs-6 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Code" ng-model="articleNew.Code" class="form-control show-message" maxlength="200" tabindex="2" required>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Short Name" ng-model="articleNew.ShortName" class="form-control show-message" maxlength="200" tabindex="4" required>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-6 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Standard Name" ng-model="articleNew.StandardName" class="form-control show-message" maxlength="200" tabindex="3" required>
+                </div>
+            </div>
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li><button ng-click="Save();" class="btn" tabindex="6"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                <li><button ng-click="Clear();" class="btn" tabindex="8"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Article</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">Prd Process Group</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                <div ng-form name="tabFormTab1">
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Material Attribute</th>
+                                    <th>Material Attribute Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in attributeList">
+                                    <td> {{x.MaterialAttributeName}}</td>
+                                    <td>
+                                        <div class="col-sm-10" style="margin-top: 3px;margin-bottom: 6px">
+                                            <div class="input-group">
+                                                <input type="text" ng-model="x.ValueFreeText" class="form-control" ng-keyup="idNullByFreeText(x.MaterialAttributeId, $index)" ng-disabled="x.FlagDisable" ng-required="x.IsMandatory">
+                                                <span class="input-group-btn">
+                                                    <button ng-click="valuePoUp(x, $index)" ng-disabled="!x.IsPreDefinedField" class="btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                    <button ng-click="materialAttributeValueClear($index)" class="btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <p class="msg-error" ng-show="IsMandatoryButNull(x.IsMandatory, x.ValueFreeText)">
+                                            value is required.
+                                        </p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                <div ng-form name="tabFormTab2">
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Short Name</th>
+                                    <th>Prod Process Group</th>
+                                    <th>Input For</th>
+                                    <th class="col-md-2">Out Source Cost</th>
+                                    <th class="col-md-2">Wastage</th>
+                                    <th class="col-md-2">Process Criteria</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in processGroupList">
+                                    <td>{{x.Code}}</td>
+                                    <td>{{x.ShortName}}</td>
+                                    <td>{{x.ProdProcessGroupName}}</td>
+                                    <td>{{x.Input}}</td>
+                                    <td><input type="text" n-decimals="2" ng-model="x.OutSourceCost" class="form-control text-right"></td>
+                                    <td><input type="text" n-decimals="2" ng-model="x.Wastage" class="form-control text-right"></td>
+                                    <td>
+                                        <ul class="list-inline text-right">
+                                            <li><button ng-click="criteriaEntryPopUp($index);" class="btn btn-action single-small-btn tooltip-here" data-placement="top" title="Process Criteria" tooltip><i class="glyphicon glyphicon-list"></i></button></li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="aplos-grid-toggle">
+    <div class="row text-right">
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="search-form">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-3">
+                        <div class="select-style">
+                            <select ng-model="$root.parameters.searchBy">
+                                <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-7 col-md-7">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="table-responsive modal-table">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Short Name</th>
+                    <th>Standard Name</th>
+                    <th>Material Group Master</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr dir-paginate="x in articleList |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get($index);">
+                    <td>{{x.Code}}</td>
+                    <td>{{x.ShortName}}</td>
+                    <td>{{x.StandardName}}</td>
+                    <td>{{x.MaterialGroupMasterName}}</td>
+                </tr>
+            </tbody>
+        </table>
+        <dir-pagination-controls max-size="10"
+                                 direction-links="true"
+                                 boundary-links="true"
+                                 on-page-change="getData(newPageNumber)">
+        </dir-pagination-controls>
+    </div>
+</div>
+<!-- #region MaterialGroupMaster -->
+<modal-table modalid="popUpId"
+             title={{popUpTitle}}
+             data-search-parameters="popUpParameters"
+             data-exclued-column-list="Code"
+             data-field-list="popUpList"
+             data-data-list="popUpDataList"
+             data-search-function="getPopUpData"
+             data-single-click="selectSingleClick(data)"
+             data-double-click="selectDoubleClick(data)"
+             data-right-button="true"
+             data-left-button="true"
+             data-ng-click-left-button="selectByButton()"
+             data-ng-click-cancel="closePopUp()">
+</modal-table>
+<!-- #endregion -->
+<!-- #region ProcessCriteria -->
+<div class="modal fade site-modal in" id="criteriaEntryPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">{{mgPrdProcessGroup}}<button type="button" class="close" ng-click="closeEntryProcessPopUp();">&times;</button></div>
+            <div class="modal-body form-elements">
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li><button ng-click="criteriaPopUp();" class="btn">Add Process Criteria</button></li>
+                    </ul>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Remove</th>
+                                <th>Code</th>
+                                <th>Short Name</th>
+                                <th>Standard Name</th>
+                                <th>User Name</th>
+                                <th>Wastage</th>
+                                <th>Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in processCriteriaList">
+                                <td class="text-right table-td">
+                                    <ul class="list-inline action-list">
+                                        <li><button ng-click="removeProcessRowModal(x, $index);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+                                    </ul>
+                                </td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.ShortName}}</td>
+                                <td>{{x.StandardName}}</td>
+                                <td>{{x.UserName}}</td>
+                                <td><input type="text" n-decimals="2" ng-model="x.Wastage" class="form-control text-right"></td>
+                                <td><input type="text" n-decimals="2" ng-model="x.Rate" class="form-control text-right"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="closeEntryProcessPopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="criteriaPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Process Criteria<button type="button" class="close" ng-click="closeProcess();">&times;</button></div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="criteriaParameters.searchBy">
+                                            <option ng-repeat="option in searchProcessByList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="criteriaParameters.search"  ng-enter="getCriteriaData();">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getCriteriaData();" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Select</th>
+                                <th>Code</th>
+                                <th>Short Name</th>
+                                <th>Standard Name</th>
+                                <th>User Name</th>
+                                <th>Active</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in criteriaList|itemsPerPage:criteriaParameters.pageSize"
+                                pagination-id="metaData.name + 'criteriaList'" total-items="criteriaParameters.total_count">
+                                <td>
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="x.Flag" ng-checked="x.Flag" ng-click="pushInTempList(x, $event, criteriaList);">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.ShortName}}</td>
+                                <td>{{x.StandardName}}</td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.Active?'Yes':'No'}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'criteriaList'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getCriteriaData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="addProcess();" class="btn"><i class="glyphicon glyphicon-plus"></i> Add</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion -->
+@Html.Partial("~/Areas/Materials/Views/Shared/_AttributeValuePopUp.cshtml")
+<confirm-archive-generic modalid="materialMaster" title="Confirmation" message={{subMaterialMessage}} data-ng-click-right-button="removeMaterialAttributeRow()"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmProcessPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeProcessRow();"></confirm-archive-generic>

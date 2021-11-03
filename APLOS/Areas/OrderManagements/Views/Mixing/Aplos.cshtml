@@ -1,0 +1,281 @@
+﻿<togglable name="{{title}}"></togglable>
+<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+    <input type="hidden" ng-model="ModelNew.Id">
+    @*<fieldset class="scheduler-border">
+        <legend class="scheduler-border"></legend>*@
+    <div class="row">
+        <div class="col-xs-4 col-sm-4 col-md-4">
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Contract">Contract No</label>
+                <div class="col-sm-8 input-group" style="padding-left:4%; padding-right:5%">
+                    <input type="text" name="Contract" ng-model="ModelNew.ContractNo" class="form-control" maxlength="100" disabled>
+                    <span class="input-group-btn">
+                        <button ng-click="GetPopUpContract()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="Clearcontract()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                        <button ng-click="GetMasterOrderByContractList()" class="btn single-small-btn"><i class="glyphicon glyphicon-list-alt"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-4 col-sm-4 col-md-4">
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Customer Name">Customer Name: </label>
+
+                <label class="col-sm-8 control-label" title="Customer Name label" style="font-size: 75%;"><b>{{ModelNew.CustomerName}}</b></label>
+
+
+            </div>
+        </div>
+        <div class="col-xs-4 col-sm-4 col-md-4">
+            <div class="form-group" id="div_PODate">
+                <label class="col-sm-4 control-label" style="margin-left: -4%">Master LC Ref No</label>
+
+                <label class="col-sm-6 control-label">{{ModelNew.LCRef}}</label>
+
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Descripton<sup></sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Short Name" ng-model="ModelNew.Description" class="form-control" maxlength="15" required tabindex="3">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6"></div>
+    </div>
+
+
+
+
+
+
+
+    <div class="row">
+
+        <div class="col-md-12">
+            <div style="color:black;" id="Grid3" ej-grid e-datasource="masterOrderCustomerList"
+                 e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true" 
+                 e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                <div e-columns>
+                    <div e-column e-headertext="" e-template="#checkboxTemplate" e-textalign="center" e-width="20"></div>
+
+                    <div e-column e-field="MasterOrderNo" e-headertext="MasterOrderNo" e-width="80"></div>
+                    <div e-column e-field="MasterOrderItemId" e-headertext="Item No" e-width="80"></div>
+                    <div e-column e-field="CustomerName" e-headertext="Customer" e-width="150"></div>
+                    <div e-column e-field="Buyer" e-headertext="Buyer" e-headertext-color="black" e-textalign="left" e-width="75"></div>
+                    <div e-column e-field="BuyerItem" e-headertext="Buyer Item#" e-width="80"></div>
+                    <div e-column e-field="OwnItem" e-headertext="Own Item#" e-width="80"></div>
+                    <div e-column e-field="MaterialMaster" e-headertext="Material Master" e-width="150"></div>
+                    <div e-column e-field="Article" e-headertext="Article" e-width="150"></div>
+                    <div e-column e-field="TotalQty" e-headertext="Total Qty" e-width="80"></div>
+                    <div e-column e-field="Qty" e-headertext="SO Qty" e-width="80"></div>
+                    <div e-column e-field="Amount" e-headertext="SO Amount" e-width="80"></div>
+                    <div e-column e-field="Currency" e-headertext="Currency" e-width="80"></div>
+                    <div e-column e-field="BuyerReferenceNo" e-headertext="Buyer Ord#" e-width="80"></div>
+                    <div e-column e-field="OwnReferenceNo" e-headertext="Own Ord#" e-width="80"></div>
+                </div>
+            </div>
+            <script type="text/template" id="checkboxTemplate">
+                <input type="checkbox" ng-model="data.isToBeSelect" ng-change="$parent.MasterOrderSelect(this,data)" tabindex="8">
+                @*<input type="checkbox" ej-checkbox class="nodetext" e-value="data.isToBeSelect" e-checked="data.isToBeSelect" e-change="$parent.MasterOrderSelect" />*@
+            </script>
+        </div>
+
+
+
+    </div>
+    <div class="row"></div>
+    <br />
+    <br />
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive modal-table">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Mater Order Item No</th>
+                            <th>Materail</th>
+                            <th>Article</th>
+                            <th>UOM</th>
+                            <th>Costing Item</th>
+                            <th>Grs Con</th>
+                            <th>Ttl Qty</th>
+                            <th>FG Qty</th>
+                            <th>Cost Per Unit</th>
+                            <th>Ttl Cost</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in qboqMixingListFiltered">
+                            <td>{{x.Id}}</td>
+                            <td>{{x.MaterialMaster}}</td>
+                            <td>{{x.Article}}</td>
+                            <td>{{x.UOM}}</td>
+                            <td>{{x.CostingItem}}</td>
+                            <td>{{x.GrossConsumption}}</td>
+                            <td>{{x.TotalQty}}</td>
+                            <td>{{x.MixQty}}</td>
+                            <td>{{x.MaterialCostPerUnit}}</td>
+                            <td>{{x.MixQty*x.TotalQty}}</td>
+
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+</div>
+
+<div class="table-responsive aplos-grid-toggle">
+    <div id="GridEdit" ng-init="chkinit()" ej-grid e-datasource="ModelList" e-recorddoubleclick="GetMasterOrderBySavedContractList" e-load="loadGridEdit"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>            
+            <div e-column e-field="ContractNo" e-headertext="ContractNo" e-width="3"></div>
+            <div e-column e-field="CustomerName" e-headertext="Customer Name" e-width="5"></div>
+            <div e-column e-field="MasterLCNo" e-headertext="MasterLCNo" e-width="5"></div>
+            <div e-column e-field="LCRef" e-headertext="LCRef" e-width="5"></div>
+            <div e-column e-field="BuyerItem" e-headertext="BuyerItem" e-width="5"></div>
+            <div e-column e-field="OwnItem" e-headertext="OwnItem" e-width="5"></div>
+            <div e-column e-field="Description" e-headertext="Description" e-width="5"></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="ContractPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Contract <button type="button" class="close" ng-click="CloseContractPopUp();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="Gridd" ej-grid e-datasource="contractList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="SelectedContract"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                            <div e-columns>
+                                <div e-column e-field="ContractId" e-headertext="Contract Id" e-width="70"></div>
+                                <div e-column e-field="ContractNo" e-headertext="Contract No" e-width="80"></div>
+                                <div e-column e-field="CustomerName" e-headertext="Customer" e-width="150"></div>
+                                <div e-column e-field="Buyer" e-headertext="Buyer" e-width="150"></div>
+                                <div e-column e-field="LCRef" e-headertext="Master LC Ref No" e-width="80"></div>
+                                <div e-column e-field="MasterLCNo" e-headertext="Master Lc Id" e-width="70"></div>
+                            </div>
+                        </div>
+                        <script type="text/template" id="checkboxTemplateChild">
+                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
+                        </script>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="CloseContractPopUp();" class="btn"> Apply</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@*<div class="modal fade site-modal in" id="MasterOrderPopUp" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-lg modellgModify">
+            <div class="modal-content">
+                <div class="modal-header"> Master Order <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+                <div class="modal-body form-elements form-horizontal">
+                    <div class="col-md-12">
+                        <div style="color:black;" id="Grid3" ej-grid e-datasource="masterOrderCustomerList"
+                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+
+                                <div e-column e-field="MasterOrderNo" e-headertext="MasterOrderNo" e-width="80"></div>
+                                <div e-column e-field="MasterOrderItemId" e-headertext="Item No" e-width="80"></div>
+                                <div e-column e-field="CustomerName" e-headertext="Customer" e-width="150"></div>
+                                <div e-column e-field="Buyer" e-headertext="Buyer" e-headertext-color="black" e-textalign="left" e-width="75"></div>
+                                <div e-column e-field="BuyerItem" e-headertext="Buyer Item#" e-width="80"></div>
+                                <div e-column e-field="OwnItem" e-headertext="Own Item#" e-width="80"></div>
+                                <div e-column e-field="MaterialMaster" e-headertext="Material Master" e-width="150"></div>
+                                <div e-column e-field="Article" e-headertext="Article" e-width="150"></div>
+                                <div e-column e-field="TotalQty" e-headertext="Total Qty" e-width="80"></div>
+                                <div e-column e-field="Qty" e-headertext="SO Qty" e-width="80"></div>
+                                <div e-column e-field="Amount" e-headertext="SO Amount" e-width="80"></div>
+                                <div e-column e-field="Currency" e-headertext="Currency" e-width="80"></div>
+                                <div e-column e-field="BuyerReferenceNo" e-headertext="Buyer Ord#" e-width="80"></div>
+                                <div e-column e-field="OwnReferenceNo" e-headertext="Own Ord#" e-width="80"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="common-btn" style="padding-right: 15px;">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="CloseMasterOrder();" class="btn">Close</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>*@
+<div class="modal fade site-modal in" id="QBOQPoUp" role="dialog" data-backdrop="static" style="overflow-y: auto !important;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Quick BOQ<button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12 table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+
+                                <th>Seq.</th>
+                                <th>Item Name</th>
+                                <th>Material</th>
+                                <th>Article</th>
+                                <th>Material Cost/Unit</th>
+                                <th>Net Consumption/Unit</th>
+                                <th>Value Loss(%)</th>
+                                <th>Gross Consumption</th>
+                                <th>UoM</th>
+                                <th>Process</th>
+                                <th>Work Type</th>
+                                <th>Entity/Vendor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in qboqList">
+                                <td>{{x.Sequence}}</td>
+                                <td>{{x.CostingItem}}</td>
+                                <td>{{x.MaterialMaster}}</td>
+                                <td>{{x.Article}}</td>
+                                <td>{{x.MaterialCostPerUnit}}</td>
+                                <td>{{x.NetConsumptionPerUnit}}</td>
+                                <td>{{x.ValueLossPercentage}}</td>
+                                <td>{{x.GrossConsumption}}</td>
+                                <td>{{x.UoM}}</td>
+                                <td>{{x.Process}}</td>
+                                <td>{{x.JobWorkType}}</td>
+                                <td>{{x.EntityOrVendorName}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterByTypePopUp.cshtml")
+<confirm-modal></confirm-modal>
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRow()"></confirm-archive-generic>

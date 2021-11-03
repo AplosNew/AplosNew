@@ -1,0 +1,192 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> {{title}}
+</h3>
+<div class="form-horizontal form-elements" id="mainContainer" style="padding-bottom:30px;padding-left:30px;">
+    <div class="col-xs-12 col-sm-4">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Costing Type<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="CostingType"
+                            ng-options="item.Value as item.Text for item in CostingTypeList" id="CostingType" ng-change="GetCostingTypeComponent();" name="Costing Type">
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div> <div class="col-xs-12 col-sm-8"></div>
+    @*<div class="row">
+            <div id="GridUpCharge" ng-init="chkinit()" ej-grid e-datasource="UpchargeListMatrix"
+                 e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-querycellinfo="queryCellInfo"
+                 e-allowscrolling="true" e-minheight="400" e-gridlines="vertical"
+                 e-actioncomplete="actionCompleteSingleEmployee" e-height="400px" e-rowdatabound="rowDataBoundSingleEmployee"
+                 e-filtersettings-filterType="excel">
+
+                <div e-columns>
+                    <div e-column e-field="WorkCenterDays" e-headertext="Day" e-width="50" e-primarykey="true"></div>
+                    <div e-column e-template="#Basic" e-headertext="Basic" e-width="50"></div>
+                    <div e-column e-template="#SemiCritical" e-headertext="Semi Critical" e-width="50"></div>
+                    <div e-column e-template="#Critical" e-headertext="Critical" e-width="50"></div>
+                    <div e-column e-template="#HighlyCritical" e-headertext="Highly Critical" e-width="50"></div>
+
+                </div>
+
+                <script type="text/template" id="Basic">
+                    <input type="number" name="Basic" min="0" ng-model="data.Basic" class="form-control">
+                </script>
+                <script type="text/template" id="SemiCritical">
+                    <input type="number" name="SemiCritical" min="0" ng-model="data.SemiCritical" class="form-control">
+                </script>
+                <script type="text/template" id="Critical">
+                    <input type="number" name="Critical" min="0" ng-model="data.Critical" class="form-control">
+                </script>
+                <script type="text/template" id="HighlyCritical">
+                    <input type="number" name="HighlyCritical" min="0" ng-model="data.HighlyCritical" class="form-control">
+                </script>
+            </div>
+
+
+
+        </div>*@
+
+    <table class="row" style="background-color:#dcdcdc;">
+        <tr style="background-color:black;color:white;font-size:2.5vh!important;font-weight:bold;">
+            <td style="width:120px;">
+                Work Center Days
+            </td>
+            <td style="padding-right:4px!important;text-align:right;width:25%;">
+                Basic %
+            </td>
+            <td style="padding-right:4px!important;text-align:right;width:25%;">
+                Semi Critical %
+            </td>
+            <td style="padding-right:4px!important;text-align:right;width:25%;">
+                Critical %
+            </td>
+            <td style="padding-right:4px!important;text-align:right;width:25%;">
+                Highly Critical %
+            </td>
+        </tr>
+        <tr ng-repeat="data in UpchargeListMatrix">
+            <td style="width:120px;">
+                {{data.WorkCenterDays}}
+            </td>
+            <td style="padding-right:4px!important;text-align:right;width:25%;">
+                <input type="number" name="Basic" min="0" ng-model="data.Basic" class="form-control">
+
+            </td>
+            <td style="padding-right:4px!important;text-align:right;width:25%;">
+                <input type="number" name="SemiCritical" min="0" ng-model="data.SemiCritical" class="form-control">
+
+            </td>
+            <td style="padding-right:4px!important;text-align:right;width:25%;">
+                <input type="number" name="Critical" min="0" ng-model="data.Critical" class="form-control">
+            </td>
+            <td style="padding-right:4px!important;text-align:right;width:25%;">
+                <input type="number" name="HighlyCritical" min="0" ng-model="data.HighlyCritical" class="form-control">
+            </td>
+        </tr>
+
+    </table>
+    <div class="row text-right staticSave">
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li>  <button type="button" ng-click="Save()" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Update</button></li>
+            </ul>
+        </div>
+
+    </div>
+
+
+</div>
+
+<style type="text/css">
+    body {
+        font-family: 'Arial Narrow', Arial, 'Franklin Gothic Medium', sans-serif !important;
+        font-size: 2.0vh !important;
+    }
+
+    .staticSave {
+        text-align: right;
+        position: fixed;
+        z-index: 9999;
+        bottom: 4px;
+        right: 30px;
+    }
+
+    tr {
+        padding: 0px !important;
+        margin: 0px !important;
+        font-size: 2.0vh !important;
+        border: none !important;
+        vertical-align: top !important;
+    }
+
+    td {
+        padding: 0px !important;
+        margin: 0px !important;
+        font-size: 2.0vh !important;
+        vertical-align: middle !important;
+    }
+
+        td .form-group {
+            padding: 0px !important;
+            margin: 0px !important;
+        }
+
+        td input {
+            height: 100%;
+            font-size: 2.0vh !important;
+        }
+
+        td .select-style select {
+            font-size: 2.0vh !important;
+        }
+
+        td div {
+            padding: 0px !important;
+        }
+
+        td .text-center {
+            padding: 0px !important;
+            margin: 0px !important;
+            vertical-align: central;
+        }
+
+        td .btn {
+            padding: 0px !important;
+            margin: 0px !important;
+        }
+
+        td .select-style {
+            padding-top: 10px !important;
+            padding: 0px !important;
+            margin: 0px !important;
+            height: 100% !important;
+        }
+
+
+        td .input-group {
+            padding: 0px !important;
+            margin: 0px !important;
+            height: 100% !important;
+        }
+
+    .cellBorder {
+        font-size: 2.0vh !important;
+        padding: 0px 2px 0px 0px !important;
+        margin: 0px !important;
+        border: none !important;
+    }
+
+        .cellBorder td {
+            padding: 0px 2px 0px 0px !important;
+            margin: 0px !important;
+            border: 1px solid #dcdcdc !important;
+        }
+
+        .cellBorder th {
+            padding: 0px 2px 0px 0px !important;
+            margin: 0px !important;
+            border: none !important;
+        }
+</style>

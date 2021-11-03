@@ -1,0 +1,74 @@
+﻿
+<togglable name="SMS End Point"></togglable>
+<div class="form-horizontal form-elements" ng-form="modelNewForm">
+    <div class="row">
+        <div class="col-xs-6 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Company Group<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select id="CurrencyId" class="form-control" name="CompanyGroup" ng-model="moduleextended.CompanyGroupId" required>
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in companyGroupList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">API Key With Value<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" ng-model="moduleextended.APIKeyWithValue" e-enablertl="false" e-width="100%" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Remarks</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" ng-model="moduleextended.Remarks" e-enablertl="false" e-width="100%" />
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-6 col-sm-6 col-md-6">
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">SMS End Point<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" ng-model="moduleextended.SMSEndPoint" e-enablertl="false" e-width="100%" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Sender Id<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" ng-model="moduleextended.SenderId" e-enablertl="false" e-width="100%" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="common-btn">
+        <ul class="common-btn list-inline text-right" style="padding: 20px;">
+            <li><button ng-click="Save();" class="btn" tabindex="10"><i class="glyphicon glyphicon-floppy-disk right"></i> {{Action}}</button></li>
+            @*<li> <button ng-click="Delete()" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
+            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li><button ng-click="Clear();" class="btn" tabindex="10"><i class="glyphicon glyphicon-repeat"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <fieldset class="scheduler-border">
+        <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+        <div class="content-container-fluid" style="color:black;">
+            <div id="moduleExtend" ej-grid e-datasource="moduleExtends" e-recorddoubleclick="Get"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                <div e-columns>
+                    <div e-column e-field="CompanyGroup" e-headertext="Company Group"></div>
+                    <div e-column e-field="SMSEndPoint" e-headertext="SMSEndPoint"></div>
+                    <div e-column e-field="APIKeyWithValue" e-headertext="API Key With Value"></div>
+                    <div e-column e-field="SenderId" e-headertext="Sender Id"></div>
+                    <div e-column e-field="Remarks" e-headertext="Remarks"></div>
+                </div>
+            </div>
+
+        </div>
+    </fieldset>
+</div>
+<confirm-modal></confirm-modal>

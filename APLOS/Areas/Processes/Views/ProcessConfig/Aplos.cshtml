@@ -1,0 +1,227 @@
+﻿<style>
+    .cus table > tbody > tr > td,
+    .cus table > tbody > tr > th,
+    .cus table > tfoot > tr > td,
+    .cus table > tfoot > tr > th,
+    .cus table > thead > tr > td,
+    .cus table > thead > tr > th {
+        padding: 3px;
+        line-height: 1.42823143;
+    }
+</style>
+<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> Process Configuration</h3>
+<div class="form-elements form-horizontal" ng-form id="Process" name="processNewForm">
+    <input type="hidden" ng-model="processConfigNew.Id">
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <button name="submit" class="btn single-small-btn" ng-click="materialMasterPopUp()" tabindex="4">
+            <i class="cr-icon glyphicon glyphicon-search"></i> Material Master
+        </button>
+    </div>
+    <div class="clearfix"></div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <label class="col-sm-4 col-md-3 control-label">ID :</label>
+            <label class="col-sm-4 col-md-9 control-label">{{materialMasterView.Id}}</label>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 col-md-3 control-label">Code :</label>
+            <label class="col-sm-4 col-md-9 control-label">{{materialMasterView.Code}}</label>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 col-md-3 control-label">Material Type :</label>
+            <label class="col-sm-4 col-md-9 control-label">{{materialMasterView.MaterialType}}</label>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 col-md-3 control-label">Material Grid :</label>
+            <label class="col-sm-4 col-md-9 control-label">{{materialMasterView.MaterialGrid}}</label>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <label class="col-sm-4 col-md-3 control-label">User Name :</label>
+            <label class="col-sm-4 col-md-9 control-label">{{materialMasterView.UserName}}</label>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 col-md-3 control-label">Description :</label>
+            <label class="col-sm-4 col-md-9 control-label">{{materialMasterView.Description}}</label>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 col-md-3 control-label">Material Group:</label>
+            <label class="col-sm-4 col-md-9 control-label">{{materialMasterView.MaterialGroup}}</label>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 col-md-3 control-label">Base Uom :</label>
+            <label class="col-sm-4 col-md-9 control-label">{{materialMasterView.BaseUom}}</label>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6 msg-error" ng-show="processConfigMessage">This material has no process...!</div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li> <button ng-disabled="delBtn" data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+    <div class="table-responsive modal-table cus" ng-show="tableShow">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Process</th>
+                    <th style="width:171px;">Default For Planning</th>
+                    <th>+/-</th>
+                    <th style="width:130px;">Lead/Lag Days</th>
+                    <th>Recipe</th>
+                    <th>Level</th>
+                    <th ng-show="ch1">
+                        {{Characteristics1}}
+                        <input type="hidden" ng-model="Characteristics1Id" />
+                    </th>
+                    <th ng-show="ch2">
+                        {{Characteristics2}}
+                        <input type="hidden" ng-model="Characteristics2Id" />
+                    </th>
+                    <th ng-show="ch3">
+                        {{Characteristics3}}
+                        <input type="hidden" ng-model="Characteristics3Id" />
+                    </th>
+                    <th>Material Tagging</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="x in processConfigs">
+                    <td>{{x.ProcessName}}</td>
+                    <td class="text-center">
+                        <input type="radio" name="optradio" ng-checked="x.DefaultPlanning"
+                               ng-click="setPlusOrMinus($event,$index)" />
+                    </td>
+                    <td>{{x.Symbol}}</td>
+                    <td><input type="text" ng-model="x.Days" class="form-control" only-numbers></td>
+                    <td>
+                        <div class="select-style">
+                            <select class="form-control" ng-model="x.BomOrRecipe" ng-options="item.Value as item.Text for item in bomOrRecipeList">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="select-style">
+                            <select class="form-control" id="level" name="level" ng-model="x.Level"
+                                    ng-options="item.Value as item.Text disable when item.disabled for item in levelList">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </td>
+                    <td ng-show="ch1">
+                        <div class="checkbox-site text-center">
+                            <label>
+                                <input type="checkbox" ng-model="x.Characteristics1Selected" ng-checked="x.Characteristics1Selected">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </td>
+                    <td ng-show="ch2">
+                        <div class="checkbox-site text-center">
+                            <label>
+                                <input type="checkbox" ng-model="x.Characteristics2Selected" ng-checked="x.Characteristics2Selected">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </td>
+                    <td ng-show="ch3">
+                        <div class="checkbox-site text-center">
+                            <label>
+                                <input type="checkbox" ng-model="x.Characteristics3Selected" ng-checked="x.Characteristics3Selected">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="select-style">
+                            <select class="form-control" ng-model="x.MaterialTaggingType" ng-options="item.Value as item.Text for item in materialTaggingTypeList">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<confirm-modal></confirm-modal>
+<modal-table modalid="materialMasterPopUp"
+             data-title={{materialMst}}
+             data-search-parameters="materialMasterParameters"
+             data-exclued-column-list=""
+             data-field-list="materialMasterList"
+             data-data-list="materialMasterDataList"
+             data-ng-search-function="getMaterialMasterData()"
+             data-single-click="SelectMMaster(data)"
+             data-double-click="selectMaterialMaster(data)"
+             data-left-button="true"
+             data-right-button="false"
+             data-ng-click-right-button="SelectMMasterByButton()"
+             data-ng-click-cancel="closematerialMasterPopUp()">
+</modal-table>
+@*<div class="modal fade site-modal in" id="materialMasterPopUp" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    Material Master
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="row text-right">
+                        <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                            <div class="search-form">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="select-style">
+                                            <select ng-model="materialMasterParameters.searchBy">
+                                                <option ng-repeat="option in materialMasterList" value="{{option.Value}}">{{option.Text}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-7 col-md-7">
+                                        <input type="text" class="form-control" placeholder="Search" ng-model="materialMasterParameters.search">
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <button type="button" ng-click="getMaterialMasterData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th ng-repeat="x in materialMasterList">{{x.Text}}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr dir-paginate="x in materialMasterDataList|itemsPerPage:materialMasterParameters.pageSize" total-items="materialMasterParameters.total_count"
+                                    pagination-id="metaData.name + 'materialMasterDataList'" ng-click="SelectMMaster(x)" ng-dblclick="selectMaterialMaster(x);">
+                                    <td ng-repeat="hh in materialMasterList">{{x[hh.Value]}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <dir-pagination-controls max-size="10"
+                                                 pagination-id="metaData.name + 'materialMasterDataList'"
+                                                 direction-links="true"
+                                                 boundary-links="true"
+                                                 on-page-change="getMaterialMasterData(newPageNumber)">
+                        </dir-pagination-controls>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="SelectMMasterByButton();" class="btn"><i class=""></i> Select</button></li>
+                            <li> <button type="button" class="btn btn-default" ng-click="closematerialMasterPopUp();">Cancel</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>*@
+
+
+

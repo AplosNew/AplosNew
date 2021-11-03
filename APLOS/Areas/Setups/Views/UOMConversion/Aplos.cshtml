@@ -1,0 +1,82 @@
+﻿<togglable name="UoM Conversion"></togglable>
+<div ng-form id="uOMConversion" name="uOMConversionNewForm" class="form-elements form-horizontal">
+    <div class="col-xs-12">
+        <div class="form-group">
+            <label class="col-sm-2 control-label" style="width: 148px;">From UOM Factor</label>
+            <div class="col-sm-2" style="padding-right: 5px; padding-left: 0px;">
+                <input type="text" maxlength="10" name="FromUOMFactor" ng-model="uOMConversionNew.FromUOMFactor" class="form-control" required value="1" readonly>
+            </div>
+            <div class="col-sm-2" style="padding-right: 0px; padding-left: 0px;">
+                <div class="select-style">
+                    <select name="From UoM factor" ng-model="uOMConversionNew.FromUOMId" class="col-sm-3 form-control"
+                            ng-options="item.Value as item.Text for item in uomList" tabindex="1" required></select>
+                </div>
+            </div>
+            <label class="col-sm-1 control-label" style="width: 40px;">Is</label>
+            <label class="col-sm-2 control-label" style="width: 130px;">To UOM Factor</label>
+            <div class="col-sm-2" style="padding-right: 5px; padding-left: 0px;">
+                <input type="text" maxlength="10" name="To UoM factor" ng-model="uOMConversionNew.ToUOMFactor" class="form-control" required tabindex="2">
+            </div>
+            <div class="col-sm-2" style="padding-right: 0px; padding-left: 0px;">
+                <div class="select-style">
+                    <select name="To UoM factor" ng-model="uOMConversionNew.ToUOMId" class="col-sm-3 form-control"
+                            ng-options="item.Value as item.Text for item in uomList" tabindex="3" required></select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li><button ng-click="Save();" class="btn" tabindex="10"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li><button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="11" ng-disabled="isDeleted"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li><button ng-click="Clear();" class="btn" tabindex="10"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th class="col-sm-3">From UOM Factor</th>
+                <th class="col-sm-3">From UOM</th>
+                <th class="col-sm-3">To UOM Factor</th>
+                <th class="col-sm-3">To UOM</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in uOMConversions |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-click="Get(x.Id, $index);">
+                <td>{{x.FromUOMFactor}}</td>
+                <td>{{x.FromUOM}}</td>
+                <td>{{x.ToUOMFactor}}</td>
+                <td>{{x.ToUOM}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10"
+                             direction-links="true"
+                             boundary-links="true"
+                             on-page-change="getData(newPageNumber)">
+    </dir-pagination-controls>
+</div>
+<confirm-modal></confirm-modal>

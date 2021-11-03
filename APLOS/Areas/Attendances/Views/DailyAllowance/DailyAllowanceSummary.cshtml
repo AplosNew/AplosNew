@@ -1,0 +1,42 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>Daily Allowance Summary</h3>
+<div class="form-elements form-horizontal" ng-form="modelForm">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12">
+
+            <div class="col-md-4">
+                <div class="form-group" show-errors id="div_FromDate">
+                    <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
+                    <div class="col-sm-7 show-message">
+                        <input type="text" name="Form Date" ng-model="DailyAllowanceSummary.FromDate" datepicker class="form-control">
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-group" show-errors id="div_ToDate">
+                    <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
+                    <div class="col-sm-7 show-message">
+                        <input type="text" name="To Date" ng-model="DailyAllowanceSummary.ToDate" datepicker class="form-control">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="common-btn">
+        <ul class="list-inline text-left">
+            <li><button ng-click="DailyAllowanceSummaryFunc('Excel');" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+        </ul>
+    </div>
+
+</div>
+
+<div class="loader" data-loader>
+    Please wait
+    <div class="bounce1"></div>
+    <div class="bounce2"></div>
+    <div class="bounce3"></div>
+    <div class="bounce3"></div>
+</div>
+

@@ -1,0 +1,76 @@
+﻿<div class="modal fade site-modal in" id="materialmastersearchpopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                {{materialTitle}}
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="mmPopUpParameters.searchBy">
+                                            <option ng-repeat="option in searchbyMaterialMasterDatalist" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="mmPopUpParameters.search" ng-enter="loadMMData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="loadMMData();" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped text-left">
+                        <thead>
+                            <tr>
+                                <th>Material Type</th>
+                                <th>Material Group</th>
+                                <th>Product</th>
+                                <th>Code</th>
+                                <th>User Name</th>
+                                <th>Standard Name</th>
+                                <th>Short Name</th>
+                                <th>IsAsset</th>
+                                <th>Asset Master</th>
+                                <th>Budget Code</th>
+                                <th>Activity</th>
+                                <th>Id</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in materialmasterSearchData  |itemsPerPage:$root.pageSize" pagination-id="metaData.name + 'materialmasterSearchData'"
+                                total-items="mmPopUpParameters.total_count" ng-dblclick="setMaterialMasterData(x);">
+                                <td>{{x.MaterialTypeName}}</td>
+                                <td>{{x.MaterialGroupMasterName}}</td>
+                                <td>{{x.ProductMasterName}}</td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.StandardName}}</td>
+                                <td>{{x.ShortName}}</td>
+                                <td>{{x.IsAsset}}</td>
+                                <td>{{x.AssetMasterName}}</td>
+                                <td>{{x.AssetBudgetCode}}</td>
+                                <td>{{x.ActivityName}}</td>
+                                <td>{{x.Id}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls pagination-id="metaData.name + 'materialmasterSearchData'"
+                                             max-size="2"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="loadMMData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

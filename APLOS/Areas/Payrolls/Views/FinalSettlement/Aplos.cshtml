@@ -1,0 +1,686 @@
+﻿<style>
+    #GridDeductionList.e-grid .e-gridheader {
+        display: none;
+        background-color: white;
+    }
+
+    #GridDeductionList.e-grid {
+        border-color: white;
+        background-color: white;
+        /*display: block !important;*/
+    }
+    #GridEarningList.e-grid .e-gridheader {
+        display: none;
+        background-color: white;
+    }
+
+    #GridEarningList.e-grid {
+        border-color: white;
+        background-color: white;
+        /*display: block !important;*/
+    }
+
+    
+</style>
+<togglable name="Final Settlement"></togglable>
+<div class="form-elements" ng-form id="FinalSettlement" name="FinalSettlementForm">
+    <div class="row"></div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Employee Code<sup>*</sup></label>
+                <div class="col-sm-6 show-message">
+                    <input type="text" min="1" name="Sequence" ng-model="EmployeeModel.EmployeeCode" class="form-control" ng-disabled="true" required tabindex="1">
+
+                </div>
+                <div class="col-sm-2 show-message" style="margin-left:0px;padding-left:0px">
+
+                    <button style="color: #f3f3ec;background-color: #1c1f32; " class="btn"><i class="glyphicon glyphicon-search" ng-click="LoadEmployeeList()" style="margin: -4px;"></i></button>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Employee Name </label>
+                <label class="col-sm-8 control-label">: {{EmployeeModel.EmployeeName}}</label>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">DOJ </label>
+                <label class="col-sm-8 control-label">: {{EmployeeModel.DOJ}}</label>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">DOS </label>
+                <label class="col-sm-8 control-label">: {{EmployeeModel.DOS}}</label>
+            </div>
+
+
+
+
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Final Settlement Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" maxlength="15" name="ShortName" ng-model="FinalSettlementModel.FinalSettlementDate" datepicker placeholder="dd-MMM-yyyy" class="form-control" required tabindex="3">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Legal Designation </label>
+                <label class="col-sm-8 control-label">: {{EmployeeModel.LegalDesignation}}</label>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Department </label>
+                <label class="col-sm-8 control-label">: {{EmployeeModel.Department}}</label>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Position </label>
+                <label class="col-sm-8 control-label">: {{EmployeeModel.PositionName}}</label>
+            </div>
+
+
+        </div>
+    </div>
+    <hr />
+
+   
+
+
+
+
+    <div class="row">
+        <div class="col-xs-12 col-sm-10 col-md-10 form-horizontal">
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border">Separation Policy Information</legend>
+
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Separation Type</label>
+                    <label class="col-sm-8 control-label">: <b>{{FinalSettlementModel.SeparationTypeName}}</b> </label>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Formula </label>
+                    <label class="col-sm-8 control-label">: {{FinalSettlementModel.FormulaDes}}</label>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Policy</label>
+                    <label class="col-sm-8 control-label">: {{FinalSettlementModel.PolicyYearNo}} Years ( {{FinalSettlementModel.PolicyDayNo}} Days/Year)</label>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Tenure</label>
+                    <label class="col-sm-8 control-label">:  <b>{{FinalSettlementModel.TenureYearNo}}</b> Years <b>{{FinalSettlementModel.TenureMonthNo}}</b> Months <b>{{FinalSettlementModel.TenureDayNo}}</b> Days</label>
+
+                </div>
+            </fieldset>
+
+
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border">Salary Structure Information</legend>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Gross Amount</label>
+                    <label class="col-sm-2 control-label">: <b>{{FinalSettlementModel.GrossAmount}}</b> </label>
+                    <label class="col-sm-3 control-label">Basic Amount</label>
+                    <label class="col-sm-3 control-label">: <b>{{FinalSettlementModel.BasicAmount}}</b> </label>
+                </div>
+                @*<div class="form-group">
+                <label class="col-sm-4 control-label">Wage/Day</label>
+                <label class="col-sm-2 control-label">: <b>{{FinalSettlementModel.SalaryRate}}</b> </label>
+                <label class="col-sm-3 control-label"></label>
+                <label class="col-sm-3 control-label">: </label>
+            </div>*@
+
+            </fieldset>
+
+
+
+
+
+
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border">Last Month Salary Info</legend>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Salary Amount ({{FinalSettlementModel.LastMonthProcDay}} Days)</label>
+                    <div class="col-sm-8 show-message">
+                        <input type="number" ng-model="FinalSettlementModel.LastMonthNetPayAmount" class="form-control" required tabindex="1">
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border">Service Benefit Information</legend>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Variable Amount</label>
+                    <label class="col-sm-1 control-label">:</label>
+                    <label class="col-sm-7 control-label text-right" style="text-align:right"> <b>{{FinalSettlementModel.SeparationTypeAmount}}</b></label>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Fixed Amount (Fixed Day Applicable- {{FinalSettlementModel.IsFixedDayApplicable==true?'Yes':'No'}} )</label>
+                    <label class="col-sm-1 control-label">:</label>
+                    <label class="col-sm-7 control-label text-right" style="text-align:right"> <b>{{FinalSettlementModel.FixedDayAmount}}</b></label>
+                </div>
+
+            </fieldset>
+
+
+
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border">Encashed Information</legend>
+                <div class="form-group">
+                    <label class="col-sm-1 control-label">BF</label>
+                    <label class="col-sm-1 control-label">: <b>{{FinalSettlementModel.LvBroughtForward}}</b> </label>
+                    <label class="col-sm-1 control-label">DS</label>
+                    <label class="col-sm-1 control-label">: <b>{{FinalSettlementModel.LvDaysCanBeSanctioned}}</b> </label>
+                    <label class="col-sm-2 control-label">Availed</label>
+                    <label class="col-sm-1 control-label">: <b>{{FinalSettlementModel.LvAvailedLeave}}</b> </label>
+                    <label class="col-sm-2 control-label">Balance </label>
+                    <label class="col-sm-1 control-label">: <b>{{FinalSettlementModel.LvBalance}}</b> </label>
+                    <label class="col-sm-1 control-label">Encashed</label>
+                    <label class="col-sm-1 control-label">: <b>{{FinalSettlementModel.LvEncashedInbetween}}</b> </label>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Encashed(EL) :</label>
+                    <label class="col-sm-1 control-label">Days </label>
+                    <div class="col-sm-2 show-message">
+                        <input type="number" placeholder="Day No" ng-model="FinalSettlementModel.LvEncashmentDayNo" class="form-control" required tabindex="1">
+                    </div>
+                    <label class="col-sm-1 control-label"> Rate </label>
+
+                    <label class="col-sm-1 control-label" style="text-align:right"> <b>{{FinalSettlementModel.LvEncashmentRate|number:2}}</b></label>
+                    <label class="col-sm-2 control-label"> Amount</label>
+                    @*<div class="col-sm-4 show-message">
+                    <input type="number" ng-model="FinalSettlementModel.LvEncashmentAmount=FinalSettlementModel.LvEncashmentDayNo*FinalSettlementModel.LvEncashmentRate" class="form-control" required tabindex="1" step="0.01">
+
+                </div>*@
+                    <label class="col-sm-2 control-label" style="text-align:right"> <b>{{FinalSettlementModel.LvEncashmentAmount=FinalSettlementModel.LvEncashmentDayNo*FinalSettlementModel.LvEncashmentRate|number:2}}</b></label>
+                </div>
+            </fieldset>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            <br />
+
+            <!-- #region Retained Information -->
+
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border">Retained Information</legend>
+                <div style="color:black;"
+                     id="GridEarningList"
+                     ej-grid e-datasource="FinalSettlementRetainedHeadList"
+                     e-gridlines="vertical"
+                     e-allowselection="false">
+
+                    <div e-columns>
+
+
+                        <div e-column e-headertext="Rate" e-template="#RateTemplateRetained" e-textalign="center" e-width="100"></div>
+
+                    </div>
+                </div>
+
+                <script type="text/template" id="RateTemplateRetained">
+
+                    <div class="form-group" style="padding:0px; margin:0; height:23px;">
+                        <label class="col-sm-4 control-label">{{data.SalaryHead}}</label>
+                        <div class="col-sm-6 show-message">
+                            <input type="number" ng-model="data.DisbusmentAmount" class="form-control" ng-change="$parent.AddRetained($event)" tabindex="3">
+                        </div>
+                        <label class="col-sm-2 control-label">{{data.status}}</label>
+                    </div>
+
+
+
+
+
+                </script>
+            </fieldset>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Total Amount</label>
+                <label class="col-sm-1 control-label">:</label>
+                <label class="col-sm-7 control-label text-right" style="text-align:right"> <b>{{FinalSettlementModel.TotalRetainedAmount|number:2}}</b></label>
+            </div>
+            <br />
+
+            <!-- #endregion -->
+            <!-- #region Earning Info -->
+
+
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border">Earning Information</legend>
+                <div style="color:black;"
+                     id="GridEarningList"
+                     ej-grid e-datasource="FinalSettlementEarningHeadList"
+                     e-gridlines="vertical"
+                     e-allowselection="false">
+
+                    <div e-columns>
+
+
+                        <div e-column e-headertext="Rate" e-template="#RateTemplateE" e-textalign="center" e-width="100"></div>
+
+                    </div>
+                </div>
+
+                <script type="text/template" id="RateTemplateE">
+
+                    <div class="form-group" style="padding:0px; margin:0; height:23px;">
+                        <label class="col-sm-4 control-label">{{data.UserName}}</label>
+                        <div class="col-sm-8 show-message">
+                            <input type="number" ng-model="data.EarningAmount" class="form-control" ng-change="$parent.AddEarning($event)" tabindex="3">
+                        </div>
+                    </div>
+
+
+
+
+                </script>
+            </fieldset>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Total Amount</label>
+                <label class="col-sm-1 control-label">:</label>
+                <label class="col-sm-7 control-label text-right" style="text-align:right"> <b>{{FinalSettlementModel.EarningAmount|number:2}}</b></label>
+            </div>
+            <br />
+
+
+            <!-- #endregion -->
+            <!-- #region Deduction Info -->
+
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border">Deduction Information</legend>
+                <div style="color:black;"
+                     id="GridDeductionList"
+                     @*e-recorddoubleclick="SelectEmployee"*@
+                     ej-grid e-datasource="FinalSettlementDeductionHeadList"
+                     e-gridlines="vertical"
+                     @*e-allowfiltering="true"
+                 e-allowpaging="true"
+                 e-allowsorting="true"*@
+                     e-allowselection="false"
+                     @*e-pagesettings-pagesize="25"
+                 e-filtersettings-filterType="excel" e-allowtouch="true"*@>
+                    <div e-columns>
+                        @*<div e-column e-field="UserName" e-headertext="UserName" e-width="40"></div>*@
+
+                        <div e-column e-headertext="Rate" e-template="#RateTemplate" e-textalign="center" e-width="100"></div>
+
+                    </div>
+                </div>
+
+                <script type="text/template" id="RateTemplate">
+
+                    <div class="form-group" style="padding:0px; margin:0; height:23px;">
+                        <label class="col-sm-4 control-label">{{data.UserName}}</label>
+                        <div class="col-sm-8 show-message">
+                            <input type="number" ng-model="data.DeductionAmount" class="form-control" ng-change="$parent.AddDeduction($event)" tabindex="3">
+                        </div>
+                    </div>
+
+
+
+
+
+                </script>
+            </fieldset>
+
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Total Amount</label>
+                <label class="col-sm-1 control-label">:</label>
+                <label class="col-sm-7 control-label text-right" style="text-align:right"> <b>{{FinalSettlementModel.DeductionAmount|number:2}}</b></label>
+            </div>
+            <br />
+
+            <!-- #endregion -->
+            <!-- #region Earn Leave deduction Information -->
+
+
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border">Earn Leave deduction Information</legend>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Earn Leave :</label>
+                    <label class="col-sm-1 control-label">Days </label>
+                    <div class="col-sm-2 show-message">
+                        <input type="number" placeholder="Day No" ng-model="FinalSettlementModel.EarnLvDeductionDayNo" class="form-control" required tabindex="1">
+                    </div>
+                    <label class="col-sm-1 control-label"> Rate </label>
+
+                    <label class="col-sm-1 control-label" style="text-align:right"> <b>{{FinalSettlementModel.LvEncashmentRate|number:2}}</b></label>
+                    <label class="col-sm-2 control-label"> Amount</label>
+
+                    <label class="col-sm-2 control-label" style="text-align:right"> <b>{{FinalSettlementModel.EarnLvDeductionAmount=FinalSettlementModel.EarnLvDeductionDayNo*FinalSettlementModel.LvEncashmentRate|number:2}}</b></label>
+                </div>
+            </fieldset>
+
+            <!-- #endregion -->
+            <!-- #region Notice Period Information -->
+
+
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border">Notice Period Information</legend>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Notice Period</label>
+                    <div class="col-sm-1 show-message">
+                        <input type="number" placeholder="Day No" ng-model="FinalSettlementModel.NoticePeriodDayNo" class="form-control" @*ng-change="AddNoticePeriodAmount();"*@ required tabindex="1">
+                    </div>
+                    <label class="col-sm-1 control-label">Rate</label>
+                    <label class="col-sm-2 control-label">{{FinalSettlementModel.NoticePeriodRate|number:2}}</label>
+
+
+                    @*<div class="col-sm-1 show-message">
+                    <input type="number" placeholder="Day No" ng-model="FinalSettlementModel.NoticePeriodRate" class="form-control" required tabindex="1">
+                </div>*@
+                    <label class="col-sm-2 control-label">Item Type</label>
+                    <div class="col-sm-2 show-message">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="FinalSettlementModel.NoticePeriodType" required tabindex="1">
+                                <option value="Earning"> Earning</option>
+                                <option value="Deduction"> Deduction</option>
+                            </select>
+                        </div>
+                    </div>
+                    <label class="col-sm-2 control-label">Amount : {{FinalSettlementModel.NoticePeriodAmount=FinalSettlementModel.NoticePeriodRate*FinalSettlementModel.NoticePeriodDayNo|number:2}}</label>
+                </div>
+
+            </fieldset>
+
+            <!-- #endregion -->
+
+
+
+
+            <hr />
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Total Earning </label>
+                <label class="col-sm-1 control-label">:</label>
+                <label class="col-sm-7 control-label text-right" style="text-align:right"> <b>{{FinalSettlementModel.TotalPayableAmount=FinalSettlementModel.EarningAmount+FinalSettlementModel.LastMonthNetPayAmount+FinalSettlementModel.LvEncashmentAmount+FinalSettlementModel.FixedDayAmount+FinalSettlementModel.SeparationTypeAmount+FinalSettlementModel.TotalRetainedAmount+(FinalSettlementModel.NoticePeriodType=='Deduction'?0:FinalSettlementModel.NoticePeriodAmount)|number:2}}</b></label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Total Deduction </label>
+                <label class="col-sm-1 control-label">:</label>
+                <label ng-show="false" class="col-sm-7 control-label" style="text-align:right"> <b>{{FinalSettlementModel.DeductionAmount|number:2}}</b></label>
+                <label class="col-sm-7 control-label" style="text-align:right"> <b>{{FinalSettlementModel.TotalDeductionAmount=FinalSettlementModel.DeductionAmount+FinalSettlementModel.EarnLvDeductionAmount+(FinalSettlementModel.NoticePeriodType=='Deduction'?FinalSettlementModel.NoticePeriodAmount:0)|number:2}}</b></label>
+
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Payable </label>
+                <label class="col-sm-1 control-label">:</label>
+                <label class="col-sm-7 control-label" style="text-align:right"> <b>{{FinalSettlementModel.NetPayAmount=FinalSettlementModel.TotalPayableAmount-FinalSettlementModel.TotalDeductionAmount|number:2}}</b></label>
+            </div>
+            <hr />
+
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border">Gratuity Information</legend>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Gratuity Applicable</label>
+                    <label class="col-sm-8 control-label">: {{FinalSettlementModel.IsGratuityApplicable==true?'Yes':'No'}} </label>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Gratuity </label>
+                    <label class="col-sm-1 control-label">: ( Rate : {{FinalSettlementModel.GratuityRate}} and Year No {{FinalSettlementModel.GratuityYearNo}})</label>
+                    <label class="col-sm-7 control-label text-right" style="text-align:right"> <b>{{FinalSettlementModel.GratuityAmount}}</b></label>
+                </div>
+            </fieldset>
+
+            <hr />
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label"> Net Payable</label>
+                <label class="col-sm-1 control-label">:</label>
+                <label class="col-sm-7 control-label" style="text-align:right"> <b>{{FinalSettlementModel.TotalNetPayAmount=FinalSettlementModel.NetPayAmount+FinalSettlementModel.GratuityAmount|number:2}}</b></label>
+            </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            <hr />
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Remarks</label>
+                <div class="col-sm-8">
+                    <textarea maxlength="250" name="Description" class="form-control" rows="3" ng-model="SeparationType.Description" tabindex="7"></textarea>
+                </div>
+            </div>
+
+            @*<fieldset class="scheduler-border">
+            <legend class="scheduler-border">Retained Bonus Information</legend>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Retained Bonus Amount </label>
+                <div class="col-sm-8 show-message">
+                    <input type="number" ng-model="FinalSettlementModel.BonusRetainedAmount" class="form-control" required tabindex="1">
+                </div>
+            </div>
+        </fieldset>
+
+
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border">Last Month Salary Info</legend>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Salary Amount ({{FinalSettlementModel.LastMonthProcDay}} Days)</label>
+                <div class="col-sm-8 show-message">
+                    <input type="number" ng-model="FinalSettlementModel.LastMonthNetPayAmount" class="form-control" required tabindex="1">
+                </div>
+            </div>
+        </fieldset>*@
+
+
+            @*<div class="form-group">
+            <label class="col-sm-4 control-label">Total Deduction Amount</label>
+            <label class="col-sm-1 control-label">:</label>
+            <label class="col-sm-7 control-label" style="text-align:right"> <b>{{FinalSettlementModel.TotalDeductionAmount=FinalSettlementModel.DeductionAmount|number:2}}</b></label>
+        </div>*@
+
+
+            @*<div class="form-group">
+            <label class="col-sm-4 control-label">Stamp Amount</label>
+            <div class="col-sm-8 show-message">
+                <input type="number" ng-model="FinalSettlementModel.StampAmount" class="form-control" tabindex="3">
+            </div>
+        </div>*@
+            @*<div class="form-group">
+            <label class="col-sm-4 control-label">Total Deduction Amount</label>
+            <div class="col-sm-8 show-message">
+                <input type="number" ng-model="FinalSettlementModel.DeductionAmount" class="form-control" tabindex="3">
+            </div>
+        </div>*@
+
+            @*<div class="col-md-12">
+            <div class="col-xs-12" ng-show="FinalSettlementDeductionHeadList.length>0">
+                <div class="table-responsive">
+                    <table border="0" width="100%">
+
+
+
+
+                            <tr ng-repeat="x in FinalSettlementDeductionHeadList">
+
+
+
+                                <td>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">{{x.UserName}}</label>
+                                        <div class="col-sm-8 show-message">
+                                            <input type="number" ng-model="FinalSettlementModel.DeductionAmount" class="form-control" tabindex="3">
+                                        </div>
+                                    </div>
+                                </td>
+
+                            </tr>
+
+                    </table>
+                </div>
+            </div>
+        </div>*@
+
+            @*<div class="form-group">
+            <label class="col-sm-4 control-label">Others Amount</label>
+            <div class="col-sm-8 show-message">
+                <input type="number" ng-model="FinalSettlementModel.OthersAmount" class="form-control" required tabindex="1">
+            </div>
+        </div>*@
+
+
+
+
+
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2 form-horizontal">
+
+
+        </div>
+    </div>
+    <hr />
+    <div class="common-btn">
+        <ul class="list-inline text-right" ng-show="btnSave">
+            <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> {{Action}}</button></li>
+            @*<li><button data-toggle="modal" data-target="#confirmPopUp" class="btn" ng-disabled="checkIdUsedValue" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
+            <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="11"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+
+
+
+<div class="row aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+
+        <div style="color:black;"
+             id="GridFinalSettlementList"
+             ej-grid e-datasource="FinalSettlementList"
+             e-gridlines="vertical"
+             e-allowfiltering="true"
+             e-allowpaging="true"
+             e-allowsorting="true"
+             e-allowselection="true"
+             e-filtersettings-filterType="excel" e-allowtouch="true">
+            <div e-columns>
+
+                <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="80"></div>
+                <div e-column e-field="EmployeeName" e-headertext="Name" e-width="100"></div>
+                <div e-column e-field="FinalSettlementDate" e-headertext="Date" e-width="80"></div>
+                <div e-column e-field="DOJ" e-headertext="DOJ" e-width="80"></div>
+                <div e-column e-field="DOS" e-headertext="DOS" e-width="80"></div>
+
+
+                @*<div e-column e-field="FormulaDes" e-headertext="FormulaDes" e-width="55"></div>*@
+                @*<div e-column e-field="PolicyYearNo" e-headertext="PolicyYearNo Date" e-width="50"></div>
+
+                    <div e-column e-field="PolicyDayNo" e-headertext="PolicyDayNo" e-width="50"></div>*@
+                @*<div e-column e-field="SeparationTypeAmount" e-headertext="SeparationTypeAmount" e-width="50"></div>
+                    <div e-column e-field="GratuityAmount" e-headertext="GratuityAmount" e-width="50"></div>
+                    <div e-column e-field=" LvEncashmentAmount" e-headertext=" LvEncashmentAmount" e-width="50"></div>
+                    <div e-column e-field="OthersAmount" e-headertext="OthersAmount" e-width="50"></div>
+                    <div e-column e-field="DeductionAmount" e-headertext="DeductionAmount" e-width="50"></div>*@
+                <div e-column e-field="TenureYearNo" e-headertext="TenureYear" e-width="50"></div>
+                <div e-column e-field="TenureMonthNo" e-headertext="TenureMonth" e-width="50"></div>
+                <div e-column e-field="TenureDayNo" e-headertext="TenureDay" e-width="50"></div>
+
+
+                <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="80"></div>
+                <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                @*<div e-column e-headertext="Actions" e-width="70">
+                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 28px;" class="btn"><i class="glyphicon glyphicon-edit" ng-click="$parent.EditFinalSettlement($event);" style="margin: -6px;"></i></button>
+                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 28px;" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.remove($event);" style="margin: -6px;"></i></button>
+
+                </div>*@
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<confirm-modal></confirm-modal>
+
+
+
+<ej-dialog id="dialogEmployeeInfo"
+           title=" Employee Information"
+           e-enablemodal="true"
+           e-position-y="0"
+           e-showoninit="false"
+           e-target=".site-heading"
+           e-close="onDialogClose"
+           e-minwidth="95%"
+           e-minheight="500" e-open="enableBtn">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+
+            <div style="color:black;"
+                 id="GridEmployeeInfoList"
+                 e-recorddoubleclick="SelectEmployee"
+                 ej-grid e-datasource="EmployeeInformationList"
+                 e-gridlines="vertical"
+                 e-allowfiltering="true"
+                 e-allowpaging="true"
+                 e-allowsorting="true"
+                 e-allowselection="true"
+                 e-pagesettings-pagesize="25"
+                 e-filtersettings-filterType="excel" e-allowtouch="true">
+                <div e-columns>
+                    <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="50"></div>
+                    <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+
+                    <div e-column e-field="DOJ" e-headertext="DOJ" e-width="70"></div>
+                    <div e-column e-field="DOS" e-headertext="DOS" e-width="70"></div>
+                    @*<div e-column e-field="DOBs" e-headertext="DOB" e-width="70"></div>*@
+                    <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="80"></div>
+                    <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                    @*<div e-column e-field="Designation" e-headertext="Designation" e-width="80"></div>*@
+
+                    <div e-column e-field="EntityName" e-headertext="Entity" e-width="80"></div>
+
+                    @*<div e-column e-field="DesignationGroupName" e-headertext="Designation Group" e-width="80"></div>*@
+                    @*<div e-column e-field="CellPhnNo" e-headertext="Cell No" e-width="80"></div>*@
+                    @*<div e-column e-field="PayRollGroupName" e-headertext="Payroll Group" e-width="80"></div>
+                        <div e-column e-field="ApprovedStatus" e-headertext="Status" e-width="60"></div>*@
+                </div>
+            </div>
+        </div>
+    </div>
+
+</ej-dialog>

@@ -1,0 +1,666 @@
+﻿<style>
+    div[class="form-group"] {
+        height: 8px !important;
+    }
+
+    .control-label {
+        text-align: right !important;
+        line-height: 8px !important;
+    }
+</style>
+<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Subsection Structure
+</h3>
+<div class="form-elements form-horizontal" ng-form id="Bulletin" name="subsectionStructureForm">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <div class="col-sm-4 text-right">
+                <button ng-click="masterAddEditPopup('NEW');" class="btn small"><i class="glyphicon glyphicon-plus"></i></button>
+            </div>
+            <div class="col-sm-8 ">
+                <button ng-click="masterSearchPopup()" class="btn small"><i class="glyphicon glyphicon-search"></i> </button>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+    </div>
+
+    <div class="clearfix"></div>
+    <!--Master view Left-->
+    <div class="col-xs-12 col-sm-6 col-md-6" ng-show="master.Id.length>0">
+        <div class="form-group">
+            @*<label class="col-sm-4 control-label">Id</label>*@
+            <div class="col-sm-4 control-label">Id</div>
+            <div class="col-sm-8 highlight-txt" ng-click="masterAddEditPopup('EDIT')">
+                {{master.Id}}
+            </div>
+            @*<label class="col-sm-8 control-label" ng-click="masterAddEditPopup('EDIT')">{{master.Id}}</label>*@
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Plant</label>
+            <div class="col-sm-8">
+                {{master.Plant}}
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Code</label>
+            <div class="col-sm-7">
+                {{master.Code}}
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Description</label>
+            <div class="col-sm-7">
+                {{master.Description}}
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Start Time</label>
+            <div class="col-sm-8">
+                {{master.StartTime}}
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Lunch Start Time</label>
+            <div class="col-sm-8">
+                {{master.LunchStartTime}}
+            </div>
+        </div>
+    </div>
+
+    <!--Master view Rigt-->
+    <div class="col-xs-12 col-sm-6 col-md-6" ng-show="master.Id.length>0">
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Company</label>
+            <div class="col-sm-8">
+                {{master.Company}}
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Unit</label>
+            <div class="col-sm-7">
+                {{master.Unit}}
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Process</label>
+            <div class="col-sm-7">
+                {{master.Process}}
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Sequence</label>
+            <div class="col-sm-7">
+                {{master.Sequence}}
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Lunch End Time</label>
+            <div class="col-sm-8">
+                {{master.LunchEndTime}}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xs-12 col-sm-6 col-md-6" ng-show="master.Id.length>0">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Applicable For</label>
+            <div class="col-sm-8">
+                {{ApplicableFor}}
+
+                @*<label ng-show="master.ApplicableForProduction">Production</label><br />
+                    <label ng-show="master.ApplicableForWIP">WIP</label><br />
+                    <label ng-show="master.ApplicableForIncentive">Incentive</label><br />
+                    <label ng-show="master.ApplicableForBulletin">Bulletin</label>*@
+            </div>
+        </div>
+    </div>
+
+    <!--Master Detail Buttons-->
+    <div class="" ng-show="master.Id.length>0">
+        <ul class="list-inline text-left">
+            <li>
+                <button ng-click="detailEntryPopup('NEW');" class="btn small"><i class="glyphicon glyphicon-plus"></i> Line Item</button>
+            </li>
+        </ul>
+    </div>
+
+    <!--Detail Grid-->
+    <div class="table-responsive modal-table" ng-show="detailList.length>0">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th ng-repeat="h in searchbyDetaillist">{{h.Text}}</th>
+                    <th>Edit</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="x in detailList" total-items="$root.total_count">
+
+                    @*<td ng-click="getDetailRow($index)"><i class="glyphicon glyphicon-pencil"></i></td>*@
+                    @*confirmdetaildelete*@
+                    @*<td ng-click="deleteDetailGrid(x.Id,$index)" data-toggle="modal" data-target="#archivePopUp"><i class="glyphicon glyphicon-remove"></i></td>*@
+
+                    <td ng-repeat="hh in searchbyDetaillist">{{x[hh.Value]}}</td>
+                    <td>
+                        <ul class="list-inline action-list">
+                            <li>
+                                <button ng-click="getDetailRow($index)" class="btn-action tooltip-here" data-placement="top" title="Edit" tooltip>
+                                    <i class="glyphicon glyphicon-edit"></i>
+                                </button>
+                            </li>
+                        </ul>
+                    </td>
+                    <td>
+                        <ul class="list-inline action-list">
+                            <li>
+                                <button ng-click="deleteDetailGrid(x.Id)" class="btn-action tooltip-here" data-placement="top" title="Remove" tooltip>
+                                    <i class="glyphicon glyphicon-remove"></i>
+                                </button>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    @*Master Search Modal*@
+    <div class="modal fade site-modal in" id="mastersearchpopup" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    {{$rootScope.title}} Subsection Structure Master <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body text-center">
+
+                    <div class="row text-right">
+                        <div class="col-xs-12 col-sm-12 col-sm-12">
+                            <div class="search-form">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="select-style">
+                                            <select ng-model="$root.parameters.searchBy">
+                                                <option ng-repeat="option in searchbyMasterlist" ng-show="option.IsVisible" value="{{option.Value}}">{{option.Text}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-7 col-md-7">
+                                        <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="loadMasterData()">
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <button type="button" ng-click="loadMasterData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th ng-repeat="h in searchbyMasterlist" ng-show="h.IsVisible">{{h.Text}}</th>
+                                    @*<th>Id</th>
+                                        <th>Description</th>
+                                        <th>Buyer</th>
+                                        <th>Process</th>
+                                        <th>Material Master Description</th>
+                                        <th>Working Hour</th>
+                                        <th>Sequence</th>*@
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr dir-paginate="x in masterList | itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="GetMasterIndex(x.Id, $index);">
+                                    <td ng-repeat="h in searchbyMasterlist" ng-show="h.IsVisible">{{x[h.Value]}}</td>
+                                    @*<td>{{x.Id}}</td>
+                                        <td>{{x.Description}}</td>
+                                        <td>{{x.Buyer}}</td>
+                                        <td>{{x.Process}}</td>
+                                        <td>{{x.MaterialMasterDescription}}</td>
+                                        <td>{{x.WorkingHour}}</td>
+                                        <td>{{x.Sequence}}</td>*@
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="form-elements form-horizontal" ng-form id="master" name="masterForm" ng-submit="SaveMaster()">
+
+    <!--Master Add New Popup-->
+    <div class="modal fade site-modal in" id="masteraddeditpopup" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Subsection Structure Master</h4>
+                </div>
+                <div class="modal-body">
+
+                    <!--Master Entry Left -->
+                    @*id,code, description*@
+                    <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Id</label>
+                            <div class="col-sm-8">
+                                {{mastermodal.Id}}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select name="PlantId" ng-model="mastermodal.PlantId" ng-options="item.Value as item.Text for item in plantList">
+                                        <option></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Code" ng-model="mastermodal.Code" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Description<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Description" ng-model="mastermodal.Description" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+                    <!--Master Entry Rigt -->
+                    @*Sequence,unit,process*@
+                    <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Company<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select name="CompanyId" ng-change="getPlantCompanyWise();" ng-model="mastermodal.CompanyId" ng-options="item.Value as item.Text for item in companyList" required>
+                                        <option></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Unit<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select name="UnitId" ng-model="mastermodal.UnitId" ng-options="item.Value as item.Text for item in unitList" required>
+                                        <option></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Process<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select name="ProcessId" ng-model="mastermodal.ProcessId" ng-options="item.Value as item.Text for item in processList" required>
+                                        <option></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="number" name="Sequence" ng-model="mastermodal.Sequence" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    @*starttime*@
+                    <div class="col-xs-12 col-sm-12 col-md-12 form-horizontal">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-2 control-label">Start Time<sup>*</sup></label>
+                            <div class="col-sm-4 show-message">
+                                @*<input type="time" name="StartTime" ng-model="mastermodal.StartTime" class="form-control" required>*@
+                                <input type="text" name="StartTime" ng-model="mastermodal.StartTime"
+                                       placeholder="HH:mm" class="form-control" required />
+                            </div>
+                        </div>
+                    </div>
+                    @*LunchStartTime*@
+                    <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Lunch Start Time<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                @*<input type="time" name="LunchStartTime" ng-model="mastermodal.LunchStartTime" class="form-control" required>*@
+                                <input type="text" name="LunchStartTime" ng-model="mastermodal.LunchStartTime"
+                                       placeholder="HH:mm" class="form-control" required />
+                            </div>
+                        </div>
+                    </div>
+
+                    @*LunchEndTime*@
+                    <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Lunch End Time <sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                @*<input type="time" name="LunchEndTime" ng-model="mastermodal.LunchEndTime" min="0" max="24" class="form-control" required>*@
+                                <input type="text" name="LunchEndTime" ng-model="mastermodal.LunchEndTime"
+                                       placeholder="HH:mm" class="form-control" required />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-12 form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Applicable For</label>
+                            <div class="col-sm-2 ">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="mastermodal.ApplicableForProduction">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        <span>Production</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-sm-2 ">
+                                <div class="checkbox-site">
+
+                                    <label>
+                                        <input type="checkbox" ng-model="mastermodal.ApplicableForWIP">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        <span>WIP</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-sm-2 ">
+                                <div class="checkbox-site">
+
+                                    <label>
+                                        <input type="checkbox" ng-model="mastermodal.ApplicableForIncentive">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        <span>Incentive</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-sm-2 ">
+                                <div class="checkbox-site">
+
+                                    <label>
+                                        <input type="checkbox" ng-model="mastermodal.ApplicableForBulletin">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        <span>Bulletin</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--Master Bottom Buttons-->
+
+                    <div class="common-btn">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <ul class="list-inline text-left"></ul>
+                        </div>
+                        <ul class="list-inline text-right">
+                            <li>
+                                <button ng-click="SaveMaster();" class="btn"><i class="glyphicon glyphicon-plus"></i> {{master.Id.length>0?'Update':'Save'}}</button>
+                            </li>
+                            <li>
+                                <button ng-show="master.Id.length>0" ng-click="deleteMaster()" class="btn"><i class="glyphicon glyphicon-remove"></i> Delete</button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="form-elements form-horizontal" ng-form id="Detail" name="DetailForm" ng-submit="SaveDetail()">
+    <!--Detail Entry Popup-->
+    <div class="modal fade site-modal in" id="detailentrypopup" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" style="overflow:auto;font-size:11px;">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Detail Data</h4>
+                    <input type="hidden" ng-model="detail.Id">
+                </div>
+                <div class="modal-body">
+
+                    <!--Detail Entry Left id-->
+                    @*<div class="col-xs-12 col-sm-12 col-md-12 form-horizontal">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-2 control-label">Id<sup>*</sup></label>
+                                <div class="col-sm-4 show-message">
+                                    <input type="text" name="MaterialMasterId" ng-model="bulletindetail.Id" class="form-control" required>
+                                </div>
+                            </div>
+                        </div>*@
+
+                    <!--Detail Entry Left two row-->
+                    <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Division<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select name="ZoneId" ng-model="detailmodal.DivisionId" ng-options="item.Value as item.Text for item in divisionList">
+                                        <option></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Section<sup>*</sup></label>
+                            <div class="col-sm-8 ">
+                                <div class="select-style">
+                                    <select name="Section" ng-model="detailmodal.SectionId" ng-options="item.Value as item.Text for item in sectionList">
+                                        <option></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Line<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select name="Line" ng-model="detailmodal.LineId" ng-options="item.Value as item.Text for item in lineList">
+                                        <option></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--Detail Entry Rigt two row-->
+                    <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Subdivision<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select name="Subdivision" ng-model="detailmodal.SubdivisionId" ng-options="item.Value as item.Text for item in subdivisionList">
+                                        <option></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Subsection<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select name="Subsection" ng-model="detailmodal.SubsectionId" ng-options="item.Value as item.Text for item in subsectionList">
+                                        <option></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Department<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select name="Department" ng-model="detailmodal.DepartmentId" ng-options="item.Value as item.Text for item in departmentList">
+                                        <option></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--Detail Buttons-->
+                    <div class="common-btn">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <!--<ul class="list-inline text-left">
+                                <li>
+                                    <button ng-click="dtoggle();" class="btn"><i class="glyphicon glyphicon-plus"></i>Detail</button></li>
+                            </ul>-->
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <ul class="list-inline text-right">
+                                <li>
+                                    <button ng-click="SaveDetail();" ng-disabled="SaveDetailDisabled" class="btn"><i class="glyphicon glyphicon-plus"></i> {{detail.Id.length>0?'Update':'Save'}}</button>
+                                </li>
+                                <li>
+                                    <button ng-click="deleteDetailGrid(detailmodal.Id,$index)" data-toggle="modal" ng-show="detail.Id.length>0" data-target="#archivePopUp" class="btn"><i class="glyphicon glyphicon-remove"></i> Delete</button>
+                                </li>
+                                @*<li>
+                                        <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-trash"></i>Clear</button>
+                                    </li>*@
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade site-modal in" id="operationmodal" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    Operation
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body text-center">
+
+                    <div class="row text-right">
+                        <div class="col-xs-12 col-sm-12 col-sm-12">
+                            <div class="search-form">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="select-style">
+                                            <select ng-model="$root.parameters.searchBy">
+                                                <option ng-repeat="option in searchbyOperationDatalist" value="{{option.value}}">{{option.name}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-7 col-md-7">
+                                        <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getOperationData()">
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <button type="button" ng-click="getOperationData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Code</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr dir-paginate="x in operationData  |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="getOperationCode(x.Id, x.UserName);">
+                                    <td>{{x.Id}}</td>
+                                    <td>{{x.Code}}</td>
+                                    <td>{{x.UserName}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade site-modal in" id="machinetypemodal" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    Machine Type
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body text-center">
+
+                    <div class="row text-right">
+                        <div class="col-xs-12 col-sm-12 col-sm-12">
+                            <div class="search-form">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="select-style">
+                                            <select ng-model="$root.parameters.searchBy">
+                                                <option ng-repeat="option in searchbyMachineTypelist" value="{{option.Value}}">{{option.Text}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-7 col-md-7">
+                                        <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="loadMTData()">
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <button type="button" ng-click="loadMTData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    @*mc.UserName as MachineClassName, msc.UserName as MachineSubClassName, mct.UserName as MachineCategoryName, "+
+                                        " msct.UserName as MachineSubCategoryName, m.UserName as MachineName, p.UserName as ProcessName*@
+                                    <th>Id</th>
+                                    <th>Code</th>
+                                    <th>Description</th>
+                                    <th>MachineClassName</th>
+                                    <th>MachineSubClassName</th>
+                                    <th>MachineCategoryName</th>
+                                    <th>MachineSubCategoryName</th>
+                                    <th>MachineName</th>
+                                    <th>ProcessName</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr dir-paginate="x in machineTypeData  |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="getMachineTypeCode(x.Id);">
+                                    <td>{{x.Id}}</td>
+                                    <td>{{x.Code}}</td>
+                                    <td>{{x.UserName}}</td>
+                                    <td>{{x.MachineClassName}}</td>
+                                    <td>{{x.MachineSubClassName}}</td>
+                                    <td>{{x.MachineCategoryName}}</td>
+                                    <td>{{x.MachineSubCategoryName}}</td>
+                                    <td>{{x.MachineName}}</td>
+                                    <td>{{x.ProcessName}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<confirm-modal></confirm-modal>
+<confirm-archive title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRowYes()"></confirm-archive>
+<confirm-archive-generic data-modalid="confirmmasterdelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeMasterYes()"></confirm-archive-generic>
+<confirm-archive-generic data-modalid="confirmdetaildelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeDetailYes()"></confirm-archive-generic>
+@*<confirm-archive-generic data-modalid="confirmdetaildelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRowYes()"></confirm-archive-generic>*@

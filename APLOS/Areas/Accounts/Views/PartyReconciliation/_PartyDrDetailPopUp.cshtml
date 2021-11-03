@@ -1,0 +1,50 @@
+﻿<style>
+    .modellgModify {
+        width: 1200px;
+    }
+</style>
+<div class="modal fade site-modal in" id="_partyDrDetailPopUP" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content" ng-form name="partyForm">
+            <div class="modal-body">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>VoucherNo</th>
+                                <th>Entity</th>
+                                <th>Ordering @Library.Model.Parties.PartyType.Customer.ToString()</th>
+                                <th>PostingDate</th>
+                                <th>DocDate</th>
+                                <th>Doc Ref</th>
+                                <th>Currency</th>
+                                <th>Payable</th>
+                                <th>Write-off</th>
+                                <th>Balance</th>
+                                <th>Particular</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in partyAssetDetailList ">
+                                <td>{{x.VoucherNo}}</td>
+                                <td>{{x.EntityName}}</td>
+                                <td>{{x.PartyPlantName}}</td>
+                                <td>{{x.PostingDate |dateFiltering}}</td>
+                                <td>{{x.DocDate |dateFiltering}}</td>
+                                <td>{{x.DocRefNo}}</td>
+                                <td>{{x.CurrencyCode}}</td>
+                                <td class="text-right">{{x.Receivable | number:2}}</td>
+                                <td class="text-right">{{x.Received | number:2}}</td>
+                                <td class="text-right">{{x.Balance | number:2}}</td>
+                                <td>{{x.Particular}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn btn-default" ng-click="closeAssetDetailPopUp();">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

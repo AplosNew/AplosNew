@@ -1,0 +1,375 @@
+﻿<togglable name="Recruitment"></togglable>
+<style>
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 40px;
+        height: 24px;
+    }
+
+        .switch input {
+            display: none;
+        }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 5px;
+            bottom: 4px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+    input:checked + .slider {
+        background-color: #20384c;
+    }
+
+    input:focus + .slider {
+        box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked + .slider:before {
+        -webkit-transform: translateX(16px);
+        -ms-transform: translateX(16px);
+        transform: translateX(16px);
+    }
+
+    /* Rounded sliders */
+    .slider.round {
+        border-radius: 14px;
+    }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+</style>
+<div ng-form name="preRecruitmentEmployeeForm" class="form-horizontal form-elements">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Budget Code<sup>*</sup></label>
+            <div class="col-sm-8 input-group show-message" style="padding-left: 15px;padding-right: 14px;">
+                <input type="hidden" name="Budget Code" ng-model="preRecruitmentEmployeeNew.BudgetId" class="form-control">
+                <input type="text" name="Code" ng-model="preRecruitmentEmployeeNew.Code" class="form-control" readonly>
+                <span class="input-group-btn">
+                    <button ng-click="popUp();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
+                    <button ng-click="clearCode()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                </span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Entity</label>
+            <div class="col-sm-8">
+                <input type="text" name="Entity" ng-model="preRecruitmentEmployeeNew.EntityName" class="form-control" readonly>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Designation</label>
+            <div class="col-sm-8">
+                <input type="text" name="Designation" ng-model="preRecruitmentEmployeeNew.Designation" class="form-control" readonly>
+                <input type="hidden" name="DesignationId" ng-model="preRecruitmentEmployeeNew.DesignationId" class="form-control">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Full Name<sup>*</sup></label>
+            <div class="col-sm-8">
+                <input type="text" name="FullName" maxlength="100" ng-model="preRecruitmentEmployeeNew.FullName" class="form-control" tabindex="2">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Date of Birth</label>
+            <div class="col-sm-8">
+                <input type="text" ng-model="preRecruitmentEmployeeNew.DOB" datepicker class="form-control datepicker" placeholder="dd-MM-yyyy" tabindex="4">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Phone<sup>*</sup></label>
+            <div class="col-sm-8">
+                <input type="text" name="Phone" only-numbers maxlength="50" ng-model="preRecruitmentEmployeeNew.Phone" class="form-control" tabindex="6">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Agreed DOJ<sup>*</sup></label>
+            <div class="col-sm-8">
+                <input type="text" ng-model="preRecruitmentEmployeeNew.AgreedDOJ" datepicker class="form-control datepicker" placeholder="dd-MM-yyyy" tabindex="8">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label"><span>Special Review</span><br /><span>Duration (month)</span></label>
+            <div class="col-sm-8">
+                <input type="number" name="SpecialReviewDuration" ng-model="preRecruitmentEmployeeNew.SpecialReviewDuration" class="form-control" tabindex="10">
+                @*<span class="msg-error" ng-show="preRecruitmentEmployeeForm.SpecialReviewDuration.$error.number">
+                        Not valid number!
+                    </span>*@
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Rank<sup>*</sup></label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    <select class="form-control" ng-model="preRecruitmentEmployeeNew.InterviewRankingId" name="Rank" tabindex="12">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in rankList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Emp Type<sup>*</sup></label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    <select class="form-control" ng-model="preRecruitmentEmployeeNew.EmpType" name="EmpType" tabindex="14">
+                        <option value="">--Select--</option>
+                        <option value="Local">Local</option>
+                        <option value="Expatriate">Expatriate</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" hidden>
+            <label class="col-sm-4 control-label">Employee Id</label>
+            <div class="col-sm-8">
+                <input type="text" name="Employee Id" ng-model="preRecruitmentEmployeeNew.Id" hidden class="form-control" readonly>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Position</label>
+            <div class="col-sm-8">
+                <input type="text" name="Position" ng-model="preRecruitmentEmployeeNew.PositionName" class="form-control" readonly>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Exceptional Designation</label>
+            <label class="switch col-sm-8" style="margin-left:18px;">
+                <input type="checkbox" ng-model="preRecruitmentEmployeeNew.IsExceptionalDesigApplicable" ng-change="getDes();">
+                <span class="slider round"></span>
+            </label>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Given Designation<sup>*</sup></label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    <select class="form-control" ng-model="preRecruitmentEmployeeNew.GivenDesignationId" name="Given Designation" tabindex="1">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in givenDesignationList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Operation Master</label>
+            <div class="col-sm-8">
+                <div class="input-group">
+                    <input type="text" name="Operation Master" ng-model="preRecruitmentEmployeeNew.OperationMasterCode" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="showOperationPopUp('OM');" class="btn single-small-btn" tabindex="11"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </div>
+            @*<label class="col-sm-4 control-label">Operation Master<sup>*</sup></label>
+        <div class="col-sm-8">
+            <div class="select-style">
+                <select class="form-control" ng-model="preRecruitmentEmployeeNew.OperationMasterID" name="Operation Master" tabindex="1">
+                    <option value="">--Select--</option>
+                    <option ng-repeat="option in operationMasterList" value="{{option.Value}}">{{option.Text}}</option>
+                </select>
+            </div>
+        </div>*@
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Gender<sup>*</sup></label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    <select class="form-control" ng-model="preRecruitmentEmployeeNew.Gender" name="Gender" tabindex="3">
+                        <option value="">--Select--</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">NID</label>
+            <div class="col-sm-8">
+                <input type="text" name="NID" maxlength="30" ng-model="preRecruitmentEmployeeNew.NationalID" class="form-control" tabindex="5">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Email<sup>*</sup></label>
+            <div class="col-sm-8">
+                <input type="email" name="Email" maxlength="50" ng-model="preRecruitmentEmployeeNew.Email" class="form-control" tabindex="7">
+                <span class="msg-error" ng-show="preRecruitmentEmployeeForm.Email.$error.email">
+                    Not valid email!
+                </span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Total Salary</label>
+            <div class="col-sm-8">
+                <input type="number" name="TotalSalary" maxlength="18" ng-model="preRecruitmentEmployeeNew.TotalSalary" class="form-control" tabindex="9">
+                @*<span class="msg-error" ng-show="preRecruitmentEmployeeForm.TotalSalary.$error.number">
+                        Not valid number!
+                    </span>*@
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Special Review Amount</label>
+            <div class="col-sm-8">
+                <input type="number" name="Special Review Amount" ng-model="preRecruitmentEmployeeNew.SpecialReviewAmount" class="form-control" tabindex="11">
+                @*<span class="msg-error" ng-show="preRecruitmentEmployeeForm.SpecialReviewAmount.$error.number">
+                        Not valid number!
+                    </span>*@
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Status<sup>*</sup></label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    <select class="form-control" ng-model="preRecruitmentEmployeeNew.Status" name="Status" tabindex="13">
+                        <option value="">--Select--</option>
+                        <option value="Selected">Selected</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Future">Future</option>
+                        <option value="Rejected">Rejected</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li> @*<button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button>*@</li>
+            <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="SelectionParameters.searchBy">
+                            <option ng-repeat="option in searchDataByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="SelectionParameters.search" ng-enter="LoadDataList()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="LoadDataList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Candidate Id</th>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Date of Birth</th>
+                <th>Budget Code</th>
+                <th>Entity</th>
+                <th>Position</th>
+                <th>Given Designation</th>
+                <th>App Added Date</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="e in recruitments |itemsPerPage:SelectionParameters.pageSize" total-items="SelectionParameters.total_count">
+                <td>{{e.Id}}</td>
+                <td>{{e.FullName | uppercase}}</td>
+                <td>{{e.Email}}</td>
+                <td>{{e.DOB | dateFiltering}}</td>
+                <td>{{e.BudgetId}}</td>
+                <td>{{e.EntityName}}</td>
+                <td>{{e.PositionName}}</td>
+                <td>{{e.GivenDesignation}}</td>
+                <td>{{e.AppAddedDateTime | dateFiltering}}</td>
+                <td class="text-right table-td">
+                    <ul class="list-inline action-list">
+                        <li>
+                            <button ng-click="Get(e, $index);" class="btn btn-action tooltip-here" data-placement="top" title="Edit" tooltip>
+                                <i class="glyphicon glyphicon-pencil"></i>
+                            </button>
+                            <button data-toggle="modal" data-target="#confirmDeletePopUp" ng-click="confirmDelete(e, $index)"
+                                    class="btn btn-action tooltip-here" data-placement="top" title="Delete" tooltip>
+                                <i class="glyphicon glyphicon-remove"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10"
+                             direction-links="true"
+                             boundary-links="true"
+                             on-page-change="LoadDataList(newPageNumber)">
+    </dir-pagination-controls>
+</div>
+<modal-table modalid="popUpId"
+             data-title={{popUpTitle}}
+             data-search-parameters="popUpParameters"
+             data-exclued-column-list="Code"
+             data-field-list="popUpList"
+             data-data-list="popUpDataList"
+             data-search-function="getPopUpData"
+             data-single-click="selectSingleClick(data)"
+             data-double-click="selectDoubleClick(data)"
+             data-right-button="true"
+             data-left-button="true"
+             data-ng-click-left-button="selectByButton()"
+             data-ng-click-cancel="closePopUp()">
+</modal-table>
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" data-ng-click-left-button="confirmCloseDelete()" message={{message_confirmation}} data-ng-click-right-button="removeRow()"></confirm-archive-generic>
+<div class="modal fade site-modal in" id="OperationPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <i class="glyphicon glyphicon-info-sign"></i> {{Operation}}
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div style="color:black;" id="Grid" ej-grid e-datasource="OperationList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                     e-recorddoubleclick="SetOperation" e-allowselection="true" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-headertext-color="black" e-textalign="left" e-width="75"></div>
+                        <div e-column e-field="Code" e-headertext="Code" e-width="50"></div>
+                        <div e-column e-field="ShortName" e-headertext="Short Name" e-width="50"></div>
+                        <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="70"></div>
+                        <div e-column e-field="UserName" e-headertext="User Name" e-width="70"></div>
+                        <div e-column e-field="MachineMaster" e-headertext="Machine Master" e-width="100"></div>
+                        <div e-column e-field="Skill" e-headertext="Skill" e-width="100"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>

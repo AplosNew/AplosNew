@@ -1,0 +1,277 @@
+﻿@using Library.Model.Taxations;
+<togglable name="Tax Variant"></togglable>
+<div class="form-horizontal" ng-form name="taxVariantNewForm">
+    <div class="col-xs-6 col-sm-6 col-md-6 form-element-ctrl">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Country<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="taxVariantNew.CountryId" name="Country" ng-options="item.Value as item.Text for item in CountryList"
+                            ng-change="getList();GetSequence();" tabindex="1" required>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="form-elements">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <input type="hidden" ng-model="taxVariantNew.Id">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="number" name="Sequence" ng-model="taxVariantNew.Sequence" class="form-control" required tabindex="2">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Short Name" ng-model="taxVariantNew.ShortName" class="form-control" maxlength="15" required tabindex="4">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="User Name" ng-model="taxVariantNew.UserName" class="form-control" required tabindex="6" maxlength="50">
+                </div>
+            </div>
+            <div class="form-group" show-errors ng-show="taxVariantNew.TaxFor=='DomesticPurchase'||taxVariantNew.TaxFor=='DomesticSales'">
+                <label class="col-sm-4 control-label">Different In<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select name="Different In" ng-model="taxVariantNew.DifferentIn" class="col-sm-3 form-control" 
+                                ng-options="item.Value as item.Text for item in differentInList" tabindex="8" ng-required="taxVariantNew.TaxFor=='DomesticPurchase'||taxVariantNew.TaxFor=='DomesticSales'">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Description</label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" rows="3" ng-model="taxVariantNew.Description" tabindex="10" maxlength="250"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Active</label>
+                <div class="col-sm-8">
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" ng-model="taxVariantNew.Active">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Code" ng-model="taxVariantNew.Code" class="form-control" required tabindex="3" maxlength="10">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Standard Name" ng-model="taxVariantNew.StandardName" class="form-control" required tabindex="5" maxlength="50">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">TaxFor<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select name="Tax for" ng-model="taxVariantNew.TaxFor" class="col-sm-3 form-control" ng-options="item.Value as item.Text for item in taxForList" required tabindex="7">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" ng-show="taxVariantNew.TaxFor=='DomesticPurchase'||taxVariantNew.TaxFor=='DomesticSales'">
+                <label class="col-sm-4 control-label">Different</label>
+                <div class="col-sm-8">
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="Different" ng-model="taxVariantNew.Different" value="@Html.Raw(TaxDifferent.Same.ToString())"><span class="cr"><i class="cr-icon"></i></span> Same
+                        </label>
+                        <label>
+                            <input type="radio" name="Different" ng-model="taxVariantNew.Different" value="@Html.Raw(TaxDifferent.Different.ToString())"><span class="cr"><i class="cr-icon"></i></span> Different
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Remarks</label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" rows="3" ng-model="taxVariantNew.Remarks" maxlength="250" tabindex="9"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="common-btn">
+                <ul class="list-inline text-left">
+                    <li><button ng-click="popUp();" class="btn" tabindex="11"><i class="glyphicon glyphicon-plus"></i> Tax Category</button></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li><button ng-click="Save();" class="btn" tabindex="12"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                    <li><button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="13"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                    <li><button ng-click="Clear();" class="btn" tabindex="14"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                </ul>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        <div class="table-responsive modal-table">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Short Name</th>
+                        <th>Standard Name</th>
+                        <th>User Name</th>
+                        <th>Remove</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="x in taxVariantDetailList">
+                        <td>{{x.Code}}</td>
+                        <td>{{x.ShortName}}</td>
+                        <td>{{x.StandardName}}</td>
+                        <td>{{x.UserName}}</td>
+                        <td class="text-right">
+                            <button ng-click="valuePassInDelModal($index,x)" class="btn-action tooltip-here"
+                                    data-placement="top" title="Delete">
+                                <i class="glyphicon glyphicon-remove"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Sequence</th>
+                <th>Code</th>
+                <th>Short Name</th>
+                <th>Standard Name</th>
+                <th>User Name</th>
+                <th>TaxFor</th>
+                <th>DifferentIn</th>
+                <th>Different</th>
+                <th>Active</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in taxVariantList |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get(x.Id, $index);">
+                <td>{{x.Sequence}}</td>
+                <td>{{x.Code}}</td>
+                <td>{{x.ShortName}}</td>
+                <td>{{x.StandardName}}</td>
+                <td>{{x.UserName}}</td>
+                <td>{{x.TaxFor}}</td>
+                <td>{{x.DifferentIn}}</td>
+                <td>{{x.Different}}</td>
+                <td>{{x.Active?'Yes':'No'}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10"
+                             direction-links="true"
+                             boundary-links="true"
+                             on-page-change="getData(newPageNumber)">
+    </dir-pagination-controls>
+</div>
+<div class="modal fade site-modal in" id="TaxCategoryPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:1000px">
+        <div class="modal-content" ng-form name="materialgridCharacteristicsForm">
+            <div class="modal-header"> Tax Category<button type="button" class="close" ng-click="closeGLPopUp()">&times;</button></div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="taxCategoryParameters.searchBy">
+                                            <option ng-repeat="option in taxCategorySearchList|orderBy:'name'" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="taxCategoryParameters.search" ng-enter="taxCategoryData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="taxCategoryData();" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Sequence</th>
+                                <th>Code</th>
+                                <th>Short Name</th>
+                                <th>Standard Name</th>
+                                <th>User Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in taxCategoryList |itemsPerPage:taxCategoryParameters.pageSize" pagination-id="metaData.name + 'taxCategoryList'"
+                                total-items="taxCategoryParameters.total_count" ng-dblclick="taxCategorySelect(x)">
+                                <td>{{x.Sequence}}</td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.ShortName}}</td>
+                                <td>{{x.StandardName}}</td>
+                                <td>{{x.UserName}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <dir-pagination-controls max-size="10"
+                                         pagination-id="metaData.name + 'taxCategoryList'"
+                                         direction-links="true"
+                                         boundary-links="true"
+                                         on-page-change="taxCategoryData(newPageNumber)">
+                </dir-pagination-controls>
+            </div>
+            <div class="modal-footer  common-btn">
+                <button type="button" class="btn btn-default" ng-click="closeGLPopUp()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-modal></confirm-modal>
+<confirm-archive-generic data-modalid="confirmDocumentdelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRow()"></confirm-archive-generic>

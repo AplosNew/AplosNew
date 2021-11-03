@@ -1,0 +1,104 @@
+﻿<!DOCTYPE html>
+<html lang="en" ng-app="aplosEmpApp" spellcheck="true">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta charset="utf-8" />
+    <title>Employee</title>
+    <link rel="shortcut icon" href="~/images/title.gif" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    @Styles.Render("~/bundles/css")
+    @Styles.Render("~/bundles/fonts")
+    @Scripts.Render("~/bundles/jq")
+    @Scripts.Render("~/bundles/angular")
+    @Scripts.Render("~/bundles/aplosemp")
+    @Scripts.Render("~/bundles/apps")
+</head>
+<body ng-controller="@ViewBag.ControllerName">
+    <nav class="navbar navbar-default navbar-fixed-top navbar-site">
+        <div class="container-fluid">
+            <div class="navbar-collapse collapse" id="navbar">
+                <ul class="nav navbar-nav" emp-body>
+                    <li><a ng-click="ShowHideSideBar();" class="nav-control"><span aria-hidden="true" class="glyphicon glyphicon-align-left"></span></a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="dropdown">
+                        <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                           
+                            <img class="img-responsive img-circle" ng-src="" style="height:30px;display:inline;" /> &nbsp;{{EmployeeName}} <i class="fa fa-angle-down"></i>
+                            <img class="logo" ng-src="~/images/{{logoFileName}}" style="height: 30px;">
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/EmployeeAccess" ng-click="LogOff();"><i class="fa fa-power-off"></i>  Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid" id="main">
+        <div class="row">
+
+            <div class="col-sm-3 col-md-2 sidebar">
+                <h1>
+                    <a href="#" class="navbar-brand">
+                        <img class="logo" src="~/images/aplos-logo.png" style="height:32px">
+                        <span style="font-size: 8px;">V-@typeof(MvcApplication).Assembly.GetName().Version</span>
+                        <span style="font-size: 9px;text-transform: none;">aPOP Phoenix</span>
+                    </a>
+                </h1>
+                @*<h2>
+                    <a href="#" class="navbar-brand">
+                        <img class="logo" src="~/images/{{logoFileName}}" alt="Logo">
+                    </a>
+                </h2>*@
+                <nav class="main-nav">
+                    <ul>
+                        <li><a href="@Url.Action("Index", "DashBoard")">Dashboard</a></li>
+                        <li><a href="@Url.Action("Aplos", "EmployeeSubmit")">Employee Submit</a></li>
+                        <li><a href="@Url.Action("Aplos", "AdminUserAccess")">Admin User Access</a></li>
+                        <li><a href="@Url.Action("Aplos", "UserAccessRestriction")">User Access Restriction</a></li>
+                     
+                        <li>
+                            <a href="#">Report</a>
+                            <ul>
+                                <li>
+                                    <a href="#">Status</a>
+                                    <ul>
+
+                                        <li>
+                                            <a href="@Url.Action("Aplos", "Report")">Overall</a>
+                                        </li>
+                                        <li>
+                                            <a href="@Url.Action("AplosDate", "Report")">Date-wise</a>
+                                        </li>
+                                        <li>
+                                            <a href="@Url.Action("AplosException", "Report")">Exception</a>
+                                        </li>
+                                        <li>
+                                            <a href="@Url.Action("AplosIndividual", "Report")">Individual</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                        </ul>
+                        </li>
+                        
+                    </ul>
+                </nav>
+            </div>
+
+            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+                <div class="inner-content">
+                    @RenderBody()
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="loader" data-loader>
+        Please wait
+        <div class="bounce1"></div>
+        <div class="bounce2"></div>
+        <div class="bounce3"></div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,333 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Attendance Entry
+</h3>
+<div class="form-elements form-horizontal" ng-form name="OffDutyHoursForm">
+    <div class="tab-design" id="tab_show">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet11(11) }"><a ng-click="setTab11(11)" href="" aria-controls="aria1" role="tab" data-toggle="tab">IN</a></li>
+                <li role="presentation" ng-class="{ active: isSet22(22) }"><a ng-click="setTab22(22)" href="" aria-controls="aria2" role="tab" data-toggle="tab">OUT</a></li>
+            </ul>
+        </div>
+        <div class="tab-content" id="tabpaneldiv">
+
+
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet11(11), active: isSet11(11) }">
+
+                <div class="row">
+                    <div class="clearfix"></div>
+
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+
+                        <div class="col-xs-12">
+                            <label class="col-sm-2 control-label" style="left:-25px;">Employee Code<sup>*</sup></label>
+
+                            <div class="col-sm-3">
+                                <input type="text" style="left:-20px;"  ng-enter="GetEnterEmployeeInfo()"  ng-model="employeeInfo.EmployeeCode" placeholder="Employee Code" class="form-control" maxlength="100" tabindex="2">
+                            </div>
+
+                            <div class="col-sm-2">
+                                <span class="input-group-btn">
+                                    <button name="submit" ng-click="GetEmployeeInfo()" style="left:-20px;" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                </span>
+                            </div>
+
+                            <div class="col-sm-5" style="left:-35px;">
+                                <input type="text"  name="EmployeeName" ng-model="employeeInfo.EmployeeName" class="form-control" readonly>
+                            </div>
+                        </div>
+
+                        <div>
+                            <br />
+                            <br />
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Employee DOJ :</label>
+                            <div class="col-sm-8">
+                                <label>{{employeeInfo.DOJ}}</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Employee DOC :</label>
+                            <div class="col-sm-8">
+                                <label>{{employeeInfo.DOC}}</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"> Designation :</label>
+                            <div class="col-sm-8">
+                                <label>{{employeeInfo.LegalDesignation}}</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Department :</label>
+                            <div class="col-sm-8">
+                                <label>{{employeeInfo.Department}}</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Section :</label>
+                            <div class="col-sm-8">
+                                <label>{{employeeInfo.Section}}</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">SubSection :</label>
+                            <div class="col-sm-8">
+                                <label>{{employeeInfo.SubSection}}</label>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Work Date<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <input type="text" ej-datepicker e-width="50%" e-dateformat="dd-MMM-yyyy" e-value="AttendanceEntryIn.PDate" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-sm-8">
+                                <div>
+                                    <img id="uploadImageSrc" ng-src="{{employeeInfo.EmpPic}}" style="margin-left: 180px; border: 1px solid; height: 200px; width: 200px;" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Work Time<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <input type="text" ej-datetimepicker e-width="70%" e-datetimeformat="dd-MMM-yyyy hh:mm tt" e-value="AttendanceEntryIn.InTime" />
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="clearfix"></div>
+                    <div class="col-xs-12">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                                <li> <button data-toggle="modal" data-target="#confirmPopUpMaster" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                                <li> <button ng-click="Clear(AttendanceEntryIn);" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="content-container-fluid" style="color:black;">
+                            <div style="color:black;" id="GridAttendanceEntryInList" ej-grid e-datasource="AttendanceEntryInList"
+                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                 e-allowselection="true" e-recorddoubleclick="recorddoubleclick" e-filtersettings-filterType="excel">
+                                <div e-columns>
+                                    <div e-column e-field="PDate" e-headertext="Date" e-width="80"></div>
+                                    <div e-column e-field="InTime" e-headertext="In Time" e-width="60"></div>
+                                    <div e-column e-field="OutTime" e-headertext="Out Time" e-width="60"></div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet11(22), active: isSet11(22) }">
+
+                <div class="row">
+                    <div class="clearfix"></div>
+
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+
+                        <div class="col-xs-12">
+                            <label class="col-sm-2 control-label" style="left:-25px;">Employee Code<sup>*</sup></label>
+                            <div class="col-sm-3">
+                                <input type="text" style="left:-20px;" ng-enter="GetEnterEmployeeOutInfo()" ng-model="employeeInfoOut.EmployeeCode" placeholder="Employee Code" class="form-control" maxlength="100" tabindex="2">
+                            </div>
+                            <div class="col-sm-2">
+                                <span class="input-group-btn">
+                                    <button name="submit" style="left:-20px;" ng-click="GetEmployeeInfoOut()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                </span>
+                            </div>
+                            <div class="col-sm-5" style="left:-35px;">
+                                <input type="text" style="left:-25px;" name="EmployeeName" ng-model="employeeInfoOut.EmployeeName" class="form-control" readonly>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Employee DOJ :</label>
+                            <div class="col-sm-8">
+                                <label>{{employeeInfoOut.DOJ}}</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Employee DOC :</label>
+                            <div class="col-sm-8">
+                                <label>{{employeeInfoOut.DOC}}</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"> Designation :</label>
+                            <div class="col-sm-8">
+                                <label>{{employeeInfoOut.LegalDesignation}}</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Department :</label>
+                            <div class="col-sm-8">
+                                <label>{{employeeInfoOut.Department}}</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Section :</label>
+                            <div class="col-sm-8">
+                                <label>{{employeeInfoOut.Section}}</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">SubSection :</label>
+                            <div class="col-sm-8">
+                                <label>{{employeeInfoOut.SubSection}}</label>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+
+                        <div class="form-group" >
+                            <label class="col-sm-4 control-label">Work Date<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <input type="text" ej-datepicker e-width="50%" e-dateformat="dd-MMM-yyyy" e-value="AttendanceEntryOut.PDate" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-sm-8">
+                                <div>
+                                    <img id="uploadImageSrc" ng-src="{{employeeInfoOut.EmpPic}}" style="margin-left: 180px; border: 1px solid; height: 200px; width: 200px;" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group" >
+                            <label class="col-sm-4 control-label">Work Time<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <input type="text" ej-datetimepicker e-width="70%" e-datetimeformat="dd-MMM-yyyy hh:mm tt" e-value="AttendanceEntryOut.OutTime" />
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="clearfix"></div>
+                    <div class="col-xs-12">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="SaveOut();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                                <li> <button data-toggle="modal" data-target="#confirmPopUpMasterOut" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                                <li> <button ng-click="ClearOut(AttendanceEntryOut);" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="content-container-fluid" style="color:black;">
+                            <div style="color:black;" id="GridAttendanceEntryOUTList" ej-grid e-datasource="AttendanceEntryOUTList"
+                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                 e-allowselection="true" e-recorddoubleclick="recorddoubleclickOut" e-filtersettings-filterType="excel">
+                                <div e-columns>
+
+                                    <div e-column e-field="PDate" e-headertext="Date" e-width="80"></div>
+                                    <div e-column e-field="InTime" e-headertext="In Time" e-width="60"></div>
+                                    <div e-column e-field="OutTime" e-headertext="Out Time" e-width="60"></div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<confirm-archive-generic modalid="confirmPopUpMaster" title="Confirmation" message="Are you sure to delete ?" data-ng-click-right-button="Delete();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmPopUpMasterOut" title="Confirmation" message="Are you sure to delete ?" data-ng-click-right-button="DeleteOut();"></confirm-archive-generic>
+
+<div class="modal fade site-modal in" id="employeeNewPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" ng-click="closeEmployeePopUp();">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="Grid" ej-grid e-datasource="dataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="SetData" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                            <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                            <div e-column e-field="DOJ" e-headertext="DOJ" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="employeeNewPopUpOut" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List.
+                <button type="button" class="close" ng-click="closeEmployeePopUpOut();">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="GridOut" ej-grid e-datasource="dataListOut" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="SetDataOut" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                            <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                            <div e-column e-field="DOJ" e-headertext="DOJ" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="closeEmployeePopUpOut();" class="btn"><i class=""></i> Close</button>
+            </div>
+        </div>
+    </div>
+</div>

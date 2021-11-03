@@ -1,0 +1,66 @@
+﻿using Library.Core;
+using System;
+
+namespace Library.ViewModel.Inventory
+{
+    public class ServicePODetailsViewModel : BaseModel 
+    {
+
+        public string Id { get; set; }
+        public string ServicePOMasterId { get; set; }
+       
+        public string ServiceMasterId { get; set; }
+        public decimal Amount { get; set; }
+        public decimal Rate { get; set; }
+        public decimal TransactionRate { get; set; }
+        
+        public decimal Qty { get; set; }
+        public decimal TransactionQty { get; set; }
+        
+        public string TransactionUoMId { get; set; }
+        public decimal GRNServiceAmount { get; set; }
+        public bool AmountStatus { get; set; }
+
+        public decimal TotalTaxAmount { get; set; }
+        public string Description { get; set; }
+        public string ServiceRequsitionDetailId { get; set; }
+
+        public string ServiceReqMasterId { get; set; }
+        #region Audit Properties
+
+        /// <summary>
+        ///This is  AddedBy.Who add data keep track by AddedBy.
+        /// </summary>
+        [NeverUpdate]
+        public string AddedBy { get; set; }
+
+        /// <summary>
+        ///This is  AddedDate.Added date keep track by AddedDate.
+        /// </summary>
+        [NeverUpdate]
+        public DateTime AddedDate { get; set; }
+
+        /// <summary>
+        /// Record insert by user from IP address.
+        /// </summary>
+        [NeverUpdate]
+        public string AddedFromIP { get; set; }
+
+        /// <summary>
+        /// Record updated user name.
+        /// </summary>
+        public string UpdatedBy { get; set; }
+
+        /// <summary>
+        /// Record updated by user date and time.
+        /// </summary>
+        public DateTime? UpdatedDate { get; set; }
+
+        /// <summary>
+        /// Record updated by user IP address.
+        /// </summary>
+        public string UpdatedFromIP { get; set; }
+        #endregion
+
+    }
+}

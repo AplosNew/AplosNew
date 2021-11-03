@@ -1,0 +1,220 @@
+﻿<togglable name="Stitch Code"></togglable>
+<div class="form-elements form-horizontal" ng-form="modelNewForm">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" n-decimals="2" name="Sequence" ng-model="modelNew.Sequence" class="form-control text-right" required tabindex="1">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Short Name" ng-model="modelNew.ShortName" class="form-control" maxlength="15" required tabindex="3">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="User Name" ng-model="modelNew.UserName" class="form-control" required tabindex="5" maxlength="50">
+            </div>
+        </div>
+        @*<div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Formula<sup>*</sup></label>
+                <div class="col-sm-4 show-message">
+                    <input type="text" name="Formula" ng-model="modelNew.Formula" class="form-control" required tabindex="4" maxlength="50">
+                </div>
+                <label class="col-sm-4 control-label">(FabWth, SQRT, SPI)</label>
+            </div>*@
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Needle<sup>*</sup></label>
+            <div class="col-sm-6 show-message">
+                <input type="text" name="Needle" n-decimals="2" ng-model="modelNew.Needle" class="form-control" required tabindex="4" maxlength="50">
+            </div>
+            <label class="col-sm-2 control-label">(%)</label>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Bobbin</label>
+            <div class="col-sm-6">
+                <input type="text" name="Bobbin" n-decimals="2" ng-model="modelNew.Bobbin" class="form-control" tabindex="4" maxlength="50">
+            </div>
+            <label class="col-sm-2 control-label">(%)</label>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Looper</label>
+            <div class="col-sm-6">
+                <input type="text" name="Looper" n-decimals="2" ng-model="modelNew.Looper" class="form-control" tabindex="4" maxlength="50">
+            </div>
+            <label class="col-sm-2 control-label">(%)</label>
+        </div>
+        <div class="common-btn" id="SPIFormula">
+            <ul class="list-inline text-left">
+                <li>
+                    <btton ng-click="ShowFormulaPopup();" tooltip data-placement="top" title="SPI Formula" ng-disabled="modelNew.Id===null" class="btn"><i class="glyphicon glyphicon-plus" style="top: 1px;">SPI Formula</i></btton>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Code" ng-model="modelNew.Code" class="form-control" required tabindex="2" maxlength="10">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Standard Name" ng-model="modelNew.StandardName" class="form-control" required tabindex="4" maxlength="50">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Description</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" rows="3" ng-model="modelNew.Description" tabindex="7" maxlength="250"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Remarks</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" rows="3" ng-model="modelNew.Remarks" maxlength="250" tabindex="6"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Active</label>
+            <div class="col-sm-8">
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" class="css-checkbox" ng-model="modelNew.Active">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="Save();" class="btn" tabindex="8"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li> <button ng-click="Clear();" class="btn" tabindex="10"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<div class="aplos-grid-toggle">
+    <div class="row text-right">
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="search-form">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-3">
+                        <div class="select-style">
+                            <select ng-model="$root.parameters.searchBy">
+                                <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-7 col-md-7">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getSearchData()">
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button type="button" ng-click="getSearchData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="table-responsive modal-table">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Sequence</th>
+                    <th>Code</th>
+                    <th>Short Name</th>
+                    <th>Standard Name</th>
+                    <th>User Name</th>
+                    <th>Active</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr dir-paginate="x in modelList |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get($index);">
+                    <td>{{x.Sequence}}</td>
+                    <td>{{x.Code}}</td>
+                    <td>{{x.ShortName}}</td>
+                    <td>{{x.StandardName}}</td>
+                    <td>{{x.UserName}}</td>
+                    <td>{{x.Active?'Yes':'No'}}</td>
+                </tr>
+            </tbody>
+        </table>
+        <dir-pagination-controls max-size="10"
+                                 direction-links="true"
+                                 boundary-links="true"
+                                 on-page-change="getSearchData(newPageNumber)">
+        </dir-pagination-controls>
+    </div>
+</div>
+<confirm-modal></confirm-modal>
+
+
+<div class="modal fade site-modal in" id="detailpopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" ng-form="detailFormNew">
+            <div class="modal-header">
+                SPI Formula >> {{modelNew.UserName}}
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-center form-horizontal form-elements">
+                <div class="row">
+                    <div class="form-horizontal form-elements">
+                        <label class="control-label">Fabric Weight (FabWth), Square Root (SQRT), Stitch Per Inch (SPI)</label>
+                        <div class="col-xs-12">
+                            <div class="common-btn" id="SPIFormula">
+                                <ul class="list-inline text-right">
+                                    <li>
+                                        <btton ng-click="AddNewRow();" tooltip data-placement="top" title="AddNewRow" ng-disabled="modelNew.Id===null" class="btn single-small-btn"><i class="glyphicon glyphicon-plus"></i></btton>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="table-responsive modal-table">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+
+                                            <th>SPI</th>
+                                            <th>Is Formula</th>
+                                            <th>Fixed Value</th>
+                                            <th>Formula</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="x in formulaDetails">
+                                            <td>{{x.SPI}}</td>
+                                            <td>
+                                                <div class="checkbox-site">
+                                                    <label>
+                                                        <input type="checkbox" class="css-checkbox" ng-model="x.IsFormula" ng-change="FormulaClick(x,$index);">
+                                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td><input type="text" n-decimals="2" ng-model="x.FixedValue" ng-disabled="x.IsFormula===true" class="form-control text-right"></td>
+                                            <td><input type="text" ng-model="x.Formula" ng-disabled="x.IsFormula===false" class="form-control text-left"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SaveSPI();" ng-disabled="modelNew.Id===null" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

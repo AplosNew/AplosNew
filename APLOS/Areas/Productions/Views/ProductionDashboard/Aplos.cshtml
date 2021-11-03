@@ -1,0 +1,865 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign" id="MainContainer"></span>Production Dashboard</h3>
+<div class="form-elements form-horizontal" ng-form name="CostingTypeForm">
+    <div class="row" style="border-bottom:1px solid #cdcdcd;padding:10px;">
+        <div class="col-xs-12 col-sm-8 col-sm-8 small" style="padding:0px;margin:0px;">
+            <div class="col-xs-12 col-sm-3 col-sm-3 small">
+                Company
+                <div class="select-style">
+                    <select id="ddlEntity" ng-model="SelectedCompany" ng-change="ChangeCompany();" style="height:26px;">
+                        <option ng-repeat="option in CompanyList" value="{{option.CompanyId}}">{{option.Company}}</option>
+                    </select>
+                </div>
+
+            </div>
+            <div class="col-xs-12 col-sm-3 col-sm-3 small">
+                Plant
+                <div class="select-style">
+                    <select id="ddlEntity" ng-model="SelectedPlant" ng-change="ChangePlant();" style="height:26px;">
+                        <option ng-repeat="option in PlantList" value="{{option.PlantId}}">{{option.Plant}}</option>
+                    </select>
+                </div>
+
+            </div>
+            <div class="col-xs-12 col-sm-3 col-sm-3 small">
+                Entity
+                <div class="select-style">
+                    <select id="ddlEntity" ng-model="SelectedEntity" style="height:26px;" @*ng-change="ChangeEntity();"*@>
+                        <option ng-repeat="option in EntityList" value="{{option.Id}}">{{option.UserName}}</option>
+                        <option value="">All</option>
+                    </select>
+                </div>
+
+            </div>
+            <div class="col-xs-12 col-sm-2 col-sm-2 small">
+                Date
+                <input type="text" name="FromDateParameter" ng-model="FromDateParameter" datepicker class="form-control" placeholder="dd-MM-yyyy" @*ng-change="DrawWorkcenterWisePlan();"*@>
+            </div>
+            <div class="col-xs-12 col-sm-1 col-sm-1 small">
+                <br />
+                <ul class="list-inline small" style="float:left;position:static;">
+                    <li>
+                        <button ng-click="DrawWorkcenterWisePlan();" class="btn small" style="height: 32px; width: 32px; padding: 0px; margin: 0px;">
+                            <i style="font-size:26px;color:blue;font-weight:bolder;" class="glyphicon glyphicon-refresh"></i>
+                        </button>
+
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-1 col-sm-1 small text-right">
+            <br />
+            <ul class="list-inline small" style="float:left;position:static;">
+                <li>
+
+                    <button ng-click="ProductionEfficiency();" class="btn small" style="height: 32px; width: 32px; padding: 0px; margin: 0px;">
+                        <i style="font-size:26px;color:darkred;font-weight:bolder;" class="glyphicon glyphicon-file"></i>
+                    </button>
+                </li>
+            </ul>
+        </div>
+        <div class="col-xs-12 col-sm-3 col-sm-3 small">
+            <table style="border:1px solid #dcdcdc;">
+
+                <tr style="background-color:#dcdcdc;cursor:pointer" ng-click="openPopup('dialogProfitability');">
+                    <td style="color:#470078"><b>Standard Workcenter Cost</b></td>
+                    <td style="color:#470078;" class="text-right"><b>{{DailyPrifitability | sumByKey : 'TotalWCCost'|  number:0 }} {{DailyPrifitability.length>0?DailyPrifitability[0].ReportCurrency:''}}</b></td>
+                </tr>
+                <tr style="background-color:#dcdcdc;cursor:pointer" ng-click="openPopup('dialogProfitability');">
+                    <td style="color:#470078"><b>Revenue on Target</b></td>
+                    <td style="color:#470078;" class="text-right"><b>{{DailyPrifitability | sumByKey : 'RevenueOnTarget'|  number:0 }} {{DailyPrifitability.length>0?DailyPrifitability[0].ReportCurrency:''}}</b></td>
+                </tr>
+                <tr style="background-color:#dcdcdc;cursor:pointer" ng-click="openPopup('dialogProfitability');">
+                    <td style="color:#470078"><b>Revenue on Production</b></td>
+                    <td style="color:#470078;" class="text-right"><b>{{DailyPrifitability | sumByKey : 'RevenueOnProduction'|  number:0 }} {{DailyPrifitability.length>0?DailyPrifitability[0].ReportCurrency:''}}</b></td>
+                </tr>
+            </table>
+        </div>
+
+    </div>
+    <div class="row" style="padding-top:10px;">
+        <div class="col-xs-12 col-sm-12 col-sm-12 small" style="padding-bottom:10px;">
+            <div valign="bottom" style="color:black;" id="GridProductionStatistics" ej-grid e-datasource="DayStatistics"
+                 e-allowfiltering="false" e-allowpaging="false" e-allowsorting="true" e-allowresizetofit="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-field="Caption" e-headertext=""></div>
+                    <div e-column e-field="TotalTargetQty" e-headertext="Ttl. Tgt Qty" e-type="number" e-format="{0:N0}" e-textalign="right" e-width="90"></div>
+                    <div e-column e-field="TotalTargetAmount" e-headertext="Ttl. Tgt Amt" e-type="number" e-format="{0:N2}" e-textalign="right" e-width="90"></div>
+
+                    <div e-column e-field="AverageTargetQty" e-headertext="Avg. Tgt Qty" e-type="number" e-format="{0:N0}" e-textalign="right" e-width="90"></div>
+                    <div e-column e-field="AverageTargetAmount" e-headertext="Avg. Tgt Amt" e-type="number" e-format="{0:N2}" e-textalign="right" e-width="90"></div>
+
+                    <div e-column e-field="TotalProductionQty" e-headertext="Ttl. Prd. Qty" e-type="number" e-format="{0:N0}" e-textalign="right" e-width="90"></div>
+                    <div e-column e-field="TotalProductionAmount" e-headertext="Ttl. Prd. Amt" e-type="number" e-format="{0:N2}" e-textalign="right" e-width="90"></div>
+
+                    <div e-column e-field="AverageProductionQty" e-headertext="Avg. Prd. Qty" e-type="number" e-format="{0:N0}" e-textalign="right" e-width="90"></div>
+                    <div e-column e-field="AverageProductionAmount" e-headertext="Avg. Prd. Amt" e-type="number" e-format="{0:N2}" e-textalign="right" e-width="90"></div>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-8 col-md-8">
+            <div class="text-center" style="position:center;font-weight:bold; background-color:#f2f2f2;">
+                Process Wise Production
+            </div>
+            <div id="graphdiv" style="position:relative;overflow:scroll;border:1px solid #e8e8e8;">
+                <div id="chartProcessWiseProduction" ej-chart e-isresponsive="true" style="width:{{graphmaxwidth(ProcessWiseProduction)}};"
+                     e-primaryxaxis-title-text="" e-legend-shape="seriesType"
+                     e-load=onchartload e-size-height="300px" e-size-width="graphmaxwidth(ProcessWiseProduction)"
+                     e-legend-visible="true" e-legend-position="right"
+                     e-title-text="" e-primaryyaxis-range-max="graphmaxheight(ProcessWiseProduction,'Quantity')"
+                     e-primaryyaxis-title-text="Qty" e-primaryyaxis-range-min="0"
+                     e-commonseriesoptions-type="column"
+                     e-commonseriesoptions-enableanimation="true" e-commonseriesoptions-tooltip-visible="true"
+                     e-commonseriesoptions-tooltip-format="#point.x# : #point.y# #series.name#">
+
+                    <e-series>
+                        <e-series e-name="Production" e-marker-dataLabel-visible="true"
+                                  @*e-marker-dataLabel-verticaltextalignment="near*@
+                                  e-marker-datalabel-horizontaltextalignment="Center"
+                                  e-marker-datalabel-showedgelabels="true"
+                                  e-marker-dataLabel-angle="0"
+                                  e-marker-dataLabel-font-fontweight="bold"
+                                  e-marker-dataLabel-font-color="yellow"
+                                  e-marker-dataLabel-enablecontrastcolor="true" e-datasource="ProcessWiseProduction" e-xname="UserName" e-yname="Quantity" e-fill="#06B200">
+                        </e-series>
+                    </e-series>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div valign="bottom" style="color:black;" id="GridProcessWiseProduction" ej-grid e-datasource="ProcessWiseProductionGrid"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowresizetofit="true" e-pagesettings-pagesize="7"
+                 e-allowselection="true" e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-field="UserName" e-headertext="Process"></div>
+                    <div e-column e-field="Quantity" e-type="number" e-format="{0:N0}" e-textalign="right" e-headertext="Production" e-width="80"></div>
+                    <div e-column e-template="#OrderWiseProductionNavigation" e-headertext="" e-width="40"></div>
+                    <div e-column e-template="#WCWiseProductionNavigation" e-headertext="" e-width="40"></div>
+                    <div e-column e-template="#ProductionRelayWiseProductionNavigation" e-headertext="" e-width="40"></div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <div class="row" style="padding-top:20px;">
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="text-center" style="position:center;font-weight:bold; background-color:#f2f2f2;">
+                {{ChartCaptions.PlanVsProductionWC}}
+            </div>
+            <div id="graphdiv" style="position:relative;overflow:scroll;border:1px solid #e8e8e8;">
+                <div id="chartDailyPlanVsProduction" ej-chart e-isresponsive="true" style="width:{{graphmaxwidth(DailyPlanVsProduction)}};"
+                     e-primaryxaxis-title-text="" e-legend-shape="seriesType"
+                     e-load=onchartload e-size-height="300px" e-size-width="graphmaxwidth(DailyPlanVsProduction,60)"
+                     e-legend-visible="true" e-legend-position="right" e-prerender="chartPreRender"
+                     e-title-text="" @*e-primaryyaxis-range-max="graphmaxheight(DailyPlanVsProduction,'MaxQuantity')"*@
+                     e-primaryyaxis-title-text="Qty" e-primaryyaxis-range-min="0"
+                     e-commonseriesoptions-type="column" e-primaryxaxis-labelIntersectAction="rotate45"
+                     e-commonseriesoptions-enableanimation="true" e-commonseriesoptions-tooltip-visible="true"
+                     e-commonseriesoptions-tooltip-format="#point.x# : #point.y# #series.name#">
+
+                    <e-series>
+                        <e-series e-marker-dataLabel-visible="true"
+                                  @*e-marker-dataLabel-verticaltextalignment="near"*@
+                                  e-marker-datalabel-horizontaltextalignment="Center"
+                                  e-marker-datalabel-showedgelabels="true"
+                                  e-marker-dataLabel-angle="0"
+                                  e-marker-dataLabel-font-color="yellow"
+                                  e-marker-dataLabel-font-fontweight="bold"
+                                  e-marker-dataLabel-enablecontrastcolor="true"
+                                  e-name="Production" e-datasource="DailyPlanVsProduction" e-xname="Workcenter" e-yname="Production" e-fill="#06B200">
+                        </e-series>
+                        <e-series e-type="line"
+                                  e-marker-dataLabel-visible="true"
+                                  @*e-marker-dataLabel-verticaltextalignment="near"*@
+                                  e-marker-datalabel-horizontaltextalignment="Center"
+                                  e-marker-dataLabel-font-fontweight="bold"
+                                  e-marker-dataLabel-enablecontrastcolor="true"
+                                  e-marker-shape="series" e-marker-visible="true"
+                                  e-marker-size-height="10" e-marker-size-width="10"
+                                  e-border-width="5"
+                                  e-enableanimation="true" e-tooltip-visible="true" e-name="Plan" e-datasource="DailyPlanVsProduction"
+                                  e-xname="Workcenter" e-yname="PlanQuantity" e-fill="#0000ff">
+                        </e-series>
+                    </e-series>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+    <div class="row" style="padding-top:20px;">
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="text-center" style="position:center;font-weight:bold; background-color:#f2f2f2;">
+                {{ChartCaptions.DailyPrifitability}} {{DailyPrifitability.length>0?'All Values are expressed in ' + DailyPrifitability[0].ReportCurrency:'(Please setup report currency)'}}
+            </div>
+            <div id="graphdivchartDailyPrifitability" style="position:relative;overflow:scroll;border:1px solid #e8e8e8;">
+                <div id="chartDailyPrifitability" ej-chart e-isresponsive="true" style="width:{{graphmaxwidth(DailyPrifitability)}};"
+                     e-primaryxaxis-title-text="" e-legend-shape="seriesType"
+                     e-load=onchartload e-size-height="300px" e-size-width="graphmaxwidth(DailyPrifitability,70)"
+                     e-legend-visible="true" e-legend-position="right" e-prerender="chartProfitabilityPreRender"
+                     e-title-text="" @*e-primaryyaxis-range-max="graphmaxheight(DailyPrifitability,'MaxValue')"*@
+                     e-primaryyaxis-title-text="Amount" e-primaryyaxis-range-min="0"
+                     e-commonseriesoptions-type="column" e-primaryxaxis-labelIntersectAction="rotate45"
+                     e-commonseriesoptions-enableanimation="true" e-commonseriesoptions-tooltip-visible="true"
+                     e-commonseriesoptions-tooltip-format="#point.x# : #point.y# #series.name#">
+
+                    <e-series>
+                        <e-series e-marker-dataLabel-visible="true"
+                                  @*e-marker-dataLabel-verticaltextalignment="near"*@
+                                  e-marker-datalabel-horizontaltextalignment="Center"
+                                  e-marker-datalabel-showedgelabels="true"
+                                  e-marker-dataLabel-angle="0"
+                                  e-marker-dataLabel-font-color="yellow"
+                                  e-marker-dataLabel-font-fontweight="bold"
+                                  e-marker-dataLabel-enablecontrastcolor="true"
+                                  e-name="Revenue on Production" e-datasource="DailyPrifitability" e-xname="Workcenter" e-yname="RevenueOnProduction" e-fill="#06B200">
+                        </e-series>
+                        <e-series e-type="line"
+                                  e-marker-dataLabel-visible="false"
+                                  @*e-marker-dataLabel-verticaltextalignment="near"*@
+                                  e-marker-datalabel-horizontaltextalignment="Center"
+                                  e-marker-dataLabel-font-fontweight="bold"
+                                  e-marker-dataLabel-enablecontrastcolor="true"
+                                  e-marker-shape="series" e-marker-visible="true"
+                                  e-marker-size-height="10" e-marker-size-width="10"
+                                  e-marker-dataLabel-font-color="green"
+                                  e-border-width="5"
+                                  e-enableanimation="true" e-tooltip-visible="true" e-name="Standard Workcenter Cost" e-datasource="DailyPrifitability"
+                                  e-xname="Workcenter" e-yname="TotalWCCost" e-fill="orange">
+                        </e-series>
+                        <e-series e-type="line"
+                                  e-marker-dataLabel-visible="false"
+                                  @*e-marker-dataLabel-verticaltextalignment="near"*@
+                                  e-marker-datalabel-horizontaltextalignment="Center"
+                                  e-marker-dataLabel-font-fontweight="bold"
+                                  e-marker-dataLabel-font-color="red"
+                                  e-marker-dataLabel-enablecontrastcolor="true"
+                                  e-marker-shape="series" e-marker-visible="true"
+                                  e-marker-size-height="10" e-marker-size-width="10"
+                                  e-border-width="5"
+                                  e-enableanimation="true" e-tooltip-visible="true" e-name="Revenue on Target" e-datasource="DailyPrifitability"
+                                  e-xname="Workcenter" e-yname="RevenueOnTarget" e-fill="#0000ff">
+                        </e-series>
+
+
+                    </e-series>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+
+    <div class="row" @*ng-show="WorkcenterWiseWIPListGraph.length>0"*@ style="padding-top:20px;">
+
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="text-center" style="position:center;font-weight:bold; background-color:#f2f2f2;">
+                WIP
+            </div>
+            <div id="graphdivchartWIP" style="position:relative;overflow:scroll;border:1px solid #e8e8e8;">
+                <div id="chartWIP" ej-chart e-isresponsive="true" style="width:{{graphmaxwidth(WorkcenterWiseWIPListGraph)}};"
+                     e-primaryxaxis-title-text="" e-legend-shape="seriesType"
+                     e-load=onchartload e-size-height="300px" e-size-width="graphmaxwidth(WorkcenterWiseWIPListGraph,70)"
+                     e-legend-visible="true" e-legend-position="right" e-prerender="chartWIPPreRender"
+                     e-title-text="" @*e-primaryyaxis-range-max="graphmaxheight(WorkcenterWiseWIPListGraph,'MaxValue')"*@
+                     e-primaryyaxis-title-text="Qty" e-primaryyaxis-range-min="0"
+                     e-commonseriesoptions-type="column" e-primaryxaxis-labelIntersectAction="rotate45"
+                     e-commonseriesoptions-enableanimation="true" e-commonseriesoptions-tooltip-visible="true"
+                     e-commonseriesoptions-tooltip-format="#point.x# : #point.y# #series.name#">
+
+                    <e-series>
+                        <e-series e-marker-dataLabel-visible="true"
+                                  @*e-marker-dataLabel-verticaltextalignment="near"*@
+                                  e-marker-datalabel-horizontaltextalignment="Center"
+                                  e-marker-datalabel-showedgelabels="true"
+                                  e-marker-dataLabel-angle="0"
+                                  e-marker-dataLabel-font-color="yellow"
+                                  e-marker-dataLabel-font-fontweight="bold"
+                                  e-marker-dataLabel-enablecontrastcolor="true"
+                                  e-name="WIP" e-datasource="WorkcenterWiseWIPListGraph" e-xname="WorkCenter" e-yname="WIP" e-fill="#06B200">
+                        </e-series>
+                        <e-series e-type="line"
+                                  e-marker-dataLabel-visible="false"
+                                  @*e-marker-dataLabel-verticaltextalignment="near"*@
+                                  e-marker-datalabel-horizontaltextalignment="Center"
+                                  @*e-marker-dataLabel-Textposition="Middle"*@
+                                  e-marker-dataLabel-font-fontweight="bold"
+                                  e-marker-dataLabel-enablecontrastcolor="true"
+                                  e-marker-shape="circle" e-marker-visible="false"
+                                  e-marker-size-height="10" e-marker-size-width="10"
+                                  e-border-width="5"
+                                  e-enableanimation="true" e-tooltip-visible="true" e-name="Capacity" e-datasource="WorkcenterWiseWIPListGraph"
+                                  e-xname="WorkCenter" e-yname="Capacity" e-fill="#0000ff">
+                        </e-series>
+                    </e-series>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    @*WIP Chart*@
+
+    <div class="row" style="padding-top:20px;">
+
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="text-center" style="position:center;font-weight:bold; background-color:#f2f2f2;">
+                {{ChartCaptions.PlanVsProduction30}}
+            </div>
+            <div id="graphdiv" style="position:relative;overflow:scroll;border:1px solid #e8e8e8;">
+                <div id="chartDailyLast30DaysPlanVsProduction" ej-chart e-isresponsive="true" style="width:{{graphmaxwidth(DailyLast30DaysPlanVsProduction)}};"
+                     e-primaryxaxis-title-text="" e-legend-shape="seriesType"
+                     e-load=onchartload e-size-height="300px" e-size-width="graphmaxwidth(DailyLast30DaysPlanVsProduction,70)"
+                     e-legend-visible="true" e-legend-position="right" e-prerender="chartPreRender"
+                     e-title-text="" @*e-primaryyaxis-range-max="graphmaxheight(DailyLast30DaysPlanVsProduction,'MaxQuantity')"*@
+                     e-primaryyaxis-title-text="Qty" e-primaryyaxis-range-min="0"
+                     e-commonseriesoptions-type="column" @*e-primaryxaxis-labelIntersectAction="rotate45"*@
+                     e-commonseriesoptions-enableanimation="true" e-commonseriesoptions-tooltip-visible="true"
+                     e-commonseriesoptions-tooltip-format="#point.x# : #point.y# #series.name#">
+
+                    <e-series>
+                        <e-series e-marker-dataLabel-visible="true"
+                                  e-marker-datalabel-horizontaltextalignment="Center"
+                                  e-marker-datalabel-showedgelabels="true"
+                                  e-marker-dataLabel-angle="0"
+                                  e-marker-dataLabel-font-color="yellow"
+                                  e-marker-dataLabel-font-fontweight="bold"
+                                  e-marker-dataLabel-enablecontrastcolor="true"
+                                  e-name="Production" e-datasource="DailyLast30DaysPlanVsProduction" e-xname="Date" e-yname="Production" e-fill="#06B200">
+                        </e-series>
+                        <e-series e-type="line"
+                                  e-marker-dataLabel-visible="false"
+                                  @*e-marker-dataLabel-verticaltextalignment="near"*@
+                                  e-marker-datalabel-horizontaltextalignment="Center"
+                                  e-marker-dataLabel-font-fontweight="bold"
+                                  e-marker-dataLabel-enablecontrastcolor="true"
+                                  e-marker-shape="circle" e-marker-visible="false"
+                                  e-marker-size-height="10" e-marker-size-width="10"
+                                  e-border-width="5"
+                                  e-enableanimation="true" e-tooltip-visible="true" e-name="Plan" e-datasource="DailyLast30DaysPlanVsProduction"
+                                  e-xname="Date" e-yname="PlanQuantity" e-fill="#0000ff">
+                        </e-series>
+                    </e-series>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-md-12" ng-repeat="ENT in HourlyProductionDisplayList">
+            {{ENT.EntityName}}
+            <div style="color:black;" ej-grid e-datasource="ENT.Data" e-databound="onHoulryDatabound"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowresizetofit="true" e-pagesettings-pagesize="12"
+                 e-allowselection="true" e-filtersettings-filterType="excel" e-showsummary="true" e-summaryrows="summaryRowHours">
+            </div>
+            @*<table>
+            <tr>
+                <td ng-repeat="(key, val) in HourlyProductionDisplayList[ENTkey][0]">{{key}}</td>
+            </tr>
+        </table>*@
+        </div>
+    </div>
+</div>
+@*<div class="row" style="padding-top:20px;">
+        <div class="table-responsive modal-table">
+
+
+        </div>
+
+    </div>*@
+
+<script type="text/template" id="OrderWiseProductionNavigation">
+    <div class="common-btn">
+        <ul class="list-inline small">
+            <li>
+                <button ng-click="$parent.getOrderWiseProduction(data);" class="btn small" style="height: 28px; width: 36px; padding: 0px; margin: 0px;font-weight:bolder;">
+                    PRD
+                </button>
+            </li>
+        </ul>
+    </div>
+</script>
+<script type="text/template" id="WCWiseProductionNavigation">
+    <div class="common-btn">
+        <ul class="list-inline small">
+            <li>
+                <button ng-click="$parent.GetWorkCenterWiseWIP(data);" class="btn small" style="height: 28px; width: 36px; padding: 0px; margin: 0px;font-weight:bolder;">
+                    WC
+                </button>
+            </li>
+        </ul>
+    </div>
+</script>
+<script type="text/template" id="ProductionRelayWiseProductionNavigation">
+    <div class="common-btn">
+        <ul class="list-inline small">
+            <li>
+                <button ng-click="$parent.getProductionRelay(data);" class="btn small" style="height: 28px; width: 36px; padding: 0px; margin: 0px;font-weight:bolder;">
+                    RL
+                </button>
+            </li>
+        </ul>
+    </div>
+</script>
+
+<ej-dialog id="dialogProductionOrderWiseProduction" title=" Production(Production Order Wise)" e-enablemodal="true" e-position-y="0" e-target="#MainContainer" e-showoninit="false" e-close="onDialogClose" e-minwidth="900px" e-open="enableBtn">
+    <div class="row">
+        <div class="col-xs-12 col-sm-1 col-md-1"> Entity </div>
+        <div class="col-xs-12 col-sm-2 col-md-2"> :{{SelectedEntityText}} </div>
+        <div class="col-xs-12 col-sm-1 col-md-1"> Date   </div>
+        <div class="col-xs-12 col-sm-2 col-md-2"> :{{FromDateParameter}}</div>
+        <div class="col-xs-12 col-sm-1 col-md-1"> Process </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">:{{SelectedProcess.UserName}}  </div>
+        <div class="col-xs-12 col-sm-1 col-md-1"></div>
+        <div class="col-xs-12 col-sm-2 col-md-2"></div>
+
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div style="color:black;" id="GridProductionOrderWiseProduction" ej-grid e-datasource="ProductionOrderWiseProductionList" e-showstackedheader="true"
+                 e-allowfiltering="true" e-allowpaging="true" e-summaryrows="summaryRowsWIP" e-allowsorting="true" e-allowresizetofit="true" @*e-pagesettings-pagesize="12"*@
+                 e-allowselection="true" e-filtersettings-filterType="excel" e-rowdatabound="PRWIPRowDataBound">
+
+                <div e-stackedheaderrows>
+                    <div e-stackedheaderrow>
+                        <div e-stackedheadercolumns>
+                            <div e-stackedheadercolumn e-headertext="For The Day Production" e-column="InQuantityToday,OutQuantityToday,KillQuantityToday"></div>
+                            <div e-stackedheadercolumn e-headertext="Up To Date Production" e-column="InQuantity,OutQuantity,KillQuantity,WIP"></div>
+                        </div>
+                    </div>
+                </div>
+                <div e-columns>
+                    @*Id	ProductionRemarks	ProductionStatus	EntityName	EntityId	ProductionStatusName	POID
+                        Material	Product	ProductCategory	ProductMasterId	SOQuantity	DeliveryDate	MasterOrderId	BuyerRefNo	OwnRefNo
+                        StyleNo	OwnStyleNo	SONo	SODesc	buyer	Customer	ProductionOrderId	InQuantity	OutQuantity	KillQuantity
+                        InQuantityToday	OutQuantityToday	KillQuantityToday	Entity	Plant*@
+
+                    @*<div e-column e-field="Entity" e-headertext="Entity"></div>*@
+                    <div e-column e-template="#showPRPlanList" e-headertext="Prod. Ord. Id" e-width="100"></div>
+                    <div e-column e-type="string" e-field="BulletinId" e-headertext="Bulletin Id" e-width="60"></div>m0000000000
+                    <div e-columsn e-type="string" e-field="BulletinName" e-headertext="Bulletin" e-width="120"></div>
+                    <div e-column e-type="string" e-field="BuyerRefNo" e-headertext="Cust. Order#" e-width="100"></div>
+                    <div e-column e-type="string" e-field="StyleNo" e-headertext="Customer Item#" e-width="100"></div>
+                    <div e-column e-type="string" e-field="SONo" e-headertext="SO Nos" e-width="100"></div>
+                    <div e-column e-type="string" e-field="SODesc" e-headertext="SO Desc" e-width="100"></div>
+                    <div e-column e-field="ProductionOrderQty" e-type="number" e-format="{0:N0}" e-textalign="right" e-headertext="PR Qty" e-width="80"></div>
+                    <div e-column e-field="ProductionOrderBalanceQty" e-type="number" e-format="{0:N0}" e-textalign="right" e-headertext="PR Bal. Qty" e-width="80"></div>
+
+                    <div e-column e-field="InQuantityToday" e-template="#InQuantityTodayTemplatePO" e-type="number" e-format="{0:N0}" e-textalign="right" e-headertext="IN" e-width="80"></div>
+                    <div e-column e-field="OutQuantityToday" e-template="#OutQuantityTodayTemplatePO" e-type="number" e-format="{0:N0}" e-textalign="right" e-headertext="OUT" e-width="80"></div>
+                    <div e-column e-field="KillQuantityToday" e-template="#KillQuantityTodayTemplatePO" e-type="number" e-format="{0:N0}" e-textalign="right" e-headertext="KILL" e-width="80"></div>
+
+                    <div e-column e-field="InQuantity" e-template="#InQuantityTemplatePO" e-type="number" e-format="{0:N0}" e-textalign="right" e-headertext="IN" e-width="80"></div>
+                    <div e-column e-field="OutQuantity" e-template="#OutQuantityTemplatePO" e-type="number" e-format="{0:N0}" e-textalign="right" e-headertext="OUT" e-width="80"></div>
+                    <div e-column e-field="KillQuantity" e-template="#KillQuantityTemplatePO" e-type="number" e-format="{0:N0}" e-textalign="right" e-headertext="KILL" e-width="80"></div>
+                    <div e-column e-field="WIP" e-type="number" e-format="{0:N0}" e-textalign="right" e-headertext="WIP" e-width="80"></div>
+
+                    <div e-column e-field="Customer" e-headertext="Customer" e-width="100"></div>
+                    <div e-column e-field="MasterOrderId" e-headertext="Mst. Order#" e-width="100"></div>
+
+                    <div e-column e-field="buyer" e-headertext="buyer" e-width="100"></div>
+                    <div e-column e-type="string" e-field="OwnRefNo" e-headertext="Own Order#" e-width="100"></div>
+
+                    <div e-column e-type="string" e-field="OwnStyleNo" e-headertext="Own Item#" e-width="100"></div>
+                </div>
+            </div>
+            <script type="text/template" id="InQuantityTodayTemplatePO">
+                <a href="" ng-click="$parent.GetInPO('FD','IN',data)"><span style="font-weight:bold;text-decoration:underline;color:blue;">{{data.InQuantityToday|number:0}}</span></a>
+            </script>
+            <script type="text/template" id="OutQuantityTodayTemplatePO">
+                <a href="" ng-click="$parent.GetInPO('FD','OUT',data)"><span style="font-weight:bold;text-decoration:underline;color:blue;">{{data.OutQuantityToday|number:0}}</span></a>
+            </script>
+            <script type="text/template" id="KillQuantityTodayTemplatePO">
+                <a href="" ng-click="$parent.GetInPO('FD','KILL',data)"><span style="font-weight:bold;text-decoration:underline;color:blue;">{{data.KillQuantityToday|number:0}}</span></a>
+            </script>
+
+
+            <script type="text/template" id="InQuantityTemplatePO">
+                <a href="" ng-click="$parent.GetInPO('UD','IN',data)"><span style="font-weight:bold;text-decoration:underline;color:blue;">{{data.InQuantity|number:0}}</span></a>
+            </script>
+            <script type="text/template" id="OutQuantityTemplatePO">
+                <a href="" ng-click="$parent.GetInPO('UD','OUT',data)"><span style="font-weight:bold;text-decoration:underline;color:blue;">{{data.OutQuantity|number:0}}</span></a>
+            </script>
+            <script type="text/template" id="KillQuantityTemplatePO">
+                <a href="" ng-click="$parent.GetInPO('UD','KILL',data)"><span style="font-weight:bold;text-decoration:underline;color:blue;">{{data.KillQuantity|number:0}}</span></a>
+            </script>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-sm-12">**<i> Red marked row represents production order mismatched with target production order</i> </div>
+
+    </div>
+</ej-dialog>
+
+<ej-dialog id="dialogWorkcenterWiseWIP" title=" WIP(Workcenter Wise)" e-enablemodal="true" e-position-y="0" e-target="#MainContainer" e-showoninit="false" e-close="onDialogClose" e-minwidth="900px" e-open="enableBtn">
+    <div class="row">
+        <div class="col-xs-12 col-sm-1 col-md-1"> Entity </div>
+        <div class="col-xs-12 col-sm-2 col-md-2"> :{{SelectedEntityText}} </div>
+        <div class="col-xs-12 col-sm-1 col-md-1"> Date   </div>
+        <div class="col-xs-12 col-sm-2 col-md-2"> :{{FromDateParameter}}</div>
+        <div class="col-xs-12 col-sm-1 col-md-1"> Process </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">:{{SelectedProcess.UserName}}  </div>
+        <div class="col-xs-12 col-sm-1 col-md-1"></div>
+        <div class="col-xs-12 col-sm-2 col-md-2"> </div>
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div style="color:black;" id="GridWorkcenterWiseWIP" ej-grid e-datasource="WorkcenterWiseWIPList" e-showstackedheader="true"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowresizetofit="true" e-pagesettings-pagesize="12"
+                 e-cellselected="cellclickwc" e-rowdatabound="WCWIPRowDataBound"
+                 e-allowselection="true" e-filtersettings-filterType="excel" e-summaryrows="summaryRowsWIP">
+
+                <div e-stackedheaderrows>
+                    <div e-stackedheaderrow>
+                        <div e-stackedheadercolumns>
+                            <div e-stackedheadercolumn e-headertext="For The Day Production" e-column="InQuantityToday,OutQuantityToday,KillQuantityToday"></div>
+                            <div e-stackedheadercolumn e-headertext="Up To Date Production" e-column="InQuantity,OutQuantity,KillQuantity,WIP"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div e-columns>
+                    <div e-column e-field="Entity" e-headertext="Entity"></div>
+                    <div e-column e-field="WorkCenter" e-headertext="WorkCenter" e-width="120"></div>
+
+                    <div e-column e-field="InQuantityToday" e-template="#InQuantityTodayTemplate" e-type="number" e-format="{0:N0}" e-textalign="right" e-headertext="IN" e-width="80"></div>
+                    <div e-column e-field="OutQuantityToday" e-template="#OutQuantityTodayTemplate" e-type="number" e-format="{0:N0}" e-textalign="right" e-headertext="OUT" e-width="80"></div>
+                    <div e-column e-field="KillQuantityToday" e-template="#KillQuantityTodayTemplate" e-type="number" e-format="{0:N0}" e-textalign="right" e-headertext="KILL" e-width="80"></div>
+
+                    <div e-column e-field="InQuantity" e-template="#InQuantityTemplate" e-type="number" e-format="{0:N0}" e-textalign="right" e-headertext="IN" e-width="80"></div>
+                    <div e-column e-field="OutQuantity" e-template="#OutQuantityTemplate" e-type="number" e-format="{0:N0}" e-textalign="right" e-headertext="OUT" e-width="80"></div>
+                    <div e-column e-field="KillQuantity" e-template="#KillQuantityTemplate" e-type="number" e-format="{0:N0}" e-textalign="right" e-headertext="KILL" e-width="80"></div>
+                    <div e-column e-field="WIP" e-type="number" e-format="{0:N0}" e-textalign="right" e-headertext="WIP" e-width="80"></div>
+                    <div e-column e-template="#WCWiseWIPNavigation" e-headertext="Workcenter" e-width="40"></div>
+
+                </div>
+            </div>
+            <script type="text/template" id="InQuantityTodayTemplate">
+                <a href="" ng-click="$parent.GetInWC('FD','IN',data)"><span style="font-weight:bold;text-decoration:underline;color:blue;">{{data.InQuantityToday|number:0}}</span></a>
+            </script>
+            <script type="text/template" id="OutQuantityTodayTemplate">
+                <a href="" ng-click="$parent.GetInWC('FD','OUT',data)"><span style="font-weight:bold;text-decoration:underline;color:blue;">{{data.OutQuantityToday|number:0}}</span></a>
+            </script>
+            <script type="text/template" id="KillQuantityTodayTemplate">
+                <a href="" ng-click="$parent.GetInWC('FD','KILL',data)"><span style="font-weight:bold;text-decoration:underline;color:blue;">{{data.KillQuantityToday|number:0}}</span></a>
+            </script>
+            <script type="text/template" id="InQuantityTemplate">
+                <a href="" ng-click="$parent.GetInWC('UD','IN',data)"><span style="font-weight:bold;text-decoration:underline;color:blue;">{{data.InQuantity|number:0}}</span></a>
+            </script>
+            <script type="text/template" id="OutQuantityTemplate">
+                <a href="" ng-click="$parent.GetInWC('UD','OUT',data)"><span style="font-weight:bold;text-decoration:underline;color:blue;">{{data.OutQuantity|number:0}}</span></a>
+            </script>
+            <script type="text/template" id="KillQuantityTemplate">
+                <a href="" ng-click="$parent.GetInWC('UD','KILL',data)"><span style="font-weight:bold;text-decoration:underline;color:blue;">{{data.KillQuantity|number:0}}</span></a>
+            </script>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-sm-12">**<i> Red marked row represents production workcenter mismatched with target workcenter</i> </div>
+
+        <script type="text/template" id="WCWiseWIPNavigation">
+            <div class="common-btn">
+                <ul class="list-inline small">
+                    <li>
+                        <button ng-click="$parent.GetPRWiseWIP(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                            <i class="glyphicon glyphicon-th-list"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </script>
+    </div>
+</ej-dialog>
+
+<ej-dialog id="dialogProductionRelay" title=" Production Relay" e-enablemodal="true" e-position-y="0" e-target="#MainContainer" e-showoninit="false" e-close="onDialogClose" e-minwidth="900px" e-open="enableBtn">
+    <div class="row">
+        <div id="GridProductionRelay" ng-init="chkinit()" e-load="actionCompleteSearch" ej-grid e-datasource="ProductionRelayList" e-rowdatabound="rowDataBoundOrder"
+             e-allowfiltering="true" e-allowpaging="true" e-pagesettings-pagesize="100" e-enabletouch="false" e-responsive="true" e-templaterefresh="ProductionRelayAllCheck"
+             e-cellselected="cellSelected" e-selectiontype="single" e-actioncomplete="syncfusiongriddatabound" e-showstackedheader="true"
+             e-allowscrolling="true" e-minwidth="450" e-minheight="400"
+             e-allowselection="false" e-filtersettings-filterType="excel">
+            <div e-stackedheaderrows>
+                <div e-stackedheaderrow>
+                    <div e-stackedheadercolumns>
+                        <div e-stackedheadercolumn e-headertext="Current Process" e-column="Id,Material,article,CurrentProcess,StyleNo,OwnStyleNo,LSD,OrderQty,PlannedQty,ActualQTY,ProducedQty,Variance,CurrentProcessWIP,StartDate,MasterOrderId,Remarks"></div>
+                        <div e-stackedheadercolumn e-headertext="Previous Process" e-column="PreviousProcess,PreviousProcessQty,PreviousProcessWIP,ClosedBy,PreviousProcessStartDate,ClosedDate"></div>
+                    </div>
+                </div>
+            </div>
+            <div e-columns>
+                @*<div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="25"></div>
+                    <div e-column e-template="#btnRemarks" e-textalign="center" e-headertext="Remarks" e-width="70"></div>*@
+
+                <div e-column e-type="string" e-field="Id" e-headertext="Prd.Order ID" e-width="50"></div>
+                <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="180"></div>
+                <div e-column e-type="string" e-field="article" e-headertext="Article" e-width="180"></div>
+                <div e-column e-type="string" e-field="CurrentProcess" e-headertext="Process" e-width="100"></div>
+
+                <div e-column e-type="string" e-field="StyleNo" e-headertext="Buyer Item#" e-width="100"></div>
+                <div e-column e-type="string" e-field="OwnStyleNo" e-headertext="Own Item#" e-width="100"></div>
+                <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="LSD" e-headertext="LSD" e-width="80"></div>
+                <div e-column e-type="string" e-field="OrderQty" e-headertext="Order Qty" e-width="80"></div>
+                <div e-column e-type="string" e-field="PlannedQty" e-headertext="Plan Order Qty" e-width="80"></div>
+
+                <div e-column e-type="string" e-field="ActualQTY" e-headertext="Actual Qty" e-width="80"></div>
+                <div e-column e-type="string" e-field="ProducedQty" e-headertext="Produced Qty" e-width="80"></div>
+                <div e-column e-type="string" e-field="Variance" e-headertext="Variance" e-width="80"></div>
+                <div e-column e-type="string" e-field="CurrentProcessWIP" e-headertext="WIP" e-width="80"></div>
+                <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="StartDate" e-headertext="Start Date" e-width="80"></div>
+                @*<div e-column e-type="string" e-field="IsCompleted" e-headertext="Is Completed" e-width="80"></div>*@
+
+                <div e-column e-type="string" e-field="MasterOrderId" e-headertext="Master Order#" e-width="180"></div>
+                <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="200"></div>
+
+                <div e-column e-type="string" e-field="PreviousProcess" e-headertext="Process" e-width="100"></div>
+                <div e-column e-type="string" e-field="PreviousProcessQty" e-headertext="Qty" e-width="100"></div>
+                <div e-column e-type="string" e-field="PreviousProcessWIP" e-headertext="WIP" e-width="100"></div>
+                <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="PreviousProcessStartDate" e-headertext="Start Date" e-width="100"></div>
+                <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="ClosedDate" e-headertext="Completion Date" e-width="100"></div>
+                <div e-column e-type="string" e-field="ClosedBy" e-headertext="Completed By" e-width="100"></div>
+
+            </div>
+        </div>
+        <div>
+            <span style="background-color:#6FEAFF;color:#6FEAFF">.....</span>Pre. completed, current started
+            <span style="background-color:#FF502A;color:#FF502A">.....</span>Pre. completed, current not started
+            <span style="background-color:#7EFF87;color:#7EFF87">.....</span>Pre. started, current started
+            <span style="background-color:#FFB42A;color:#FFB42A">.....</span>Pre. started, current not started
+        </div>`
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline small">
+            <li>
+                <button ng-click="ProductionRelayReport(this);" class="btn small" style="height: 27px; width: 120px; padding: 0px; margin: 0px;font-weight:bolder;">
+                    Download Report
+                </button>
+            </li>
+        </ul>
+    </div>
+</ej-dialog>
+
+
+<ej-dialog id="dialogPRWiseWIP" title=" WIP(PR Wise)" e-enablemodal="true" e-position-y="0" e-target="#MainContainer" e-showoninit="false" e-close="onDialogClose" e-minwidth="900px" e-open="enableBtn">
+    <div class="row">
+        <div class="col-xs-12 col-sm-1 col-md-1"> Entity </div>
+        <div class="col-xs-12 col-sm-2 col-md-2"> :{{SelectedEntityText}} </div>
+        <div class="col-xs-12 col-sm-1 col-md-1"> Date   </div>
+        <div class="col-xs-12 col-sm-2 col-md-2"> :{{FromDateParameter}}</div>
+        <div class="col-xs-12 col-sm-1 col-md-1"> Process </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">:{{SelectedProcess.UserName}}  </div>
+        <div class="col-xs-12 col-sm-1 col-md-1">WC</div>
+        <div class="col-xs-12 col-sm-2 col-md-2">:{{SelectedWorkcenter.WorkCenter}} </div>
+
+        <div class="col-xs-12 col-sm-12 col-sm-12" style="font-weight:bold;">Target Production Orders for this line:</div>
+
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div id="GridWorkCenterWisePlanning" ng-init="chkinit()" ej-grid e-datasource="WorkCenterPlanList" e-allowscrolling="true"
+                 e-allowpaging="true" e-enabletouch="false" e-responsive="true"
+                 e-allowselection="false" e-filtersettings-filterType="excel">
+                <div e-columns>
+
+                    <div e-column e-template="#showPRPlanListUpper" e-headertext="Prod. Ord. Id" e-width="100"></div>
+
+                    @*<div e-column e-field="ProductionOrderID" e-headertext="Production Order ID" e-width="100"></div>*@
+
+                    <div e-column e-field="BulletinId" e-headertext="Bulletin Id" e-width="60"></div>
+                    <div e-column e-field="BulletinName" e-headertext="Bulletin" e-width="120"></div>
+                    <div e-column e-field="SODesc" e-headertext="SO Desc" e-width="100"></div>
+
+                    <div e-column e-field="BuyerRefNo" e-headertext="Customer Order#" e-width="100"></div>
+                    <div e-column e-field="OwnRefNo" e-headertext="Own Order#" e-width="100"></div>
+                    <div e-column e-field="StyleNo" e-headertext="Customer Item#" e-width="100"></div>
+                    <div e-column e-field="OwnStyleNo" e-headertext="Own Item#" e-width="100"></div>
+                    <div e-column e-field="Customer" e-headertext="Customer" e-width="120"></div>
+                    <div e-column e-field="buyer" e-headertext="Buyer" e-width="120"></div>
+                    <div e-column e-field="ProductionStatus" e-headertext="Production Status" e-width="100"></div>
+                    <div e-column e-field="ProductionPriority" e-headertext="Production Priority" e-width="50"></div>
+                    <div e-column e-field="TargetQty" e-headertext="Target Qty" e-width="100"></div>
+                    <div e-column e-field="MasterOrderId" e-headertext="Master Order Id" e-width="100"></div>
+
+                    <div e-column e-field="SONo" e-headertext="SO No" e-width="100"></div>
+
+                    @*<div e-column e-field="PlanningStartDate" e-headertext="Planning Start Date" e-width="100"></div>
+                        <div e-column e-field="PlanningEndDate" e-headertext="Planning End Date" e-width="100"></div>*@
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-12 col-sm-12" style="font-weight:bold;">Actual Production for this line:</div>
+        <div class="col-xs-12 col-sm-12 col-sm-12" style="font-size:8pt;">**<i> Red marked row represents production order mismatched with target workcenter</i> </div>
+
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div style="color:black;" id="GridPRWiseWIP" ej-grid e-datasource="PRWiseWIPList" e-showstackedheader="true" e-rowdatabound="WCWIPRowDataBound"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowresizetofit="true" e-pagesettings-pagesize="12"
+                 e-allowselection="true" e-filtersettings-filterType="excel" e-summaryrows="summaryRowsWIP">
+
+                <div e-stackedheaderrows>
+                    <div e-stackedheaderrow>
+                        <div e-stackedheadercolumns>
+                            <div e-stackedheadercolumn e-headertext="For The Day Production" e-column="InQuantityToday,OutQuantityToday,KillQuantityToday"></div>
+                            <div e-stackedheadercolumn e-headertext="Up To Date Production" e-column="InQuantity,OutQuantity,KillQuantity,WIP"></div>
+                        </div>
+                    </div>
+                </div>
+                @*EntityId	PlantId	Id	ProductionRemarks	ProductionStatus	EntityName	ProductionStatusName
+                    POID	Material	Product	ProductCategory	ProductMasterId	SOQuantity	DeliveryDate
+                    MasterOrderId	BuyerRefNo	OwnRefNo	StyleNo	OwnStyleNo	SONo	SODesc	buyer
+                    Customer	ProductionOrderId	WorkCenterMasterId	InQuantity	OutQuantity	KillQuantity
+                    InQuantityToday	OutQuantityToday	KillQuantityToday	WorkCenter	WorkCenterSequence	Entity	Plant*@
+
+                <div e-columns>
+                    <div e-column e-template="#showPRPlanList" e-headertext="Prod. Ord#" e-width="80"></div>
+                    <div e-column e-field="BulletinId" e-headertext="Bulletin Id" e-width="60"></div>
+                    <div e-column e-field="BulletinName" e-headertext="Bulletin" e-width="120"></div>
+                    <div e-column e-field="SODesc" e-headertext="SO Desc" e-width="100"></div>
+                    <div e-column e-field="BuyerRefNo" e-headertext="Buyer Ord#" e-width="100"></div>
+                    <div e-column e-field="OwnRefNo" e-headertext="Own Ord#" e-width="100"></div>
+                    <div e-column e-field="StyleNo" e-headertext="Buyer Item" e-width="100"></div>
+                    <div e-column e-field="OwnStyleNo" e-headertext="Own Item" e-width="100"></div>
+
+                    <div e-column e-field="InQuantityToday" e-template="#InQuantityTodayTemplateWCPO" e-type="number" e-format="{0:N0}" e-textalign="right" e-headertext="IN" e-width="80"></div>
+                    <div e-column e-field="OutQuantityToday" e-template="#OutQuantityTodayTemplateWCPO" e-type="number" e-format="{0:N0}" e-textalign="right" e-headertext="OUT" e-width="80"></div>
+                    <div e-column e-field="KillQuantityToday" e-template="#KillQuantityTodayTemplateWCPO" e-type="number" e-format="{0:N0}" e-textalign="right" e-headertext="KILL" e-width="80"></div>
+
+                    <div e-column e-field="InQuantity" e-template="#InQuantityTemplateWCPO" e-type="number" e-format="{0:N0}" e-textalign="right" e-headertext="IN" e-width="80"></div>
+                    <div e-column e-field="OutQuantity" e-template="#OutQuantityTemplateWCPO" e-type="number" e-format="{0:N0}" e-textalign="right" e-headertext="OUT" e-width="80"></div>
+                    <div e-column e-field="KillQuantity" e-template="#KillQuantityTemplateWCPO" e-type="number" e-format="{0:N0}" e-textalign="right" e-headertext="KILL" e-width="80"></div>
+                    <div e-column e-field="WIP" e-type="number" e-format="{0:N0}" e-textalign="right" e-headertext="WIP" e-width="80"></div>
+
+                    <div e-column e-field="Customer" e-headertext="Customer" e-width="100"></div>
+                    <div e-column e-field="buyer" e-headertext="buyer" e-width="100"></div>
+                    <div e-column e-field="MasterOrderId" e-headertext="Mst. Order#" e-width="100"></div>
+
+                </div>
+            </div>
+            <script type="text/template" id="InQuantityTodayTemplateWCPO">
+                <a href="" ng-click="$parent.GetInWCPO('FD','IN',data)"><span style="font-weight:bold;text-decoration:underline;color:blue;">{{data.InQuantityToday|number:0}}</span></a>
+            </script>
+            <script type="text/template" id="OutQuantityTodayTemplateWCPO">
+                <a href="" ng-click="$parent.GetInWCPO('FD','OUT',data)"><span style="font-weight:bold;text-decoration:underline;color:blue;">{{data.OutQuantityToday|number:0}}</span></a>
+            </script>
+            <script type="text/template" id="KillQuantityTodayTemplateWCPO">
+                <a href="" ng-click="$parent.GetInWCPO('FD','KILL',data)"><span style="font-weight:bold;text-decoration:underline;color:blue;">{{data.KillQuantityToday|number:0}}</span></a>
+            </script>
+
+
+            <script type="text/template" id="InQuantityTemplateWCPO">
+                <a href="" ng-click="$parent.GetInWCPO('UD','IN',data)"><span style="font-weight:bold;text-decoration:underline;color:blue;">{{data.InQuantity|number:0}}</span></a>
+            </script>
+            <script type="text/template" id="OutQuantityTemplateWCPO">
+                <a href="" ng-click="$parent.GetInWCPO('UD','OUT',data)"><span style="font-weight:bold;text-decoration:underline;color:blue;">{{data.OutQuantity|number:0}}</span></a>
+            </script>
+            <script type="text/template" id="KillQuantityTemplateWCPO">
+                <a href="" ng-click="$parent.GetInWCPO('UD','KILL',data)"><span style="font-weight:bold;text-decoration:underline;color:blue;">{{data.KillQuantity|number:0}}</span></a>
+            </script>
+        </div>
+
+    </div>
+</ej-dialog>
+
+
+<ej-dialog id="dialogInOutKill" title=" Work Center Transactions" e-enablemodal="true" e-position-y="0" e-target="#MainContainer" e-showoninit="false" e-close="onDialogClose" e-minwidth="900px" e-open="enableBtn">
+    <div class="row">
+        <div class="col-xs-12 col-sm-1 col-md-1"> Entity </div>
+        <div class="col-xs-12 col-sm-2 col-md-2"> :{{SelectedEntityText}} </div>
+        <div class="col-xs-12 col-sm-1 col-md-1"> Date   </div>
+        <div class="col-xs-12 col-sm-2 col-md-2"> :{{FromDateParameter}}</div>
+        <div class="col-xs-12 col-sm-1 col-md-1"> Process </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">:{{SelectedProcess.UserName}}  </div>
+        <div class="col-xs-12 col-sm-1 col-md-1">WC</div>
+        <div class="col-xs-12 col-sm-2 col-md-2">:{{SelectedWorkcenter.WorkCenter}} </div>
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div style="color:black;" id="GridInOutKill" ej-grid e-datasource="InOutKillWC" e-showstackedheader="true"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowresizetofit="true" e-pagesettings-pagesize="12"
+                 e-allowselection="true" e-filtersettings-filterType="excel" e-summaryrows="summaryRowsProduction">
+                <div e-columns>
+                    <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="ProductionDate" e-headertext="Prod. Date" e-width="100"></div>
+                    <div e-column e-template="#showPRPlanList" e-headertext="Prod. Ord#" e-width="80"></div>
+                    <div e-column e-type="string" e-field="BuyerRefNo" e-headertext="Cust. Order#" e-width="100"></div>
+                    <div e-column e-type="string" e-field="StyleNo" e-headertext="Customer Item#" e-width="100"></div>
+                    <div e-column e-type="string" e-field="SONo" e-headertext="SO Nos" e-width="100"></div>
+                    <div e-column e-type="string" e-field="SODesc" e-headertext="SO Desc" e-width="100"></div>
+                    <div e-column e-type="string" e-field="FromLocation" e-headertext="From Location" e-width="100"></div>
+                    <div e-column e-type="string" e-field="ToLocation" e-headertext="To Location" e-width="100"></div>
+
+                    <div e-column e-field="Quantity" e-type="number" e-format="{0:N0}" e-textalign="right" e-headertext="Quantity" e-width="80"></div>
+                    <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="100"></div>
+                    <div e-column e-type="string" e-field="MasterOrderId" e-headertext="Mst. Order#" e-width="100"></div>
+
+                    <div e-column e-type="string" e-field="buyer" e-headertext="buyer" e-width="100"></div>
+                    <div e-column e-type="string" e-field="OwnRefNo" e-headertext="Own Order#" e-width="100"></div>
+
+                    <div e-column e-type="string" e-field="OwnStyleNo" e-headertext="Own Item#" e-width="100"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ej-dialog>
+
+<ej-dialog id="dialogInOutKillPO" title=" Transfer PO Wise" e-enablemodal="true" e-position-y="0" e-target="#MainContainer" e-showoninit="false" e-close="onDialogClose" e-minwidth="900px" e-open="enableBtn">
+    <div class="row">
+        <div class="col-xs-12 col-sm-1 col-md-1"> Entity </div>
+        <div class="col-xs-12 col-sm-2 col-md-2"> :{{SelectedEntityText}} </div>
+        <div class="col-xs-12 col-sm-1 col-md-1"> Date   </div>
+        <div class="col-xs-12 col-sm-2 col-md-2"> :{{FromDateParameter}}</div>
+        <div class="col-xs-12 col-sm-1 col-md-1"> Process </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">:{{SelectedProcess.UserName}}  </div>
+        <div class="col-xs-12 col-sm-1 col-md-1">PO</div>
+        <div class="col-xs-12 col-sm-2 col-md-2">:{{SelectedWorkcenter.ProductionOrderId}} </div>
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div style="color:black;" id="GridInOutKillPO" ej-grid e-datasource="InOutKillPO" e-showstackedheader="true"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowresizetofit="true" e-pagesettings-pagesize="12"
+                 e-allowselection="true" e-filtersettings-filterType="excel" e-summaryrows="summaryRowsProduction">
+                <div e-columns>
+                    <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="ProductionDate" e-headertext="Prod. Date" e-width="30"></div>
+                    <div e-column e-type="string" e-field="ProductionPeriod" e-headertext="Prod. Period" e-width="30"></div>
+                    <div e-column e-type="string" e-field="FromLocation" e-headertext="From Location" e-width="100"></div>
+                    <div e-column e-type="string" e-field="ToLocation" e-headertext="To Location" e-width="100"></div>
+                    <div e-column e-field="Quantity" e-type="number" e-format="{0:N0}" e-textalign="right" e-headertext="Quantity" e-width="30"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ej-dialog>
+<ej-dialog id="dialogProfitability" title=" Profitability" e-enablemodal="true" e-position-y="0" e-target="#MainContainer" e-showoninit="false" e-close="onDialogClose" e-minwidth="900px" e-open="enableBtn">
+    <div class="row">
+        <div class="col-xs-12">
+            <divss style="color:black;" id="GridProfitability" ej-grid e-datasource="DailyPrifitability" e-showstackedheader="true"
+                   e-allowscrolling="true"
+                   e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowresizetofit="true" e-pagesettings-pagesize="12"
+                   e-allowselection="true" e-filtersettings-filterType="excel" e-summaryrows="summaryRowsProduction">
+                <div e-columns>
+
+                    <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="120"></div>
+                    <div e-column e-type="string" e-field="Workcenter" e-headertext="Work Center" e-width="120"></div>
+                    <div e-column e-field="DailyFixedCost" e-type="number" e-format="{0:N2}" e-textalign="right" e-headertext="DailyFixedCost" e-width="80"></div>
+                    <div e-column e-field="AdditionalCostPerHour" e-type="number" e-format="{0:N2}" e-textalign="right" e-headertext="Additional Cost / Hour" e-width="80"></div>
+                    <div e-column e-field="StandardTimePerDay" e-type="number" e-format="{0:N0}" e-textalign="right" e-headertext="WC Hour/Day" e-width="80"></div>
+                    <div e-column e-field="PlanHour" e-type="number" e-format="{0:N0}" e-textalign="right" e-headertext="Plan Hour" e-width="80"></div>
+                    <div e-column e-field="TotalWCCost" e-type="number" e-format="{0:N2}" e-textalign="right" e-headertext="Total WC Cost" e-width="80"></div>
+                    <div e-column e-field="TargetQuantity" e-type="number" e-format="{0:N2}" e-textalign="right" e-headertext="Tgt Qty" e-width="80"></div>
+                    <div e-column e-field="CMTarget" e-type="number" e-format="{0:N2}" e-textalign="right" e-headertext="CM-Target" e-width="80"></div>
+                    <div e-column e-field="RevenueOnTarget" e-type="number" e-format="{0:N2}" e-textalign="right" e-headertext="Revenue on Target" e-width="80"></div>
+                    <div e-column e-field="ProductionQuantity" e-type="number" e-format="{0:N2}" e-textalign="right" e-headertext="Prod Qty" e-width="80"></div>
+                    <div e-column e-field="CMProduction" e-type="number" e-format="{0:N2}" e-textalign="right" e-headertext="CM-Production" e-width="80"></div>
+                    <div e-column e-field="RevenueOnProduction" e-type="number" e-format="{0:N2}" e-textalign="right" e-headertext="Revenue on Production" e-width="80"></div>
+                    <div e-column e-type="string" e-field="ReportCurrency" e-headertext="Currency" e-width="50"></div>
+                </div>
+
+            </divss>
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li><button ng-click="getReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i>Download</button></li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+</ej-dialog>
+
+<script type="text/template" id="showPRPlanList">
+    <a href="" ng-click="$parent.GetProductionPlanningData('',data.ProductionOrderId);"><span style="font-weight:normal;text-decoration:underline;color:blue;">{{data.ProductionOrderId}}</span></a>
+
+</script>
+<script type="text/template" id="showPRPlanListUpper">
+    <a href="" ng-click="$parent.GetProductionPlanningData('',data.ProductionOrderID);"><span style="font-weight:normal;text-decoration:underline;color:blue;">{{data.ProductionOrderID}}</span></a>
+
+</script>
+@Html.Partial("~/Areas/Productions/Views/ProductionDashboard/Planning.cshtml")

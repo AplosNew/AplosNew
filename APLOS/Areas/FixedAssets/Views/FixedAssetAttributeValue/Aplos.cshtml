@@ -1,0 +1,146 @@
+﻿<togglable name="Fixed Asset AttributeValue"></togglable>
+<div class="form-horizontal" ng-form id="form" name="form">
+    <input type="hidden" ng-model="processNew.Id">
+    <div class="col-xs-12 col-sm-12 col-md-12 form-element-ctrl">
+        <div class="form-group" show-errors>
+            <label class="col-sm-2 control-label">Fixed Asset Attribute<sup>*</sup></label>
+            <div class="col-sm-4 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="processNew.FixedAssetAttributeId" name="Fixed Asset Attribute" ng-change="getData()"
+                            ng-options="item.Value as item.Text for item in fixedAssetAttributeList" tabindex="1" required></select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="form-elements">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="number" name="Sequence" ng-model="processNew.Sequence" class="form-control" required tabindex="2">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Short Name" maxlength="50" ng-model="processNew.ShortName" class="form-control" required tabindex="4">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="User Name" maxlength="50" ng-model="processNew.UserName" class="form-control" required tabindex="6">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Description</label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" rows="2" ng-model="processNew.Description" name="Description" maxlength="250" tabindex="8" ng-trim="false"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Default</label>
+                <div class="col-sm-8">
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" ng-model="processNew.IsDefault">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Code" maxlength="15" ng-model="processNew.Code" class="form-control" required tabindex="3">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">StandardName</label>
+                <div class="col-sm-8">
+                    <input type="text" name="Standard Name" maxlength="50" ng-model="processNew.StandardName" class="form-control" tabindex="5">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Remarks</label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" rows="2" ng-model="processNew.Remarks" name="Remarks" maxlength="250" tabindex="7" ng-trim="false"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Active</label>
+                <div class="col-sm-8">
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" ng-model="processNew.Active">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Sequence</th>
+                <th>Code</th>
+                <th>Standard Name</th>
+                <th>Short Name</th>
+                <th>User Name</th>
+                <th>Default</th>
+                <th>Active</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in processes|itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get(x.Id, $index);">
+                <td>{{x.Sequence}}</td>
+                <td>{{x.Code}}</td>
+                <td>{{x.StandardName}}</td>
+                <td>{{x.ShortName}}</td>
+                <td>{{x.UserName}}</td>
+                <td>{{x.IsDefault?'Yes':'No'}}</td>
+                <td>{{x.Active?'Yes':'No'}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10"
+                             direction-links="true"
+                             boundary-links="true"
+                             on-page-change="getData(newPageNumber)">
+    </dir-pagination-controls>
+</div>
+<confirm-modal></confirm-modal>

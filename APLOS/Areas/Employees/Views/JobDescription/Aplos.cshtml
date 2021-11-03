@@ -1,0 +1,292 @@
+﻿<togglable name="Job Description"></togglable>
+<style>
+    /****************File Upload*/
+    * {
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+    }
+
+    .inputBtnSection {
+        /*display: inline-block;*/
+        vertical-align: top;
+        font-size: 0;
+        font-family: verdana;
+    }
+
+    .disableInputField {
+        /*display: inline-block;*/
+        vertical-align: top;
+        height: 27px;
+        margin: 0;
+        font-size: 14px;
+        padding: 0 3px;
+    }
+
+    .fileUpload {
+        position: relative;
+        overflow: hidden;
+        /*border: solid 1px gray;*/
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    .uploadBtn {
+        display: inline-block;
+        vertical-align: top;
+        background: #242841;
+        font-size: 14px;
+        padding: 0 10px;
+        height: 25px;
+        line-height: 22px;
+        color: #fff;
+    }
+
+    .fileUpload input.upload {
+        position: absolute;
+        top: 0;
+        right: 0;
+        margin: 0;
+        padding: 0;
+        font-size: 20px;
+        cursor: pointer;
+        opacity: 0;
+        filter: alpha(opacity=0);
+    }
+</style>
+<div class="form-elements form-horizontal" ng-form name="jobDescriptionNewForm" enctype="multipart/form-data">
+    <div class="tab-design" id="tab_show">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Job Description</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="address" role="tab" data-toggle="tab">Attachment</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                <div class="row" ng-form name="jobDescriptionForm2">
+                    <input type="hidden" ng-model="jobDescriptionNew.Id">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Category<sup>*</sup></label>
+                            <div class="col-sm-8  show-message">
+                                <div class="select-style">
+                                    <select name="Category" class="form-control" ng-model="jobDescriptionNew.JobDescriptionCategoryId" ng-options="item.Value as item.Text for item in jobDescriptionCategoryList" required tabindex="1">
+                                        <option></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Item<sup>*</sup></label>
+                            <div class="col-sm-8  show-message">
+                                <div class="select-style">
+                                    <select name="Item" class="form-control" ng-model="jobDescriptionNew.JobDescriptionItemId" ng-options="item.Value as item.Text for item in jobDescriptionItemList" required tabindex="3">
+                                        <option></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Primary/Secondary<sup>*</sup></label>
+                            <div class="col-sm-8  show-message">
+                                <div class="select-style">
+                                    <select name="Primary/Secondary" class="form-control" ng-model="jobDescriptionNew.PrimaryOrSecondary" ng-options="item.Value as item.Text for item in jobDescriptionPrimaryOrSecondaryList" required tabindex="5">
+                                        <option></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Nature of Activity<sup>*</sup></label>
+                            <div class="col-sm-8  show-message">
+                                <div class="select-style">
+                                    <select name="Nature Of Activity" class="form-control" ng-model="jobDescriptionNew.NatureOfActivity" ng-options="item.Value as item.Text for item in jobDescriptionNatureOfActivityList" required tabindex="7">
+                                        <option></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label" title="Estimated Time Required Minute">Estimated Time Req Minute<sup>*</sup></label>
+                            <div class="col-sm-8  show-message">
+                                <input type="text" name="Estimated Time Required Minute" only-numbers ng-model="jobDescriptionNew.EstimatedTimeRequired" class="form-control" required tabindex="9">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Subcategory<sup>*</sup></label>
+                            <div class="col-sm-8  show-message">
+                                <div class="select-style">
+                                    <select name="Sub Category" class="form-control" ng-model="jobDescriptionNew.JobDescriptionSubCategoryId" ng-options="item.Value as item.Text for item in jobDescriptionSubCategoryList" required tabindex="2">
+                                        <option></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Level<sup>*</sup></label>
+                            <div class="col-sm-8  show-message">
+                                <div class="select-style">
+                                    <select name="Level" class="form-control" ng-model="jobDescriptionNew.JobLevel" ng-options="item.Value as item.Text for item in levelList" required tabindex="4">
+                                        <option></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Frequency<sup>*</sup></label>
+                            <div class="col-sm-8  show-message">
+                                <div class="select-style">
+                                    <select name="Frequency" class="form-control" ng-model="jobDescriptionNew.Frequency" ng-options="item.Value as item.Text for item in frequencyList" required tabindex="6">
+                                        <option></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">System/Manual<sup>*</sup></label>
+                            <div class="col-sm-8  show-message">
+                                <div class="select-style">
+                                    <select name="System/Manual" class="form-control" ng-model="jobDescriptionNew.SystemOrManual" ng-options="item.Value as item.Text for item in systemOrManualList" required tabindex="8">
+                                        <option></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Document Applicable</label>
+                            <div class="col-sm-8">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="jobDescriptionNew.DocumentApplicable" tabindex="10">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                <div class="row">
+                    <div class="inputBtnSection common-btn" style="width:867px;">
+                        <label class="fileUpload col-sm-4" style="padding-left:196px;">
+                            <input name="file[]" class="upload" ng-disabled="!jobDescriptionNew.DocumentApplicable" type="file" accept=".xlsx,.xlx,.doc,.docx,.jpg,.png,.gif,.pdf" id="filestoupload" multiple />
+                            <span class="uploadBtn"style="height: 33px;"><i class="fa fa-paperclip" aria-hidden="true"> Attach</i></span>
+                        </label>
+                        <div class="col-sm-6">
+                            <input type="text" id="uploadFile" name="uploadFile" class="disableInputField form-control" disabled="disabled" style="width: 444px;height: 33px;" />
+                        </div>
+                        <div class="col-sm-2">
+                            @*<button ng-click="ClearImage();" class="btn single-small-btn"><i class="glyphicon glyphicon-remove"></i></button>*@
+                            <btton ng-click="addAttachment();" class="btn single-small-btn"><i class="glyphicon glyphicon-plus"></i></btton>
+                        </div>
+                    </div>
+
+                    @*<div class="col-xs-12 ">
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">File</label>
+                                <div class="col-sm-6">
+                                    <input ng-disabled="!jobDescriptionNew.DocumentApplicable" type="file" accept=".xlsx,.xlx,.doc,.docx,.jpg,.png,.gif,.pdf" id="filestoupload" multiple />
+                                </div>
+                                <div class="col-sm-4">
+                                    <btton ng-click="addAttachment();" class="btn single-small-btn"><i class="glyphicon glyphicon-plus"></i></btton>
+                                </div>
+                            </div>
+                        </div>*@
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="col-sm-2"></div>
+                            <div class="col-sm-7">
+                                <div class="table-responsive modal-table">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>File Name</th>
+                                                <th class="text-center">Remove</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="x in jobDescriptionDetailNewList ">
+                                                <td ng-click="FileDownload(x)"><a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{x.name}}" target="_self">{{x.name}}</a></td>
+                                                <td style="width:50px" class="text-center"><button class="btn single-small-btn" ng-click="deleteDocumentSetPopup(x, $index)"><i class="glyphicon glyphicon-remove"></i></button></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-sm-1"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Subcategory</th>
+                <th>Item</th>
+                <th>Level</th>
+                <th>Primary/Secondary</th>
+                <th>Frequency</th>
+                <th>Nature of Activity</th>
+                <th>Estimated Time Required</th>
+                <th>System or Manual</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in jobDescriptions |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get(x.Id, $index);">
+                <td>{{x.JobDescriptionCategoryName}}</td>
+                <td>{{x.JobDescriptionSubCategoryName}}</td>
+                <td>{{x.JobDescriptionItemName}}</td>
+                <td>{{x.JobLevel}}</td>
+                <td>{{x.PrimaryOrSecondary}}</td>
+                <td>{{x.Frequency}}</td>
+                <td>{{x.NatureOfActivity}}</td>
+                <td>{{x.EstimatedTimeRequired}}</td>
+                <td>{{x.SystemOrManual}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10"
+                             direction-links="true"
+                             boundary-links="true"
+                             on-page-change="getData(newPageNumber)">
+    </dir-pagination-controls>
+</div>
+<confirm-modal></confirm-modal>
+<confirm-archive-generic data-modalid="confirmDocumentdelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeDocumentSetYes()"></confirm-archive-generic>

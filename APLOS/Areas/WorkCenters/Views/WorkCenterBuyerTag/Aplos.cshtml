@@ -1,0 +1,203 @@
+﻿<togglable name="Work Center Buyer"></togglable>
+<div class="form-horizontal" ng-form id="workCenterBuyerTag" name="workCenterBuyerTagNewForm">
+    <div class="col-xs-12 col-sm-6 col-md-6 form-element-ctrl">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select name="Plant" ng-model="workCenterBuyerTagNew.PlantId" class="col-sm-3 form-control"
+                            ng-options="item.Value as item.Text for item in plantList" tabindex="1" required>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6 form-element-ctrl">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Unit<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select name="Unit" ng-model="workCenterBuyerTagNew.UnitId" class="col-sm-3 form-control" ng-change="getData();"
+                            ng-options="item.Value as item.Text for item in unitList" tabindex="2" required>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="form-elements">
+        <input type="hidden" ng-model="workCenterBuyerTagNew.Id">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Work Center Master</label>
+                <div class="col-sm-6 pdr3 show-message" style="Width:302px;">
+                    <input type="text" id="WorkCenterMaster" name="WorkCenter Master" ng-model="workCenterBuyerTagNew.WorkCenterMasterName" class="form-control" disabled required>
+                </div>
+                <div class="pdl3">
+                    <button name="submit" class="btn single-small-btn" ng-click="popUp('WorkCenterMasterName','WorkCenterMasterId')" tabindex="3">
+                        <i class="cr-icon glyphicon glyphicon-search"></i>
+                    </button>
+                    <button ng-click="ClearWC();" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-erase"></i></button>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Buyer<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select name="Buyer" ng-model="workCenterBuyerTagNew.BuyerId" class="col-sm-3 form-control"
+                                ng-options="item.Value as item.Text for item in buyerList" tabindex="5" required>
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Active</label>
+                <div class="col-sm-8">
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" ng-model="workCenterBuyerTagNew.Active" tabindex="7">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Material Master</label>
+                <div class="col-sm-6 pdr3 show-message" style="Width:302px;">
+                    <input type="text" id="Matrial" name="Matrial Master" ng-model="workCenterBuyerTagNew.MaterialMasterName" class="form-control" disabled required>
+                </div>
+                <div class="pdl3">
+                    <button name="submit" class="btn single-small-btn" ng-click="popUp('MaterialMasterName','MaterialMasterId')" tabindex="4">
+                        <i class="cr-icon glyphicon glyphicon-search"></i>
+                    </button>
+                    <button ng-click="ClearMM();" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-erase"></i></button>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">DMM<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select name="DMM" ng-model="workCenterBuyerTagNew.DMMId" class="col-sm-3 form-control"
+                                ng-options="item.Value as item.Text for item in DMMList" tabindex="6" required>
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Work Center Master</th>
+                <th>Material Master</th>
+                <th>DMM</th>
+                <th>Buyer</th>
+                <th>Active</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in workCenterBuyerTags |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get(x.Id, $index);">
+                <td>{{x.WorkCenterMaster}}</td>
+                <td>{{x.MaterialMaster}}</td>
+                <td>{{x.DMM}}</td>
+                <td>{{x.Buyer}}</td>
+                <td>{{x.Active?'Yes':'No'}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10"
+                             direction-links="true"
+                             boundary-links="true"
+                             on-page-change="getData(newPageNumber)">
+    </dir-pagination-controls>
+</div>
+<confirm-modal></confirm-modal>
+<div class="modal fade site-modal in" id="popUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                {{popUpTitle}}
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="popUpParameters.searchBy">
+                                            <option ng-repeat="option in popUpList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="popUpParameters.search" ng-enter="popUpData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="popUpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th ng-repeat="x in popUpList">{{x.Text}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in popUpDataList|itemsPerPage:popUpParameters.pageSize" total-items="popUpParameters.total_count"
+                                ng-click="selectSingleClick(x)" ng-dblclick="selectdblClick(x);">
+                                <td ng-repeat="hh in popUpList">{{x[hh.Value]}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="popUpData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,516 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Shift Assignment
+</h3>
+<div class="form-elements form-horizontal" ng-form="modelForm">
+    <div class="tab-design" id="tab_show">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="assign" role="tab" data-toggle="tab">Group Wise Assign</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="assigned" role="tab" data-toggle="tab">Assigned</a></li>
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="Shift" role="tab" data-toggle="tab">Individual Assign</a></li>
+                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="Shift" role="tab" data-toggle="tab">Non Assign</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Work Date<sup>*</sup></label>
+                        <div class="col-sm-8">
+                            <input type="text" ng-model="modelNew.WorkDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="8">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"></label>
+                        <div class="col-sm-8">
+                            <button class="btn" ng-click="popUp('EmployeeInformation');"><i class="glyphicon glyphicon-search"></i> Search Employee</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Section</label>
+                        <div class="col-sm-8">
+                            <div class="select-style">
+                                <select id="SectionId" class="form-control" ng-model="modelNew.SectionId" name="Section" tabindex="1">
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in SectionList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Shift Group</label>
+                        <div class="col-sm-8">
+                            <div class="select-style">
+                                <select id="CompliedShiftGroupId" class="form-control" ng-model="modelNew.CompliedShiftGroupId" name="Complied Shift Group" tabindex="1">
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in compliedShiftGroupingList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Employee Code</th>
+                                    <th>Employee Name</th>
+                                    <th>Plant</th>
+                                    <th>Department</th>
+                                    <th>Section</th>
+                                    <th>SubSection</th>
+                                    <th>Given Designation</th>
+                                    <th>Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in tempList">
+                                    <td>{{x.EmployeeCode}}</td>
+                                    <td>{{x.EmployeeName}}</td>
+                                    <td>{{x.Plant}}</td>
+                                    <td>{{x.Department}}</td>
+                                    <td>{{x.Section}}</td>
+                                    <td>{{x.SubSection}}</td>
+                                    <td>{{x.GivenDesignation}}</td>
+                                    <td class="text-right table-td">
+                                        <ul class="list-inline action-list">
+                                            <li>
+                                                <button data-toggle="modal" data-target="#confirmDelete" ng-click="confirmDelete(x.Id,x.EmployeeCode,$index)"
+                                                        class="btn btn-action tooltip-here" data-placement="top" title="Delete" tooltip>
+                                                    <i class="glyphicon glyphicon-remove"></i>
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group" >
+                        <label class="col-sm-4 control-label">Shift<sup>*</sup> </label>
+                        <div class="col-sm-8">
+                            <div class="select-style">
+                                <select id="CompliedShiftId" class="form-control" ng-model="modelNew.CompliedShiftId" name="Shift"  tabindex="1">
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in compliedShiftList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="Save();" class="btn" tabindex="5"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                        @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="6"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
+                        <li> <button ng-click="Clear();" class="btn" tabindex="7"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                    </ul>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Work Date<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <input type="text" ng-model="model.WorkDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="1" ng-change="getData()">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Shift<sup>*</sup> </label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select id="CompliedShiftId" class="form-control" ng-model="model.CompliedShiftId" name="Complied Shift" tabindex="2" ng-change="getData()">
+                                        <option value="">--Select--</option>
+                                        <option ng-repeat="option in compliedShiftList" value="{{option.Value}}">{{option.Text}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12">
+                        <div class="table-responsive modal-table">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Employee Code</th>
+                                        <th>Employee Name</th>
+                                        <th>Work Date</th>
+                                        <th>Shift</th>
+                                        <th>Delete</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr dir-paginate="x in compliedShiftActualShiftTagList |itemsPerPage:$root.pageSize" total-items="$root.total_count">
+                                        <td>{{x.EmployeeCode}}</td>
+                                        <td>{{x.EmployeeName}}</td>
+                                        <td>{{x.WorkDate | dateFiltering}}</td>
+                                        <td>{{x.ShiftName}}</td>
+                                        <td class="text-right table-td">
+                                            <ul class="list-inline action-list">
+                                                <li>
+                                                    <button data-toggle="modal" data-target="#confirmDelete" ng-click="confirmDelete(x.Id,x.EmployeeCode,$index)"
+                                                            class="btn btn-action tooltip-here" data-placement="top" title="Delete" tooltip>
+                                                        <i class="glyphicon glyphicon-remove"></i>
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <dir-pagination-controls max-size="10"
+                                                     direction-links="true"
+                                                     boundary-links="true"
+                                                     on-page-change="getData(newPageNumber)">
+                            </dir-pagination-controls>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Employee</label>
+                            <div class="col-sm-3">
+                                <div class="input-group">
+                                    <span class="input-group-addon">{{modelNew.EmployeeCode}}</span>
+                                    <input type="text" name="Employee" ng-model="modelNew.EmployeeName" class="form-control" required readonly>
+                                    <span class="input-group-btn">
+                                        <button name="submit" ng-click="popUp('Employee Information')" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                        <button ng-click="clearEmployee()" class="btn single-small-btn" tabindex="6"><i class="glyphicon glyphicon-refresh"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                            <label class="col-sm-1 control-label">From Date<sup>*</sup></label>
+                            <div class="col-sm-2">
+                                <input type="text" ng-model="modelNew.FromDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="8">
+                            </div>
+                            <label class="col-sm-1 control-label">To Date<sup>*</sup></label>
+                            <div class="col-sm-2">
+                                <input type="text" ng-model="modelNew.ToDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="8">
+                            </div>
+                            <div class="col-sm-2">
+                                <button ng-click="getFixedShiftList()" class="btn single-small-btn" tabindex="6">Go</button>
+                            </div>
+                        </div>
+                        <div class="col-xs-6">
+                            <fieldset class="scheduler-border" style="width: 335px;height:65px">
+                                <legend class="scheduler-border">Roster Shift</legend>
+                                <div class="form-group" style="margin: -18px;">
+                                    <label class="col-sm-1 control-label">Roster</label>
+                                    <div class="col-sm-2">
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="roster" tabindex="8" ng-change="Uncheck();">
+                                                <span class="cr" style="margin: 9px;"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <label class="col-sm-1 control-label">Shift</label>
+                                    <div class="col-sm-3"style="width: 155px;margin-right:-30px;">
+                                        <div class="select-style">
+                                            <select id="RosterShift" class="form-control" ng-model="compliedRoster.CompliedShiftRosterMasterID" name="Roster Shift" tabindex="1">
+                                                <option value="">--Select--</option>
+                                                <option ng-repeat="option in rosterShiftList" value="{{option.Value}}">{{option.Text}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <button ng-click="SaveRoster()" class="btn single-small-btn" tabindex="6"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6" style="margin-left:-178px">
+                            <fieldset class="scheduler-border" style="width:668px">
+                                <legend class="scheduler-border">Fixed Shift</legend>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">Shift<sup>*</sup> </label>
+                                    <div class="col-sm-3">
+                                        <div class="select-style">
+                                            <select id="CompliedShiftId" class="form-control" ng-model="complied.CompliedShiftId" name="Shift" tabindex="1">
+                                                <option value="">--Select--</option>
+                                                <option ng-repeat="option in compliedShiftList" value="{{option.Value}}">{{option.Text}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <label class="col-sm-2 control-label">Effective Date<sup>*</sup></label>
+                                    <div class="col-sm-3">
+                                        <input type="text" ng-model="complied.WorkDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="8">
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <button ng-click="SaveSingle()" class="btn single-small-btn" tabindex="6"><i class="glyphicon glyphicon-plus"></i></button>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12">
+                                    <div class="table-responsive modal-table">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Shift Name</th>
+                                                    <th>Effective Date</th>
+                                                    <th>Delete</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr ng-repeat="x in FixedShiftList">
+                                                    <td>{{x.ShiftName}}</td>
+                                                    <td>{{x.WorkDate}}</td>
+                                                    <td class="text-right table-td">
+                                                        <ul class="list-inline action-list">
+                                                            <li>
+                                                                <button data-toggle="modal" data-target="#confirmDelete" ng-click="confirmDelete(x.Id,x.EmployeeCode,$index)"
+                                                                        class="btn btn-action tooltip-here" data-placement="top" title="Delete" tooltip>
+                                                                    <i class="glyphicon glyphicon-remove"></i>
+                                                                </button>
+                                                            </li>
+                                                        </ul>
+                                                    </td>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+                <div class="row">
+                    <div class="row text-right">
+                        <div class="col-xs-12 col-sm-12 col-sm-12">
+                            <div class="search-form">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="select-style">
+                                            <select ng-model="unassignParameters.searchBy">
+                                                <option ng-repeat="option in searchEmpList" value="{{option.value}}">{{option.name}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-7 col-md-7">
+                                        <input type="text" class="form-control" placeholder="Search" ng-model="unassignParameters.search" ng-enter="GetAllData()">
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <button type="button" ng-click="GetAllData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Employee Code</th>
+                                    <th>Employee Name</th>
+                                    <th>DOJ</th>
+                                    <th>Plant</th>
+                                    <th>Department</th>
+                                    <th>Section</th>
+                                    <th>SubSection</th>
+                                    <th>Designation</th>
+                                    <th>Given Designation</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr dir-paginate="x in unassignEmployees|itemsPerPage:unassignParameters.pageSize" total-items="unassignParameters.total_count" pagination-id="metaData.name + 'unassignEmployees'">
+                                    <td>{{x.EmployeeCode}}</td>
+                                    <td>{{x.EmployeeName}}</td>
+                                    <td>{{x.DOJ}}</td>
+                                    <td>{{x.Plant}}</td>
+                                    <td>{{x.Department}}</td>
+                                    <td>{{x.Section}}</td>
+                                    <td>{{x.SubSection}}</td>
+                                    <td>{{x.Designation}}</td>
+                                    <td>{{x.GivenDesignation}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <dir-pagination-controls max-size="10"
+                                                 pagination-id="metaData.name + 'unassignEmployees'"
+                                                 direction-links="true"
+                                                 boundary-links="true"
+                                                 on-page-change="GetAllData(newPageNumber)">
+                        </dir-pagination-controls>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-modal></confirm-modal>
+<div class="modal fade site-modal in" id="popUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                {{popUpTitle}}
+                <button type="button" class="close" ng-click="closePopUp();">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="popUpParameters.searchBy">
+                                            <option ng-repeat="option in popUpList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="popUpParameters.search" ng-enter="popUpData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="popUpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>
+                                    @*<div class="checkbox-site text-center">
+                                        <input type="checkbox" ng-click="CheckAll($event);">
+                                    </div>*@
+                                    Select
+                                </th>
+                                <th>Employee Code</th>
+                                <th>Employee Name</th>
+                                <th>Plant</th>
+                                <th>Department</th>
+                                <th>Section</th>
+                                <th>SubSection</th>
+                                <th>Designation</th>
+                                <th>Given Designation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in popUpDataList|itemsPerPage:popUpParameters.pageSize" total-items="popUpParameters.total_count" pagination-id="metaData.name + 'popUpDataList'">
+                                <td>
+                                    <div class="checkbox-site">
+                                        <input type="checkbox" ng-model="x.Active" ng-click="selectChValueId($event,x)">
+                                    </div>
+                                </td>
+                                <td>{{x.EmployeeCode}}</td>
+                                <td>{{x.EmployeeName}}</td>
+                                <td>{{x.Plant}}</td>
+                                <td>{{x.Department}}</td>
+                                <td>{{x.Section}}</td>
+                                <td>{{x.SubSection}}</td>
+                                <td>{{x.Designation}}</td>
+                                <td>{{x.GivenDesignation}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'popUpDataList'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="popUpData(newPageNumber)">
+                    </dir-pagination-controls>
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="closePopUp();" class="btn">Done</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="EmppopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                {{popUpTitle}}
+                <button type="button" class="close" ng-click="closePopUp();">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="popUpParameters.searchBy">
+                                            <option ng-repeat="option in popUpList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="popUpParameters.search" ng-enter="popUpData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="popUpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Employee Code</th>
+                                <th>Employee Name</th>
+                                <th>Plant</th>
+                                <th>Department</th>
+                                <th>Section</th>
+                                <th>SubSection</th>
+                                <th>Designation</th>
+                                <th>Given Designation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in dataList|itemsPerPage:popUpParameters.pageSize" total-items="popUpParameters.total_count" pagination-id="metaData.name + 'dataList'" ng-dblclick="SelectEmployee(x)">
+                                <td>{{x.EmployeeCode}}</td>
+                                <td>{{x.EmployeeName}}</td>
+                                <td>{{x.Plant}}</td>
+                                <td>{{x.Department}}</td>
+                                <td>{{x.Section}}</td>
+                                <td>{{x.SubSection}}</td>
+                                <td>{{x.Designation}}</td>
+                                <td>{{x.GivenDesignation}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'dataList'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="popUpData(newPageNumber)">
+                    </dir-pagination-controls>
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="closePopUp();" class="btn">Done</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="loader" data-loader>
+    Please wait
+    <div class="bounce1"></div>
+    <div class="bounce2"></div>
+    <div class="bounce3"></div>
+</div>
+<confirm-archive-generic data-modalid="confirmDelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteDetail()"></confirm-archive-generic>

@@ -1,0 +1,45 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-th-list"></span> Special Unlock</h3>
+<div class="row text-right aplos-grid-toggle">
+
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div style="color:black;" id="MainGrid" ej-grid e-datasource="employees" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+     e-allowselection="true" e-filtersettings-filterType="excel">
+    <div e-columns>
+        <div e-column e-headertext="Unlock" e-template="#ShowActionButtons" e-width="30"></div>
+        <div e-column e-field="SystemId" e-headertext="SystemId" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+        <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="70"></div>
+        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+        <div e-column e-field="DOJ" e-headertext="DOJ" e-width="50" e-format="{0:dd-MMM-yyyy}" type="date"></div>
+        <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+        <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+        <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+        <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+        <div e-column e-field="Unit" e-headertext="Unit" e-width="50"></div>
+        <div e-column e-field="Line" e-headertext="Line" e-width="50"></div>
+        <div e-column e-field="FirstTimeLock" e-headertext="First Time Lock" e-width="50"></div>
+    </div>
+</div>
+<script type="text/ng-template" id="ShowActionButtons">
+    <button style="color: #f3f3ec;background-color: #1c1f32;" title="Unlock" class="btn"><i class="fa fa-unlock" ng-click="$parent.Save(this);" style="margin: -6px;"></i></button>
+</script>
+<i>**Special Unlock = Designation</i>

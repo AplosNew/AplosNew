@@ -1,0 +1,123 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> OT Report
+</h3>
+@*<div class="form-horizontal form-elements">
+
+    <div class="row">
+        <div class="col-sm-12">
+
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="From Date" placeholder="dd-MM-yyyy" ng-model="FromDate" datepicker class="form-control datepicker" tabindex="1">
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="From Date" placeholder="dd-MM-yyyy" ng-model="ToDate" datepicker class="form-control datepicker" tabindex="1">
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-4">
+             
+            </div>
+
+            <div class="col-xs-12">
+               
+
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li><button ng-click="GetModifiedDailyOTReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>*@
+@*<hr />*@
+<div class="form-horizontal form-elements">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="From Date" placeholder="dd-MM-yyyy" ng-model="IndividualDailyOT.FromDate" datepicker class="form-control datepicker" tabindex="1">
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="From Date" placeholder="dd-MM-yyyy" ng-model="IndividualDailyOT.ToDate" datepicker class="form-control datepicker" tabindex="1">
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <label class="col-sm-4 control-label">OT Duration</label>
+                <div class="col-sm-4">
+                    <input type="text" ng-model="IndividualDailyOT.OTDuration" class="form-control" only-numbers maxlength="100" tabindex="2">
+                </div>
+            </div>
+            <div class="col-xs-12">
+                @*<div class="form-group">
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="IsProrataMonthlyColu" ng-model="IndividualDailyOT.OTfinal" value="OverStay">
+                            <span class="cr"><i class="cr-icon"></i></span>Over Stay
+                        </label>
+                        <label>
+                            <input type="radio" name="IsProrataMonthlyColu" ng-model="IndividualDailyOT.OTfinal" value="ConfirmOT">
+                            <span class="cr"><i class="cr-icon"></i></span> Confirmed OT
+                        </label>
+                    </div>
+                </div>*@
+                <div class="col-sm-3">
+                    <label class="col-sm-8 control-label">With OT Amount</label>
+                    <div class="col-sm-4">
+                        <div class="checkbox-site" style="margin-top: 6px;">
+                            <label>
+                                <input tabindex="8" type="checkbox" ng-model="IndividualDailyOT.CheckBox">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li><button ng-click="GetIndividualDailyOTReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="loader" data-loader>
+    Please wait
+    <div class="bounce1"></div>
+    <div class="bounce2"></div>
+    <div class="bounce3"></div>
+</div>
+
+
+
+
+
+
+

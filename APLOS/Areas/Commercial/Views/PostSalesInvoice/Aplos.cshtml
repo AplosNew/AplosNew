@@ -1,0 +1,408 @@
+﻿<style>
+    .e-filterset:before {
+        color: white;
+    }
+
+    .e-gridheader .e-headercell { /* grid header color and grid row select color*/
+        /*background-color: #1c1f32;*/
+        background-color: #1c1f32;
+        color: White;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+    }
+
+    element.style {
+        height: 20px;
+        width: 50px;
+    }
+</style>
+
+<togglable name="{{title}}"></togglable>
+<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+    <input type="hidden" ng-model="ModelNew.Id">
+    <fieldset class="scheduler-border">
+        <legend class="scheduler-border">General</legend>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            @*<div class="form-group">
+                <label class="col-sm-4 control-label">Invoice No<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input type="text" name="Purchase LCNo" ng-model="ModelNew.InvoiceNo" class="form-control" readonly tabindex="1">
+                </div>
+            </div>*@
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Invoice No<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="input-group">
+                        <input type="text" name="Purchase LCNo" ng-model="ModelNew.InvoiceNo" class="form-control" readonly required tabindex="9">
+                        <span class="input-group-btn">
+                            <button ng-click="GetSalesList();" class="btn single-small-btn" tabindex="9"><i class="glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Contract No</label>
+                <div class="col-sm-8">
+                    <input type="text" name="ContractNo" disabled ng-model="ModelNew.ContractNo" class="form-control" tabindex="5">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Bank<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select name="Bank" id="OB" class="form-control" ng-model="ModelNew.BankMasterId" ng-options="item.Id as item.AccountTitle for item in bankMasterList" tabindex="3">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label" tilte="EXP Form No">EXP Form No</label>
+                <div class="col-sm-8">
+                    <input type="text" ng-maxlength="25" name="EXP Form No" ng-model="ModelNew.ExpFormNo" class="form-control" tabindex="7">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Cargo Net Wt</label>
+                <div class="col-sm-8">
+                    <input type="text" name="Cargo Net Wt" ng-model="ModelNew.CargoNetWt" class="form-control" autocomplete="off" tabindex="10" maxlength="50">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Shipment Mode<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select name="Shipment Mode" class="form-control" ng-model="ModelNew.ShipmentModeId" ng-options="item.Value as item.Text for item in shipmentModeList" tabindex="13">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Final Destination<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select name="Destination" class="form-control" ng-model="ModelNew.FinalDestinationId" ng-options="item.Value as item.Text for item in destinationList" ng-change="GetPortOfDischargeByDstination()" tabindex="15">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Expected time of arrival">ETA</label>
+                <div class="col-sm-8">
+                    <input type="text" name="ETA" ng-model="ModelNew.ETA" datepicker class="form-control" tabindex="18">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Invoice Date</label>
+                <div class="col-sm-8">
+                    <input type="text" name="InvoiceDate" ng-model="ModelNew.InvoiceDate" disabled class="form-control" tabindex="2">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">MastrerLC Ref No</label>
+                <div class="col-sm-8">
+                    <input type="text" name="MastrerLC Ref No" disabled ng-model="ModelNew.MLCRef" class="form-control" tabindex="5">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Bank Doc Ref</label>
+                <div class="col-sm-8">
+                    <input type="text" name="BankDocRef" ng-model="ModelNew.BankDocRef" class="form-control" tabindex="4">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Exp Date">Exp Date</label>
+                <div class="col-sm-8">
+                    <input type="text" name="EXP Date" ng-model="ModelNew.ExpDate" datepicker class="form-control" tabindex="8">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Cargo Gross Wt</label>
+                <div class="col-sm-8">
+                    <input type="text" name="CargoGrossWt" ng-model="ModelNew.CargoGrossWt" class="form-control" autocomplete="off" tabindex="11" maxlength="50">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Port <span style="text-transform:lowercase">Of</span> Loading<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select name="Port Of Loading" class="form-control" ng-model="ModelNew.PortOfLoadingId" ng-options="item.Value as item.Text for item in portList" tabindex="14">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Port Of Discharge<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select name="PortOfDischargeId" class="form-control" ng-model="ModelNew.PortOfDischargeId" ng-options="item.Value as item.Text for item in dischargePortList" tabindex="16">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Amount</label>
+                <div class="col-sm-5" style="margin-right: -30px;">
+                    <input type="text" name="Amount" ng-model="ModelNew.Amount" disabled class="form-control" tabindex="2">
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" name="Customer" ng-model="ModelNew.Currency" class="form-control" readonly>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Customer<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="input-group">
+                        <input type="text" name="Customer" ng-model="ModelNew.PartyName" class="form-control" readonly>
+                        @*<span class="input-group-btn">
+                            <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
+                        </span>*@
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Bank Doc Date</label>
+                <div class="col-sm-8">
+                    <input type="text" name="BankDocDate" ng-model="ModelNew.BankDocDate" datepicker class="form-control" tabindex="5">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Ex-Factory Doc Ref</label>
+                <div class="col-sm-8">
+                    <input type="text" name="Vendor" ng-model="ModelNew.ExFactoryDocRef" class="form-control" tabindex="5">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">ExFactory Date<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input type="text" name="Invoice Date" ng-model="ModelNew.ExFactoryDate" datepicker class="form-control" tabindex="9">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Dimension</label>
+                <div class="col-sm-8">
+                    <input type="text" name="Dimension" ng-model="ModelNew.Dimension" class="form-control" autocomplete="off" tabindex="12" maxlength="50">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Port Of Delivery<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select name="PortOfDelivaryId" class="form-control" ng-model="ModelNew.PortOfDelivaryId" ng-options="item.Value as item.Text for item in deliveryPortList" tabindex="17">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </fieldset>
+    <fieldset class="scheduler-border">
+        <legend class="scheduler-border">Transport Agent</legend>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Transport Agent<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <input type="text" name="Transport Agent" ng-model="ModelNew.TransportAgentName" class="form-control" readonly>
+                        <span class="input-group-btn">
+                            <button ng-click="showPartyPopUp('Transport');" class="btn single-small-btn" tabindex="19"><i class="glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Vehicle No.</label>
+                <div class="col-sm-8">
+                    <input type="text" name="Vehicle No." ng-model="ModelNew.TransportVehicleNo" class="form-control" tabindex="22">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Doc Ref No.<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input type="text" name="Vendor" ng-model="ModelNew.TransportDocRefNo" class="form-control" tabindex="20">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Driver Name</label>
+                <div class="col-sm-8">
+                    <input type="text" name="Vehicle No." ng-model="ModelNew.TransportDriverName" class="form-control" tabindex="23">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Transport Doc Date<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input type="text" name="TransportDocDate" ng-model="ModelNew.TransportDocDate" datepicker class="form-control"  tabindex="21">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Driver No.</label>
+                <div class="col-sm-8">
+                    <input type="text" name="Driver No." ng-model="ModelNew.TransportDriverNo" class="form-control" tabindex="24">
+                </div>
+            </div>
+        </div>
+    </fieldset>
+    <fieldset class="scheduler-border">
+        <legend class="scheduler-border">Pre Carriage</legend>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Pre CarriageBy<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input type="text" name="PreCarriageBy" ng-model="ModelNew.PreCarriageBy" class="form-control" tabindex="25">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Doc Ref No.<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input type="text" name="TransportDocRefNo" ng-model="ModelNew.PreCarriageDocRef" class="form-control" tabindex="27">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Place Of Receipt<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input type="text" name="PlaceOfReceiptByPreCarriage" ng-model="ModelNew.PlaceOfReceiptByPreCarriage" class="form-control" tabindex="26">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Doc Date<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input type="text" name="PreCarriageDocDate" ng-model="ModelNew.PreCarriageDocDate" datepicker class="form-control"  tabindex="28">
+                </div>
+            </div>
+        </div>
+    </fieldset>
+    <fieldset class="scheduler-border">
+        <legend class="scheduler-border">CNF Agent</legend>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">CNF Agent<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <input type="text" name="CNF Agent" ng-model="ModelNew.CNFAgentName" tabindex="29" class="form-control" readonly>
+                        <span class="input-group-btn">
+                            <button ng-click="showPartyPopUp('CNF');" class="btn single-small-btn" tabindex="11"><i class="glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Vessel Name</label>
+                <div class="col-sm-8">
+                    <input type="text" name="Vessel Name" ng-model="ModelNew.CNFVesselName" class="form-control" tabindex="32">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">BL/AWB Date</label>
+                <div class="col-sm-8">
+                    <input type="text" name="BL/AWB Date" ng-model="ModelNew.CNFBLAWBDate" datepicker class="form-control" tabindex="35">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Container No<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input type="text" name="Container No" ng-model="ModelNew.CNFContainerNo" class="form-control" tabindex="30">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Vessel Sales Details</label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" rows="2" ng-model="ModelNew.CNFVesselSalesDetails" maxlength="250" tabindex="33"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Vessel Tracking No<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input type="text" name="CNFVesselTrackingNo" ng-model="ModelNew.CNFVesselTrackingNo" class="form-control"  tabindex="31">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">BL/AWB No</label>
+                <div class="col-sm-8">
+                    <input type="text" name="BL/AWBNo" ng-model="ModelNew.CNFBLAWB" class="form-control" maxlength="15" autocomplete="off" tabindex="34">
+                </div>
+            </div>
+        </div>
+    </fieldset>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li> <button ng-click="Clear();" class="btn" tabindex="12"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<div class="table-responsive aplos-grid-toggle">
+    <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+            <div e-column e-field="InvoiceNo" e-headertext="InvoiceNo" e-width="2"></div>
+            <div e-column e-field="InvoiceDate" e-headertext="InvoiceDate" e-width="2"></div>
+            <div e-column e-field="CNFBLAWB" e-headertext="BLAWBNo" e-width="2"></div>
+            <div e-column e-field="CNFBLAWBDate" e-headertext="BLAWBDate" e-width="2"></div>
+            <div e-column e-field="ShipMode" e-headertext="ShipMode" e-width="2"></div>
+            <div e-column e-field="Port" e-headertext="Port" e-width="2"></div>
+            <div e-column e-field="CNFAgentName" e-headertext="CNFAgent" e-width="2"></div>
+            <div e-column e-field="TransportAgentName" e-headertext="TransportAgent" e-width="2"></div>
+        </div>
+    </div>
+</div>
+<confirm-modal></confirm-modal>
+@Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")
+<div class="modal fade site-modal in" id="SalesPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Sales</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="Grid456" ej-grid e-datasource="invoiceList" e-allowsorting="true"
+                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
+                             e-recorddoubleclick="SetInvoiceNo" e-allowResizing="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="true">
+                            <div e-columns>
+                                <div e-column e-field="Id" e-headertext="Invoice No" e-width="60"></div>
+                                <div e-column e-field="InvoiceDate" e-headertext="Invoice Date" e-width="80" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                                <div e-column e-field="PartyName" e-headertext="Customer" e-width="100"></div>
+                                <div e-column e-field="BillTo" e-headertext="BillTo" e-width="100"></div>
+                                <div e-column e-field="Amount" e-headertext="Amount" e-width="50"></div>
+                                <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="30"></div>
+                                <div e-column e-field="RowState" e-headertext="Status" e-width="40"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="CloseSalesPopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

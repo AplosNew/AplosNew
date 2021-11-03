@@ -1,0 +1,370 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Probational Period Confirmation
+</h3>
+<style>
+    .olds {
+        background-color: #e08283;
+    }
+
+    .current {
+        background-color: #52b3d9;
+    }
+
+    .pending {
+        background-color: #c8f7c5;
+    }
+
+    .filled {
+        background-color: #aea8d3 !important;
+    }
+
+    .empty {
+        background-color: #3e445a !important;
+    }
+
+    textarea:focus {
+        border: 1px solid red;
+    }
+
+    .input:focus {
+        outline: none !important;
+        border: 1px solid red;
+    }
+</style>
+<p style="text-decoration:underline;cursor:pointer;" ng-show="message==null || message == ''" ng-click="showEntity();">My Entity List</p>
+<p class="msg-success" ng-show="message!=null || message == ''">{{message}}</p>
+<div class="tab-design" id="tab_show">
+    <div class="site-tab">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">To be Confirmed</a></li>
+            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="address" role="tab" data-toggle="tab">Confirmed</a></li>
+            @*<li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="address" role="tab" data-toggle="tab">To be Separated</a></li>*@
+        </ul>
+    </div>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+            <div class="row">
+                <div class="col-lg-9">
+                    <table class="table table-striped">
+                        <tbody>
+                            <tr>
+                                <td class="col-lg-1" style="width:20px;line-height:8px;">
+                                    <div style="width:10px;" class="checkbox-site">
+                                        <label>
+                                            <input id="olds" type="checkbox" ng-model="olds">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td style="width:20px;line-height:8px;" class="olds"></td>
+                                <td style="width:60px;line-height:8px;">Overdue Confirmation Date</td>
+
+                                <td class="col-lg-1" style="width:20px;line-height:8px;">
+                                    <div style="width:10px;" class="checkbox-site">
+                                        <label>
+                                            <input id="present" type="checkbox" ng-model="present">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td style="width:20px;line-height:8px;" class="current"></td>
+                                <td style="width:60px;line-height:8px;">Today's Confirmation Date</td>
+
+                                <td class="col-lg-1" style="width:20px;line-height:8px;">
+                                    <div style="width:10px;" class="checkbox-site">
+                                        <label>
+                                            <input id="future" type="checkbox" ng-model="future">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td style="width:20px;line-height:8px;" class="pending"></td>
+                                <td style="width:60px;line-height:8px;">Future Confirmation Date</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-lg-3">
+                    <div class="common-btn">
+                        <button ng-click="LoadDataList()" class="btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="">
+                <div class="row text-right aplos-grid-toggle">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="SelectionParameters.searchBy">
+                                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="SelectionParameters.search" ng-enter="LoadDataList()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="LoadDataList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-elements form-horizontal" ng-show="recruitmentSelections.length>0">
+                    <label>Total :{{SelectionParameters.total_count}}</label>
+                    <input type="hidden" ng-model="EmployeeProbationalPeriod.Id">
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Select</th>
+                                    <th>Employee Code</th>
+                                    <th>Employee Name</th>
+                                    <th>DOB</th>
+                                    <th>DOJ</th>
+                                    <th>Entity</th>
+                                    <th>Designation</th>
+                                    <th>Given Designation</th>
+                                    <th>Probational Period(Days)</th>
+                                    <th>Probational Period(Months)</th>
+                                    <th>Tentative DOC</th>
+                                    <th>Status</th>
+                                    <th>Extended Days</th>
+                                    <th>DOC</th>
+                                    <th>Next Confirmation Date</th>
+                                    <th>Remarks</th>
+                                    <th>Detail</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr dir-paginate="e in recruitmentSelections |itemsPerPage:SelectionParameters.pageSize" total-items="SelectionParameters.total_count"
+                                    pagination-id="metaData.name + 'recruitmentSelections'">
+                                    <td class="text-right table-td">
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="e.Active" checked="{{e.Active}}" ng-click="selectChValueId($event,e)">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <td>{{e.EmployeeCode}}</td>
+                                    <td>{{e.EmployeeName | uppercase}}</td>
+                                    <td>{{e.DOB}}</td>
+                                    <td>{{e.DOJ}}</td>
+                                    <td>{{e.Entity}}</td>
+                                    <td>{{e.Designation}}</td>
+                                    <td>{{e.GivenDesignation}}</td>
+                                    <td align="center">{{e.DOCDay}}</td>
+                                    <td align="center">{{e.DOCMonth}}</td>
+                                    <td ng-class="getDOCColor(e)">{{e.DOC}}</td>
+                                    <td>
+                                        <div class="select-style">
+                                            <select name="Selection Status" ng-model="e.ApprovalStatus" class="form-control" ng-change="clearDays(e,e.EmployeeId,$index)" style="height: 28px;width: 100px;">
+                                                <option value="Confirm">Confirm</option>
+                                                <option value="Extend">Extend</option>
+                                                <option value="">--Select--</option>
+                                            </select>
+                                        </div>
+                                    </td>
+                                    <td class="col-md-1">
+                                        <input type="number" onkeydown="javascript: return event.keyCode == 69 ? false : true" ng-model="e.ConfirmAfterDays" style="width:70px"
+                                               ng-disabled="e.ApprovalStatus=='Confirm'" name="Short Name" ng-change="calcultedFinalDate(e,e.EmployeeId,$index)" class="form-control"
+                                               maxlength="15" required />
+                                    </td>
+                                    <td>
+                                        <input type="text" ng-model="e.NewDOC" ng-disabled="e.ApprovalStatus == 'Extend'" ng-change="setApprovalDate(e.EmployeeId,$index)" date-format="dd-MM-yyyy"
+                                               selector="form-control" end-date={{maxDate}} style="width: 110px;" datepicker class="form-control" placeholder="dd-MM-yyyy" />
+                                    </td>
+                                    <td>
+                                        <input type="text" ng-model="e.FDOC" ng-disabled="e.ApprovalStatus == 'Extend' || 'Confirm'" class="form-control" maxlength="15" required />
+                                    </td>
+                                    <td>
+                                        <button ng-click="loadRemarks(e.Remarks,$index)" ng-class="getRemarkColor(e)" class="btn">Remarks</button>
+                                    </td>
+                                    <td>
+                                        <button ng-click="loadProbation(e.EmployeeId);" class="btn">{{e.cData }}</button>
+                                    </td>
+                                    <td>
+                                        <button ng-click="SaveWithpromotion(e.EmployeeId);" ng-disabled="tempIdList.length==0" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Confirmation With Promotion</button>
+                                        
+                                    </td>
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'recruitmentSelections'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="GetAllData(newPageNumber)">
+                    </dir-pagination-controls>
+                    <div class="row">
+                        <div class="col-lg-7" style="padding-top: 15px;">
+                        </div>
+                        <div class="col-lg-3"></div>
+                        <div class="col-lg-2">
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    <li> <button ng-click="Save();" ng-disabled="tempIdList.length==0" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+            <div class="row text-right aplos-grid-toggle">
+                <div class="col-xs-12 col-sm-12 col-sm-12">
+                    <div class="search-form">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                <div class="select-style">
+                                    <select ng-model="$root.parameters.searchBy">
+                                        <option ng-repeat="option in confirmSearchList" value="{{option.value}}">{{option.name}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-7 col-md-7">
+                                <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="GetListData()">
+                            </div>
+                            <div class="col-xs-12 col-sm-2 col-md-2">
+                                <button type="button" ng-click="GetListData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-elements form-horizontal">
+                <label>Total :{{employeeparameters.total_count}}</label>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Employee Code</th>
+                                <th>Employee Name</th>
+                                <th>DOB</th>
+                                <th>DOJ</th>
+                                <th>Entity</th>
+                                <th>Designation</th>
+                                <th>Given Designation</th>
+                                <th>DOC</th>
+                                <th>Print</th>
+                                @*<th>To be Separated</th>*@
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="e in employeeList |itemsPerPage:employeeparameters.pageSize" total-items="employeeparameters.total_count" pagination-id="metaData.name + 'employeeList'">
+                                <td>{{e.EmployeeCode}}</td>
+                                <td>{{e.EmployeeName | uppercase}}</td>
+                                <td>{{e.DOB | dateFiltering}}</td>
+                                <td>{{e.DOJ | dateFiltering}}</td>
+                                <td>{{e.Entity}}</td>
+                                <td>{{e.Designation}}</td>
+                                <td>{{e.GivenDesignation}}</td>
+                                <td>{{e.DOC | dateFiltering}}</td>
+                                <td align="right">
+                                    <div class="select-style">
+                                        <select id="CompliedShiftGroupId" class="form-control" ng-model="e.Id" name="Complied Shift Group" tabindex="1" ng-change="PrintLocal(e.SystemId,e.Id,e.empType);">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in confirmationTemplateList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <dir-pagination-controls max-size="10"
+                                         pagination-id="metaData.name + 'employeeList'"
+                                         direction-links="true"
+                                         boundary-links="true"
+                                         on-page-change="GetListData(newPageNumber)">
+                </dir-pagination-controls>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="entityPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header"> My Entity List<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Entity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in entityList">
+                                <td>{{x.Code}}</td>
+                                <td>{{x.EntityName}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="probationPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Probation Period History<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Employee Name</th>
+                                <th>Date Of Join</th>
+                                <th>Tentative Confirmation Period(days)</th>
+                                <th>Tentavie Confirmation Date</th>
+                                <th>Extended For(days)</th>
+                                <th>Next Confirmation Date</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in entityList">
+                                <td>{{x.EmployeeName}}</td>
+                                <td>{{x.DateOfConfirmation}}</td>
+                                <td align="center">{{x.ConfirmAfterDays}}</td>
+                                <td>{{x.TetativeConfirmationDate}}</td>
+                                <td>{{x.ExtendedDays}}</td>
+                                <td>{{x.NextConfirmationDate}}</td>
+                                <td>{{x.Remarks}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #region Table -->
+<div class="modal fade site-modal in" id="remarksPopUpId" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-m">
+        <div class="modal-content">
+            <div class="modal-header"> Remarks <button type="button" class="close" data-dismiss="modal">&times;</button> </div>
+            <div class="modal-body">
+                <div class="col-xs-12 col-sm-12 col-sm-12 form-elements form-horizontal">
+                    <textarea ng-model="remarks_popup" rows="3" class="form-control" placeholder="Please enter remarks here" maxlength="250" style="width:480px;border:1px solid black" />
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="closeRemarkPopUp()" class="btn">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion -->

@@ -1,0 +1,23 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Bank Opening Balance Ledger
+</h3>
+<div class="form-elements form-horizontal" ng-form id="form" name="form">
+    <div class="col-xs-12 col-sm-4 col-md-4">
+        <div class="form-group" show-errors>
+            <label class="col-sm-3 control-label">Fiscal Year<sup>*</sup></label>
+            <div class="col-sm-9 show-message">
+                <div class="select-style">
+                    <select name="Fiscal Year Type" class="form-control" submit-required="true" ng-model="report.FiscalYearId"
+                            ng-options="item.Value as item.Text for item in fiscalYearList" required>
+                        <option></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-left">
+            <li><button ng-click="getBankLedgerReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+        </ul>
+    </div>
+</div>

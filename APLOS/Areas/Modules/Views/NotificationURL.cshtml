@@ -1,0 +1,146 @@
+﻿<togglable name="Notification URL"></togglable>
+<div class="form-horizontal form-elements" ng-form="modelNewForm">
+    <div class="row">
+        <div class="col-xs-6 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Company Group<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select id="CurrencyId" class="form-control"  name="CompanyGroup" ng-model="model.CompanyGroupId" required>
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in companyGroupList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        <div class="col-xs-6 col-sm-6 col-md-6">
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">URL<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" ng-model="model.URL"   e-enablertl="false" e-width="100%" />
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="common-btn">
+        <ul class="common-btn list-inline text-right" style="padding: 20px;">
+            <li><button ng-click="Save();" class="btn" tabindex="10"><i class="glyphicon glyphicon-floppy-disk right"></i> {{Action}}</button></li>
+            <li> <button ng-click="Delete()" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li><button ng-click="Cancel();" class="btn" tabindex="10"><i class="glyphicon glyphicon-repeat"></i> Cancel</button></li>
+        </ul>
+    </div>
+</div>
+
+
+<div class="row">    
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+            <div class="content-container-fluid" style="color:black;">
+                <div id="notificationURLList" ej-grid e-datasource="notificationURLList" e-recorddoubleclick="Get"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                    <div e-columns>
+                        <div e-column e-field="CompanyGroup" e-headertext="Company Group"></div>
+                        <div e-column e-field="URL" e-headertext="URL"></div>                      
+                    </div>
+                </div>
+
+            </div>
+        </fieldset>
+    
+</div>
+
+
+<style>
+    .loaderr {
+        width: 300px;
+        height: 200px;
+        background-color: #0780BA;
+        color: #fff;
+        padding: 100px;
+        font-size: 25px;
+    }
+
+    .e-grid .e-headercelldiv {
+        font-weight: bold;
+        font-size: 10px;
+        display: block;
+        border: 0 none;
+        height: 29px;
+        line-height: 29px;
+        margin: -7px;
+        padding: 0 .7em;
+        text-align: left;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        font-family: "Arial Narrow";
+    }
+
+    .e-grid .e-rowcell {
+        border-width: 1px 0 0 1px;
+        padding: .7em;
+        line-height: 10px;
+        white-space: nowrap;
+        width: auto;
+        vertical-align: middle;
+    }
+
+    .e-gridheader .e-headercell {
+        background-color: #1c1f32;
+        color: White;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+    }
+
+    .e-grid.e-wrap .e-columnheader .e-headercelldiv {
+        margin-bottom: 2px;
+        margin-top: 0;
+        font-size: 9px;
+    }
+
+    .e-filterset:before {
+        color: white;
+    }
+
+    .e-grid .e-headercell, .e-grid .e-headercell-hover {
+        height: 30px !important;
+    }
+
+    .e-grid .e-rowcell {
+        padding: 6px !important;
+    }
+
+    .e-pager, .e-grid .e-pagerstatusbar {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    e-grid .e-columnheader .wrap .e-headercelldiv {
+        height: Auto;
+    }
+
+    .e-grid .e-excelfilter .e-btncontainer input {
+        padding: .2em .4em .3em;
+    }
+
+    .e-grid.e-dlgcontainer .e-dlgBtns .e-clear {
+        padding: 3px;
+    }
+
+    .e-grid.e-dlgcontainer .e-dlgBtns .e-filter {
+        padding: 3px;
+    }
+
+    ::-ms-clear {
+        display: none;
+    }
+
+    .e-grid.filtered .e-filteredicon {
+        color: red;
+    }
+</style>

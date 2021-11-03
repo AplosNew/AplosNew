@@ -1,0 +1,115 @@
+﻿
+<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Manual Attendance File Upload
+</h3>
+<style>
+    /****************File Upload*/
+    * {
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+    }
+
+    .inputBtnSection {
+        /*display: inline-block;*/
+        vertical-align: top;
+        font-size: 0;
+        font-family: verdana;
+    }
+
+    .disableInputField {
+        /*display: inline-block;*/
+        vertical-align: top;
+        height: 27px;
+        margin: 0;
+        font-size: 14px;
+        padding: 0 3px;
+    }
+
+    .fileUpload {
+        position: relative;
+        overflow: hidden;
+        /*border: solid 1px gray;*/
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    .uploadBtn {
+        display: inline-block;
+        vertical-align: top;
+        background: #242841;
+        font-size: 14px;
+        padding: 0 10px;
+        height: 25px;
+        line-height: 22px;
+        color: #fff;
+    }
+
+    .fileUpload input.upload {
+        position: absolute;
+        top: 0;
+        right: 0;
+        margin: 0;
+        padding: 0;
+        font-size: 20px;
+        cursor: pointer;
+        opacity: 0;
+        filter: alpha(opacity=0);
+    }
+</style>
+<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+    <div class="row">
+        <div class="col-md-10">
+            <div class="col-md-10">
+                <input type="hidden" ng-model="EmployeeProfileFromExcel.EmployeeCode">
+                <div class="inputBtnSection common-btn">
+                    <label class="fileUpload col-sm-4 " style="padding: 0 0 0 0">
+                        <input id="uploadImage" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
+                    </label>
+                    @*<input type="button" value="Import Data" class="btn btn-success" ng-click="ImportData()" />*@
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 " style=" margin-left: -630px;">
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="save();" class="btn"><i class="glyphicon glyphicon-check"></i> Save</button></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-2" style="margin-left: -18px;">
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="GetSampleFile();" class="btn"><i class="glyphicon glyphicon-file"></i> Sample File</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="aplos-grid-toggle">
+            <div class="col-xs-12 col-sm-12 col-sm-12" >
+                <div style="color:black;" id="PlantId" ej-grid e-datasource="MasterList"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                                 e-allowselection="true" e-recorddoubleclick="recorddoubleclick" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-field="FileId" e-headertext="File Name " e-width="30"></div>
+                        <div e-column e-field="FileName" e-headertext="File Original Name" e-width="60"></div>
+                        <div e-column e-field="FileStatus" e-headertext="File Status" e-width="20"></div>
+                        <div e-column e-field="AddedBy" e-headertext="File Uploaded By" e-width="40"></div>
+                        <div e-column e-field="AddedDate" e-headertext="File Uploaded Date" e-width="40"></div>
+                        <div e-column e-headertext="Delete" e-width="30"><button data-toggle="modal" class="btn" ng-click="$parent.RemoveMaster(this);" tabindex="10"><i class="glyphicon glyphicon-trash"></i></button></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<confirm-archive-generic modalid="confirmMasterPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteMaster();"></confirm-archive-generic>
+<div class="loader" data-loader>
+    Please wait
+    <div class="bounce1"></div>
+    <div class="bounce2"></div>
+    <div class="bounce3"></div>
+</div>

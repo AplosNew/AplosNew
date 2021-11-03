@@ -1,0 +1,35 @@
+﻿<div class="login-portal">
+    <a class="download-btn" href="/Download/AuthToken"><i aria-hidden="true" class="glyphicon glyphicon-cloud-download"></i> Download</a>
+    <div class="login-portal-inner">
+        <div class="container">
+            <div class="company-name">
+                <img class="logo" src="{{companyGroupLogo}}" alt="Logo">
+                <p>{{companyGroupName}}</p>
+            </div>
+            <p id="error" style="margin-top: -6%;font-size: 20px;text-align: center;color:red;">@ViewBag.InvalidPanel</p>
+            <div class="row">
+                <a class="prev-arrow" href="portal/{{authenticationToken}}/{{companyGroupId}}">
+                    <i class="glyphicon glyphicon-menu-left"></i>
+                </a>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="widget-btn">
+                        <a href="1/{{authenticationToken}}/{{companyGroupId}}">
+                            <i aria-hidden="true" class="glyphicon glyphicon-send"></i> HRMS
+                        </a>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="widget-btn">
+                        <a href="#5/{{authenticationToken}}/{{companyGroupId}}">
+                            <i aria-hidden="true" class="glyphicon glyphicon-flash"></i> Incentive
+                        </a>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,112 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>{{title}}
+</h3>
+<div class="form-elements form-horizontal" ng-form name="OnDutyForm" id="OnDutyForm">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Year Select<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="YearId">
+                            <option value=""></option>
+                            <option ng-repeat="option in YearList" value="{{option.ID}}">{{option.YearNo}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="col-xs-12">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="LoadData();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Load Data</button></li>
+                        <li> <button ng-click="Report();" class="btn"><i class="glyphicon glyphicon-download-alt"></i> Report</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="content-container-fluid" style="color:black;">
+                <div style="color:black;" id="Grid" ej-grid e-datasource="EmpData"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                     e-allowselection="true" e-recorddoubleclick="recorddoubleclick" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                        <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="40"></div>
+                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                        <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="DOJ" e-headertext="Date Of Join" e-width="40"></div>
+                        <div e-column e-field="Designation" e-headertext="Designation" e-width="80"></div>
+                        <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                        <div e-column e-field="EmpCategory" e-headertext="Employee Category" e-width="50"></div>
+                        <div e-column e-field="Section" e-headertext="Section" e-width="50"></div>
+                        <div e-column e-field="SubSection" e-headertext="SubSection" e-width="50"></div>
+                        <div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="30"></div>
+                    </div>
+                    <script type="text/ng-template" id="ShowActionButtonsBOM">
+                        <div class="common-btn">
+                            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Consumption" class="btn">
+                                <i class="glyphicon glyphicon-list" ng-click="$parent.AddLineItemT(this);"></i>
+                            </button>
+                        </div>
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ej-dialog id="policyID"
+           title="Leave Details"
+           e-enablemodal="true"
+           e-position-y="0"
+           e-showoninit="false"
+           e-target="#OnDutyForm"
+           e-close="onDialogClose"
+           e-width="800"
+           e-minheight="400" e-open="enableBtn">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="col-xs-12 form-element-ctrl form-horizontal" ng-show="ShowDiv">
+                <div class="col-xs-12">
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Leave Name</th>
+
+                                    <th>Brought Forward</th>
+                                    <th>Current Year Allocation</th>
+                                    <th>Leave Days Allowed</th>
+                                    <th>Applied</th>
+                                    <th>Availed</th>
+                                    <th>Encashed</th>
+                                    <th>Balance</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in LeaveBalanceList">
+                                    <td>{{x.LeaveName}}</td>
+
+                                    <td>{{x.BroughtForward}}</td>
+                                    <td>{{x.CurrentAllocation}}</td>
+                                    <td>{{x.LeaveDays}}</td>
+                                    <td>{{x.Applied}}</td>
+                                    <td>{{x.Availed}}</td>
+                                    <td>{{x.EncashedInbetween}}</td>
+                                    <td>{{x.Balance}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ej-dialog>
+<confirm-archive-generic modalid="confirmPopUpMaster" title="Confirmation" message="Are you sure to delete ?" data-ng-click-right-button="Delete();"></confirm-archive-generic>
+
+

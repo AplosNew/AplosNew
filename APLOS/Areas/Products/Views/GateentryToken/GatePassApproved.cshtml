@@ -1,0 +1,533 @@
+﻿
+<style>
+	.modellgModify {
+		width: 1100px;
+	}
+</style>
+<togglable name="Material Gate Pass Approval Status"></togglable>
+<div id="test">
+	
+	<div class="tab-design" id="tab_show">
+		<div class="site-tab">
+			<ul class="nav nav-tabs" role="tablist">
+				<li role="presentation" ng-class="{ active: isSetGatePassUnApprovedList(1) }"><a ng-click="setTabGatePassUnApprovedList(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Un Approved List</a></li>
+				<li role="presentation" ng-class="{ active: isSetGatePassHoldRejectApprovedList(2) }"><a ng-click="setTabGatePassHoldRejectApprovedList(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Hold / Reject List</a></li>
+				<li role="presentation" ng-class="{ active: isSetGatePassApprovedList(3) }"><a ng-click="setTabGatePassApprovedList(3)" href="" aria-controls="address" role="tab" data-toggle="tab">Approved List</a></li>
+			</ul>
+		</div>
+		<div class="tab-content">
+			<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetGatePassUnApprovedList(1), active: isSetGatePassUnApprovedList(1) }">
+				<fieldset class="scheduler-border">
+					<legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+					<div class="content-container-fluid" style="color:black;" id="GatePassUnApprovedList1">
+						@*e-allowselection="true"*@
+						<div style="color:black;" id="GatePassUnApprovedList" ej-grid e-datasource="CheckedApproved"
+							 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+							 e-recorddoubleclick="recorddoubleclick" e-filtersettings-filterType="excel" 
+							 e-enabletouch="true" e-allowselection="true"
+							 e-detailstemplate="detailTemp"
+							 e-detailsdatabound="detailgrid"
+							 e-scrollsettings="scroll"
+							 e-actioncomplete="ScrollGatePassUncheckList">
+							@*e-actioncomplete="ScrollForPendingRequisition"*@
+							<div e-columns>
+								@*<div e-column e-headertext="Actions" e-width="70">
+									<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Print" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPrint('Grid1');" style="margin: -6px;"></i></button>
+								</div>*@
+								<div e-column e-headertext="Actions" e-width="80">
+									<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Checked/H/R" ng-click="$parent.onClickGatePassChecked('GatePassUnApprovedList');" style="margin: -6px;"></i></button>
+									<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GatePassUnApprovedList');" style="margin: -6px;"></i></button>
+								</div>
+								<div e-column e-template="#ApprovedHoldRejectReason" e-headertext="Hold / Reject Reason" e-width="250" style="height: 20px; padding-top:-15px;"></div>
+								<div e-column e-template="#ApprovedByStatus" e-headertext="Approved Status" e-width="150"></div>
+								<div e-column e-field="Id" e-headertext="Gate Pass No" e-width="100"></div>
+								<div e-column e-field="GatePassStatus" e-headertext="Dispatch Type" e-width="150"></div>
+								<div e-column e-field="GatePassType" e-headertext="Gate Pass Status" e-width="150"></div>
+								<div e-column e-field="ReturnableDate" e-headertext="Returnable Date" e-width="150" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+								<div e-column e-field="GatePassEntryDate" e-headertext="Gate Pass Entry Date" e-width="170" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+								@*<div e-column e-template="#ToBeSecurityApprovedBy" e-headertext="To Be Security Approved By" e-width="250"></div>*@
+								@*<div e-column e-field="SenderName" e-headertext="Sender" e-width="80" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+									<div e-column e-field="Through" e-headertext="Through" e-width="80"></div>
+									<div e-column e-field="CourierName" e-headertext="Courier Name" e-width="80"></div>
+									<div e-column e-field="RunnerEmployee" e-headertext="Runner" e-width="80"></div>*@
+								<div e-column e-field="ChallanType" e-headertext="Challan Type" e-width="80"></div>
+								<div e-column e-field="ToType" e-headertext="To Type" e-width="80"></div>
+								@*<div e-column e-field="Vendor" e-headertext="Vendor" e-width="80"></div>
+									<div e-column e-field="BuyerName" e-headertext="Buyer" e-width="80"></div>
+									<div e-column e-field="PlantName" e-headertext="Other Plant" e-width="80"></div>
+									<div e-column e-field="UnitName" e-headertext="Unit" e-width="80"></div>
+									<div e-column e-field="DivisionName" e-headertext="Division" e-width="80"></div>
+									<div e-column e-field="DepartmentName" e-headertext="Department" e-width="80"></div>
+									<div e-column e-field="DepartmentEmployee" e-headertext="To DepartMent Employee" e-width="80"></div>*@
+								@*<div e-column e-field="OtherCompanyName" e-headertext="Other Company" e-width="80"></div>
+									<div e-column e-field="PersonName" e-headertext="Name" e-width="80"></div>
+									<div e-column e-field="MobileNo" e-headertext="Mobile No" e-width="80"></div>
+									<div e-column e-field="Address" e-headertext="Address" e-width="80"></div>*@
+								<div e-column e-field="Remarks" e-headertext="Remarks" e-width="120"></div>
+								<div e-column e-field="ChallanNo" e-headertext="ChallanNo" e-width="120"></div>
+								<div e-column e-field="CheckedByEmployee" e-headertext="To be Checked By" e-width="120"></div>
+								<div e-column e-field="ApprovedByEmployee" e-headertext="To be Approved By" e-width="120"></div>
+								@*<div e-column e-field="SenderSecurityEmployee" e-headertext="Sender Security Name" e-width="200"></div>
+									<div e-column e-field="SenderSecurityApprovedStatus" e-headertext="SenderSecurityApprovedStatus" e-width="200"></div>
+									<div e-column e-field="ReceiverSecurityEmployee" e-headertext="Receiver Security Name" e-width="200"></div>
+									<div e-column e-field="ReceiverSecurityApprovedStatus" e-headertext="ReceiverSecurityApprovedStatus" e-width="200"></div>
+									<div e-column e-field="VendorBuyerOtherCompanyReceivedStatus" e-headertext="Vendor/Buyer/OtherCompany ReceivedStatus" e-width="300"></div>*@
+
+
+
+
+							</div>
+
+						</div>
+						<script id="tabGridContents" type="text/x-jsrender">
+							<div class="tabcontrol" id="Test">
+								<ul>
+									<li><a href="#gridTab{{:Id}}">Item Details</a></li>
+									<li><a href="#gridTab2{{:Id}}">From Info</a></li>
+									<li><a href="#gridTab3{{:Id}}">Through Info</a></li>
+									<li><a href="#gridTab4{{:Id}}">To Info</a></li>
+									@*<li><a href="#gridTab5{{:Id}}">Other Company</a></li>*@
+									<li><a href="#gridTab1{{:Id}}">Security Activity Info</a></li>
+								</ul>
+								<div id="gridTab{{:Id}}">
+									<div id="detailGrid"></div>
+								</div>
+								<div id="gridTab2{{:Id}}">
+									<div>
+										<div class='employee-details'>
+											<ul>
+												<li><label style="color:maroon;">Sender Name:</label><span style="padding-left:8px">{{:SenderName}}</span></li>
+
+											</ul>
+										</div>
+									</div>
+								</div>
+								<div id="gridTab3{{:Id}}">
+									<div class='employee-details'>
+										<ul>
+											<li><label style="color:maroon;">Through:</label><span style="padding-left:8px">{{:Through}}</span></li>
+											<li><label style="color:maroon;">Courier Name:</label><span style="padding-left:8px">{{:CourierName}}</span></li>
+											<li><label style="color:maroon;">Runner Employee :</label><span style="padding-left:8px">{{:RunnerEmployee}}</span></li>
+										</ul>
+									</div>
+								</div>
+								<div id="gridTab4{{:Id}}">
+									<div class='employee-details'>
+										<ul>
+											<li><label style="color:maroon;">To Type:</label><span style="padding-left:8px">{{:ToType}}</span></li>
+											<li><label style="color:maroon;">Vendor:</label><span style="padding-left:8px">{{:Vendor}}</span></li>
+											<li><label style="color:maroon;">Buyer Name :</label><span style="padding-left:8px">{{:BuyerName}}</span></li>
+											<li><label style="color:maroon;">Plant Name:</label><span style="padding-left:8px">{{:PlantName}}</span></li>
+											<li><label style="color:maroon;">Unit Name :</label><span style="padding-left:8px">{{:UnitName}}</span></li>
+											<li><label style="color:maroon;">Division Name :</label><span style="padding-left:8px">{{:DivisionName}}</span></li>
+											<li><label style="color:maroon;">Department Name :</label><span style="padding-left:8px">{{:DepartmentName}}</span></li>
+											<li><label style="color:maroon;">Department Employee :</label><span style="padding-left:8px">{{:DepartmentEmployee}}</span></li>
+											<li><label style="color:maroon;">Other Company Name:</label><span style="padding-left:8px">{{:OtherCompanyName}}</span></li>
+											<li><label style="color:maroon;">Person Name:</label><span style="padding-left:8px">{{:PersonName}}</span></li>
+											<li><label style="color:maroon;">Mobile No :</label><span style="padding-left:8px">{{:MobileNo}}</span></li>
+											<li><label style="color:maroon;">Address:</label><span style="padding-left:8px">{{:Address}}</span></li>
+										</ul>
+
+									</div>
+								</div>
+								@*<div id="gridTab5{{:Id}}">
+										<div class='employee-details'>
+											<ul>
+												<li><label style="color:maroon;">Other Company Name:</label><span style="padding-left:8px">{{:OtherCompanyName}}</span></li>
+												<li><label style="color:maroon;">Person Name:</label><span style="padding-left:8px">{{:PersonName}}</span></li>
+												<li><label style="color:maroon;">Mobile No :</label><span style="padding-left:8px">{{:MobileNo}}</span></li>
+												<li><label style="color:maroon;">Address:</label><span style="padding-left:8px">{{:Address}}</span></li>
+											</ul>
+
+										</div>
+									</div>*@
+								<div id="gridTab1{{:Id}}">
+									<div>
+										<div class='employee-details'>
+											<ul>
+												<li><label style="color:maroon;">Sender Security Employee:</label><span style="padding-left:8px">{{:SenderSecurityEmployee}}</span></li>
+												<li><label style="color:maroon;">Sender Security Approved Status:</label><span style="padding-left:8px">{{:SenderSecurityApprovedStatus}}</span></li>
+												<li><label style="color:maroon;">Receiver Security Employee :</label><span style="padding-left:8px">{{:ReceiverSecurityEmployee}}</span></li>
+												<li><label style="color:maroon;">Receiver Security Approved Status:</label><span style="padding-left:8px">{{:ReceiverSecurityApprovedStatus}}</span></li>
+												<li><label style="color:maroon;">Vendor / Buyer / OtherCompany Received Status:</label><span style="padding-left:8px">{{:VendorBuyerOtherCompanyReceivedStatus}}</span></li>
+
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+						</script>
+					</div>
+					<script type="text/template" id="ToBeSecurityApprovedBy">
+						<div class="">
+							<div id="control">
+								<input ej-dropdownlist e-datasource="$parent.ApprovedBySecurityList" e-value="data.SenderSecurityEmployeeId" e-fields-text="Text" e-fields-value="Value" e-width="100%" />
+							</div>
+						</div>
+					</script>
+					<script type="text/template" id="ApprovedByStatus">
+						<div class="">
+							<div id="control1">
+								<input id="combo-default" type="text" e-fields-text="Text" e-fields-value="Value" ej-combobox e-datasource="$parent.approvalStatusList" e-value="data.ApprovedByStatus" e-width="100%" />
+							</div>
+						</div>
+					</script>
+					<script type="text/template" id="ApprovedHoldRejectReason">
+						<input type="text" ng-model="data.ApprovedHoldRejectReason" style="color:black;" class="form-control" />
+					</script>
+				</fieldset>
+			</div>
+			
+			@*<script type="text/template" id="ApprovedStatus">
+				<div class="">
+					<div id="control1">
+						<input id="combo-default12" type="text" e-fields-text="Text" e-fields-value="Value" ej-combobox e-datasource="$parent.approvalStatusList" e-value="data.CheckedStatus" e-width="100%" />
+					</div>
+				</div>
+			</script>
+			<script type="text/template" id="UpdatedQty">
+				<div class="form-group">
+					<input type="text" class="input ejinputtext form-control" ng-disabled="false" style="background-color:white;font-weight:bold;color:black;text-align:right;" ng-model="data.UpdatedQty" width="150" />
+				</div>
+			</script>
+			<script type="text/template" id="RejectApprovedReason">
+			
+				<input type="text" ng-model="data.RejectApprovedReason" style="color:black;" class="form-control" />
+			
+			</script>*@
+
+			<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetGatePassHoldRejectApprovedList(2), active: isSetGatePassHoldRejectApprovedList(2) }">
+				<fieldset class="scheduler-border">
+					<legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+					<div class="content-container-fluid" style="color:black;" id="GatePassHoldRejectList1">
+						@*e-allowselection="true"*@
+						<div style="color:black;" id="GatePassHoldRejectList" 
+							 ej-grid e-datasource="CheckedApproved"
+							 e-allowfiltering="true" e-allowpaging="true" 
+							 e-allowsorting="true"
+							 e-recorddoubleclick="recorddoubleclick" 
+							 e-filtersettings-filterType="excel" 
+							 e-enabletouch="true" 
+							 e-allowselection="true"
+							 e-detailstemplate="detailTemp"
+							 e-detailsdatabound="detailgrid"
+							 e-scrollsettings="scroll" 
+							 e-actioncomplete="ScrollGatePassHoldRejectList">
+						
+							<div e-columns>
+								@*<div e-column e-headertext="Actions" e-width="70">
+									<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Print" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPrint('Grid1');" style="margin: -6px;"></i></button>
+								</div>*@
+								<div e-column e-headertext="Actions" e-width="80">
+									<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Checked/H/R" ng-click="$parent.onClickGatePassChecked('GatePassHoldRejectList');" style="margin: -6px;"></i></button>
+									<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GatePassHoldRejectList');" style="margin: -6px;"></i></button>
+								</div>
+								<div e-column e-template="#ToBeSecurityApprovedBy1" e-headertext="To Be Security Approved By" e-width="250"></div>
+								<div e-column e-template="#ApprovedHoldRejectReason1" e-headertext="Hold / Reject Reason" e-width="250" style="height: 20px; padding-top:-15px;"></div>
+								<div e-column e-template="#ApprovedByStatus1" e-headertext="Approved Status" e-width="150"></div>
+								<div e-column e-field="Id" e-headertext="Gate Pass No" e-width="100"></div>
+								<div e-column e-field="GatePassStatus" e-headertext="Dispatch Type" e-width="150"></div>
+								<div e-column e-field="GatePassType" e-headertext="Gate Pass Status" e-width="150"></div>
+								<div e-column e-field="ReturnableDate" e-headertext="Returnable Date" e-width="150" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+								<div e-column e-field="GatePassEntryDate" e-headertext="Gate Pass Entry Date" e-width="170" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+								@*<div e-column e-field="SenderName" e-headertext="Sender" e-width="80" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+					<div e-column e-field="Through" e-headertext="Through" e-width="80"></div>
+					<div e-column e-field="CourierName" e-headertext="Courier Name" e-width="80"></div>
+					<div e-column e-field="RunnerEmployee" e-headertext="Runner" e-width="80"></div>*@
+								<div e-column e-field="ChallanType" e-headertext="Challan Type" e-width="80"></div>
+								<div e-column e-field="ToType" e-headertext="To Type" e-width="80"></div>
+								@*<div e-column e-field="Vendor" e-headertext="Vendor" e-width="80"></div>
+					<div e-column e-field="BuyerName" e-headertext="Buyer" e-width="80"></div>
+					<div e-column e-field="PlantName" e-headertext="Other Plant" e-width="80"></div>
+					<div e-column e-field="UnitName" e-headertext="Unit" e-width="80"></div>
+					<div e-column e-field="DivisionName" e-headertext="Division" e-width="80"></div>
+					<div e-column e-field="DepartmentName" e-headertext="Department" e-width="80"></div>
+					<div e-column e-field="DepartmentEmployee" e-headertext="To DepartMent Employee" e-width="80"></div>*@
+								@*<div e-column e-field="OtherCompanyName" e-headertext="Other Company" e-width="80"></div>
+					<div e-column e-field="PersonName" e-headertext="Name" e-width="80"></div>
+					<div e-column e-field="MobileNo" e-headertext="Mobile No" e-width="80"></div>
+					<div e-column e-field="Address" e-headertext="Address" e-width="80"></div>*@
+								<div e-column e-field="Remarks" e-headertext="Remarks" e-width="120"></div>
+								<div e-column e-field="ChallanNo" e-headertext="ChallanNo" e-width="120"></div>
+								<div e-column e-field="CheckedByEmployee" e-headertext="To be Checked By" e-width="120"></div>
+								<div e-column e-field="ApprovedByEmployee" e-headertext="To be Approved By" e-width="120"></div>
+								@*<div e-column e-field="SenderSecurityEmployee" e-headertext="Sender Security Name" e-width="200"></div>
+					<div e-column e-field="SenderSecurityApprovedStatus" e-headertext="SenderSecurityApprovedStatus" e-width="200"></div>
+					<div e-column e-field="ReceiverSecurityEmployee" e-headertext="Receiver Security Name" e-width="200"></div>
+					<div e-column e-field="ReceiverSecurityApprovedStatus" e-headertext="ReceiverSecurityApprovedStatus" e-width="200"></div>
+					<div e-column e-field="VendorBuyerOtherCompanyReceivedStatus" e-headertext="Vendor/Buyer/OtherCompany ReceivedStatus" e-width="300"></div>*@
+
+
+
+
+							</div>
+
+						</div>
+						<script id="tabGridContents" type="text/x-jsrender">
+							<div class="tabcontrol" id="Test">
+								<ul>
+									<li><a href="#gridTab{{:Id}}">Item Details</a></li>
+									<li><a href="#gridTab2{{:Id}}">From Info</a></li>
+									<li><a href="#gridTab3{{:Id}}">Through Info</a></li>
+									<li><a href="#gridTab4{{:Id}}">To Info</a></li>
+									@*<li><a href="#gridTab5{{:Id}}">Other Company</a></li>*@
+									<li><a href="#gridTab1{{:Id}}">Security Activity Info</a></li>
+								</ul>
+								<div id="gridTab{{:Id}}">
+									<div id="detailGrid"></div>
+								</div>
+								<div id="gridTab2{{:Id}}">
+									<div>
+										<div class='employee-details'>
+											<ul>
+												<li><label style="color:maroon;">Sender Name:</label><span style="padding-left:8px">{{:SenderName}}</span></li>
+
+											</ul>
+										</div>
+									</div>
+								</div>
+								<div id="gridTab3{{:Id}}">
+									<div class='employee-details'>
+										<ul>
+											<li><label style="color:maroon;">Through:</label><span style="padding-left:8px">{{:Through}}</span></li>
+											<li><label style="color:maroon;">Courier Name:</label><span style="padding-left:8px">{{:CourierName}}</span></li>
+											<li><label style="color:maroon;">Runner Employee :</label><span style="padding-left:8px">{{:RunnerEmployee}}</span></li>
+										</ul>
+									</div>
+								</div>
+								<div id="gridTab4{{:Id}}">
+									<div class='employee-details'>
+										<ul>
+											<li><label style="color:maroon;">To Type:</label><span style="padding-left:8px">{{:ToType}}</span></li>
+											<li><label style="color:maroon;">Vendor:</label><span style="padding-left:8px">{{:Vendor}}</span></li>
+											<li><label style="color:maroon;">Buyer Name :</label><span style="padding-left:8px">{{:BuyerName}}</span></li>
+											<li><label style="color:maroon;">Plant Name:</label><span style="padding-left:8px">{{:PlantName}}</span></li>
+											<li><label style="color:maroon;">Unit Name :</label><span style="padding-left:8px">{{:UnitName}}</span></li>
+											<li><label style="color:maroon;">Division Name :</label><span style="padding-left:8px">{{:DivisionName}}</span></li>
+											<li><label style="color:maroon;">Department Name :</label><span style="padding-left:8px">{{:DepartmentName}}</span></li>
+											<li><label style="color:maroon;">Department Employee :</label><span style="padding-left:8px">{{:DepartmentEmployee}}</span></li>
+											<li><label style="color:maroon;">Other Company Name:</label><span style="padding-left:8px">{{:OtherCompanyName}}</span></li>
+											<li><label style="color:maroon;">Person Name:</label><span style="padding-left:8px">{{:PersonName}}</span></li>
+											<li><label style="color:maroon;">Mobile No :</label><span style="padding-left:8px">{{:MobileNo}}</span></li>
+											<li><label style="color:maroon;">Address:</label><span style="padding-left:8px">{{:Address}}</span></li>
+										</ul>
+
+									</div>
+								</div>
+								@*<div id="gridTab5{{:Id}}">
+						<div class='employee-details'>
+							<ul>
+								<li><label style="color:maroon;">Other Company Name:</label><span style="padding-left:8px">{{:OtherCompanyName}}</span></li>
+								<li><label style="color:maroon;">Person Name:</label><span style="padding-left:8px">{{:PersonName}}</span></li>
+								<li><label style="color:maroon;">Mobile No :</label><span style="padding-left:8px">{{:MobileNo}}</span></li>
+								<li><label style="color:maroon;">Address:</label><span style="padding-left:8px">{{:Address}}</span></li>
+							</ul>
+
+						</div>
+					</div>*@
+								<div id="gridTab1{{:Id}}">
+									<div>
+										<div class='employee-details'>
+											<ul>
+												<li><label style="color:maroon;">Sender Security Employee:</label><span style="padding-left:8px">{{:SenderSecurityEmployee}}</span></li>
+												<li><label style="color:maroon;">Sender Security Approved Status:</label><span style="padding-left:8px">{{:SenderSecurityApprovedStatus}}</span></li>
+												<li><label style="color:maroon;">Receiver Security Employee :</label><span style="padding-left:8px">{{:ReceiverSecurityEmployee}}</span></li>
+												<li><label style="color:maroon;">Receiver Security Approved Status:</label><span style="padding-left:8px">{{:ReceiverSecurityApprovedStatus}}</span></li>
+												<li><label style="color:maroon;">Vendor / Buyer / OtherCompany Received Status:</label><span style="padding-left:8px">{{:VendorBuyerOtherCompanyReceivedStatus}}</span></li>
+
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+						</script>
+					</div>
+					<script type="text/template" id="ToBeSecurityApprovedBy1">
+						<div class="">
+							<div id="control">
+								<input ej-dropdownlist e-datasource="$parent.ApprovedBySecurityList" e-value="data.SenderSecurityEmployeeId" e-fields-text="Text" e-fields-value="Value" e-width="100%" />
+							</div>
+						</div>
+					</script>
+					<script type="text/template" id="ApprovedByStatus1">
+						<div class="">
+							<div id="control1">
+								<input id="combo-default1" type="text" e-fields-text="Text" e-fields-value="Value" ej-combobox e-datasource="$parent.approvalStatusList" e-value="data.ApprovedByStatus" e-width="100%" />
+							</div>
+						</div>
+					</script>
+					<script type="text/template" id="ApprovedHoldRejectReason1">
+						<input type="text" ng-model="data.ApprovedHoldRejectReason" style="color:black;" class="form-control" />
+					</script>
+				</fieldset>
+			</div>
+
+			@*<script type="text/template" id="ApprovedStatus3">
+				<div class="">
+					<div id="control1">
+						<input id="combo-default12" type="text" e-fields-text="Text" e-fields-value="Value" ej-combobox e-datasource="$parent.approvalStatusList" e-value="data.CheckedStatus" e-width="100%" />
+					</div>
+				</div>
+			</script>
+			<script type="text/template" id="UpdatedQty1">
+				<div class="form-group">
+					<input type="text" class="input ejinputtext form-control" ng-disabled="false" style="background-color:white;font-weight:bold;color:black;text-align:right;" ng-model="data.UpdatedQty" width="150" />
+				</div>
+			</script>
+
+			<script type="text/template" id="RejectApprovedReason1">
+				<input type="text" ng-model="data.RejectApprovedReason" style="color:black;" class="form-control" />
+			</script>*@
+
+			<div ng-hide="false" role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetGatePassApprovedList(3), active: isSetGatePassApprovedList(3) }">
+				<fieldset class="scheduler-border">
+					<legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+					<div class="content-container-fluid" style="color:black;" id="GatePassCheckedList1">
+						@*e-allowselection="true"*@
+						<div style="color:black;" id="GatePassCheckedList" ej-grid e-datasource="CheckedApproved"
+							 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+							 e-recorddoubleclick="recorddoubleclick" e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
+							 e-detailstemplate="detailTemp"
+							 e-detailsdatabound="detailgrid"
+							 e-scrollsettings="scroll">
+							@*e-actioncomplete="ScrollForPendingRequisition"*@
+							<div e-columns>
+								<div e-column e-headertext="Actions" e-width="70">
+									<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Print" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPrint('GatePassCheckedList');" style="margin: -6px;"></i></button>
+								</div>
+								<div e-column e-field="Id" e-headertext="Gate Pass No" e-width="100"></div>
+								<div e-column e-field="GatePassStatus" e-headertext="Dispatch Type" e-width="150"></div>
+								<div e-column e-field="GatePassType" e-headertext="Gate Pass Status" e-width="150"></div>
+								<div e-column e-field="ReturnableDate" e-headertext="Returnable Date" e-width="150" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+								<div e-column e-field="GatePassEntryDate" e-headertext="Gate Pass Entry Date" e-width="170" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+								
+								
+								@*<div e-column e-field="SenderName" e-headertext="Sender" e-width="80" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+					<div e-column e-field="Through" e-headertext="Through" e-width="80"></div>
+					<div e-column e-field="CourierName" e-headertext="Courier Name" e-width="80"></div>
+					<div e-column e-field="RunnerEmployee" e-headertext="Runner" e-width="80"></div>*@
+								<div e-column e-field="ChallanType" e-headertext="Challan Type" e-width="80"></div>
+								<div e-column e-field="ToType" e-headertext="To Type" e-width="80"></div>
+								@*<div e-column e-field="Vendor" e-headertext="Vendor" e-width="80"></div>
+					<div e-column e-field="BuyerName" e-headertext="Buyer" e-width="80"></div>
+					<div e-column e-field="PlantName" e-headertext="Other Plant" e-width="80"></div>
+					<div e-column e-field="UnitName" e-headertext="Unit" e-width="80"></div>
+					<div e-column e-field="DivisionName" e-headertext="Division" e-width="80"></div>
+					<div e-column e-field="DepartmentName" e-headertext="Department" e-width="80"></div>
+					<div e-column e-field="DepartmentEmployee" e-headertext="To DepartMent Employee" e-width="80"></div>*@
+								@*<div e-column e-field="OtherCompanyName" e-headertext="Other Company" e-width="80"></div>
+					<div e-column e-field="PersonName" e-headertext="Name" e-width="80"></div>
+					<div e-column e-field="MobileNo" e-headertext="Mobile No" e-width="80"></div>
+					<div e-column e-field="Address" e-headertext="Address" e-width="80"></div>*@
+								<div e-column e-field="Remarks" e-headertext="Remarks" e-width="120"></div>
+								<div e-column e-field="ChallanNo" e-headertext="ChallanNo" e-width="120"></div>
+								<div e-column e-field="CheckedByEmployee" e-headertext="To be Checked By" e-width="120"></div>
+								<div e-column e-field="ApprovedByEmployee" e-headertext="To be Approved By" e-width="120"></div>
+								@*<div e-column e-field="SenderSecurityEmployee" e-headertext="Sender Security Name" e-width="200"></div>
+					<div e-column e-field="SenderSecurityApprovedStatus" e-headertext="SenderSecurityApprovedStatus" e-width="200"></div>
+					<div e-column e-field="ReceiverSecurityEmployee" e-headertext="Receiver Security Name" e-width="200"></div>
+					<div e-column e-field="ReceiverSecurityApprovedStatus" e-headertext="ReceiverSecurityApprovedStatus" e-width="200"></div>
+					<div e-column e-field="VendorBuyerOtherCompanyReceivedStatus" e-headertext="Vendor/Buyer/OtherCompany ReceivedStatus" e-width="300"></div>*@
+
+
+
+
+							</div>
+
+						</div>
+						<script id="tabGridContents" type="text/x-jsrender">
+							<div class="tabcontrol" id="Test">
+								<ul>
+									<li><a href="#gridTab{{:Id}}">Item Details</a></li>
+									<li><a href="#gridTab2{{:Id}}">From Info</a></li>
+									<li><a href="#gridTab3{{:Id}}">Through Info</a></li>
+									<li><a href="#gridTab4{{:Id}}">To Info</a></li>
+									@*<li><a href="#gridTab5{{:Id}}">Other Company</a></li>*@
+									<li><a href="#gridTab1{{:Id}}">Security Activity Info</a></li>
+								</ul>
+								<div id="gridTab{{:Id}}">
+									<div id="detailGrid"></div>
+								</div>
+								<div id="gridTab2{{:Id}}">
+									<div>
+										<div class='employee-details'>
+											<ul>
+												<li><label style="color:maroon;">Sender Name:</label><span style="padding-left:8px">{{:SenderName}}</span></li>
+
+											</ul>
+										</div>
+									</div>
+								</div>
+								<div id="gridTab3{{:Id}}">
+									<div class='employee-details'>
+										<ul>
+											<li><label style="color:maroon;">Through:</label><span style="padding-left:8px">{{:Through}}</span></li>
+											<li><label style="color:maroon;">Courier Name:</label><span style="padding-left:8px">{{:CourierName}}</span></li>
+											<li><label style="color:maroon;">Runner Employee :</label><span style="padding-left:8px">{{:RunnerEmployee}}</span></li>
+										</ul>
+									</div>
+								</div>
+								<div id="gridTab4{{:Id}}">
+									<div class='employee-details'>
+										<ul>
+											<li><label style="color:maroon;">To Type:</label><span style="padding-left:8px">{{:ToType}}</span></li>
+											<li><label style="color:maroon;">Vendor:</label><span style="padding-left:8px">{{:Vendor}}</span></li>
+											<li><label style="color:maroon;">Buyer Name :</label><span style="padding-left:8px">{{:BuyerName}}</span></li>
+											<li><label style="color:maroon;">Plant Name:</label><span style="padding-left:8px">{{:PlantName}}</span></li>
+											<li><label style="color:maroon;">Unit Name :</label><span style="padding-left:8px">{{:UnitName}}</span></li>
+											<li><label style="color:maroon;">Division Name :</label><span style="padding-left:8px">{{:DivisionName}}</span></li>
+											<li><label style="color:maroon;">Department Name :</label><span style="padding-left:8px">{{:DepartmentName}}</span></li>
+											<li><label style="color:maroon;">Department Employee :</label><span style="padding-left:8px">{{:DepartmentEmployee}}</span></li>
+											<li><label style="color:maroon;">Other Company Name:</label><span style="padding-left:8px">{{:OtherCompanyName}}</span></li>
+											<li><label style="color:maroon;">Person Name:</label><span style="padding-left:8px">{{:PersonName}}</span></li>
+											<li><label style="color:maroon;">Mobile No :</label><span style="padding-left:8px">{{:MobileNo}}</span></li>
+											<li><label style="color:maroon;">Address:</label><span style="padding-left:8px">{{:Address}}</span></li>
+										</ul>
+
+									</div>
+								</div>
+								@*<div id="gridTab5{{:Id}}">
+						<div class='employee-details'>
+							<ul>
+								<li><label style="color:maroon;">Other Company Name:</label><span style="padding-left:8px">{{:OtherCompanyName}}</span></li>
+								<li><label style="color:maroon;">Person Name:</label><span style="padding-left:8px">{{:PersonName}}</span></li>
+								<li><label style="color:maroon;">Mobile No :</label><span style="padding-left:8px">{{:MobileNo}}</span></li>
+								<li><label style="color:maroon;">Address:</label><span style="padding-left:8px">{{:Address}}</span></li>
+							</ul>
+
+						</div>
+					</div>*@
+								<div id="gridTab1{{:Id}}">
+									<div>
+										<div class='employee-details'>
+											<ul>
+												<li><label style="color:maroon;">Sender Security Employee:</label><span style="padding-left:8px">{{:SenderSecurityEmployee}}</span></li>
+												<li><label style="color:maroon;">Sender Security Approved Status:</label><span style="padding-left:8px">{{:SenderSecurityApprovedStatus}}</span></li>
+												<li><label style="color:maroon;">Receiver Security Employee :</label><span style="padding-left:8px">{{:ReceiverSecurityEmployee}}</span></li>
+												<li><label style="color:maroon;">Receiver Security Approved Status:</label><span style="padding-left:8px">{{:ReceiverSecurityApprovedStatus}}</span></li>
+												<li><label style="color:maroon;">Vendor / Buyer / OtherCompany Received Status:</label><span style="padding-left:8px">{{:VendorBuyerOtherCompanyReceivedStatus}}</span></li>
+
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+						</script>
+					</div>
+					
+				</fieldset>
+			</div>
+		</div>
+	</div>
+
+
+
+	
+
+
+</div>
+<confirm-archive-generic modalid="GatePassCheckApprovedAlert" title="Confirmation" message={{message}} data-ng-click-right-button="GatePassCheckApproved();"></confirm-archive-generic>
+<confirm-archive-generic modalid="poapprovalalert1" title="Confirmation" message={{message}} data-ng-click-right-button="poApp1();"></confirm-archive-generic>
+
+
+

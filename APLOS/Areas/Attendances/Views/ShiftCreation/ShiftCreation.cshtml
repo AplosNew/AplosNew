@@ -1,0 +1,652 @@
+﻿<togglable name="Shift Creation"></togglable>
+<div class="form-elements form-horizontal" ng-form id="leavePolicyFormId" name="ShiftCreationForm">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label" style="color:red">Shift Name</label>
+                <div class="col-sm-8">
+                    <input type="text" ng-model="ShiftDefinationModel.ShiftDefinationName" class="form-control" maxlength="30" tabindex="2">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Description</label>
+                <div class="col-sm-8">
+                    <input type="text" ng-model="ShiftDefinationModel.ShiftDefinationDescription" class="form-control" maxlength="100" tabindex="2">
+                </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-6 col-md-6 ">
+                <div class="form-group">
+                    <label class="col-sm-8 control-label" style="color:red">IsActive</label>
+                    <div class="col-sm-4">
+                        <div class="checkbox-site" style="margin-top: 6px;">
+                            <label>
+                                <input tabindex="8" type="checkbox" ng-model="ShiftDefinationModel.IsActive">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-6 col-md-6 ">
+                <div class="form-group">
+                    <label class="col-sm-6 control-label">Default</label>
+                    <div class="col-sm-6">
+                        <div class="checkbox-site" style="margin-top: 6px;">
+                            <label>
+                                <input tabindex="8" type="checkbox" ng-model="ShiftDefinationModel.DefaultShift">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label" style="color:red">Sequence No.</label>
+                <div class="col-sm-8">
+                    <input type="text" ng-model="ShiftDefinationModel.SequenceNo" class="form-control" maxlength="100" tabindex="2">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Shift Type <sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select id="ShiftTypeID" class="form-control" ng-model="ShiftDefinationModel.ShiftType" name="Shift Type" required tabindex="1">
+                            <option value="">-Select-</option>
+                            <option Value="Day Shift">Day Shift</option>
+                            <option Value="Night Shift">Night Shift</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-xs-12">
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border">In-Time Information</legend>
+                <div class="col-xs-12 col-sm-6 col-md-6 ">
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label" style="color:red">In-Time<sup>*</sup></label>
+                        <input class="col-sm-6" type="text" ej-timepicker e-value="ShiftDefinationModel.InTime" e-width="80%" />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">Late margin(Min/Sec after In-Time)</label>
+                        <div class="col-sm-2">
+                            <input type="text" ng-model="ShiftDefinationModel.LateMargin" class="form-control" only-numbers maxlength="100" tabindex="2">
+                        </div>
+                        <label class="col-sm-1 control-label" style="left:-25px;">[min]</label>
+                        <div class="col-sm-2">
+                            <input type="text" ng-model="ShiftDefinationModel.LateMarginSeconds" class="form-control" only-numbers maxlength="100" tabindex="2">
+                        </div>
+                        <label class="col-sm-1 control-label" style="left:-25px;">[sec]</label>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-5">
+                            <div class="checkbox-site" style="margin-top: 6px;">
+                                <label>
+                                    <input tabindex="6" type="checkbox" ng-model="ShiftDefinationModel.EarlyIn" ng-change="ChangeEarlyIn()">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>Early IN consider as OT
+                                </label>
+                            </div>
+                        </div>
+                        <label class="col-sm-1 control-label">Margin</label>
+                        <div class="col-sm-2">
+                            <input type="text" ng-model="ShiftDefinationModel.EarlyInMargin" ng-readonly="!ShiftDefinationModel.EarlyIn" only-numbers class="form-control" maxlength="100" tabindex="2">
+                        </div>
+                        <label class="col-sm-1 control-label" style="left:-25px;">[min]</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-1 control-label"></label>
+                        <label class="col-sm-5 control-label">Round Margin (Early IN)</label>
+                        <div class="col-sm-2">
+                            <input type="text" ng-model="ShiftDefinationModel.LateInRoundMargin" ng-readonly="!ShiftDefinationModel.EarlyIn" only-numbers class="form-control" maxlength="30" tabindex="2">
+                        </div>
+                        <label class="col-sm-1 control-label" style="left:-25px;">[min]</label>
+                        <div class="col-sm-2">
+                            <div class="select-style">
+                                <select id="RoundMarginLateIn" class="form-control" ng-readonly="!ShiftDefinationModel.EarlyIn" ng-model="ShiftDefinationModel.EarlyInRoundMarginType" name="RoundMargin LateIn" required tabindex="1">
+                                    <option value="">-Select-</option>
+                                    <option Value="Round Up">Round Up</option>
+                                    <option Value="Round Down">Round Down</option>
+                                    <option Value="Round">Round</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6 ">
+
+                    <div class="form-group">
+
+                        <label class="col-sm-7 control-label" style="color:red">In-Time start margin (min before In-Time)</label>
+                        <div class="col-sm-3">
+                            <input type="text" ng-model="ShiftDefinationModel.InTimeStartMargin" class="form-control" only-numbers maxlength="100" tabindex="2">
+                        </div>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-7 control-label">Absent end margin (min after In-Time)</label>
+                        <div class="col-sm-3">
+                            <input type="text" ng-model="ShiftDefinationModel.AbsentEndMargin" class="form-control" only-numbers maxlength="100" tabindex="2">
+                        </div>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                    </div>
+
+                    <div class="form-group">
+                        <div class=" col-sm-6  checkbox-site" style="margin-top: 6px;">
+                            <label>
+                                <input tabindex="8" type="checkbox" ng-change="ChangeLateIn()" ng-model="ShiftDefinationModel.LateIn">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>LateIN consider for OT Deduction
+                            </label>
+                        </div>
+                        <label class="col-sm-1 control-label">Margin</label>
+                        <div class="col-sm-2">
+                            <input type="text" ng-model="ShiftDefinationModel.LateInMargin" ng-readonly="!ShiftDefinationModel.LateIn" only-numbers class="form-control" maxlength="100" tabindex="2">
+                        </div>
+                        <label class="col-sm-1 control-label" style="left:-25px;">[min]</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-1 control-label"></label>
+                        <label class="col-sm-6 control-label">Round Margin (Late IN)</label>
+                        <div class="col-sm-2">
+                            <input type="text" ng-model="ShiftDefinationModel.ShiftDefinationModelName" ng-readonly="!ShiftDefinationModel.LateIn" only-numbers class="form-control" maxlength="30" tabindex="2">
+                        </div>
+                        <label class="col-sm-1 control-label" style="left:-25px;">[min]</label>
+                        <div class="col-sm-2">
+                            <div class="select-style">
+                                <select id="RoundMarginLateIn" class="form-control" ng-readonly="!ShiftDefinationModel.LateIn" ng-model="ShiftDefinationModel.LateInRoundMarginType" name="RoundMargin LateIn" required tabindex="1">
+                                    <option value="">-Select-</option>
+                                    <option Value="Round Up">Round Up</option>
+                                    <option Value="Round Down">Round Down</option>
+                                    <option Value="Round">Round</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </fieldset>
+        </div>
+
+        <div class="col-xs-12">
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border">Out-Time Information</legend>
+
+                <div class="col-xs-12 col-sm-6 col-md-6 ">
+
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label" style="color:red">Out-Time<sup>*</sup></label>
+                        <input class="col-sm-6" type="text" ej-timepicker e-value="ShiftDefinationModel.OutTime" e-width="80%" />
+                    </div>
+
+
+                    <div class="form-group">
+                        <div class="col-sm-5">
+                            <div class="checkbox-site" style="margin-top: 6px;">
+                                <label>
+                                    <input tabindex="8" type="checkbox" ng-model="ShiftDefinationModel.LateOut" ng-change="ChangeLateOut()">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>Late OUT consider as OT
+                                </label>
+                            </div>
+                        </div>
+                        <label class="col-sm-1 control-label">Margin</label>
+                        <div class="col-sm-2">
+                            <input type="text" ng-model="ShiftDefinationModel.OTStartTime" ng-readonly="!ShiftDefinationModel.LateOut" only-numbers class="form-control" maxlength="100" tabindex="2">
+                        </div>
+                        <label class="col-sm-1 control-label" style="left:-25px;">[min]</label>
+                    </div>
+
+                    <div class="form-group">
+
+                        <label class="col-sm-6 control-label">Round Margin (Late OUT)</label>
+                        <div class="col-sm-2">
+                            <input type="text" ng-model="ShiftDefinationModel.LateOutRoundMargin" ng-readonly="!ShiftDefinationModel.LateOut" only-numbers class="form-control" maxlength="30" tabindex="2">
+                        </div>
+
+                        <label class="col-sm-1 control-label" style="left:-25px;">[min]<sup>*</sup></label>
+                        <div class="col-sm-2 show-message">
+                            <div class="select-style">
+                                <select id="RoundMarginLateOutID" class="form-control" ng-readonly="!ShiftDefinationModel.LateOut" ng-model="ShiftDefinationModel.LateOutRoundMarginType" name="RoundMargin LateOut" required tabindex="1">
+                                    <option value="">-Select-</option>
+                                    <option Value="Round Up">Round Up</option>
+                                    <option Value="Round Down">Round Down</option>
+                                    <option Value="Round">Round</option>
+                                </select>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">Consider as OT</label>
+                        <div class="col-sm-1">
+                            <div class="checkbox-site" style="margin-top: 6px;">
+                                <label>
+                                    <input tabindex="8" type="checkbox" ng-model="ShiftDefinationModel.IsGapInclude">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                        <label class="col-sm-6 control-label">The gap between out time & OT start time</label>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">IN after OUT as OT start Time</label>
+                        <div class="col-sm-1">
+                            <div class="checkbox-site" style="margin-top: 6px;">
+                                <label>
+                                    <input tabindex="8" type="checkbox" ng-model="ShiftDefinationModel.INAfterOUTAsOTStart">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-6 col-md-6 ">
+                    <div class="form-group">
+
+                        <label class="col-sm-7 control-label" style="color:red">Out-Time end margin (min after Out-Time)</label>
+                        <div class="col-sm-3">
+                            <input type="text" ng-model="ShiftDefinationModel.OutTimeEndMargin" class="form-control" only-numbers maxlength="100" tabindex="2">
+                        </div>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label class="col-sm-7 control-label" style="color:blue">Working Time [min]</label>
+                            <div class="col-sm-3">
+                                <input type="text" ng-model="ShiftDefinationModel.WorkingHour" readonly class="form-control" only-numbers maxlength="100" tabindex="2">
+                            </div>
+                            <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <div class="col-sm-7">
+                                <div class="checkbox-site" style="margin-top: 6px;">
+                                    <label>
+                                        <input tabindex="8" type="checkbox" ng-model="ShiftDefinationModel.EarlyOut" ng-change="ChangeEarlyOut()">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>EarlyOUT consider for OT Deduction
+                                    </label>
+                                </div>
+                            </div>
+                            <label class="col-sm-1 control-label">Margin</label>
+                            <div class="col-sm-2">
+                                <input type="text" ng-model="ShiftDefinationModel.EarlyOutMargin" ng-readonly="!ShiftDefinationModel.EarlyOut" class="form-control" only-numbers maxlength="100" tabindex="2">
+                            </div>
+                            <label class="col-sm-1 control-label" style="left:-25px;">[min]</label>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label">Round Margin (Early OUT)</label>
+                            <div class="col-sm-2">
+                                <input type="text" ng-model="ShiftDefinationModel.EarlyOutRoundMargin" ng-readonly="!ShiftDefinationModel.EarlyOut" only-numbers class="form-control" maxlength="30" tabindex="2">
+                            </div>
+                            <label class="col-sm-1 control-label" style="left:-25px;">[min]<sup>*</sup></label>
+                            <div class="col-sm-2 show-message">
+                                <div class="select-style">
+                                    <select id="RoundMarginEarlyOutID" class="form-control" ng-readonly="!ShiftDefinationModel.EarlyOut" ng-model="ShiftDefinationModel.EarlyOutRoundMarginType" name="RoundMarginEarly OutID" required tabindex="1">
+                                        <option value="">-Select-</option>
+                                        <option Value="Round Up">Round Up</option>
+                                        <option Value="Round Down">Round Down</option>
+                                        <option Value="Round">Round</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </fieldset>
+        </div>
+
+        <div class="col-xs-12">
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border">Break-Time Information</legend>
+
+                <div class="col-xs-12 col-sm-6 col-md-6 ">
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">Break Start Time<sup>*</sup></label>
+                        <input class="col-sm-6" type="text" ej-timepicker e-value="ShiftDefinationModel.BreakStratTime" e-width="80%" />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label" style="color:blue">Break Period</label>
+                        <div class="col-sm-3">
+                            <input type="text" ng-model="ShiftDefinationModel.BreakPeriod" only-numbers readonly class="form-control" maxlength="100" tabindex="2">
+                        </div>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                    </div>
+                    <hr />
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <div class="checkbox-site" style="margin-top: 6px;">
+                                <label>
+                                    <input tabindex="8" type="checkbox" ng-model="ShiftDefinationModel.IsLunchOutApplicable">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>Lunch Out Applicable
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-4">
+                            <div class="checkbox-site" style="margin-top: 6px;">
+                                <label>
+                                    <input tabindex="8" type="checkbox" ng-model="ShiftDefinationModel.IsLateInApplicable" ng-change="ChangeLateInApplication()">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>Late In Applicable
+                                </label>
+                            </div>
+                        </div>
+
+                        <label class="col-sm-3 control-label">Late In Max Limit</label>
+                        <div class="col-sm-2">
+                            <input type="text" ng-model="ShiftDefinationModel.LateInMaxLimit" ng-disabled="!ShiftDefinationModel.IsLateInApplicable" only-numbers class="form-control" maxlength="100" tabindex="2">
+                        </div>
+                        <label class="col-sm-1 control-label" style="left:-25px;">[min]</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-5 control-label">Late IN Tolarance Margin</label>
+                        <div class="col-sm-5">
+                            <input type="text" ng-model="ShiftDefinationModel.LateInToleranceMargin" ng-disabled="!ShiftDefinationModel.IsLateInApplicable" only-numbers class="form-control" maxlength="100" tabindex="2">
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-xs-12 col-sm-6 col-md-6 ">
+
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">Break End Time<sup>*</sup></label>
+                        <input class="col-sm-6" type="text" ej-timepicker e-value="ShiftDefinationModel.BreakEndTime" e-width="80%" />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">Break Period</label>
+                        <div class="col-sm-1">
+                            <div class="checkbox-site" style="margin-top: 6px;">
+                                <label>
+                                    <input tabindex="8" type="checkbox" ng-model="ShiftDefinationModel.IncludeBreakTimeInOT">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                        <label class="col-sm-6 control-label">Include in Working Hour</label>
+                    </div>
+                    <hr />
+
+                    <div class="form-group">
+                        <label class="col-sm-5 control-label">Half Day Absent max Limit</label>
+                        <div class="col-sm-3">
+                            <input type="text" ng-model="ShiftDefinationModel.HalfDayAbsentMaxLimit" class="form-control" only-numbers maxlength="100" tabindex="2">
+                        </div>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-5">
+                            <div class="checkbox-site" style="margin-top: 6px;">
+                                <label>
+                                    <input tabindex="8" type="checkbox" ng-model="ShiftDefinationModel.IsEarlyOutApplicable" ng-change="ChangeEarlyOutApplication()">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>Early Out Applicable
+                                </label>
+                            </div>
+                        </div>
+                        <label class="col-sm-3 control-label">Early Out Max Limit</label>
+                        <div class="col-sm-2">
+                            <input type="text" ng-model="ShiftDefinationModel.EarlyOutMaxLimit" ng-disabled="!ShiftDefinationModel.IsEarlyOutApplicable" only-numbers class="form-control" maxlength="100" tabindex="2">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-5 control-label">Early Out Tolarance Margin</label>
+                        <div class="col-sm-5">
+                            <input type="text" ng-model="ShiftDefinationModel.EarlyOutToleranceMargin" ng-disabled="!ShiftDefinationModel.IsEarlyOutApplicable" only-numbers class="form-control" maxlength="100" tabindex="2">
+                        </div>
+                    </div>
+
+                </div>
+
+            </fieldset>
+        </div>
+
+        <div class="col-xs-12">
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border">Duration</legend>
+                <div class="col-xs-12 col-sm-6 col-md-6 ">
+
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">Shift Duration</label>
+                        <div class="col-sm-3">
+                            <input type="text" ng-model="ShiftDefinationModel.ShiftDuration" only-numbers class="form-control" maxlength="100" tabindex="1">
+                        </div>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">Full Day Duration</label>
+                        <div class="col-sm-3">
+                            <input type="text" ng-model="ShiftDefinationModel.FullDayDuration" only-numbers class="form-control" maxlength="100" tabindex="3">
+                        </div>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">Max Out Duration</label>
+                        <div class="col-sm-3">
+                            <input type="text" ng-model="ShiftDefinationModel.MaxOutDuration" only-numbers class="form-control" maxlength="100" tabindex="5">
+                        </div>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                    </div>
+
+                </div>
+
+                <div class="col-xs-12 col-sm-6 col-md-6 ">
+
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">Half Day Duration</label>
+                        <div class="col-sm-3">
+                            <input type="text" ng-model="ShiftDefinationModel.HalfDayDuration" only-numbers class="form-control" maxlength="100" tabindex="2">
+                        </div>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">Short Day Duration</label>
+                        <div class="col-sm-3">
+                            <input type="text" ng-model="ShiftDefinationModel.ShortDuration" only-numbers class="form-control" maxlength="100" tabindex="4">
+                        </div>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">Work Hours Without OT</label>
+                        <div class="col-sm-3">
+                            <input type="text" ng-model="ShiftDefinationModel.HoursWithoutOT" only-numbers class="form-control" maxlength="100" tabindex="4">
+                        </div>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                    </div>
+                </div>
+
+            </fieldset>
+        </div>
+
+        <div class="col-xs-12">
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border">Shift Margin</legend>
+                <div class="col-xs-12 col-sm-6 col-md-6 ">
+
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">Shift EarlyIN Margin</label>
+                        <div class="col-sm-3">
+                            <input type="text" ng-model="ShiftDefinationModel.ShiftEarlyInMargin" only-numbers class="form-control" maxlength="100" tabindex="2">
+                        </div>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">Shift EarlyOUT Margin</label>
+                        <div class="col-sm-3">
+                            <input type="text" ng-model="ShiftDefinationModel.ShiftEarlyOutMargin" only-numbers class="form-control" maxlength="100" tabindex="2">
+                        </div>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                    </div>
+
+                </div>
+
+                <div class="col-xs-12 col-sm-6 col-md-6 ">
+
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">Shift LateIn Margin</label>
+                        <div class="col-sm-3">
+                            <input type="text" ng-model="ShiftDefinationModel.ShiftLateInMargin" only-numbers class="form-control" maxlength="100" tabindex="2">
+                        </div>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">Shift LateOUT Margin</label>
+                        <div class="col-sm-3">
+                            <input type="text" ng-model="ShiftDefinationModel.ShiftLateOutMargin" only-numbers class="form-control" maxlength="100" tabindex="2">
+                        </div>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                    </div>
+
+                </div>
+
+            </fieldset>
+        </div>
+
+
+
+        <div class="col-xs-12">
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border">Raw Punch Definition</legend>
+                <div class="col-xs-12 col-sm-6 col-md-6 ">
+
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">Raw IN Definition From</label>
+                        <div class="col-sm-3">
+                            <input type="text" ng-model="ShiftDefinationModel.RawINDefinitionFrom" only-numbers class="form-control" maxlength="100" tabindex="2">
+                        </div>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">Raw OUT Definition From</label>
+                        <div class="col-sm-3">
+                            <input type="text" ng-model="ShiftDefinationModel.RawOUTDefinitionFrom" only-numbers class="form-control" maxlength="100" tabindex="2">
+                        </div>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                    </div>
+
+                </div>
+
+                <div class="col-xs-12 col-sm-6 col-md-6 ">
+
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">Raw IN Definition To</label>
+                        <div class="col-sm-3">
+                            <input type="text" ng-model="ShiftDefinationModel.RawINDefinitionTo" only-numbers class="form-control" maxlength="100" tabindex="2">
+                        </div>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">Raw OUT Definition To</label>
+                        <div class="col-sm-3">
+                            <input type="text" ng-model="ShiftDefinationModel.RawOUTDefinitionTo" only-numbers class="form-control" maxlength="100" tabindex="2">
+                        </div>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                    </div>
+
+                </div>
+
+            </fieldset>
+        </div>
+
+
+        <div class="col-xs-12">
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                    <li> <button data-toggle="modal" data-target="#confirmPopUpMaster" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                    <li> <button ng-click="Clear(LeavePolicyModel); getListData();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="row text-right aplos-grid-toggle">
+
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div style="color:black;" id="GridLeavePolicy" ej-grid e-datasource="ShiftList"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-pagesettings-pagesize="20"
+             e-allowselection="true" e-recorddoubleclick="recorddoubleclick" e-filtersettings-filterType="excel">
+            <div e-columns>
+
+                <div e-column e-field="SystemID" e-headertext="SystemID" e-width="70"></div>
+                <div e-column e-field="ShiftDefinationName" e-headertext="ShiftDefinationName" e-width="120"></div>
+                <div e-column e-field="ShiftDefinationDescription" e-headertext="ShiftDefinationDescription" e-width="120"></div>
+                <div e-column e-field="ShiftType" e-headertext="ShiftType" e-width="60"></div>
+                <div e-column e-field="SequenceNo" e-headertext="SequenceNo" e-width="60"></div>
+                <div e-column e-field="InTime" e-headertext="InTime" e-width="60"></div>
+                <div e-column e-field="OutTime" e-headertext="OutTime" e-width="60"></div>
+                <div e-column e-field="BreakStratTime" e-headertext="BreakStratTime" e-width="60"></div>
+                <div e-column e-field="BreakEndTime" e-headertext="BreakEndTime" e-width="60"></div>
+                <div e-column e-field="BreakPeriod" e-headertext="BreakPeriod" e-width="60"></div>
+                <div e-column e-field="InTimeStartMargin" e-headertext="InTimeStartMargin" e-width="60"></div>
+                <div e-column e-field="LateMargin" e-headertext="LateMargin" e-width="60"></div>
+                <div e-column e-field="AbsentEndMargin" e-headertext="AbsentEndMargin" e-width="60"></div>
+                <div e-column e-field="OutTimeEndMargin" e-headertext="OutTimeEndMargin" e-width="60"></div>
+                <div e-column e-field="OTStartTime" e-headertext="OTStartTime" e-width="60"></div>
+                <div e-column e-field="WorkingHour" e-headertext="WorkingHour" e-width="60"></div>
+                <div e-column e-field="IsActives" e-headertext="IsActive" e-width="60"></div>
+                <div e-column e-field="DefaultShifts" e-headertext="DefaultShift" e-width="60"></div>
+                <div e-column e-field="IsGapIncludes" e-headertext="IsGapInclude" e-width="60"></div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<confirm-archive-generic modalid="confirmPopUpMaster" title="Confirmation" message="Are you sure to delete ?" data-ng-click-right-button="Delete();"></confirm-archive-generic>
+
+<div class="loader" data-loader>
+    Please wait
+    <div class="bounce1"></div>
+    <div class="bounce2"></div>
+    <div class="bounce3"></div>
+</div>
+
+

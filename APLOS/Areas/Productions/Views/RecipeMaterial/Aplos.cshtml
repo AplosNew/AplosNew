@@ -1,0 +1,166 @@
+﻿<h3 class="site-heading" style="cursor:unset;"> Recipe Material</h3>
+<div class="row form-elements form-horizontal" ng-form="modelForm">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Production Entity<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="modelNew.EntityId" name="Production Entity" ng-options="item.Id as item.UserName for item in entityList"
+                            ng-change="getRecipeCboList();ClearFields();" tabindex="1" required>
+                        <option value=""></option>
+                    </select>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Recipe Master<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="modelNew.ButtonRecipeMasterId" name="Recipe Master" ng-options="item.Value as item.Text for item in recipeMasterList"
+                            ng-change="getData();" tabindex="2" required>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="col-md-6">
+        <ul class="common-btn list-inline text-left">
+            <li><button ng-click="getMaterialMasterbyTypePopUp();" class="btn" tabindex="10"> Select Material</button></li>
+        </ul>
+    </div>
+    <div class="col-md-6">
+        <ul class="common-btn list-inline text-right">
+            @*<li><button ng-click="Save();" class="btn" tabindex="14"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+            <li><button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="15"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
+            <li><button ng-click="Clear();" class="btn" tabindex="16"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<div class="table-responsive modal-table">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Material Type</th>
+                <th>Material Group</th>
+                <th>Product</th>
+                <th>Material Code</th>
+                <th>Material Name</th>
+                <th>Article Code</th>
+                <th>Article Name</th>
+                <th>Remove</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="x in modelList">
+                <td>{{x.MaterialTypeName}}</td>
+                <td>{{x.MaterialGroupMasterName}}</td>
+                <td>{{x.ProductMasterName}}</td>
+                <td>{{x.Code}}</td>
+                <td>{{x.MaterialMasterName}}</td>
+                <td>{{x.ArticleCode}}</td>
+                <td>{{x.ArticleName}}</td>
+                <td class="text-right table-td">
+                    <ul class="list-inline action-list">
+                        <li>
+                            <button ng-click="removeRowModal(x.MaterialMasterName, $index,'modelList', 'Id', 'MaterialMasterId');" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
+                                <i class="glyphicon glyphicon-remove"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<!-- #region Material by type -->
+<div class="modal fade site-modal in" id="materialMasterbyTypePopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Raw Material<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body text-center">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="mmPopUpParameters.searchBy">
+                                            <option ng-repeat="option in searchMaterialMasterList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="mmPopUpParameters.search" ng-enter="getMaterialMasterbyTypeData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getMaterialMasterbyTypeData();" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped text-left">
+                        <thead>
+                            <tr>
+                                <th>Material Type</th>
+                                <th>Material Group</th>
+                                <th>Product</th>
+                                <th>Code</th>
+                                <th>Material Name</th>
+                                <th>Id</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-dblclick="articlePopUp(x.Id);" dir-paginate="x in materialMasterbyTypeList  |itemsPerPage:$root.pageSize" pagination-id="metaData.name + 'materialMasterbyTypeList'"
+                                total-items="mmPopUpParameters.total_count">
+                                <td>{{x.MaterialTypeName}}</td>
+                                <td>{{x.MaterialGroupMasterName}}</td>
+                                <td>{{x.ProductMasterName}}</td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.Id}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls pagination-id="metaData.name + 'materialMasterbyTypeList'"
+                                             max-size="2"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getMaterialMasterbyTypeData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        @*<li><button ng-click="selectMaterial();" class="btn" tabindex="16"> Select</button></li>*@
+                        <li><button ng-click="closeMaterialMasterbyTypePopUp();" class="btn" tabindex="16"> Cancel</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion -->
+<!-- #region Article -->
+<modal-table modalid="articleId"
+             data-title="Article"
+             data-search-parameters="articleParameters"
+             data-exclued-column-list="excluedList"
+             data-field-list="articleList"
+             data-data-list="articleDataList"
+             data-search-function="getarticleData"
+             data-single-click=""
+             data-double-click="selectArticle(data)"
+             data-left-button="false"
+             data-right-button="true"
+             data-ng-click-left-button=""
+             data-ng-click-cancel="closeArticle()">
+</modal-table>
+<!-- #endregion -->
+
+<confirm-archive-generic modalid="confirmProcessPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRow()"></confirm-archive-generic>

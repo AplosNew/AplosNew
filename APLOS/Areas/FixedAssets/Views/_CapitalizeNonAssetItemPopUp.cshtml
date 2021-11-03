@@ -1,0 +1,49 @@
+﻿
+<style>
+    .modellgModify {
+        width: 1400px;
+    }
+</style>
+<div class="modal fade site-modal in" id="assetmodal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> Non Asset Item <button type="button" class="close" ng-click="closePopUp();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="Grid" ej-grid e-datasource="materialMasterList" e-templaterefresh="refreshTemplateMasterOrderOperation" 
+                             e-recorddoubleclick="checkIsRegisterApplyInMaterialMaster"
+                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"                         e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="actionComplete"                         e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true">
+                            <div e-columns>
+                                <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplateChild" e-textalign="center" e-width="30"></div>
+                                <div e-column e-field="IssueNo" e-headertext="IssueNo" e-width="80" e-filter="false"></div>
+                                <div e-column e-field="IssueVoucherNo" e-headertext="IssueVoucherNo" e-width="80" e-filter="false"></div>
+                                <div e-column e-field="IssuePostingDate" e-headertext="Issue Posting Date" e-width="80" e-filter="false"></div>
+                                <div e-column e-field="CapitalizeVoucherNo" e-headertext="CapitalizeVoucherNo" e-width="80" e-filter="false"></div>
+                                <div e-column e-field="MaterialMasterName" e-headertext="Material" e-width="80" e-filter="false"></div>
+                                <div e-column e-field="ArticleStandardName" e-headertext="Article" e-width="80"></div>
+                                <div e-column e-field="AssetMasterName" e-headertext="AssetMaster" e-width="80"></div>
+                                <div e-column e-field="AssetGLName" e-headertext="GL" e-width="80"></div>
+                                <div e-column e-field="AssetBudgetName" e-headertext="Budget" e-width="80"></div>
+                                <div e-column e-field="ActivityName" e-headertext="Activity" e-width="80"></div>
+                                <div e-column e-field="Qty" e-headertext="Qty" e-width="80"></div>
+                                <div e-column e-field="TransactionUoM" e-headertext="UoM" e-width="80"></div>
+                                <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="80"></div>
+                                <div e-column e-field="Amount" e-headertext="Amount" e-width="80"></div>
+                                <div e-column e-field="RefNo" e-headertext="RefNo" e-width="80"></div>
+                                <div e-column e-field="GRNNo" e-headertext="GRNNo" e-width="80"></div>
+                                <div e-column e-field="GateEntryNo" e-headertext="Product" e-width="80"></div>
+                            </div>
+                        </div>
+                        <script type="text/template" id="checkboxTemplateChild">
+                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
+                        </script>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="checkIsRegisterApplyInMaterialMaster();" class="btn"> Apply</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

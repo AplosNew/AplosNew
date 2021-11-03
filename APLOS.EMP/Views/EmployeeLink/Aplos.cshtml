@@ -1,0 +1,163 @@
+﻿<h3 class="site-heading" style="cursor:default"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Employee Initial Link<label style="float:right"></label></h3>
+<div class="form-elements form-horizontal" ng-form name="empLinkForm">
+    <div class="form-group col-xs-12 col-sm-6 col-md-6">
+        <label class="col-sm-4 control-label">Company Group<sup>*</sup></label>
+        <div class="col-sm-8">
+            <div class="select-style">
+                <select id="CompanyGroupId" class="form-control" name="Company Group" ng-model="empLinkNew.CompanyGroupId" ng-disabled="toList.length>0" tabindex="1">
+                    <option value="">--Select--</option>
+                    <option ng-repeat="option in companyGroups" value="{{option.Value}}">{{option.Text}}</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="form-group" show-errors>
+            <label class="col-sm-2 control-label">Sender Name<sup>*</sup></label>
+            <div class="col-sm-4 show-message pdr3" style="padding-left: 5px;">
+                <input type="text" ng-model="empLinkNew.SenderName" name="Sender Name" class="form-control" tabindex="2" value="Name" required>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-2 control-label">Sender Email<sup>*</sup></label>
+            <div class="col-sm-4 show-message pdr3" style="padding-left: 5px;">
+                <input type="text" ng-model="empLinkNew.SenderEmail" name="Sender Email" class="form-control" tabindex="3" value="example@mail.com" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">CC</label>
+            <div class="col-sm-4 pdr3" style="padding-left: 5px;">
+                <input type="text" class="form-control" ng-model="empLinkNew.CC" tabindex="4">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-2 control-label">Subject<sup>*</sup></label>
+            <div class="col-sm-8 show-message" style="padding-left: 5px;">
+                <input type="text" ng-model="empLinkNew.Subject" name="Subject" class="form-control" tabindex="5" required>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-2 control-label">Message<sup>*</sup></label>
+            <div class="col-sm-8 show-message" style="padding-left: 5px;">
+                <textarea class="form-control" ng-model="empLinkNew.Message" name="Message" rows="3" maxlength="500" tabindex="6"></textarea>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-2 control-label">Url<sup>*</sup></label>
+            <div class="col-sm-8 show-message" style="padding-left: 5px;">
+                <input type="text" ng-model="empLinkNew.Url" name="Url" class="form-control" tabindex="7" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-4">
+                <button ng-click="popUp()" style="margin-left:-3px;" class="btn single-small-btn" tabindex="8"><i class="glyphicon glyphicon-search"></i> To</button>
+            </div>
+        </div>
+        <div class="table-responsive modal-table" ng-show="toList.length>0">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Name</th>
+                        <th>Code</th>
+                        <th>Initial PIN</th>
+                        <th>Email</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="x in toList">
+                        <td>{{x.Id}}</td>
+                        <td>{{x.Name}}</td>
+                        <td>{{x.Code}}</td>
+                        <td>{{x.InitialPIN}}</td>
+                        <td>{{x.Email}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="EmpEmailSend()" class="btn" tabindex=""><i class="glyphicon glyphicon-envelope"></i> Send</button></li>
+            <li> <button ng-click="Clear()" class="btn" tabindex=""><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+
+<!-- #region Table -->
+<div class="modal fade site-modal in" id="popUpId" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" ng-form name="materialgridCharacteristicsForm">
+            <div class="modal-header"> Employee <button type="button" class="close" data-dismiss="modal">&times;</button> </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="popUpParameters.searchBy">
+                                            <option ng-repeat="option in popUpList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="popUpParameters.search">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getPopUpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Flag</th>
+                                <th>Id</th>
+                                <th>Name</th>
+                                <th>Code</th>
+                                <th>Initial PIN</th>
+                                <th>Email</th>
+                                <th>SendingTimes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in popUpDataList|itemsPerPage:popUpParameters.pageSize" total-items="popUpParameters.total_count" pagination-id="metaData.name + 'popUpDataList'">
+                                <td class="text-center">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="x.Flag" ng-checked="x.Flag" ng-click="selectEmployee(x, $event, $index);">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>{{x.Id}}</td>
+                                <td>{{x.Name}}</td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.InitialPIN}}</td>
+                                <td>{{x.Email}}</td>
+                                <td>{{x.SendingTimes}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'popUpDataList'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getPopUpData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="selectByButton()" class="btn">Select</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion -->

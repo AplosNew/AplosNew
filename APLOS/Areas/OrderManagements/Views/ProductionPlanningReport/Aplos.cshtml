@@ -1,0 +1,125 @@
+﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> {{FormTitle}}</h3>
+<div class="form-elements form-horizontal" ng-form name="PlanningReportForm">
+    <div class="row" ng-form name="General">
+
+
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Planning Type<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="selectedValues.PlanningType" name="PlanningType"
+                                ng-options="item.Value as item.Text for item in planningTypesList" required tabindex="1">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Snapshot Name</label>
+                <div class="col-sm-8">
+                    <button ng-click="SnapPopUp()" class="btn" tabindex="3" ng-disabled="selectedValues.SnapShotType==null || selectedValues.SnapShotType=='SnapShotType2' "><i class="glyphicon glyphicon-search"></i></button>
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input id="EndDate" type="text" name="ToDate" ng-model="selectedValues.ToDate" datepicker class="form-control" required tabindex="5">
+
+                </div>
+            </div>
+
+
+
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Snapshot Type<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="selectedValues.SnapShotType" name="SnapShotType" required tabindex="2">
+                            <option value="">--Select--</option>
+                            <option value="SnapShotType1">SnapShotType1</option>
+                            <option value="SnapShotType2">SnapShotType2</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="FromDate" ng-model="selectedValues.FromDate" datepicker class="form-control" required tabindex="4">
+
+                </div>
+            </div>
+
+
+        </div>
+
+        <br />
+        <div class="common-btn" style="padding-right:20px;">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="loadGrid()" class="btn" tabindex="6"><i class="glyphicon glyphicon-arrow-down"></i> View</button></li>
+                <li> <button ng-click="clearFliters()" class="btn" tabindex="7"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+
+
+    </div>
+    <confirm-modal></confirm-modal>
+
+    <div class="common-btn" style="margin-top:10px;">
+        <ul class="list-inline text-left">
+            <li> <button id="but" ng-click="filteringData()" style="display:none;" class="btn" tabindex="7"><i class="glyphicon glyphicon-arrow-down"></i> Transfer to Excel</button></li>
+        </ul>
+    </div>
+
+
+    <div id="GridData" style="margin-top:30px;"></div>
+
+</div>
+
+<div class="modal fade site-modal in" id="SnapPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> SnapShots List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="GridSnap" ej-grid e-datasource="SnapNamesList"
+                             e-allowfiltering="true" e-recorddoubleclick="setSnapData" e-allowpaging="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-type="string" e-field="SnapshotName" e-headertext="SnapshotName" e-width="140"></div>
+                                <div e-column e-type="string" e-field="SnapshotDate" e-headertext="SnapshotDate" e-width="140"></div>
+                                <div e-column e-type="string" e-field="MinDate" e-headertext="MinDate" e-width="140"></div>
+                                <div e-column e-type="string" e-field="MaxDate" e-headertext="MaxDate" e-width="140"></div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+
+                            <button ng-click="closeSnapPopUp('SnapPopUp');" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+

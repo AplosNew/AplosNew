@@ -1,0 +1,1267 @@
+﻿<togglable name="{{title}}"></togglable>
+<div class="form-elements form-horizontal" ng-form name="QMSDefectMasterForm">
+    <div class="row" ng-form name="General">
+        <input type="hidden" ng-model="QMSDefectMaster.Id">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Sequence" ej-numerictextbox e-decimalplaces="2" e-minvalue="1" e-enablertl="false" e-value="QMSDefectMaster.Sequence" e-width="100" required tabindex="1" />
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Standard Code<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Standard Code" ng-model="QMSDefectMaster.StandardCode" class="form-control" required tabindex="3" maxlength="10">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">User Code<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="User Code" ng-model="QMSDefectMaster.UserCode" class="form-control" required tabindex="5" maxlength="10">
+                </div>
+            </div>
+
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Critical Level<sup>*</sup></label>
+                <div class="col-sm-8  show-message">
+                    <div class="select-style">
+
+                        <select ng-model="QMSDefectMaster.CriticalityLevelId" class="form-control" name="Critical Level"
+                                ng-options="item.Value as item.Text for item in CriticalityLevelList" required tabindex="7">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Product Master</label>
+                <div class="col-sm-8  show-message">
+                    <div class="checkbox-site">
+                        <label>
+                            <input id="Check_ProductApplicable" type="checkbox" class="css-checkbox" ng-model="QMSDefectMaster.ProductApplicable" tabindex="11">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Material Master</label>
+                <div class="col-sm-8  show-message">
+                    <div class="checkbox-site">
+                        <label>
+                            <input id="Check_MaterialApplicable" type="checkbox" class="css-checkbox" ng-model="QMSDefectMaster.MaterialApplicable" tabindex="12">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Process</label>
+                <div class="col-sm-8  show-message">
+                    <div class="checkbox-site">
+                        <label>
+                            <input id="Check_ProcessApplicable" type="checkbox" class="css-checkbox" ng-model="QMSDefectMaster.ProcessApplicable" tabindex="13">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">QMS Testing Master</label>
+                <div class="col-sm-8  show-message">
+                    <div class="checkbox-site">
+                        <label>
+                            <input id="Check_TestApplicable" type="checkbox" class="css-checkbox" ng-model="QMSDefectMaster.TestApplicable" tabindex="15">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Skill</label>
+                <div class="col-sm-8  show-message">
+                    <div class="checkbox-site">
+                        <label>
+                            <input id="Check_SkillApplicable" type="checkbox" class="css-checkbox" ng-model="QMSDefectMaster.SkillApplicable" tabindex="17">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Standard Name" ng-model="QMSDefectMaster.StandardName" class="form-control" maxlength="50" required tabindex="2">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                <div class="col-sm-8  show-message">
+                    <input type="text" name="User Name" ng-model="QMSDefectMaster.UserName" class="form-control" required tabindex="4" maxlength="50">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Short Name" ng-model="QMSDefectMaster.ShortName" class="form-control" required tabindex="6" maxlength="15">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Repair Type</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select ng-model="QMSDefectMaster.RepairTypeId" class="form-control"
+                                ng-options="item.Value as item.Text for item in RepairTypeList" tabindex="8">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Defect Cause</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <textarea name="Defect Cause" style="height: 98px;" tabindex="10" maxlength="250" class="form-control" Rows="3" ng-model="QMSDefectMaster.DefectCause"></textarea>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Machine Master</label>
+                <div class="col-sm-8  show-message">
+                    <div class="checkbox-site">
+                        <label>
+                            <input id="Check_MachineApplicable" type="checkbox" class="css-checkbox" ng-model="QMSDefectMaster.MachineApplicable" tabindex="14">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Process Parameter </label>
+                <div class="col-sm-8  show-message">
+                    <div class="checkbox-site">
+                        <label>
+                            <input id="Check_ProcessParameterApplicable" type="checkbox" class="css-checkbox" ng-model="QMSDefectMaster.ProcessParameterApplicable" tabindex="16">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+
+
+        </div>
+        <br />
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Save()" class="btn" tabindex="18"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="19"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear()" class="btn" tabindex="20"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+    </div>
+    <confirm-modal></confirm-modal>
+
+
+    <div class="form-elements">
+        <div class="tab-design" id="tab_show">
+            <div class="site-tab">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" ng-class="{ active: isSet(6) }"><a class="childTab" id="a_ProductMaster" ng-click="setTab(6)" href="" aria-controls="address" role="tab" data-toggle="tab">Product Master</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(7) }"><a class="childTab" id="a_MaterialMaster" ng-click="setTab(7)" href="" aria-controls="address" role="tab" data-toggle="tab">Material Master</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(8) }"><a class="childTab" id="a_Process" ng-click="setTab(8)" href="" aria-controls="address" role="tab" data-toggle="tab">Process</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(9) }"><a class="childTab" id="a_QMSTesting" ng-click="setTab(9)" href="" aria-controls="address" role="tab" data-toggle="tab">QMS Testing Master</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(11) }"><a class="childTab" id="a_SkillOperation" ng-click="setTab(11)" href="" aria-controls="address" role="tab" data-toggle="tab">Skill</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(13) }"><a class="childTab" id="a_MachineMaster" ng-click="setTab(13)" href="" aria-controls="address" role="tab" data-toggle="tab">Machine Master</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(4) }"><a class="childTab" id="a_ProcessParameter" ng-click="setTab(4)" href="" aria-controls="address" role="tab" data-toggle="tab">Process Parameter</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(1) }"><a class="childTab" id="a_DefectZone" ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Defect Zone </a></li>
+                    <li role="presentation" ng-class="{ active: isSet(2) }"><a class="childTab" id="a_DefectType" ng-click="setTab(2)" href="" aria-controls="address" role="tab" data-toggle="tab">Defect Type</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(3) }"><a class="childTab" id="a_DefectCheck" ng-click="setTab(3)" href="" aria-controls="address" role="tab" data-toggle="tab">Defect Check Level</a></li>
+
+                    <li role="presentation" ng-class="{ active: isSet(5) }"><a class="childTab" id="a_OperationActivity" ng-click="setTab(5)" href="" aria-controls="address" role="tab" data-toggle="tab">Operation Activity</a></li>
+
+                    <li role="presentation" ng-class="{ active: isSet(10) }"><a class="childTab" id="a_InspectionMaster" ng-click="setTab(10)" href="" aria-controls="address" role="tab" data-toggle="tab">Inspection Master</a></li>
+
+                    <li role="presentation" ng-class="{ active: isSet(12) }"><a class="childTab" id="a_QMSActivity" ng-click="setTab(12)" href="" aria-controls="address" role="tab" data-toggle="tab">QMS Activity Master</a></li>
+
+                   
+                </ul>
+            </div>
+            <div class="tab-content">
+
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                    <div class="row" ng-form name="DefectZoneForm">
+                        <input type="hidden" ng-model="DefectZone.Id">
+                        <div class="col-sm-12 col-sm-12 col-md-12">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li><button ng-click="GetDefectZoneDetails();" class="btn"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
+                                </ul>
+                            </div>
+
+                        </div>
+                        <div class="col-xs-12">
+                            <div style="color:black;" id="GridDefectZoneTab" ej-grid e-datasource="QmsDefectZoneList"
+                                 e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                 e-allowselection="false" e-filtersettings-filterType="excel">
+                                <div e-columns>
+
+                                    <div e-column e-type="string" e-field="Sequence" e-headertext="Sequence" e-width="40"></div>
+                                    <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="40"></div>
+                                    <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="140"></div>
+
+                                    <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                                    <div e-column e-template="#DeleteDefectZoneTab" e-width="40"></div>
+                                </div>
+                            </div>
+
+                            <script type="text/template" id="DeleteDefectZoneTab">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li><button ng-click="$parent.DelDefectZoneRowModal(data.Id);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
+                                    </ul>
+                                </div>
+                            </script>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                    <div class="row" ng-form name="DefectTypeForm">
+                        <input type="hidden" ng-model="DefectType.Id">
+                        <div class="col-sm-12 col-sm-12 col-md-12">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li><button ng-click="GetDefectTypeDetails();" class="btn"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
+                                </ul>
+                            </div>
+
+                        </div>
+                        <div class="col-xs-12">
+                            <div style="color:black;" id="GridDefectTypeTab" ej-grid e-datasource="QmsDefectTypeList"
+                                 e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                 e-allowselection="false" e-filtersettings-filterType="excel">
+                                <div e-columns>
+
+                                    <div e-column e-type="string" e-field="Sequence" e-headertext="Sequence" e-width="40"></div>
+                                    <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="40"></div>
+                                    <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="140"></div>
+
+                                    <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                                    <div e-column e-template="#DeleteDefectTypeTab" e-width="40"></div>
+                                </div>
+                            </div>
+
+                            <script type="text/template" id="DeleteDefectTypeTab">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li><button ng-click="$parent.DelDefectTypeRowModal(data.Id);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
+                                    </ul>
+                                </div>
+                            </script>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                    <div class="row" ng-form name="DefectCheckForm">
+                        <input type="hidden" ng-model="DefectCheck.Id">
+                        <div class="col-sm-12 col-sm-12 col-md-12">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li><button ng-click="GetDefectCheckDetails();" class="btn"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
+                                </ul>
+                            </div>
+
+                        </div>
+                        <div class="col-xs-12">
+                            <div style="color:black;" id="GridDefectCheckTab" ej-grid e-datasource="QmsDefectCheckList"
+                                 e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                 e-allowselection="false" e-filtersettings-filterType="excel">
+                                <div e-columns>
+
+                                    <div e-column e-type="string" e-field="Sequence" e-headertext="Sequence" e-width="40"></div>
+                                    <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="40"></div>
+                                    <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="140"></div>
+
+                                    <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                                    <div e-column e-template="#DeleteDefectCheckTab" e-width="40"></div>
+                                </div>
+                            </div>
+
+                            <script type="text/template" id="DeleteDefectCheckTab">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li><button ng-click="$parent.DelDefectCheckRowModal(data.Id);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
+                                    </ul>
+                                </div>
+                            </script>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+                    <div class="row" ng-form name="ProcessParameterApllicableForm">
+                        <input type="hidden" ng-model="ProcessParameterApllicable.Id">
+                        <div class="col-sm-12 col-sm-12 col-md-12">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li><button ng-click="GetProcessParameterApplicableDetails();" ng-disabled="QMSDefectMaster.ProcessParameterApplicable==false" class="btn"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
+                                </ul>
+                            </div>
+
+                        </div>
+                        <div class="col-xs-12">
+                            <div style="color:black;" id="GridProcessParameterTab" ej-grid e-datasource="QmsProcessParameterApplicableList"
+                                 e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                 e-allowselection="false" e-filtersettings-filterType="excel">
+                                <div e-columns>
+
+                                    <div e-column e-type="string" e-field="Sequence" e-headertext="Sequence" e-width="40"></div>
+                                    <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="40"></div>
+                                    <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="140"></div>
+
+                                    <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                                    <div e-column e-template="#DeleteProcessParameterTab" e-width="40"></div>
+                                </div>
+                            </div>
+
+                            <script type="text/template" id="DeleteProcessParameterTab">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li><button ng-click="$parent.DelProcessParameterRowModal(data.Id);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
+                                    </ul>
+                                </div>
+                            </script>
+
+                        </div>
+                    </div>
+
+                </div>
+
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
+                    <div class="row" ng-form name="OperationForm">
+                        <input type="hidden" ng-model="Operation.Id">
+                        <div class="col-sm-12 col-sm-12 col-md-12">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li><button ng-click="GetOperationDetails();" class="btn"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
+                                </ul>
+                            </div>
+
+                        </div>
+                        <div class="col-xs-12">
+                            <div style="color:black;" id="GridOperationTab" ej-grid e-datasource="QmsOperationList"
+                                 e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                 e-allowselection="false" e-filtersettings-filterType="excel">
+                                <div e-columns>
+
+                                    <div e-column e-type="string" e-field="Sequence" e-headertext="Sequence" e-width="40"></div>
+                                    <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="40"></div>
+                                    <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="140"></div>
+
+                                    <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                                    <div e-column e-template="#DeleteOperationTab" e-width="40"></div>
+                                </div>
+                            </div>
+
+                            <script type="text/template" id="DeleteOperationTab">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li><button ng-click="$parent.DelOperationRowModal(data.Id);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
+                                    </ul>
+                                </div>
+                            </script>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(6), active: isSet(6) }">
+                    <div class="row" ng-form name="ProductApllicableForm">
+                        <input type="hidden" ng-model="ProductApllicable.Id">
+                     
+                            <div class="col-sm-12 col-sm-12 col-md-12">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li><button ng-click="GetProductApplicableDetails();" ng-disabled="QMSDefectMaster.ProductApplicable==false" class="btn"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
+                                    </ul>
+                                </div>
+
+                            </div>
+                            <div class="col-xs-12">
+                                <div style="color:black;" id="GridProductApplicableTab" ej-grid e-datasource="QmsProductApplicableList"
+                                     e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                     e-allowselection="false" e-filtersettings-filterType="excel">
+                                    <div e-columns>
+
+                                        <div e-column e-type="string" e-field="Sequence" e-headertext="Sequence" e-width="40"></div>
+                                        <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="40"></div>
+                                        <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="140"></div>
+
+                                        <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                                        <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+
+                                        <div e-column e-template="#DeleteProductApplicableTab" e-width="40"></div>
+                                    </div>
+                                </div>
+
+                                <script type="text/template" id="DeleteProductApplicableTab">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li><button ng-click="$parent.DelProductRowModal(data.Id);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
+                                        </ul>
+                                    </div>
+                                </script>
+
+                            </div>      
+                    </div>
+                    
+                </div>
+
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(7), active: isSet(7) }">
+                    <div class="row" ng-form name="MaterialApllicableForm">
+                        <input type="hidden" ng-model="MaterialApllicable.Id">
+                        <div class="col-sm-12 col-sm-12 col-md-12">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li><button ng-click="GetMaterialApplicableDetails();" ng-disabled="QMSDefectMaster.MaterialApplicable==false" class="btn"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
+                                </ul>
+                            </div>
+
+                        </div>
+                        <div class="col-xs-12">
+                            <div style="color:black;" id="GridMaterialApplicableTab" ej-grid e-datasource="QmsMaterialApplicableList"
+                                 e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                 e-allowselection="false" e-filtersettings-filterType="excel">
+                                <div e-columns>
+
+                                    <div e-column e-type="string" e-field="Sequence" e-headertext="Sequence" e-width="40"></div>
+                                    <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="40"></div>
+                                    <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="140"></div>
+
+                                    <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+
+                                    <div e-column e-template="#DeleteMaterialApplicableTab" e-width="40"></div>
+                                </div>
+                            </div>
+
+                            <script type="text/template" id="DeleteMaterialApplicableTab">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li><button ng-click="$parent.DelMaterialRowModal(data.Id);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
+                                    </ul>
+                                </div>
+                            </script>
+
+                        </div>
+                    </div>
+                    
+                </div>
+
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(8), active: isSet(8) }">
+                    <div class="row" ng-form name="ProcessApllicableForm">
+                        <input type="hidden" ng-model="ProcessApllicable.Id">
+                        <div class="col-sm-12 col-sm-12 col-md-12">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li><button ng-click="GetProcessApplicableDetails();" ng-disabled="QMSDefectMaster.ProcessApplicable==false" class="btn"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
+                                </ul>
+                            </div>
+
+                        </div>
+                        <div class="col-xs-12">
+                            <div style="color:black;" id="GridProcessApplicableTab" ej-grid e-datasource="QmsProcessApplicableList"
+                                 e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                 e-allowselection="false" e-filtersettings-filterType="excel">
+                                <div e-columns>
+
+                                    <div e-column e-type="string" e-field="Sequence" e-headertext="Sequence" e-width="40"></div>
+                                    <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="40"></div>
+                                    <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="140"></div>
+
+                                    <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+
+                                    <div e-column e-template="#DeleteProcessApplicableTab" e-width="40"></div>
+                                </div>
+                            </div>
+
+                            <script type="text/template" id="DeleteProcessApplicableTab">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li><button ng-click="$parent.DelProcessRowModal(data.Id);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
+                                    </ul>
+                                </div>
+                            </script>
+
+                        </div>                     
+                    </div>
+                    
+                </div>
+
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(9), active: isSet(9) }">
+                    <div class="row" ng-form name="TestApllicableForm">
+                        <input type="hidden" ng-model="TestApllicable.Id">
+                        <div class="col-sm-12 col-sm-12 col-md-12">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li><button ng-click="GetTestApplicableDetails();" ng-disabled="QMSDefectMaster.TestApplicable==false" class="btn"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
+                                </ul>
+                            </div>
+
+                        </div>
+                        <div class="col-xs-12">
+                            <div style="color:black;" id="GridTestApplicableTab" ej-grid e-datasource="QmsTestApplicableList"
+                                 e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                 e-allowselection="false" e-filtersettings-filterType="excel">
+                                <div e-columns>
+
+                                    <div e-column e-type="string" e-field="Sequence" e-headertext="Sequence" e-width="40"></div>
+                                    <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="40"></div>
+                                    <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="140"></div>
+
+                                    <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                                    <div e-column e-template="#DeleteTestApplicableTab" e-width="40"></div>
+                                </div>
+
+                            </div>
+
+                            <script type="text/template" id="DeleteTestApplicableTab">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li><button ng-click="$parent.DelRowModal(data.Id);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
+                                    </ul>
+                                </div>
+                            </script>
+
+                        </div>                      
+                    </div>
+                    
+                </div>
+
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(10), active: isSet(10) }">
+                    <div class="row" ng-form name="InspectionForm">
+                        <input type="hidden" ng-model="Inspection.Id">
+                        <div class="col-sm-12 col-sm-12 col-md-12">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li><button ng-click="GetInspectionDetails();" class="btn"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
+                                </ul>
+                            </div>
+
+                        </div>
+                        <div class="col-xs-12">
+                            <div style="color:black;" id="GridInspectionTab" ej-grid e-datasource="QmsInspectionList"
+                                 e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                 e-allowselection="false" e-filtersettings-filterType="excel">
+                                <div e-columns>
+
+                                    <div e-column e-type="string" e-field="Sequence" e-headertext="Sequence" e-width="40"></div>
+                                    <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="40"></div>
+                                    <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="140"></div>
+
+                                    <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+
+                                    <div e-column e-template="#DeleteInspectionTab" e-width="40"></div>
+                                </div>
+                            </div>
+
+                            <script type="text/template" id="DeleteInspectionTab">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li><button ng-click="$parent.DelInspectionRowModal(data.Id);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
+                                    </ul>
+                                </div>
+                            </script>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(11), active: isSet(11) }">
+                    <div class="row" ng-form name="SkillApllicableForm">
+                        <input type="hidden" ng-model="SkillApllicable.Id">
+                        <div class="col-sm-12 col-sm-12 col-md-12">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li><button ng-click="GetSkillApplicableDetails();" ng-disabled="QMSDefectMaster.SkillApplicable==false" class="btn"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
+                                </ul>
+                            </div>
+
+                        </div>
+                        <div class="col-xs-12">
+                            <div style="color:black;" id="GridSkillApplicableTab" ej-grid e-datasource="QmsSkillApplicableList"
+                                 e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                 e-allowselection="false" e-filtersettings-filterType="excel">
+                                <div e-columns>
+
+                                    <div e-column e-type="string" e-field="Sequence" e-headertext="Sequence" e-width="40"></div>
+                                    <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="40"></div>
+                                    <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="140"></div>
+
+                                    <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="SkillCategory" e-headertext="SkillCategory" e-width="80"></div>
+                                  
+
+                                    <div e-column e-template="#DeleteSkillApplicableTab" e-width="40"></div>
+                                </div>
+
+                            </div>
+
+                            <script type="text/template" id="DeleteSkillApplicableTab">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li><button ng-click="$parent.DelSkillRowModal(data.Id);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
+                                    </ul>
+                                </div>
+                            </script>
+
+                        </div>                 
+                    </div>
+                    
+                </div>
+
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(12), active: isSet(12) }">
+                    <div class="row" ng-form name="QualityForm">
+                        <input type="hidden" ng-model="Quality.Id">
+                        <div class="col-sm-12 col-sm-12 col-md-12">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li><button ng-click="GetQualityDetails();" class="btn"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
+                                </ul>
+                            </div>
+
+                        </div>
+                        <div class="col-xs-12">
+                            <div style="color:black;" id="GridQualityTab" ej-grid e-datasource="QmsQualityList"
+                                 e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                 e-allowselection="false" e-filtersettings-filterType="excel">
+                                <div e-columns>
+
+                                    <div e-column e-type="string" e-field="Sequence" e-headertext="Sequence" e-width="40"></div>
+                                    <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="40"></div>
+                                    <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="140"></div>
+
+                                    <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="QMSActivityCategory" e-headertext="Activity Category" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="QualityActivityCheckType" e-headertext="Quality Activity Check Type" e-width="80"></div>
+                                    <div e-column e-template="#DeleteQualityTab" e-width="40"></div>
+                                </div>
+                            </div>
+
+                            <script type="text/template" id="DeleteQualityTab">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li><button ng-click="$parent.DelQualityRowModal(data.Id);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
+                                    </ul>
+                                </div>
+                            </script>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(13), active: isSet(13) }">
+                    <div class="row" ng-form name="MachineApllicableForm">
+                        <input type="hidden" ng-model="MachineApllicable.Id">
+                        <div class="col-sm-12 col-sm-12 col-md-12">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li><button ng-click="GetMachineApplicableDetails();" ng-disabled="QMSDefectMaster.MachineApplicable==false" class="btn"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
+                                </ul>
+                            </div>
+
+                        </div>
+                        <div class="col-xs-12">
+                            <div style="color:black;" id="GridMachineApplicableTab" ej-grid e-datasource="QmsMachineApplicableList"
+                                 e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                 e-allowselection="false" e-filtersettings-filterType="excel">
+                                <div e-columns>
+
+                                    <div e-column e-type="string" e-field="Sequence" e-headertext="Sequence" e-width="40"></div>
+                                    <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="40"></div>
+                                    <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="140"></div>
+
+                                    <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="MachineCategory" e-headertext="Machine Category" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="MachineSubCategory" e-headertext="Machine SubCategory" e-width="80"></div>
+
+                                    <div e-column e-template="#DeleteMachineApplicableTab" e-width="40"></div>
+                                </div>
+                               
+                            </div>
+
+                            <script type="text/template" id="DeleteMachineApplicableTab">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li><button ng-click="$parent.DelMachineRowModal(data.Id);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
+                                    </ul>
+                                </div>
+                            </script>
+
+                        </div>
+                  </div>
+                    
+                </div>
+              
+            </div>
+        </div>
+
+    </div>
+</div>
+<confirm-modal></confirm-modal>
+
+
+<div class="modal fade site-modal in" id="TestApplicablePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> QMS Testing Master List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="TestApplicableGrid" ej-grid e-datasource="TestApplicableList"
+                             e-allowfiltering="true" e-allowpaging="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-template="#checkboxTemplateMaster" e-textalign="center" e-width="30"></div>
+                                <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="80"></div>
+                                <div e-column e-field="Sequence" e-headertext="Sequence" e-width="80"></div>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
+                                <div e-column e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                                <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                                <div e-column e-field="UserName" e-headertext="User Name" e-width="80"></div>
+
+
+                            </div>
+                        </div>
+                        <script type="text/template" id="checkboxTemplateMaster">
+                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
+                        </script>
+                    </div>
+                </div>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SelectedTestApplicable();" class="btn">Apply</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="ProductApplicablePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> Product Master List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="ProductGrid" ej-grid e-datasource="ProductApplicableList"
+                             e-allowfiltering="true" e-allowpaging="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-template="#checkboxTemplateMaster" e-textalign="center" e-width="30"></div>
+                                <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="80"></div>
+                                <div e-column e-field="Sequence" e-headertext="Sequence" e-width="80"></div>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
+                                <div e-column e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                                <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                                <div e-column e-field="UserName" e-headertext="User Name" e-width="80"></div>
+                            </div>
+                        </div>
+                        <script type="text/template" id="checkboxTemplateMaster">
+                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
+                        </script>
+                    </div>
+                </div>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SelectedProductApplicable();" class="btn">Apply</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="MaterialApplicablePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> Material Master List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="MaterialGrid" ej-grid e-datasource="MaterialApplicableList"
+                             e-allowfiltering="true" e-allowpaging="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-template="#checkboxTemplateMaster" e-textalign="center" e-width="30"></div>
+                                <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="80"></div>
+                                <div e-column e-field="Sequence" e-headertext="Sequence" e-width="80"></div>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
+                                <div e-column e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                                <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                                <div e-column e-field="UserName" e-headertext="User Name" e-width="80"></div>
+                            </div>
+                        </div>
+                        <script type="text/template" id="checkboxTemplateMaster">
+                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
+                        </script>
+                    </div>
+                </div>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SelectedMaterialApplicable();" class="btn">Apply</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="ProcessApplicablePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> Process List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="ProcessGrid" ej-grid e-datasource="ProcessApplicableList"
+                             e-allowfiltering="true" e-allowpaging="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-template="#checkboxTemplateMaster" e-textalign="center" e-width="30"></div>
+                                <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="80"></div>
+                                <div e-column e-field="Sequence" e-headertext="Sequence" e-width="80"></div>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
+                                <div e-column e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                                <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                                <div e-column e-field="UserName" e-headertext="User Name" e-width="80"></div>
+                            </div>
+                        </div>
+                        <script type="text/template" id="checkboxTemplateMaster">
+                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
+                        </script>
+                    </div>
+                </div>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SelectedProcessApplicable();" class="btn">Apply</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="MachineApplicablePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> Machine Master List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="MachineGrid" ej-grid e-datasource="MachineApplicableList"
+                             e-allowfiltering="true" e-allowpaging="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-template="#checkboxTemplateMaster" e-textalign="center" e-width="30"></div>
+                                <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="80"></div>
+                                <div e-column e-field="Sequence" e-headertext="Sequence" e-width="80"></div>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
+                                <div e-column e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                                <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                                <div e-column e-field="UserName" e-headertext="User Name" e-width="80"></div>
+                                <div e-column e-field="MachineCategory" e-headertext="Machine Category" e-width="80"></div>
+                                <div e-column e-field="MachineSubCategory" e-headertext="Machine SubCategory" e-width="80"></div>
+                            </div>
+                        </div>
+                        <script type="text/template" id="checkboxTemplateMaster">
+                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
+                        </script>
+                    </div>
+                </div>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SelectedMachineApplicable();" class="btn">Apply</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="SkillApplicablePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> Skill List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="SkillGrid" ej-grid e-datasource="SkillApplicableList"
+                             e-allowfiltering="true" e-allowpaging="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-template="#checkboxTemplateMaster" e-textalign="center" e-width="30"></div>
+                                <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="80"></div>
+                                <div e-column e-field="Sequence" e-headertext="Sequence" e-width="80"></div>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
+                                <div e-column e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                                <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                                <div e-column e-field="UserName" e-headertext="User Name" e-width="80"></div>
+                                <div e-column e-field="SkillCategory" e-headertext="Skill Category" e-width="80"></div>
+
+                            </div>
+                        </div>
+                        <script type="text/template" id="checkboxTemplateMaster">
+                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
+                        </script>
+                    </div>
+                </div>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SelectedSkillApplicable();" class="btn">Apply</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="ProcessParameterApplicablePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> Process Parameter List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="ProcessParameterGrid" ej-grid e-datasource="ProcessParameterApplicableList"
+                             e-allowfiltering="true" e-allowpaging="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-template="#checkboxTemplateMaster" e-textalign="center" e-width="30"></div>
+                                <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="80"></div>
+                                <div e-column e-field="Sequence" e-headertext="Sequence" e-width="80"></div>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
+                                <div e-column e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                                <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                                <div e-column e-field="UserName" e-headertext="User Name" e-width="80"></div>
+                            </div>
+                        </div>
+                        <script type="text/template" id="checkboxTemplateMaster">
+                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
+                        </script>
+                    </div>
+                </div>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SelectedProcessParameterApplicable();" class="btn">Apply</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="DefectTypePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> Defect Type List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="DefectTypeGrid" ej-grid e-datasource="DefectTypeList"
+                             e-allowfiltering="true" e-allowpaging="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-template="#checkboxTemplateMaster" e-textalign="center" e-width="30"></div>
+                                <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="80"></div>
+                                <div e-column e-field="Sequence" e-headertext="Sequence" e-width="80"></div>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
+                                <div e-column e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                                <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                                <div e-column e-field="UserName" e-headertext="User Name" e-width="80"></div>
+                            </div>
+                        </div>
+                        <script type="text/template" id="checkboxTemplateMaster">
+                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
+                        </script>
+                    </div>
+                </div>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SelectedDefectType();" class="btn">Apply</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="DefectCheckPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> Defect Check Level List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="DefectCheckGrid" ej-grid e-datasource="DefectCheckList"
+                             e-allowfiltering="true" e-allowpaging="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-template="#checkboxTemplateMaster" e-textalign="center" e-width="30"></div>
+                                <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="80"></div>
+                                <div e-column e-field="Sequence" e-headertext="Sequence" e-width="80"></div>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
+                                <div e-column e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                                <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                                <div e-column e-field="UserName" e-headertext="User Name" e-width="80"></div>
+                            </div>
+                        </div>
+                        <script type="text/template" id="checkboxTemplateMaster">
+                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
+                        </script>
+                    </div>
+                </div>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SelectedDefectCheck();" class="btn">Apply</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="DefectZonePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> Defect Zone List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="DefectZoneGrid" ej-grid e-datasource="DefectZoneList"
+                             e-allowfiltering="true" e-allowpaging="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-template="#checkboxTemplateMaster" e-textalign="center" e-width="30"></div>
+                                <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="80"></div>
+                                <div e-column e-field="Sequence" e-headertext="Sequence" e-width="80"></div>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
+                                <div e-column e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                                <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                                <div e-column e-field="UserName" e-headertext="User Name" e-width="80"></div>
+                            </div>
+                        </div>
+                        <script type="text/template" id="checkboxTemplateMaster">
+                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
+                        </script>
+                    </div>
+                </div>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SelectedDefectZone();" class="btn">Apply</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="OperationPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> Operation Activity List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="OperationGrid" ej-grid e-datasource="OperationList"
+                             e-allowfiltering="true" e-allowpaging="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-template="#checkboxTemplateMaster" e-textalign="center" e-width="30"></div>
+                                <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="80"></div>
+                                <div e-column e-field="Sequence" e-headertext="Sequence" e-width="80"></div>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
+                                <div e-column e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                                <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                                <div e-column e-field="UserName" e-headertext="User Name" e-width="80"></div>
+                            </div>
+                        </div>
+                        <script type="text/template" id="checkboxTemplateMaster">
+                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
+                        </script>
+                    </div>
+                </div>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SelectedOperation();" class="btn">Apply</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="QualityPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> QMS Activity Master List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="QualityGrid" ej-grid e-datasource="QualityList"
+                             e-allowfiltering="true" e-allowpaging="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-template="#checkboxTemplateMaster" e-textalign="center" e-width="30"></div>
+                                <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="80"></div>
+                                <div e-column e-field="Sequence" e-headertext="Sequence" e-width="80"></div>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
+                                <div e-column e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                                <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                                <div e-column e-field="UserName" e-headertext="User Name" e-width="80"></div>
+                                <div e-column e-field="QMSActivityCategory" e-headertext="Activity Category" e-width="80"></div>
+                                <div e-column e-field="QualityActivityCheckType" e-headertext="Quality Activity Check Type" e-width="80"></div>
+                            </div>
+                        </div>
+                        <script type="text/template" id="checkboxTemplateMaster">
+                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
+                        </script>
+                    </div>
+                </div>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SelectedQuality();" class="btn">Apply</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="InspectionPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> Inspection Master List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="InspectionGrid" ej-grid e-datasource="InspectionList"
+                             e-allowfiltering="true" e-allowpaging="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-template="#checkboxTemplateMaster" e-textalign="center" e-width="30"></div>
+                                <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="80"></div>
+                                <div e-column e-field="Sequence" e-headertext="Sequence" e-width="80"></div>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
+                                <div e-column e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                                <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                                <div e-column e-field="UserName" e-headertext="User Name" e-width="80"></div>
+
+                            </div>
+                        </div>
+                        <script type="text/template" id="checkboxTemplateMaster">
+                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
+                        </script>
+                    </div>
+                </div>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SelectedInspection();" class="btn">Apply</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive aplos-grid-toggle">
+
+    <div id="QMSDefectMasterListGrid" ej-grid e-datasource="QMSDefectMasterList"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-recorddoubleclick="Get">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+            <div e-column e-field="Sequence" e-headertext="Sequence" e-width="1"></div>
+            <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="2"></div>
+            <div e-column e-field="StandardCode" e-headertext="Standard Code" e-width="2" e-visible="true"></div>
+            <div e-column e-field="UserName" e-headertext="User Name" e-width="2" e-visible="true"></div>
+            <div e-column e-field="UserCode" e-headertext="User Code" e-width="2"></div>
+            <div e-column e-field="ShortName" e-headertext="Short Name" e-width="2"></div>
+          
+        </div>
+    </div>
+
+
+</div>
+
+<confirm-archive-generic modalid="removerTAPopUp" title="Confirmation" message="Are you sure want to delete permanently ?" data-ng-click-right-button="DeleteTestApp();"></confirm-archive-generic>
+<confirm-archive-generic modalid="removerPAPopUp" title="Confirmation" message="Are you sure want to delete permanently ?" data-ng-click-right-button="DeleteProductApp();"></confirm-archive-generic>
+<confirm-archive-generic modalid="removerMAPopUp" title="Confirmation" message="Are you sure want to delete permanently ?" data-ng-click-right-button="DeleteMaterialApp();"></confirm-archive-generic>
+<confirm-archive-generic modalid="removerProcessAPopUp" title="Confirmation" message="Are you sure want to delete permanently ?" data-ng-click-right-button="DeleteProcessApp();"></confirm-archive-generic>
+<confirm-archive-generic modalid="removerMachineAPopUp" title="Confirmation" message="Are you sure want to delete permanently ?" data-ng-click-right-button="DeleteMachineApp();"></confirm-archive-generic>
+<confirm-archive-generic modalid="removerSkillAPopUp" title="Confirmation" message="Are you sure want to delete permanently ?" data-ng-click-right-button="DeleteSkillApp();"></confirm-archive-generic>
+<confirm-archive-generic modalid="removerProcessParameterAPopUp" title="Confirmation" message="Are you sure want to delete permanently ?" data-ng-click-right-button="DeleteProcessParameterApp();"></confirm-archive-generic>
+<confirm-archive-generic modalid="removerDefectTypePopUp" title="Confirmation" message="Are you sure want to delete permanently ?" data-ng-click-right-button="DeleteDefectType();"></confirm-archive-generic>
+<confirm-archive-generic modalid="removerDefectCheckPopUp" title="Confirmation" message="Are you sure want to delete permanently ?" data-ng-click-right-button="DeleteDefectCheck();"></confirm-archive-generic>
+<confirm-archive-generic modalid="removerDefectZonePopUp" title="Confirmation" message="Are you sure want to delete permanently ?" data-ng-click-right-button="DeleteDefectZone();"></confirm-archive-generic>
+<confirm-archive-generic modalid="removerOperationPopUp" title="Confirmation" message="Are you sure want to delete permanently ?" data-ng-click-right-button="DeleteOperation();"></confirm-archive-generic>
+<confirm-archive-generic modalid="removerQualityPopUp" title="Confirmation" message="Are you sure want to delete permanently ?" data-ng-click-right-button="DeleteQuality();"></confirm-archive-generic>
+<confirm-archive-generic modalid="removerInspectionPopUp" title="Confirmation" message="Are you sure want to delete permanently ?" data-ng-click-right-button="DeleteInspection();"></confirm-archive-generic>
+
+

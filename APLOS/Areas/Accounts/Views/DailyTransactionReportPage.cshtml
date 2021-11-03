@@ -1,0 +1,39 @@
+﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Daily Transaction</h3>
+<div class="form-elements form-horizontal" ng-form id="from" name="from">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors id="div_FromDate">
+            <label class="col-sm-2 control-label">As On Date<sup>*</sup></label>
+            <div class="col-sm-3 show-message">
+                <input type="text" name="Date" ng-model="report.FromDate" datepicker class="form-control" required tabindex="3">
+            </div>
+        </div>
+        <div class="form-group" show-errors id="div_Entity">
+            <label class="col-sm-2 control-label">Entity<sup>*</sup></label>
+            <div class="col-sm-3 show-message">
+                <input id="ddlEntityList"  e-minPopupHeight="450" e-enablePopupResize="true"  e-watermarktext="Entity" ej-dropdownlist e-datasource="entityList" e-model="entityId" e-enablefiltersearch="true" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-3 control-label">Format<sup>*</sup></label>
+            <div class="col-sm-9 radio">
+                <label>
+                    <input type="radio" name="source" ng-model="report.ReportFormat" value="@Library.Model.Enums.ReportFormat.Pdf.ToString()">
+                    <span class="cr" tabindex="1"><i class="cr-icon"></i></span>@Library.Model.Enums.ReportFormat.Pdf.ToString()
+                </label>
+                <label>
+                    <input type="radio" name="source" ng-model="report.ReportFormat" value="@Library.Model.Enums.ReportFormat.Excel.ToString()">
+                    <span class="cr" tabindex="2"><i class="cr-icon"></i></span>@Library.Model.Enums.ReportFormat.Excel.ToString()
+                </label>
+            </div>
+        </div>
+    </div>
+     
+
+        <div class="common-btn">
+            <ul class="list-inline text-left">
+
+                <li><button ng-click="getReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+            </ul>
+        </div>
+    </div>
+

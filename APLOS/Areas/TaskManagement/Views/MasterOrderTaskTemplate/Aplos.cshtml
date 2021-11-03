@@ -1,0 +1,490 @@
+﻿
+
+<div class="row" style=" height:34px;">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <span style="height:30px;width:30px;background-color:#3498DB;color:#3498DB;">[][][][]</span> <span>Master Order</span>
+        <span style="height:30px;width:30px;background-color:#DAF7A6;color:#DAF7A6;">[][][][]</span> <span>Line Item</span>
+        <span style="height:30px;width:30px;background-color:#FFC300;color:#FFC300;">[][][][]</span> <span>Sales Order</span>
+        <span style="height:30px;width:30px;background-color:#BB8FCE;color:#BB8FCE;">[][][][]</span> <span>Prod. Order</span>
+        <span style="height:30px;width:30px;background-color:transparent;color:transparent;border:2px solid fuchsia">[][][][]</span><span>Milestone</span>
+        <span style="height:30px;width:30px;background-color:transparent;color:transparent;border:2px solid red">[][][][]</span><span>First Task</span>
+        <span style="height:30px;width:30px;background-color:transparent;color:transparent;border:2px solid #F5EE00">[][][][]</span><span>Last Task</span>
+    </div>
+</div>
+<div class="row" id="divmain">
+    <div class="col-xs-12">
+        <div class="form-group">
+            <div id="angularganttForEdit" ej-gantt e-datasource="GEEganttdata"
+                 e-allowganttchartediting="false"
+                 e-allowresizing="true"
+                 e-enableresize="true"
+                 e-enablecontextmenu="true"
+                 e-allowdraganddrop="false"
+                 e-allowcolumnresize="true"
+                 e-taskidmapping="taskID"
+                 e-tasknamemapping="taskName"
+                 e-childmapping="subtasks"
+                 e-milestonemapping="milestone"
+                 e-startdatemapping="startDate"
+                 e-enddatemapping="endDate"
+                 e-durationmapping="duration"
+                 e-resources="GEEcolumnTemplateResource"
+                 e-resourceinfomapping="resourceId"
+                 e-resourcenamemapping="resourceName"
+                 e-resourceidmapping="resourceId"
+                 e-righttasklabeltemplate="rightlabelTemplate"
+                 e-taskbartooltiptemplateid="GEEtaskbarTooltipTemplateId"
+                 e-taskbareditingtooltiptemplateid="GEEtaskbarTooltipTemplateId"
+                 e-predecessormapping="predecessor"
+                 e-schedulestartdate="01/01/2017"
+                 e-scheduleenddate="10/16/2017"
+                 e-treecolumnindex="1"
+                 e-enablevirtualization="true"
+                 e-isresponsive="true"
+                 e-splitterposition="280"
+                 e-beginedit="GEEganttedit"
+                 e-toolbarclick="GEEtoolclick"
+                 e-contextmenuopen="GEEContextMenuOpen"
+                 e-actionbegin="GEEganttactionbegin"
+                 e-querytaskbarinfo="GEEganttqueryTaskbarInfo"
+                 e-load="GEEganttquerycellinfo" e-editsettings="GEEeditSettings" e-toolbarsettings="GEEtoolbarSettings"
+                 style="width:100%;height:450px;">
+            </div>
+
+            <script type="text/x-jsrender" id="AddNewIcon">
+                <div class="glyphicon glyphicon-plus text-center" style="width:36px;height:30px; padding-top:4px; padding-right:4px;"></div>
+            </script>
+            <script id="rightlabelTemplate" type="text/x-jsrender">
+                {{if #data['resourceNames']}}
+                <div>
+                    {{for resourceInfo}}
+                    <img onerror="$(arguments[0].currentTarget).attr('src','images/blankuser.png')" src="POPResources/EmployeeProfiles/EmpPic/{{:EmpPicPath}}" style="height:24px;border-radius: 50%;border:1px solid darkgray" />
+                    <span style="margin-left:5px;">{{:resourceName}}</span>
+                    {{:~_getSeparator(#get("array").data.length,#index)}}
+                    {{/for}}
+                </div>
+                {{/if}}
+            </script>
+            <script>
+                function _getSeparator(length, idx) {
+                    if (idx < length - 1) {
+                        return ","
+                    }
+                }
+                var helpers = {};
+                helpers["_getSeparator"] = _getSeparator;
+                $.views.helpers(helpers);
+            </script>
+
+        </div>
+    </div>
+</div>
+
+<script type="text/x-jsrender" id="tooltipTemplate">
+    <table>
+        <tr>
+            <td style="padding:3px" colspan="2"><b>{{:taskName}}</b></td>
+        </tr>
+
+        <tr>
+            <td style="padding:3px"><b>Duration</b></td>
+            <td style="padding:3px">{{:duration}} Day(s)</td>
+        </tr>
+    </table>
+
+</script>
+<script type="text/x-jsrender" id="ResizeTooltipTemplate">
+    <table>
+        <tr>
+            <td style="padding:3px" colspan="2"><b>{{:taskName}}</b></td>
+        </tr>
+
+        <tr>
+            <td style="padding:3px"><b>Duration</b></td>
+            <td style="padding:3px">{{:duration}} Day(s)</td>
+        </tr>
+    </table>
+
+</script>
+<style type="text/css">
+    #angularganttForEdit .e-ganttchart .e-gantt-schedule-container {
+        display: none;
+    }
+</style>
+<confirm-modal></confirm-modal>
+<ej-dialog id="dialogAPI" title="Confirm Delete?" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#ganttContainer" e-close="onDialogClose" e-minwidth="240" e-minheight="165" e-open="enableBtn">
+    <p>
+        Are you sure to delete the task?
+    </p>
+    <p class="text-right">
+        <ul class="list-inline text-right">
+            <li><button ng-click="GEEDelete();" class="btn"><i class="glyphicon glyphicon-floppy-remove"></i> Yes</button></li>
+            <li><button ng-click="GEEConfirmClose();" class="btn"><i class="glyphicon glyphicon-step-backward"></i> No</button></li>
+        </ul>
+    </p>
+</ej-dialog>
+
+<ej-dialog id="dialogSearchTask" title="Task Master" e-enablemodal="true" e-position-y="0" e-position-x="0" e-showoninit="false" e-target="#ganttContainer" e-close="onDialogClose" e-width="95%" e-minwidth="240" e-minheight="165" e-open="enableBtn">
+    <div class="row text-right">
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="search-form">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-3">
+                        <div class="select-style">
+                            <select ng-model="GEEsearchColTask">
+                                <option ng-repeat="option in GEEmodelFilterByListSearchTask" value="{{option.value}}">{{option.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-7 col-md-7">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="GEEsearchValTask" ng-enter="GEEgetTaskData()">
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button type="button" ng-click="GEEgetTaskData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="GridSearchTasks" ng-init="chkinit()" ej-grid e-datasource="GEETaskMasterList" e-recorddoubleclick="GEETaskSearchSelectedData"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-width="1"></div>
+            <div e-column e-field="Sequence" e-headertext="Seq" e-width="1"></div>
+            <div e-column e-field="Code" e-headertext="Code" e-width="2"></div>
+            <div e-column e-field="TaskDescription" e-headertext="Task Description" e-width="5"></div>
+            <div e-column e-field="Process" e-headertext="Process" e-width="3"></div>
+            <div e-column e-field="TaskCategory" e-headertext="Task Category" e-width="3"></div>
+            <div e-column e-field="Department" e-headertext="Department" e-width="3"></div>
+            <div e-column e-field="TaskAppliedOn" e-headertext="Applied On" e-width="3"></div>
+            <div e-column e-field="TaskType" e-headertext="TaskType" e-width="3"></div>
+            <div e-column e-field="Active" e-headertext="Active" e-width="1"></div>
+        </div>
+
+    </div>
+</ej-dialog>
+
+
+<ej-dialog id="dialogEditTask" title="Task Master" e-enablemodal="true" e-position-y="0" e-position-x="0" e-showoninit="false" e-target="#ganttContainer" e-close="onDialogClose" e-width="900" e-open="enableBtn">
+    <div class="col-xs-12" style="padding:10px;padding-bottom:30px;">
+        <div id="tabEdit" ej-tab e-headersize="40px">
+            <ul>
+                <li><a href="#GEEEditTemplate">Edit</a></li>
+                <li><a href="#GEESubTasks">Sub Tasks</a></li>
+                <li><a href="#GEEPredecessor">Depends On</a></li>
+            </ul>
+            <div id="GEEEditTemplate">
+                <div class="form-horizontal form-elements" ng-form="EditTemplateTNAForm">
+                    <div class="row">
+                        @*<div class="col-xs-12">
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">Task Description</label>
+                                    <div class="col-sm-10">
+                                        <textarea class="form-control" rows="3" ng-model="GEESingleMasterOrderTaskTemplate.TaskDescription" maxlength="250" tabindex="6"></textarea>
+                                    </div>
+                                </div>
+
+                            </div>*@
+                        <div class="col-xs-12">
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">Task Description</label>
+                                <div class="col-sm-6">
+                                    <textarea class="form-control" rows="3" ng-model="GEESingleMasterOrderTaskTemplate.TaskDescription" maxlength="250" tabindex="6"></textarea>
+                                </div>
+
+                                <label class="col-sm-2 control-label">Sequence</label>
+                                <div class="col-sm-2">
+                                    <input type="text" name="Sequence" ej-numerictextbox e-decimalplaces="2" e-minvalue="1" e-enablertl="false" e-value="GEESingleMasterOrderTaskTemplate.Sequence" e-width="100" />
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-xs-6 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Duration<sup>*</sup></label>
+                                <div class="col-sm-5">
+                                    <input type="text" e-enabled="GEESingleMasterOrderTaskTemplate.Active" name="Sequence" ej-numerictextbox e-decimalplaces="0" e-minvalue="0" e-enablertl="false" e-value="GEESingleMasterOrderTaskTemplate.Duration" e-width="100" />
+                                </div>
+                                <div class="col-sm-3 text-left" style="vertical-align:central; padding:4px;">
+                                    Day(s)
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Lag Days(on dep. date)<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <input type="text" ej-numerictextbox e-decimalplaces="0" e-enablertl="false" e-value="GEESingleMasterOrderTaskTemplate.LagDays" e-width="100" />
+                                    <a style="color:blue;font-style:italic;">**Negative value will be considered as lead days</a>
+                                </div>
+                            </div>
+                            @*<div class="form-group">
+                                    <label class="col-sm-4 control-label">Applied To New Order<sup>*</sup></label>
+                                    <div class="col-sm-8">
+                                        <input type="checkbox" ej-checkbox e-value="GEESingleMasterOrderTaskTemplate.ForNewOrder" e-checked="GEESingleMasterOrderTaskTemplate.ForNewOrder" class="nodetext" />
+                                    </div>
+                                </div>*@
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Task Type<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <input ej-dropdownlist e-datasource="GEETaskTypeList" e-value="GEESingleMasterOrderTaskTemplate.TaskType" @*e-fields-value="Id" e-fields-text="UserName"*@ e-width="100%" />
+
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Task Applied On<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <input ej-dropdownlist e-datasource="GEETaskAppliedOnList" e-value="GEESingleMasterOrderTaskTemplate.TaskAppliedOnId" e-change="GEELoadDependentDates" e-fields-value="Id" e-fields-text="UserName" e-width="100%" />
+
+                                </div>
+                                <label ng-hide="GEEhideNewOrRepeatOrderCheckbox" class="col-sm-4 control-label">Applied To New Order<sup>*</sup></label>
+                                <div ng-hide="GEEhideNewOrRepeatOrderCheckbox" class="col-sm-8">
+                                    <input type="checkbox" ej-checkbox e-value="GEESingleMasterOrderTaskTemplate.ForNewOrder" e-checked="GEESingleMasterOrderTaskTemplate.ForNewOrder" class="nodetext" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Task Dependent Date<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <input ej-dropdownlist id="GEETaskDependentDateList" e-dataBound="GEESelectDependentDates" e-datasource="GEETaskDependentDateList" e-value="GEESingleMasterOrderTaskTemplate.TaskDependentDatesId" e-fields-value="Id" e-fields-text="UserName" e-width="100%" />
+
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Resp. Person Cat.<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <input ej-dropdownlist e-enabled="false" e-datasource="GEEResponsiblePersonCategoryList" e-value="GEESingleMasterOrderTaskTemplate.ResponsiblePersonCategory" @*e-fields-value="Id" e-fields-text="UserName"*@ e-width="100%" />
+
+                                </div>
+                            </div>
+                            <div class="form-group" @*ng-hide="GEESingleMasterOrderTaskTemplate.ResponsiblePersonCategory!='Employee'"*@>
+                                <label class="col-xs-12 col-sm-4 col-md-4 control-label">Resp. Person<sup>*</sup></label>
+                                <div class="col-xs-12 col-sm-2 col-md-2" style="padding-right:0px;">
+                                    <input class="form-control" type="text" ng-disabled="true" ng-model="GEESingleMasterOrderTaskTemplate.EmployeeCode" />
+                                </div>
+                                <div class="col-xs-12 col-sm-5 col-md-5" style="padding-left:0px;padding-right:0px;">
+                                    <input class="form-control" name="Owner" type="text" ng-disabled="true" ng-model="GEESingleMasterOrderTaskTemplate.EmployeeName" required />
+                                </div>
+                                <div class="col-xs-12 col-sm-1 col-md-1" style="padding-left:0px;padding-right:0px;">
+                                    <ul class="common-btn list-inline text-right" style="padding: 0px;">
+                                        <li><button ng-click="GEEOpenEmployeeSearchBox('TASK');" class="btn" style="height:30px;width:30px; padding:0px;"><i class="glyphicon glyphicon-search small"></i></button></li>
+                                    </ul>
+                                </div>
+                            </div>
+
+
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-6">
+                            <div class="col-xs-6 col-sm-6 col-md-6">
+
+
+                                <div class="form-group">
+                                    <label class="col-sm-8 control-label">Active<sup>*</sup></label>
+                                    <div class="col-sm-4">
+                                        <input type="checkbox" ej-checkbox class="nodetext" e-value="GEESingleMasterOrderTaskTemplate.Active" e-checked="GEESingleMasterOrderTaskTemplate.Active" />
+
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-8 control-label">Mandatory<sup>*</sup></label>
+                                    <div class="col-sm-4">
+                                        <input type="checkbox" ej-checkbox class="nodetext" e-value="GEESingleMasterOrderTaskTemplate.IsMandatory" e-checked="GEESingleMasterOrderTaskTemplate.IsMandatory" />
+
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-8 control-label">Milestone<sup>*</sup></label>
+                                    <div class="col-sm-4">
+                                        <input type="checkbox" ej-checkbox class="nodetext" e-value="GEESingleMasterOrderTaskTemplate.IsTaskMilestone" e-checked="GEESingleMasterOrderTaskTemplate.IsTaskMilestone" />
+
+                                    </div>
+                                </div>
+
+                                @*<div class="form-group">
+                                        <label class="col-sm-8 control-label">Send Email<sup>*</sup></label>
+                                        <div class="col-sm-4">
+                                            <input type="checkbox" ej-checkbox class="nodetext" e-value="GEESingleMasterOrderTaskTemplate.WillSendEmail" e-checked="GEESingleMasterOrderTaskTemplate.WillSendEmail" />
+
+                                        </div>
+                                    </div>*@
+                            </div>
+                            <div class="col-xs-6 col-sm-6 col-md-6">
+                                @*<div class="form-group">
+                                        <label class="col-sm-8 control-label">Send SMS<sup>*</sup></label>
+                                        <div class="col-sm-4">
+
+                                            <input type="checkbox" ej-checkbox class="nodetext" e-value="GEESingleMasterOrderTaskTemplate.WillSendSMS" e-checked="GEESingleMasterOrderTaskTemplate.WillSendSMS" />
+
+                                        </div>
+                                    </div>*@
+                                <div class="form-group">
+                                    <label class="col-sm-8 control-label">First Task<sup>*</sup></label>
+                                    <div class="col-sm-4">
+
+                                        <input type="checkbox" ej-checkbox class="nodetext" e-value="GEESingleMasterOrderTaskTemplate.IsFirstTask" e-checked="GEESingleMasterOrderTaskTemplate.IsFirstTask" />
+
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-8 control-label">Last Task<sup>*</sup></label>
+                                    <div class="col-sm-4">
+
+                                        <input type="checkbox" ej-checkbox class="nodetext" e-value="GEESingleMasterOrderTaskTemplate.IsLastTask" e-checked="GEESingleMasterOrderTaskTemplate.IsLastTask" />
+
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-8 control-label">Required<sup>*</sup></label>
+                                    <div class="col-sm-4">
+
+                                        <input type="checkbox" ej-checkbox class="nodetext" e-value="GEESingleMasterOrderTaskTemplate.Active" e-checked="GEESingleMasterOrderTaskTemplate.Active" />
+
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-xs-12">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">
+                                        <a ej-tooltip e-content="The story point depends on the required time of completion of the task.">
+                                            Story Point
+                                        </a>
+                                    </label>
+                                    <div class="col-sm-8">
+                                        <input type="text" ej-numerictextbox e-decimalplaces="0" e-minvalue="0" e-enablertl="false" e-value="GEESingleMasterOrderTaskTemplate.StoryPoint" e-width="100" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Remarks<sup>*</sup></label>
+                                    <div class="col-sm-8">
+                                        <textarea class="form-control" rows="2" ng-model="GEESingleMasterOrderTaskTemplate.Remarks" maxlength="250"></textarea>
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                        </div>
+
+                        <p class="text-right">
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    <li><button ng-click="GEEUpdateTask();" class="btn"><i class="glyphicon glyphicon-floppy-save"></i> Update</button></li>
+                                </ul>
+                            </div>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div id="GEESubTasks">
+                <div class="row">
+
+                    <div id="GEEgridSubTask" ng-init="chkinit()" ej-grid e-datasource="GEESubTaskList" e-pagesettings-pagesize="4" e-minheight="300"
+                         e-endadd="GEESaveSubTask" e-endedit="GEESaveSubTask" e-enddelete="GEEDeleteSubTask" e-editsettings-allowediting="true" e-editsettings-allowadding="true" e-editsettings-allowdeleting="true"
+                         e-toolbarsettings-showtoolbar="true" e-toolbarsettings-toolbaritems="[ej.Grid.ToolBarItems.Add, ej.Grid.ToolBarItems.Edit, ej.Grid.ToolBarItems.Delete, ej.Grid.ToolBarItems.Update, ej.Grid.ToolBarItems.Cancel]"
+                         e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filtertype="excel">
+                        <div e-columns>
+                            <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-isprimarykey="true"></div>
+                            <div e-column e-field="MasterOrderTaskTemplateId" e-headertext="MasterOrderTaskTemplateId" e-visible="false"></div>
+                            <div e-column e-field="SubTaskDescription" e-headertext="Sub Tasks" e-width="5"></div>
+                        </div>
+
+                    </div>
+
+
+                </div>
+            </div>
+            <div id="GEEPredecessor">
+                <div class="row">
+                    <div class="form-group">
+                        <div class="col-xs-12">
+                            <div id="GEEgridPredecessor" ng-init="chkinit()" ej-grid e-datasource="GEEDependencyList" e-pagesettings-pagesize="4"
+                                 e-endadd="GEESaveMasterOrderTaskTemplateDependency" e-endedit="GEESaveMasterOrderTaskTemplateDependency"
+                                 e-editsettings-allowediting="true"
+                                 e-editsettings-allowadding="true"
+                                 e-editsettings-allowdeleting="true"
+                                 e-enddelete="GEEDeleteMasterOrderTaskTemplateDependency"
+                                 e-toolbarsettings-showtoolbar="true" e-toolbarsettings-toolbaritems="[ej.Grid.ToolBarItems.Add, ej.Grid.ToolBarItems.Edit, ej.Grid.ToolBarItems.Delete, ej.Grid.ToolBarItems.Update, ej.Grid.ToolBarItems.Cancel]"
+                                 e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
+                                 e-allowselection="true" e-filtersettings-filtertype="excel">
+                                <div e-columns>
+                                    <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-isprimarykey="true"></div>
+                                    <div e-column e-field="TaskTemplateId" e-headertext="TaskTemplateId" e-visible="false"></div>
+                                    <div e-column e-field="PreTaskTemplateId" e-width="55" e-foreignkeyfield="taskID" e-foreignkeyvalue="taskName" e-datasource="GEEganttPredecessorData" e-headertext="Task" e-visible="true"></div>
+                                    <div e-column e-field="Criteria" e-width="25" e-foreignkeyfield="predecessorType" e-foreignkeyvalue="predecessorName" e-datasource="GEEpredecessorTypeddl" e-headertext="Criteria" e-visible="true"></div>
+                                    <div e-column e-field="LagDays" e-width="20" @*e-edittype="[ej.Grid.EditingType.Numeric]"*@ e-format="{0:N0}" e-headertext="Lag Days" e-visible="true"></div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ej-dialog>
+
+
+<ej-dialog id="dialogSearchEmployee" title="Employees" e-enablemodal="true" e-position-y="0" e-position-x="0" e-showoninit="false" e-target="#ganttContainer" e-close="onDialogClose" e-width="900" e-open="enableBtn">
+    <div class="row">
+        <div class="row text-right">
+            <div class="col-xs-12 col-sm-12 col-sm-12">
+                <div class="search-form">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-3 col-md-3">
+                            <div class="select-style">
+                                <select ng-model="GEEEmployeeSearchCol">
+                                    <option ng-repeat="option in GEEEmployeemodelFilterByList" value="{{option.value}}">{{option.name}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-7 col-md-7">
+                            <input type="text" class="form-control" placeholder="Search" ng-model="GEEEmployeeSearchVal" ng-enter="GEEgetEmployeeData()">
+                        </div>
+                        <div class="col-xs-12 col-sm-2 col-md-2">
+                            <button type="button" ng-click="GEEgetEmployeeData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="SearchEmployee" ng-init="chkinit()" ej-grid e-datasource="GEEEmployeeList" e-gridlines="horizontal"
+             e-allowtextwrap="true" e-textwrapsettings.wrapmode="content"
+             e-recorddoubleclick="GEEViewEmployeeStatus" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel">
+            <div e-columns>
+                <div e-column e-field="Id" e-headertext="Id" e-width="30" e-primarykey="true" e-visible="false"></div>
+                <div e-column e-headertext="" e-template="#empimage" e-textalign="center" e-width="40"></div>
+                <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="30"></div>
+                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                <div e-column e-field="Designation" e-headertext="Designation" e-width="80"></div>
+                <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="80"></div>
+            </div>
+        </div>
+        <script type="text/x-jsrender" id="empimage">
+            <img onerror="$(arguments[0].currentTarget).attr('src','images/blankuser.png')" src="POPResources/EmployeeProfiles/EmpPic/{{:EmpPicPath}}" style="height:48px;width:48px;" />
+        </script>
+    </div>
+</ej-dialog>
+<style type="text/css">
+    .e-gantt .e-treegrid .e-headercelldiv {
+        color: #ffffff;
+    }
+
+    .e-treegrid .e-headercelldiv {
+        color: #ffffff;
+    }
+
+    .e-tab .e-active-content {
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+</style>
+

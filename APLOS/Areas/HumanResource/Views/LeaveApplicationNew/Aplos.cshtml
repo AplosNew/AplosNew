@@ -1,0 +1,253 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> {{title}}
+</h3>
+<div class="form-elements form-horizontal" ng-form name="leaveApplicationNewForm">
+    <div class="clearfix"></div>
+    <input type="hidden" ng-model="leaveApplicationNew.Id">
+    <input type="text" ng-model="leaveApplicationNew.Id" hidden />
+    <div class="col-xs-12 col-sm-6 col-md-6">
+
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Employee Select<sup>*</sup></label>
+                <div class="input-group">
+                    <div class="col-sm-4">
+                        <input type="text" style="left:-20px;" ng-enter="GetEnterEmployeeOutInfo()" ng-model="leaveApplicationNew.EmployeeCode" placeholder="Employee Code" class="form-control" maxlength="100" tabindex="2">
+                    </div>
+                    <div class="col-sm-6" style="left:-20px;">
+                        <input type="text" name="EmployeeName" ng-model="leaveApplicationNew.EmployeeName" class="form-control" required readonly>
+                    </div>
+                    <div class="col-sm-2">
+                        <span class="input-group-btn">
+                            <button name="submit" ng-click="getPopUpData()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Leave Policy :</label>
+            <div class="col-sm-8">
+                <label>{{LeavePolicyNames}}</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Designation Group :</label>
+            <div class="col-sm-8">
+                <label>{{leaveApplicationNew.DesignationGroup}}</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Legal Designation :</label>
+            <div class="col-sm-8">
+                <label>{{leaveApplicationNew.LegalDesignation}}</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Employee DOJ :</label>
+            <div class="col-sm-8">
+                <label>{{leaveApplicationNew.DOJ}}</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Employee DOC :</label>
+            <div class="col-sm-8">
+                <label>{{leaveApplicationNew.DOC}}</label>
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Approving Authority</label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    <select id="ID" class="form-control" ng-model="leaveApplicationNew.ApprovalPerson" name="Approval Person">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in empList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Calender Year</label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    <select id="ID" class="form-control" ng-model="YearNo" name="YearNo" ng-change="getLeaveBalance();getData()">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in leaveYearlist" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-sm-12">
+                <div class="radio">
+                    <label>
+                        <input type="radio" id="fullDay" name="LeaveDayType" ng-model="leaveApplicationNew.LeaveDayType" value="FullDay" ng-checked="leaveApplicationNew.LeaveDayType" ng-click="setEnable()">
+                        <span class="cr"><i class="cr-icon"></i></span>Full Day
+                    </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <label>
+                        <input type="radio" id="fHalfDay" name="LeaveDayType" ng-model="leaveApplicationNew.LeaveDayType" value="FirstHalfDay" ng-click="setDisable()">
+                        <span class="cr"><i class="cr-icon"></i></span>First Half Day
+                    </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <label>
+                        <input type="radio" id="sHalfDay" name="LeaveDayType" ng-model="leaveApplicationNew.LeaveDayType" value="SecondHalfDay" ng-click="setDisableSec()">
+                        <span class="cr"><i class="cr-icon"></i></span>Second Half Day
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group" ng-hide="lvTodate">
+            <label class="col-sm-4 control-label" id="tDate">Applied Date<sup>*</sup></label>
+            <div class="col-sm-8">
+                <input type="text" name="Applied Date" ng-model="leaveApplicationNew.AppliedDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="3">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Leave Type<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select id="ID" class="form-control" ng-model="leaveApplicationNew.LTSystemID" name="Leave Type" required tabindex="1">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in leaveTypelist" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label" id="fDate">From Date<sup>*</sup></label>
+            <div class="col-sm-8  show-message">
+                <input type="text" name="From Date" ng-model="leaveApplicationNew.FromDate" datepicker class="form-control" placeholder="dd-MM-yyyy" required tabindex="2">
+            </div>
+        </div>
+        <div class="form-group" ng-hide="lvTodate">
+            <label class="col-sm-4 control-label" id="tDate">To Date<sup>*</sup></label>
+            <div class="col-sm-8">
+                <input type="text" name="To Date" ng-model="leaveApplicationNew.ToDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="3">
+            </div>
+        </div>
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Leave Reason<sup>*</sup></label>
+            <div class="col-sm-8  show-message">
+                <textarea type="text" name="Leave Reason" ng-model="leaveApplicationNew.LvReason" rows="3" class="form-control" required tabindex="4"></textarea>
+            </div>
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-left">
+                <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <div class="col-sm-8">
+                <div>
+                    <img id="uploadImageSrc" ng-src="{{imageSrc}}" style="margin-left: 305px; border: 1px solid; height: 200px; width: 200px;" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="table-responsive modal-table">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Leave Name</th>
+                        <th>Brought Forward</th>
+                        <th>Current Year Allocation</th>
+                        <th>Leave Days Allowed</th>
+                        <th>Applied</th>
+                        <th>Availed</th>
+                        <th>Encashed</th>
+                        <th>Balance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="x in LeaveBalanceList">
+                        <td>{{x.LeaveName}}</td>
+                        <td>{{x.BroughtForward}}</td>
+                        <td>{{x.CurrentAllocation}}</td>
+                        <td>{{x.LeaveDays}}</td>
+                        <td>{{x.Applied}}</td>
+                        <td>{{x.Availed}}</td>
+                        <td>{{x.EncashedInbetween}}</td>
+                        <td>{{x.Balance}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        @*<label ng-model="leaveApplicationNew.ExceptionLeave">You are taking  exception  leave  </label>*@
+    </div>
+    <div class="clearfix"></div>
+</div>
+<div class="table-responsive modal-table  aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Leave Name</th>
+                <th>Leave Day Type</th>
+                <th>From Date</th>
+                <th>To Date</th>
+                <th>Leave Reason</th>
+                <th>Approved</th>
+                <th>Reject</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in LeaveTransactionList |itemsPerPage:leaveParameters.pageSize" total-items="leaveParameters.total_count" ng-dblclick="Get(x.Id, $index);">
+                <td>{{x.leaveTypeName}}</td>
+                <td>{{x.LeaveDayType}}</td>
+                <td>{{x.FromDate|dateFiltering}}</td>
+                <td>{{x.ToDate|dateFiltering}}</td>
+                <td>{{x.LvReason}}</td>
+                <td>{{x.IsApproved?'Yes':'No'}}</td>
+                <td>{{x.IsCancel?'Yes':'No'}}</td>
+
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10"
+                             direction-links="true"
+                             boundary-links="true"
+                             on-page-change="getData(newPageNumber)">
+    </dir-pagination-controls>
+</div>
+<div class="modal fade site-modal in" id="employeeNewPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" ng-click="closeEmployeePopUp();">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="Grid" ej-grid e-datasource="employee" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                            <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-modal></confirm-modal>

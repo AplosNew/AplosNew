@@ -1,0 +1,133 @@
+﻿<style>
+    .e-grid .e-gridcontent { 
+        font-size: 10px;
+        width: 100%;
+    }
+
+
+
+    .e-grid .e-headercelldiv {
+        font-size: 11px;
+        overflow-wrap: break-word;
+     
+    }
+</style>
+
+
+
+<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> Attendance Lock/UnLock </h3>
+<div class="row form-horizontal form-elements">
+
+  
+</div>
+<br />
+<div class="row form-horizontal form-elements" >
+    <div class="col-xs-12 col-sm-6 col-md-7 ">
+        <div class="form-group">
+            <label class="col-sm-3 control-label"> Date<sup>*</sup></label>
+            <div class="col-sm-4">
+                <div class="select-style">
+                    <input type="text" class="form-control" datepicker ng-change="GetEmpData()" required ng-model="ModelNew.lockDate" />
+                   
+                </div>
+
+            </div>
+          
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-4 col-md-3 ">
+        <div class="common-btn">
+
+            <ul class="list-inline text-right">
+
+                <li style="float:left"> <button ng-click="LockFunc()"  class="btn"><i class="glyphicon glyphicon-check"></i> Lock</button></li>
+            
+                <li style="float:right"> <button ng-click="UnLockFunc()" class="btn"><i class="glyphicon glyphicon-check"></i> UnLock</button></li>
+            </ul>
+        </div>
+
+    </div>
+   
+
+</div>
+
+<br />
+<div class="tab-design" id="tab_show">
+    <div class="site-tab">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" ng-class="{ active: isSet1(1) }"><a ng-click="setTab1(1)" href="" aria-controls="aria2" role="tab" data-toggle="tab">UnLocked Employee ({{UnlockedEmployeesCount}})</a></li>
+            <li role="presentation" ng-class="{ active: isSet2(2) }"><a ng-click="setTab2(2)" href="" aria-controls="aria4" role="tab" data-toggle="tab">Locked Employee  ({{LockedEmployeesCount}})</a></li>
+        </ul>
+    </div>
+    
+    <div class="tab-content" id="tabpaneldiv">
+
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet1(1), active: isSet1(1) }">
+
+
+
+            <div id="GridUnlockedEmployeesList" ej-grid
+                 e-datasource="UnlockedEmployees"
+                 e-recorddoubleclick="Get"
+                 e-allowscrolling="true"
+                 e-actioncomplete="actionCompleteSelected1"
+                 e-templaterefresh="refreshTemplateemployee"
+                 e-endedit="updatedata"
+                 e-allowfiltering="true"
+                 e-allowpaging="true"
+                 e-allowsorting="true"
+                 e-enabletouch="false"
+                 e-responsive="true"
+                 e-allowselection="true"
+                 e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="110"></div>
+                    <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="150"></div>
+                    <div e-column e-field="DOJ" e-headertext="DOJ" e-allowediting="false" e-width="100"></div>
+                    <div e-column e-field="DayStatus" e-headertext="DayStatus" e-allowediting="false" e-width="100"></div>
+                    <div e-column e-field="Section" e-headertext="Section" e-allowediting="false" e-width="130"></div>
+                    <div e-column e-field="SubSection" e-headertext="SubSection" e-allowediting="false" e-width="130"></div>
+                    <div e-column e-field="Department" e-headertext="Department" e-allowediting="false" e-width="130"></div>
+
+                </div>
+            </div>
+
+        </div>
+
+      
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(2), active: isSet2(2) }">
+
+
+
+            <div id="GridLockedEmployeesList" ej-grid
+                 e-datasource="LockedEmployees"
+                 e-recorddoubleclick="Get"
+                 e-allowscrolling="true"
+                 e-actioncomplete="actionCompleteSelected2"
+                 e-templaterefresh="refreshTemplateemployee"
+                 e-endedit="updatedata"
+                 e-allowfiltering="true"
+                 e-allowpaging="true"
+                 e-allowsorting="true"
+                 e-enabletouch="false"
+                 e-responsive="true"
+                 e-allowselection="true"
+                 e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="110"></div>
+                    <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="150"></div>
+                    <div e-column e-field="DOJ" e-headertext="DOJ" e-allowediting="false" e-width="100"></div>
+                    <div e-column e-field="DayStatus" e-headertext="DayStatus" e-allowediting="false" e-width="100"></div>
+                    <div e-column e-field="Section" e-headertext="Section" e-allowediting="false" e-width="130"></div>
+                    <div e-column e-field="SubSection" e-headertext="SubSection" e-allowediting="false" e-width="130"></div>
+                    <div e-column e-field="Department" e-headertext="Department" e-allowediting="false" e-width="130"></div>
+
+                </div>
+            </div>
+
+        </div>
+        
+        
+    </div>
+</div>
+

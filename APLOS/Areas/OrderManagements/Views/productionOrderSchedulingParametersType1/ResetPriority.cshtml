@@ -1,0 +1,50 @@
+﻿<div class="col-sm-12" style="width:900px!important;">
+    @*<div class="col-sm-12">*@
+    <span>Press CTRL+Left Mouse over each column header for sorting multiple columns</span>
+    <div id="GridChangePriority" ng-init="chkinit()" e-load="actionCompleteSearch" ej-grid e-datasource="modelPriorityList"
+         e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-allowmultisorting="true"
+         e-allowsorting="true" e-allowscrolling="true" e-minwidth="450" e-minheight="400" e-allowrowdraganddrop="true" e-sortsettings="sortSettings"
+         e-allowselection="true" e-filtersettings-filterType="excel" style="width:880px!important;">
+
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Order ID" e-width="50"></div>
+
+            <div e-column e-field="ProductionStatus" e-headertext="Production Status" e-width="80"></div>
+            <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="LSD" e-headertext="LSD" e-width="80"></div>
+            <div e-column e-type="numeric" e-field="ProductionPriority" e-headertext="Priority" e-width="80"></div>
+            <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="FirstShipmentDate" e-headertext="First Delivery Date" e-width="80"></div>
+            <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="LastShipmentDate" e-headertext="Last Delivery Date" e-width="80"></div>
+            <div e-column e-field="buyer" e-headertext="Buyer" e-width="180"></div>
+
+            <div e-column e-field="Customer" e-headertext="Customer" e-width="180"></div>
+            <div e-column e-field="EntityName" e-headertext="Entity" e-width="90"></div>
+
+            <div e-column e-field="ProductCategory" e-headertext="Product Category" e-width="180"></div>
+            <div e-column e-field="Product" e-headertext="Product" e-width="180"></div>
+            <div e-column e-field="Material" e-headertext="Material" e-width="180"></div>
+            <div e-column e-field="article" e-headertext="Article" e-width="180"></div>
+
+            <div e-column e-field="MasterOrderId" e-headertext="Master Order#" e-width="180"></div>
+            <div e-column e-field="BuyerRefNo" e-headertext="Buyer Order#" e-width="100"></div>
+            <div e-column e-field="OwnRefNo" e-headertext="Own Order#" e-width="100"></div>
+            <div e-column e-field="StyleNo" e-headertext="Buyer Item#" e-width="100"></div>
+            <div e-column e-field="OwnStyleNo" e-headertext="Own Item#" e-width="100"></div>
+            <div e-column e-field="SONo" e-headertext="SO Nos" e-width="100"></div>
+            <div e-column e-field="SODesc" e-headertext="SO Desc" e-width="100"></div>
+            <div e-column e-field="CommitmentDate" e-headertext="Commitment Date" e-width="80"></div>
+            <div e-column e-field="TargetPerDay" e-headertext="Target Per Day" e-width="80"></div>
+            <div e-column e-field="POQuantity" e-headertext="Qty" e-width="80"></div>
+            <div e-column e-field="SOQuantity" e-headertext="Plan Qty" e-width="80"></div>
+
+            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="200"></div>
+        </div>
+
+    </div>
+
+
+    @*</div>*@
+    <ul class="common-btn list-inline text-right">
+        <li><button ng-click="getPriorityData();" class="btn"><i> Apply</i></button></li>
+        <li><button ng-click="closePopup('dialogresetpriority')" class="btn"><i> Close</i></button></li>
+    </ul>
+</div>

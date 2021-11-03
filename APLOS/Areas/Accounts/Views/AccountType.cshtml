@@ -1,0 +1,67 @@
+﻿<togglable name="Account Type "></togglable>
+<div class="form-elements" ng-form id="accountType" name="accountTypeForm">
+    <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" submit-required="true" ng-model="accountType.Id" ng-options="item.Value as item.Text for item in coaaccounttypeList"></select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Description</label>
+            <div class="col-sm-8">
+                <textarea maxlength="250" name="Description" class="form-control" rows="3" ng-model="accountType.Description" tabindex="7"></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Balance Type <sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" submit-required="true" ng-model="accountType.BalanceType" ng-options="item.Value as item.Text for item in accounttypebalancetypeList"></select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Is Balance Sheet Type</label>
+            <div class="col-sm-8">
+                <div class="checkbox-site">
+                    <label>
+                        <input tabindex="8" type="checkbox" id="IsBalanceSheet" ng-model="accountType.IsBalanceSheet">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> {{Action}}</button></li>
+            <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="11"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>User Name</th>
+                <th>Balance Type</th>
+                <th>Is Balance Sheet</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in accountTypes |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get(x.Id, $index);">
+                <td>{{x.Id}}</td>
+                <td>{{x.BalanceType}}</td>
+                <td>{{x.IsBalanceSheet?'Yes':'No'}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)">
+    </dir-pagination-controls>
+</div>
+<confirm-modal></confirm-modal>

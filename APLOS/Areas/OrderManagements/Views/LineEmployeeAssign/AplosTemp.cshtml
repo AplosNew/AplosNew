@@ -1,0 +1,189 @@
+﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Line Employee Assign</h3>
+<div ng-form="lineEmployeeAssignNewForm" class=" form-elements form-horizontal">
+    <fieldset class="scheduler-border">
+        <legend class="scheduler-border">Excel Upload</legend>
+        <div class="col-md-6 col-sm-8 col-xs-12 tab-design">
+            <div class="form-group">
+                <div class="col-sm-6">
+                    <input ng-file-select="" type="file" accept=".xls,.xlsx" id="upload" name="file">
+                </div>
+                <div class="col-sm-4">
+                    <button ng-click="getExcelData();" class="btn single-small-btn"><i class="glyphicon glyphicon-repeat"></i></button>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+
+    <div class="col-xs-12 col-sm-4 col-md-4">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Production Date<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Production Date" id="ProductionDate" ng-model="lineEmployeeAssignNew.OperationDate" tabindex="5" datepicker="getLineCbo();" class="form-control" required>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-4 col-md-4">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Line <sup>*</sup></label>
+            <div class="col-sm-8  show-message">
+                <div class="select-style">
+                    <select name="Line" ng-model="lineEmployeeAssignNew.LineId" id="LineId" class="col-sm-3 form-control"
+                            ng-options="item.Value as item.Text for item in lineList" required ng-change="getOperationList()">
+                        <option></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-4 col-md-4">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Operation <sup>*</sup></label>
+            <div class="col-sm-8  show-message">
+                <div class="select-style">
+                    <select name="Operation" ng-model="lineEmployeeAssignNew.OperationId" id="OperationId" class="col-sm-3 form-control"
+                            ng-options="item.Value as item.Text for item in operationList" required ng-change="getSalesOrderCbo();getEmpAssignList();">
+                        <option></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="payrollGroupMasterNew" class="form-elements  form-horizontal" ng-form name="lineEmployeeAssignNewForm">
+    <div class="col-sm-12  col-sm-6 col-md-6 form-element-ctrl">
+
+    </div>
+    <div class="col-sm-12  col-sm-6 col-md-6 form-element-ctrl">
+        <div class="form-group text-right">
+            <div class="col-sm-12">
+                <button name="Add" class="single-btn" ng-click="getSalesOrder();"><i class="glyphicon glyphicon-plus"></i></button>
+                <button name="Report" class="single-btn" ng-click="getReport();"><i class="glyphicon glyphicon-print"></i></button>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="row form-elements">
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="table-responsive modal-table">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Sales Order</th>
+                            <th>Fabrication</th>
+                            <th>Style</th>
+                            <th>TotalQty</th>
+                            <th>Production Qty</th>
+                            <th>Employee</th>
+                            <th>Remove</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in lineEmployeeAssigns">
+                            <td>{{x.SalesOrder}}</td>
+                            <td>{{x.Fabrication}}</td>
+                            <td>{{x.Style}}</td>
+                            <td>{{x.TotalQty}}</td>
+                            <td>
+                                <input type="text" class="form-control" n-decimals="2" ng-model="x.ProductionQty">
+                            </td>
+                            <td>
+                                <div class="col-sm-8 input-group">
+                                    <input type="text" ng-model="x.EmployeeName" class="col-sm-2 form-control" name="Employee name" readonly>
+                                    <span class="input-group-btn">
+                                        <button class="btn single-small-btn" style="margin-top:-5px;margin-bottom:-5px;"
+                                                ng-click="addRowEmployee($index)" tabindex="4">
+                                            <i class="cr-icon glyphicon glyphicon-search"></i>
+                                        </button>
+                                        <button class="btn single-small-btn" ng-click="employeeValueClear($index)" style="margin-top:-5px;margin-bottom:-5px;"><i class="cr-icon glyphicon glyphicon-refresh"></i></button>
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="text-right">
+                                <button ng-click="valuePassInDelModal($index,x)" class="btn-action tooltip-here"
+                                        data-placement="top" title="Delete">
+                                    <i class="glyphicon glyphicon-remove"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-modal></confirm-modal>
+<confirm-archive-generic modalid="confirm_PopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRow()"></confirm-archive-generic>
+<div class="modal fade site-modal in" id="employeePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="employeeParameters.searchBy">
+                                            <option ng-repeat="option in searchEmployeeByList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="employeeParameters.search" ng-enter="getEmployeeData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getEmployeeData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Employee Code</th>
+                                <th>Employee Name</th>
+                                <th>Given Designation</th>
+                                <th>Department</th>
+                                <th>Division</th>
+                                <th>Section</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in employeeList|itemsPerPage:employeeParameters.pageSize" total-items="employeeParameters.total_count" pagination-id="metaData.name + 'employeeList'" ng-dblclick="addEmployee(x)">
+                                <td>{{x.EmployeeCode}}</td>
+                                <td>{{x.EmployeeName}}</td>
+                                <td>{{x.GivenDesignation}}</td>
+                                <td>{{x.Department}}</td>
+                                <td>{{x.Division}}</td>
+                                <td>{{x.Section}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'employeeList'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getEmployeeData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Select</button>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic data-modalid="confirmgenericPopUpForEmployee" title="Product" message={{message_confirmation}} data-ng-click-right-button="confirmToShowEmployeeModal()" data-ng-click-left-button="notConfirmToShowEmployeeModal()">

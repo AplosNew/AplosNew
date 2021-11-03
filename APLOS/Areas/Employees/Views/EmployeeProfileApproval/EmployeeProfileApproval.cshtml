@@ -1,0 +1,91 @@
+﻿<style>
+    .e-grid .e-gridcontent { /* grid content color*/
+        /*min-height:500px*/
+        font-size: 10px;
+        width: 100%;
+    }
+
+
+
+    .e-grid .e-headercelldiv {
+        /*font-weight: bold;*/
+        font-size: 11px;
+        /*display: block;
+        border: 0 none;*/
+        overflow-wrap: break-word;
+        /*height: 60px;*/
+        /*line-height: 29px;
+        margin: -7px;
+        padding: 0 .7em;
+        text-align: left;
+        white-space: nowrap;
+        text-overflow: ellipsis;*/
+    }
+</style>
+<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>{{FormTitle}}</h3>
+<p style="color:blue;font-size:11px">Work based on Payroll Group wise access control.</p>
+
+<div class="row form-horizontal form-elements" id="tabpaneldiv">
+    <div class="col-md-12">
+        <div id="Grid" ej-grid
+             e-datasource="employees"
+             e-allowscrolling="true"
+             e-actioncomplete="actionCompleteSelected"
+             e-templaterefresh="refreshTemplateemployee"
+             e-endedit="updatedata"
+             e-allowfiltering="true"
+             e-allowpaging="true"
+             e-allowsorting="true"
+             e-enabletouch="false"
+             e-responsive="true"
+             e-allowselection="true"
+             e-filtersettings-filterType="excel">
+            <div e-columns>
+                <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
+                <div e-column e-field="EmployeeCode" e-isprimarykey="true" e-allowediting="false" e-headertext="Employee Code" e-width="100"></div>
+                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="150"></div>
+                <div e-column e-field="DOJs" e-headertext="DOJ" e-width="70"></div>
+                <div e-column e-field="EmployeeCategory" e-headertext="Emp Category" e-width="50"></div>
+                <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                <div e-column e-field="Section" e-headertext="Section" e-width="70"></div>
+                <div e-column e-field="SubSection" e-headertext="SubSection" e-width="90"></div>
+                <div e-column e-field="PayrollGroup" e-headertext="Payroll Group" e-width="90"></div>
+                <div e-column e-field="PositionName" e-headertext="Position" e-width="80"></div>
+                <div e-column e-field="EntityName" e-headertext="Entity" e-width="80"></div>
+                <div e-column e-field="Code" e-headertext="Budget Code" e-width="80"></div>
+                <div e-column e-field="ApprovalAuthority" e-headertext="Approval Authority" e-width="150"></div>
+            </div>
+        </div>
+        <script type="text/x-jsrender" id="checkboxTemplate">
+            <input type="checkbox" ng-model="{{:SystemID}}" class="rowCheckbox" value="{{:SystemID}}" />
+        </script>
+        <script type="text/x-jsrender" id="headerTemplate">
+            <input type="checkbox" id="headchk" />
+        </script>
+
+    </div>
+
+</div>
+<div class="row form-horizontal form-elements">
+    <div class="col-xs-12 col-sm-10 col-md-10">
+
+    </div>
+    <div class="col-xs-12 col-sm-2 col-md-2">
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                
+                <li style="float:right"> <button ng-click="SaveData();" class="btn"><i class="glyphicon glyphicon-check"></i> Approved</button></li>
+            </ul>
+        </div>
+    </div>
+</div>
+<br />
+
+<ej-dialog id="dialogMessage" title="{{messageTitle}}" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#tabpaneldiv" e-close="onDialogClose" e-minwidth="50%" e-minheight="50" e-open="enableBtn">
+    <div>
+        {{messageText}}
+    </div>
+</ej-dialog>
+
+

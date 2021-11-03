@@ -1,0 +1,28 @@
+﻿
+<div class="col-sm-12">
+    <div class="form-elements form-horizontal">
+        <div id="GridIssueTransaction" ng-init="chkinit()" ej-grid e-datasource="issueTransactionList" @*e-templaterefresh="refreshTemplateIssueTransaction"*@
+             e-recorddoubleclick="EditAssignToMeDetail" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel" e-gridlines="none">
+            <div e-columns>
+                <div e-column e-headertext="" e-template="#empimage" e-textalign="center" e-width="40"></div>
+                <div e-column e-field="Issue" e-headertext="Task" e-width="180"></div>
+                <div e-column e-field="IssueCategory" e-headertext="Category" e-width="80"></div>
+                <div e-column e-field="IssueSubCategory" e-headertext="Sub Category" e-width="50"></div>
+                <div e-column e-field="BuyerName" e-headertext="Buyer" e-width="50"></div>
+                <div e-column e-field="IssueImportance" e-headertext="Importance" e-width="50"></div>
+                <div e-column e-field="RequiredDate" e-headertext="Required Date" e-width="50"></div>
+                <div e-column e-field="AssignBy" e-headertext="AssignBy" e-width="40" e-textalign="right"></div>
+            </div>
+        </div>
+        <script type="text/x-jsrender" id="empimage">
+            <img src="POPResources/EmployeeProfiles/EmpPic/{{:EmpPicPath}}" style="padding-right:10px; height:30px;width:30px;border-radius:50%;" />
+        </script>
+    </div>
+</div>
+
+@Html.Partial("~/Areas/TaskManagement/Views/TaskList/EditIssueTransactionListPopUp.cshtml")
+
+
+
+

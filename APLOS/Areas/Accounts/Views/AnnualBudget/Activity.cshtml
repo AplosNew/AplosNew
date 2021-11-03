@@ -1,0 +1,98 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Activity Responsible Person
+</h3>
+<div class="form-horizontal" ng-form name="bankMasterForm">
+    <div class="col-xs-12 col-sm-6 col-md-6 form-element-ctrl form-horizontal">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="routineBudget.EntityId" name="Entity"
+                            ng-options="item.Value as item.Text for item in entityList" ng-change="getCboFiscalYear(routineBudget.EntityId); getData()" required>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6 form-element-ctrl form-horizontal">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Fiscal Year<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select ng-change="getCboRoutineBudgetMasterByEntityAndFY(routineBudget.EntityId, routineBudget.FiscalYearId)" name="FiscalYear" class="col-sm-3 form-control" ng-model="routineBudget.FiscalYearId"
+                            ng-options="item.Value as item.Text for item in fiscalYearList" required>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="col-xs-12 col-sm-6 col-md-6 form-element-ctrl form-horizontal">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Budget<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select ng-change="getData()" name="FiscalYear" class="col-sm-3 form-control" ng-model="routineBudget.Id"
+                            ng-options="item.Value as item.Text for item in budgetMasterList" required>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Short Name</th>
+                <th>Standard Name</th>
+                <th>User Name</th>
+                <th style="width:10%;">Amount</th>
+                <th>FA Linked</th>
+                <th>FA</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="x in activityDataList">
+                <td>{{x.Code}}</td>
+                <td>{{x.ShortName}}</td>
+                <td>{{x.StandardName}}</td>
+                <td>{{x.UserName}}</td>
+                <td>{{x.Amount}}</td>
+                <td>{{x.FALinked}}</td>
+                <td>{{x.FixedAssetName}}</td>
+                <td class="text-right">
+                    <ul class="list-inline action-list">
+                        <li><a href="apanel/responsible-person/{{x.EntityId}}/{{x.RoutineBudgetId}}/{{x.ActivityId}}/{{x.UserName}}" class="btn btn-action tooltip-here" data-toggle="tooltip" data-placement="top" title="Password Reset" tooltip><i class="glyphicon glyphicon-pencil"></i> Responsible Person</a></li>
+                    </ul>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

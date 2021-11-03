@@ -1,0 +1,183 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>PF Employee Voluntary</h3>
+<div class="form-elements form-horizontal row">
+    <div class="tab-design" id="tab_show">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Effective Date<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input type="text" name="EffectiveDate" id="EffectiveDate" ng-model="PFEmployeeVoluntaryValueOb.EffectiveDate" datepicker class="form-control datepicker" ng-change="gettPFEmployeeVoluntaryValueData();gettPFEmployeeVoluntaryCheckedValueData()">
+                </div>
+            </div>
+        
+            <div class="site-tab">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="assign" role="tab" data-toggle="tab">Unchecked</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="assigned" role="tab" data-toggle="tab">Checked</a></li>
+                </ul>
+            </div>
+       
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                <div class="clearfix"></div>
+                <div class="col-xs-12">
+
+                    <div class="row text-right">
+                        <div class="col-xs-12 col-sm-12 col-sm-12">
+                            <div class="search-form">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="select-style">
+                                            <select ng-model="popUpPFMandatoryEmployeeParameters.searchBy">
+                                                <option ng-repeat="option in searchBypFEmployeeVoluntaryValueList" value="{{option.value}}">{{option.name}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-7 col-md-7">
+                                        <input type="text" class="form-control" placeholder="Search" ng-model="popUpPFMandatoryEmployeeParameters.search" ng-enter="getPFEmpVoluntaryData()">
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <button type="button" ng-click="getPFEmpVoluntaryData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Select</th>
+                                    <th>Employee Code</th>
+                                    <th>Employee Name</th>
+                                    <th>Designation</th>
+                                    <th>Department</th>
+                                    <th>Section</th>
+                                    <th>Sub Section</th>
+                                    <th>Effective Date</th>
+                                    <th>Voluntary PF Contribution Value [%]</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr dir-paginate="x in pFEmployeeVoluntaryValueList |itemsPerPage:popUpPFMandatoryEmployeeParameters.pageSize" total-items="popUpPFMandatoryEmployeeParameters.total_count" pagination-id="metaData.name + 'pFEmployeeVoluntaryValueList'">
+                                    <td>
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="x.Flag" ng-change="prePareField(x.Flag,$index)">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <td>{{x.EmployeeCode}}</td>
+                                    <td>{{x.EmployeeName}}</td>
+                                    <td>{{x.EmpDesignation}}</td>
+                                    <td>{{x.EMPDepartment}}</td>
+                                    <td>{{x.EMPSection}}</td>
+                                    <td>{{x.EMPSubSection}}</td>
+                                    <td>{{x.EffectiveDate | dateFiltering}}</td>
+                                    <td>
+                                        <input type="text" ng-disabled="x.Flag===false" name="VoluntaryPFValue" n-decimals="4" ng-model="x.VoluntaryPFValue" class="form-control">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <dir-pagination-controls max-size="10"
+                                                 pagination-id="metaData.name + 'pFEmployeeVoluntaryValueList'"
+                                                 direction-links="true"
+                                                 boundary-links="true"
+                                                 on-page-change="getPFEmpVoluntaryData(newPageNumber)">
+                        </dir-pagination-controls>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                
+                <div class="clearfix"></div>
+                <div class="col-xs-12">
+                    
+                    <div class="row text-right">
+                        <div class="col-xs-12 col-sm-12 col-sm-12">
+                            <div class="search-form">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="select-style">
+                                            <select ng-model="popUpPFMandatoryEmployeeParameters.searchBy">
+                                                <option ng-repeat="option in searchBypFEmployeeVoluntaryValueList" value="{{option.value}}">{{option.name}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-7 col-md-7">
+                                        <input type="text" class="form-control" placeholder="Search" ng-model="popUpPFMandatoryEmployeeParameters.search" ng-enter="getPFEmpVoluntaryData()">
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <button type="button" ng-click="getPFEmpVoluntaryData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Select</th>
+                                    <th>Employee Code</th>
+                                    <th>Employee Name</th>
+                                    <th>Designation</th>
+                                    <th>Department</th>
+                                    <th>Section</th>
+                                    <th>Sub Section</th>
+                                    <th>Effective Date</th>
+                                    <th>Voluntary PF Contribution Value [%]</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr dir-paginate="x in pFEmployeeVoluntaryValueList |itemsPerPage:popUpPFMandatoryEmployeeParameters.pageSize" total-items="popUpPFMandatoryEmployeeParameters.total_count" pagination-id="metaData.name + 'pFEmployeeVoluntaryValueList'">
+                                    <td>
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="x.Flag" ng-change="prePareField(x.Flag,$index)">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <td>{{x.EmployeeCode}}</td>
+                                    <td>{{x.EmployeeName}}</td>
+                                    <td>{{x.EmpDesignation}}</td>
+                                    <td>{{x.EMPDepartment}}</td>
+                                    <td>{{x.EMPSection}}</td>
+                                    <td>{{x.EMPSubSection}}</td>
+                                    <td>{{x.EffectiveDate | dateFiltering}}</td>
+                                    <td>
+                                        <input type="text" ng-disabled="x.Flag===false" name="VoluntaryPFValue" n-decimals="4" ng-model="x.VoluntaryPFValue" class="form-control">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <dir-pagination-controls max-size="10"
+                                                 pagination-id="metaData.name + 'pFEmployeeVoluntaryValueList'"
+                                                 direction-links="true"
+                                                 boundary-links="true"
+                                                 on-page-change="getPFEmpVoluntaryData(newPageNumber)">
+                        </dir-pagination-controls>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <confirm-archive-generic data-modalid="confirmgenericPopUp" title="Confirmation"
+                             message={{message_confirmation}} data-ng-click-right-button="DeletePFEmployeeVoluntaryValueList()">
+    </confirm-archive-generic>
+    <confirm-modal></confirm-modal>

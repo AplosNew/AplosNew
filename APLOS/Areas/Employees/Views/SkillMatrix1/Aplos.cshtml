@@ -1,0 +1,304 @@
+﻿<style>
+    .k-grid-header .k-header {
+        height: 15px;
+        padding: 0;
+        background-color: #1c1f32;
+    }
+
+    .k-grid-header th.k-header > .k-link {
+        color: white;
+        font-weight: bold;
+    }
+
+    .k-icon:before {
+        color: white;
+    }
+
+
+    .k-grid tbody tr {
+        line-height: 14px;
+    }
+
+    .k-grid tbody td {
+        padding: 5px;
+    }
+
+    .k-grid {
+        font-size: 14px;
+    }
+    /*.k-grid .k-header .k-button {
+            background-color: red;
+        }*/
+    .k-grid-toolbar {
+        background-color: #1c1f32;
+        background-image: none;
+    }
+
+        .k-grid-toolbar a {
+            float: right;
+        }
+</style>
+
+
+<script>
+    function createChart() {
+        $("#chart").kendoChart({
+            title: {
+                text: "Skill Martix Report"
+            },
+            legend: {
+                position: "top"
+            },
+            series: [{
+                type: "column",
+                data: [20, 40, 45, 30, 50],
+                stack: true,
+                name: "on battery",
+                color: "#cc6e38"
+            }, {
+                type: "column",
+                data: [20, 30, 35, 35, 40],
+                stack: true,
+                name: "on gas",
+                color: "#ef955f"
+            }, {
+                type: "line",
+                data: [30, 38, 40, 32, 42],
+                name: "mpg",
+                color: "#ec5e0a",
+                axis: "mpg"
+            }, {
+                type: "line",
+                data: [7.8, 6.2, 5.9, 7.4, 5.6],
+                name: "l/100 km",
+                color: "#4e4141",
+                axis: "l100km"
+            }],
+            valueAxes: [{
+                title: { text: "miles" },
+                min: 0,
+                max: 100
+            }, {
+                name: "km",
+                title: { text: "km" },
+                min: 0,
+                max: 161,
+                majorUnit: 32
+            }, {
+                name: "mpg",
+                title: { text: "miles per gallon" },
+                color: "#ec5e0a"
+            }, {
+                name: "l100km",
+                title: { text: "liters per 100km" },
+                color: "#4e4141"
+            }],
+            categoryAxis: {
+                categories: ["Mon", "Tue", "Wed", "Thu", "Fri"],
+                // Align the first two value axes to the left
+                // and the last two to the right.
+                //
+                // Right alignment is done by specifying a
+                // crossing value greater than or equal to
+                // the number of categories.
+                axisCrossingValues: [0, 0, 10, 10]
+            }
+        });
+    }
+
+    $(document).ready(createChart);
+    $(document).bind("kendo:skinChange", createChart);
+    $(document).ready(function () {
+        var element = $("#grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: '/Challan/GetChallanMasterDetailsData',
+                        data: {},
+                        dataType: "json"
+                    }
+                },
+                pageSize: 20,
+                serverPaging: true,
+                serverSorting: true
+            },
+            height: 550,
+            sortable: true,
+            pageable: false,
+            filterable: true,
+            sortable: true,
+            detailTemplate: kendo.template($("#template").html()),
+            detailInit: detailInit,
+            //dataBound: function () {
+            //    this.expandRow(this.tbody.find("tr.k-master-row").first());
+            //},
+            columns: [
+                //{
+                //    title: "", width: 30,
+                //    template: function (dataItem) {
+                //        if (dataItem.OrderPlanned == true) {
+                //            return null;
+                //        }
+                //        else {
+                //            return '<input type="checkbox" id="chkSelect' + dataItem.ChallanMasterId + '"  onchange="EnableSewingPlanDt(' + "'" + dataItem.ChallanMasterId + "'" + ')" />'
+                //        }
+                //    }
+                //},
+                //{
+                //    title: "", width: 30,
+                //    template: function (dataItem) {
+                //        var dt = '<div style="height:8px;width:13px;padding-top:5px;-moz-border-radius: 50%;-webkit-border-radius: 50%; border-radius: 50%; background-color:' + dataItem.ChallanMasterId + '"></div>'
+                //        return dt;
+                //    }
+                //},
+                //{ title: "ChallanMasterId", field: "ChallanMasterId", filterable: true, width: 100, hidden: 'true' },
+                { title: "Process", field: "DispatchItemType", filterable: true, width: 130 },
+                { title: "Type", field: "ChallanNo", filterable: true, width: 100 },
+                { title: "Operation", field: "ChallanDate", filterable: true },
+                { title: "Skill", field: "SampleType", filterable: true },
+                { title: "Grouping", field: "ChallanFromCompId", filterable: true},
+                { title: "DesigCategory", field: "PreparedBy", filterable: true },
+                { title: "Machine", field: "RcvdEntityType", filterable: true },
+                { title: "Entity", field: "RcvdCompName", filterable: true },
+                { title: "Position", field: "SendingVia", filterable: true },
+
+                //{
+                //    template: function (dataItem) {
+                //        //
+                //        return '<a href="#" data-toggle="tooltip" title="Edit" class="k-button k-button-icontext" style="min-width:35px;" onclick="GetEditData(' + "'" + dataItem.ChallanMasterId + "'" + ')"><i class="fa fa-edit"></i></a><a href="#" data-toggle="tooltip" title="Challan Print" class="k-button k-button-icontext" style="min-width:35px;" onclick="PrintChallan(' + "'" + dataItem.ChallanNo + "'" + ')"><i class="fa fa-print"></i></a><a href="#" data-toggle="tooltip" title="Delete Challan" class="k-button k-button-icontext" style="min-width:35px;" onclick="DeleteChallanData(' + "'" + dataItem.ChallanMasterId + "'" + ')"><i class="fa fa-trash"></i></a>';
+
+
+                //    }
+                //}
+                //{ title: "Receiver Name", field: "RcvdCompId", filterable: false, width: 100 },
+                //{ title: "Merchandiser Request Date", field: "MerchRequestDt", filterable: false, width: 100 },
+                //{
+                //    title: "PreparedBy",
+                //    width: 210,
+                //    template: function (dataItem) {
+                //        if (dataItem.OrderPlanned == true) {
+                //            return dataItem.ProcessEndDt
+                //        }
+                //        else { //onchange="ReLoadChart()"
+                //            return '<input class="MyJqueryCalendar" style="width:200px;" type="text"  id="txtSewingDt' + dataItem.ChallanMasterId + '" disabled />'
+                //        }
+
+                //    }
+                //},
+
+                //{
+                //    title: "G.P.Status", width: 90,
+                //    template: function (dataItem) {
+                //        if (dataItem.OrderPlanned == true) {
+                //            return '<input type="checkbox" id="chkOrd' + dataItem.SampleID + '" checked="checked" onchange="UpdateOrderRcvd(' + "'" + dataItem.ChallanMasterId + "'" + ')"  disabled/>'
+                //        }
+                //        else {
+                //            return '<input type="checkbox" id="chkOrd' + dataItem.SampleID + '" onchange="UpdateOrderRcvd(' + "'" + dataItem.ChallanMasterId + "'" + ')" />'
+
+                //        }
+                //    }
+                //},
+
+                //{
+                //    title: "Command", width: 100,
+                //    template: function (dataItem) {
+                //        if (dataItem.OrderPlanned == false) {
+                //            //return '<input type="checkbox" checked="checked" onchange="UpdateOrderRcvd(' + "'" + dataItem.SampleID + "'" + ',' + "'" + dataItem.ProcessEndDt + "'" + ')"  disabled/>'
+                //            return '<input type="checkbox" id="chkMat' + dataItem.SampleID + '"  onchange="UpdateMaterialRcvd(' + "'" + dataItem.SampleID + "'" + ')" disabled/>'
+                //        }
+                //        else {
+                //            if (dataItem.MaterialReceived == true) {
+                //                return '<input type="checkbox" id="chkMat' + dataItem.SampleID + '" checked="checked" onchange="UpdateMaterialRcvd(' + "'" + dataItem.SampleID + "'" + ')" disabled/>'
+                //            }
+                //            else {
+                //                return '<input type="checkbox" id="chkMat' + dataItem.SampleID + '" onchange="UpdateMaterialRcvd(' + "'" + dataItem.SampleID + "'" + ')" />'
+                //            }
+                //        }
+                //    }
+                //}
+                //{ title: "Command", template: function (dataItem) { return '<button data-toggle="tooltip" data-original-title="Create Gate Pass !!"  onclick=\'SendForApproval("' + dataItem.SampleID + '")\' ><i class="fa fa-check"></i></button>'; } }
+                //{
+                //    title: "Command",
+                //    template: function (dataItem) {
+                //        //return '<a href="#" data-toggle="tooltip" title="Print" class="k-button k-button-icontext" style="min-width:35px;" onclick="ShowSampleReq(' + "'" + dataItem.ChallanMasterId + "'" + ')"><i class="fa fa-print"></i></a>';
+                //        return '<a href="#" data-toggle="tooltip" title="Edit Challan" class="k-button k-button-icontext" style="min-width:35px;" onclick="ShowSampleReq(' + "'" + dataItem.ChallanMasterId + "'" + ')"><i class="fa fa-edit"></i></a>';
+                //    }
+                //}
+
+            ]
+        });
+    });
+    function detailInit(e) {
+        debugger;
+        var detailRow = e.detailRow;
+
+        //detailRow.find(".tabstrip").kendoTabStrip({
+        //    animation: {
+        //        open: { effects: "fadeIn" }
+        //    }
+        //});
+
+        detailRow.find(".orders").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url:'/Challan/GetChallanMasterDetailsData1',
+                        data: { QueryValue: e.data.ChallanMasterId }, //'S173810'   
+                        dataType: "json"
+                    }
+                },
+                serverPaging: true,
+                serverSorting: true,
+                serverFiltering: true,
+                pageSize: 7,
+                filter: { field: "ChallanMasterId", operator: "eq", value: e.data.ChallanMasterId }
+            },
+            pageable: {
+                refresh: true,
+
+            },
+            scrollable: false,
+            sortable: true,
+            pageable: true,
+            columns: [
+                //{ title: "Sample ID", field: "SampleID", filterable: false, hidden: false },
+                { title: "SL", field: "RowSl", filterable: false },
+                { title: "Dispatch Type", field: "DispatchType", filterable: false, width: 100 },
+                { title: "Return Dispatch ChallanNo", field: "ReturnDispatchChallanNo", filterable: false, width: 100 },
+                { title: "Dispatch Item Type", field: "DispatchItemTypes", filterable: false, width: 150 },
+                //{ title: "Particular", field: "ItemId", filterable: false},
+                { title: "Particular", field: "ItemName", filterable: false, width: 150 },
+                { title: "Specification", field: "ItemDesc", filterable: false, width: 120 },
+                { title: "Color", field: "ColorId", filterable: false },
+                { title: "Size", field: "SizeId", filterable: false },
+                { title: "UOM", field: "UOM", filterable: false },
+                { title: "ItemQty", field: "ItemQty", filterable: false },
+                { title: "Is Mutilated", field: "IsMutilated", filterable: false },
+                { title: "Is Returnable", field: "IsReturnable", filterable: false }
+            ]
+        });
+    }
+
+</script>
+<togglable name="Skill Martix Dashboard"></togglable>
+<div id="example">
+    <div class="demo-section k-content wide">
+        <div id="chart"></div>
+    </div>
+
+</div>
+
+<div id="grid"></div>
+<script type="text/x-kendo-template" id="template">
+    <div class="tabstrip">
+        @*<ul>
+                <li>
+                    Challan Details
+                </li>
+            </ul>*@
+        <div>
+            <div class="orders"></div>
+        </div>
+    </div>
+
+</script>

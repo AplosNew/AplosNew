@@ -1,0 +1,174 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-info-sign"></span> Designation Group Salary Rule
+</h3>
+<div class="form-elements form-horizontal" ng-form id="plantDesignationGroupSalaryRuleNew" name="plantDesignationGroupSalaryRuleForm">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Company<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="plantDesignationGroupSalaryRuleNew.CompanyId" ng-change="getPlantList()"
+                            ng-options="item.Value as item.Text for item in companyList" id="plantId"
+                            name="Company" required tabindex="1">
+                        <option></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Salary Rule Master<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="plantDesignationGroupSalaryRuleNew.SalaryRuleMasterId"
+                            ng-options="item.Value as item.Text for item in salaryRuleMasterList" id="plantId"
+                            name="Company" required tabindex="3" ng-change="getPlantDesignationGroupSalaryRule()">
+                        <option></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="plantDesignationGroupSalaryRuleNew.PlantId" ng-change="getSalaryRuleMasterWithPlant()"
+                            ng-options="item.Value as item.Text for item in plantList" id="plantId"
+                            name="Plant" required tabindex="2">
+                        <option></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-left col-md-6">
+            <li><button ng-click="GetDesignationGroupList();" class="btn" tabindex="4"><i class="glyphicon glyphicon-plus"></i> Add Designation Group</button></li>
+        </ul>
+    </div>
+    <div class="clearfix"></div>
+    <div class="col-sm-12">
+        <div class="table-responsive modal-table" ng-show="plantDesignationGroupSalaryRuleList.length>0">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Remove</th>
+                        <th>Code</th>
+                        <th>Short Name</th>
+                        <th>Standard Name</th>
+                        <th>User Name</th>
+                        <th>Active</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="x in plantDesignationGroupSalaryRuleList" ng-class="{unsaveRow : x.Id==null}">
+                        <td>
+                            <ul class="list-inline action-list">
+                                <li>
+                                    <button ng-click="valuePassInDelModal(x,$index)" class="btn-action tooltip-here" data-placement="top" title="Remove">
+                                        <i class="glyphicon glyphicon-remove"></i>
+                                    </button>
+                                </li>
+                            </ul>
+                        </td>
+                        <td>{{x.Code}}</td>
+                        <td>{{x.ShortName}}</td>
+                        <td>{{x.StandardName}}</td>
+                        <td>{{x.UserName}}</td>
+                        <td>{{x.Active?'Yes':'No'}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li><button ng-click="Save();" class="btn" tabindex="5"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                <li><button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="6"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li><button ng-click="Clear();" class="btn" tabindex="7"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                <li><button ng-click="designationMasterReport();" class="btn" tabindex="8"><i class="glyphicon glyphicon-print"></i> Report</button></li>
+            </ul>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    </div>
+<div class="modal fade site-modal in" id="designationGroupPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" ng-form name="designationGroup">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"><i class="glyphicon glyphicon-info-sign"></i>Designation Group</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="designationGroupListParameters.searchBy">
+                                            <option ng-repeat="option in searchByDesignationGroupList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="designationGroupListParameters.search" ng-enter="GetDesignationGroupListData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="GetDesignationGroupListData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Select</th>
+                                <th>Code</th>
+                                <th>Short Name</th>
+                                <th>Standard Name</th>
+                                <th>User Name</th>
+                                <th>Active</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in designationGroupList |itemsPerPage:designationGroupListParameters.pageSize" total-items="designationGroupListParameters.total_count" ng-dblclick="Get(x.Id, $index);">
+                                <td>
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" id="{{x.Id}}" ng-model="x.Flag" ng-checked="x.Flag" ng-click="selectChValueId($event,x)">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.ShortName}}</td>
+                                <td>{{x.StandardName}}</td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.Active?'Yes':'No'}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="GetDesignationGroupListData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="GetPlantDesignationGroupSalaryRuleDetailList();" class="btn">Select</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic data-modalid="confirmgenericPopUp" title="Confirmation"
+                         message={{message_confirmation}} data-ng-click-right-button="DeleteRow()">
+</confirm-archive-generic>
+<confirm-modal></confirm-modal>

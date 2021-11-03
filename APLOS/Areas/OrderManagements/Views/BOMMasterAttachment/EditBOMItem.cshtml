@@ -1,0 +1,221 @@
+﻿<div class="col-sm-12">
+    <div class="row" style="padding-bottom:10px;">
+        <div class="col-xs-1 small text-nowrap">BOM Id</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.BOMMasterId}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Bom Desc</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.BomDesc}}</span></div>
+        <div class="col-xs-1 small text-nowrap">BOM Material</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.BOMMaterial}}</span></div>
+        <div class="col-xs-1 small text-nowrap">BOM Article</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.BOMArticle}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Mast.Ord r#</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.MasterOrderId}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Mast.Ord Item Id</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.MasterOrderItemId}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Buyer Item No</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.BuyerItemNo}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Own Item No</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.OwnItemNo}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Buyer Order No</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.BuyerOrderNo}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Own Order No</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.OwnOrderNo}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Prod. Cat</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.ProductCategory}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Product</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.Product}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Material</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.Material}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Article</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.Article}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Buyer</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.Buyer}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Customer</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.Customer}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Contract#</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.ContractNo}}</span></div>
+        <div class="col-xs-1 small text-nowrap">LC#</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.LCRef}}</span></div>
+    </div>
+
+    <div class="row">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: AttachmentEditisSet(1) }"><a ng-click="AttachmentEditsetTab(1)" href="" data-toggle="tab">Procurement Items</a></li>
+                <li role="presentation" ng-class="{ active: AttachmentEditisSet(2) }"><a ng-click="AttachmentEditsetTab(2)" href="" data-toggle="tab">Info Update</a></li>
+                <li role="presentation" ng-class="{ active: AttachmentEditisSet(3) }"><a ng-click="AttachmentEditsetTab(3)" href="" data-toggle="tab">Non Procurement Items</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane" ng-class="{ 'in':AttachmentEditisSet(1), active: AttachmentEditisSet(1) }">
+                <div class="row">
+                    <div id="GridEditBOQItem" ng-init="chkinit()" ej-grid e-datasource="AttachmentBOMItemData" e-allowsorting="true"
+                         e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-allowresizing="true"
+                         e-allowscrolling="true" e-rowdatabound="rowDataBoundRequisition"
+                         e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-template="#ShowActionButtonRequirementApproval" @*e-isfrozen="true"*@ e-headertext="" e-width="66"></div>
+
+                            <div e-column e-type="string" e-field="SalesOrderId" e-headertext="SO Id" e-width="70"></div>
+
+                            <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="120"></div>
+                            <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="120"></div>
+                            <div e-column e-type="string" e-field="RMDescription" e-headertext="RM Description" e-width="130"></div>
+                            <div e-column e-type="string" e-field="CharVal1" e-headertext="SKU-1" e-width="60"></div>
+                            <div e-column e-type="string" e-field="CharVal2" e-headertext="SKU-2" e-width="60"></div>
+                            <div e-column e-type="string" e-field="CharVal3" e-headertext="SKU-3" e-width="60"></div>
+
+                            <div e-column e-template="#ShowTextBoxPOQty" e-headertext="Booking Qty" e-width="160"></div>
+                            <div e-column e-type="string" e-field="POUOM" e-headertext="UOM" e-width="60"></div>
+                            <div e-column e-type="number" e-format="{0:N2}" e-field="BOMQty" e-headertext="BOQ" e-width="80"></div>
+                            <div e-column e-type="number" e-format="{0:N2}" e-field="RequiredQty" e-headertext="Booking Qty" e-width="80"></div>
+                            <div e-column e-type="string" e-field="UOM" e-headertext="UOM" e-width="60"></div>
+                            <div e-column e-type="number" e-format="{0:N6}" e-field="Rate" e-headertext="Rate / unit" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="60"></div>
+                            <div e-column e-type="string" e-field="SKUDesc" e-headertext="SKU Desc" e-width="80"></div>
+                            <div e-column e-type="string" e-field="RMCustomerSpec" e-headertext="RM Customer Spec" e-width="130"></div>
+                            <div e-column e-type="string" e-field="RMVendorSpec" e-headertext="RM Vendor Spec" e-width="130"></div>
+                            <div e-column e-type="number" e-format="{0:N2}" e-field="OrderQty" e-headertext="Order Qty" e-width="70"></div>
+                            <div e-column e-type="number" e-format="{0:N2}" e-field="PlanOrderQty" e-headertext="Plan Order Qty" e-width="70"></div>
+                            <div e-column e-type="string" e-field="ParentUOM" e-headertext="UOM" e-width="60"></div>
+
+
+                            <div e-column e-type="number" e-format="{0:###.00%}" e-field="WastagePer" e-headertext="Wastage Per" e-width="80"></div>
+                            <div e-column e-type="number" e-format="{0:###.0000}" e-field="Consumption" e-headertext="Consumption" e-width="80"></div>
+
+                            <div e-column e-type="string" e-field="Vendor" e-headertext="Vendor" e-width="80"></div>
+                            <div e-column e-type="string" e-field="ParentMaterial" e-headertext="Parent Material" e-width="120"></div>
+                            <div e-column e-type="string" e-field="ParentArticle" e-headertext="Parent Article" e-width="120"></div>
+
+
+
+                        </div>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="AttachmentUpdateBomRequiredQty();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Update</button></li>
+                            <li> <button ng-click="AttachmentclosePopup('dialogBOMItemEdit')" class="btn"><i class="glyphicon glyphicon-refresh"></i> Close</button></li>
+                        </ul>
+                    </div>
+                </div>
+
+
+            </div>
+            <div role="tabpanel" class="tab-pane" ng-class="{ 'in':AttachmentEditisSet(2), active: AttachmentEditisSet(2) }">
+                <div class="row">
+                    <div id="GridEditBOQItemRateParent" ng-init="chkinit()" ej-grid e-datasource="AttachmentRateModel" e-allowsorting="true"
+                         e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-allowresizing="true"
+                         @*e-allowscrolling="true" e-minwidth="450" e-minheight="400"*@ e-rowdatabound="rowDataBoundRequisition"
+                         e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-template="#ShowIsMainMaterialCheckBox" e-headertext="Main Material" e-width="1.5"></div>
+                            <div e-column e-template="#ShowActionButtonRequirementApprovalMaterial" @*e-isfrozen="true"*@ e-headertext="" e-width="2"></div>
+                            <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="8"></div>
+                            <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="8"></div>
+                            <div e-column e-type="number" e-format="{0:N2}" e-field="RequiredQtyPO" e-headertext="Quantity" e-width="3" e-textalign="right"></div>
+                            <div e-column e-type="string" e-field="POUOM" e-headertext="UOM" e-width="2"></div>
+                            <div e-column e-template="#currencyRateTemplate" e-headertext="Per Unit Rate" e-width="6"></div>
+                            <div e-column e-template="#currencyTemplate" e-headertext="Currency" e-width="4"></div>
+                            <div e-column e-type="string" e-field="Vendor" e-headertext="Vendor" e-width="6"></div>
+                            <div e-column e-template="#ShowActionButtonsVendor" e-headertext="" e-width="4"></div>
+                        </div>
+                    </div>
+                    <script type="text/template" id="currencyTemplate">
+                        <div class="select-style" style="height:32px;color:black;">
+                            <select ng-model="data.CurrencyId" style="height:32px;color:black;font-size:9pt;">
+                                <option ng-repeat="option in $parent.AttachmentcurrencyList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </script>
+                    <script type="text/template" id="currencyRateTemplate">
+                        <input type="text" ej-numerictextbox e-minvalue="0" e-decimalplaces="6" e-enablertl="false" e-value="data.Rate" e-width="150" />
+                    </script>
+                    <script type="text/template" id="ShowIsMainMaterialCheckBox">
+                        <input type="checkbox" ej-checkbox class="nodetext" e-id="data.RowId" e-value="data.IsMainMaterial" e-checked="data.IsMainMaterial" e-change="$parent.changeIsMainMaterial" />
+                    </script>
+                    <script type="text/template" id="ShowActionButtonRequirementApprovalMaterial">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left small">
+                                <li>
+                                    <button ng-click="$parent.AttachmentApprovalRequiredQtyMaterial(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                        <i class="glyphicon glyphicon-ok-circle" style="color:{{data.RequiredQtyApprovedFlag=='FULL'?'#00ff00':data.RequiredQtyApprovedFlag=='PARTIAL'?'#ff0000':'#999999'}}"></i>
+                                    </button>
+                                </li>
+
+                            </ul>
+                        </div>
+                    </script>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right small">
+                            <li>
+                                <button ng-click="AttachmentUpdateRate();" class="btn">
+                                    <i class="glyphicon glyphicon-save"></i> Update
+                                </button>
+                            </li>
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane" ng-class="{ 'in':AttachmentEditisSet(3), active: AttachmentEditisSet(3) }">
+                <div class="row">
+                    <div id="GridEditBOQItemParent" ng-init="chkinit()" ej-grid e-datasource="AttachmentBOMItemDataParent" e-allowsorting="true"
+                         e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-allowresizing="true"
+                         e-allowscrolling="true" e-minwidth="450" e-minheight="400" e-rowdatabound="rowDataBoundRequisition"
+                         e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-type="string" e-field="SalesOrderId" e-headertext="SO Id" e-width="70"></div>
+                            @*<div e-column e-field="isParent" e-headertext="isParent" e-width="70"></div>*@
+
+                            <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="120"></div>
+                            <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="120"></div>
+                            <div e-column e-type="string" e-field="RMDescription" e-headertext="RM Description" e-width="130"></div>
+                            <div e-column e-type="string" e-field="CharVal1" e-headertext="SKU-1" e-width="60"></div>
+                            <div e-column e-type="string" e-field="CharVal2" e-headertext="SKU-2" e-width="60"></div>
+                            <div e-column e-type="string" e-field="CharVal3" e-headertext="SKU-3" e-width="60"></div>
+
+                            <div e-column e-type="number" e-format="{0:N2}" e-field="BOMQty" e-headertext="BOQ" e-width="80"></div>
+                            <div e-column e-type="number" e-format="{0:N2}" e-field="RequiredQty" e-headertext="Booking Qty" e-width="80"></div>
+                            <div e-column e-type="string" e-field="UOM" e-headertext="UOM" e-width="60"></div>
+                            <div e-column e-type="string" e-field="SKUDesc" e-headertext="SKU Desc" e-width="80"></div>
+                            <div e-column e-type="string" e-field="RMCustomerSpec" e-headertext="RM Customer Spec" e-width="130"></div>
+                            <div e-column e-type="string" e-field="RMVendorSpec" e-headertext="RM Vendor Spec" e-width="130"></div>
+                            <div e-column e-type="number" e-format="{0:N2}" e-field="OrderQty" e-headertext="Order Qty" e-width="70"></div>
+                            <div e-column e-type="number" e-format="{0:N2}" e-field="PlanOrderQty" e-headertext="Plan Order Qty" e-width="70"></div>
+                            <div e-column e-type="string" e-field="ParentUOM" e-headertext="UOM" e-width="60"></div>
+
+
+                            <div e-column e-type="number" e-format="{0:###.00%}" e-field="WastagePer" e-headertext="Wastage Per" e-width="80"></div>
+                            <div e-column e-type="number" e-format="{0:###.0000}" e-field="Consumption" e-headertext="Consumption" e-width="80"></div>
+
+
+                            <div e-column e-type="string" e-field="Vendor" e-headertext="Vendor" e-width="150"></div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/template" id="ShowActionButtonRequirementApproval">
+    <div class="common-btn">
+        <ul class="list-inline text-left small">
+            <li>
+                <button ng-click="$parent.AttachmentApprovalRequiredQty(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                    <i class="glyphicon glyphicon-ok-circle" style="color:{{data.RequiredQtyApproved?'#00ff00':'#999999'}}"></i>
+                </button>
+                <button ng-show="data.isChild" ng-click="$parent.AttachmentopenPopup('dialogBOMItemEditChild');$parent.AttachmentLoadBomRequiredQtyChild(data.MasterOrderItemId,data.Id);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                    <i class="glyphicon glyphicon-th-list"></i>
+                </button>
+            </li>
+
+        </ul>
+    </div>
+</script>
+
+
+<script type="text/template" id="ShowActionButtonsVendor">
+    <div class="common-btn">
+        <ul class="list-inline text-right small">
+            <li>
+
+                <span class="input-group-btn">
+                    <button ng-click="$parent.showPartyPopUp();$parent.AttachmentOpenParty(data);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                    <button ng-click="$parent.AttachmentclearVendor(data)" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                </span>
+            </li>
+        </ul>
+    </div>
+</script>
+<script type="text/template" id="ShowTextBoxPOQty">
+    <input e-enabled="{{data.isParent==true?'false':'true'}}" type="text" ej-numerictextbox e-minvalue="0" e-decimalplaces="2" e-enablertl="false" e-value="data.RequiredQtyPO" e-width="150" />
+</script>

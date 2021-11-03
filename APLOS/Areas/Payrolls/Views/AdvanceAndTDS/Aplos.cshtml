@@ -1,0 +1,107 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>Advance And TDS</h3>
+<div class="row">
+    <div class="col-xs-12">
+
+        <hr />
+        <div class="form-horizontal form-elements">
+            <div class="tab-design" id="tab_show">
+                <div class="tab-design" id="tab_show">
+                    <div class="site-tab">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="assign" role="tab" data-toggle="tab">Month Wise</a></li>
+                            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="assigned" role="tab" data-toggle="tab">Date Wise</a></li>
+
+                        </ul>
+                    </div>
+                </div>
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                        <div id="TabESICStatement">
+                            <div class="col-md-12">
+                                <div class="col-xs-3 col-sm-3 col-md-3">
+                                    <div class="col-md-12">
+                                        <input id="ddlYearList" e-watermarktext="Year" ej-dropdownlist e-datasource="yearList" e-model="year" e-enablefiltersearch="true" e-fields-value="Text" e-fields-text="Text" e-width="100%" />
+                                    </div>
+                                </div>
+                                <div class="col-xs-3 col-sm-3 col-md-3">
+                                    <div class="col-md-12">
+                                        <input id="ddlMonthList" e-watermarktext="Month" ej-dropdownlist e-datasource="monthList" e-enablefiltersearch="true" e-model="month" e-fields-value="Value" e-fields-text="Text" e-change="getSalaryProcessIdList" e-width="100%" />
+                                    </div>
+                                </div>
+                                <div class="col-xs-3 col-sm-3 col-md-3">
+                                    <div class="form-group">
+                                        <label class="col-sm-6 ">Additional InFo<sup></sup></label>
+                                        <div class="col-sm-6">
+                                            <input type="checkbox" ej-checkbox class="nodetext" e-value="isActive" e-model="isActive" e-checked="isActive" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="col-md-4">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <button ng-click="GetAdvanceAndTDSports();" class="btn"> <i class="glyphicon glyphicon-download"></i>Download</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                        <div id="TabESICStatement">
+                            <div class="col-md-12">
+                                <div class="col-xs-3 col-sm-3 col-md-3">
+                                    <div id="div_FromDate" class="form-group form-element-ctrl">
+                                        <div class="show-message">
+                                            <div class="col-md-1" style="padding:4%;"><span>From &nbsp;</span></div>
+                                            <div class="col-md-11" style="padding-left: 9.2%;">
+                                                <input type="text" name="FromDate" id="FromDate" ng-model="fromDate" ng-click="setTodateHilight('#FromDate',dateRange.fromDate)" ng-change="checkFromDate();" datepicker="checkFromDate();" class="form-control datepicker" tabindex="4" style="margin-top: 7px;margin-bottom: -4px;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-3 col-sm-3 col-md-3">
+                                    <div id="div_ToDate" class="form-group form-element-ctrl">
+                                        <div class="show-message">
+                                            <div class="col-md-1"><span>To </span></div>
+                                            <div class="col-md-8">
+                                                <input type="text" name="ToDate" id="ToDate" ng-model="toDate" datepicker="checkToDate();" ng-click="setTodateHilight('#ToDate',dateRange.toDate)" class="form-control datepicker" tabindex="4" style="margin-top: 7px;margin-bottom: -4px;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-3 col-sm-3 col-md-3">
+                                    <div class="form-group">
+                                        <label class="col-sm-6 ">Additional InFo<sup></sup></label>
+                                        <div class="col-sm-6">
+                                            <input type="checkbox" ej-checkbox class="nodetext" e-value="isActive" e-model="isActive" e-checked="isActive" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="col-md-4">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <button ng-click="GetAdvanceAndTDSportsSummary();" class="btn"> <i class="glyphicon glyphicon-download"></i>Download</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,606 @@
+﻿<togglable name="Task Template"></togglable>
+
+<div class="form-horizontal form-elements" ng-form="modelForm">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Sequence</label>
+            <div class="col-sm-8">
+                <input type="text" name="Sequence" ej-numerictextbox e-decimalplaces="0" e-minvalue="1" e-enablertl="false" e-value="model.Sequence" e-width="100" />
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Short Name" ng-model="model.ShortName" class="form-control" maxlength="15" required tabindex="3">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">User Defined Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="User Name" ng-model="model.UserName" class="form-control" required tabindex="5" maxlength="50">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Description</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" rows="3" ng-model="model.Description" tabindex="7" maxlength="250"></textarea>
+            </div>
+        </div>
+        @*<div class="form-group">
+                <label class="col-sm-4 control-label">Owner</label>
+                <div class="col-sm-2">
+                    <input class="form-control" type="text" ng-model="model.EmployeeCode" tabindex="7" maxlength="250"/>
+                </div>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control" ng-model="model.EmployeeName" tabindex="7" maxlength="250"/>
+                </div>
+                <div class="col-sm-2">
+                    <ul class="common-btn list-inline text-right" style="padding: 0px;">
+                        <li><button ng-click="getEmployeeData('MASTER');" class="btn"><i class="glyphicon glyphicon-search"></i></button></li>
+                    </ul>
+                </div>
+            </div>*@
+        <div class="form-group" show-errors>
+            <label class="col-xs-12 col-sm-4 col-md-4 control-label">Owner<sup>*</sup></label>
+            <div class="col-xs-12 col-sm-2 col-md-2" style="padding-right:0px;">
+                <input class="form-control" type="text" ng-disabled="true" ng-model="model.EmployeeCode" />
+            </div>
+            <div class="col-xs-12 col-sm-5 col-md-5 show-message" style="padding-left:0px;padding-right:0px;">
+                <input class="form-control" name="Owner" type="text" ng-disabled="true" ng-model="model.EmployeeName" required />
+            </div>
+            <div class="col-xs-12 col-sm-1 col-md-1" style="padding-left:0px;padding-right:0px;">
+                <ul class="common-btn list-inline text-right" style="padding: 0px;">
+                    <li><button ng-click="OpenEmployeeSearchBox('MASTER');" class="btn" style="height:30px;width:30px; padding:0px;"><i class="glyphicon glyphicon-search small"></i></button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6" id="entry">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Code" ng-model="model.Code" class="form-control" required tabindex="10" maxlength="10">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Standard Name" ng-model="model.StandardName" class="form-control" required tabindex="4" maxlength="50">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Remarks</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" rows="3" ng-model="model.Remarks" maxlength="250" tabindex="6"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Active</label>
+            <div class="col-sm-8">
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" ng-model="model.Active" tabindex="8">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <ul class="common-btn list-inline text-right" style="        padding: 20px;">
+        <li><button ng-click="SaveMaster();" class="btn" tabindex="10"><i class="glyphicon glyphicon-floppy-disk right"></i> Save</button></li>
+        <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+        <li><button ng-click="Cancel();" class="btn" tabindex="10"><i class="glyphicon glyphicon-repeat"></i> Cancel</button></li>
+    </ul>
+
+
+    <style type="text/css">
+        e-schedule-headerrow-week e-zerospacing {
+            display: none !important;
+        }
+    </style>
+</div>
+
+
+
+<div class="aplos-grid-toggle">
+    <div class="row text-right">
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="search-form">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-3">
+                        <div class="select-style">
+                            <select ng-model="searchCol">
+                                <option ng-repeat="option in modelFilterByList" value="{{option.value}}">{{option.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-7 col-md-7">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="searchVal" ng-enter="getData()">
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="Gridunassigned" ng-init="chkinit()" ej-grid e-datasource="TaskTemplate" e-recorddoubleclick="Get"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
+            <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
+            <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
+            <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
+            <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
+            <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+            <div e-column e-field="EmployeeName" e-headertext="Owner" e-width="5"></div>
+            <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
+        </div>
+    </div>
+
+</div>
+
+
+<div class="row" style="display:{{isCollapsed?'block;':'none;'}};">
+
+    <div class="col-xs-12">
+        <div class="form-group">
+            <div class="row" style=" height:34px;">
+                <div class="col-xs-12 col-sm-12 col-sm-12">
+                    <span style="height:30px;width:30px;background-color:#3498DB;color:#3498DB;">[][][][]</span> <span>Master Order</span>
+                    <span style="height:30px;width:30px;background-color:#DAF7A6;color:#DAF7A6;">[][][][]</span> <span>Line Item</span>
+                    <span style="height:30px;width:30px;background-color:#FFC300;color:#FFC300;">[][][][]</span> <span>Sales Order</span>
+                    <span style="height:30px;width:30px;background-color:#BB8FCE;color:#BB8FCE;">[][][][]</span> <span>Prod. Order</span>
+                    <span style="height:30px;width:30px;background-color:transparent;color:transparent;border:2px solid fuchsia">[][][][]</span><span>Milestone</span>
+                    <span style="height:30px;width:30px;background-color:transparent;color:transparent;border:2px solid red">[][][][]</span><span>First Task</span>
+                    <span style="height:30px;width:30px;background-color:transparent;color:transparent;border:2px solid #F5EE00">[][][][]</span><span>Last Task</span>
+                </div>
+            </div>
+
+
+            <div id="angulargantt" ej-gantt e-datasource="ganttdata"
+                 e-allowresizing="true"
+                 e-enableresize="true"
+                 e-enablecontextmenu="true"
+                 e-allowdraganddrop="false"
+                 e-allowcolumnresize="true"
+                 e-taskidmapping="taskID"
+                 e-tasknamemapping="taskName"
+                 e-childmapping="subtasks"
+                 e-milestonemapping="milestone"
+                 e-startdatemapping="startDate"
+                 e-enddatemapping="endDate"
+                 e-durationmapping="duration"
+                 @*e-progressmapping="progress"*@
+                 e-resources="columnTemplateResource"
+                 e-resourceinfomapping="resourceId"
+                 e-resourcenamemapping="resourceName"
+                 e-resourceidmapping="resourceId"
+                 e-righttasklabeltemplate="rightlabelTemplate"
+                 e-taskbartooltiptemplateid="taskbarTooltipTemplateId"
+                 e-taskbareditingtooltiptemplateid="taskbarTooltipTemplateId"
+                 @*e-offsetmapping="offset"*@
+                 e-predecessormapping="predecessor"
+                 e-schedulestartdate="01/01/2017"
+                 e-scheduleenddate="10/16/2017"
+                 e-treecolumnindex="1"
+                 e-enablevirtualization="true"
+                 e-isresponsive="true"
+                 e-splitterposition="330"
+                 e-beginedit="ganttedit"
+                 e-toolbarclick="toolclick"
+                 @*e-taskbaredited="UpdateFullTaskDuration"*@
+                 e-contextmenuopen="ContextMenuOpen"
+                 @*e-actioncomplete="ganttactionComplete"*@
+                 e-actionbegin="ganttactionbegin"
+                 e-querytaskbarinfo="ganttqueryTaskbarInfo"
+                 @*e-rowdatabound="ganttquerycellinfo"*@
+                 e-load="ganttquerycellinfo" e-editsettings="editSettings" e-toolbarsettings="toolbarSettings"
+                 style="width:100%;height:450px;">
+            </div>
+
+            <script type="text/x-jsrender" id="AddNewIcon">
+                <div class="glyphicon glyphicon-plus text-center" style="width:36px;height:30px; padding-top:4px; padding-right:4px;"></div>
+            </script>
+            <script id="rightlabelTemplate" type="text/x-jsrender">
+                {{if #data['resourceNames']}}
+                <div>
+                    {{for resourceInfo}}
+                    <img onerror="$(arguments[0].currentTarget).attr('src','images/blankuser.png')" src="POPResources/EmployeeProfiles/EmpPic/{{:EmpPicPath}}" style="height:24px;border-radius: 50%;border:1px solid darkgray" />
+                    <span style="margin-left:5px;">{{:resourceName}}</span>
+                    {{:~_getSeparator(#get("array").data.length,#index)}}
+                    {{/for}}
+                </div>
+                {{/if}}
+            </script>
+            <script>
+                function _getSeparator(length, idx) {
+                    if (idx < length - 1) {
+                        return ","
+                    }
+                }
+                var helpers = {};
+                helpers["_getSeparator"] = _getSeparator;
+                $.views.helpers(helpers);
+            </script>
+
+        </div>
+    </div>
+</div>
+
+<script type="text/x-jsrender" id="tooltipTemplate">
+    <table>
+        <tr>
+            <td style="padding:3px" colspan="2"><b>{{:taskName}}</b></td>
+        </tr>
+
+        <tr>
+            <td style="padding:3px"><b>Duration</b></td>
+            <td style="padding:3px">{{:duration}} Day(s)</td>
+        </tr>
+    </table>
+
+</script>
+<script type="text/x-jsrender" id="ResizeTooltipTemplate">
+    <table>
+        <tr>
+            <td style="padding:3px" colspan="2"><b>{{:taskName}}</b></td>
+        </tr>
+
+        <tr>
+            <td style="padding:3px"><b>Duration</b></td>
+            <td style="padding:3px">{{:duration}} Day(s)</td>
+        </tr>
+    </table>
+
+</script>
+<style type="text/css">
+    .e-ganttchart .e-gantt-schedule-container {
+        display: none;
+    }
+</style>
+<confirm-modal></confirm-modal>
+<ej-dialog id="dialogAPI" title="Confirm Delete?" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target=".form-horizontal.form-elements" e-close="onDialogClose" e-minwidth="240" e-minheight="165" e-open="enableBtn">
+    <p>
+        Are you sure to delete the task?
+    </p>
+    <p class="text-right">
+        <ul class="list-inline text-right">
+            <li><button ng-click="Delete();" class="btn"><i class="glyphicon glyphicon-floppy-remove"></i> Yes</button></li>
+            <li><button ng-click="ConfirmClose();" class="btn"><i class="glyphicon glyphicon-step-backward"></i> No</button></li>
+        </ul>
+    </p>
+</ej-dialog>
+
+<ej-dialog id="dialogSearchTask" title="Task Master" e-enablemodal="true" e-position-y="0" e-position-x="0" e-showoninit="false" e-target=".form-horizontal.form-elements" e-close="onDialogClose" e-width="95%" e-minwidth="240" e-minheight="165" e-open="enableBtn">
+    <div class="row text-right">
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="search-form">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-3">
+                        <div class="select-style">
+                            <select ng-model="searchColTask">
+                                <option ng-repeat="option in modelFilterByListSearchTask" value="{{option.value}}">{{option.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-7 col-md-7">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="searchValTask" ng-enter="getTaskData()">
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button type="button" ng-click="getTaskData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="GridSearchTasks" ng-init="chkinit()" ej-grid e-datasource="TaskMasterList" e-recorddoubleclick="TaskSearchSelectedData"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-width="1"></div>
+            <div e-column e-field="Sequence" e-headertext="Seq" e-width="1"></div>
+            <div e-column e-field="Code" e-headertext="Code" e-width="2"></div>
+            <div e-column e-field="TaskDescription" e-headertext="Task Description" e-width="5"></div>
+            <div e-column e-field="Process" e-headertext="Process" e-width="3"></div>
+            <div e-column e-field="TaskCategory" e-headertext="Task Category" e-width="3"></div>
+            <div e-column e-field="Department" e-headertext="Department" e-width="3"></div>
+            <div e-column e-field="TaskAppliedOn" e-headertext="Applied On" e-width="3"></div>
+            <div e-column e-field="TaskType" e-headertext="TaskType" e-width="3"></div>
+            <div e-column e-field="Active" e-headertext="Active" e-width="1"></div>
+        </div>
+
+    </div>
+</ej-dialog>
+
+
+<ej-dialog id="dialogEditTask" title="Task Master" e-enablemodal="true" e-position-y="0" e-position-x="0" e-showoninit="false" e-target=".form-horizontal.form-elements" e-close="onDialogClose" e-width="900" e-open="enableBtn">
+    <div class="col-xs-12" style="padding:10px;padding-bottom:30px;">
+        <div id="tabEdit" ej-tab e-headersize="40px">
+            <ul>
+                <li><a href="#EditTemplate">Edit</a></li>
+                <li><a href="#SubTasks">Sub Tasks</a></li>
+                <li><a href="#Predecessor">Depends On</a></li>
+            </ul>
+            <div id="EditTemplate">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Task Description</label>
+                            <div class="col-sm-6">
+                                <textarea class="form-control" rows="3" ng-model="SingleTaskTemplate.TaskDescription" maxlength="250" tabindex="6"></textarea>
+                            </div>
+
+                            <label class="col-sm-2 control-label">Sequence</label>
+                            <div class="col-sm-2">
+                                <input type="text" name="Sequence" ej-numerictextbox e-decimalplaces="2" e-minvalue="1" e-enablertl="false" e-value="SingleTaskTemplate.Sequence" e-width="100" />
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-xs-6 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Duration<sup>*</sup></label>
+                            <div class="col-sm-5">
+                                <input type="text" e-enabled="SingleTaskTemplate.Active" name="Sequence" ej-numerictextbox e-decimalplaces="0" e-minvalue="0" e-enablertl="false" e-value="SingleTaskTemplate.Duration" e-width="100" />
+                            </div>
+                            <div class="col-sm-3 text-left" style="vertical-align:central; padding:4px;">
+                                Day(s)
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Lag Days(on dep. date)<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <input type="text" ej-numerictextbox e-decimalplaces="0" e-enablertl="false" e-value="SingleTaskTemplate.LagDays" e-width="100" />
+                                <a style="color:blue;font-style:italic;">**Negative value will be considered as lead days</a>
+                            </div>
+                        </div>
+                        @*<div class="form-group">
+                                <label class="col-sm-4 control-label">Applied To New Order<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <input type="checkbox" ej-checkbox e-value="SingleTaskTemplate.ForNewOrder" e-checked="SingleTaskTemplate.ForNewOrder" class="nodetext" />
+                                </div>
+                            </div>*@
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Task Type<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <input ej-dropdownlist e-datasource="TaskTypeList" e-value="SingleTaskTemplate.TaskType" @*e-fields-value="Id" e-fields-text="UserName"*@ e-width="100%" />
+
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Task Applied On<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <input ej-dropdownlist e-datasource="TaskAppliedOnList" e-value="SingleTaskTemplate.TaskAppliedOnId" e-change="LoadDependentDates" e-fields-value="Id" e-fields-text="UserName" e-width="100%" />
+
+                            </div>
+                            <label ng-hide="hideNewOrRepeatOrderCheckbox" class="col-sm-4 control-label">Applied To New Order<sup>*</sup></label>
+                            <div ng-hide="hideNewOrRepeatOrderCheckbox" class="col-sm-8">
+                                <input type="checkbox" ej-checkbox e-value="SingleTaskTemplate.ForNewOrder" e-checked="SingleTaskTemplate.ForNewOrder" class="nodetext" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Task Dependent Date<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <input ej-dropdownlist id="TaskDependentDateList" e-dataBound="SelectDependentDates" e-datasource="TaskDependentDateList" e-value="SingleTaskTemplate.TaskDependentDatesId" e-fields-value="Id" e-fields-text="UserName" e-width="100%" />
+
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Resp. Person Cat.<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <input ej-dropdownlist e-datasource="ResponsiblePersonCategoryList" e-value="SingleTaskTemplate.ResponsiblePersonCategory" @*e-fields-value="Id" e-fields-text="UserName"*@ e-width="100%" />
+
+                            </div>
+                        </div>
+                        <div class="form-group" ng-hide="SingleTaskTemplate.ResponsiblePersonCategory!='Employee'">
+                            <label class="col-xs-12 col-sm-4 col-md-4 control-label">Resp. Person<sup>*</sup></label>
+                            <div class="col-xs-12 col-sm-2 col-md-2" style="padding-right:0px;">
+                                <input class="form-control" type="text" ng-disabled="true" ng-model="SingleTaskTemplate.EmployeeCode" />
+                            </div>
+                            <div class="col-xs-12 col-sm-5 col-md-5" style="padding-left:0px;padding-right:0px;">
+                                <input class="form-control" name="Owner" type="text" ng-disabled="true" ng-model="SingleTaskTemplate.EmployeeName" required />
+                            </div>
+                            <div class="col-xs-12 col-sm-1 col-md-1" style="padding-left:0px;padding-right:0px;">
+                                <ul class="common-btn list-inline text-right" style="padding: 0px;">
+                                    <li><button ng-click="OpenEmployeeSearchBox('TASK');" class="btn" style="height:30px;width:30px; padding:0px;"><i class="glyphicon glyphicon-search small"></i></button></li>
+                                </ul>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="col-xs-6 col-sm-6 col-md-6">
+                        <div class="col-xs-6 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-8 control-label">Active<sup>*</sup></label>
+                                <div class="col-sm-4">
+
+                                    <input type="checkbox" ej-checkbox class="nodetext" e-value="SingleTaskTemplate.Active" e-checked="SingleTaskTemplate.Active" />
+
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-8 control-label">Mandatory<sup>*</sup></label>
+                                <div class="col-sm-4">
+                                    <input type="checkbox" ej-checkbox class="nodetext" e-value="SingleTaskTemplate.IsMandatory" e-checked="SingleTaskTemplate.IsMandatory" />
+
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-8 control-label">Milestone<sup>*</sup></label>
+                                <div class="col-sm-4">
+                                    <input type="checkbox" ej-checkbox class="nodetext" e-value="SingleTaskTemplate.IsTaskMilestone" e-checked="SingleTaskTemplate.IsTaskMilestone" />
+
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-6">
+
+                            <div class="form-group">
+                                <label class="col-sm-8 control-label">First Task<sup>*</sup></label>
+                                <div class="col-sm-4">
+
+                                    <input type="checkbox" ej-checkbox class="nodetext" e-value="SingleTaskTemplate.IsFirstTask" e-checked="SingleTaskTemplate.IsFirstTask" />
+
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-8 control-label">Last Task<sup>*</sup></label>
+                                <div class="col-sm-4">
+
+                                    <input type="checkbox" ej-checkbox class="nodetext" e-value="SingleTaskTemplate.IsLastTask" e-checked="SingleTaskTemplate.IsLastTask" />
+
+                                </div>
+                            </div>
+
+
+                        </div>
+                        <div class="col-xs-12">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">
+                                    <a ej-tooltip e-content="The story point depends on the required time of completion of the task.">
+                                        Story Point
+                                    </a>
+                                </label>
+                                <div class="col-sm-8">
+                                    <input type="text" ej-numerictextbox e-decimalplaces="0" e-minvalue="0" e-enablertl="false" e-value="SingleTaskTemplate.StoryPoint" e-width="100" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Remarks<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="2" ng-model="SingleTaskTemplate.Remarks" maxlength="250"></textarea>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <p class="text-right">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li><button ng-click="UpdateTask();" class="btn"><i class="glyphicon glyphicon-floppy-save"></i> Update</button></li>
+                            </ul>
+                        </div>
+                    </p>
+                </div>
+            </div>
+            <div id="SubTasks">
+                <div class="row">
+
+                    <div id="gridSubTask" ng-init="chkinit()" ej-grid e-datasource="SubTaskList" e-pagesettings-pagesize="4" e-minheight="300"
+                         e-endadd="SaveSubTask" e-endedit="SaveSubTask" e-enddelete="DeleteSubTask" e-editsettings-allowediting="true" e-editsettings-allowadding="true" e-editsettings-allowdeleting="true"
+                         e-toolbarsettings-showtoolbar="true" e-toolbarsettings-toolbaritems="[ej.Grid.ToolBarItems.Add, ej.Grid.ToolBarItems.Edit, ej.Grid.ToolBarItems.Delete, ej.Grid.ToolBarItems.Update, ej.Grid.ToolBarItems.Cancel]"
+                         e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filtertype="excel">
+                        <div e-columns>
+                            <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-isprimarykey="true"></div>
+                            <div e-column e-field="TaskTemplateId" e-headertext="TaskTemplateId" e-visible="false"></div>
+                            <div e-column e-field="SubTaskDescription" e-headertext="Sub Tasks" e-width="5"></div>
+                        </div>
+
+                    </div>
+
+
+                </div>
+            </div>
+            <div id="Predecessor">
+                <div class="row">
+                    <div class="form-group">
+                        <div class="col-xs-12">
+                            <div id="gridPredecessor" ng-init="chkinit()" ej-grid e-datasource="DependencyList" e-pagesettings-pagesize="4"
+                                 e-endadd="SaveTaskTemplateDependency" e-endedit="SaveTaskTemplateDependency"
+                                 e-editsettings-allowediting="true"
+                                 e-editsettings-allowadding="true"
+                                 e-editsettings-allowdeleting="true"
+                                 e-enddelete="DeleteTaskTemplateDependency"
+                                 e-toolbarsettings-showtoolbar="true" e-toolbarsettings-toolbaritems="[ej.Grid.ToolBarItems.Add, ej.Grid.ToolBarItems.Edit, ej.Grid.ToolBarItems.Delete, ej.Grid.ToolBarItems.Update, ej.Grid.ToolBarItems.Cancel]"
+                                 e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
+                                 e-allowselection="true" e-filtersettings-filtertype="excel">
+                                <div e-columns>
+                                    <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-isprimarykey="true"></div>
+                                    <div e-column e-field="TaskTemplateId" e-headertext="TaskTemplateId" e-visible="false"></div>
+                                    <div e-column e-field="PreTaskTemplateId" e-width="55" e-foreignkeyfield="taskID" e-foreignkeyvalue="taskName" e-datasource="ganttPredecessorData" e-headertext="Task" e-visible="true"></div>
+                                    <div e-column e-field="Criteria" e-width="25" e-foreignkeyfield="predecessorType" e-foreignkeyvalue="predecessorName" e-datasource="predecessorTypeddl" e-headertext="Criteria" e-visible="true"></div>
+                                    <div e-column e-field="LagDays" e-width="20" @*e-edittype="[ej.Grid.EditingType.Numeric]"*@ e-format="{0:N0}" e-headertext="Lag Days" e-visible="true"></div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ej-dialog>
+
+
+<ej-dialog id="dialogSearchEmployee" title="Employees" e-enablemodal="true" e-position-y="0" e-position-x="0" e-showoninit="false" e-target=".form-horizontal.form-elements" e-close="onDialogClose" e-width="900" e-open="enableBtn">
+    <div class="row">
+        <div class="row text-right">
+            <div class="col-xs-12 col-sm-12 col-sm-12">
+                <div class="search-form">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-3 col-md-3">
+                            <div class="select-style">
+                                <select ng-model="EmployeeSearchCol">
+                                    <option ng-repeat="option in EmployeemodelFilterByList" value="{{option.value}}">{{option.name}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-7 col-md-7">
+                            <input type="text" class="form-control" placeholder="Search" ng-model="EmployeeSearchVal" ng-enter="getEmployeeData()">
+                        </div>
+                        <div class="col-xs-12 col-sm-2 col-md-2">
+                            <button type="button" ng-click="getEmployeeData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="SearchEmployee" ng-init="chkinit()" ej-grid e-datasource="EmployeeList" e-gridlines="horizontal"
+             e-allowtextwrap="true" e-textwrapsettings.wrapmode="content"
+             e-recorddoubleclick="ViewEmployeeStatus" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel">
+            <div e-columns>
+                <div e-column e-field="Id" e-headertext="Id" e-width="30" e-primarykey="true" e-visible="false"></div>
+                <div e-column e-headertext="" e-template="#empimage" e-textalign="center" e-width="40"></div>
+                <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="30"></div>
+                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                <div e-column e-field="Designation" e-headertext="Designation" e-width="80"></div>
+                <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="80"></div>
+            </div>
+        </div>
+        <script type="text/x-jsrender" id="empimage">
+            <img onerror="$(arguments[0].currentTarget).attr('src','images/blankuser.png')" src="POPResources/EmployeeProfiles/EmpPic/{{:EmpPicPath}}" style="height:48px;width:48px;" />
+        </script>
+    </div>
+</ej-dialog>
+<style type="text/css">
+    .e-gantt .e-treegrid .e-headercelldiv {
+        color: #ffffff;
+    }
+
+    .e-treegrid .e-headercelldiv {
+        color: #ffffff;
+    }
+
+    .e-tab .e-active-content {
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+</style>
+

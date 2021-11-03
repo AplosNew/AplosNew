@@ -1,0 +1,214 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> {{FormTitle}}</h3>
+<div class="form-elements form-horizontal" ng-form="modelForm">
+    <div class="row">
+        <div class="form-elements form-horizontal" ng-form="modelForm">
+            <div class="col-md-12 col-sm-6 col-md-6">
+
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                    <div class="col-sm-8">
+                        <input type="text" name="Form Date" ng-model="hrPresentJSFromDate" datepicker class="form-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Comparator<sup>*</sup></label>
+                    <div class="col-sm-8">
+
+                        <div class="select-style" style="height: 26px;">
+                            <select class="dtd form-control " ng-model="presentComparator">
+                                <option value=">=">>=</option>
+                                <option value="<="><=</option>
+                                <option value="=">=</option>
+                                <option value=">">></option>
+                                <option value="<"><</option>
+                            </select>
+                        </div>
+
+                    </div>
+                </div>
+
+                @*<div class="form-group">
+                        <label class="col-sm-4 " style="font-weight:normal;">Consider In Out<sup></sup></label>
+                        <div class="col-sm-8">
+                            <input type="checkbox" ej-checkbox class="nodetext" e-value="considerInOut" e-checked="considerInOut" e-model="considerInOut" />
+                        </div>
+                    </div>*@
+
+            </div>
+            <div class="col-md-12 col-sm-6 col-md-6">
+
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                    <div class="col-sm-8">
+                        <input type="text" name="Form Date" ng-model="hrPresentJSToDate" datepicker class="form-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Days<sup>*</sup></label>
+                    <div class="col-sm-8">
+                        <input type="text" name="Form Date" ng-model="dayCountPresent" class="form-control" ng-change="PreviousDate()">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Plant</label>
+                    <div class="col-md-8">
+                        <input id="ddlPlantList" />
+                    </div>
+                </div>
+                @*<div class="form-group">
+                        <label class="col-sm-4 control-label">Day Status<sup></sup></label>
+                        <div class="col-sm-8">
+                            <div class="select-style">
+                                <input id="AttendanceDayStatusList" ej-dropdownlist e-create="create" e-multiselectmode="visualmode" e-datasource="AttendanceDayStatusList" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-showcheckbox="true" />
+
+                            </div>
+                        </div>
+                    </div>*@
+                <div class="form-group" style="text-align: right; margin-left: 76%;">
+                    <div class="col-xs-6" style="margin:1px;">
+                        <div class="common-btn">
+                            <ul>
+                                <li><button ng-click="GetGruopWiseDateWisePresentStatus();" class="btn"> <i class="glyphicon glyphicon-download"></i> Generate</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="conPresentDiv">
+    <div class="row" id="conPresentTable">
+        <div class="col-xs-12 col-sm-6 col-md-12">
+            <div class="modal-footer common-btn">
+                <div class="common-btn">
+                    <ul>
+                        <li>
+                            <button type="button" class="btn glyphicon-arrow-down" ng-click="PrintPresent();">Download</button>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+            <div id="GridPresent" ej-grid
+                 e-datasource="DateWisePresentStatusList"
+                 e-allowscrolling="true"
+                 e-pageSettings-pageSize="15"
+                 e-allowfiltering="true"
+                 e-allowpaging="true"
+                 e-enabletouch="false"
+                 e-responsive="true"
+                 e-allowselection="true"
+                 e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="50"></div>
+                    <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="Plant" e-headertext="Plant" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="LegalDesignation" e-headertext="Designation" e-allowediting="false" e-width="50"></div>
+                    <div e-column e-field="EmployeeCategorys" e-headertext="Emp Category" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="Entity" e-headertext="Entity" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="Department" e-headertext="Department" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="Section" e-headertext="Section" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="SubSection" e-headertext="SubSection" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="DOJS" e-headertext="D O J" e-allowediting="false" e-width="50"></div>
+                    <div e-column e-field="DOSs" e-headertext="D O S" e-allowediting="false" e-width="50"></div>
+                    <div e-column e-template="#actionPresentDays" e-headertext="PresentDaysOccured" e-width="80"></div>
+                </div>
+                <script type="text/template" id="actionPresentDays">
+                    <label id="deleteIntegratorTemplate" ng-click="$parent.ModalPresentEmpWiseDate(data)" style="color:blue;text-decoration:underline;cursor:pointer">{{data.PresentDaysOccured}}</label>
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="presentDaysCountList" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" onload="AutoRefresh(120000);">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Status of : <b>{{label}}</b> <br />Employee Code : <b> {{empCode}}</b> </h4>
+            </div>
+            <div class="modal-body table-responsive modal-table" style="overflow-y:scroll; max-height:375px;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Sl</th>
+                            <th>
+                                FromDate
+                            </th>
+                            <th>
+                                FromDate
+                            </th>
+                            <th>
+                                Day Count
+                            </th>
+
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in presentDaysList">
+                            <td>{{$index + 1}}</td>
+                            <td>{{x.fromDate}}</td>
+                            <td>{{x.toDate}}</td>
+                            <td ng-click="ModalPresentEmpWiseDateList(x)" style="color:blue;text-decoration:underline;cursor:pointer">{{x.max_Present_days}}</td>
+
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="LateDateWiseList" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" onload="AutoRefresh(120000);">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Status of : <b>{{label}}</b> <br />Employee Code : <b> {{empCode}}</b> </h4>
+            </div>
+            <div class="modal-body table-responsive modal-table" style="overflow-y:scroll; max-height:375px;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Sl</th>
+                            <th>
+                                Work Date
+                            </th>
+                            <th>
+                                Day
+                            </th>
+                            <th>
+                                Day Status
+                            </th>
+                            <th>Description</th>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in lateDayList">
+                            <td>{{$index + 1}}</td>
+                            <td>{{x.WorkDate}}</td>
+                            <td>{{x.WeekDays}}</td>
+                            <td>{{x.DayStatus}}</td>
+                            <td>{{x.Description}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="loader" data-loader>
+    Please wait
+    <div class="bounce1"></div>
+    <div class="bounce2"></div>
+    <div class="bounce3"></div>
+</div>
+

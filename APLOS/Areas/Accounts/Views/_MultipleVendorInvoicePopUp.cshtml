@@ -1,0 +1,88 @@
+﻿<div class="modal fade site-modal in" id="VendorPayableListPopUP" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:1000px">
+        <div class="modal-content" ng-form name="materialgridCharacteristicsForm">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="closePopUp()">&times;</button>
+                <h4 class="modal-title">Payable</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="popUpParameters.searchBy">
+                                            <option ng-repeat="option in multiplevendorInvoiceSearchList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="popUpParameters.search" ng-enter="customerreceivableGLData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="customerreceivableGLData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>To Pay</th>
+                                <th>Code {{partyType}}</th>
+                                <th>{{partyType}}</th>
+                                <th>Entity</th>
+                                <th>Voucher No</th>
+                                <th>Posting Date</th>
+                                <th>Doc Date</th>
+                                <th>Doc Ref</th>
+                                <th>Currency</th>
+                                <th>Payable</th>
+                                <th>Payment</th>
+                                <th>Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in  paymentList |itemsPerPage:popUpParameters.pageSize"
+                                pagination-id="metaData.name + 'paymentList'"
+                                total-items="popUpParameters.total_count" @*ng-dblclick="closePopUpselected(x,$index,x.VoucherNo)"*@>
+                                <td>
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="x.Active" ng-checked="x.Active"
+                                                   ng-click="pushInTempList($event,x);">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td ng-show="partyType=='Vendor'">{{x.PartyCode}}</td>
+                                <td ng-show="partyType=='Vendor'">{{x.PartyName}}</td>
+                                <td>{{x.EntityName}}</td>
+                                <td>{{x.VoucherNo}}</td>
+                                <td>{{x.PostingDate | dateFiltering}}</td>
+                                <td>{{x.DocDate | dateFiltering}}</td>
+                                <td>{{x.DocRefNo}}</td>
+                                <td>{{x.CurrencyCode}}</td>
+                                <td class="text-right">{{x.Receivable | number:4}}</td>
+                                <td class="text-right">{{x.Received | number:4}}</td>
+                                <td class="text-right">{{x.Balance | number:4}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <dir-pagination-controls max-size="10"
+                                         pagination-id="metaData.name + 'paymentList'"
+                                         direction-links="true"
+                                         boundary-links="true"
+                                         on-page-change="customerreceivableGLData(newPageNumber)">
+                </dir-pagination-controls>
+            </div>
+            <div class="modal-footer  common-btn">
+                <button type="button" class="btn btn-default" ng-click="closePopUp()">Select</button>
+            </div>
+        </div>
+    </div>
+</div>

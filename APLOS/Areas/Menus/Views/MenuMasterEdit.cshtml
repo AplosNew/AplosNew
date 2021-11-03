@@ -1,0 +1,117 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> Menu Master Edit</h3>
+<div class="form-elements form-horizontal" ng-form id="menuMaster" name="menuMasterForm">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Module<sup>*</sup></label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    <select class="form-control" ng-model="menuMaster.ModuleId" ng-change="onChangeModule(menuMaster.ModuleId)" ng-options="item.Value as item.Text for item in moduleList"></select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Submodule</label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    <select class="form-control" ng-model="menuMaster.SubModuleId" ng-options="item.Value as item.Text for item in subModuleList"></select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Menu Frame<sup>*</sup></label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    <select class="form-control" ng-required="true" ng-model="menuMaster.MenuFrameId" ng-options="item.Value as item.Text for item in menuFrameList">
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Menu Group</label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    <select class="form-control" ng-model="menuMaster.MenuGroupId" ng-options="item.Value as item.Text for item in menuGroupList">
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Menu Subgroup</label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    <select class="form-control" ng-model="menuMaster.MenuSubGroupId" ng-options="item.Value as item.Text for item in menuSubGroupList">
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Menu Item</label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    <select class="form-control" ng-model="menuMaster.MenuItemId" ng-options="item.Value as item.Text for item in menuItemList">
+                        <option value="">--select--</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">External Menu</label>
+            <div class="col-sm-8">
+                <div class="checkbox-site">
+                    <label>
+                        <input tabindex="9" type="checkbox" ng-model="menuMaster.IsExternalMenu">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Panel Name<sup>*</sup></label>
+            <div class="col-sm-8  show-message">
+                <div class="select-style">
+                    <select class="form-control" name="Group Name" ng-model="menuMaster.PanelName" tabindex="6" required>
+                        <option value="">--Select--</option>
+                        <option value="Application">Application</option>
+                        <option value="Master">Master</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Description</label>
+            <div class="col-sm-8">
+                <textarea maxlength="250" class="form-control" rows="4" ng-model="menuMaster.Description"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Remarks</label>
+            <div class="col-sm-8">
+                <textarea maxlength="250" class="form-control" rows="4" ng-model="menuMaster.Remarks"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Active</label>
+            <div class="col-sm-8">
+                <div class="checkbox-site">
+                    <label>
+                        <input tabindex="9" type="checkbox" ng-model="menuMaster.Active">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Update</button></li>
+            <li><button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li><button ng-click="Back();" class="btn"><i class="glyphicon glyphicon-arrow-left"></i> Back</button></li>
+        </ul>
+    </div>
+</div>
+<confirm-modal></confirm-modal>

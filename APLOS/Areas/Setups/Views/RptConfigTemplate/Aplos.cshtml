@@ -1,0 +1,119 @@
+﻿<togglable name="Report Configuration Template"></togglable>
+<div ng-form id="rptConfigTemplate" name="rptConfigTemplateForm" class="form-elements form-horizontal">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Type<sup>*</sup></label>
+            <div class="col-sm-8">
+                <div class="select-style show-message">
+                    <select id="Type" class="form-control" ng-model="rptConfigTemplate.Type" name="Complied Shift Group" tabindex="1">
+                        @*<option value="">--Select--</option>
+                            <option value="Appointment Letter">Appointment Letter</option>
+                            <option value="Confirmation Letter">Confirmation Letter</option>
+                            <option value="IdCard">Id Card</option>*@
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in reportTypeList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+                @*<input type="text" ng-model="rptConfigTemplate.Type" class="form-control" required tabindex="1">*@
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style show-message">
+                    <select id="PlantId" class="form-control" ng-model="rptConfigTemplate.PlantId" name="Complied Shift Group" tabindex="1">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in PlantList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+
+                @*<input type="text" maxlength="50" name="Plant Id" ng-model="rptConfigTemplate.PlantId" class="form-control" required tabindex="3">*@
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Language<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select id="Language" class="form-control" ng-model="rptConfigTemplate.Language" name="Complied Shift Group" tabindex="1">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in LanguageList" value="{{option.Text}}">{{option.Text}}</option>
+                    </select>
+                </div>
+                @*<input type="text" maxlength="50" name="Language" ng-model="rptConfigTemplate.Language" class="form-control" required tabindex="5">*@
+            </div>
+        </div>
+
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Format Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" maxlength="50" name="Format Name" ng-model="rptConfigTemplate.FormatName" class="form-control" required tabindex="2">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Template File Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" maxlength="50" name="Template File Name" ng-model="rptConfigTemplate.TemplateFileName" class="form-control" required tabindex="4">
+            </div>
+        </div>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="Save();" class="btn" tabindex="10"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Plant</th>
+                <th>Language</th>
+                <th>Format Name</th>
+                <th>Template File Name</th>
+                @*<th>Active</th>*@
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in rptConfigTemplates |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-click="Get(x.Id, $index);">
+                <td>{{x.Type}}</td>
+                <td>{{x.PlantName}}</td>
+                <td>{{x.Language}}</td>
+                <td>{{x.FormatName}}</td>
+                <td>{{x.TemplateFileName}}</td>
+                @*<td>{{x.Active?'Yes':'No'}}</td>*@
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10"
+                             direction-links="true"
+                             boundary-links="true"
+                             on-page-change="getData(newPageNumber)">
+    </dir-pagination-controls>
+</div>
+<confirm-modal></confirm-modal>

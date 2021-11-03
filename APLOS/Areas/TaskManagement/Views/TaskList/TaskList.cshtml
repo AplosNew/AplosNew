@@ -1,0 +1,96 @@
+﻿<div class="form-elements">
+    <div class="col-sm-12" style="padding-top:10px;">
+      
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group" style="padding-bottom:60px;margin-bottom:10px !important;" ng-hide="SelectedMenu.value!='Home'">
+                    <div class="col-xs-12" style="padding:0px;margin:0px;">
+                       <table>
+                           <tr>
+                               <td>
+                                   <input type="text" name="User Name" placeholder="Add To Do & Press [Enter]" ng-model="TaskDesc" ng-enter="AddData()" class="form-control" required maxlength="250" />
+
+                               </td>
+                               <td style="width:70px">
+                                   <ul class="common-btn list-inline text-right" style="padding:0px; margin:0px;width:100%;">
+                                       <li style="padding:0px;margin:0px;width:100%;">
+                                           <button type="button" ng-click="AddData()" class="btn"><i class="glyphicon glyphicon-plus-sign"></i> Add</button>
+                                       </li>
+                                   </ul>
+                               </td>
+                           </tr>
+                       </table>
+                        @*<div class="col-xs-12 col-sm-10 col-md-10" style="padding:0px;">
+                            <input type="text" name="User Name" placeholder="Add To Do & Press [Enter]" ng-model="TaskDesc" ng-enter="AddData()" class="form-control" required maxlength="250" />
+                        </div>
+                        <div class="col-xs-12 col-sm-2 col-md-2" style="padding:0px;margin:0px">
+                            <ul class="common-btn list-inline text-right" style="padding:0px; margin:0px;width:100%;">
+                                <li style="padding:0px;margin:0px;width:100%;">
+                                    <button type="button" ng-click="AddData()" class="btn"><i class="glyphicon glyphicon-plus-sign"></i> Add</button>
+                                </li>
+                            </ul>
+                        </div>*@
+                    </div>
+
+
+                </div>
+              
+            </div>
+
+        </div>
+    </div>
+    <style type="text/css">
+        .listrightdiv {
+            font-size: 12px !important;
+            color: navy;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .e-grid {
+            border-width: 0px !important;
+        }
+
+        #GridEdit.e-grid .e-gridheader {
+            display: none;
+            border: 1px solid;
+        }
+
+        .e-grid .e-gridheader {
+            display: none;
+            border: 1px solid;
+        }
+
+        #GridEdit.e-grid .e-rowcell {
+            padding: 0px !important;
+        }
+
+
+        .e-lv.e-parentlv > .e-lv .e-list-container {
+            /*border: none !important;*/
+            /*border: 1px  #d2d3ff !important;*/
+        }
+
+        .e-lv .e-list {
+            padding: 10px;
+        }
+
+
+        .e-groupbutton > .e-vertical.e-ul > .e-grp-btn-item {
+            border-left: none !important;
+            border-right: none !important;
+        }
+
+        .e-groupbutton .e-grp-btn-item {
+            text-align: left;
+        }
+    </style>
+</div>
+
+
+
+@*<confirm-modal></confirm-modal>
+<confirm-archive-generic data-modalid="confirmDeleteSubTask" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteToDoSubTaskFinal()" />
+<confirm-modal></confirm-modal>
+<confirm-archive-generic data-modalid="confirmDeleteAttachment" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteToDoFileFinal()" />*@
+
+

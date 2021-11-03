@@ -1,0 +1,282 @@
+﻿<togglable name="HSN Tax Percentage"></togglable>
+<div class="form-horizontal form-element-ctrl" ng-form name="HSNTaxPercentageForm">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Country<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" name="Country" ng-model="hSNTaxPercentage.CountryId" ng-change="getTaxCategoryCbo();getData()" required tabindex="1">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in countryList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="form-elements">
+        <input type="hidden" ng-model="hSNTaxPercentage.Id">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Tax Category<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    @*<div class="select-style">
+                            <select class="form-control" ng-model="hSNTaxPercentage.TaxCategoryId" name="Tax Category" required tabindex="2">
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in taxCategoryList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>*@
+                    <div class="frame">
+                        @*<div class="ctrllabel">Select Tax Category</div>*@
+                        <div class="angularbind">
+                            <div id="control">
+                                <ul id="selectcustomer" ej-listbox e-datasource="taxCategoryList" e-fields-text="text" e-width="100%"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <ul class="common-btn list-inline text-left">
+                <li><button ng-click="hSNCodeSearchPopup();" class="btn" tabindex="10"><i class="glyphicon glyphicon-plus-sign"></i> Add HSNCode</button></li>
+            </ul>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Effective Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="EffectiveDate" id="EffectiveDate" ng-model="hSNTaxPercentage.EffectiveDate"
+                           datepicker class="form-control datepicker" tabindex="3" required>
+                </div>
+            </div>
+        </div>
+        <div class="modal-table">
+            @*<table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>HSN Code</th>
+                        <th>Description</th>
+                        <th>Country HSN Code</th>
+                        <th>Country HSN Description</th>
+                        <th>Percentage</th>
+                        <th>Remove</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="h in hSNCodeSelectedList">
+                        <td>{{h.HSNCode}}</td>
+                        <td>{{h.HSNDescription}}</td>
+                        <td>{{h.CountryHSNCode}}</td>
+                        <td>{{h.CountryHSNDescription}}</td>
+                        <td><input type="text" name="Percentage" ng-model="h.Percentage" class="form-control"></td>
+                        <td class="text-right">
+                            <button ng-click="valuePassInDelModal($index,x)" class="btn-action tooltip-here"
+                                    data-placement="top" title="Delete">
+                                <i class="glyphicon glyphicon-remove"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>*@
+            @*<dir-pagination-controls max-size="10" pagination-id="metaData.name + 'hsnList'"
+                                         direction-links="true"
+                                         boundary-links="true"
+                                         on-page-change="getHSNCode(newPageNumber)">
+                </dir-pagination-controls>*@
+
+
+
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>HSN Code</th>
+                <th>Tax Category</th>
+                <th>Percentage</th>
+                <th>EffectiveDate</th>
+                <th>Edit</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in hSNTaxPercentages |itemsPerPage:$root.pageSize" total-items="$root.total_count">
+                <td>{{x.HSNCode}}</td>
+                <td>{{x.TaxCategory}}</td>
+                <td>{{x.Percentage}}</td>
+                <td>{{x.EffectiveDate}}</td>
+                <td class="text-right table-td">
+                    <ul class="list-inline action-list">
+                        <li>
+                            <button ng-click="Get(x.Id, $index,x)" class="btn btn-action tooltip-here" data-placement="top" title="Edit">
+                                <i class="glyphicon glyphicon-pencil"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10"
+                             direction-links="true"
+                             boundary-links="true"
+                             on-page-change="getData(newPageNumber)">
+    </dir-pagination-controls>
+</div>
+<confirm-modal></confirm-modal>
+<div class="modal fade site-modal in" id="HSNTaxPercentagePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">HSN Tax Percentage</h4>
+            </div>
+            <div class="modal-body">
+                <div class="modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Country</th>
+                                <th>HSN Code</th>
+                                <th>Tax Category</th>
+                                <th>Percentage</th>
+                                <th>EffectiveDate</th>
+                                <th>Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in hSNTaxPercentagesUpdate">
+                                <td>{{x.Id}}</td>
+                                <td>{{x.Country}}</td>
+                                <td>{{x.HSNCode}}</td>
+                                <td>{{x.TaxCategory}}</td>
+                                <td><input type="text" name="Percentage" ng-model="x.Percentage" class="form-control"></td>
+                                <td>{{x.EffectiveDate}}</td>
+                                <td class="text-right table-td">
+                                    <ul class="list-inline action-list">
+                                        <li>
+                                            <button data-toggle="modal" data-target="#confirmDelete" ng-click="confirmDelete(x.Id)" class="btn btn-action tooltip-here" data-placement="top" title="HSN Tax Percentage Delete" tooltip>
+                                                <i class="glyphicon glyphicon-remove"></i>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="Update();" class="btn"><i class="glyphicon glyphicon-plus"></i>Update</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="hSNCodeListPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                HSN Code
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="hSNCodeListParameters.searchBy">
+                                            <option ng-repeat="option in searchByHSNCodeList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="hSNCodeListParameters.search" ng-enter="loadHSNCodeData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="loadHSNCodeData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Select</th>
+                                <th>Code</th>
+                                <th>Description</th>
+                                <th>Country Code</th>
+                                <th>Country Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in hSNCodeList|itemsPerPage:hSNCodeListParameters.pageSize" pagination-id="metaData.name + 'hSNCodeList'" total-items="hSNCodeListParameters.total_count" ng-dblclick="checkIsRegisterApply(x);">
+                                <td>
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="x.Flag" ng-checked="x.Flag" ng-click="pushInTempList(x,$event,hSNCodeList);">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>{{x.HSNCode}}</td>
+                                <td>{{x.HSNDescription}}</td>
+                                <td>{{x.CountryHSNCode}}</td>
+                                <td>{{x.CountryHSNDescription}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'hSNCodeList'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="loadHSNCodeData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="hSNCodeCloseListPopUp();" class="btn">Select</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic data-modalid="confirmDocumentdelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRow()"></confirm-archive-generic>
+<confirm-archive-generic data-modalid="confirmDelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="Delete()"></confirm-archive-generic>

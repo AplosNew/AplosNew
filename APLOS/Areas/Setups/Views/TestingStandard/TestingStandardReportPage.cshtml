@@ -1,0 +1,38 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Testing Standard Report
+</h3>
+<div class="form-elements form-horizontal" ng-form id="testingStandardReportNew" name="testingStandardNewReportForm">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <label class="col-sm-2 control-label">With Testing</label>
+            <div class="col-sm-2">
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="Testing" ng-model="testingStandardReportNew.Testing" value="WithTesting">
+                        <span class="cr"><i class="cr-icon"></i></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Without Testing</label>
+            <div class="col-sm-2">
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="Testing" ng-model="testingStandardReportNew.Testing" value="WithoutTesting">
+                        <span class="cr"><i class="cr-icon"></i></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li><button ng-click="testingStandardReport();" class="btn"><i class="glyphicon glyphicon-print"></i> Print</button></li>
+        </ul>
+    </div>
+</div>
+
+<confirm-modal></confirm-modal>

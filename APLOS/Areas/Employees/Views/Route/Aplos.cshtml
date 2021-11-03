@@ -1,0 +1,347 @@
+﻿
+<togglable name="Route"></togglable>
+<div class="form-horizontal" ng-form="routeNewForm">
+    <input type="hidden" ng-model="routeNew.Id">
+
+    <div class="col-xs-12 col-sm-12 col-md-12 form-element-ctrl">
+
+    </div>
+
+    <div class="form-elements">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Code" ng-model="routeNew.Code" class="form-control" required tabindex="2" maxlength="10">
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Standard Name" ng-model="routeNew.StandardName" class="form-control" required tabindex="4" maxlength="50">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Description</label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" rows="3" ng-model="routeNew.Description" tabindex="6" maxlength="250"></textarea>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Driver Select</label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <span class="input-group-addon">{{employeeInfo.EmployeeCode}}</span>
+                        <input type="text" name="EmployeeName" ng-model="employeeInfo.EmployeeName" class="form-control" readonly>
+                        <span class="input-group-btn">
+                            <button name="submit" ng-click="GetEmployeeDeleteInfo()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Asset Register</label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <span class="input-group-addon">{{AssetInfo.Id}}</span>
+                        <input type="text" name="EmployeeName" ng-model="AssetInfo.FixedAssetName" class="form-control" required readonly>
+                        <span class="input-group-btn">
+                            <button name="submit" ng-click="GetAssetInfo()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-12">
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li> <button ng-click="GetStopageInformation();" class="btn"><i class="glyphicon glyphicon-plus" tabindex="10"></i>Add Stoppage</button></li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Short Name" ng-model="routeNew.ShortName" class="form-control" maxlength="15" required tabindex="3">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="User Name" ng-model="routeNew.UserName" class="form-control" required tabindex="5" maxlength="50">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Remarks</label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" rows="3" ng-model="routeNew.Remarks" maxlength="250" tabindex="7"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Active</label>
+                <div class="col-sm-8">
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" ng-model="routeNew.Active">
+                            <span class="cr" tabindex="8"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-12">
+                <div class="with-gap">
+                    <div class="radio">
+
+                        <label>
+                            <input type="radio" name="IsProrataMonthlyColu" ng-model="routeNew.UpOrDown" value="Up">
+                            <span class="cr"><i class="cr-icon"></i></span>Up
+                        </label>
+
+                        <label>
+                            <input type="radio" name="IsProrataMonthlyColu" ng-model="routeNew.UpOrDown" value="Down">
+                            <span class="cr"><i class="cr-icon"></i></span>Down
+                        </label>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="clearfix"> </div>
+
+
+        <div class="row ">
+            <div class="col-xs-12 col-sm-12 col-sm-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+
+                        <thead>
+                            <tr>
+                                <th ng-show="StopageListNew.length>1"></th>
+                                <th>Sequence</th>
+                                <th>Code</th>
+                                <th>ShortName</th>
+                                <th>StandardName</th>
+                                <th>UserName</th>
+                                <th colspan="2">Time</th>
+                                <th>Remove</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <tr ng-repeat="x in StopageListNew">
+                                <td ng-show="StopageListNew.length>1">
+                                    <span ng-show="!$first" ng-click="moveUp($index,'StopageListNew')"><i class="glyphicon glyphicon-triangle-top"></i></span>
+                                    <br />
+                                    <span ng-show="!$last" ng-click="moveDown($index,'StopageListNew')"><i class="glyphicon glyphicon-triangle-bottom"></i></span>
+                                </td>
+                                <td>{{x.Sequence}}</td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.ShortName}}</td>
+                                <td>{{x.StandardName}}</td>
+                                <td>{{x.UserName}}</td>
+                                <td>
+                                    <div class="col-sm-10" style="padding:0px; width:100%;height:20px;">
+                                        <input e-value="x.Time" ej-timepicker style="color:black;" class="form-control" />
+                                    </div>
+                                </td>
+                                <td></td>
+
+                                <td class="text-right table-td">
+                                    <ul class="list-inline action-list">
+                                        <li>
+                                            <button ng-click="DeleteStopage(x)" class="btn-action tooltip-here" data-placement="top" title="Remove">
+                                                <i class="glyphicon glyphicon-remove"></i>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Save();" class="btn" ng-disabled="selectedStoppageList.length===0" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex=""><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+
+
+    </div>
+</div>
+
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form" ng-show="$root.total_count>0">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<confirm-modal></confirm-modal>
+
+<confirm-archive-generic modalid="confirmPopUpMaster" title="Confirmation" message="Are you sure to delete ?" data-ng-click-right-button="Delete();"></confirm-archive-generic>
+
+<div class="modal fade site-modal in" id="employeeNewPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" ng-click="closeEmployeePopUp();">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="GridEmp" ej-grid e-datasource="dataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="SetEmpData" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                            <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                            <div e-column e-field="DOJ" e-headertext="DOJ" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="AssetPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                Asset List
+                <button type="button" class="close" ng-click="closeAssetPopUp();">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="GridEmp" ej-grid e-datasource="AssetList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="SetAssetData" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="Id" e-headertext="ID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-field="SerialNo" e-headertext="SerialNo" e-width="80"></div>
+                            <div e-column e-field="CapitalizationDate" e-headertext="Capitalization Date" e-width="80"></div>
+                            <div e-column e-field="YearOfInstallation" e-headertext="Year Of Installation" e-width="80"></div>
+                            <div e-column e-field="Description" e-headertext="Description" e-width="80"></div>
+                            <div e-column e-field="FixedAssetName" e-headertext="FixedAssetName" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer common-btn">
+                <button ng-click="closeAssetPopUp();" class="btn"><i class=""></i> Close</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive aplos-grid-toggle">
+    <div id="GridEdit" ng-init="chkinit()" ej-grid e-datasource="ModelList" e-recorddoubleclick="recorddoubleclick" e-load="loadGridEdit"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
+            <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
+            <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="4"></div>
+            <div e-column e-field="UserName" e-headertext="User Name" e-width="4"></div>
+            <div e-column e-field="DriverName" e-headertext="Driver Name" e-width="4"></div>
+            <div e-column e-field="FixedAsset" e-headertext="Fixed Asset" e-width="4"></div>
+        </div>
+    </div>
+</div>
+
+<confirm-archive-generic data-modalid="confirmgenericPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteRow()"></confirm-archive-generic>
+
+<ej-dialog id="StoppageInfo"
+           title="Stoppage Information"
+           e-enablemodal="true"
+           e-position-y="0"
+           e-showoninit="false"
+           e-target=".site-heading"
+           e-close="onDialogClose"
+           e-minwidth="95%"
+           e-minheight="500" e-open="enableBtn">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-12">
+
+            <div id="empInfoGrid" ng-init="chkinit()" ej-grid e-datasource="StopageList" e-gridlines="vertical" e-templaterefresh="refreshTemplateemployee"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel">
+
+                <div e-columns>
+                    <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
+                    <div e-column e-field="Code" e-headertext="Code" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="Sequence" e-headertext="Sequence" e-allowediting="false" e-width="50"></div>
+                    <div e-column e-field="ShortName" e-headertext="Short Name" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="StandardName" e-headertext="Standard Name" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="UserName" e-headertext="User Name" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="Actives" e-headertext="Active" e-allowediting="false" e-width="80"></div>
+
+                </div>
+
+            </div>
+
+            <script type="text/template" id="checkboxTemplate">
+                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
+            </script>
+
+        </div>
+    </div>
+
+    <div class="common-btn">
+        <ul class="list-inline text-right" ng-show="true">
+            <li><button ng-click="OK();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> Ok </button></li>
+        </ul>
+    </div>
+
+
+</ej-dialog>
+
+<confirm-archive-generic data-modalid="confirmgenericPopUp" title="Confirmation"
+                         message={{message_confirmation}} data-ng-click-right-button="DeleteRow()">
+</confirm-archive-generic>
+<confirm-archive-generic modalid="confirmPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="Delete();"></confirm-archive-generic>

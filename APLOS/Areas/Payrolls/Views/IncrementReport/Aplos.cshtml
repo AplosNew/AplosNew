@@ -1,0 +1,32 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>{{FormTitle}}</h3>
+<div class="form-elements form-horizontal" ng-form="modelForm">
+    <div class="row">
+
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="Date.FromDate" />
+                </div>
+            </div>
+
+
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="Date.ToDate" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 text-left">
+            <div class="common-btn">
+                <ul class="list-inline text-left">
+                    <li><button ng-click="getIncrementReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download report</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    </div>
+<confirm-modal></confirm-modal>

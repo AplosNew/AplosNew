@@ -1,0 +1,213 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Profile
+</h3>
+<div class="form-horizontal" ng-form name="employeeInformationForm">
+    <div class="row form-elements">
+        <div class="tab-design" id="tab_show">
+            <div class="site-tab">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">General</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Document</a></li>
+                </ul>
+            </div>
+
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                    <div class="row" ng-form name="employeeInformationForm1">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">First Name</label>
+                                <div class="col-sm-8">
+                                    <label class="control-label"><b>:</b> {{employeeInformation.FirstName}}</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Middle Name</label>
+                                <div class="col-sm-8">
+                                    <label class="control-label"><b>:</b> {{employeeInformation.MiddleName}}</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Last Name</label>
+                                <div class="col-sm-8">
+                                    <label class="control-label"><b>:</b> {{employeeInformation.LastName}}</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Nick Name</label>
+                                <div class="col-sm-8">
+                                    <label class="control-label"><b>:</b> {{employeeInformation.NickName}}</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Phone</label>
+                                <div class="col-sm-8">
+                                    <label class="control-label"><b>:</b> {{employeeInformation.CellPhnNo}}</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Email</label>
+                                <div class="col-sm-8">
+                                    <label class="control-label"><b>:</b> {{employeeInformation.EmailId}}</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Date Of Birth</label>
+                                <div class="col-sm-8">
+                                    <label class="control-label"><b>:</b> {{employeeInformation.DOB |dateFiltering}}</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Birthday Celebration Date</label>
+                                <div class="col-sm-4">
+                                    <label class="control-label"><b>:</b> {{employeeInformation.BirthdayCelebrationDate|dateFiltering}}</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">National ID</label>
+                                <div class="col-sm-8">
+                                    <label class="control-label"><b>:</b> {{employeeInformation.NationalID}}</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Gender</label>
+                                <div class="col-sm-8">
+                                    <label class="control-label"><b>:</b> {{employeeInformation.GenderID}}</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Date Of Join</label>
+                                <div class="col-sm-8">
+                                    <label class="control-label"><b>:</b> {{employeeInformation.DOJ|dateFiltering}}</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Permanent Address</label>
+                                <div class="col-sm-8">
+                                    <label class="control-label"><b>:</b> {{employeeInformation.ParmanentAddress1}}</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Present Address</label>
+                                <div class="col-sm-8">
+                                    <label class="control-label"><b>:</b> {{employeeInformation.PresentAddress1}}</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <div class="col-sm-8">
+                                    <div>
+                                        <img id="uploadImageSrc" ng-src="{{imageSrc}}" style="margin-left: 180px; border: 1px solid; height: 200px; width: 200px;" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped" ng-show="documentdataList.length>0">
+                            <thead>
+                                <tr>
+                                    <th>Document Name</th>
+                                    <th>Emp Type</th>
+                                    <th>Employee Category</th>
+                                    <th>Optional Or Mandatory</th>
+                                    <th>Skill Based</th>
+                                    <th>Dependate Date</th>
+                                    <th>Due Date</th>
+                                    <th>File Name</th>
+                                    <th>File</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="d in documentdataList">
+                                    <td>{{d.DocumentName}}</td>
+                                    <td>{{d.EmpType}}</td>
+                                    <td>{{d.EmployeeCategory}}</td>
+                                    <td>{{d.OptionalOrMandatory}}</td>
+                                    <td>{{d.IsSkillBased?'Yes':'No'}}</td>
+                                    <td>{{d.DependateDate}}</td>
+                                    <td>{{d.DueDate | dateFiltering}}</td>
+                                    <td ng-click="DocDownload(d)"><a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{d.FileName}}" target="_self">{{d.FileName}}</a></td>
+                                    <td>
+                                        <button ng-click="DocShow(d);" ng-class="getColor(d)" class="btn"><i class="fa fa-paperclip"></i> Document</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="DocPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Add Document</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row form-elements form-horizontal">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Document Name</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="Document Name" ng-model="documentdata.DocumentName" readonly class="form-control" tabindex="72">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Employee Category</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="Employee Category" ng-model="documentdata.EmployeeCategory" readonly class="form-control" tabindex="74">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="inputBtnSection common-btn">
+                                <label class="fileUpload col-sm-4 ">
+                                    <input id="uploadBtn" type="file" name="file[]" class="upload" />
+                                    <span class="uploadBtn"><i class="fa fa-paperclip" aria-hidden="true"> Attach</i></span>
+                                </label>
+                                <div class="col-sm-6" style="width: 198px;">
+                                    <input type="text" id="uploadFile" ng-model="documentdata.FileName" name="uploadFile" class="disableInputField form-control" disabled="disabled" style="width: 183px;" />
+                                </div>
+                                <div class="col-sm-2" style="padding-left:0px;">
+                                    <button ng-click="DocumentRemove(documentdata.Id);" class="btn" style="height: 31px;width: 88px;padding-left: 8px;background: #242841;"><i class="fa fa-chain-broken" aria-hidden="true"></i> Detach</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Emp Type</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="Emp Type" ng-model="documentdata.EmpType" readonly class="form-control" tabindex="74">
+                            </div>
+                        </div>
+                        <div class="form-group" ng-show="documentdata.DocNumberRequired===true">
+                            <label class="col-sm-4 control-label">Document Number<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <input type="text" name="Document Number" ng-model="documentdata.DocNumber" class="form-control" tabindex="72" ng-disabled="fg">
+                            </div>
+                        </div>
+                        <div class="form-group" ng-show="documentdata.DocDateRequired===true">
+                            <label class="col-sm-4 control-label">Document Date<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <input type="text" ng-model="documentdata.DocDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="10">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SaveDocument();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic modalid="confirmDocDelete" title="Confirmation" data-ng-click-left-button="confirmCloseDocDelete()" message={{message_confirmation}} data-ng-click-right-button="removeDoc()"></confirm-archive-generic>
