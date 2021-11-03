@@ -201,7 +201,7 @@
                                 <div class="form-group" style="margin-top: -10px;">
                                     <label class="col-sm-4 control-label"></label>
                                     <div class="col-sm-8">
-                                        <div id="UploadDefault" e-dialogtext-title="Signature" e-autoupload="true" e-begin="onBeginUpload" e-filesize="2097152" ej-uploadbox e-saveurl="uploadUrl" e-multiplefilesselection=false  e-success="getFileList" e-extensionsallow=".jpg,.bmp,.png,.jpeg" e-error="errorPicUpload"></div>
+                                        <div id="UploadDefault" e-dialogtext-title="Signature" e-autoupload="true" e-begin="onBeginUpload" e-filesize="2097152" ej-uploadbox e-saveurl="uploadUrl" e-multiplefilesselection=false e-success="getFileList" e-extensionsallow=".jpg,.bmp,.png,.jpeg" e-error="errorPicUpload"></div>
                                     </div>
                                 </div>
                                 <div class="form-group" show-errors>
@@ -592,11 +592,11 @@
                                             <div class="col-sm-8">
                                                 <input type="text" name="Present Area" ng-model="employeeInformation.PresentArea" class="form-control" maxlength="50" />
                                                 @*<div class="select-style">
-                    <select id="PresAreaID" class="form-control" name="Present Area" ng-model="employeeInformation.PresAreaID">
-                        <option value="">--Select--</option>
-                        <option ng-repeat="option in AreaList" value="{{option.Value}}">{{option.Text}}</option>
-                    </select>
-                </div>*@
+                        <select id="PresAreaID" class="form-control" name="Present Area" ng-model="employeeInformation.PresAreaID">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in AreaList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>*@
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -636,7 +636,7 @@
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label">Permanent Address Line1<sup>*</sup></label>
                                             <div class="col-sm-8">
-                                                <textarea  name="Permanent Address1" class="form-control" rows="2" ng-model="employeeInformation.ParmanentAddress1" tabindex="7" maxlength="200"></textarea>
+                                                <textarea name="Permanent Address1" class="form-control" rows="2" ng-model="employeeInformation.ParmanentAddress1" tabindex="7" maxlength="200"></textarea>
                                             </div>
                                         </div>
 
@@ -738,11 +738,11 @@
                                             <div class="col-sm-8">
                                                 <input type="text" name="Parmanent Area" ng-model="employeeInformation.ParmanentArea" class="form-control" maxlength="50" />
                                                 @*<div class="select-style">
-                    <select id="ParmAreaID" class="form-control" name="Parmanent Area" ng-model="employeeInformation.ParmAreaID">
-                        <option value="">--Select--</option>
-                        <option ng-repeat="option in AreaList" value="{{option.Value}}">{{option.Text}}</option>
-                    </select>
-                </div>*@
+                        <select id="ParmAreaID" class="form-control" name="Parmanent Area" ng-model="employeeInformation.ParmAreaID">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in AreaList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>*@
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -2017,7 +2017,7 @@
                                         </table>
                                     </div>
                                 </div>
-                                
+
                                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(17), active: isSet2(17) }">
 
                                 </div>
@@ -2035,16 +2035,16 @@
                                             </div>
                                         </div>
                                         @*<div class="form-group">
-            <label class="col-sm-4 control-label">Accounts Group</label>
-            <div class="col-sm-8">
-                <div class="select-style">
-                    <select name="AccountsGroup" ng-model="employeeInformation.AccountsGroupId" class="col-sm-3 form-control"
-                            ng-options="item.Value as item.Text for item in accountsGroupList">
-                        <option></option>
-                    </select>
-                </div>
-            </div>
-        </div>*@
+                                                <label class="col-sm-4 control-label">Accounts Group</label>
+                                                <div class="col-sm-8">
+                                                    <div class="select-style">
+                                                        <select name="AccountsGroup" ng-model="employeeInformation.AccountsGroupId" class="col-sm-3 form-control"
+                                                                ng-options="item.Value as item.Text for item in accountsGroupList">
+                                                            <option></option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>*@
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label">Residence Group<sup ng-show="IsResidenceGroupMandatory===true">*</sup></label>
                                             <div class="col-sm-8">
@@ -2078,7 +2078,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label">Is Entry Complete</label>
                                             <div class="col-sm-8">
@@ -2625,6 +2625,17 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <div class="checkbox-site">
+                                <label>
+                                    <span>Non Eligible OT</span>
+                                    <input type="checkbox" ng-model="NonEligibleOTChild.Exclude" id="OTCheck">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
                             <label class="col-sm-4 control-label">Transport Group<sup ng-show="IsTransportGroupMandatory===true">*</sup></label>
                             <div class="col-sm-8">
                                 <div class="select-style">
@@ -2926,57 +2937,56 @@
                             <input type="text" name="Date Of Confirmation" ng-model="employeeNew.DOC" ng-disabled="true" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="21">
                         </div>
                     </div>-->
+@*<div class="form-group">
+        <label class="col-sm-2 control-label">Reference Employee<sup ng-show="IsReferenceRequired===true">*</sup></label>
+        <div class="col-sm-9 input-group" style="padding-left: 89px;padding-right: 14px;">
+            <span class="input-group-addon">{{employeeNew.RelativeEmployeeCode}}</span>
+            <input type="text" ng-model="employeeNew.RelativeEmployeeName" class="form-control" readonly>
+            <span class="input-group-btn">
+                <button ng-click="RelpopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                <button ng-click="clearEmp()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+            </span>
+        </div>
+    </div>*@
+<!--<div class="form-group">
+    <label class="col-sm-4 control-label">Ref.1 Name<sup ng-show="IsReferenceRequired===true">*</sup></label>
+    <div class="col-sm-8">
+        <input type="text" name="Name" ng-model="empReferenceInformation.Ref1Name" class="form-control" maxlength="150">
+    </div>
+</div>
+<div class="form-group">
+    <label class="col-sm-4 control-label">Approval Authority</label>
+    <div class="col-sm-8">
+        <div class="select-style">
+            <select id="ApprovalAuthority " class="form-control" ng-model="employeeNew.ApprovalAuthorityId" name="ApprovalAuthority">
+                <option value="">--Select--</option>
+                <option ng-repeat="option in ApprovalAuthorityList" value="{{option.Value}}">{{option.Text}}</option>
+            </select>
+        </div>
+    </div>
+</div>-->
+@*<div class="checkbox-site">
+        <label>
+            <span>Non Eligible OT</span>
+            <input type="checkbox" ng-model="NonEligibleOTChild.Exclude" id="OTCheck">
+            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
 
-                    @*<div class="form-group">
-            <label class="col-sm-2 control-label">Reference Employee<sup ng-show="IsReferenceRequired===true">*</sup></label>
-            <div class="col-sm-9 input-group" style="padding-left: 89px;padding-right: 14px;">
-                <span class="input-group-addon">{{employeeNew.RelativeEmployeeCode}}</span>
-                <input type="text" ng-model="employeeNew.RelativeEmployeeName" class="form-control" readonly>
-                <span class="input-group-btn">
-                    <button ng-click="RelpopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                    <button ng-click="clearEmp()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                </span>
+        </label>
+    </div>
+
+
+    <div class="form-group" show-errors>
+        <label class="col-sm-4 control-label">Week Off<sup>*</sup></label>
+        <div class="col-sm-8 show-message">
+            <div class="select-style">
+                <select class="form-control" ng-model="WeekOffChild.WOHeaderId" name="Week Off"
+                        ng-options="item.Value as item.Text for item in weekOffList" required tabindex="23">
+                    <option value="">--Select--</option>
+                </select>
             </div>
-        </div>*@
-                    <!--<div class="form-group">
-                        <label class="col-sm-4 control-label">Ref.1 Name<sup ng-show="IsReferenceRequired===true">*</sup></label>
-                        <div class="col-sm-8">
-                            <input type="text" name="Name" ng-model="empReferenceInformation.Ref1Name" class="form-control" maxlength="150">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label">Approval Authority</label>
-                        <div class="col-sm-8">
-                            <div class="select-style">
-                                <select id="ApprovalAuthority " class="form-control" ng-model="employeeNew.ApprovalAuthorityId" name="ApprovalAuthority">
-                                    <option value="">--Select--</option>
-                                    <option ng-repeat="option in ApprovalAuthorityList" value="{{option.Value}}">{{option.Text}}</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>-->
-                    @*<div class="checkbox-site">
-                        <label>
-                            <span>Non Eligible OT</span>
-                            <input type="checkbox" ng-model="NonEligibleOTChild.Exclude" id="OTCheck">
-                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-
-                        </label>
-                    </div>
-
-
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Week Off<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <div class="select-style">
-                                <select class="form-control" ng-model="WeekOffChild.WOHeaderId" name="Week Off"
-                                        ng-options="item.Value as item.Text for item in weekOffList" required tabindex="23">
-                                    <option value="">--Select--</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>*@
-                <!--</div>
+        </div>
+    </div>*@
+<!--</div>
             </div>
             <div class="common-btn">
                 <ul class="list-inline text-right">
@@ -3148,9 +3158,9 @@
                         <input type="checkbox" id="headchk" />
                     </script>
                     <script type="text/template" id="CycleTime">
-                            <input type="text" ng-model="data.CycleTime" style="color:black;" class="form-control" />
+                        <input type="text" ng-model="data.CycleTime" style="color:black;" class="form-control" />
                         @*<div class="col-sm-10" style="padding:0px; width:70px;">
-                        </div>*@
+                            </div>*@
                     </script>
                 </div>
             </div>

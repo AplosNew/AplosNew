@@ -1796,7 +1796,7 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
                 }
 
             }
-            $scope.ResetPFSettingModel();
+            //$scope.ResetPFSettingModel();   ///  commented by mizan on 01-Nov-2021 not to reset
 
 
 

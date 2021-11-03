@@ -455,6 +455,7 @@ var upanelApp = angular
     .controller('attendanceProcessUIController', attendanceProcessUIController)
     .controller('attendanceRawController', attendanceRawController)
     .controller('AttendanceRawDataDeleteController', AttendanceRawDataDeleteController)
+    .controller('AttendanceRawDataDeleteNewController', AttendanceRawDataDeleteNewController)
     .controller('AttendanceRawDataUploadController', AttendanceRawDataUploadController)
     .controller('attendanceSummaryStatusController', attendanceSummaryStatusController)
     .controller('authorizationConfigController', authorizationConfigController)
@@ -966,6 +967,7 @@ var upanelApp = angular
     .controller('LineLayoutForProductionBulletinController', LineLayoutForProductionBulletinController)
     .controller('EmployeeWeekOffUpdatesController', EmployeeWeekOffUpdatesController)
     .controller('SalaryDisbursementReportController', SalaryDisbursementReportController)
+    .controller('OSissueRegisterController', OSissueRegisterController)
 
     .config(AccessControllerConfig)
     .config(accountConfig)

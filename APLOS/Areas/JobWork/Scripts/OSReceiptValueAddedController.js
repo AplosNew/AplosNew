@@ -218,10 +218,13 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 
 				if ($scope.IssueTypeList.length > 0) {
                     $scope.GetReceiptVAChildData();
-                    //$scope.ShowHomeList = false;
+                    $scope.ShowHomeList = false;
                     //$scope.ShowReport = false;
 					$scope.GetTransformationReceiptCurrency();
-					$scope.GetIndividualReportData();
+				//	$scope.GetIndividualReportData();
+					$scope.GRNListDetails();
+					$scope.setStatus = 'Selected';
+					$scope.setTabGRNList(1);
 				}
 
 			});
@@ -608,6 +611,7 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 		$scope.VAGradeWiseList = [];
 		$scope.getData();
 		$scope.showbutton = true;
+		$scope.Action = 'Save';
 
 	}
 
@@ -933,6 +937,7 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 		$scope.showbtn = true;
 		$scope.inventoryMaterialList = [];
 		$scope.inventoryMaterialListPO = [];
+		$scope.Action = 'Save';
 	}
 
 	//$scope.ValidateReceiptTransChildQuantity = function (SelData) {
@@ -1211,6 +1216,8 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 				var reportFormat = "Excel";
 				window.open('JobWork/OSReceiptValueAdded/GetTransformationPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
 				//   $scope.getData();
+				$scope.setStatus = 'Selected';
+				$scope.setTabGRNList(2);
 
 			} catch (e) {
 
@@ -1218,10 +1225,16 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 		}
 		else {
 			try {
-				$scope.PrintTabId = data.Id;
-				$scope.IssueId = data.ReceiveId;
+				//$scope.PrintTabId = data.Id;
+				//$scope.IssueId = data.ReceiveId;
+
+				$scope.PrintTabId = $scope.ModelNew.Id;
+				$scope.IssueId = data.Id;
+
 				var reportFormat = "Excel";
 				window.open('JobWork/OSReceiptValueAdded/GetValueAddedPrintReceiptReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
+				$scope.setStatus = 'Selected';
+				$scope.setTabGRNList(1);
 
 			} catch (e) {
 
@@ -1237,9 +1250,14 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 			//var gridObj = $(x).data("ejGrid");
 			//var data = gridObj.getSelectedRecords()[0];
 			location.href = "JobWork/OSReceiptValueAdded/GRNReport?grnId=" + data.Id;
+			$scope.setStatus = 'Selected';
+			$scope.setTabGRNList(2);
 		}
 		else {
-			location.href = "JobWork/OSReceiptValueAdded/ValAddedGRNReport?grnId=" + data.ReceiveId;
+		//	location.href = "JobWork/OSReceiptValueAdded/ValAddedGRNReport?grnId=" + data.ReceiveId;
+			location.href = "JobWork/OSReceiptValueAdded/ValAddedGRNReport?grnId=" + data.Id;
+			$scope.setStatus = 'Selected';
+			$scope.setTabGRNList(1);
         }
 	};
 
@@ -2057,6 +2075,7 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 						else {
 							ShowResult(response.data.Message, 'success');
 							$scope.ReceiptTransformation.Id = response.data.entity.Id;
+							$scope.ClearReceiptTransChildTab();
 							//ShowResult(response.data.Message, 'success');
 							//$scope.setTabGRNList(1);
 							//$scope.getDataList();
@@ -2357,7 +2376,7 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 							'AcceptanceId': $scope.AcceptanceId,
 							'CheckedByStatusForNoti': $scope.CheckedByStatusForNoti,
 							'ApprovedByStatusForNoti': $scope.ApprovedByStatusForNoti,
-							//		'entityMatByProduct': JSON.stringify($scope.inventoryMaterialListPOnew1),
+							'entityMatByProduct': JSON.stringify($scope.inventoryMaterialListPOnew1),
 						},
 						dataType: 'JSON'
 						, contentType: "application/json charset=utf-8"
@@ -2368,6 +2387,7 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 						else {
 							ShowResult(response.data.Message, 'success');
 							$scope.ReceiptVA.Id = response.data.entity.Id;
+							$scope.ClearReceiptVAChildTab();
 
 						}
 					}), function (response) {
@@ -2790,6 +2810,8 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 			}).then(function successCallback(response) {
 				$scope.GriddataMaster = response.data;
 				//entrydata = copy(searchdata);
+				$scope.ShowHomeList = false;
+				$scope.setTab(1);
 			});
         }
 
@@ -2963,46 +2985,110 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 
 	$scope.recorddoubleclickFromMasterGrid = function ($event) {
 		//debugger;
-		var x = $event;
-		var Id = x.data.Id;
-		$scope.Action = 'Update';
-		//ClearFields();		
-		$scope.ReceiptTransformation = x.data;
-		JWOutPutQuery(Id);
-		JWByProductQuery(Id);
-		if (baseService.isUndefinedOrNull(x.data.CheckedBy) && !baseService.isUndefinedOrNull(x.data.AuthorizedBy)) {
-			$scope.CheckedByStatusForNoti = false;
-			$scope.ApprovedByStatusForNoti = true;
-			$scope.ReceiptTransformation.CheckedBy = x.data.ApprovedById;
-		}
-		else if (!baseService.isUndefinedOrNull(x.data.CheckedBy) && !baseService.isUndefinedOrNull(x.data.AuthorizedBy)) {
-			$scope.CheckedByStatusForNoti = true;
-			$scope.ApprovedByStatusForNoti = true;
-			$scope.ReceiptTransformation.CheckedBy = x.data.CheckedById;
-		}
-		$scope.GetCheckedByAndApprovedBy1();
-		if (baseService.isUndefinedOrNull(x.data.CheckedById) && !baseService.isUndefinedOrNull(x.data.ApprovedById)) {
+		if ($scope.ModelNew.TabType == "Transformation") {
+			var x = $event;
+			var Id = x.data.Id;
+			$scope.Action = 'Update';
+			//ClearFields();		
+			$scope.ReceiptTransformation = x.data;
+			JWOutPutQuery(Id);
+			JWByProductQuery(Id);
+			if (baseService.isUndefinedOrNull(x.data.CheckedBy) && !baseService.isUndefinedOrNull(x.data.AuthorizedBy)) {
+				$scope.CheckedByStatusForNoti = false;
+				$scope.ApprovedByStatusForNoti = true;
+				$scope.ReceiptTransformation.CheckedBy = x.data.ApprovedById;
+			}
+			else if (!baseService.isUndefinedOrNull(x.data.CheckedBy) && !baseService.isUndefinedOrNull(x.data.AuthorizedBy)) {
+				$scope.CheckedByStatusForNoti = true;
+				$scope.ApprovedByStatusForNoti = true;
+				$scope.ReceiptTransformation.CheckedBy = x.data.CheckedById;
+			}
+			$scope.GetCheckedByAndApprovedBy1();
+			if (baseService.isUndefinedOrNull(x.data.CheckedById) && !baseService.isUndefinedOrNull(x.data.ApprovedById)) {
 
-			$scope.ReceiptTransformation.CheckedBy = x.data.ApprovedById;
-			$scope.ReceiptTransformation.labelCheckAndApproved = 'To be approved by';
-		}
-		else if (!baseService.isUndefinedOrNull(x.data.CheckedById) && baseService.isUndefinedOrNull(x.data.ApprovedById)) {
+				$scope.ReceiptTransformation.CheckedBy = x.data.ApprovedById;
+				$scope.ReceiptTransformation.labelCheckAndApproved = 'To be approved by';
+			}
+			else if (!baseService.isUndefinedOrNull(x.data.CheckedById) && baseService.isUndefinedOrNull(x.data.ApprovedById)) {
 
-			$scope.ReceiptTransformation.CheckedBy = x.data.CheckedById;
-			$scope.ReceiptTransformation.labelCheckAndApproved = 'To be checked by';
-		}			
-		if (!$rootScope.isCollapsed) $rootScope.toggle();
+				$scope.ReceiptTransformation.CheckedBy = x.data.CheckedById;
+				$scope.ReceiptTransformation.labelCheckAndApproved = 'To be checked by';
+			}
+			if (!$rootScope.isCollapsed) $rootScope.toggle();
+		}
+		else {
+			var x = $event;
+			var Id = x.data.Id;
+			$scope.Action = 'Update';
+			//ClearFields();		
+			$scope.ReceiptVA = x.data;
+			$scope.ReceiptVA.ByWhomEmployeeId = x.data.ByWhomEmployeeId;
+			$scope.ReceiptVA.EmployeeCode = x.data.EmpCode;
+			$scope.ReceiptVA.ResponsiblePerson = x.data.ByWhomName;
+			$scope.ReceiptVA.CurrencyId = x.data.CurrencyId;
+			$scope.GetTransformationReceiptCurrency();
+			JWOutPutQuery(Id);
+
+			if (baseService.isUndefinedOrNull(x.data.CheckedBy) && !baseService.isUndefinedOrNull(x.data.AuthorizedBy)) {
+				$scope.CheckedByStatusForNoti = false;
+				$scope.ApprovedByStatusForNoti = true;
+				$scope.ReceiptVA.CheckedBy = x.data.ApprovedById;
+			}
+			else if (!baseService.isUndefinedOrNull(x.data.CheckedBy) && !baseService.isUndefinedOrNull(x.data.AuthorizedBy)) {
+				$scope.CheckedByStatusForNoti = true;
+				$scope.ApprovedByStatusForNoti = true;
+				$scope.ReceiptVA.CheckedBy = x.data.CheckedById;
+			}
+			$scope.GetCheckedByAndApprovedBy1();
+			if (baseService.isUndefinedOrNull(x.data.CheckedById) && !baseService.isUndefinedOrNull(x.data.ApprovedById)) {
+
+				$scope.ReceiptVA.CheckedBy = x.data.ApprovedById;
+				$scope.ReceiptVA.labelCheckAndApproved = 'To be approved by';
+			}
+			else if (!baseService.isUndefinedOrNull(x.data.CheckedById) && baseService.isUndefinedOrNull(x.data.ApprovedById)) {
+
+				$scope.ReceiptVA.CheckedBy = x.data.CheckedById;
+				$scope.ReceiptVA.labelCheckAndApproved = 'To be checked by';
+			}
+			if (!$rootScope.isCollapsed) $rootScope.toggle();
+        }
+
 	}
 
 	function JWOutPutQuery(inveReveiveId) {
-		$scope.masterId5 = inveReveiveId;
-		$scope.inventoryMaterialList = [];
-		$http({
-			method: 'GET',
-			url: 'Products/GoodsReceiveNote/GetJWOutPutInventoryMaterialList?inveReveiveId=' + inveReveiveId
-		}).then(function successCallback(response) {
-			$scope.inventoryMaterialList = response.data;
-		});
+		if ($scope.ModelNew.TabType == "Transformation") {
+			$scope.masterId5 = inveReveiveId;
+			$scope.inventoryMaterialList = [];
+			$http({
+				method: 'GET',
+				url: 'Products/GoodsReceiveNote/GetJWOutPutInventoryMaterialList?inveReveiveId=' + inveReveiveId
+			}).then(function successCallback(response) {
+				$scope.inventoryMaterialList = response.data;
+				if ($scope.inventoryMaterialList.length > 0) {
+					for (var i = 0; i < $scope.inventoryMaterialList.length; i++) {
+						$scope.inventoryMaterialList[i].check = true;
+					}
+
+				}
+			});
+		}
+		else {
+			$scope.masterId5 = inveReveiveId;
+			$scope.ReceiptVAChildList = [];
+			$http({
+				method: 'GET',
+				url: 'Products/GoodsReceiveNote/GetJWOutPutInventoryMaterialList?inveReveiveId=' + inveReveiveId
+			}).then(function successCallback(response) {
+				$scope.ReceiptVAChildList = response.data;
+				if ($scope.ReceiptVAChildList.length > 0) {
+					for (var i = 0; i < $scope.ReceiptVAChildList.length; i++) {
+						$scope.ReceiptVAChildList[i].check = true;
+                    }
+					
+                }
+			});
+        }
+
 	}
 	$scope.inventoryMaterialListPO = [];
 	function JWByProductQuery(inveReveiveId) {
@@ -3013,6 +3099,12 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 			url: 'Products/GoodsReceiveNote/GetJWByProductInventoryMaterialList?inveReveiveId=' + inveReveiveId
 		}).then(function successCallback(response) {
 			$scope.inventoryMaterialListPO = response.data;
+			if ($scope.inventoryMaterialListPO.length > 0) {
+				for (var i = 0; i < $scope.inventoryMaterialListPO.length; i++) {
+					$scope.inventoryMaterialListPO[i].check = true;
+				}
+
+			}
 		});
 	}
 	//$scope.AllTabPrint = function (z) {

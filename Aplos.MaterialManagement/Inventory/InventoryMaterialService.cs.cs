@@ -4024,7 +4024,8 @@ FROM [TRN].[InventoryReceiveDetail] AS IRD
 								left join scs.country C ON C.Id=IM.CountryId 
 								LEFT JOIN  [HKP].[MaterialStorage] MS ON MS.Id=IRD.MaterialStorageId
 								Left JOIN dbo.OSTransformationPODetail mp On mp.Id=IRD.OSTransformationPODetailId 
-								left join dbo.JobWorkTransformationContract tc1 on tc1.Id=mp.OSTransformationPOId
+								--left join dbo.JobWorkTransformationContract tc1 on tc1.Id=mp.OSTransformationPOId
+								left join dbo.OSTransformationPO tc1 on tc1.Id=mp.OSTransformationPOId
 								left join hkp.JobWorkActivity jwa on jwa.Id=mp.JobActivityId
 								left join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
 								WHERE IRD.InventoryReceiveId=@inventoryReceiveId and IM.MaterialMasterId IS not null AND IRD.MaterialFor='JWOUTPUTMaterial'";
@@ -4109,10 +4110,13 @@ FROM [TRN].[InventoryReceiveDetail] AS IRD
 								LEFT JOIN TRN.MaterialRequsitionDetails MRD ON MRD.ID=PID.RequisitionDetailId
 								left join scs.country C ON C.Id=IM.CountryId 
 								LEFT JOIN  [HKP].[MaterialStorage] MS ON MS.Id=IRD.MaterialStorageId
-								LEFT JOIN dbo.JobWorkTransformationContractChild4 tbp ON tbp.Id=IRD.OSTransformationPOByProductId  
+						--		LEFT JOIN dbo.JobWorkTransformationContractChild4 tbp ON tbp.Id=IRD.OSTransformationPOByProductId  
+								LEFT JOIN dbo.OSTransformationPOByProduct tbp ON tbp.Id=IRD.OSTransformationPOByProductId  
                                 left join HKP.JobWorkItem jwi on jwi.Id=tbp.JobWorkItemId
-                                left join dbo.JobWorkTransformationContractChild3 mi on mi.Id=tbp.JobWorkTransformationContractChild3MasterId
-                                left join dbo.OSTransformationPODetail mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+                        --        left join dbo.JobWorkTransformationContractChild3 mi on mi.Id=tbp.JobWorkTransformationContractChild3MasterId
+								left join dbo.OSTransformationPOInputMaterial mi on mi.Id=tbp.OSTransformationPOInputMaterialId
+                        --        left join dbo.OSTransformationPODetail mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+								left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
                                 left join HKP.JobWorkItem jwit on jwit.Id=mp.JobWorkItemMasterId
 								WHERE IRD.InventoryReceiveId=@inventoryReceiveId and IM.MaterialMasterId IS not null AND IRD.MaterialFor='JWBYPRODUCTMaterial'";
 				return _sqlRepository.GetDataCollection(sql);
