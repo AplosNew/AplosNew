@@ -160,6 +160,37 @@ function EmployeeWeekOffUpdatesController(commonMessage, $scope, $rootScope, bas
 
     }
 
+    $scope.EmpSelectedData = [];
+    $scope.SelectEmPDetails = function () {
+       
+        for (var j = 0; j < $scope.EmployeeList.length; j++) {
+            if ($scope.EmployeeList[j].isSelected == true) {
+
+                $scope.EmpSelectedData.push($scope.EmployeeList[j]);
+                            
+            }
+        }
+        angular.element(document.querySelector('#EmployeePop')).modal('hide');
+    }
+
+    $scope.ProcessAttendance = function () {
+        if ($scope.selectedValues.FromDate != null && $scope.EmpSelectedData != null) {
+
+            $http({
+                method: 'POST',
+                data: { EffectiveDate: $scope.selectedValues.FromDate, EmpData: $scope.EmpSelectedData },
+                url: $scope.path + 'ProcessAttendance'
+            }).then(function successCallback(response) {
+
+                ShowResult("Saved Successfully ...", 'success');
+            });
+        }
+        else {
+            ShowResult("Please Select Prerequisite Data", 'failure');
+        }
+    }
+
+
     $scope.selectedValues = {
         FromDate: null
     };
