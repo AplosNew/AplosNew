@@ -425,5 +425,35 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
 
         }
+
+        // 2nd TAB Controllers
+
+        [Authorize,HttpPost]
+        public ActionResult getDistinctEmployeesToBeProcessed(string EffectiveDate)
+        {
+            try
+            {
+                return Json(rs.getDistinctEmployeesToBeProcessed(EffectiveDate), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult ProcessAttendance(string EffectiveDate)
+        {
+            try
+            {
+                return Json(rs.ProcessAttendance(EffectiveDate), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+
     }
 }

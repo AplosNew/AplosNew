@@ -4225,12 +4225,11 @@ namespace Library.Service.FixedAssets
 
         #endregion
         #region FixedAsset Sales
-        public string InsertFixedAssetSales(string status, IEnumerable<FixedAssetRegister> fixedAssetRegister, string partyId,string partyPlantId, string remarks, string currencyId, decimal toCurrencyRate)
+        public string InsertFixedAssetSales(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegister> fixedAssetRegister)
         {
             var flag = false;
             try
             {
-               // DateTime dt =docDate;
                 _unitOfWork.BeginTransaction();
                 flag = true;
                 string TableName = "trn.FixedAssetRegisterDisposed";
@@ -4239,15 +4238,15 @@ namespace Library.Service.FixedAssets
                 int detailId = 0;
                 var fixedAssetDispose = new FixedAssetRegisterDisposed
                 {
-                    Status = status,
-                    Remarks = remarks,
-                    PartyId = partyId,
-                    PartyPlantId = partyPlantId,
+                    Status = fixedAssetDisposed.Status,
+                    Remarks = fixedAssetDisposed.Remarks,
+                    PartyId = fixedAssetDisposed.PartyId,
+                    PartyPlantId = fixedAssetDisposed.PartyPlantId,
                     Id = "RD" + _id,
                     IsPark = true,
-                    ToCurrencyRate = toCurrencyRate,
-                    CurrencyId = currencyId
-                   // DocDate = dt
+                    ToCurrencyRate = fixedAssetDisposed.ToCurrencyRate,
+                    CurrencyId = fixedAssetDisposed.CurrencyId,
+                    DocDate = fixedAssetDisposed.DocDate
 
 
                 };
@@ -4261,8 +4260,8 @@ namespace Library.Service.FixedAssets
 
                     fixedAssetReg.NegotiationValue = item.NegotiationValue;
                     fixedAssetReg.BaseNagotiationValue = item.BaseNagotiationValue;
-                    fixedAssetReg.Status = status;
-                    fixedAssetReg.Remarks = remarks;
+                    fixedAssetReg.Status = fixedAssetDisposed.Status;
+                    fixedAssetReg.Remarks = fixedAssetDisposed.Remarks;
                     _fixedAssetRegisterRepository.Update(fixedAssetReg);
 
 
@@ -4281,7 +4280,7 @@ namespace Library.Service.FixedAssets
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
-                return remarks;
+                return fixedAssetDisposed.Remarks;
             }
             catch (CustomException)
             {

@@ -917,9 +917,9 @@ namespace Aplos.Areas.FixedAssets.Controllers
         }
 
         [HttpPost]
-        public JsonResult CreateFixedAssetSales(string status, IEnumerable<FixedAssetRegister> fixedAssetRegister, string partyId, string partyPlantId, string remarks, string currencyId,decimal toCurrencyRate)
+        public JsonResult CreateFixedAssetSales(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegister> fixedAssetRegister)
         {
-            _fixedAssetRegisterService.InsertFixedAssetSales(status, fixedAssetRegister, partyId, partyPlantId, remarks, currencyId, toCurrencyRate);
+            _fixedAssetRegisterService.InsertFixedAssetSales(fixedAssetDisposed, fixedAssetRegister);
             return Json(new { Message = AplosMessage.Insert });
         }
         [HttpPost]
@@ -1158,7 +1158,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
 
            
-            var reportFileName = "Bulletin Template";
+            var reportFileName = "Fixed Asset Disposed";
             var workbook = WorkSheet( fixedAssetRegisterDisposeId);
             switch (reportFormat)
             {
@@ -1381,7 +1381,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
             sheet.UsedRange.NumberFormat = "#,##0.00";
             sheet.UsedRange.WrapText = true;
             sheet.UsedRange.CellStyle.Font.Size = 8;
-            report.CompanyHeader(ref sheet, endCol, "Bulletin Tamplate", identity.CompanyId);
+            report.CompanyHeader(ref sheet, endCol, "Fixed Asset Disposed", identity.CompanyId);
             report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
             return workbook;
         }

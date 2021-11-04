@@ -53,7 +53,7 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
     $scope.getData();
     $scope.voucher = {
         Id: null,
-        DocDate: null,
+        DocDate: $filter("dateFiltering")(Date.now()),
         DocRefNo: null,
         Amount: 0,
         Narration: null,
@@ -70,6 +70,8 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
         LegalDesignation: null,
         CurrencyId: null,
         CompanyCurrencyRate: null,
+        ToCurrencyRate: null,
+        ToCurrencyRate: null,
         PostingDate: $filter("dateFiltering")(Date.now()),
 
     };
@@ -156,6 +158,14 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
         $scope.voucher.Amount = 0;
         $scope.voucher.DocRefNo = null;
         $scope.voucher.Narration = null;
+        $scope.voucher.Status = null;
+        $scope.voucher.Remarks = null;
+        $scope.voucher.PartyId = null;
+        $scope.voucher.PartyPlantId = null;
+        $scope.voucher.ToCurrencyRate = null;
+        $scope.voucher.CurrencyId = null;
+        $scope.voucher.PartyName = null;
+        $scope.voucher.DocDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
         $scope.voucher.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
         $scope.voucherDetailList = [];
     };
@@ -218,6 +228,8 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
 
 
     $scope.Save = function () {
+        $scope.voucher.ToCurrencyRate = $scope.voucher.CompanyCurrencyRate;
+        $scope.voucher.PartyPlantId = $scope.voucher.InvoicingPartyPlantId;
         $scope.$broadcast("show-errors-check-validity");
         if ($scope.form0.$valid && !$scope.validation()) {
             if ($scope.Action === "Save" && $scope.voucher.Status == 'CompensateByEmployee') {
@@ -250,16 +262,9 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
                     method: "POST",
                     url: "fixedassets/fixedassetregister/CreateFixedAssetSales",
                     data: {
-                        "status": $scope.voucher.Status,
-                        "fixedAssetRegister": $scope.voucherDetailList,
-                        "partyId": $scope.voucher.PartyId,
-                        "partyPlantId": $scope.voucher.InvoicingPartyPlantId,
-                        "remarks": $scope.voucher.Remarks,
-                        "currencyId": $scope.voucher.CurrencyId,
-                        "toCurrencyRate": $scope.voucher.CompanyCurrencyRate
-                        //"docDate": $scope.voucher.DocDate,
-                        
-
+                        "fixedAssetDisposed": $scope.voucher,
+                        "fixedAssetRegister": $scope.voucherDetailList
+                       
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {

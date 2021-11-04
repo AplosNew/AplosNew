@@ -6,9 +6,7 @@ function WeekOffUpdatesController(commonMessage, $scope, $rootScope, baseService
     $scope.Action = 'Save';
     var url = "humanresource/WeekOffUpdates/";
     $scope.path = "humanresource/WeekOffUpdates/";
-
-    
-
+  
     // Code For the Second Tab
 
     var x = document.getElementById("RosterBudgetGrid");
@@ -145,6 +143,5 @@ $scope.ModelNew = {
         }
     });
     }
-
    
 }
