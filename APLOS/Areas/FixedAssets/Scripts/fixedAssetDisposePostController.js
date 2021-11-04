@@ -127,6 +127,7 @@ function fixedAssetDisposePostController(accountService, cboService, commonMessa
         $scope.voucher.Designation = data.Designation;
         $scope.voucher.Department = data.Department;
         $scope.voucher.Status = data.Status;
+        $scope.voucher.DocDate = $filter("dateFiltering")(data.DocDate);
         if ($scope.voucher.Status =='Sales')
           $scope.paymentTerm();
         $scope.voucher.CurrencyId = data.trnCurrencyId;
@@ -234,7 +235,7 @@ function fixedAssetDisposePostController(accountService, cboService, commonMessa
             if ($scope.voucherTypeList.length === 1) {
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
                 $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
-                $scope.voucher.DocDate = $scope.voucher.PostingDate;
+                //$scope.voucher.DocDate = $scope.voucher.PostingDate;
                 $scope.GetCurrencyExchangeRateList();
             }
         });
@@ -321,7 +322,7 @@ function fixedAssetDisposePostController(accountService, cboService, commonMessa
     };
 
     $scope.Save = function () {
-        $scope.voucher.DocDate = $scope.voucher.PostingDate;
+        //$scope.voucher.DocDate = $scope.voucher.PostingDate;
         $scope.$broadcast("show-errors-check-validity");
         if ($scope.form0.$valid) {
                 $scope.SaveUrl = "fixedassets/FixedAssetRegister/CreateFixedAssetDisposePost"
