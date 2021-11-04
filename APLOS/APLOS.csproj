@@ -2939,7 +2939,6 @@
     <Content Include="Areas\Payrolls\Views\ParollsReport\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\AttendanceManagement\NationalFestival.cshtml" />
     <Content Include="Areas\Payrolls\Views\ParollsReport\Aplos.cshtml" />
-    <Content Include="Areas\Payrolls\Views\PaySlips\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\SalaryTopSheet\TopSheetDetails.cshtml" />
     <Content Include="Areas\IssueTracker\Views\Shared\_AuthorisedPersonPopUp.cshtml" />
     <Content Include="Areas\IssueTracker\Views\Shared\_ExternalResponsiblePersonPopUp.cshtml" />
