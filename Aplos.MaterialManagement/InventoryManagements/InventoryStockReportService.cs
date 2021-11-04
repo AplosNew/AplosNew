@@ -7134,7 +7134,6 @@ namespace Library.MaterialManagement.InventoryManagements
 									FROM  [TRN].[InventoryReceiveDetail] IRD
 									LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
 									where convert(Date,IR.GRNDate)	<= '" + toDate + @"' AND IR.OpeningBalanceId IS  NULL group By IRD.InventoryMaterialId) AS opbal2 ON opbal2.InventoryMaterialId=IM.Id AND IM.PlantId='" + plantId + @"'
-
          
 						left join (select IID.InventoryMaterialId, Sum(IID.TransactionQty) IssueQty , Sum(IID.PolicyAmount) PolicyAmount
 									FROM TRN.InventoryIssueDetail IID  
