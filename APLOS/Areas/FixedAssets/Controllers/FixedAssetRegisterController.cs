@@ -1175,6 +1175,18 @@ namespace Aplos.Areas.FixedAssets.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetFixedAssetDisposePdfReport(ReportFormat reportFormat, string fixedAssetRegisterDisposeId)
+        {
+            FixedAssetReportService fixedAssetReportService = new FixedAssetReportService(_sqlRepository);
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            fixedAssetReportService.FixedAssetDisposed(fixedAssetRegisterDisposeId);
+
+            return null;
+        }
+
+        [HttpGet, Authorize]
         public ActionResult FixedAssetDisposedTemplate(ReportFormat reportFormat, string fixedAssetRegisterDisposeId)
         {
 
