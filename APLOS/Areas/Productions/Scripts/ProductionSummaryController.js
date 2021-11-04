@@ -9,7 +9,6 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
     $scope.path = 'Productions/productionSummary/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
-    $scope.saveInOutUrl = $scope.path + 'createinout';
     $scope.saveDetailUrl = $scope.path + 'createDetail';
     $scope.saveSecondDetailUrl = $scope.path + 'createSecondDetail';
     $scope.updateUrl = $scope.path + 'edit';
@@ -293,7 +292,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
     function CheckField(fieldname, field) {
         try {
             if (baseService.isUndefinedOrNull(field)) {
-                throw "[" + fieldname + "] can not be blank...";
+                throw "[" + fieldname + "] is required.";
             }
 
         } catch (ex) {
@@ -907,9 +906,9 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
                 throw "Sales Order Quantity dosen't available.";
             }
 
-            if (parseFloat($scope.TotalSalesOrderQty) < parseFloat($scope.TotalProductionBookingQty) + parseFloat($scope.productionSummaryNew.Quantity)) {
-                throw "Produced Quantity should less than Sales Order Quantity.";
-            }
+            //if (parseFloat($scope.TotalSalesOrderQty) < parseFloat($scope.TotalProductionBookingQty) + parseFloat($scope.productionSummaryNew.Quantity)) {
+            //    throw "Produced Quantity should less than Sales Order Quantity.";
+            //}
 
             $http({
                 method: 'POST',

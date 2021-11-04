@@ -76,7 +76,7 @@ function paySlipsController(commonMessage, $scope, $rootScope, baseService, $rou
     ];
     $scope.year = new Date().getFullYear().toString();
     $scope.month = new Date().getMonth().toString();
-
+    $scope.singleEmployeePrint = false;
 
     $scope.yearList = [];
     cboService.getCboLeaveYear(function (result) {
@@ -213,7 +213,9 @@ function paySlipsController(commonMessage, $scope, $rootScope, baseService, $rou
                     'isActive': $scope.isActive,
                     'isSeperated': $scope.isSeperated,
                     'isMaternity': $scope.isMaternity,
-                    'IsIncludingZeroHeads': $scope.IncludingZeroHeads
+                    'IsIncludingZeroHeads': $scope.IncludingZeroHeads,
+                    'singleEmployee': $scope.singleEmployeePrint,
+                    
                 }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
