@@ -31,7 +31,7 @@ namespace Library.Accounting.FixedAssets
         private readonly ISqlRepository _sqlRepository;
         public FixedAssetReportService(ISqlRepository sqlRepository)
         {
-            _sqlRepository = sqlRepository;
+            _sqlRepository = sqlRepository; 
 
         }
 
