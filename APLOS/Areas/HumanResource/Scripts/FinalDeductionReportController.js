@@ -307,12 +307,11 @@ function FinalDeductionReportController(commonMessage, $scope, $rootScope, baseS
             var parameters = [];
             var gridObj = $("#empInfoGrid").ejGrid("instance");
             var filteredRecords = gridObj.getFilteredRecords();
-            /* if ($scope.isManualFilter == true) {*/
+          /*   if ($scope.isManualFilter == true) {*/
             if (filteredRecords.length == 0) {
                 filteredRecords = $scope.EmployeeListTemp;
-
             }
-            //}
+     /*       }*/
             if (angular.isUndefinedOrNull(filteredRecords) === false) {
                 if (filteredRecords.length > 0) {
                     parameters = [];
@@ -504,7 +503,7 @@ function FinalDeductionReportController(commonMessage, $scope, $rootScope, baseS
         }
     };
     $scope.clearManualFilter = function () {
-       /* $scope.isManualFilter = false;*/
+        //$scope.isManualFilter = false;
         $scope.EmployeeList = [];
         $scope.EmployeeListTemp = [];       
     };

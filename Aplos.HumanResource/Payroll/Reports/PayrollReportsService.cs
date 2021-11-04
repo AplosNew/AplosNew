@@ -6038,7 +6038,7 @@ namespace Library.HumanResource.Payroll
                 List<SalarySheetReportUD> listdsSlrProc = new List<SalarySheetReportUD>();
                 //  GeFinalDeductionReportCompanyWiseSQL(companyGroupId, companyId, plantId, fdateOfMonth, ldateOfMonth, parameters, out dsEmpLoyeeInfo);//Sql Query For Salary  Data
                 SalaryHeadSQL(plantId, month, year, parameters, format, out dsEmpLoyeeInfo);//Sql Query For Salary  Data
-                                                                                            // Dictionary<string, List<DataRow>> dicEmpSalry = GetEmployeeSalaryInfoDetail(companyGroupId, companyId, plantId, fdateOfMonth, ldateOfMonth,  parameters, out dtSalaryHeadSheet);
+                                                                                    // Dictionary<string, List<DataRow>> dicEmpSalry = GetEmployeeSalaryInfoDetail(companyGroupId, companyId, plantId, fdateOfMonth, ldateOfMonth,  parameters, out dtSalaryHeadSheet);
 
 
                 dtEmployees = dsEmpLoyeeInfo.Tables[0];//dicEmpSalry.First().Value[0].Table;
@@ -9321,7 +9321,7 @@ namespace Library.HumanResource.Payroll
 
 
         #region PaySlip
-        public IWorkbook GetEmployeePaySlip(string companyGroupId, string companyId, string plantId, string userId, string month, string year, string salaryProcessId, Dictionary<string, string> parameters, string languageId, bool isActive, bool isSeperated, bool isMaternity, bool IsIncludingZeroHeads, bool singleEmployee)
+        public IWorkbook GetEmployeePaySlip(string companyGroupId, string companyId, string plantId, string userId, string month, string year, string salaryProcessId, Dictionary<string, string> parameters, string languageId, bool isActive, bool isSeperated, bool isMaternity, bool IsIncludingZeroHeads)
         {
             #region Variable
             ReportUtility ru = null;
@@ -9354,10 +9354,6 @@ namespace Library.HumanResource.Payroll
 
             try
             {
-                int EmployeePerPage = 3;
-                if (singleEmployee)
-                    EmployeePerPage = 1;
-
                 ru = new ReportUtility();
                 objRpt = new clsReport();
 
@@ -9485,30 +9481,24 @@ namespace Library.HumanResource.Payroll
                         Image companyLogo = null;
                         string strPath = "";
                         int additionalColumn = 1;
-                        try
+
+                        strPath = Path.Combine(ResourcesPathReader.GetLogoOrImagePath(), dsCmp.Tables[0].Rows[0]["CompanyImage"].ToString());  // IDCardEng.xlsx
+                        companyLogo = Image.FromFile(strPath);
+                        additionalColumn = 3;
+
+                        if (companyLogo != null)
                         {
+                            double totalWidth = sheet1.GetColumnWidth(1) + sheet1.GetColumnWidth(2);
+                            int totalWidthPixel = (int)(totalWidth * 5.0);
+                            int totalheight = (int)((sheet1.GetRowHeight(1) + sheet1.GetRowHeight(2)) * 1.5);
 
-                            strPath = Path.Combine(ResourcesPathReader.GetLogoOrImagePath(), dsCmp.Tables[0].Rows[0]["CompanyImage"].ToString());  // IDCardEng.xlsx
-                            companyLogo = Image.FromFile(strPath);
-                            additionalColumn = 3;
+                            companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
+                            IPictureShape pic = null;
 
-                            if (companyLogo != null)
-                            {
-                                double totalWidth = sheet1.GetColumnWidth(1) + sheet1.GetColumnWidth(2);
-                                int totalWidthPixel = (int)(totalWidth * 5.0);
-                                int totalheight = (int)((sheet1.GetRowHeight(1) + sheet1.GetRowHeight(2)) * 1.5);
-
-                                companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
-                                IPictureShape pic = null;
-
-                                pic = sheet1.Pictures.AddPicture(xlsRow, 1, companyLogo);
-
-                            }
-                        }
-                        catch (Exception ex)
-                        {
+                            pic = sheet1.Pictures.AddPicture(xlsRow, 1, companyLogo);
 
                         }
+
                         xlsCol = xlsCol + 2;
                         string FactoryAddress = string.Empty;
                         headerEndxlsCol = xlsCol + 14;
@@ -10088,7 +10078,7 @@ namespace Library.HumanResource.Payroll
                         startRow = _maxRow + 4;
 
 
-                        if ((EmpCounter % EmployeePerPage) == 0)
+                        if ((EmpCounter % 3) == 0)
                         {
                             sheet1.HPageBreaks.Add(sheet1[(_maxRow + 4), xlsColTot + 1]);
                         }
@@ -14449,27 +14439,25 @@ LEFT join  [MST].[DesignationMasterLegalDesignation] dmld on dmld.LegalDesignati
 												LEFT JOIN org.Department DP ON PO.DepartmentID = DP.Id
 												LEFT JOIN org.Section S ON PO.SectionID = S.Id
 												LEFT JOIN org.SubSection SS ON PO.SubSectionID = SS.Id
-												 Join(Select E.SystemId EmpSystemId,E.EmployeeName,SH.SalaryHead,SUM(ESDFinal.Amount) Amount from
-(
-Select ESD.EmployeeId,EST.SalaryHeadId,EST.Service,EST.Form, 
-Amount =
-CASE 
-	WHEN EST.Form='Quantity' THEN IsNull(ESD.Quantity,0)*ESR.Rate  
-	WHEN EST.Form='Reading' THEN (IsNull(ESD.[To],0) - IsNull(ESD.[From],0)) * ESR.Rate
-	WHEN EST.Form='Value' THEN ESD.Amount
-END
-from EmpServiceData ESD
-Inner Join EmpServiceCategory ESC on ESC.Id=ESD.EmployeeServiceCategoryId
-Inner Join EmpServiceType EST on EST.Id=ESC.EmpServiceTypeId 
-Inner Join EmployeeServicesRate ESR on ESR.Id=(select top 1 id from EmployeeServicesRate A where A.EffectiveDate<=ESD.Date and A.EmployeeServiceCategoryId=ESD.EmployeeServiceCategoryId)
-where
-MONTH(ESD.Date)='" + month + @"' AND Year(ESD.Date)='" + year + @"'
-) ESDFinal
-Inner Join EmployeeInformation E on ESDFinal.EmployeeId=E.SystemId
-Inner Join SalaryHead SH on ESDFinal.SalaryHeadId=SH.SalaryHeadID
-Group By E.SystemId,E.EmployeeName,SH.SalaryHead) SH on SH.EmpSystemId=E.SystemId
-
-where E.SystemId in (" + parameters["EmpSystemId"] + @")";
+											    JOIN
+(select x.EmpSystemId,x.SalaryHeadId,sum(x.Am) Amount,x.SalaryHead
+from (
+select
+d.Amount,d.chargeable,d.Date,d.EmployeeId EmpSystemId,d.Quantity
+,c.Category ServiceCategory,t.Service ServiceName,t.Form
+,h.SalaryHead,h.SalaryHeadID SalaryHeadId,r.Rate
+,Am=case when t.Form='Value' then d.Amount
+else isnull(d.Quantity,0)*isnull(r.Rate ,0) end
+from [EmpServiceData] d
+left join EmpServiceCategory c on c.id=d.EmployeeServiceCategoryId
+left join EmpServiceType t on t.id=c.EmpServiceTypeId
+left join SalaryHead h on h.SalaryHeadID=t.SalaryHeadId
+left join EmployeeServicesRate r on r.EmployeeServiceCategoryId=c.Id
+where d.chargeable=1 
+and d.EmployeeId in  (" + parameters["EmpSystemId"] + @")
+AND MONTH(d.Date)='" + month + @"' AND  Year(d.Date)='" + year + @"'
+)x WHERE x.Am>0
+group by x.EmpSystemId,SalaryHeadId,x.SalaryHead) SH on SH.EmpSystemId=E.SystemId";
             }
             else
             {
@@ -14510,7 +14498,7 @@ LEFT join  [MST].[DesignationMasterLegalDesignation] dmld on dmld.LegalDesignati
   FROM MonthWiseExtraSalaryAmtMaster AS m
 JOIN MonthWiseExtraSalaryAmtChild AS C ON c.MWESAMasterSystemID=m.SystemID
 JOIN SalaryHead AS sh ON sh.SalaryHeadID=c.SalaryHeadID
-WHERE m.MonthNo='" + month + @"' AND m.YearNo='" + year + @"'
+WHERE m.MonthNo='"+month+ @"' AND m.YearNo='" + year + @"'
 GROUP BY m.EmpInfoSystemID, c.SalaryHeadID,c.ExtDataUploadApp,Sh.SalaryHead) SH on SH.EmpInfoSystemID=E.SystemId
 
 where E.SystemId in (" + parameters["EmpSystemId"] + @")";
@@ -18285,7 +18273,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                         	SELECT *,CASE WHEN ISNULL(sh.TransactionType,'')='Both' THEN 'Cr.' ELSE sh.TransactionType END AS TransactionTypeNew
                             FROM SalaryHead AS sh WHERE  ISNULL(sh.TransactionType,'') IN ('Cr.','Both') 
                         ) SH on SPC.SalaryHeadID=SH.SalaryHeadID
-                        Where SPM.MonthNo='" + Month + "' and SPM.YearNo='" + Year + @"'  AND SPC.PlantId IN (" + plantId + @" )
+                        Where SPM.MonthNo='" + Month + "' and SPM.YearNo='"+ Year + @"'  AND SPC.PlantId IN (" + plantId + @" )
                         ) TempTbl
                         group by AccountsGroupId,AccountGroup,GL,GLName--,SalHeadId,SalHeadName";
             dtData = _sqlRepository.GetDataTable(sql);

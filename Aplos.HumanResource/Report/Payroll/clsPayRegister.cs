@@ -190,7 +190,7 @@ namespace Library.HumanResource.Report.Payroll
             }
         }//End Function
 
-        public void GetSalaryInfoSlrProcIDWisePayGrpForReportNewLog(ParamList para, string sortingParameters, Dictionary<string, string> parameters, out DataSet dsRef)
+        public void GetSalaryInfoSlrProcIDWisePayGrpForReportNewLog_Old(ParamList para, string sortingParameters, Dictionary<string, string> parameters, out DataSet dsRef)
         {
             string strSQL;
             string sqlL;
@@ -603,6 +603,378 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
 									LEFT JOIN HKP.LocalLanguage SecLocLang ON SecLocLang.id=(select top 1 Id from HKP.LocalLanguage AAAA where isnull(AAAA.SectionId,'') = isnull(EmpSlr.SectionId,'') and isnull(AAAA.SectionId,'') <>'' and isnull(AAAA.LanguageId,'') =" + sqlL + @") AND isnull(SecLocLang.SectionId,'') = isnull(EmpSlr.SectionId,'') and isnull(SecLocLang.LanguageId,'') =" + sqlL + @"
 									LEFT JOIN hkp.LocalLanguage LocLangLD ON LocLangLD.id=(select top 1 Id from HKP.LocalLanguage AAAA where isnull(AAAA.LegalDesignationId,'') = isnull(EmpSlr.LegalDesignationId,'') and isnull(AAAA.LegalDesignationId,'') <>'' and isnull(AAAA.LanguageId,'') =" + sqlL + @") AND isnull(LocLangLD.LegalDesignationId,'') = isnull(EmpSlr.LegalDesignationId,'') and isnull(LocLangLD.LanguageId,'') =" + sqlL + @"
                                                                                         ";
+                if (parameters.Count > 0)
+                {
+                    if (parameters.Keys.ElementAt(0) != "")
+                    {
+                        strSQL += @" Where ISNULL(EmpBasic.SystemId,'') IN(" + parameters["EmpSystemId"] + ")";
+                    }
+                }
+
+                strSQL = strSQL + @" " + sortingParameters + "";
+
+
+                ConnectionManager.clsConnectionManager objConss = new clsConnectionManager(3600);
+                objConss.BeginTransaction();
+                objConss.getDataSet(strSQL, out dsRef);
+                objConss.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
+
+        public void GetSalaryInfoSlrProcIDWisePayGrpForReportNewLog(ParamList para, string sortingParameters, Dictionary<string, string> parameters, out DataSet dsRef)
+        {
+            string strSQL;
+            string sqlL;
+            string salaryProcessSystemId = "";
+            ConnectionManager.DAL.ConManager objCon;
+            if (!string.IsNullOrEmpty(para.LanguageId))
+            {
+
+                sqlL = para.LanguageId;
+            }
+            else
+            {
+                sqlL = @"isnull( F.LanguageId ,'')";
+            }
+
+
+
+
+            DataTable dtslProcId = _sqlRepository.GetDataTable(@" SELECT SystemID FROM SalaryProcMaster
+                                      WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
+                                                        WHERE PlantID = '" + para.PlantId + @"' GROUP BY SlrProcMstSystemID)
+                                        AND MonthNo = Month('" + para.FromDate + @"') AND YearNo = Year('" + para.FromDate + @"') ");
+            string inSalaryProcParam = "' '";
+
+            for (int i = 0; i < dtslProcId.Rows.Count; i++)
+            {
+                inSalaryProcParam += ",'" + dtslProcId.Rows[i]["SystemID"].ToString() + "'";
+            }
+
+            string sqltrk = "";
+            string empGross = "";
+
+            if (1 == 1)
+            {
+                if (parameters.Count > 0)
+                {
+                    if (parameters.Keys.ElementAt(0) != "")
+                    {
+                        sqltrk = @" Where ISNULL(spc.EmpInfoSystemID,'') IN(" + parameters["EmpSystemId"] + ")";
+                        empGross = @" and ISNULL(EmpInfoSystemID,'') IN(" + parameters["EmpSystemId"] + ")";
+
+                    }
+                }
+            }
+
+
+            salaryProcessSystemId = @"SystemId IN( " + inSalaryProcParam + @" )";
+
+            try
+            {
+
+
+
+                strSQL = @"SELECT EmpSlr.EmpInfoSystemID, EmpBasic.EmployeeCode EmployeeCode, EmpBasic.EmployeeName
+                                ,isnull(EmpBasic.EmployeeNameLocal,EmpBasic.EmployeeName) EmployeeNameLocal
+                                , Replace(Convert(varchar(11),EmpBasic.DOJ,105),' ','-') DOJ
+                                , REPLACE(Convert(VARCHAR(11), EmpBasic.DOB, 106), ' ', '-') AS DOB
+                                ,REPLACE(Convert(VARCHAR(11), EmpBasic.DOS, 106), ' ', '-') AS DOS,
+                                 EmpBasic.EmployeeStatus--, EmpSlr.UnitID, EmpSlr.UnitName--, EmpSlr.DivisionID
+                               --,EmpSlr.DivisionName
+                               ,ISNULL(SecLocLang.Name,EmpSlr.SectionName) SectionLocal,
+                                EmpSlr.DepartmentID, EmpSlr.DepartmentName
+                                , EmpSlr.SectionID, EmpSlr.SectionName--, EmpSlr.SubSectionID,
+                               -- EmpSlr.SubSectionName
+								, EmpSlr.EmployeeCategorySystemID, EmpSlr.EmpCategoryName--, EmpSlr.DesignationGroupName,
+                                --EmpSlr.DesignationSystemID, EmpSlr.DesignationName,
+                                 --,ISNULL(ISNULL(EmpSlr.LegalDesignationLocal,EmpSlr.GivenDesignationLocal), EmpSlr.DesignationName) GivenDesignationName
+                                --,LegalDesignationLocal GivenDesignationName
+                                --,EmpBasic.GivenDesignationGroup
+								, EmpBasic.PlantName
+							    ,EmpBasic.PayrollGroup
+                                --,EmpBasic.GradeCode
+								,ISNULL(lineLang.Name,EmpSlr.lineName) lineName
+								, ISNULL(LocLangLD.Name,ISNULL(EmpSlr.LegalDesignationLocal,'')) GivenDesignationName
+                                ,GradeCode = ISNULL(EmpSlr.GradeCode,'')+ISNULL(  CASE WHEN ISNULL(lineLang.Name,EmpSlr.lineName)<>'' THEN ' ( '+ ISNULL(lineLang.Name,EmpSlr.lineName)+' ) ' ELSE '' END,'') 
+                                --,esic.ESICNo,pf.UANNo,bb.BankAccNo,bb.BankName
+                                , '' BankNameFull,ISNULL(MMDSA.TotalLate, 0) TotalLate
+								,(ISNULL(MMDSA.TotalPresent, 0) + ISNULL(MMDSA.TotalLate, 0)) PresentDays,PaymentMode,
+								ISNULL(MMDSA.TotalAbsent, 0) AbsentDays,  ISNULL(MMDSA.TotalHoliDay + MMDSA.TotalWeekOffHoliDay,0) HoliDay, ISNULL(MMDSA.TotalWeekOff, 0) WeekOff
+                                ,ISNULL(MMDSA.TotalProcDate, 0) TotalProcDate
+								,(ISNULL(MMDSA.TotalLv, 0) + ISNULL(MMDSA.TotalMLv, 0)) LeaveDays,ISNULL(MMDSA.TotalLWP,0) LWP, EmpSlr.SlrProcChdSysID, EmpSlr.SlrProcMstSystemID, EmpSlr.SalaryProcID,
+                                EmpSlr.PlantID, EmpSlr.FromDate, EmpSlr.ToDate, EmpSlr.MonthNo, EmpSlr.YearNo, EmpSlr.PayAbleShSystemID,
+                                EmpSlr.SalaryHeadID, EmpSlr.EntryCurrencyID,  Convert(decimal(18,0),EmpSlr.EntryAmount) EntryAmount,
+                                --OTRate=Convert(decimal(18,2),(Convert(decimal(18,2),EmpSlr.EntryAmount)*2)/208),
+                                EmpSlr.DefineCurrencyID, EmpSlr.DefineAmount,
+                                EmpSlr.DisbusmentCurrencyID, Convert(decimal(18,0),EmpSlr.DisbusmentAmount) DisbusmentAmount, EmpSlr.AcltExcDisbSlrHDID, EmpSlr.AcltExcDisbSlrHDAmt,
+                                --EmpSlr.PlantWiseExchangeCR, EmpSlr.ExchangeRate, 
+								EmpSlr.AmtDefinitionCurrencyID,
+								--EmpSlr.AmtDefinitionCurrency,
+                                EmpSlr.AmtDefinitionCurrencyRate, EmpSlr.IsNetPayEffect
+                                ,EmpSlr.SalaryHead,EmpSlr.HeadCategory,EmpSlr.HeadType--,EmpSlr.Sequence
+								,EmpSlr.IsCTCComponent,EmpSlr.IsGrossComponent
+                                ,isnull(BSH.Name,EmpSlr.SalaryHead) SalaryHeadBangla
+	                            ,IIF(EmpSlr.IsCTCComponent = 1 AND EmpSlr.IsGrossComponent = 1, 1, 0) as IsGross 
+								,IIF(EmpSlr.PartOfNetPay = 1 AND EmpSlr.IsGrossComponent = 0, 1, 0) as IsCTC 
+                             
+                                ,EmpSlr.GradeCode Grade
+                                ,CONVERT(DECIMAL(10, 2), ISNULL(MMDSA.TotalOTHr,0)/60) TotalOTHr
+                                , Convert(decimal(18,0),EmpSlr.CTC) CTC
+                                , Convert(decimal(18,0),DD.Deduct) Deduct
+                                ,Convert(decimal(18,0),deg.Gross) Gross
+,Convert(decimal(18,0),deg.DisbusmentGross) DisbusmentGross,   BankAccNo 
+, CONVERT(DECIMAL(10, 3),EmpSlr.OTRate )+0.0001 OTRate  
+,EmpSlr.IsOTEntitle, ISNULL(EmpSlr.LunchOutHour,0) LunchOutHour
+--,EmpBasic.IsOTEntitle
+,ISNULL(deg.GrossLableLocal,deg.GrossLable) GrossLableLocal
+,EmpBasic.NameLabel ,
+EmpBasic.IDNoLabel	  ,
+EmpBasic.DesignationLabel	  ,
+EmpBasic.DivisionLabel  ,
+EmpBasic.DOJLabel	  ,
+EmpBasic.GradeLabel	  ,
+EmpBasic.SalaryLabel		  ,
+EmpBasic.TotalLabel	  ,
+EmpBasic.SerialNumberLabel  ,
+--EmpBasic.PersonalInformationLabel	  ,
+--EmpBasic.PresentInformationLabel	  ,
+EmpBasic.WageRangeLabel	  ,
+EmpBasic.CreditLabel	  ,
+EmpBasic.DeductionsLabel	  ,
+EmpBasic.NetPayableLabel	  ,
+EmpBasic.OtRateLabel	  ,
+EmpBasic.TotalPayableMoneyLabel		  ,
+EmpBasic.TotalDeductionLabel	  ,
+EmpBasic.NetTotalPayableMoneyLabel	  ,
+EmpBasic.BankAccountLabel	  ,
+EmpBasic.LaborSignatureLabel	  ,
+EmpBasic.SignaturesLabel	  ,
+EmpBasic.AuthoritiesLabel	  ,
+EmpBasic.PresentDaysLabel	  ,
+EmpBasic.WeeklyHolidaysLabel	  ,
+EmpBasic.AvailHolydayLabel  ,
+EmpBasic.FestivalHolidaysLabel	  ,
+EmpBasic.AbsentDaysLabel  ,
+EmpBasic.TotalAttendanceLabel	  ,
+EmpBasic.OTHoursLabel  ,
+EmpBasic.LunchHourLabel	  ,
+EmpBasic.OfficeCopyLabel	  ,
+EmpBasic.EmployeeCopyLabel	  ,
+EmpBasic.DateLabel	  ,
+EmpBasic.PaySlipLabel,EmpBasic.LanguageName	,EmpBasic.PayableSalary,EmpSlr.LineId  
+,EmpSlr.DesignationSequence--,EmpSlr.PlantSequence,EmpSlr.UnitSequence--,EmpSlr.DivisionSequence,EmpSlr.SubDivisionSequence,EmpSlr.DepartmentSequence
+                                                                 -- ,EmpSlr.SectionSequence,EmpSlr.SubSectionSequence,EmpSlr.EntitySequence,EmpBasic.EmployeeCodePreFix,EmpBasic.EmployeeCodeNumeric
+
+                            FROM
+                                    (
+									  SELECT E.SystemID, E.EmployeeCode EmployeeCode, E.EmployeeName,E.EmployeeNameLocal, E.DOJ,E.DOB,E.DOS, E.EmployeeStatus											
+											,PG.UserName PayrollGroup,F.UserName PlantName
+											
+											, E.PlantID--,empOTEn.IsOTEntitle
+                                            --,egdsgg.GivenDesignationGroup
+											,e.SalaryRuleMasterSystemID,
+	---------------------------------------------------------
+Namet.Name  NameLabel ,
+IDNo.Name IDNoLabel	  ,
+Designation.Name DesignationLabel	  ,
+ISNULL(Division.Name 		   ,'Division')		DivisionLabel  ,
+DOJ.Name DOJLabel	  ,
+Grade.Name  GradeLabel	  ,
+Salary.Name SalaryLabel		  ,
+Total.Name  TotalLabel	  ,
+SerialNumber.Name  SerialNumberLabel  ,
+--ISNULL(PersonalInformation.Name,'Personal Information')	PersonalInformationLabel	  ,
+--ISNULL(PresentInformation.Name ,'Attendance Information')	PresentInformationLabel	  ,
+ISNULL(WageRange.Name 		   ,'Salary Distribution')	WageRangeLabel	  ,
+ISNULL(Credit.Name 			   ,'Other Earning')	CreditLabel	  ,
+ISNULL(Deductions.Name 		   ,'Deductions')	DeductionsLabel	  ,
+ISNULL(NetPayable.Name 		   ,'Net Payable')	NetPayableLabel	  ,
+ISNULL(OtRate.Name 			   ,'OT Rate')	OtRateLabel	  ,
+ISNULL(TotalPayableMoney.Name  ,'Total Payable')TotalPayableMoneyLabel		  ,
+ISNULL(TotalDeduction.Name 	   ,'Total Deduction')	TotalDeductionLabel	  ,
+ISNULL(NetTotalPayableMoney.Name,'Net Payable') NetTotalPayableMoneyLabel	  ,
+ISNULL(BankAccount.Name 	   ,'Bank Account')	BankAccountLabel	  ,
+ISNULL(LaborSignature.Name 	   ,'Labor Signature')	LaborSignatureLabel	  ,
+ISNULL(Signatures.Name 		   ,'Signatures')	SignaturesLabel	  ,
+ISNULL(Authorities.Name 	   ,'Authorities')	AuthoritiesLabel	  ,
+CONCAT(ISNULL(PresentDayss.Name 	   ,'Present '),' ', ISNULL(Days.Name,'Days')) AS	PresentDaysLabel ,
+ISNULL(WeeklyHolidays.Name 	   ,'Weekly Holidays')	WeeklyHolidaysLabel	  ,
+ISNULL(AvailHolyday.Name 	   ,'Availed Leave')		AvailHolydayLabel  ,
+ISNULL(FestivalHolidays.Name   ,'Festival Holidays')	FestivalHolidaysLabel	  ,
+
+CONCAT(ISNULL(AbsentDayss.Name 	   ,'Absent '),' ', ISNULL(Days.Name,'Days')) AS	AbsentDaysLabel ,
+ISNULL(TotalAttendance.Name    ,'Total Attendance')	TotalAttendanceLabel	  ,
+ISNULL(OTHours.Name 		   ,'OT Hours')		OTHoursLabel  ,
+ISNULL(LunchHour.Name 		   ,'Absent Hour')	LunchHourLabel	  ,
+ISNULL(OfficeCopy.Name 		   ,'Office Copy')	OfficeCopyLabel	  ,
+ISNULL(EmployeeCopy.Name 	   ,'Employee Copy')	EmployeeCopyLabel	  ,
+ISNULL(Dates.Name 			   ,'Date')	DateLabel	  ,
+ISNULL(Days.Name 			   ,'Days')	DaysLabel	  ,
+ISNULL(PaySlip.Name 		   ,'Pay Slip')	PaySlipLabel, L.UserName LanguageName,
+ISNULL(PayableSalary.Name 		   ,'Payable Salary')	PayableSalary 
+,E.EmployeeCodePreFix,E.EmployeeCodeNumeric 
+-------------------------------------------------------------------------------  
+                                     FROM EmployeeInformation E
+
+                                    LEFT JOIN [ORG].[Plant] F ON F.Id = E.PlantId
+                                                --LEFT JOIN EmployeeOTEntitle empOTEn on empOTEn.EmpSystemID=E.SystemId
+                                                LEFT JOIN SCS.Language L ON L.id = " + sqlL + @"
+											LEFT JOIN MST.PayrollGroupMaster PGM ON PGM.EmployeeId = E.SystemId
+											LEFT JOIN HKP.PayrollGroup PG ON PG.Id = PGM.PayrollGroupId                                    
+
+
+LEFT JOIN  HKP.LocalLanguage AS Namet ON Namet.LabelName='Name'   AND Namet.LanguageId=" + sqlL + @"
+LEFT JOIN  HKP.LocalLanguage AS IDNo ON IDNo.LabelName='IDNo'   AND IDNo.LanguageId=" + sqlL + @"
+LEFT JOIN  HKP.LocalLanguage AS Designation ON Designation.LabelName='Designation'    AND Designation.LanguageId=" + sqlL + @"
+LEFT JOIN  HKP.LocalLanguage AS Division ON Division.LabelName='Section'	    AND Division.LanguageId=" + sqlL + @"
+LEFT JOIN  HKP.LocalLanguage AS DOJ ON DOJ.LabelName='DOJ'   AND DOJ.LanguageId=" + sqlL + @"
+LEFT JOIN  HKP.LocalLanguage AS Grade ON Grade.LabelName='Grade'   AND Grade.LanguageId=" + sqlL + @"
+LEFT JOIN  HKP.LocalLanguage AS Salary ON Salary.LabelName='Salary'  AND Salary.LanguageId=" + sqlL + @"
+LEFT JOIN  HKP.LocalLanguage AS Total ON Total.LabelName='Total'  AND Total.LanguageId=" + sqlL + @"
+LEFT JOIN  HKP.LocalLanguage AS SerialNumber ON SerialNumber.LabelName='SerialNumber'  AND SerialNumber.LanguageId=" + sqlL + @"
+--LEFT JOIN  HKP.LocalLanguage AS PersonalInformation ON PersonalInformation.LabelName='EmployeeInformation'	   AND PersonalInformation.LanguageId=" + sqlL + @"
+--LEFT JOIN  HKP.LocalLanguage AS PresentInformation ON PresentInformation.LabelName='AttendanceInfo'	    AND PresentInformation.LanguageId=" + sqlL + @"
+LEFT JOIN  HKP.LocalLanguage AS WageRange ON WageRange.LabelName='SalaryDistribution'			    AND WageRange.LanguageId=" + sqlL + @"
+LEFT JOIN  HKP.LocalLanguage AS Credit ON Credit.LabelName='OtherEarning' 				    AND Credit.LanguageId=" + sqlL + @"
+LEFT JOIN  HKP.LocalLanguage AS Deductions ON Deductions.LabelName='Deduction'			    AND Deductions.LanguageId=" + sqlL + @"
+LEFT JOIN  HKP.LocalLanguage AS NetPayable ON NetPayable.LabelName='NetPayable'			    AND NetPayable.LanguageId=" + sqlL + @"
+LEFT JOIN  HKP.LocalLanguage AS OtRate ON OtRate.LabelName='OTRate'				    AND OtRate.LanguageId=" + sqlL + @"
+LEFT JOIN  HKP.LocalLanguage AS TotalPayableMoney ON TotalPayableMoney.LabelName='TotalPayable'	    AND TotalPayableMoney.LanguageId=" + sqlL + @"
+LEFT JOIN  HKP.LocalLanguage AS TotalDeduction ON TotalDeduction.LabelName='TotalDeduction'		    AND TotalDeduction.LanguageId=" + sqlL + @"
+LEFT JOIN  HKP.LocalLanguage AS NetTotalPayableMoney ON NetTotalPayableMoney.LabelName='NetPayable'	    AND NetTotalPayableMoney.LanguageId=" + sqlL + @"
+LEFT JOIN  HKP.LocalLanguage AS BankAccount ON BankAccount.LabelName='BankAccountNo'			    AND BankAccount.LanguageId=" + sqlL + @"
+LEFT JOIN  HKP.LocalLanguage AS LaborSignature ON LaborSignature.LabelName='LaborSignature'		    AND LaborSignature.LanguageId=" + sqlL + @"
+LEFT JOIN  HKP.LocalLanguage AS Signatures ON Signatures.LabelName='Signature'			    AND Signatures.LanguageId=" + sqlL + @"
+LEFT JOIN  HKP.LocalLanguage AS Authorities ON Authorities.LabelName='Authority'			    AND Authorities.LanguageId=" + sqlL + @"
+LEFT JOIN  HKP.LocalLanguage AS PresentDays ON PresentDays.LabelName='PresentDays'			    AND PresentDays.LanguageId=" + sqlL + @"
+LEFT JOIN  HKP.LocalLanguage AS WeeklyHolidays ON WeeklyHolidays.LabelName='WeeklyLeaveDays'		    AND WeeklyHolidays.LanguageId=" + sqlL + @"
+LEFT JOIN  HKP.LocalLanguage AS AvailHolyday ON AvailHolyday.LabelName='AvailedLeave'			    AND AvailHolyday.LanguageId=" + sqlL + @"
+LEFT JOIN  HKP.LocalLanguage AS FestivalHolidays ON FestivalHolidays.LabelName='FestivalHoliDay'		    AND FestivalHolidays.LanguageId=" + sqlL + @"
+LEFT JOIN  HKP.LocalLanguage AS PresentDayss ON PresentDayss.LabelName='Present'			    AND PresentDayss.LanguageId=" + sqlL + @"
+LEFT JOIN  HKP.LocalLanguage AS AbsentDayss ON AbsentDayss.LabelName='Absent'			    AND AbsentDayss.LanguageId=" + sqlL + @"
+
+LEFT JOIN  HKP.LocalLanguage AS TotalAttendance ON TotalAttendance.LabelName='TotalAttendance'		    AND TotalAttendance.LanguageId=" + sqlL + @"
+LEFT JOIN  HKP.LocalLanguage AS OTHours ON OTHours.LabelName='OTHours'				    AND OTHours.LanguageId=" + sqlL + @"
+LEFT JOIN  HKP.LocalLanguage AS LunchHour ON LunchHour.LabelName='LunchOutHour'			    AND LunchHour.LanguageId=" + sqlL + @"
+LEFT JOIN  HKP.LocalLanguage AS OfficeCopy ON OfficeCopy.LabelName='OfficeCopy'			    AND OfficeCopy.LanguageId=" + sqlL + @"
+LEFT JOIN  HKP.LocalLanguage AS EmployeeCopy ON EmployeeCopy.LabelName='EmployeeCopy'			    AND EmployeeCopy.LanguageId=" + sqlL + @"
+LEFT JOIN  HKP.LocalLanguage AS Dates ON Dates.LabelName='Date'					    AND Dates.LanguageId=" + sqlL + @"
+LEFT JOIN  HKP.LocalLanguage AS PaySlip ON PaySlip.LabelName='PaySlip'				    AND PaySlip.LanguageId=" + sqlL + @"
+LEFT JOIN  HKP.LocalLanguage AS Days ON Days.LabelName='Days'				    AND Days.LanguageId=" + sqlL + @"
+LEFT JOIN  HKP.LocalLanguage AS PayableSalary ON PayableSalary.LabelName='PayableSalary'				    AND PayableSalary.LanguageId=" + sqlL + @"
+
+
+
+							
+
+									) EmpBasic
+                                    INNER JOIN
+											(
+							 SELECT SPC.SystemID AS SlrProcChdSysID, SPC.SlrProcMstSystemID, SPM.SalaryProcID, SPM.FromDate, SPM.ToDate,
+													SPC.EmpInfoSystemID, SPC.PlantID, SPM.UserGroupSystemID, SPM.MonthNo, SPM.YearNo, SPC.PayAbleShSystemID,
+													SPC.SalaryHeadID, SPC.EntryCurrencyID, SPC.EntryAmount, SPC.DefineCurrencyID, SPC.DefineAmount,
+													SPC.DisbusmentCurrencyID, SPC.DisbusmentAmount, SPC.AcltExcDisbSlrHDID, SPC.AcltExcDisbSlrHDAmt
+													--CRE.Name AS PlantWiseExchangeCR, EXR.ToCurrencyBuying ExchangeRate
+													, SPM.AmtDefinitionCurrencyID,
+													--CR.Name AS AmtDefinitionCurrency,
+													SPM.AmtDefinitionCurrencyRate, SPC.IsNetPayEffect,sh.PartOfNetPay
+                                                    ,sh.SalaryHead,sh.HeadCategory,sh.HeadType--,isnull(psh.Sequence, 99) Sequence
+                                                    --,sh.IsCTCComponent
+                                            ,IsCTCComponent=CASE WHEN sh.IsGrossComponent=0 AND sh.PartOfNetPay=1 AND sh.HeadType='E' THEN 1 ELSE 0 END
+                                            ,sh.IsGrossComponent--,BSH.Name SalaryHeadBangla
+											,B.DisbusmentAmount CTC
+											
+
+                                           -- ,ctc.CTC
+                                          --  ,de.Deduct
+                                           -- ,deg.Gross
+                                            --,deot.OTrate
+                                            ,otstatus.OTRate OTrate
+                                            ,otstatus.IsOTEntitled IsOTEntitle
+                                            ,LunchOutHour.LunchOutHour 
+                                           -- ,deg.GrossLable
+                                           -- ,deg.GrossLableLocal,deg.DisbusmentGross
+                                            --,ISNULL(lineLang.Name,line.UserName) lineName
+											,line.UserName lineName
+                                            --,subDV.Id SubdivisionID,subDV.UserName SubDivision
+                                           -- ,isnull(FU.Id,'')UnitID ,isnull(FU.UserName,'')UnitName 
+                                           -- ,isnull(DV.Id,'')DivisionID ,isnull(FU.UserName,'')DivisionName 
+                                            --,SecLocLang.Name SectionLocal
+											,S.UserName SectionName
+                                            ,ISNULL(S.Id,'') SectionId--,ISNULL(SS.Id,'') SubSectionId, ISNULL(SS.UserName,'') SubSectionName
+                                            ,ISNULL(DP.Id,'') DepartmentID ,isnull(DP.UserName,'') DepartmentName 
+                                            ,ISNULL(EC.Id,'')EmployeeCategorySystemID,ISNULL(EC.UserName,'') EmpCategoryName
+                                            --,ISNULL(LocLangLD.Name,ISNULL(LD.UserName,'')) LegalDesignationLocal
+											,ISNULL(LD.UserName,'') LegalDesignationLocal
+                                            ,ISNULL(LD.Sequence,0) DesignationSequence
+                                            ,ISNULL(Line.Sequence,0) LineSequence--,ISNULL(F.Sequence,0) PlantSequence
+											--,ISNULL(FU.Sequence,0) UnitSequence
+                                           --ISNULL(DV.Sequence,0) DivisionSequence,ISNULL(subDV.Sequence,0) SubDivisionSequence
+											,ISNULL(S.Sequence,0) SectionSequence--,ISNULL(SS.Sequence,0) SubSectionSequence
+                                            ,ISNULL(DP.Sequence,0) DepartmentSequence--,ISNULL(EN.UserName,'') EntitySequence
+                                            , ISNULL(LSalGr.Code,'') GradeCode,ISNULL(spld.PaymentMode,'') PaymentMode,ISNULL(line.Id,'') LineId,SPLD.LegalDesignationId
+
+											 FROM SalaryProcChild SPC
+														INNER JOIN SalaryProcMaster SPM ON SPC.SlrProcMstSystemID = SPM.SystemID
+																							AND isnull(SPM.SystemId,'') IN(" + inSalaryProcParam + @") AND SPC.DisbusmentAmount !=0 AND SPC.DisbusmentAmount IS NOT NULL---new add for null head
+ INNER JOin SalaryProcessLogDetail SPLD ON SPLD.SalaryProcessId = SPM.SystemId AND SPC.EmpInfoSystemID = SPLD.EmpSystemId
+											     LEFT  JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = SPLD.BudgetCode
+									LEFT OUTER JOIN ORG.Position PO ON MB.PositionId=PO.Id
+                                    LEFT JOIN [ORG].[Department] DP ON DP.Id = PO.DepartmentId
+                                    LEFT JOIN [ORG].[Section] S ON S.Id = PO.SectionId     								
+	                                            LEFT JOIN ORG.line line ON line.Id=MB.LineId
+												LEFT JOIN HKP.EmployeeCategory EC ON SPLD.EmployeeCategoryId = EC.Id
+                                              LEFT JOIN SCS.LegalSalaryGrade LSalGr ON LSalGr.Id = SPLD.LegalSalaryGradeId
+                                              LEFT JOIN HKP.LegalDesignation LD ON LD.Id = SPLD.LegalDesignationId
+
+
+LEFT JOIN SalaryProcChild B ON B.SystemID=(Select SystemID from SalaryProcChild C
+left join SalaryHead h on h.SalaryHeadID=C.SalaryHeadID
+where h.HeadCategory='TOTAL GROSS' AND C.SlrProcMstSystemID=SPM.SystemID AND C.EmpInfoSystemID=SPC.EmpInfoSystemID)
+LEFT JOIN SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
+
+LEFT JOIN SalaryProceAttdnData otstatus on isnull(concat(otstatus.EmpSystemID,otstatus.SlrProcMstSystemID),'')=(select top 1 isnull(concat(EmpSystemID,SlrProcMstSystemID),'') from  SalaryProceAttdnData Where isnull(EmpSystemID,'')=isnull(spc.EmpInfoSystemID,'') and isnull(SlrProcMstSystemID,'')=isnull(spm.SystemID ,''))
+LEFT JOIN (SELECT EmpSystemId,SUM(LunchOutHour) LunchOutHour FROM LunchOutHour WHERE WorkDate Between '" + para.FromDate + @"' and '" + para.ToDate + @"' GROUP BY EmpSystemId ) LunchOutHour on LunchOutHour.EmpSystemId=spc.EmpInfoSystemID 
+) EmpSlr ON EmpBasic.SystemID = EmpSlr.EmpInfoSystemID AND EmpBasic.PlantID = EmpSlr.PlantID
+  
+LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BSH ON BSH.SalaryHeadId = EmpSlr.SalaryHeadID and BSH.LanguageId=" + sqlL + @"  --BanglaSalaryHead
+LEFT JOIN SalaryProceAttdnData MMDSA on isnull(concat(MMDSA.EmpSystemID,MMDSA.SlrProcMstSystemID),'')=(select top 1 isnull(concat(EmpSystemID,SlrProcMstSystemID),'') from  SalaryProceAttdnData Where isnull(EmpSystemID,'')=isnull(EmpSlr.EmpInfoSystemID,'') and isnull(SlrProcMstSystemID,'')=isnull(EmpSlr.SlrProcMstSystemID ,''))
+
+LEFT JOIN
+ (select SlrProcMstSystemID,EmpInfoSystemID,SUM(DisbusmentAmount) Deduct from SalaryProcChild D Where D.SystemID IN (Select SystemID from SalaryProcChild C
+left join SalaryHead h on h.SalaryHeadID=C.SalaryHeadID
+where h.HeadType='D') GROUP BY SlrProcMstSystemID,EmpInfoSystemID) DD ON DD.SlrProcMstSystemID=EmpSlr.SlrProcMstSystemID AND DD.EmpInfoSystemID=EmpBasic.SystemId
+                                    
+                                                left join (
+                                                select bb.UserName BankName,b.BankAccNo,b.EmpSystemID from [dbo].[EmployeeBankInfo] b
+                                                left join hkp.BankBranch bb on b.BankBranchId=bb.Id
+                                                ) BB ON BB.EmpSystemID = EmpBasic.SystemId
+
+                                  
+									LEFT JOIN HKP.LocalLanguage lineLang ON lineLang.id=(select top 1 Id from HKP.LocalLanguage AAAA where isnull(AAAA.lineID,'') = EmpSlr.lineid and isnull(AAAA.lineID,'') <>'' and isnull(AAAA.LanguageId,'') =" + sqlL + @") AND isnull(lineLang.lineID,'') = EmpSlr.lineid and isnull(lineLang.LanguageId,'') =" + sqlL + @"
+									LEFT JOIN HKP.LocalLanguage SecLocLang ON SecLocLang.id=(select top 1 Id from HKP.LocalLanguage AAAA where isnull(AAAA.SectionId,'') = isnull(EmpSlr.SectionId,'') and isnull(AAAA.SectionId,'') <>'' and isnull(AAAA.LanguageId,'') =" + sqlL + @") AND isnull(SecLocLang.SectionId,'') = isnull(EmpSlr.SectionId,'') and isnull(SecLocLang.LanguageId,'') =" + sqlL + @"
+									LEFT JOIN hkp.LocalLanguage LocLangLD ON LocLangLD.id=(select top 1 Id from HKP.LocalLanguage AAAA where isnull(AAAA.LegalDesignationId,'') = isnull(EmpSlr.LegalDesignationId,'') and isnull(AAAA.LegalDesignationId,'') <>'' and isnull(AAAA.LanguageId,'') =" + sqlL + @") AND isnull(LocLangLD.LegalDesignationId,'') = isnull(EmpSlr.LegalDesignationId,'') and isnull(LocLangLD.LanguageId,'') =" + sqlL + @"
+
+----		Gross starts
+lEFT join (select SlrProcMstSystemID,EmpInfoSystemID,EntryAmount Gross,DisbusmentAmount DisbusmentGross,h.SalaryHead GrossLable
+			,BSH.Name GrossLableLocal
+FROM SalaryProcChild 
+left join SalaryHead h on h.SalaryHeadID=SalaryProcChild.SalaryHeadID
+LEFT JOIN org.Plant F ON SalaryProcChild.PlantID = F.Id----add
+		LEFT JOIN (
+		SELECT *FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL
+		) AS BSH ON BSH.SalaryHeadId = h.SalaryHeadID and BSH.LanguageId=" + sqlL + @"
+where h.HeadCategory='GROSS'  
+) deg on deg.SlrProcMstSystemID=EmpSlr.SlrProcMstSystemID and deg.EmpInfoSystemID=EmpBasic.SystemId ";
                 if (parameters.Count > 0)
                 {
                     if (parameters.Keys.ElementAt(0) != "")
@@ -11149,7 +11521,7 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
                             if (_x > _maxRow)
                                 _maxRow = _x;
 
-                          
+
 
                             sheet1.Range[xlsRow + _x, xlsCol + 1].CellStyle.Font.Size = 10;
                             //GetEarningDays(ref EarningDays, _ld);

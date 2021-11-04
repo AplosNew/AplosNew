@@ -224,7 +224,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 {
                                     dr["ManualOutTime"] = clsWebLib.RetValidLen(ManualOutTime);
                                     dr["IsManualOutTime"] = clsWebLib.GetBoolData(IsManualOutTime);
-                                    dr["OriginalManualInTime"] = clsWebLib.RetValidLen(ManualOutTime);
+                                    dr["OriginalManualOutTime"] = clsWebLib.RetValidLen(ManualOutTime);
                                 }
                                 if (clsWebLib.RetValidLen(ManualDayStatus).ToString() != "")
                                 {

@@ -28,7 +28,7 @@
             <div class="form-group">
                 <div class="radio">
                     <label>
-                        <input type="radio" name="IsAfterSalaryProcess" ng-model="report.ReportFormat" value="0">
+                        <input type="radio" name="IsAfterSalaryProcess" ng-disabled="EmployeeListTemp.length>0" ng-model="report.ReportFormat" value="0">
                         <span class="cr"><i class="cr-icon"></i></span>After salary process
                     </label>
                 </div>
@@ -44,7 +44,7 @@
             <div class="col-sm-12">
                 <div class="common-btn">
                     <ul class="list-inline text-right">
-                        <li> <button ng-click="GetEmployeeInformation();" ng-disabled="EmployeeListTemp.length>0" class="btn"> <i class="glyphicon glyphicon-download"></i>Go</button></li>
+                        <li> <button ng-click="GetEmployeeInformation();"  class="btn"> <i class="glyphicon glyphicon-download"></i>Go</button></li>
                     </ul>
                 </div>
 
@@ -53,10 +53,13 @@
     </div>
 </div>
 
-<div class="row" ng-show="empGrid">
-    <div class="col-xs-12" ng-show="empGrid">
+<div class="row" ng-show="empGrid"  ng-hide="EmployeeListTemp.length==0">
+    <div class="col-md-1">
+
+    </div>
+    <div class="col-xs-10 col-sm-10 col-md-10" ng-show="empGrid">
         <div class="form-group" style="padding-left: 10px;">
-            <div class="common-btn">
+            <div class="common-btn" >
                 <button ng-click="GetEmployeeSalaryProcessedReportSalaryLogWise();" class="btn"> <i class="glyphicon glyphicon-file"></i>Download</button>
             </div>
         </div>
@@ -76,6 +79,7 @@
                     </div>
                 </div>
             </div>
+        </div>
         <div id="empInfoGrid" ej-grid e-datasource="EmployeeListTemp" e-recorddoubleclick="Get" e-allowscrolling="true" e-pageSettings-pageSize="20"
              e-actioncomplete="actionCompleteSelected" e-templaterefresh="refreshTemplateemployee"
              e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
@@ -99,9 +103,9 @@
                 <div e-column e-field="EmployeeStatus" e-headertext="EmployeeStatus" e-allowediting="false" e-width="80"></div>
             </div>
         </div>
-        </div>
     </div>
-    
+    <div class="col-md-1">
+    </div>
 </div>
 
 <div class="modal site-modal in" id="empfilterPopUp" role="dialog" data-backdrop="static">
