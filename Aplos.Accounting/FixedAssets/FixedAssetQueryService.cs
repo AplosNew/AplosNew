@@ -415,6 +415,7 @@ namespace Library.Accounting.FixedAssets
                        		,format( FR.CapitalizationDate,'dd-MMM-yyyy')CapitalizationDate
 									,format(IR.GRNDate,'dd-MMM-yyyy') PurchaseDate
 									,format( ii.IssueDate,'dd-MMM-yyyy')IssueDate
+                                    ,format( frd.DocDate,'dd-MMM-yyyy')DocDate
 			               ,c.Code TrnCurrency
 
                                     , ISNULL(FR.Price,0) Price

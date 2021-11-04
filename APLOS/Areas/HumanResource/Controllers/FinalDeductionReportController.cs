@@ -253,7 +253,7 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
             }
         }
         [HttpPost, Authorize]
-        public ActionResult GetEmployeeSalaryProcessedReportSalLogWiseNew(string month, string year,  Dictionary<string, string> parameters)
+        public ActionResult GetEmployeeSalaryProcessedReportSalLogWiseNew(string month, string year,  Dictionary<string, string> parameters, string format)
         {
             try
             {
@@ -264,7 +264,7 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
                 string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
 
 
-                var workbook = _payrollReportsService.GetFinalDeductionReportCompanyWise(out int xlsRow, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, parameters, false);
+                var workbook = _payrollReportsService.GetFinalDeductionReportCompanyWise(out int xlsRow, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, parameters, format, false);
                 workbook.Version = ExcelVersion.Excel97to2003;
                 workbook.SaveAs(fullPath);
 
@@ -278,11 +278,55 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
         }
 
         [HttpPost, Authorize]
-        public JsonResult GetEmployeeList(string month, string year,string PlantId)
+        public JsonResult GetEmployeeList(string month, string year,string PlantId,string format)
         {
-
+            var str = "";
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var str = @"SELECT  DISTINCT E.SystemID EmpSystemId,[isSelect] = Convert(bit, 'True'),[isToBeSelect] = Convert(bit, 'False'), isnull(E.VendorId,'') as Vendor 
+
+            if (format == "1")
+            {
+                 str = @"SELECT  DISTINCT E.SystemID EmpSystemId,[isSelect] = Convert(bit, 'True'),[isToBeSelect] = Convert(bit, 'False'), isnull(E.VendorId,'') as Vendor 
+									, isnull(p.UserName,'') as Contractor, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus 
+											, E.DesignationSystemID, DE.UserName DesignationName,
+											  F.Id PlantID, F.UserName PlantName, 
+											FU.UserName UnitName,  DV.UserName DivisionName,  DP.UserName DepartmentName,
+											 S.UserName SectionName
+											 , SS.UserName SubSectionName,
+											EC.UserName EmpCategoryName,
+                                         Format(E.DOJ,'dd-MMM-yyyy') DOJ,Format(E.DOS,'dd-MMM-yyyy') DOS,Format(E.DOB,'dd-MMM-yyyy') DOB
+											,ISNULL(LDS.UserName,'') LegalDesignation
+											,LS.UserName Grade
+                                     FROM EmployeeInformation E
+                                     left join hkp.Party p on p.Id = E.VendorId
+									 			LEFT JOIN ORG.Plant F ON F.Id= E.PlantId
+												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
+												LEFT JOIN hkp.Designation DE ON E.GivenDesignationId = DE.Id
+												LEFT JOIN hkp.LegalDesignation LDS ON E.LegalDesignationId = LDS.Id
+LEFT join  [MST].[DesignationMasterLegalDesignation] dmld on dmld.LegalDesignationId=LDS.Id
+                        left join [MST].[DesignationMaster] dm on dm.Id=dmld.DesignationMasterId
+                        left join HKP.EmployeeCategory EC on EC.Id=dm.EmployeeCategoryId
+								LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = E.BudgetCode
+								LEFT OUTER JOIN [ORG].[Position] AS PO ON PO.Id = MB.PositionId
+                                LEFT OUTER JOIN [ORG].[Entity] AS ENT ON ENT.Id = MB.EntityId
+                                                LEFT JOIN MST.LegalSalaryGradeDesignation LSGD ON LSGD.LegalDesignationId = LDS.Id and E.PlantId = LSGD.PlantId
+                                                  JOIN [SCS].[LegalSalaryGrade] LS ON LS.Id = LSGD.LegalSalaryGradeId and ls.PlantId=lsgd.PlantId
+												
+												LEFT JOIN org.Unit FU ON ENT.UnitID = FU.Id
+												LEFT JOIN org.Division DV ON PO.DivisionID = DV.Id
+												LEFT JOIN org.Department DP ON PO.DepartmentID = DP.Id
+												LEFT JOIN org.Section S ON PO.SectionID = S.Id
+												LEFT JOIN org.SubSection SS ON PO.SubSectionID = SS.Id
+												
+Where E.PlantId IN( " + PlantId + @"  ) AND E.SystemId IN (												 
+												 SELECT ES.EmployeeId FROM EmpServiceData AS ES
+												 JOIN EmpServiceCategory EC on EC.Id=ES.EmployeeServiceCategoryId
+JOIN EmpServiceType AS ET ON ET.id=EC.EmpServiceTypeId
+JOIN SalaryHead AS SH ON SH.SalaryHeadID=ET.SalaryHeadID
+WHERE  MONTH(ES.Date)='" + month + @"' AND Year(ES.Date)='" + year + @"') ";
+            }
+            else
+            {
+                 str = @"SELECT  DISTINCT E.SystemID EmpSystemId,[isSelect] = Convert(bit, 'True'),[isToBeSelect] = Convert(bit, 'False'), isnull(E.VendorId,'') as Vendor 
 									, isnull(p.UserName,'') as Contractor, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus 
 											, E.DesignationSystemID, DE.UserName DesignationName,
 											  F.Id PlantID, F.UserName PlantName, 
@@ -318,7 +362,8 @@ Where E.PlantId IN( " + PlantId + @"  ) AND E.SystemId IN (
 												 SELECT m.EmpInfoSystemID FROM MonthWiseExtraSalaryAmtMaster AS m
 JOIN MonthWiseExtraSalaryAmtChild AS C ON c.MWESAMasterSystemID=m.SystemID
 JOIN SalaryHead AS sh ON sh.SalaryHeadID=c.SalaryHeadID
-WHERE m.MonthNo='"+ month + @"' AND m.YearNo='"+year+@"') ";
+WHERE m.MonthNo='" + month + @"' AND m.YearNo='" + year + @"') ";
+            }
 
             var jsondata = Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;

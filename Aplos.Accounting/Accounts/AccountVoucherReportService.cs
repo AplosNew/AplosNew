@@ -7415,6 +7415,13 @@ namespace Library.Accounting.Accounts
             // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
+            worksheet[ROW, COL].Text = "Cost Centre";
+            int colCostCentre = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
             worksheet[ROW, COL].Text = "Voucher No";
             int colVoucherNo = COL;
             worksheet[ROW, COL].ColumnWidth = 15;
@@ -7535,6 +7542,9 @@ namespace Library.Accounting.Accounts
 
                 worksheet[ROW, colSourceType].Text = dtDayBookData.Rows[i]["VoucherType"].ToString();
                 worksheet[ROW, colEntity].Text = dtDayBookData.Rows[i]["EntityName"].ToString();
+
+                worksheet[ROW, colCostCentre].Text = dtDayBookData.Rows[i]["CostCenterName"].ToString();
+
                 worksheet[ROW, colVoucherNo].Text = dtDayBookData.Rows[i]["VoucherNo"].ToString();
                 worksheet[ROW, colPostingDate].Text = dtDayBookData.Rows[i]["PostingDate"].ToString();
                 worksheet[ROW, colDocDate].Text = dtDayBookData.Rows[i]["DocDate"].ToString();
@@ -7610,7 +7620,7 @@ namespace Library.Accounting.Accounts
 
         public DataTable GetExpenseRegisterReportData(string companyGroupId, string companyId, string plantId, DateTime fromDate, DateTime toDate)
         {
-            var cmdText = @"SELECT CO.UserName CompanyName, PT.UserName PlantName,EN.UserName AS EntityName, v.SourceType VoucherType, V.VoucherNo
+            var cmdText = @"SELECT CO.UserName CompanyName, PT.UserName PlantName,EN.UserName AS EntityName,CC.UserName CostCenterName, v.SourceType VoucherType, V.VoucherNo
                             ,Replace(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') PostingDate, Replace(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') DocDate
                             ,V.DocRefNo,C.Code CurrencyCode
                             ,ACT.Id AS [Type]
@@ -7644,8 +7654,9 @@ namespace Library.Accounting.Accounts
                             left join trn.Invoice I on I.VoucherId=V.Id
                             left join trn.InventoryReceive ir on ir.Id=i.InventoryReceiveId
                             left join dbo.EmployeeInformation ei on ei.SystemId=VD.EmployeeId
-                            WHERE V.IsPark=0 and V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId ='" + companyId + "' AND V.PlantId='" + plantId + @"' and ACT.Id='Expense' and VD.DrAmount>0
-							AND V.PostingDate BETWEEN '" + fromDate + "' AND '" + toDate + @"'";
+							left join ORG.CostCenter CC ON CC.Id=VD.CostCenterId
+                            WHERE V.IsPark=0 and V.CompanyGroupId='CG20171' AND V.CompanyId ='C20171' AND V.PlantId='20171' and ACT.Id='Expense' and VD.DrAmount>0
+							AND V.PostingDate BETWEEN '10/1/2021 12:00:00 AM' AND '11/3/2021 12:00:00 AM'";
 
 
             return _sqlRepository.GetDataTable(cmdText);
