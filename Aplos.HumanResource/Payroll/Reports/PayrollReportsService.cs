@@ -14439,27 +14439,25 @@ LEFT join  [MST].[DesignationMasterLegalDesignation] dmld on dmld.LegalDesignati
 												LEFT JOIN org.Department DP ON PO.DepartmentID = DP.Id
 												LEFT JOIN org.Section S ON PO.SectionID = S.Id
 												LEFT JOIN org.SubSection SS ON PO.SubSectionID = SS.Id
-												 Join(Select E.SystemId EmpSystemId,E.EmployeeName,SH.SalaryHead,SUM(ESDFinal.Amount) Amount from
-(
-Select ESD.EmployeeId,EST.SalaryHeadId,EST.Service,EST.Form, 
-Amount =
-CASE 
-	WHEN EST.Form='Quantity' THEN IsNull(ESD.Quantity,0)*ESR.Rate  
-	WHEN EST.Form='Reading' THEN (IsNull(ESD.[To],0) - IsNull(ESD.[From],0)) * ESR.Rate
-	WHEN EST.Form='Value' THEN ESD.Amount
-END
-from EmpServiceData ESD
-Inner Join EmpServiceCategory ESC on ESC.Id=ESD.EmployeeServiceCategoryId
-Inner Join EmpServiceType EST on EST.Id=ESC.EmpServiceTypeId 
-Inner Join EmployeeServicesRate ESR on ESR.Id=(select top 1 id from EmployeeServicesRate A where A.EffectiveDate<=ESD.Date and A.EmployeeServiceCategoryId=ESD.EmployeeServiceCategoryId)
-where
-MONTH(ESD.Date)='"+month+@"' AND Year(ESD.Date)='"+year+@"'
-) ESDFinal
-Inner Join EmployeeInformation E on ESDFinal.EmployeeId=E.SystemId
-Inner Join SalaryHead SH on ESDFinal.SalaryHeadId=SH.SalaryHeadID
-Group By E.SystemId,E.EmployeeName,SH.SalaryHead) SH on SH.EmpSystemId=E.SystemId
-
-where E.SystemId in (" + parameters["EmpSystemId"] + @")";
+											    JOIN
+(select x.EmpSystemId,x.SalaryHeadId,sum(x.Am) Amount,x.SalaryHead
+from (
+select
+d.Amount,d.chargeable,d.Date,d.EmployeeId EmpSystemId,d.Quantity
+,c.Category ServiceCategory,t.Service ServiceName,t.Form
+,h.SalaryHead,h.SalaryHeadID SalaryHeadId,r.Rate
+,Am=case when t.Form='Value' then d.Amount
+else isnull(d.Quantity,0)*isnull(r.Rate ,0) end
+from [EmpServiceData] d
+left join EmpServiceCategory c on c.id=d.EmployeeServiceCategoryId
+left join EmpServiceType t on t.id=c.EmpServiceTypeId
+left join SalaryHead h on h.SalaryHeadID=t.SalaryHeadId
+left join EmployeeServicesRate r on r.EmployeeServiceCategoryId=c.Id
+where d.chargeable=1 
+and d.EmployeeId in  (" + parameters["EmpSystemId"] + @")
+AND MONTH(d.Date)='" + month + @"' AND  Year(d.Date)='" + year + @"'
+)x WHERE x.Am>0
+group by x.EmpSystemId,SalaryHeadId,x.SalaryHead) SH on SH.EmpSystemId=E.SystemId";
             }
             else
             {
