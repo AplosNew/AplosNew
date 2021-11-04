@@ -880,6 +880,8 @@ Item=STUFF((select distinct ','+XMM.UserName from
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colCMEarned = COL;
                 sheet.Range[ROW, colCMEarned, ROW + 1, colCMEarned].Merge();
+
+
                 COL++;
                 sheet[ROW, COL].Text = "CM Spend";
                 sheet[ROW, COL].ColumnWidth = 10;
@@ -896,6 +898,22 @@ Item=STUFF((select distinct ','+XMM.UserName from
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colEfficiency = COL;
                 sheet.Range[ROW, colEfficiency, ROW + 1, colEfficiency].Merge();
+                COL++;
+                sheet[ROW, COL].Text = "SPT Base Target CM";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colSMVBASETARGETCM = COL;
+                sheet.Range[ROW, colSMVBASETARGETCM, ROW + 1, colSMVBASETARGETCM].Merge();
+                COL++;
+                sheet[ROW, COL].Text = "SPT Base Earned CM";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colSMVBASEEARNEDCM = COL;
+                sheet.Range[ROW, colSMVBASEEARNEDCM, ROW + 1, colSMVBASEEARNEDCM].Merge();
+
+                COL++;
+                sheet[ROW, COL].Text = "SPT CM Margin";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colSPTCMMargin = COL;
+                sheet.Range[ROW, colSPTCMMargin, ROW + 1, colSPTCMMargin].Merge();
 
                 COL++;
                 sheet[ROW, COL].Text = "Remarks/Problems";
@@ -953,6 +971,15 @@ Item=STUFF((select distinct ','+XMM.UserName from
                     sheet[ROW, colTGThr].Number = clsStaticInfo.dbl(dtProductionInfo.Rows[i]["RequiredStdTarget"].ToString());
 
 
+                    double PerMinuteMachineCost = 0;
+                    if (clsStaticInfo.dbl(dtProductionInfo.Rows[i]["PlannedHoursPerDay"].ToString()) > 0)
+                        PerMinuteMachineCost = clsStaticInfo.dbl(dtProductionInfo.Rows[i]["MachineCostPerDay"].ToString()) / (clsStaticInfo.dbl(dtProductionInfo.Rows[i]["PlannedHoursPerDay"].ToString()) * 60);
+                    sheet[ROW, colSMVBASETARGETCM].Formula = clsStaticInfo.GetxlsCol(colSPT) + ROW + "*" + clsStaticInfo.GetxlsCol(colTGTDAY) + ROW + "*" + PerMinuteMachineCost.ToString("F4");
+                    sheet[ROW, colSMVBASEEARNEDCM].Formula = clsStaticInfo.GetxlsCol(colSPT) + ROW + "*" + clsStaticInfo.GetxlsCol(colTotalP) + ROW + "*" + PerMinuteMachineCost.ToString("F4");
+                    sheet[ROW, colSPTCMMargin].Formula = clsStaticInfo.GetxlsCol(colSMVBASEEARNEDCM) + ROW.ToString() + "-" + clsStaticInfo.GetxlsCol(colSMVBASETARGETCM) + ROW.ToString();
+
+
+
                     sheet[ROW, colTGTEFF].Formula = "if(and(" + clsStaticInfo.GetxlsCol(colTotalMP) + ROW.ToString() + ">0," + clsStaticInfo.GetxlsCol(colWorkHour) + ROW.ToString() + ">0," + clsStaticInfo.GetxlsCol(colSPT) + ROW.ToString() + @">0),"
                         + clsStaticInfo.GetxlsCol(colTGTDAY) + ROW.ToString() + "/(" + clsStaticInfo.GetxlsCol(colWorkHour) + ROW.ToString()
                         + "*60*" + clsStaticInfo.GetxlsCol(colTotalMP) + ROW.ToString() + "/" + clsStaticInfo.GetxlsCol(colSPT) + ROW.ToString() + ")*100,0)";
@@ -964,7 +991,7 @@ Item=STUFF((select distinct ','+XMM.UserName from
                     // sheet[ROW, colOThour].Number = clsStaticInfo.dbl(dtProductionInfo.Rows[i]["MaxNoOfWS"].ToString());
                     //// sheet[ROW, colOThour].NumberFormat = "#,##0.00;(#,##0.00)";
                     sheet[ROW, colAvgHr].Formula = "IF(" + clsStaticInfo.GetxlsCol(colWorkHour) + ROW.ToString() + ">0," + clsStaticInfo.GetxlsCol(colTotalP) + ROW.ToString() + "/" + clsStaticInfo.GetxlsCol(colWorkHour) + ROW.ToString() + ",0)";
-                     sheet[ROW, colAvgHr].NumberFormat = "#,##0.00;(#,##0.00)";
+                    sheet[ROW, colAvgHr].NumberFormat = "#,##0.00;(#,##0.00)";
                     // sheet[ROW, colTargetAchievement].Number = clsStaticInfo.dbl(dtProductionInfo.Rows[i]["Sequence"].ToString());
 
                     sheet[ROW, colTargetAchievement].Formula = "IF(" + clsStaticInfo.GetxlsCol(colTGTDAY) + ROW.ToString() + ">0," + clsStaticInfo.GetxlsCol(colTotalP) + ROW.ToString() + "/" + clsStaticInfo.GetxlsCol(colTGTDAY) + ROW.ToString() + "*" + 100 + ",0)";
@@ -1019,6 +1046,9 @@ Item=STUFF((select distinct ','+XMM.UserName from
                 sheet.Range[StartRow, colCMMargin, ROW, colCMMargin].NumberFormat = clsStaticInfo.NumberFormat(2);
                 sheet.Range[StartRow, colEfficiency, ROW, colEfficiency].NumberFormat = clsStaticInfo.NumberFormat(2);
                 sheet.Range[StartRow, colTGTEFF, ROW, colTGTEFF].NumberFormat = clsStaticInfo.NumberFormat(2);
+                sheet.Range[StartRow, colSPTCMMargin, ROW, colSPTCMMargin].NumberFormat = clsStaticInfo.NumberFormat(2);
+                sheet.Range[StartRow, colSMVBASEEARNEDCM, ROW, colSMVBASEEARNEDCM].NumberFormat = clsStaticInfo.NumberFormat(2);
+                sheet.Range[StartRow, colSMVBASETARGETCM, ROW, colSMVBASETARGETCM].NumberFormat = clsStaticInfo.NumberFormat(2);
                 sheet.IsGridLinesVisible = false;
 
                 sheet.UsedRange.WrapText = true;
