@@ -564,21 +564,15 @@ namespace Library.Accounting.FixedAssets
             string strkey = "1=1";
             if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                 strkey = column + " like '%" + value + "%'";
-            var sql = @"select top 100 * from (select frd.Id,frd.Id DisposeNo,fr.Remarks,fr.[Status],frd.EmployeeId,ei.EmployeeName,D.UserName Department,DG.UserName Designation,frd.IsPark
-
-                                ,c.Code TrnCurrency
-    ,                               c.Id trnCurrencyId
-	                              ,frd.DocDate
-		                       -- , FR.AssetNo
-                               -- ,rdd.FixedAssetRegisterId
-								--,FR.SerialNo
-
+            var sql = @"select top 100 * from (select frd.Id,frd.Id DisposeNo,fr.[Status]
+									--,frd.EmployeeId,ei.EmployeeName,D.UserName Department,DG.UserName Designation,fr.Remarks
+									 ,c.Code TrnCurrency,frd.IsPark
+									--,  c.Id trnCurrencyId
+									-- ,frd.DocDate
                                     ,sum( ISNULL(FR.Price,0)) Price
 									,sum( ISNULL(SAR.subAssetAmount,0) )SubAssetAmount
 									,sum( ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0)) PurchasePrice
 									 ,sum( ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0)-ISNULL(FR.ADBaseAmount,0)) NetBookValue 
-								--	, 0 NegotiationValue
-
 								   , BC.Code BaseCurrency
                                        ,sum(isnull( frd.ToCurrencyRate,0))CompanyCurrencyRate
                                         ,sum(isnull( frd.ToCurrencyRate,0))ToCurrencyRate
@@ -591,7 +585,7 @@ namespace Library.Accounting.FixedAssets
                                     ,sum(isnull( rdd.BaseNagotiationValue,0))BaseNagotiationValue
 
 				,P.UserName CustomerName,frd.PartyId,frd.PartyPlantId ,c.Code TrnPurchaseCurrency
-                ,IsOBBalance=case when FR.IsOpeningBalance=0 then 'No' Else 'Yes' End
+                --,IsOBBalance=case when FR.IsOpeningBalance=0 then 'No' Else 'Yes' End
                 --,P.UserName Vendor
                 from TRN.FixedAssetRegisterDisposed frd 
 				join TRN.FixedAssetRegisterDisposedDetail rdd ON rdd.FixedAssetRegisterDisposedId=frd.Id
@@ -608,8 +602,9 @@ namespace Library.Accounting.FixedAssets
                 LEFT JOIN ( SELECT FixedAssetRegisterId,ISNULL(Sum(Amount),0) subAssetAmount ,ISNULL(Sum(BaseAmount),0) subAssetBaseAmount FROM TRN.SubFixedAssetRegister group by FixedAssetRegisterId) SAR ON SAR.FixedAssetRegisterId=FR.Id
                     where fr.CompanyId='" + companyId+ @"' 
                     --AND frd.DisposedVoucherId IS NULL
-                     group by fr.Remarks,fr.[Status],ei.EmployeeName,frd.IsPark,frd.Id,D.UserName ,DG.UserName,frd.EmployeeId,P.UserName ,frd.PartyId,frd.PartyPlantId,c.Code,FR.IsOpeningBalance ,P.UserName , BC.Code,c.Id 
-								,frd.DocDate	) AS TEMP WHERE " + strkey+" order by DisposeNo ";
+                      group by fr.[Status],frd.Id ,frd.PartyId,frd.PartyPlantId, BC.Code,P.UserName,c.Id,c.Code,frd.IsPark
+					 --,FR.IsOpeningBalance ,P.UserName  ,frd.DocDate,fr.Remarks,ei.EmployeeName,frd.IsPark,D.UserName ,DG.UserName,frd.EmployeeId		
+                ) AS TEMP WHERE " + strkey+" order by DisposeNo ";
             return _sqlRepository.GetDataCollection(sql);
         }
         public List<Dictionary<string, object>> GetFixedAssetDisposePostedList(string column, string value, string companyId)
@@ -726,15 +721,17 @@ namespace Library.Accounting.FixedAssets
             ,AddedBy=CASE WHEN U.FullName<>'' THEN U.FullName ELSE V.AddedBy END
             ,PostedBy=CASE WHEN U.FullName<>'' THEN U.FullName ELSE V.PostedBy END
             , UPPER(V.Narration) AS Narration, CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
-            --, P.UserName AS Vendor, PP.UserName AS VendorPlant
+            , P.UserName AS Vendor, PP.UserName AS VendorPlant
 			, V.CurrencyId, C.Code AS CurrencyCode
-			,EI.EmployeeName
+			,EI.EmployeeName,BJ.Status DisposedStatus
             FROM [TRN].FixedAssetRegisterDisposed AS BJ
             LEFT JOIN [TRN].[Voucher] AS V ON V.Id=BJ.DisposedVoucherId
             LEFT JOIN [SCS].[VoucherType] AS VT ON VT.Id=V.VoucherTypeId
             LEFT JOIN [SCS].[Currency] AS C ON C.Id=V.CurrencyId
 			LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=BJ.EmployeeId
             LEFT JOIN SEC.[User] U ON U.UserId=V.AddedBy
+			LEFT JOIN HKP.Party P ON P.Id = BJ.PartyId
+			LEFT JOIN HKP.PartyPlant PP ON PP.Id = BJ.PartyPlantId
             WHERE v.Archive=0 AND v.CompanyGroupId='" + companyGroupId + "' AND v.CompanyId='" + companyId + "' AND v.PlantId='" + plantId + "' AND BJ.DisposedVoucherId='" + disposedVoucherId + "' AND v.SourceType='" + sourceType + "'";
             return _sqlRepository.GetData(cmdText);
         }
@@ -789,14 +786,26 @@ namespace Library.Accounting.FixedAssets
             reportUtility.SetText(ref sheet, row, 5, header["DocDate"].ToString());
             row++;
 
-            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Employee");
-            //  reportUtility.SetText(ref sheet, row, 2, header["Vendor"].ToString());
+            if(header["DisposedStatus"].ToString()== "CompensateByEmployee")
+            {
+                reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Employee");
+                reportUtility.SetText(ref sheet, row, 2, header["EmployeeName"].ToString());
+            }
+            if (header["DisposedStatus"].ToString() == "Sales")
+            {
+                reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Customer");
+                reportUtility.SetText(ref sheet, row, 2, header["Vendor"].ToString());
+            }
             reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Doc Ref");
             reportUtility.SetText(ref sheet, row, 5, header["DocRefNo"].ToString());
             row++;
 
-            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Vendor Plant");
-            //reportUtility.SetText(ref sheet, row, 2, header["VendorPlant"].ToString());
+            if (header["DisposedStatus"].ToString() == "Sales")
+            {
+                reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Customer Plant");
+                reportUtility.SetText(ref sheet, row, 2, header["VendorPlant"].ToString());
+            }
+
             reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Status");
             reportUtility.SetText(ref sheet, row, 5, header["Status"].ToString());
             row++;
