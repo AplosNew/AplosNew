@@ -750,7 +750,7 @@ namespace Library.HumanResource.Leave
                 parameters = new GridParameter
                 {
                     ExportType = "DATASET",
-                    CmdText = @"SELECT	els.CalanderYearID,EMP.EmployeeName,EMP.EmployeeCode, D.UserName Designation, DEPT.UserName Department, ec.UserName EmployeeCategory, ISNULL(ltd.IsExceptionAllowed,0) IsExceptionAllowed,
+                    CmdText = @"SELECT	els.CalanderYearID,EMP.EmployeeName,EMP.EmployeeCode, PL.UserName PlantName, D.UserName Designation, DEPT.UserName Department, ec.UserName EmployeeCategory, ISNULL(ltd.IsExceptionAllowed,0) IsExceptionAllowed,
 										 els.Id SystemID,format(EMP.DOJ,'dd-MMM-yyyy')DOJ,
                                          els.LeaveTypeId LTSystemID,
                                          els.EmployeeID,
