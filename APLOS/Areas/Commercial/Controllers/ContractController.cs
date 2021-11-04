@@ -1069,7 +1069,7 @@ namespace Aplos.Areas.Commercial.Controllers
             }
         }//End of function
 
-        [HttpPost]
+        [Authorize,HttpPost]
         public ActionResult DeleteContractTermsAndConditions(string id)
         {
             DeleteContractTermsAndConditionsData(id);
