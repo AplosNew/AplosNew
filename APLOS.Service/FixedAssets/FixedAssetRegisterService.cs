@@ -1470,7 +1470,8 @@ namespace Library.Service.FixedAssets
 												LEFT JOIN (SELECT FixedAssetRegisterId,SUM(Amount) SubAssetAmount FROM TRN.SubFixedAssetRegister 
 													GROUP BY FixedAssetRegisterId) SR ON SR.FixedAssetRegisterId=FAR.Id
 												AND FAR.CompanyId='" + companyId + "' AND FAR.PlantId='" + plantId + @"' AND FAR.IsOpeningBalance=1 AND FAR.IsFinancial=1
-												GROUP BY FAR.FABudgetMasterId
+					WHERE FAR.IsOpeningBalance=1 AND FAR.IsFinancial=1							
+GROUP BY FAR.FABudgetMasterId
 										) R ON R.FABudgetMasterId=OBD.BudgetMasterId
                                         WHERE OBD.PartyType='FixedAsset' AND OBD.FAType='AssetCapatalized' AND OB.CompanyId='" + companyId + "' AND OB.PlantId='" + plantId + "'";
                 return _sqlRepository.GetDataCollection(sql);
