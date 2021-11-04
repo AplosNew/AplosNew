@@ -4243,6 +4243,7 @@ GROUP BY FAR.FABudgetMasterId
                     Remarks = fixedAssetDisposed.Remarks,
                     PartyId = fixedAssetDisposed.PartyId,
                     PartyPlantId = fixedAssetDisposed.PartyPlantId,
+                    DeliveryPartyPlantId = fixedAssetDisposed.DeliveryPartyPlantId,
                     Id = "RD" + _id,
                     IsPark = true,
                     ToCurrencyRate = fixedAssetDisposed.ToCurrencyRate,
