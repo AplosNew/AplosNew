@@ -264,14 +264,7 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
                     data: {
                         "fixedAssetDisposed": $scope.voucher,
                         "fixedAssetRegister": $scope.voucherDetailList
-                        //"partyId": $scope.voucher.PartyId,
-                        //"partyPlantId": $scope.voucher.InvoicingPartyPlantId,
-                        //"remarks": $scope.voucher.Remarks,
-                        //"currencyId": $scope.voucher.CurrencyId,
-                        //"toCurrencyRate": $scope.voucher.CompanyCurrencyRate,
-                        //"docDate": $scope.voucher.DocDate,
-                        
-
+                       
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {

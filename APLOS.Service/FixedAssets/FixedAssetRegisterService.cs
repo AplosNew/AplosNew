@@ -4230,7 +4230,6 @@ namespace Library.Service.FixedAssets
             var flag = false;
             try
             {
-                //DateTime? dt = fixedAssetDisposed.DocDate ;
                 _unitOfWork.BeginTransaction();
                 flag = true;
                 string TableName = "trn.FixedAssetRegisterDisposed";
