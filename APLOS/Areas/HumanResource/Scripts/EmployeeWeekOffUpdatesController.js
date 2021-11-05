@@ -173,12 +173,20 @@ function EmployeeWeekOffUpdatesController(commonMessage, $scope, $rootScope, bas
         angular.element(document.querySelector('#EmployeePop')).modal('hide');
     }
 
+   
+
     $scope.ProcessAttendance = function () {
         if ($scope.selectedValues.FromDate != null && $scope.EmpSelectedData != null) {
+            var EmpString = "''";
 
+            for (var j = 0; j < $scope.EmpSelectedData.length; j++) {
+             
+                EmpString+= ",'" + $scope.EmpSelectedData[j].EmpSystemId + "'";
+
+            }
             $http({
                 method: 'POST',
-                data: { EffectiveDate: $scope.selectedValues.FromDate, EmpData: $scope.EmpSelectedData },
+                data: { EffectiveDate: $scope.selectedValues.FromDate, EmpData: EmpString },
                 url: $scope.path + 'ProcessAttendance'
             }).then(function successCallback(response) {
 

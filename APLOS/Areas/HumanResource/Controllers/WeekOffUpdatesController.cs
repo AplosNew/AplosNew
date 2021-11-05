@@ -442,11 +442,13 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [Authorize, HttpPost]
-        public ActionResult ProcessAttendance(string EffectiveDate,DataModel data)
+        public ActionResult ProcessAttendance(string EffectiveDate,string EmpData)
         {
             try
             {
-                return Json(rs.ProcessAttendance(EffectiveDate,data), JsonRequestBehavior.AllowGet);
+                WeekOffUpdatesService rep = new WeekOffUpdatesService();
+                rep.ProcessAttendance(EffectiveDate, EmpData);
+                return Json(new { Error = false, Message = "Saved SuccessFully..." }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
