@@ -138,7 +138,7 @@ function EmployeeWeekOffUpdatesController(commonMessage, $scope, $rootScope, bas
         if ($scope.selectedValues.FromDate != null) {
 
             angular.element(document.querySelector("#EmployeePop")).modal("show");
-            $scope.getEmpDetailsData();
+            //$scope.getEmpDetailsData();
         }
         else {
             ShowResult("Please Select Effective Date", 'failure');
@@ -152,14 +152,6 @@ function EmployeeWeekOffUpdatesController(commonMessage, $scope, $rootScope, bas
             url: $scope.path + 'getDistinctEmployeesToBeProcessed'
         }).then(function successCallback(response) {
             $scope.EmployeeList = response.data;
-
-            //for (var j = 0; j < $scope.EmployeeList.length; j++) {
-            //    if ($scope.EmployeeList[j].EmpSystemId $scope.EmpSelectedData ) {
-
-            //        $scope.EmpSelectedData.push($scope.EmployeeList[j]);
-
-            //    }
-           // }
 
         });
     }
@@ -176,7 +168,10 @@ function EmployeeWeekOffUpdatesController(commonMessage, $scope, $rootScope, bas
             if ($scope.EmployeeList[j].isSelected == true) {
 
                 $scope.EmpSelectedData.push($scope.EmployeeList[j]);
-                
+                $scope.EmployeeList[j].isSelected = true;
+            }
+            else {
+                $scope.EmployeeList[j].isSelected = false;
             }
         }
         angular.element(document.querySelector('#EmployeePop')).modal('hide');
