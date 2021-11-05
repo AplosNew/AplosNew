@@ -86,7 +86,7 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label" style="margin-top:10px">Effective Date</label>
                             <div class="col-sm-8 show-message" style="margin-top:10px">
-                                <input type="text" id="Ddx" required name="Datex" ng-model="selectedValues.FromDate" datepicker class="form-control">
+                                <input type="text" id="Ddx" required name="Datex" ng-model="selectedValues.FromDate" ng-change="getEmpDetailsData()" datepicker class="form-control">
 
                             </div>
                         </div>

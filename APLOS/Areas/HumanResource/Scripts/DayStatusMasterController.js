@@ -33,7 +33,7 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
 
     getDayTypes();
 
-   
+    
 
     //*********************  Operations Staring for the Pages  ******************************\\
 
@@ -332,6 +332,7 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
         updateChild();
         $scope.getDaystatusChild();
         showTabs();
+        LoadLeaveDayType();
         
     }
 
@@ -384,6 +385,7 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
                     $scope.Child.HeaderId = response.data.Data.Id;
                     $scope.LeaveDt.HeaderId = response.data.Data.Id;
                     showTabs();
+                    LoadLeaveDayType();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -671,6 +673,7 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
             AttnBonusLeave: 0,
         };
         $scope.DayChild.HeaderId = $scope.Header.Id;
+        
     }
 
     $scope.DayTypeChildList = [];
@@ -696,7 +699,7 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
                 $scope.RespPerson = $scope.EmployeesList[i].EmployeeName;
             }
         }
-
+        LoadLeaveDayType();
         $scope.DayChild.OverStayLimit = String(e.data.OverStayLimit);
         $scope.DayChild.OTApplicable = String(e.data.OTApplicable);
         $scope.DayChild.GoodWorkApplicable = String(e.data.GoodWorkApplicable);
@@ -704,6 +707,10 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
         $scope.DayChild.OTCalculation = String(e.data.OTCalculation);
         $scope.DayChild.OTMultiplier = String(e.data.OTMultiplier);
         $scope.DayChild.OTHourLimit = String(e.data.OTHourLimit);
+        $scope.DayChild.ApplicableWM = String(e.data.ApplicableWM);
+        $scope.DayChild.OTConfirmation = String(e.data.OTConfirmation);
+        $scope.DayChild.DisplayInOutTime = String(e.data.DisplayInOutTime);
+
     }
 
     //Delete Day Status
@@ -983,8 +990,17 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
         angular.element(document.querySelector('#LeaveDayType')).modal('show');
     }
 
+    function LoadLeaveDayType () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getleaveDayTypes',
+            data: { 'DayTypeWithValuesId': $scope.DayChild.Id }
+        }).then(function succ(resp) {
+            $scope.LeaveList = [];
+            $scope.LeaveList = resp.data;
+        });
+    }
     
-
     //$scope.doubleLeaveDayType = function (e) {
     //    $scope.LeaveDt.DayTypeWithValue = e.data.DayType;
     //    $scope.LeaveDt.DayTypeWithValuesId = e.data.Id;
