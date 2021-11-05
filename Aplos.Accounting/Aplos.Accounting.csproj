@@ -65,6 +65,7 @@
     <Reference Include="Syncfusion.OfficeChartToImageConverter.WPF">
       <HintPath>..\APLOS\Library\Syncfusion.OfficeChartToImageConverter.WPF.dll</HintPath>
     </Reference>
+    <Reference Include="Syncfusion.Pdf.Base, Version=18.1450.0.52, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89" />
     <Reference Include="Syncfusion.XlsIO.Base">
       <HintPath>..\APLOS\Library\Syncfusion.XlsIO.Base.dll</HintPath>
     </Reference>

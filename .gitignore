@@ -375,3 +375,6 @@ FodyWeavers.xsd
 /APLOS/POPResources/Templates
 /APLOS/POPResources/EmployeeProfiles/EmpPic
 /APLOS/POPResources/Output
+
+#git tracking issue
+.opendb

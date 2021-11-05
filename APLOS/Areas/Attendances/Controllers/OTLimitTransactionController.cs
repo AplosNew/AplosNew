@@ -511,10 +511,11 @@ namespace Aplos.Areas.Attendances.Controllers
                             o.IsManualOutTime = Convert.ToBoolean(dv[i]["IsManualOutTime"].ToString());
                             o.ManualOutTime = dv[i]["ManualOutTime"].ToString();
 
-                            double TimeToReduce = (double)(((NewOT + ExtraOT) / OTreductionFactor) - NewOT);
-                            if (string.IsNullOrEmpty(o.NewOutTime) == false)
+                            if (o.NewOutTime != "")
                             {
-                            o.NewOutTime = Convert.ToDateTime(o.NewOutTime).AddMinutes(TimeToReduce * -1).ToString("dd-MMM-yyyy hh:mm:ss tt");
+                                double TimeToReduce = (double)(((NewOT + ExtraOT) / OTreductionFactor) - NewOT);
+                                o.NewOutTime = Convert.ToDateTime(o.NewOutTime).AddMinutes(TimeToReduce * -1).ToString("dd-MMM-yyyy hh:mm:ss tt");
+                            }
 
                             }
 
@@ -1183,10 +1184,12 @@ namespace Aplos.Areas.Attendances.Controllers
                         {
                             drAttProc = dicAttProc[Key];// dvAttProc[0].Row;
                             drAttProc.BeginEdit();
-
-                            drAttProc["OutTime"] = Convert.ToDateTime(OTLimitTransactionData[i].NewOutTime);
-                            drAttProc["IsManualOutTime"] = true;
-                            drAttProc["ManualOutTime"] = Convert.ToDateTime(OTLimitTransactionData[i].NewOutTime);
+                            if (bplib.clsWebLib.RetValidLen(OTLimitTransactionData[i].NewOutTime).ToString() != "")
+                            {
+                                drAttProc["OutTime"] = Convert.ToDateTime(OTLimitTransactionData[i].NewOutTime);
+                                drAttProc["IsManualOutTime"] = true;
+                                drAttProc["ManualOutTime"] = Convert.ToDateTime(OTLimitTransactionData[i].NewOutTime);
+                            } 
                             drAttProc["OTHr"] = Convert.ToDecimal(OTLimitTransactionData[i].OT);
 
                             drAttProc["IsOTComfirm"] = true;
@@ -1216,66 +1219,71 @@ namespace Aplos.Areas.Attendances.Controllers
                             objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "HourlyOT", out sID);
                             sID = "OX" + sID;
                         }
-                        DataRow dr = dsHourlyOTData.Tables[0].NewRow();
-                        dr["Id"] = sID + "-" + (i + 1).ToString();
-                        dr["EmpSystemId"] = OTLimitTransactionData[i].EmpSystemId;
-                        //dr["FromDate"] = AttendanceProcessData[i].ExtraOTInTime;
-                        dr["FromDate"] = OTLimitTransactionData[i].InTime;
-                        dr["ToDate"] = OTLimitTransactionData[i].OutTime;
-                        dr["Duration"] = OTLimitTransactionData[i].ExtraOT;
-                        dr["WorkDate"] = Convert.ToDateTime(OTLimitTransactionData[i].WorkDate);
-
-                        dr["IsManualInTime"] = OTLimitTransactionData[i].IsManualInTime;
-                        if (OTLimitTransactionData[i].IsManualInTime)
+                        if (bplib.clsWebLib.RetValidLen(OTLimitTransactionData[i].OutTime).ToString() != "")
                         {
-                            dr["ManualInTime"] = bplib.clsWebLib.RetValidLen(clsStaticInfo.GetDateTime(OTLimitTransactionData[i].ManualInTime));
+                            DataRow dr = dsHourlyOTData.Tables[0].NewRow();
+                            dr["Id"] = sID + "-" + (i + 1).ToString();
+                            dr["EmpSystemId"] = OTLimitTransactionData[i].EmpSystemId;
+                            //dr["FromDate"] = AttendanceProcessData[i].ExtraOTInTime;
+                            dr["FromDate"] = OTLimitTransactionData[i].InTime;
+                            dr["ToDate"] = OTLimitTransactionData[i].OutTime;
+                            dr["Duration"] = OTLimitTransactionData[i].ExtraOT;
+                            dr["WorkDate"] = Convert.ToDateTime(OTLimitTransactionData[i].WorkDate);
+
+                            dr["IsManualInTime"] = OTLimitTransactionData[i].IsManualInTime;
+                            if (OTLimitTransactionData[i].IsManualInTime)
+                            {
+                                dr["ManualInTime"] = bplib.clsWebLib.RetValidLen(clsStaticInfo.GetDateTime(OTLimitTransactionData[i].ManualInTime));
+                            }
+                            dr["IsManualOutTime"] = OTLimitTransactionData[i].IsManualOutTime;
+                            if (OTLimitTransactionData[i].IsManualOutTime)
+                            {
+                                dr["ManualOutTime"] = bplib.clsWebLib.RetValidLen(clsStaticInfo.GetDateTime(OTLimitTransactionData[i].ManualOutTime));
+                            }
+
+
+                            dr["PlantId"] = identity.PlantId;
+                            dr["AddedBy"] = identity.Name;
+                            dr["AddedDate"] = DateTime.Now;
+                            dr["AddedFromIP"] = identity.IPAddress;
+                            dr["UpdatedBy"] = identity.Name;
+                            dr["UpdatedDate"] = DateTime.Now;
+                            dr["UpdatedFromIP"] = identity.IPAddress;
+                            dr["OTType"] = "OTLIMIT";
+                            dsHourlyOTData.Tables[0].Rows.Add(dr);
                         }
-                        dr["IsManualOutTime"] = OTLimitTransactionData[i].IsManualOutTime;
-                        if (OTLimitTransactionData[i].IsManualOutTime)
-                        {
-                            dr["ManualOutTime"] = bplib.clsWebLib.RetValidLen(clsStaticInfo.GetDateTime(OTLimitTransactionData[i].ManualOutTime));
-                        }
-
-
-                        dr["PlantId"] = identity.PlantId;
-                        dr["AddedBy"] = identity.Name;
-                        dr["AddedDate"] = DateTime.Now;
-                        dr["AddedFromIP"] = identity.IPAddress;
-                        dr["UpdatedBy"] = identity.Name;
-                        dr["UpdatedDate"] = DateTime.Now;
-                        dr["UpdatedFromIP"] = identity.IPAddress;
-                        dr["OTType"] = "OTLIMIT";
-                        dsHourlyOTData.Tables[0].Rows.Add(dr);
-
                     }
                     else
                     {
-                        DataRow dr = dicHourlyOTData[Key];// DvHourlyOTData[0].Row;
-                        dr.BeginEdit();
-                        dr["EmpSystemId"] = OTLimitTransactionData[i].EmpSystemId;
-                        //dr["FromDate"] = AttendanceProcessData[i].ExtraOTInTime;
-                        //dr["FromDate"] = RandomOutTime;
-                        //dr["ToDate"] = ExtraOTOutTime;
-                        dr["FromDate"] = OTLimitTransactionData[i].InTime;
-                        dr["ToDate"] = OTLimitTransactionData[i].OutTime;
-                        dr["Duration"] = OTLimitTransactionData[i].ExtraOT;
-                        dr["WorkDate"] = Convert.ToDateTime(OTLimitTransactionData[i].WorkDate);
-                        dr["IsManualInTime"] = OTLimitTransactionData[i].IsManualInTime;
-                        if (OTLimitTransactionData[i].IsManualInTime)
+                        if (bplib.clsWebLib.RetValidLen(OTLimitTransactionData[i].OutTime).ToString() != "")
                         {
-                            dr["ManualInTime"] = bplib.clsWebLib.RetValidLen(clsStaticInfo.GetDateTime(OTLimitTransactionData[i].ManualInTime));
+                            DataRow dr = dicHourlyOTData[Key];// DvHourlyOTData[0].Row;
+                            dr.BeginEdit();
+                            dr["EmpSystemId"] = OTLimitTransactionData[i].EmpSystemId;
+                            //dr["FromDate"] = AttendanceProcessData[i].ExtraOTInTime;
+                            //dr["FromDate"] = RandomOutTime;
+                            //dr["ToDate"] = ExtraOTOutTime;
+                            dr["FromDate"] = OTLimitTransactionData[i].InTime;
+                            dr["ToDate"] = OTLimitTransactionData[i].OutTime;
+                            dr["Duration"] = OTLimitTransactionData[i].ExtraOT;
+                            dr["WorkDate"] = Convert.ToDateTime(OTLimitTransactionData[i].WorkDate);
+                            dr["IsManualInTime"] = OTLimitTransactionData[i].IsManualInTime;
+                            if (OTLimitTransactionData[i].IsManualInTime)
+                            {
+                                dr["ManualInTime"] = bplib.clsWebLib.RetValidLen(clsStaticInfo.GetDateTime(OTLimitTransactionData[i].ManualInTime));
+                            }
+                            dr["IsManualOutTime"] = OTLimitTransactionData[i].IsManualOutTime;
+                            if (OTLimitTransactionData[i].IsManualOutTime)
+                            {
+                                dr["ManualOutTime"] = bplib.clsWebLib.RetValidLen(clsStaticInfo.GetDateTime(OTLimitTransactionData[i].ManualOutTime));
+                            }
+                            dr["PlantId"] = identity.PlantId;
+                            dr["UpdatedBy"] = identity.Name;
+                            dr["UpdatedDate"] = DateTime.Now;
+                            dr["UpdatedFromIP"] = identity.IPAddress;
+                            dr["OTType"] = "OTLIMIT";
+                            dr.EndEdit();
                         }
-                        dr["IsManualOutTime"] = OTLimitTransactionData[i].IsManualOutTime;
-                        if (OTLimitTransactionData[i].IsManualOutTime)
-                        {
-                            dr["ManualOutTime"] = bplib.clsWebLib.RetValidLen(clsStaticInfo.GetDateTime(OTLimitTransactionData[i].ManualOutTime));
-                        }
-                        dr["PlantId"] = identity.PlantId;
-                        dr["UpdatedBy"] = identity.Name;
-                        dr["UpdatedDate"] = DateTime.Now;
-                        dr["UpdatedFromIP"] = identity.IPAddress;
-                        dr["OTType"] = "OTLIMIT";
-                        dr.EndEdit();
                     }
 
                     #endregion
