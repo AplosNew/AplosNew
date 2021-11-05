@@ -193,8 +193,13 @@ function EmployeeWeekOffUpdatesController(commonMessage, $scope, $rootScope, bas
                 data: { EffectiveDate: $scope.selectedValues.FromDate, EmpData: EmpString },
                 url: $scope.path + 'ProcessAttendance'
             }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+                }
+                else {
 
-                ShowResult("Saved Successfully ...", 'success');
+                    ShowResult("Saved Successfully ...", 'success');
+                }
             });
         }
         else {
