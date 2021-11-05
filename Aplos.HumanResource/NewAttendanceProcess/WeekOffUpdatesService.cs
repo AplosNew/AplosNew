@@ -277,7 +277,7 @@ left join dbo.EmployeeInformation ei on ei.SystemId = ew.EmpSystemId
             }
         }
 
-        public string ProcessAttendance(string EffectiveDate)
+        public string ProcessAttendance(string EffectiveDate,DataModel data)
         {
             try
             {
@@ -548,5 +548,10 @@ left join dbo.EmployeeInformation ei on ei.SystemId = ew.EmpSystemId
         }
 
 
+    }
+
+    public class DataModel
+    {
+        string EmpSystemId { get; set; }
     }
 }
