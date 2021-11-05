@@ -280,7 +280,7 @@ left join dbo.EmployeeInformation ei on ei.SystemId = ew.EmpSystemId
             }
         }
 
-        public void ProcessAttendance(string EffectiveDate,string data)
+        public string ProcessAttendance(string EffectiveDate,string data)
         {
             try
             {
@@ -293,17 +293,17 @@ left join dbo.EmployeeInformation ei on ei.SystemId = ew.EmpSystemId
                 DataSet PlantLock;
                     string FD = EffectiveDate;
                     string TD = DateTime.Now.ToString("yyyy-MM-dd");
-                    //PlantLockCheck(FD, TD, out PlantLock, identity.PlantId);
-                    //string pl = "";
-                    //if (PlantLock.Tables[0].Rows.Count > 0)
-                    //{
-                    //    for (var i = 0; i < PlantLock.Tables[0].Rows.Count; i++)
-                    //    {
-                    //        pl = pl + " " + PlantLock.Tables[0].Rows[i]["LockedDate"].ToString() + ", ";
-                    //    }
-
-                    //    throw new Exception("The Plant is Locked for - " + pl);
-                    //}
+                PlantLockCheck(FD, TD, out PlantLock, identity.PlantId);
+                string pl = "";
+                if (PlantLock.Tables[0].Rows.Count > 0)
+                {
+                    for (var i = 0; i < PlantLock.Tables[0].Rows.Count; i++)
+                    {
+                        pl = pl + " " + PlantLock.Tables[0].Rows[i]["LockedDate"].ToString() + ", ";
+                    }
+                    return "The Plant is Locked for - " + pl;
+                   
+                }
                 #endregion
 
                 string GettingRows = @"Select jj.* ,  (Select wcc.DayType from
@@ -380,9 +380,10 @@ left join dbo.EmployeeInformation ei on ei.SystemId = ew.EmpSystemId
 
                     NewAttendanceProcessService ap = new NewAttendanceProcessService();
                     ap.ManualScheduler(identity.PlantId, RowMaster);
-
+                   
                     #endregion
                 }
+                return "true";
             }
             catch (Exception ex)
             {

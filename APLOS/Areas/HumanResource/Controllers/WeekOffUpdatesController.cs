@@ -447,8 +447,14 @@ namespace Aplos.Areas.HumanResource.Controllers
             try
             {
                 WeekOffUpdatesService rep = new WeekOffUpdatesService();
-                rep.ProcessAttendance(EffectiveDate, EmpData);
+                string result = rep.ProcessAttendance(EffectiveDate, EmpData);
+                if (result != "true")
+                {
+                    return Json(new { Error = true, Message = result }, JsonRequestBehavior.AllowGet);
+
+                }
                 return Json(new { Error = false, Message = "Saved SuccessFully..." }, JsonRequestBehavior.AllowGet);
+
             }
             catch (Exception ex)
             {
