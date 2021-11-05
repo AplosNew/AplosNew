@@ -515,18 +515,12 @@ namespace Aplos.Areas.Attendances.Controllers
                             {
                                 double TimeToReduce = (double)(((NewOT + ExtraOT) / OTreductionFactor) - NewOT);
                                 o.NewOutTime = Convert.ToDateTime(o.NewOutTime).AddMinutes(TimeToReduce * -1).ToString("dd-MMM-yyyy hh:mm:ss tt");
-                            }
-
-                            }
+                            }                           
 
                             o.TotalOT = DailyOT;
                             o.OT = NewOT;
                             o.ExtraOT = ExtraOT;
                             oOTLimitTransaction.Add(o);
-
-
-
-
 
                         }
                     }
