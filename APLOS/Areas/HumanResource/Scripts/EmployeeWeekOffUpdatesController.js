@@ -152,6 +152,15 @@ function EmployeeWeekOffUpdatesController(commonMessage, $scope, $rootScope, bas
             url: $scope.path + 'getDistinctEmployeesToBeProcessed'
         }).then(function successCallback(response) {
             $scope.EmployeeList = response.data;
+
+            //for (var j = 0; j < $scope.EmployeeList.length; j++) {
+            //    if ($scope.EmployeeList[j].EmpSystemId $scope.EmpSelectedData ) {
+
+            //        $scope.EmpSelectedData.push($scope.EmployeeList[j]);
+
+            //    }
+           // }
+
         });
     }
 
@@ -162,12 +171,12 @@ function EmployeeWeekOffUpdatesController(commonMessage, $scope, $rootScope, bas
 
     $scope.EmpSelectedData = [];
     $scope.SelectEmPDetails = function () {
-       
+        $scope.EmpSelectedData = [];
         for (var j = 0; j < $scope.EmployeeList.length; j++) {
             if ($scope.EmployeeList[j].isSelected == true) {
 
                 $scope.EmpSelectedData.push($scope.EmployeeList[j]);
-                            
+                
             }
         }
         angular.element(document.querySelector('#EmployeePop')).modal('hide');
