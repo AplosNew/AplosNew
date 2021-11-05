@@ -500,12 +500,8 @@ namespace Aplos.Areas.Attendances.Controllers
                             o.ShiftName = dv[i]["ShiftName"].ToString();
 
 
-
-
-
                             o.IsManualInTime = Convert.ToBoolean(dv[i]["IsManualInTime"].ToString());
                             o.ManualInTime = dv[i]["ManualInTime"].ToString();
-
 
 
                             o.IsManualOutTime = Convert.ToBoolean(dv[i]["IsManualOutTime"].ToString());
