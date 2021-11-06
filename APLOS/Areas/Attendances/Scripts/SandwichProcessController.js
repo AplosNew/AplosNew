@@ -1,15 +1,9 @@
 ﻿'use strict';
-YearPresentDaysSummaryController.$inject = ['$window','cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function YearPresentDaysSummaryController($window,cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+SandwichProcessController.$inject = ['$window','cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
+function SandwichProcessController($window,cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
     $rootScope.title = 'Additional Pay Day';
-    $scope.path = 'Attendances/YearPresentDaysSummary/';
-    $scope.getListUrl = $scope.path + 'getlist';
-    $scope.saveUrl = $scope.path + 'SaveD';
-    $scope.saveLeaveUrl = $scope.path + 'SaveLeave';
-    $scope.saveMUrl = $scope.path + 'SaveM';
-    $scope.deleteUrl = $scope.path + 'DeleteDetails/';
-
-
+    $scope.path = 'Attendances/SandwichProcess/';
+   
     $scope.monthList = [
         {
             Value: 1,

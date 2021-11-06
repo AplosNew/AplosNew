@@ -13,11 +13,11 @@ using System.Threading.Tasks;
 
 namespace Library.HumanResource.NewAttendanceProcess
 {
-    public class YearPresentDaysSummaryService
+    public class SandwichProcessService
     {
 
         ISqlRepository _sqlRepository;
-        public YearPresentDaysSummaryService()
+        public SandwichProcessService()
         {
             _sqlRepository = new SqlRepository();
         }

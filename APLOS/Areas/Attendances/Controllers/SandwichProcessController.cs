@@ -1,31 +1,19 @@
 ﻿#region Using
 using Aplos.Controllers;
-using Library.Model.Employees;
-using Aplos.Properties;
-using Library.Service.Employees;
-using Library.Core;
 using System.Web.Mvc;
-using Library.Crosscutting.Security;
-using System.Threading;
-using Library.Data.Sql;
-using System;
-using System.Data;
-using OTSBD;
-using clsAttendance;
-using System.Collections.Generic;
 using Library.HumanResource.NewAttendanceProcess;
 
 #endregion
 
 namespace Aplos.Areas.Attendances.Controllers
 {
-    public class YearPresentDaysSummaryController : BaseController
+    public class SandwichProcessController : BaseController
     {
         #region Constructor
 
-        YearPresentDaysSummaryService ss = new YearPresentDaysSummaryService();
+        SandwichProcessService ss = new SandwichProcessService();
 
-        public YearPresentDaysSummaryController(
+        public SandwichProcessController(
             )
         {
         }
