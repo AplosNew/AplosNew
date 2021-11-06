@@ -394,5 +394,9 @@ function AccessControllerConfig($routeProvider, $locationProvider, $windowProvid
             templateUrl: 'Attendances/AttendanceDashboard/Aplos',
             controller: 'AttendanceDashboardController'
         })
+        .when('/year-present-days-summary', {
+            templateUrl: 'Attendances/YearPresentDaysSummary/Aplos',
+            controller: 'YearPresentDaysSummaryController'
+        })
         ;
 } 
