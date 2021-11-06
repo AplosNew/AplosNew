@@ -2,16 +2,16 @@
 
     <div class="col-xs-12">
         <div class="col-xs-4"><h3 class="site-heading"><span class="glyphicon glyphicon-file"></span>Sandwich Process</h3></div>
-        <div class="col-md-8">
+        <div class="col-md-8" ng-form name="SandwichForm">
             <div class="col-md-12">
                 <div class="col-xs-4 col-sm-4 col-md-4">
                     <div class="col-md-12">
-                        <input id="ddlYearList" e-watermarktext="Year" ej-dropdownlist e-datasource="yearList" e-enablefiltersearch="true" e-value="year" e-databound="SelectDefaultValue" e-fields-value="Text" e-fields-text="Text" e-width="100%" e-change="empGridShow" />
+                        <input id="ddlYearList" e-watermarktext="Year" required ej-dropdownlist e-datasource="yearList" e-enablefiltersearch="true" e-value="year" e-databound="SelectDefaultValue" e-fields-value="Text" e-fields-text="Text" e-width="100%" e-change="empGridShow" />
                     </div>
                 </div>
                 <div class="col-xs-4 col-sm-4 col-md-4">
                     <div class="col-md-12">
-                        <input id="ddlMonthList" e-watermarktext="Month" ej-dropdownlist e-datasource="monthList" e-value="month" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-change="empGridShow" />
+                        <input id="ddlMonthList" e-watermarktext="Month" required ej-dropdownlist e-datasource="monthList" e-value="month" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-change="empGridShow" />
                     </div>
                 </div>
                 <div class="col-xs- col-sm-1 col-md-1">

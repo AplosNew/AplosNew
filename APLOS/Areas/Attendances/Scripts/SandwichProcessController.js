@@ -66,16 +66,22 @@ function SandwichProcessController($window,cboService, commonMessage, $scope, $r
     $scope.EmpList = [];
 
     $scope.GetEmployeeInformation = function () {
-        $http({
-            method: "POST",
-            dataType: 'JSON',
-            data: { 'month': $scope.month, 'year': $scope.year },
-            url: $scope.path + 'GetEmployeeInformation'
+        if ($scope.SandwichForm.$valid) {
 
-        }).then(function successCallback(response) {
-            $scope.EmpList = [];
-            $scope.EmpList = response.data;
+            $http({
+                method: "POST",
+                dataType: 'JSON',
+                data: { 'month': $scope.month, 'year': $scope.year },
+                url: $scope.path + 'GetEmployeeInformation'
 
-        });
+            }).then(function successCallback(response) {
+                $scope.EmpList = [];
+                $scope.EmpList = response.data;
+
+            });
+        }
+        else {
+
+        }
     }
 }
