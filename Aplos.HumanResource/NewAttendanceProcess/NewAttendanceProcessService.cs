@@ -5050,6 +5050,23 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     objCone.ExecuteNonQueryWrapper(sql, true, "1");
                     objCone.CommitTransaction();
                 }
+                else
+                {
+                    var sql = @"update AttdnProcessData set Duration=null,earlyin=null,latein=null,LateOut=null,
+                    earlyout=null,OverStay=null,UnderStay=null,DurationStatus=null,EarlyLateIn=null,EarlyLateOut=null,
+                    DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0,IsLock=0,ProcessFinalDayStatus=null,LockedBy=null,
+                    LockedDate=null 
+                    where PlantID='" + Plant + @"'
+                    and ManualFlag=1";
+
+                    ConnectionManager.DAL.ConManager objCone = null;
+                    objCone = new ConnectionManager.DAL.ConManager("1");
+                    objCone.OpenConnection("1");
+                    objCone.BeginTransaction();
+
+                    objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                    objCone.CommitTransaction();
+                }
                
             }
             catch (Exception ex)
