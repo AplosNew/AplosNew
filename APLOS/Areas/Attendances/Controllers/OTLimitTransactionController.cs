@@ -218,7 +218,10 @@ namespace Aplos.Areas.Attendances.Controllers
             return json;
         }
 
+        #region ProcessedOT
 
+     
+        #endregion ProcessedOT
 
         [HttpPost]
         public ActionResult SaveOTLimitOverlapData(string YearNo, string MonthNo, string OTLimitSettingId, string[] EmpSystemIds)
@@ -302,6 +305,9 @@ namespace Aplos.Areas.Attendances.Controllers
 
             //Process data to generate final IN/OUT data (based on punch and manual data)
             FinalInOut(FromDate, ToDate, EmpSytemId);
+
+            //process ProcessedOT based on Final IN/OUT
+            ProcessForProcessedOT(EmpSytemId);
 
             //get OT data after rollback and IN/OUT Process
             DataSet dsOTDetails = null;
@@ -639,7 +645,8 @@ namespace Aplos.Areas.Attendances.Controllers
                 strSql = @"UPDATE AttdnProcessData SET ManualInTime = OriginalManualInTime,
                             IsManualInTime = CASE WHEN ISNULL(OriginalManualInTime,'')<>'' THEN 1 ELSE 0 END,
                             ManualOutTime = OriginalManualOutTime,
-                            IsManualOutTime = CASE WHEN ISNULL(OriginalManualOutTime,'')<>'' THEN 1 ELSE 0 END
+                            IsManualOutTime = CASE WHEN ISNULL(OriginalManualOutTime,'')<>'' THEN 1 ELSE 0 END,
+                            ManualFlag=1
                             WHERE WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' AND EmpSystemID IN (" + EmpSystemId + @")";
 
                 ConnectionManager.clsConnection _con = new ConnectionManager.clsConnection();
@@ -671,6 +678,26 @@ namespace Aplos.Areas.Attendances.Controllers
 
                 objCone.ExecuteNonQueryWrapper(sql, true, "1");
                 objCone.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public void ProcessForProcessedOT(string EmpSystemId)
+        {
+            try
+            {
+                var sql = @"SELECT DISTINCT PlantId FROM EmployeeInformation AS ei WHERE ei.SystemID IN (" + EmpSystemId + @")";
+
+                ConnectionManager.clsConnection _con = new ConnectionManager.clsConnection();
+                _con.getDataSet(sql, out DataSet dsRef);
+
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    NewAttendanceProcessService _service = new NewAttendanceProcessService();
+                    _service.ManualScheduler(dsRef.Tables[0].Rows[i]["PlantId"].ToString());
+                }
             }
             catch (Exception ex)
             {
