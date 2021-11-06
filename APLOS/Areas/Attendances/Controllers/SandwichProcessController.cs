@@ -20,7 +20,6 @@ namespace Aplos.Areas.Attendances.Controllers
         #endregion
 
         #region -- Pages
-        [Authorize]
         public ActionResult Aplos()
         {
             return View();
@@ -29,6 +28,14 @@ namespace Aplos.Areas.Attendances.Controllers
 
         [HttpPost, Authorize]
         public ActionResult GetEmployeeInformation(string month , string year)
+        {
+            var jsondata = Json(ss.GetEmployeeInformation(month, year), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult Process(string month, string year)
         {
             var jsondata = Json(ss.GetEmployeeInformation(month, year), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;

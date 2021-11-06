@@ -1,7 +1,7 @@
 ﻿'use strict';
 SandwichProcessController.$inject = ['$window','cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function SandwichProcessController($window,cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'Additional Pay Day';
+    $rootScope.title = 'Sandwich Process';
     $scope.path = 'Attendances/SandwichProcess/';
    
     $scope.monthList = [
