@@ -29,7 +29,7 @@
 <br />
 <div class="row">
     <div id="PresentId" ej-grid e-datasource="EmpList" e-templaterefresh="refreshTemplate"
-          e-allowpaging="true"  e-enabletouch="true" e-responsive="true"
+          e-allowpaging="true"  e-enabletouch="true" e-responsive="true" e-allowfiltering="true" e-filtersettings-filterType="excel"
          e-allowselection="true"  e-allowtextwrap="true" e-allowscrolling="true" style="margin-top:30px;">
         <div e-columns>
             <div e-column e-field="EmployeeCode" e-type="string" e-headertext="EmployeeCode" e-width="80"></div>
@@ -44,5 +44,11 @@
     </div>
 
 </div>
-
+<div class="row">
+    <div class="common-btn" style="margin: 10px; margin-top:5px;">
+        <ul class="list-inline text-left">
+            <li><button ng-click="RunProcess();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> Process </button></li>
+        </ul>
+    </div>
+</div>
 
