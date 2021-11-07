@@ -56,7 +56,7 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
                 url: 'OrderManagements/BOMMaster/GetBOMSKUMappingDataForValidation?BOMMasterId=' + $scope.bomNew.Id
             }).then(function successCallback(response) {
                 if (baseService.arrayLength(response.data) > 0 && $scope.FGMId !== ob.Id) {
-                    ShowResult("As this Finish Goods has Matrix level SKU, so Finish Goods change is not acceptable.",'failure');
+                    ShowResult("As this Finish Goods has Matrix level SKU, so Finish Goods change is not acceptable.", 'failure');
                 }
                 else {
                     $scope.bomNew.FGMaterialMasterId = ob.Id;
@@ -307,7 +307,17 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
     $scope.SelectedBOMRow = {};
     $scope.SelectedBOMRowForCopy = function (data) {
         $scope.SelectedBOMRow = data;
+
+        var eDialog = $("#confirmBOMCopy").data("ejDialog");
+        eDialog.open();
+        $("#dialogAPI_wrapper").css({ 'position': 'fixed' }).css({ 'top': '200px' });
     }
+
+    $scope.ConfirmSavePopUpClose = function () {
+        var eDialog = $("#confirmBOMCopy").data("ejDialog");
+        eDialog.close();
+    };
+
     $scope.CopyBOM = function () {
         $http({
             method: 'POST',
@@ -326,6 +336,26 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
             }
         });
     }
+
+    $scope.CopyBOMWithoutSKU = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'CopyBOMWithoutSKU?Id=' + $scope.SelectedBOMRow.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getmasterData();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
+
     $scope.Delete = function () {
         if (!baseService.isUndefinedOrNull($scope.bomNew.Id)) {
             $http({
@@ -348,13 +378,12 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
         }
     };
 
-    $scope.closePartyPopUp = function () {
-        if ($scope.partyIndex !== -1) {
-            var party = $scope.partyList[$scope.partyIndex];
-            $scope.bomDetailNew.VendorId = party.Id;
-            $scope.bomDetailNew.PartyCode = party.Code;
-            $scope.bomDetailNew.PartyName = party.UserName;
-        }
+    $scope.closePartyPopUp = function (x) {
+        var party = x.data;
+        $scope.bomDetailNew.VendorId = party.Id;
+        $scope.bomDetailNew.PartyCode = party.Code;
+        $scope.bomDetailNew.PartyName = party.UserName;
+
         $scope.hidePartyPopUp();
     };
 
