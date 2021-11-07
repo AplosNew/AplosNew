@@ -1158,7 +1158,6 @@ namespace Library.Accounting.FixedAssets
                                     LEFT JOIN TRN.FixedAssetRegisterDisposed FAD ON FAD.Id=FARD.FixedAssetRegisterDisposedId
 	                                LEFT JOIN HKP.Party Customer ON Customer.Id = FAD.PartyId
                                     LEFT JOIN SCS.Currency CU ON CU.Id =FAD.CurrencyId
-
                                
                                    WHERE FR.CompanyId= '" + identity.CompanyId + @"'  and FR.Archive= 0 and FR.IsAUC= 0 
                                     AND FARD.FixedAssetRegisterDisposedId='" + fixedAssetRegisterDisposeId + @"'";
