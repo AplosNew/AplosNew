@@ -148,7 +148,7 @@
                             <th>Material</th>
                             <th>Article</th>
                             <th>Fixed Asset Master</th>
-                            <th>Purchase Date</th>
+                            <th>Invoice Date</th>
                             <th>Capitalization Date</th>
                             <th class="text-center">FA Base Amount</th>
                             <th class="text-center">Base Sub Asset</th>
@@ -200,13 +200,13 @@
                     <tfoot>
                         <tr>
                             <td colspan="7" class="text-right">Total</td>
-                            <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'FABaseAmount' }}</b></td>
-                            <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'SubAssetBaseAmount' }}</b></td>
-                            <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'PurchaseBaseAmount' }}</b></td>
-                            <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'ADBaseAmount' }}</b></td>
-                            <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'NetBaseBookValue' }}</b></td>
-                            <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'NegotiationValue' }}</b></td>
-                            <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'BaseNagotiationValue' }}</b></td>
+                            <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'FABaseAmount' | number:2}}</b></td>
+                            <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'SubAssetBaseAmount'| number:2 }}</b></td>
+                            <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'PurchaseBaseAmount'| number:2 }}</b></td>
+                            <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'ADBaseAmount'| number:2 }}</b></td>
+                            <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'NetBaseBookValue'| number:2 }}</b></td>
+                            <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'NegotiationValue'| number:2 }}</b></td>
+                            <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'BaseNagotiationValue'| number:2 }}</b></td>
                             @*<td></td>*@
                         </tr>
                     </tfoot>
@@ -270,21 +270,17 @@
             <div e-column e-field="NetBaseBookValue" e-headertext="Net Base Amount" e-width="80"></div>
             @*<div e-column e-field="NetBookValue" e-headertext="Net Amount" e-width="80"></div>*@
             @*<div e-column e-field="IsOBBalance" e-headertext="OB" e-width="40"></div>*@
-            <div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="70"></div>
+            <div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="50"></div>
         </div>
         <script type="text/template" id="ShowActionButtonsBOM">
 
             <ul class="common-btn list-inline text-left">
                 <li>
-                    <div ej-tooltip e-showshadow="true" e-content="Excel" ng-click="$parent.onClickExcelPrints(this);" e-width="width">
+                    <div ej-tooltip e-showshadow="true" e-content="Detail" ng-click="$parent.onClickExcelPrints(this);" e-width="width">
                         <button class="btn" style="background-color: #1c1f32;"><i class="fa fa-file-excel-o"></i></button>
                     </div>
                 </li>
-                <li>
-                    <div ej-tooltip e-showshadow="true" e-content="Pdf" ng-click="$parent.onClickPdfPrints(this);" e-width="width">
-                        <button class="btn" style="background-color: #1c1f32;"><i class="fa fa-file-pdf-o"></i></button>
-                    </div>
-                </li>
+                
             </ul>
 
         </script>
