@@ -454,6 +454,7 @@
     <Compile Include="Areas\Attendances\Controllers\OTManagementController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AttendanceBonusPolicyController.cs" />
     <Compile Include="Areas\Attendances\Controllers\ShiftTimeChangeController.cs" />
+    <Compile Include="Areas\Attendances\Controllers\SandwichProcessController.cs" />
     <Compile Include="Areas\Biometric\BiometricAreaRegistration.cs" />
     <Compile Include="Areas\Biometric\Controllers\AttendanceDeviceZoneController.cs" />
     <Compile Include="Areas\Commercial\CommercialAreaRegistration.cs" />
@@ -1708,6 +1709,7 @@
     <Content Include="Areas\Attendances\Scripts\ShiftRosterCreationController.js" />
     <Content Include="Areas\Attendances\Scripts\attendanceBonusPolicyController.js" />
     <Content Include="Areas\Attendances\Scripts\shiftTimeChangeController.js" />
+    <Content Include="Areas\Attendances\Scripts\SandwichProcessController.js" />
     <Content Include="Areas\Banks\Scripts\bankSheetGenerationController.js" />
     <Content Include="Areas\Banks\Scripts\bankReconcileReportController.js" />
     <Content Include="Areas\Attendances\Scripts\OTManagementController.js" />
@@ -3813,6 +3815,7 @@
     <Content Include="Areas\Attendances\Views\AttendanceRawDataDeleteNew\Aplos.cshtml" />
     <Content Include="Areas\JobWork\Views\OSIssueRegister\Aplos.cshtml" />
     <Content Include="Areas\JobWork\Views\OSIssueRegister\IssueReturnRegister.cshtml" />
+    <Content Include="Areas\Attendances\Views\SandwichProcess\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

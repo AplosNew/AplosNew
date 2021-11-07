@@ -55,7 +55,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         //#region -- Operations
 
-        
+
 
         [HttpGet, Authorize]
         public ActionResult getCurrentList()
@@ -69,11 +69,11 @@ namespace Aplos.Areas.HumanResource.Controllers
         //The Getting of Sample Report
 
         [HttpPost, Authorize]
-        public ActionResult SaveFileList(List<Dictionary<string,object>>data )
+        public ActionResult SaveFileList(List<Dictionary<string, object>> data)
         {
             try
             {
-                 rs.SaveFileList(data );
+                rs.SaveFileList(data);
                 return Json(new { Error = false, Data = data, Message = AplosMessage.Success });
             }
             catch (Exception ex)
@@ -84,12 +84,12 @@ namespace Aplos.Areas.HumanResource.Controllers
 
 
         [HttpGet, Authorize]
-        public ActionResult GetSampleReport(ReportFormat reportFormat )
+        public ActionResult GetSampleReport(ReportFormat reportFormat)
         {
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string date = DateTime.Now.Date.ToString("dd-MMM");//.Substring(0, DateTime.Now.Date.ToString().Length - 12);
-            var reportFileName = "EmployeeWeeklyOff-"+date;
+            var reportFileName = "EmployeeWeeklyOff-" + date;
             var workbook = GetEmployeeWeekRosterWorkSheet();
             switch (reportFormat)
             {
@@ -157,7 +157,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet[ROW, ColEmployeeCode].Text = data.Rows[i]["EmployeeCode"].ToString();
                 sheet[ROW, ColRosterId].Text = data.Rows[i]["RosterId"].ToString();
                 sheet[ROW, ColEffective].Text = data.Rows[i]["EffectiveDate"].ToString();
-               
+
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
 
@@ -224,7 +224,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            
+
             report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
             report.PageSetup(ref sheet2, 5, ExcelPageOrientation.Landscape);
             return workbook;
@@ -232,7 +232,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
 
         [HttpPost, Authorize]
-        public ActionResult ImportData( )
+        public ActionResult ImportData()
         {
             string path;
 
@@ -254,7 +254,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        public List<object> ReadData( string path)
+        public List<object> ReadData(string path)
         {
 
             DataSet dsExcel = null;
@@ -273,9 +273,9 @@ namespace Aplos.Areas.HumanResource.Controllers
                 {
                     for (int i = 0; i < data.Count; i++)
                     {
-                        if(data[i].WOHeaderId != null)
+                        if (data[i].WOHeaderId != null)
                         {
-                            if(RostersList.Contains(data[i].WOHeaderId))
+                            if (RostersList.Contains(data[i].WOHeaderId))
                             {
                                 emps.DefaultView.RowFilter = @"EmployeeCode='" + data[i].EmployeeCode + "'";
                                 if (emps.DefaultView.Count > 0)
@@ -292,15 +292,15 @@ namespace Aplos.Areas.HumanResource.Controllers
                             }
                             else
                             {
-                                throw new Exception("The Week Off Roster in Employee Code - " +data[i].EmployeeCode +" is not present!!");
+                                throw new Exception("The Week Off Roster in Employee Code - " + data[i].EmployeeCode + " is not present!!");
                             }
-                            
+
                         }
                     }
 
                     //for(int i = 0; i< data.Count; i++)
                     //{
-                        
+
                     //}
                 }
 
@@ -383,12 +383,12 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         public class rosWeek
         {
-            
+
             public string WOHeaderId { get; set; }
             public string EmployeeCode { get; set; }
             public string EffectiveDate { get; set; }
             public string EmpSystemId { get; set; }
-            
+
         }
 
 
@@ -412,11 +412,11 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost]
-        public ActionResult saveSingle(string EmpId , string EffectiveDate , string WeekId)
+        public ActionResult saveSingle(string EmpId, string EffectiveDate, string WeekId)
         {
             try
             {
-                rs.saveSingle(EmpId, EffectiveDate , WeekId);
+                rs.saveSingle(EmpId, EffectiveDate, WeekId);
                 return Json(new { Error = false, Data = EmpId, Message = AplosMessage.Success });
             }
             catch (Exception ex)
@@ -428,7 +428,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         // 2nd TAB Controllers
 
-        [Authorize,HttpPost]
+        [Authorize, HttpPost]
         public ActionResult getDistinctEmployeesToBeProcessed(string EffectiveDate)
         {
             try
@@ -442,11 +442,19 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [Authorize, HttpPost]
-        public ActionResult ProcessAttendance(string EffectiveDate)
+        public ActionResult ProcessAttendance(string EffectiveDate,string EmpData)
         {
             try
             {
-                return Json(rs.ProcessAttendance(EffectiveDate), JsonRequestBehavior.AllowGet);
+                WeekOffUpdatesService rep = new WeekOffUpdatesService();
+                string result = rep.ProcessAttendance(EffectiveDate, EmpData);
+                if (result != "true")
+                {
+                    return Json(new { Error = true, Message = result }, JsonRequestBehavior.AllowGet);
+
+                }
+                return Json(new { Error = false, Message = "Saved SuccessFully..." }, JsonRequestBehavior.AllowGet);
+
             }
             catch (Exception ex)
             {
@@ -456,4 +464,6 @@ namespace Aplos.Areas.HumanResource.Controllers
 
 
     }
+
+   
 }

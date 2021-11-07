@@ -229,6 +229,7 @@
     <Compile Include="NewAttendanceProcess\TablesUploadService.cs" />
     <Compile Include="NewAttendanceProcess\WeeklyOffService.cs" />
     <Compile Include="NewAttendanceProcess\WeekOffUpdatesService.cs" />
+    <Compile Include="NewAttendanceProcess\SandwichProcessService.cs" />
     <Compile Include="Payroll\Allowance\clsDiscreteAllowanceReport.cs" />
     <Compile Include="Payroll\Allowance\SalaryHeadWiseAmountTransaction.cs" />
     <Compile Include="Payroll\Allowance\SalaryHeadWiseDailyService.cs" />

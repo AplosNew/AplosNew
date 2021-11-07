@@ -1,0 +1,54 @@
+﻿<div class="row">
+
+    <div class="col-xs-12">
+        <div class="col-xs-4"><h3 class="site-heading"><span class="glyphicon glyphicon-file"></span>Sandwich Process</h3></div>
+        <div class="col-md-8" ng-form name="SandwichForm">
+            <div class="col-md-12">
+                <div class="col-xs-4 col-sm-4 col-md-4">
+                    <div class="col-md-12">
+                        <input id="ddlYearList" e-watermarktext="Year" required ej-dropdownlist e-datasource="yearList" e-enablefiltersearch="true" e-value="year" e-databound="SelectDefaultValue" e-fields-value="Text" e-fields-text="Text" e-width="100%" e-change="empGridShow" />
+                    </div>
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4">
+                    <div class="col-md-12">
+                        <input id="ddlMonthList" e-watermarktext="Month" required ej-dropdownlist e-datasource="monthList" e-value="month" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-change="empGridShow" />
+                    </div>
+                </div>
+                <div class="col-xs- col-sm-1 col-md-1">
+                    <div class="form-group">
+                        <div class="common-btn">
+                            <button ng-click="GetEmployeeInformation();" class="btn"> <i class="glyphicon glyphicon-download"></i>Go</button>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>   
+<br />
+<div class="row">
+    <div id="PresentId" ej-grid e-datasource="EmpList" e-templaterefresh="refreshTemplate"
+          e-allowpaging="true"  e-enabletouch="true" e-responsive="true" e-allowfiltering="true" e-filtersettings-filterType="excel"
+         e-allowselection="true"  e-allowtextwrap="true" e-allowscrolling="true" style="margin-top:30px;">
+        <div e-columns>
+            <div e-column e-field="EmployeeCode" e-type="string" e-headertext="EmployeeCode" e-width="80"></div>
+            <div e-column e-field="Plant" e-type="string" e-headertext="Plant" e-width="80"></div>
+            <div e-column e-field="WorkDate" e-type="string" e-headertext="WorkDate" e-width="80"></div>
+            <div e-column e-field="DayStatus" e-type="string" e-headertext="DayStatus" e-width="80"></div>
+            <div e-column e-field="Department" e-type="string" e-headertext="Department" e-width="80"></div>
+            <div e-column e-field="Section" e-type="string" e-headertext="Section" e-width="80"></div>
+            <div e-column e-field="SubSection" e-type="string" e-headertext="SubSection" e-width="80"></div>
+            <div e-column e-field="Designation" e-type="string" e-headertext="Designation" e-width="80"></div>
+           </div>
+    </div>
+
+</div>
+<div class="row">
+    <div class="common-btn" style="margin: 10px; margin-top:5px;">
+        <ul class="list-inline text-left">
+            <li><button ng-click="RunProcess();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> Process </button></li>
+        </ul>
+    </div>
+</div>
+

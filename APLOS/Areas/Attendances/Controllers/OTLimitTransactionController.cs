@@ -218,7 +218,10 @@ namespace Aplos.Areas.Attendances.Controllers
             return json;
         }
 
+        #region ProcessedOT
 
+     
+        #endregion ProcessedOT
 
         [HttpPost]
         public ActionResult SaveOTLimitOverlapData(string YearNo, string MonthNo, string OTLimitSettingId, string[] EmpSystemIds)
@@ -302,6 +305,9 @@ namespace Aplos.Areas.Attendances.Controllers
 
             //Process data to generate final IN/OUT data (based on punch and manual data)
             FinalInOut(FromDate, ToDate, EmpSytemId);
+
+            //process ProcessedOT based on Final IN/OUT
+            ProcessForProcessedOT(EmpSytemId);
 
             //get OT data after rollback and IN/OUT Process
             DataSet dsOTDetails = null;
@@ -500,28 +506,23 @@ namespace Aplos.Areas.Attendances.Controllers
                             o.ShiftName = dv[i]["ShiftName"].ToString();
 
 
-
-
-
                             o.IsManualInTime = Convert.ToBoolean(dv[i]["IsManualInTime"].ToString());
                             o.ManualInTime = dv[i]["ManualInTime"].ToString();
-
 
 
                             o.IsManualOutTime = Convert.ToBoolean(dv[i]["IsManualOutTime"].ToString());
                             o.ManualOutTime = dv[i]["ManualOutTime"].ToString();
 
-                            double TimeToReduce = (double)(((NewOT + ExtraOT) / OTreductionFactor) - NewOT);
-                            o.NewOutTime = Convert.ToDateTime(o.NewOutTime).AddMinutes(TimeToReduce * -1).ToString("dd-MMM-yyyy hh:mm:ss tt");
+                            if (string.IsNullOrEmpty(o.NewOutTime) == false)
+                            {
+                                double TimeToReduce = (double)(((NewOT + ExtraOT) / OTreductionFactor) - NewOT);
+                                o.NewOutTime = Convert.ToDateTime(o.NewOutTime).AddMinutes(TimeToReduce * -1).ToString("dd-MMM-yyyy hh:mm:ss tt");
+                            }
 
                             o.TotalOT = DailyOT;
                             o.OT = NewOT;
                             o.ExtraOT = ExtraOT;
                             oOTLimitTransaction.Add(o);
-
-
-
-
 
                         }
                     }
@@ -644,7 +645,8 @@ namespace Aplos.Areas.Attendances.Controllers
                 strSql = @"UPDATE AttdnProcessData SET ManualInTime = OriginalManualInTime,
                             IsManualInTime = CASE WHEN ISNULL(OriginalManualInTime,'')<>'' THEN 1 ELSE 0 END,
                             ManualOutTime = OriginalManualOutTime,
-                            IsManualOutTime = CASE WHEN ISNULL(OriginalManualOutTime,'')<>'' THEN 1 ELSE 0 END
+                            IsManualOutTime = CASE WHEN ISNULL(OriginalManualOutTime,'')<>'' THEN 1 ELSE 0 END,
+                            ManualFlag=1
                             WHERE WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' AND EmpSystemID IN (" + EmpSystemId + @")";
 
                 ConnectionManager.clsConnection _con = new ConnectionManager.clsConnection();
@@ -676,6 +678,26 @@ namespace Aplos.Areas.Attendances.Controllers
 
                 objCone.ExecuteNonQueryWrapper(sql, true, "1");
                 objCone.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public void ProcessForProcessedOT(string EmpSystemId)
+        {
+            try
+            {
+                var sql = @"SELECT DISTINCT PlantId FROM EmployeeInformation AS ei WHERE ei.SystemID IN (" + EmpSystemId + @")";
+
+                ConnectionManager.clsConnection _con = new ConnectionManager.clsConnection();
+                _con.getDataSet(sql, out DataSet dsRef);
+
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    NewAttendanceProcessService _service = new NewAttendanceProcessService();
+                    _service.ManualScheduler(dsRef.Tables[0].Rows[i]["PlantId"].ToString());
+                }
             }
             catch (Exception ex)
             {
@@ -1180,9 +1202,12 @@ namespace Aplos.Areas.Attendances.Controllers
                             drAttProc = dicAttProc[Key];// dvAttProc[0].Row;
                             drAttProc.BeginEdit();
 
-                            drAttProc["OutTime"] = Convert.ToDateTime(OTLimitTransactionData[i].NewOutTime);
-                            drAttProc["IsManualOutTime"] = true;
-                            drAttProc["ManualOutTime"] = Convert.ToDateTime(OTLimitTransactionData[i].NewOutTime);
+                            if (string.IsNullOrEmpty(OTLimitTransactionData[i].NewOutTime) == false)
+                            {
+                                drAttProc["OutTime"] = bplib.clsWebLib.RetValidLen(OTLimitTransactionData[i].NewOutTime);
+                                drAttProc["IsManualOutTime"] = true;
+                                drAttProc["ManualOutTime"] = bplib.clsWebLib.RetValidLen(OTLimitTransactionData[i].NewOutTime);
+                            }
                             drAttProc["OTHr"] = Convert.ToDecimal(OTLimitTransactionData[i].OT);
 
                             drAttProc["IsOTComfirm"] = true;
@@ -1212,12 +1237,13 @@ namespace Aplos.Areas.Attendances.Controllers
                             objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "HourlyOT", out sID);
                             sID = "OX" + sID;
                         }
+
                         DataRow dr = dsHourlyOTData.Tables[0].NewRow();
                         dr["Id"] = sID + "-" + (i + 1).ToString();
                         dr["EmpSystemId"] = OTLimitTransactionData[i].EmpSystemId;
                         //dr["FromDate"] = AttendanceProcessData[i].ExtraOTInTime;
                         dr["FromDate"] = OTLimitTransactionData[i].InTime;
-                        dr["ToDate"] = OTLimitTransactionData[i].OutTime;
+                        dr["ToDate"] = bplib.clsWebLib.RetValidLen(OTLimitTransactionData[i].OutTime);
                         dr["Duration"] = OTLimitTransactionData[i].ExtraOT;
                         dr["WorkDate"] = Convert.ToDateTime(OTLimitTransactionData[i].WorkDate);
 
@@ -1246,6 +1272,7 @@ namespace Aplos.Areas.Attendances.Controllers
                     }
                     else
                     {
+
                         DataRow dr = dicHourlyOTData[Key];// DvHourlyOTData[0].Row;
                         dr.BeginEdit();
                         dr["EmpSystemId"] = OTLimitTransactionData[i].EmpSystemId;
@@ -1253,7 +1280,7 @@ namespace Aplos.Areas.Attendances.Controllers
                         //dr["FromDate"] = RandomOutTime;
                         //dr["ToDate"] = ExtraOTOutTime;
                         dr["FromDate"] = OTLimitTransactionData[i].InTime;
-                        dr["ToDate"] = OTLimitTransactionData[i].OutTime;
+                        dr["ToDate"] = bplib.clsWebLib.RetValidLen(OTLimitTransactionData[i].OutTime);
                         dr["Duration"] = OTLimitTransactionData[i].ExtraOT;
                         dr["WorkDate"] = Convert.ToDateTime(OTLimitTransactionData[i].WorkDate);
                         dr["IsManualInTime"] = OTLimitTransactionData[i].IsManualInTime;
@@ -1272,6 +1299,7 @@ namespace Aplos.Areas.Attendances.Controllers
                         dr["UpdatedFromIP"] = identity.IPAddress;
                         dr["OTType"] = "OTLIMIT";
                         dr.EndEdit();
+
                     }
 
                     #endregion
