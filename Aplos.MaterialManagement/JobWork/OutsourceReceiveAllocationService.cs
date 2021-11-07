@@ -22,12 +22,12 @@ namespace Library.MaterialManagement.JobWork
             ConManager = new ConnectionManager.clsConnectionManager();
         }
 
-		public IEnumerable<object> GetOutSourceReceiptDataForAllocation()
-		{
-			try
-			{
-				var sql = "";
-				sql = @"SELECT DISTINCT
+        public IEnumerable<object> GetOutSourceReceiptDataForAllocation()
+        {
+            try
+            {
+                var sql = "";
+                sql = @"SELECT DISTINCT
 				 IR.GRNType,count(BOQ.SalesOrderId) SOIdCount
 				, IRD.Id InventoryReceiveDetailId
 				,'' POReqDetailsId
@@ -88,22 +88,22 @@ namespace Library.MaterialManagement.JobWork
 				,IM.MaterialMasterId,MM.UserName , IM.ArticleId, ART.StandardName , IM.FirstCharacteristicsValueId, FCV.UserName, IM.SecondCharacteristicsValueId
 				,SCV.UserName, IM.ThirdCharacteristicsValueId,TCV.UserName,MM.IsAsset,MaA.BaseUOMFactor
 				Order by IRD.Id ASC";// ,MMAU.BaseUOMFactor
-				return _sqlRepository.GetDataCollection(sql);
+                return _sqlRepository.GetDataCollection(sql);
 
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
-			}
-		}
-		public IEnumerable<object> GetOutSourceReceiptAllocatedData()
-		{
-			try
-			{
-				var sql = "";
-				sql = @"SELECT DISTINCT
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
+        public IEnumerable<object> GetOutSourceReceiptAllocatedData()
+        {
+            try
+            {
+                var sql = "";
+                sql = @"SELECT DISTINCT
 				 IR.GRNType
 				, IRD.Id InventoryReceiveDetailId
 				,'' POReqDetailsId
@@ -160,23 +160,22 @@ namespace Library.MaterialManagement.JobWork
 				WHERE IR.GRNType='GRNBYPO' 
 				AND Boq.SalesOrderId IS NOT NULL AND isnull(IRD.TransactionQty,0) = isnull(AlreadyAllo.TransactionQty,0)
 				Order by IRD.Id ASC";// ,MMAU.BaseUOMFactor
-				return _sqlRepository.GetDataCollection(sql);
+                return _sqlRepository.GetDataCollection(sql);
 
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
-			}
-		}
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
 
-		public IEnumerable<object> GetOutSourceReceiptDetailDataForAllocation(string inventoryReceiveDetailId)
-		{
-			try
-			{
-				var sql = "";
-				sql = @"select Convert(bit, 'False') Active, '' Id
+        public IEnumerable<object> GetOutSourceReceiptDetailDataForAllocation(string inventoryReceiveDetailId)
+        {
+            try
+            {
+                var sql = @"select Convert(bit, 'False') Active, '' Id
 				, IR.GRNType
 				, IRD.Id InventoryReceiveDetailId
 				, ISNULL(POBOQMAP.Id,NULL) POBOQMapId
@@ -186,6 +185,7 @@ namespace Library.MaterialManagement.JobWork
 				,Isnull(IRD.TransactionUoMId,'') TransactionUoMId
 				,ISNULL(TUoM.UserName,'') TransactionUoM
 				,ISNULL(AlreadyAllo.BaseQty,0) OtherBaseQty
+				,ISNULL(AlreadyAllo.OSPOBOQMAPId,'') OSPOBOQMAPId
 				,0 BaseQty
 				,ISNULL(IRD.BaseUOMId,NULL) BaseUoMId
 				,ISNULL(BUoM.UserName,'') BaseUoM
@@ -233,24 +233,24 @@ namespace Library.MaterialManagement.JobWork
 				LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
 				LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
 				left join [MST].[MaterialMasterAlternativeUOM] MaA ON MaA.MaterialMasterId=mm.Id
-				left join(select InventoryReceiveDetailId,SalesOrderId ,Sum(TransactionQty) TransactionQty,Sum(BaseQty) BaseQty 
+				left join(select InventoryReceiveDetailId,SalesOrderId ,Sum(TransactionQty) TransactionQty,Sum(BaseQty) BaseQty ,OSPOBOQMAPId
 						  from trn.GRNPORequisitionAllocation 
-						  group by InventoryReceiveDetailId,SalesOrderId
+						  group by InventoryReceiveDetailId,SalesOrderId,OSPOBOQMAPId
 						  )AlreadyAllo ON AlreadyAllo.InventoryReceiveDetailId=IRD.Id AND AlreadyAllo.SalesOrderId=BOQ.SalesOrderId
 				WHERE IR.GRNType='GRNBYPO' and ISNULL(Boq.SalesOrderId,'') IS NOT NULL   
 				AND IRD.Id='" + inventoryReceiveDetailId + @"' 
 				Order by IRD.Id ASC";// ,MMAU.BaseUOMFactor
-				return _sqlRepository.GetDataCollection(sql);
+                return _sqlRepository.GetDataCollection(sql);
 
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
-			}
-		}
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
 
-	}
+    }
 }
 
