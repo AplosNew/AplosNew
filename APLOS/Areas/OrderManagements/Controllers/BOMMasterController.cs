@@ -69,7 +69,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                         LEFT JOIN MST.MaterialGroupMaster MGM ON MGM.Id=MM.MaterialGroupMasterId
 						LEFT JOIN [TRN].ProductDefinition AS PD ON PD.MaterialMasterId= MM.Id
 						LEFT JOIN [MST].[ProductMaster] AS PM ON PD.ProductMasterId = PM.Id
-                        Order by CAST(A.Id AS int) ";
+                        Order by A.AddedDate desc--CAST(A.Id AS int) desc";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
@@ -206,6 +206,22 @@ namespace Aplos.Areas.OrderManagements.Controllers
             {
                 Library.OrderManagement.BOM.TemplateAttchment _attachment = new Library.OrderManagement.BOM.TemplateAttchment();
                 _attachment.CopyBOMTemplate(Id);
+
+                return Json(new { Error = false, Message = "BOM copied successfully" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+
+        }
+        [HttpPost, Authorize]
+        public JsonResult CopyBOMWithoutSKU(string Id)
+        {
+            try
+            {
+                Library.OrderManagement.BOM.TemplateAttchment _attachment = new Library.OrderManagement.BOM.TemplateAttchment();
+                _attachment.CopyBOMTemplateWithoutSKU(Id);
 
                 return Json(new { Error = false, Message = "BOM copied successfully" });
             }

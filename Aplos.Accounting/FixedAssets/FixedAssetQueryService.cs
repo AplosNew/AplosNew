@@ -299,7 +299,7 @@ namespace Library.Accounting.FixedAssets
 									, BM.Id BudgetMasterId,B.UserName BudgetName,BM.RefNo BudgetRefNo
 									, A.UserName ActivityName, FR.FAActivityId ActivityId
                                    		,format( FR.CapitalizationDate,'dd-MMM-yyyy')CapitalizationDate
-									,format(IR.GRNDate,'dd-MMM-yyyy') PurchaseDate
+									,format(FR.InvoiceDate,'dd-MMM-yyyy') PurchaseDate
 									,format( ii.IssueDate,'dd-MMM-yyyy')IssueDate
 
 
@@ -364,7 +364,7 @@ namespace Library.Accounting.FixedAssets
 									, BM.Id BudgetMasterId,B.UserName BudgetName,BM.RefNo BudgetRefNo
 									, A.UserName ActivityName, FR.FAActivityId ActivityId
                                    		,format( FR.CapitalizationDate,'dd-MMM-yyyy')CapitalizationDate
-									,format(IR.GRNDate,'dd-MMM-yyyy') PurchaseDate
+									,format(FR.InvoiceDate,'dd-MMM-yyyy') PurchaseDate
 									,format( ii.IssueDate,'dd-MMM-yyyy')IssueDate
 		                            ,FAD.Remarks
 

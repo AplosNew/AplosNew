@@ -1,8 +1,12 @@
 ﻿@*<h3 class="site-heading"><span class="glyphicon glyphicon-th-list"></span> Bill of Meterial</h3>*@
 <togglable name="{{FormTitle}}"></togglable>
+<div id="mDiv"></div>
 <div class="form-horizontal form-elements" ng-form name="bomNewForm" id="mainDiv">
     <div class="row">
         <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-12 control-label" title="System Id">ID: {{bomNew.Id}}</label>
+            </div>
             <div class="form-group">
                 <label class="col-sm-4 control-label" title="Material">Finish Goods<sup>*</sup></label>
                 <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
@@ -20,6 +24,12 @@
             </div>
         </div>
         <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-12 control-label"></label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-12 control-label"></label>
+            </div>
             <div class="form-group">
                 <label class="col-sm-4 control-label" title="Article">Finish Goods Article<sup>*</sup></label>
                 <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
@@ -172,10 +182,10 @@
                     </div>
 
                 </div>
-                
+
             </div>
         </div>
-        
+
     </div>
 </div>
 <div class="aplos-grid-toggle">
@@ -200,7 +210,7 @@
                     <div class="common-btn">
                         <ul class="list-inline text-left small">
                             <li>
-                                <button ng-click="$parent.openPopupAngular('confirmBOMCopy');$parent.SelectedBOMRowForCopy(data);" title="Copy" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                <button ng-click="@*$parent.openPopupAngular('confirmBOMCopy');*@$parent.SelectedBOMRowForCopy(data);" title="Copy" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
                                     <i class="glyphicon glyphicon-copy" style="color:white;"></i>
                                 </button>
                             </li>
@@ -214,6 +224,7 @@
     </div>
 </div>
 <confirm-modal></confirm-modal>
+
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterByTypePopUp.cshtml")
 @*@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterPopUp.cshtml")*@
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPopUp.cshtml")
@@ -271,7 +282,8 @@
                                 <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
                                     <input type="text" ng-model="bomDetailNew.PartyName" class="form-control" readonly>
                                     <span class="input-group-btn">
-                                        <button ng-click="showPartyPopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                        @*<button ng-click="showPartyPopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>*@
+                                        <button name="submit" ng-click="showPartyPopUpNew()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                                         <button ng-click="clearVendor()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
                                     </span>
                                 </div>
@@ -470,10 +482,6 @@
     </div>
 </div>
 
-
-
-
-
 <div class="modal fade site-modal in" id="rmaterialmastersearchpopup" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -546,6 +554,7 @@
         </div>
     </div>
 </div>
+
 <div class="modal fade site-modal in" id="rarticleSearchPop" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -607,7 +616,6 @@
         </div>
     </div>
 </div>
-
 
 <div class="modal fade site-modal in" id="matrixPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
@@ -926,7 +934,6 @@
         </div>
     </div>
 </div>
-
 
 <confirm-archive-generic modalid="confirmProcessPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteMatrix();" data-ng-click-left-button="getFGCharacteristicsList(bomNew.FGMaterialMasterId);"></confirm-archive-generic>
 
@@ -1410,9 +1417,11 @@
         </div>
     </div>
 </div>
-@Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")
+
+@*@Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")*@
 @Html.Partial("~/Areas/Materials/Views/Shared/_CharacteristicsValuePopUp.cshtml")
-<div class="modal fade site-modal in" id="VpartyPopUp" role="dialog" data-backdrop="static">
+
+@*<div class="modal fade site-modal in" id="VpartyPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content" ng-form="partyForm">
             <div class="modal-header">
@@ -1485,7 +1494,10 @@
             </div>
         </div>
     </div>
-</div>
+</div>*@
+
+@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
+
 <div class="modal fade site-modal in" id="crmaterialmastersearchpopup" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -1558,6 +1570,7 @@
         </div>
     </div>
 </div>
+
 <div class="modal fade site-modal in" id="crarticleSearchPop" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -1620,12 +1633,22 @@
     </div>
 </div>
 
-<confirm-archive-generic modalid="confirmBOMCopy" title="Confirmation" message="Selected BOM template will be copied. Do you proceed?" data-ng-click-right-button="CopyBOM();"></confirm-archive-generic>
+<ej-dialog id="confirmBOMCopy" title="Confirmation" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#mDiv" e-close="onDialogClose" e-minwidth="240" e-minheight="165" e-open="enableBtn">
+    <p>Selected BOM template will be copied. Do you proceed?</p>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="CopyBOM();ConfirmSavePopUpClose();" class="btn">With SKU</button></li>
+            <li> <button ng-click="CopyBOMWithoutSKU();ConfirmSavePopUpClose();" class="btn">Without SKU</button></li>
+        </ul>
+    </div>
+</ej-dialog>
+
+
+@*<confirm-archive-generic modalid="confirmBOMCopy" title="Confirmation" message="Selected BOM template will be copied. Do you proceed?" data-ng-click-right-button="CopyBOM();"></confirm-archive-generic>*@
 <confirm-archive-generic modalid="confirmDetailPopUp" title="Confirmation" message={{message_Detailconfirmation}} data-ng-click-right-button="DeleteDetailConsumptionMatrix();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmBoMDetailPopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="DeleteBomDetail();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmBoMDetailConsumptionPopUp" title="Confirmation" message={{message_detailConsumptionconfirmation}} data-ng-click-right-button="DeleteBomDetailConsumption();"></confirm-archive-generic>
 <confirm-archive-generic data-modalid="confirmQualificationDelete" title="Confirmation" message={{message_confirmation_doc}} data-ng-click-right-button="DeleteDocument()"></confirm-archive-generic>
-
 
 <div class="modal fade site-modal in" id="SKUpopup" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
