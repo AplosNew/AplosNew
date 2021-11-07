@@ -4321,6 +4321,7 @@ GROUP BY FAR.FABudgetMasterId
                     DeliveryPartyPlantId = disposeVM.DeliveryPartyPlantId,
                     InvoicingByAddress = disposeVM.InvoicingByAddress,
                     DeliveryByAddress = disposeVM.DeliveryByAddress,
+
                     Id = disposeVM.Id,
                     IsPark = true,
                     ToCurrencyRate = disposeVM.ToCurrencyRate,
