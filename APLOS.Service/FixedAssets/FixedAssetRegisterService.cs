@@ -4244,6 +4244,8 @@ GROUP BY FAR.FABudgetMasterId
                     PartyId = fixedAssetDisposed.PartyId,
                     PartyPlantId = fixedAssetDisposed.PartyPlantId,
                     DeliveryPartyPlantId = fixedAssetDisposed.DeliveryPartyPlantId,
+                    //PartyPlantId = fixedAssetDisposed.PartyPlantId,
+                    //DeliveryPartyPlantId = fixedAssetDisposed.DeliveryPartyPlantId,
                     Id = "RD" + _id,
                     IsPark = true,
                     ToCurrencyRate = fixedAssetDisposed.ToCurrencyRate,
