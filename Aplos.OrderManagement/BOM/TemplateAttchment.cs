@@ -56,7 +56,11 @@ namespace Library.OrderManagement.BOM
        moi.MaterialMasterId, moi.ArticleId,pm.UserName AS Product,pc.UserName AS ProductCategory,mm.UserName AS Material,ma.StandardName AS Article,
        b.UserName AS Buyer,p.UserName AS Customer,c.ContractNo,ml.LCRef,MOI.AddedBy,Format(MOI.AddedDate,'dd-MMM-yyyy') AS AddedDate,
        convert(bit,CASE WHEN  ISNULL((SELECT COUNT(*) AS SalesOrderCount FROM trn.SalesOrder WHERE MasterOrderItemId=moi.Id),0)<>ISNULL((SELECT count(DISTINCT SalesOrderId) AS SalesOrderCount FROM BOQDetail WHERE MasterOrderItemId=moi.Id),0) THEN 0 ELSE 1 END) AS HasBOQ
-
+        ,MO.Type,isnull(moi.Consignment,0) AS Consignment,
+        CASE WHEN isnull(moi.Consignment,0)=1 THEN
+	        CASE WHEN ISNULL(eout.Id,'')<>'' THEN CONCAT(POUT.UserName,'(',EOUT.UserName,')') ELSE TOUT.UserName END
+        ELSE
+	     CONCAT(POWN.UserName,'(',EOWN.UserName,')') END AS PurchaseAuthority
         --convert(bit,case when isnull(BOQ.Id,'')='' then 0 else 1 end) AS HasBOQ
                               FROM trn.MasterOrder MO
                             join trn.MasterOrderItem MOI on moi.MasterOrderId=mo.Id
@@ -86,7 +90,15 @@ namespace Library.OrderManagement.BOM
                             left outer join hkp.Season S on s.id=mo.SeasonId
                             left outer join EmployeeInformation EI on ei.SystemId= MO.ResponsiblePersonId
 							LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=MO.TotalQtyUOMId
-							LEFT OUTER JOIN scs.Currency AS cur ON cur.Id=mo.CurrencyId where MO.PlantId='" + identity.PlantId + "') AS K where 1=1 " + AdditionalWhereClause + " Order By MasterOrderId";
+							LEFT OUTER JOIN scs.Currency AS cur ON cur.Id=mo.CurrencyId 
+
+							LEFT JOIN org.Entity AS EOUT ON EOUT.Id=ISNULL(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
+							LEFT JOIN org.Plant AS POUT ON POUT.Id=EOUT.PlantId
+							LEFT JOIN hkp.Party AS TOUT ON tout.Id=moi.PartyId
+							LEFT JOIN org.Plant AS POWN ON POWN.Id=MO.PlantId
+							LEFT JOIN org.Entity AS EOWN ON EOWN.Id=MO.EntityId
+
+                            where MO.PlantId='" + identity.PlantId + "') AS K where 1=1 " + AdditionalWhereClause + " Order By MasterOrderId";
 
             return _sqlRepository.GetDataCollection(sql);
 
