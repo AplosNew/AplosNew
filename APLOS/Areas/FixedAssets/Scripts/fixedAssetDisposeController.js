@@ -152,6 +152,17 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
         $scope.fixedAssetDisposeStatusList = response.data;
     });
 
+    $scope.invalidDocDate = false;
+    $scope.checkDocDate = function () {
+        var msg = "";
+        if (new Date($scope.voucher.DocDate) > new Date()) {
+            $scope.invalidDocDate = true;
+            msg = "Doc date must be below or equal to current Date!";
+        }
+        else $scope.invalidDocDate = false;
+        return manualValidation("div_DocDate", $scope.invalidDocDate, msg);
+    };
+
     $scope.Clear = function () {
         $scope.Action = "Save";
         $scope.voucher.Active = true;
@@ -577,6 +588,19 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
         }
     }
 
+    $scope.onClickPdfPrints = function (args) {
+
+        try {
+            var data = args.data;
+            var reportFormat = "Pdf";
+
+            var file_src = 'FixedAssets/FixedAssetRegister/GetFixedAssetDisposePdfReport?reportFormat=' + reportFormat + '&fixedAssetRegisterDisposeId=' + data.Id
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
 
 
 }

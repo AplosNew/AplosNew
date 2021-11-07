@@ -968,6 +968,7 @@ var upanelApp = angular
     .controller('EmployeeWeekOffUpdatesController', EmployeeWeekOffUpdatesController)
     .controller('SalaryDisbursementReportController', SalaryDisbursementReportController)
     .controller('OSissueRegisterController', OSissueRegisterController)
+    .controller('SandwichProcessController', SandwichProcessController)
 
     .config(AccessControllerConfig)
     .config(accountConfig)

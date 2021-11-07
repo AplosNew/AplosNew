@@ -162,7 +162,7 @@
                             <th class="text-center">Base Negotiation</th>
                             <th>Vendor</th>
                             <th>Invoice No</th>
-                            <th class="text-center">Trn Currency</th>
+                            @*<th class="text-center">Trn Currency</th>*@
                             <th class="text-center">OB</th>
                         </tr>
                     </thead>
@@ -185,7 +185,7 @@
                             <td><input type="text" class="form-control text-right" ng-disabled="true" id="BaseNagotiationValue" ng-model="x.BaseNagotiationValue " n-decimals="2"></td>
                             <td>{{x.Vendor}}</td>
                             <td>{{x.InvoiceNo}}</td>
-                            <td>{{x.TrnCurrency}}</td>
+                            @*<td>{{x.TrnCurrency}}</td>*@
                             <td>{{x.IsOBBalance}}</td>
 
                         </tr>
@@ -473,7 +473,7 @@
                                 <div e-column e-field="NetBaseBookValue" e-headertext="Net Base Amount" e-width="80"></div>
                                 @*<div e-column e-field="NetBaseBookValue" e-headertext="NetBaseBookValue" e-width="80"></div>*@
                                 
-                                <div e-column e-field="IsPark" e-headertext="Status" e-width="40"></div>
+                                @*<div e-column e-field="IsPark" e-headertext="Status" e-width="40"></div>*@
                             </div>
                         </div>
                     </div>

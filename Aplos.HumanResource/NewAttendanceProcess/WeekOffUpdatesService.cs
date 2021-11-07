@@ -259,6 +259,8 @@ left join dbo.EmployeeInformation ei on ei.SystemId = ew.EmpSystemId
         {
             try
             {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
                 var str = @"select distinct ex.EmpSystemId,e.EmployeeCode,e.EmployeeName,l.UserName as Designation,
                 s.UserName AS Section,ss.UserName as SubSection,d.UserName as Department
                 from EmployeeWeeklyOff ex 
@@ -268,7 +270,8 @@ left join dbo.EmployeeInformation ei on ei.SystemId = ew.EmpSystemId
                 left join org.SubSection ss on ss.Id=e.SubSectionId
                 left join hkp.LegalDesignation l on l.Id=e.LegalDesignationId
                 where E.DOJ <= '"+EffectiveDate+@"' -- Effective Date 
-                AND (E.DOS >= '"+EffectiveDate+"' OR ISNULL(E.DOS,'') = '' OR E.DOS = '01/01/1901')";
+                AND (E.DOS >= '"+EffectiveDate+"' OR ISNULL(E.DOS,'') = '' OR E.DOS = '01/01/1901')" +
+                "and e.plantId='"+identity.PlantId+"'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)
@@ -277,100 +280,114 @@ left join dbo.EmployeeInformation ei on ei.SystemId = ew.EmpSystemId
             }
         }
 
-        public string ProcessAttendance(string EffectiveDate)
+        public string ProcessAttendance(string EffectiveDate,string data)
         {
             try
             {
-                return "";
-                //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                //string addedname = identity.Name;
-                //string addeddate = DateTime.Now.ToString();
-             
-                //if (Convert.ToDateTime(EffectiveDate) < DateTime.Now.Date)
-                //{
-                //    throw new Exception("Effective Date Cannot be of Past!!");
-                //}
-                //if(Convert.ToDateTime(EffectiveDate) < DateTime.Now.Date)
-                //{
-                //    DataSet PlantLock;
-                //    string FD = EffectiveDate;
-                //    string TD = DateTime.Now.ToString("yyyy-MM-dd");
-                //    PlantLockCheck(FD, TD, out PlantLock, identity.PlantId);
-                //    string pl = "";
-                //    if (PlantLock.Tables[0].Rows.Count > 0)
-                //    {
-                //        for (var i = 0; i < PlantLock.Tables[0].Rows.Count; i++)
-                //        {
-                //            pl = pl + " " + PlantLock.Tables[0].Rows[i]["LockedDate"].ToString() + ", ";
-                //        }
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string addedname = identity.Name;
+                string addeddate = DateTime.Now.ToString();
 
-                //        throw new Exception("The Plant is Locked for - " + pl);
-                //    }
+                #region Plant Lock Checking
 
-                //    string GettingRows = @"Select jj.* ,  (Select wcc.DayType from
-                //                                dbo.WeekOffChild wcc where wcc.WOSequence =jj.Seq 
-                //                                and wcc.WOHeaderId = jj.WeekOffHeaderId) 
-                //                                as DayType , ap.RowId , (Case when ap.RowId = jj.MyRowId then 1 else 0 end) as Checks
-                //                    from
-                //                                (Select ap.WorkDate, ap.EmpSystemID, format(ap.WorkDate,'yyyyMMdd')+ap.EmpSystemID as MyRowId,
-                //                                (Select distinct
-                //                                (DATEDIFF(DAY, (Select top 1 ed.EffectiveDate from
-                //                                dbo.WeekOffHeader h 
-                //                                left join dbo.WeekOffEffectiveDate ed on ed.WOHeaderId = h.Id
-                //                                where ed.EffectiveDate <= ap.WorkDate and ed.WOHeaderId =  
-                //                    (Select top 1 ex.WOHeaderId from dbo.EmployeeWeeklyOff ex
-                //                                where EmpSystemId = e.SystemId and ex.EffectiveDate<=ap.WorkDate
-                //                                order by ex.EffectiveDate desc)
-                //                                order by ed.EffectiveDate desc) , ap.WorkDate) % 
-                //                                (Select max(WOSequence) from WeekOffHeader h 
-                //                                left join WeekOffChild wc on wc.WOHeaderId=h.Id 
-                //                                where h.Id =  
-                //                    (Select top 1 ex.WOHeaderId from dbo.EmployeeWeeklyOff ex
-                //                                where EmpSystemId = e.SystemId and ex.EffectiveDate<=ap.WorkDate
-                //                                order by ex.EffectiveDate desc)
-                //                    )
-                //                    )+1 as DayDiff
-                //                                from 
-                //                                EmployeeInformation e
-                //                                left join EmployeeWeeklyOff ex on e.SystemId=ex.EmpSystemId
-                //                                where e.PlantId=ap.PlantID and e.SystemId = ap.EmpSystemID) as Seq,
+                DataSet PlantLock;
+                    string FD = EffectiveDate;
+                    string TD = DateTime.Now.ToString("yyyy-MM-dd");
+                PlantLockCheck(FD, TD, out PlantLock, identity.PlantId);
+                string pl = "";
+                if (PlantLock.Tables[0].Rows.Count > 0)
+                {
+                    for (var i = 0; i < PlantLock.Tables[0].Rows.Count; i++)
+                    {
+                        pl = pl + " " + PlantLock.Tables[0].Rows[i]["LockedDate"].ToString() + ", ";
+                    }
+                    return "The Plant is Locked for - " + pl;
+                   
+                }
+                #endregion
 
-                //                                (Select top 1 ex.WOHeaderId from dbo.EmployeeWeeklyOff ex
-                //                                where EmpSystemId = ap.EmpSystemID and ex.EffectiveDate<=ap.WorkDate
-                //                                order by ex.EffectiveDate desc) WeekOffHeaderId 
-                //                    from AttdnProcessData ap 
+                string GettingRows = @"Select jj.* ,  (Select wcc.DayType from
+                                                dbo.WeekOffChild wcc where wcc.WOSequence =jj.Seq 
+                                                and wcc.WOHeaderId = jj.WeekOffHeaderId) 
+                                                as DayType , ap.RowId , (Case when ap.RowId = jj.MyRowId then 1 else 0 end) as Checks
+                                    from
+                                                (Select ap.WorkDate, ap.EmpSystemID, format(ap.WorkDate,'yyyyMMdd')+ap.EmpSystemID as MyRowId,
+                                                (Select distinct
+                                                (DATEDIFF(DAY, (Select top 1 ed.EffectiveDate from
+                                                dbo.WeekOffHeader h 
+                                                left join dbo.WeekOffEffectiveDate ed on ed.WOHeaderId = h.Id
+                                                where ed.EffectiveDate <= ap.WorkDate and ed.WOHeaderId =  
+                                    (Select top 1 ex.WOHeaderId from dbo.EmployeeWeeklyOff ex
+                                                where EmpSystemId = e.SystemId and ex.EffectiveDate<=ap.WorkDate
+                                                order by ex.EffectiveDate desc)
+                                                order by ed.EffectiveDate desc) , ap.WorkDate) % 
+                                                (Select max(WOSequence) from WeekOffHeader h 
+                                                left join WeekOffChild wc on wc.WOHeaderId=h.Id 
+                                                where h.Id =  
+                                    (Select top 1 ex.WOHeaderId from dbo.EmployeeWeeklyOff ex
+                                                where EmpSystemId = e.SystemId and ex.EffectiveDate<=ap.WorkDate
+                                                order by ex.EffectiveDate desc)
+                                    )
+                                    )+1 as DayDiff
+                                                from 
+                                                EmployeeInformation e
+                                                left join EmployeeWeeklyOff ex on e.SystemId=ex.EmpSystemId
+                                                where e.PlantId=ap.PlantID and e.SystemId = ap.EmpSystemID) as Seq,
 
-                //                    where ap.EmpSystemID = '206841' and WorkDate between '"+FD+@"' and '"+TD+@"'
-                //                    )as jj
-                //                    left join AttdnProcessData ap on ap.WorkDate = jj.WorkDate and ap.EmpSystemID = '"+EmpId+ "' and ap.WorkDate between '" + FD + @"' and '" + TD + @"'
-                //                    ";
-                //    DataTable dt = _sqlRepository.GetDataTable(GettingRows);
-                //    DataSet dsMaster;
-                //    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                //    con.OpenDataSetThroughAdapter("select * from dbo.AttdnProcessData where EmpSystemID='" + EmpId + "' and WorkDate between '" + FD + @"' and '" + TD + @"'", out dsMaster, false, "1");
+                                                (Select top 1 ex.WOHeaderId from dbo.EmployeeWeeklyOff ex
+                                                where EmpSystemId = ap.EmpSystemID and ex.EffectiveDate<=ap.WorkDate
+                                                order by ex.EffectiveDate desc) WeekOffHeaderId 
+                                    from AttdnProcessData ap 
 
-                //    string RowId = "''";
+                                    where ap.EmpSystemID in("+data+") and WorkDate between '" + FD + @"' and '" + TD + @"'
+                                    )as jj
+                                    left join AttdnProcessData ap on ap.WorkDate = jj.WorkDate 
+                                    and ap.EmpSystemID In("+data+") and ap.WorkDate between '" + FD + @"' and '" + TD + @"'";
 
-                //    for(var i = 0; i< dt.Rows.Count;i++)
-                //    {
-                //        RowId = RowId + ",'" + dt.Rows[i]["RowId"].ToString() + "'";
-                //        dsMaster.Tables[0].DefaultView.RowFilter = @"RowId ='"+dt.Rows[i]["RowId"].ToString()+"'";
-                //        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
-                //        dr.BeginEdit(); 
-                //        dr["WeeklyStatus"] = dt.Rows[i]["DayType"].ToString();
-                //        dr["isLock"] = false;
-                //        dr["ManualFlag"] = true;
-                //        dr["ManualEntryTime"] = DateTime.Now;
-                //        dr["ManualByWhom"] = identity.Name;
-                //        dr["LockedDate"] = DBNull.Value;
-                //        dr["LockedBy"] = DBNull.Value;
-                //        dr.EndEdit();
-                //    }
+                    DataTable dt = _sqlRepository.GetDataTable(GettingRows);
+                    DataSet dsMaster;
+                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                    con.OpenDataSetThroughAdapter("select * from dbo.AttdnProcessData where EmpSystemID IN ("+data+") and WorkDate between '" + FD + @"' and '" + TD + @"'", out dsMaster, false, "1");
 
+                    string RowMaster = "''";
+                
+                if(dt.Rows.Count>0)
+                {
+                    for (var i = 0; i < dt.Rows.Count; i++)
+                    {
+                        RowMaster = RowMaster + ",'" + dt.Rows[i]["RowId"].ToString() + "'";
+                        dsMaster.Tables[0].DefaultView.RowFilter = @"RowId ='" + dt.Rows[i]["RowId"].ToString() + "'";
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+                        dr["WeeklyStatus"] = dt.Rows[i]["DayType"].ToString();
+                        dr["isLock"] = false;
+                        dr["ManualFlag"] = true;
+                        dr["ManualEntryTime"] = DateTime.Now;
+                        dr["ManualByWhom"] = identity.Name;
+                        dr["LockedDate"] = DBNull.Value;
+                        dr["LockedBy"] = DBNull.Value;
+                        dr["IsOTComfirm"] = false;
+                        dr["OTComfirmBy"] = DBNull.Value;
+                        dr["DateOTComfirm"] = DBNull.Value;
+                        dr.EndEdit();
+
+                    }
+
+                    clsStaticInfo _info = new clsStaticInfo();
+                    _info.SaveDataSets(dsMaster);
+
+                    #region Attnd Process Call
+
+                    NewAttendanceProcessService ap = new NewAttendanceProcessService();
+                    ap.ManualScheduler(identity.PlantId, RowMaster);
+                   
+                    #endregion
+                }
+                return "true";
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                throw e;
+                throw ex;
             }
         }
 
@@ -382,98 +399,10 @@ left join dbo.EmployeeInformation ei on ei.SystemId = ew.EmpSystemId
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string addedname = identity.Name;
-                string addeddate = System.DateTime.Now.ToString();
+                string addeddate = DateTime.Now.ToString();
                 string TableName = "dbo.EmployeeWeeklyOff";
 
-                if (Convert.ToDateTime(EffectiveDate) < DateTime.Now.Date)
-                {
-                    throw new Exception("Effective Date Cannot be of Past!!");
-                }
-                    //if(Convert.ToDateTime(EffectiveDate) < DateTime.Now.Date)
-                    //{
-                    //    DataSet PlantLock;
-                    //    string FD = EffectiveDate;
-                    //    string TD = DateTime.Now.ToString("yyyy-MM-dd");
-                    //    PlantLockCheck(FD, TD, out PlantLock, identity.PlantId);
-                    //    string pl = "";
-                    //    if (PlantLock.Tables[0].Rows.Count > 0)
-                    //    {
-                    //        for (var i = 0; i < PlantLock.Tables[0].Rows.Count; i++)
-                    //        {
-                    //            pl = pl + " " + PlantLock.Tables[0].Rows[i]["LockedDate"].ToString() + ", ";
-                    //        }
 
-                    //        throw new Exception("The Plant is Locked for - " + pl);
-                    //    }
-
-                    //    string GettingRows = @"Select jj.* ,  (Select wcc.DayType from
-                    //                                dbo.WeekOffChild wcc where wcc.WOSequence =jj.Seq 
-                    //                                and wcc.WOHeaderId = jj.WeekOffHeaderId) 
-                    //                                as DayType , ap.RowId , (Case when ap.RowId = jj.MyRowId then 1 else 0 end) as Checks
-                    //                    from
-                    //                                (Select ap.WorkDate, ap.EmpSystemID, format(ap.WorkDate,'yyyyMMdd')+ap.EmpSystemID as MyRowId,
-                    //                                (Select distinct
-                    //                                (DATEDIFF(DAY, (Select top 1 ed.EffectiveDate from
-                    //                                dbo.WeekOffHeader h 
-                    //                                left join dbo.WeekOffEffectiveDate ed on ed.WOHeaderId = h.Id
-                    //                                where ed.EffectiveDate <= ap.WorkDate and ed.WOHeaderId =  
-                    //                    (Select top 1 ex.WOHeaderId from dbo.EmployeeWeeklyOff ex
-                    //                                where EmpSystemId = e.SystemId and ex.EffectiveDate<=ap.WorkDate
-                    //                                order by ex.EffectiveDate desc)
-                    //                                order by ed.EffectiveDate desc) , ap.WorkDate) % 
-                    //                                (Select max(WOSequence) from WeekOffHeader h 
-                    //                                left join WeekOffChild wc on wc.WOHeaderId=h.Id 
-                    //                                where h.Id =  
-                    //                    (Select top 1 ex.WOHeaderId from dbo.EmployeeWeeklyOff ex
-                    //                                where EmpSystemId = e.SystemId and ex.EffectiveDate<=ap.WorkDate
-                    //                                order by ex.EffectiveDate desc)
-                    //                    )
-                    //                    )+1 as DayDiff
-                    //                                from 
-                    //                                EmployeeInformation e
-                    //                                left join EmployeeWeeklyOff ex on e.SystemId=ex.EmpSystemId
-                    //                                where e.PlantId=ap.PlantID and e.SystemId = ap.EmpSystemID) as Seq,
-
-                    //                                (Select top 1 ex.WOHeaderId from dbo.EmployeeWeeklyOff ex
-                    //                                where EmpSystemId = ap.EmpSystemID and ex.EffectiveDate<=ap.WorkDate
-                    //                                order by ex.EffectiveDate desc) WeekOffHeaderId 
-                    //                    from AttdnProcessData ap 
-
-                    //                    where ap.EmpSystemID = '206841' and WorkDate between '"+FD+@"' and '"+TD+@"'
-                    //                    )as jj
-                    //                    left join AttdnProcessData ap on ap.WorkDate = jj.WorkDate and ap.EmpSystemID = '"+EmpId+ "' and ap.WorkDate between '" + FD + @"' and '" + TD + @"'
-                    //                    ";
-                    //    DataTable dt = _sqlRepository.GetDataTable(GettingRows);
-                    //    DataSet dsMaster;
-                    //    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                    //    con.OpenDataSetThroughAdapter("select * from dbo.AttdnProcessData where EmpSystemID='" + EmpId + "' and WorkDate between '" + FD + @"' and '" + TD + @"'", out dsMaster, false, "1");
-
-                    //    string RowId = "''";
-
-                    //    for(var i = 0; i< dt.Rows.Count;i++)
-                    //    {
-                    //        RowId = RowId + ",'" + dt.Rows[i]["RowId"].ToString() + "'";
-                    //        dsMaster.Tables[0].DefaultView.RowFilter = @"RowId ='"+dt.Rows[i]["RowId"].ToString()+"'";
-                    //        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
-                    //        dr.BeginEdit(); 
-                    //        dr["WeeklyStatus"] = dt.Rows[i]["DayType"].ToString();
-                    //        dr["isLock"] = false;
-                    //        dr["ManualFlag"] = true;
-                    //        dr["ManualEntryTime"] = DateTime.Now;
-                    //        dr["ManualByWhom"] = identity.Name;
-                    //        dr["LockedDate"] = DBNull.Value;
-                    //        dr["LockedBy"] = DBNull.Value;
-                    //        dr.EndEdit();
-                    //    }
-
-                    //    clsStaticInfo _info = new clsStaticInfo();
-                    //    _info.SaveDataSets(dsMaster);
-
-                    //    NewAttendanceProcessService ap = new NewAttendanceProcessService();
-                    //    ap.ManualScheduler(identity.PlantId, RowId);
-                    //}
-                    //else
-                    //{
                     DataSet dsMaster;
                     ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                     con.OpenDataSetThroughAdapter("select * from " + TableName + " where EmpSystemId='" + EmpId + "' and EffectiveDate='" + EffectiveDate + "'", out dsMaster, false, "1");
@@ -493,7 +422,7 @@ left join dbo.EmployeeInformation ei on ei.SystemId = ew.EmpSystemId
                             ddr.BeginEdit();
                             ddr["WOHeaderId"] = WeekId;
                             ddr["UpdatedBy"] = identity.Name;
-                            ddr["UpdatedDate"] = System.DateTime.Now.ToString();
+                            ddr["UpdatedDate"] = DateTime.Now.ToString();
                             ddr["UpdatedFromIP"] = identity.IPAddress;
                             ddr.EndEdit();
                         }
@@ -509,7 +438,7 @@ left join dbo.EmployeeInformation ei on ei.SystemId = ew.EmpSystemId
                         dr["AddedDate"] = addeddate;
                         dr["AddedFromIP"] = identity.IPAddress;
                         dr["UpdatedBy"] = identity.Name;
-                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedDate"] = DateTime.Now.ToString();
                         dr["UpdatedFromIP"] = identity.IPAddress;
 
                         dsMaster.Tables[0].Rows.Add(dr);
@@ -518,7 +447,7 @@ left join dbo.EmployeeInformation ei on ei.SystemId = ew.EmpSystemId
 
                     clsStaticInfo _info = new clsStaticInfo();
                     _info.SaveDataSets(dsMaster);
-                //}
+               
                 
             }
             catch (Exception e)
@@ -549,4 +478,5 @@ left join dbo.EmployeeInformation ei on ei.SystemId = ew.EmpSystemId
 
 
     }
+
 }

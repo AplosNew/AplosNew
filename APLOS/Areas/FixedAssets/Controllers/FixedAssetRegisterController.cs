@@ -945,7 +945,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             if (companyId == null)
                 companyId = identity.CompanyId;
-            return Json(_fixedAssetDisposeService.GetFixedAssetDisposeList(column, value, companyId), JsonRequestBehavior.AllowGet);//, new JavaScriptSerializer().Deserialize<string[]>(ids)
+            return Json(_fixedAssetDisposeService.GetFixedAssetDisposeListForPosting(column, value, companyId), JsonRequestBehavior.AllowGet);//, new JavaScriptSerializer().Deserialize<string[]>(ids)
         }
 
         [HttpPost, Authorize]
@@ -1172,6 +1172,18 @@ namespace Aplos.Areas.FixedAssets.Controllers
                 default:
                     return RenderReportAsExcel(workbook, reportFileName);
             }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetFixedAssetDisposePdfReport(ReportFormat reportFormat, string fixedAssetRegisterDisposeId)
+        {
+            FixedAssetReportService fixedAssetReportService = new FixedAssetReportService(_sqlRepository);
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            fixedAssetReportService.FixedAssetDisposed(fixedAssetRegisterDisposeId);
+
+            return null;
         }
 
         [HttpGet, Authorize]

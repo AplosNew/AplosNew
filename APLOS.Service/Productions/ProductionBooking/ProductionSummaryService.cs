@@ -464,7 +464,7 @@ namespace Library.Service.Productions
             try
             {
                 var sql = @"SELECT SUM((isnull(so.qty,0)*(1+( isnull(moi.ExtraOrderPercentage,0)/100)))*(100/(100-isnull(moi.OrderWastagePercentage,0)))) AS PlannedQty
-                                ,(SUM((isnull(so.qty,0)*(1+( isnull(moi.ExtraOrderPercentage,0)/100)))*(100/(100-isnull(moi.OrderWastagePercentage,0)))) -PRS.TotalProductionQty) RemainingQty, PRS.TotalProductionQty
+                                ,ISNULL((SUM((isnull(so.qty,0)*(1+( isnull(moi.ExtraOrderPercentage,0)/100)))*(100/(100-isnull(moi.OrderWastagePercentage,0)))) -PRS.TotalProductionQty),0) RemainingQty, ISNULL(PRS.TotalProductionQty,0)TotalProductionQty
                                 FROM trn.SalesOrder AS so
                                 INNER JOIN TRN.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
                                 LEFT JOIN (SELECT SUM(PS.Quantity) TotalProductionQty,PS.SalesOrderId
