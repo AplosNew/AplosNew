@@ -1697,11 +1697,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     {
                                         dr["IsManualOutTime"] = 1;
                                         dr["ManualOutTime"] = Convert.ToDateTime(Out);
+                                        dr["OriginalManualOutTime"]= Convert.ToDateTime(Out);
                                     }
                                     if (In.ToString() != "")
                                     {
                                         dr["ManualInTime"] = Convert.ToDateTime(In);
                                         dr["IsManualInTime"] = 1;
+                                        dr["OriginalManualInTime"]= Convert.ToDateTime(In); 
                                     }
 
                                     dr["UpdatedBy"] = "Schedule";
@@ -2092,10 +2094,12 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     {
                                         dr["IsManualOutTime"] = 1;
                                         dr["ManualOutTime"] = Convert.ToDateTime(Out);
+                                        dr["OriginalManualOutTime"] = Convert.ToDateTime(Out);
                                     }
                                     if (In.ToString() != "")
                                     {
                                         dr["ManualInTime"] = Convert.ToDateTime(In);
+                                        dr["OriginalManualInTime"] = Convert.ToDateTime(In);
                                         dr["IsManualInTime"] = 1;
                                     }
 
