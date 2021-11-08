@@ -109,12 +109,31 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
         $scope.voucher.CurrencyId = data.trnCurrencyId;
         $scope.voucher.PartyName = data.CustomerName;
         $scope.voucher.PartyId = data.PartyId;
-        $scope.voucher.PartyPlantId = data.PartyPlantId;
         $scope.voucher.CompanyCurrencyRate = data.CompanyCurrencyRate;
         $scope.voucher.ToCurrencyRate = data.CompanyCurrencyRate;
         $scope.voucher.BaseNagotiationValue = data.BaseNagotiationValue;
         $scope.voucher.DocDate = data.DocDate;
-        	
+
+        if ($scope.voucher.Status == 'Sales') {
+        $scope.getCboPartyPlantList($scope.voucher.PartyId, function (result) {
+            $scope.partyPlantList = result;
+            angular.forEach($scope.partyPlantList, function (item, i) {
+                if (item.IsDefault) {
+                    $scope.voucher.InvoicingPartyPlantId = data.PartyPlantId;
+                    $scope.voucher.DeliveryPartyPlantId = data.DeliveryPartyPlantId;
+                    $scope.voucher.InvoicingByAddress = data.InvoicingByAddress;
+                    $scope.voucher.DeliveryByAddress = data.DeliveryByAddress;
+
+                    $scope.voucher.InvoicingState = item.StateName;
+                    $scope.voucher.InvoicingGSTIN = item.GSTIN;
+                    $scope.voucher.DeliveryState = item.StateName;
+                    $scope.voucher.DeliveryGSTIN = item.GSTIN;
+                    $scope.voucher.InvoicingStateId = item.StateId;
+                }
+            });
+        });
+        }
+
         if ($scope.voucher.Status == 'Sales') {
             $scope.DisposeTpye();
             // return true;
@@ -230,6 +249,14 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
         if ($scope.voucherDetailList.length == 0) {
             ShowResult("Please select Fixed Asset Register!", "failure");
             return true;
+        }
+        if ($scope.voucherDetailList.length > 0) {
+            for (var i = 0; i < $scope.voucherDetailList.length; i++) {
+                if (new Date($scope.voucherDetailList[i].PurchaseDate) > new Date($scope.voucher.DocDate)) {
+                    ShowResult("Doc date must be greater or equal to Invoice Date!", "failure");
+                    return true;
+                }
+            } 
         }
         else {
             return false;
@@ -601,6 +628,7 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
 
         }
     }
+
 
 
 }

@@ -179,7 +179,7 @@ namespace Aplos.Areas.Attendances.Controllers
                              LEFT JOIN HourlyOT eot  on eot.EmpSystemId=apd.EmpSystemID and eot.WorkDate=apd.WorkDate 
                              ---LEFT JOIN (select IsExceptionOT=case when id is not null then 1 else 0 end ,EmpSystemId,WorkDate from ExceptionOTProcess) excot  on excot.EmpSystemId=apd.EmpSystemID and excot.WorkDate=apd.WorkDate 
                              WHERE apd.WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'  AND EI.PlantID='" + identity.PlantId + @"'                            
-                             AND  apd.IsOTEntitled=1 AND isnull(APD.IsOTComfirm,0)=0 AND ISNULL(apd.ProcessedOT,0)>0
+                             AND  apd.IsOTEntitled=1 AND isnull(APD.IsOTComfirm,0)=0 --AND ISNULL(apd.ProcessedOT,0)>0
                              --AND apd.EmpSystemID IN (select distinct EmpSystemID from OTfromApp where IsConfirmed=0 and WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' )
 
                             GROUP BY apd.EmpSystemID 
@@ -218,7 +218,10 @@ namespace Aplos.Areas.Attendances.Controllers
             return json;
         }
 
+        #region ProcessedOT
 
+     
+        #endregion ProcessedOT
 
         [HttpPost]
         public ActionResult SaveOTLimitOverlapData(string YearNo, string MonthNo, string OTLimitSettingId, string[] EmpSystemIds)
@@ -302,6 +305,9 @@ namespace Aplos.Areas.Attendances.Controllers
 
             //Process data to generate final IN/OUT data (based on punch and manual data)
             FinalInOut(FromDate, ToDate, EmpSytemId);
+
+            //process ProcessedOT based on Final IN/OUT
+            ProcessForProcessedOT(EmpSytemId);
 
             //get OT data after rollback and IN/OUT Process
             DataSet dsOTDetails = null;
@@ -507,11 +513,11 @@ namespace Aplos.Areas.Attendances.Controllers
                             o.IsManualOutTime = Convert.ToBoolean(dv[i]["IsManualOutTime"].ToString());
                             o.ManualOutTime = dv[i]["ManualOutTime"].ToString();
 
-                            if (o.NewOutTime != "")
+                            if (string.IsNullOrEmpty(o.NewOutTime) == false)
                             {
                                 double TimeToReduce = (double)(((NewOT + ExtraOT) / OTreductionFactor) - NewOT);
                                 o.NewOutTime = Convert.ToDateTime(o.NewOutTime).AddMinutes(TimeToReduce * -1).ToString("dd-MMM-yyyy hh:mm:ss tt");
-                            }                           
+                            }
 
                             o.TotalOT = DailyOT;
                             o.OT = NewOT;
@@ -639,7 +645,8 @@ namespace Aplos.Areas.Attendances.Controllers
                 strSql = @"UPDATE AttdnProcessData SET ManualInTime = OriginalManualInTime,
                             IsManualInTime = CASE WHEN ISNULL(OriginalManualInTime,'')<>'' THEN 1 ELSE 0 END,
                             ManualOutTime = OriginalManualOutTime,
-                            IsManualOutTime = CASE WHEN ISNULL(OriginalManualOutTime,'')<>'' THEN 1 ELSE 0 END
+                            IsManualOutTime = CASE WHEN ISNULL(OriginalManualOutTime,'')<>'' THEN 1 ELSE 0 END,
+                            ManualFlag=1
                             WHERE WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' AND EmpSystemID IN (" + EmpSystemId + @")";
 
                 ConnectionManager.clsConnection _con = new ConnectionManager.clsConnection();
@@ -671,6 +678,26 @@ namespace Aplos.Areas.Attendances.Controllers
 
                 objCone.ExecuteNonQueryWrapper(sql, true, "1");
                 objCone.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public void ProcessForProcessedOT(string EmpSystemId)
+        {
+            try
+            {
+                var sql = @"SELECT DISTINCT PlantId FROM EmployeeInformation AS ei WHERE ei.SystemID IN (" + EmpSystemId + @")";
+
+                ConnectionManager.clsConnection _con = new ConnectionManager.clsConnection();
+                _con.getDataSet(sql, out DataSet dsRef);
+
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    NewAttendanceProcessService _service = new NewAttendanceProcessService();
+                    _service.ManualScheduler(dsRef.Tables[0].Rows[i]["PlantId"].ToString());
+                }
             }
             catch (Exception ex)
             {
@@ -1174,12 +1201,13 @@ namespace Aplos.Areas.Attendances.Controllers
                         {
                             drAttProc = dicAttProc[Key];// dvAttProc[0].Row;
                             drAttProc.BeginEdit();
-                            if (bplib.clsWebLib.RetValidLen(OTLimitTransactionData[i].NewOutTime).ToString() != "")
+
+                            if (string.IsNullOrEmpty(OTLimitTransactionData[i].NewOutTime) == false)
                             {
-                                drAttProc["OutTime"] = Convert.ToDateTime(OTLimitTransactionData[i].NewOutTime);
+                                drAttProc["OutTime"] = bplib.clsWebLib.RetValidLen(OTLimitTransactionData[i].NewOutTime);
                                 drAttProc["IsManualOutTime"] = true;
-                                drAttProc["ManualOutTime"] = Convert.ToDateTime(OTLimitTransactionData[i].NewOutTime);
-                            } 
+                                drAttProc["ManualOutTime"] = bplib.clsWebLib.RetValidLen(OTLimitTransactionData[i].NewOutTime);
+                            }
                             drAttProc["OTHr"] = Convert.ToDecimal(OTLimitTransactionData[i].OT);
 
                             drAttProc["IsOTComfirm"] = true;
@@ -1209,71 +1237,69 @@ namespace Aplos.Areas.Attendances.Controllers
                             objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "HourlyOT", out sID);
                             sID = "OX" + sID;
                         }
-                        if (bplib.clsWebLib.RetValidLen(OTLimitTransactionData[i].OutTime).ToString() != "")
+
+                        DataRow dr = dsHourlyOTData.Tables[0].NewRow();
+                        dr["Id"] = sID + "-" + (i + 1).ToString();
+                        dr["EmpSystemId"] = OTLimitTransactionData[i].EmpSystemId;
+                        //dr["FromDate"] = AttendanceProcessData[i].ExtraOTInTime;
+                        dr["FromDate"] = OTLimitTransactionData[i].InTime;
+                        dr["ToDate"] = bplib.clsWebLib.RetValidLen(OTLimitTransactionData[i].OutTime);
+                        dr["Duration"] = OTLimitTransactionData[i].ExtraOT;
+                        dr["WorkDate"] = Convert.ToDateTime(OTLimitTransactionData[i].WorkDate);
+
+                        dr["IsManualInTime"] = OTLimitTransactionData[i].IsManualInTime;
+                        if (OTLimitTransactionData[i].IsManualInTime)
                         {
-                            DataRow dr = dsHourlyOTData.Tables[0].NewRow();
-                            dr["Id"] = sID + "-" + (i + 1).ToString();
-                            dr["EmpSystemId"] = OTLimitTransactionData[i].EmpSystemId;
-                            //dr["FromDate"] = AttendanceProcessData[i].ExtraOTInTime;
-                            dr["FromDate"] = OTLimitTransactionData[i].InTime;
-                            dr["ToDate"] = OTLimitTransactionData[i].OutTime;
-                            dr["Duration"] = OTLimitTransactionData[i].ExtraOT;
-                            dr["WorkDate"] = Convert.ToDateTime(OTLimitTransactionData[i].WorkDate);
-
-                            dr["IsManualInTime"] = OTLimitTransactionData[i].IsManualInTime;
-                            if (OTLimitTransactionData[i].IsManualInTime)
-                            {
-                                dr["ManualInTime"] = bplib.clsWebLib.RetValidLen(clsStaticInfo.GetDateTime(OTLimitTransactionData[i].ManualInTime));
-                            }
-                            dr["IsManualOutTime"] = OTLimitTransactionData[i].IsManualOutTime;
-                            if (OTLimitTransactionData[i].IsManualOutTime)
-                            {
-                                dr["ManualOutTime"] = bplib.clsWebLib.RetValidLen(clsStaticInfo.GetDateTime(OTLimitTransactionData[i].ManualOutTime));
-                            }
-
-
-                            dr["PlantId"] = identity.PlantId;
-                            dr["AddedBy"] = identity.Name;
-                            dr["AddedDate"] = DateTime.Now;
-                            dr["AddedFromIP"] = identity.IPAddress;
-                            dr["UpdatedBy"] = identity.Name;
-                            dr["UpdatedDate"] = DateTime.Now;
-                            dr["UpdatedFromIP"] = identity.IPAddress;
-                            dr["OTType"] = "OTLIMIT";
-                            dsHourlyOTData.Tables[0].Rows.Add(dr);
+                            dr["ManualInTime"] = bplib.clsWebLib.RetValidLen(clsStaticInfo.GetDateTime(OTLimitTransactionData[i].ManualInTime));
                         }
+                        dr["IsManualOutTime"] = OTLimitTransactionData[i].IsManualOutTime;
+                        if (OTLimitTransactionData[i].IsManualOutTime)
+                        {
+                            dr["ManualOutTime"] = bplib.clsWebLib.RetValidLen(clsStaticInfo.GetDateTime(OTLimitTransactionData[i].ManualOutTime));
+                        }
+
+
+                        dr["PlantId"] = identity.PlantId;
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = DateTime.Now;
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = DateTime.Now;
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+                        dr["OTType"] = "OTLIMIT";
+                        dsHourlyOTData.Tables[0].Rows.Add(dr);
+
                     }
                     else
                     {
-                        if (bplib.clsWebLib.RetValidLen(OTLimitTransactionData[i].OutTime).ToString() != "")
+
+                        DataRow dr = dicHourlyOTData[Key];// DvHourlyOTData[0].Row;
+                        dr.BeginEdit();
+                        dr["EmpSystemId"] = OTLimitTransactionData[i].EmpSystemId;
+                        //dr["FromDate"] = AttendanceProcessData[i].ExtraOTInTime;
+                        //dr["FromDate"] = RandomOutTime;
+                        //dr["ToDate"] = ExtraOTOutTime;
+                        dr["FromDate"] = OTLimitTransactionData[i].InTime;
+                        dr["ToDate"] = bplib.clsWebLib.RetValidLen(OTLimitTransactionData[i].OutTime);
+                        dr["Duration"] = OTLimitTransactionData[i].ExtraOT;
+                        dr["WorkDate"] = Convert.ToDateTime(OTLimitTransactionData[i].WorkDate);
+                        dr["IsManualInTime"] = OTLimitTransactionData[i].IsManualInTime;
+                        if (OTLimitTransactionData[i].IsManualInTime)
                         {
-                            DataRow dr = dicHourlyOTData[Key];// DvHourlyOTData[0].Row;
-                            dr.BeginEdit();
-                            dr["EmpSystemId"] = OTLimitTransactionData[i].EmpSystemId;
-                            //dr["FromDate"] = AttendanceProcessData[i].ExtraOTInTime;
-                            //dr["FromDate"] = RandomOutTime;
-                            //dr["ToDate"] = ExtraOTOutTime;
-                            dr["FromDate"] = OTLimitTransactionData[i].InTime;
-                            dr["ToDate"] = OTLimitTransactionData[i].OutTime;
-                            dr["Duration"] = OTLimitTransactionData[i].ExtraOT;
-                            dr["WorkDate"] = Convert.ToDateTime(OTLimitTransactionData[i].WorkDate);
-                            dr["IsManualInTime"] = OTLimitTransactionData[i].IsManualInTime;
-                            if (OTLimitTransactionData[i].IsManualInTime)
-                            {
-                                dr["ManualInTime"] = bplib.clsWebLib.RetValidLen(clsStaticInfo.GetDateTime(OTLimitTransactionData[i].ManualInTime));
-                            }
-                            dr["IsManualOutTime"] = OTLimitTransactionData[i].IsManualOutTime;
-                            if (OTLimitTransactionData[i].IsManualOutTime)
-                            {
-                                dr["ManualOutTime"] = bplib.clsWebLib.RetValidLen(clsStaticInfo.GetDateTime(OTLimitTransactionData[i].ManualOutTime));
-                            }
-                            dr["PlantId"] = identity.PlantId;
-                            dr["UpdatedBy"] = identity.Name;
-                            dr["UpdatedDate"] = DateTime.Now;
-                            dr["UpdatedFromIP"] = identity.IPAddress;
-                            dr["OTType"] = "OTLIMIT";
-                            dr.EndEdit();
+                            dr["ManualInTime"] = bplib.clsWebLib.RetValidLen(clsStaticInfo.GetDateTime(OTLimitTransactionData[i].ManualInTime));
                         }
+                        dr["IsManualOutTime"] = OTLimitTransactionData[i].IsManualOutTime;
+                        if (OTLimitTransactionData[i].IsManualOutTime)
+                        {
+                            dr["ManualOutTime"] = bplib.clsWebLib.RetValidLen(clsStaticInfo.GetDateTime(OTLimitTransactionData[i].ManualOutTime));
+                        }
+                        dr["PlantId"] = identity.PlantId;
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = DateTime.Now;
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+                        dr["OTType"] = "OTLIMIT";
+                        dr.EndEdit();
+
                     }
 
                     #endregion
