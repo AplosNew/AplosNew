@@ -3507,7 +3507,6 @@
     <Content Include="Areas\Accounts\Views\BalanceSheetReportGroupWise.cshtml" />
     <Content Include="Areas\Accounts\Views\TrialBalanceReportGroupWise.cshtml" />
     <Content Include="Areas\Outsourcing\Views\JWActivity\Aplos.cshtml" />
-    <Content Include="Areas\Outsourcing\Views\web.config" />
     <Content Include="Areas\Outsourcing\Views\JWLocation\Aplos.cshtml" />
     <Content Include="Areas\Outsourcing\Views\JWTransformationMaster\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\TaxReport\_InvoiceTaxPopUp1.cshtml" />
