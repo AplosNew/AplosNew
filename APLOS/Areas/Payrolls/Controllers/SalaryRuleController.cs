@@ -540,6 +540,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                     dr["IsActive"] = data.IsActive;
 
                     dr["AddedBy"] = identity.Name;
+                    dr["AddedFromIP"] = identity.IPAddress;
                     dr["DateAdded"] = DateTime.Now;
 
                     dsMaster.Tables[0].Rows.Add(dr);
@@ -558,6 +559,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                     dr["IsValidGovGrd"] = data.IsValidGovGrd;
                     dr["IsActive"] = data.IsActive;
                     dr["UpdatedBy"] = identity.Name;
+                    dr["UpdatedFromIP"] = identity.IPAddress;
                     dr["DateUpdated"] = System.DateTime.Now.ToString();
 
                     dr.EndEdit();
@@ -676,6 +678,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                         dr["IsPolicyDerived"] = data.IsPolicyDerived;
                         //dr["IsSlabBased"] = data.IsSlabBased;
                         dr["AddedBy"] = identity.Name;
+                        dr["AddedFromIP"] = identity.IPAddress;
                         dr["DateAdded"] = DateTime.Now;
 
                         dsMaster.Tables[0].Rows.Add(dr);
@@ -753,6 +756,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                         dr["IsPolicyDerived"] = data.IsPolicyDerived;
                         //dr["IsSlabBased"] = data.IsSlabBased;
                         dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedFromIP"] = identity.IPAddress;
                         dr["DateUpdated"] = DateTime.Now.ToString();
 
                         dr.EndEdit();
@@ -852,6 +856,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                             dr["IsPolicyDerived"] = item.IsPolicyDerived;
 
                             dr["AddedBy"] = identity.Name;
+                            dr["AddedFromIP"] = identity.IPAddress;
                             dr["DateAdded"] = DateTime.Now;
 
                             dsMaster.Tables[0].Rows.Add(dr);
@@ -919,6 +924,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                             dr["IsPolicyDerived"] = item.IsPolicyDerived;
 
                             dr["UpdatedBy"] = identity.Name;
+                            dr["UpdatedFromIP"] = identity.IPAddress;
                             dr["DateUpdated"] = DateTime.Now.ToString();
 
                             dr.EndEdit();
@@ -1820,8 +1826,10 @@ namespace Aplos.Areas.Payrolls.Controllers
         public bool IsValidGovGrd { get; set; }
         public bool IsActive { get; set; }
         public string AddedBy { get; set; }
+        public string AddedFromIP { get; set; }
         public DateTime DateAdded { get; set; }
         public string UpdatedBy { get; set; }
+        public string UpdatedFromIP { get; set; }
         public DateTime DateUpdated { get; set; }
         public string CurrencyRuleName { get; set; }
         public string IncomeTaxGroup { get; set; }
@@ -1981,8 +1989,10 @@ namespace Aplos.Areas.Payrolls.Controllers
         public bool BaseOnNetPay { get; set; }
         public bool RefAbsentism { get; set; }
         public string AddedBy { get; set; }
+        public string AddedFromIP { get; set; }
         public DateTime DateAdded { get; set; }
         public string UpdatedBy { get; set; }
+        public string UpdatedFromIP { get; set; }
         public DateTime? DateUpdated { get; set; }
         public string GNRBaseOthSlrHDFormula { get; set; }
         public string GNRApplicableMonthNo { get; set; }

@@ -413,7 +413,7 @@ namespace Library.Accounting.FixedAssets
                 , FAM.FixedAssetSubCategoryId, FAM.AssetType	
                 ,P.UserName Vendor
                        		,format( FR.CapitalizationDate,'dd-MMM-yyyy')CapitalizationDate
-									,format(IR.GRNDate,'dd-MMM-yyyy') PurchaseDate
+									,format(FR.InvoiceDate,'dd-MMM-yyyy') PurchaseDate
 									,format( ii.IssueDate,'dd-MMM-yyyy')IssueDate
                                     ,format( frd.DocDate,'dd-MMM-yyyy')DocDate
 			               ,c.Code TrnCurrency
