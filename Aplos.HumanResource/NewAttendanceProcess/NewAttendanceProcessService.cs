@@ -1271,7 +1271,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 var sql = @"select month('"+Date+ @"')as Month,Year('" + Date + @"')as Year,Day('" + Date + @"')as Day,
                 DAY(DATEADD(DD,-1,DATEADD(MM,DATEDIFF(MM,-1,'" + Date + @"'),0)))NoOfDaysInMonth,
-                W.[28Days] AS Pattern28,W.[29Days] as Pattern29,W.[30Days] as Pattern30,W.[31Days] as Pattern31
+                W.[Days28] AS Pattern28,W.[Days29] as Pattern29,W.[Days30] as Pattern30,W.[Days31] as Pattern31
                 from WeekDefination W where DayNo=Day('" + Date + @"')";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
