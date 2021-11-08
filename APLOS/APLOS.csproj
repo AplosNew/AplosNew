@@ -3823,10 +3823,10 @@
     <Content Include="Areas\JobWork\Views\JWValueAddedContract\Aplos.cshtml" />
     <Content Include="Areas\JobWork\Views\JobWorkTransformationPO\Aplos.cshtml" />
     <Content Include="Areas\JobWork\Views\web.config" />
-    <Content Include="Areas\JobWork\Views\OSIssueRegister\Aplos.cshtml" />
-    <Content Include="Areas\JobWork\Views\OSIssueRegister\IssueReturnRegister.cshtml" />
     <Content Include="Areas\Attendances\Views\SandwichProcess\Aplos.cshtml" />
     <Content Include="Areas\Outsourcing\Views\web.config" />
+    <Content Include="Areas\JobWork\Views\OSIssueRegister\Aplos.cshtml" />
+    <Content Include="Areas\JobWork\Views\OSIssueRegister\IssueReturnRegister.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
