@@ -2686,6 +2686,7 @@
     <Content Include="Areas\Setups\Scripts\employeeLocationController.js" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="images\organization-alt.png" />
+    <Content Include="POPResources\Templates\FixedAssetDisposed20171.docx" />
     <Content Include="POPResources\Templates\PurchaseOrder20188.docx" />
     <Content Include="POPResources\UserPictures\altUser.jpg" />
     <Content Include="Areas\Banks\Scripts\cashBaseController.js" />
