@@ -535,8 +535,8 @@ namespace Library.Accounting.FixedAssets
                 //var dsServiceItems = loadGRNServiceMaster(fixedAssetRegisterDisposeId);
                 var materialTotal = makeOrderDetailsTable(document, dtOrderMaster, fixedAssetRegisterDisposeId);//Material Details 
 
-                document.Replace("{GrandTotal}", ((materialTotal)).ToString("#,##0.00") + " " + dtOrderMaster.Rows[0]["TrnCurrency"].ToString(), true, true);
-                document.Replace("{TotalInWords}", ru.InWord(((materialTotal)), dtOrderMaster.Rows[0]["TrnCurrencyId"].ToString()), true, true);
+                document.Replace("{GrandTotal}", ((materialTotal)).ToString("#,##0.00") + " " + dtOrderMaster.Rows[0]["Currency"].ToString(), true, true);
+                document.Replace("{TotalInWords}", ru.InWord(((materialTotal)), dtOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
 
                 Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
 
@@ -645,7 +645,7 @@ namespace Library.Accounting.FixedAssets
 		                            ,FAD.Remarks,
 									Customer.UserName CustomerName
 
-									,CU.Code Currency,Plant.UserName Plant,FR.Status
+									,CU.Code Currency,CU.Id CurrencyId,Plant.UserName Plant,FR.Status
 									,FAD.InvoicingByAddress	
 									
 									,FAD.DeliveryByAddress,VPL.UserName DeliveryParty
@@ -710,7 +710,7 @@ namespace Library.Accounting.FixedAssets
 
             ReportUtility ru = new ReportUtility();
 
-            int LasColumnIndex = 6;
+            int LasColumnIndex = 5;
             Dictionary<string, int> dicTaxes = new Dictionary<string, int>();
 
             WTable wTable = new WTable(document);
@@ -742,28 +742,28 @@ namespace Library.Accounting.FixedAssets
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Materials");
             range.ApplyCharacterFormat(FontBold);
             int colMaterialGroup = COL; COL++;
-            wTable.Rows[ROW].Cells[colMaterialGroup].Width = 100;
+            wTable.Rows[ROW].Cells[colMaterialGroup].Width = 130;
 
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Article ");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Article");
             range.ApplyCharacterFormat(FontBold);
             int colArticle = COL; COL++;
-            wTable.Rows[ROW].Cells[colArticle].Width = 113;
+            wTable.Rows[ROW].Cells[colArticle].Width = 180;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Asset Master");
             range.ApplyCharacterFormat(FontBold);
             int colFixedAssetMaster = COL; COL++;
             wTable.Rows[ROW].Cells[colFixedAssetMaster].Width = 110;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Transaction Amount(" + dsOrderMaster.Rows[0]["TrnCurrency"].ToString() + ")");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Transaction Amount(" + dsOrderMaster.Rows[0]["Currency"].ToString() + ")");
             range.ApplyCharacterFormat(FontBold);
             int colTrnAmount = COL; COL++;
             wTable.Rows[ROW].Cells[colTrnAmount].Width = 90;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Base Amount(" + dsOrderMaster.Rows[0]["BaseCurrency"].ToString() + ")");
-            range.ApplyCharacterFormat(FontBold);
-            int colBaseAmount = COL; COL++;
-            wTable.Rows[ROW].Cells[colBaseAmount].Width = 90;
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Base Amount(" + dsOrderMaster.Rows[0]["BaseCurrency"].ToString() + ")");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colBaseAmount = COL; COL++;
+            //wTable.Rows[ROW].Cells[colBaseAmount].Width = 90;
 
 
             #endregion column headers
@@ -796,9 +796,9 @@ namespace Library.Accounting.FixedAssets
                 TROW.Cells[colArticle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Article"].ToString());
                 TROW.Cells[colFixedAssetMaster].AddParagraph().AppendText(dsOrderMaster.Rows[i]["FixedAssetMasterName"].ToString());
 
-                TROW.Cells[colTrnAmount].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["PurchasePrice"].ToString()).ToString("#,##0.00"));
-                TROW.Cells[colBaseAmount].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["BaseValue"].ToString()).ToString("#,##0.00"));
-                totalValue += clsStaticInfo.dbl(dsOrderMaster.Rows[i]["PurchasePrice"].ToString());
+                TROW.Cells[colTrnAmount].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TrnValue"].ToString()).ToString("#,##0.00"));
+                //TROW.Cells[colBaseAmount].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["BaseValue"].ToString()).ToString("#,##0.00"));
+                totalValue += clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TrnValue"].ToString());
                 //TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(totalValue.ToString("F2"));
 
             }
@@ -837,7 +837,7 @@ namespace Library.Accounting.FixedAssets
 
             //_TROW.Cells[SubTotalColumn].AddParagraph().AppendText("Sub Total");
 
-            double total = clsStaticInfo.dbl(dsOrderMaster.Compute("SUM(PurchasePrice)", "").ToString());
+            double total = clsStaticInfo.dbl(dsOrderMaster.Compute("SUM(TrnValue)", "").ToString());
             ////- clsStaticInfo.dbl(dsOrderItems.Tables[0].Compute("SUM(Discount)", "").ToString())
 
 
