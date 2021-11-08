@@ -113,6 +113,7 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
         $scope.voucher.ToCurrencyRate = data.CompanyCurrencyRate;
         $scope.voucher.BaseNagotiationValue = data.BaseNagotiationValue;
         $scope.voucher.DocDate = data.DocDate;
+        $scope.voucher.VoucherNo = data.VoucherNo;
 
         if ($scope.voucher.Status == 'Sales') {
         $scope.getCboPartyPlantList($scope.voucher.PartyId, function (result) {

@@ -616,7 +616,6 @@ namespace Library.Accounting.FixedAssets
                                     , FAM.UserName FixedAssetMasterName, FAC.UserName FixedAssetCategory
                                     , FASC.UserName FixedAssetSubCategory, FAM.FixedAssetCategoryId
                                     , FAM.FixedAssetSubCategoryId, FAM.AssetType
-                                    ,P.UserName Vendor
                                     ,c.Code TrnCurrency
 									,c.id TrnCurrencyId
 	                                ,FORMAT(FAD.DocDate,'dd-MMM-yyyy') DocDate
@@ -645,7 +644,14 @@ namespace Library.Accounting.FixedAssets
 									,format( ii.IssueDate,'dd-MMM-yyyy')IssueDate
 		                            ,FAD.Remarks,
 									Customer.UserName CustomerName
+
 									,CU.Code Currency,Plant.UserName Plant,FR.Status
+									,FAD.InvoicingByAddress	
+									
+									,FAD.DeliveryByAddress,VPL.UserName DeliveryParty
+									,FAD.Id FixedAssetNo, FAD.PartyPlantId,fad.DeliveryPartyPlantId
+									,FAD.AddedBy
+								
 									
 
                                     FROM [TRN].[FixedAssetRegister] FR
@@ -669,7 +675,6 @@ namespace Library.Accounting.FixedAssets
                                     LEFT JOIN SCS.Currency C ON C.Id =FR.CurrencyId
                                     LEFT JOIN SCS.Currency BC ON BC.Id =FR.FABaseCurrencyId
 
-	                                LEFT JOIN HKP.Party P ON P.Id = FR.VendorId
 								   LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=BM.GLGeneralInfoId
 								   LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
 								   LEFT JOIN HKP.Activity A ON A.Id=FR.FAActivityId
@@ -681,6 +686,7 @@ namespace Library.Accounting.FixedAssets
                                     LEFT JOIN TRN.FixedAssetRegisterDisposed FAD ON FAD.Id=FARD.FixedAssetRegisterDisposedId
 	                                LEFT JOIN HKP.Party Customer ON Customer.Id = FAD.PartyId
                                     LEFT JOIN SCS.Currency CU ON CU.Id =FAD.CurrencyId
+									 LEFT JOIN HKP.PartyPlant VPL ON VPL.Id = FAD.DeliveryPartyPlantId
                                     LEFT JOIN ORG.Plant Plant ON Plant.Id =FR.PlantId
                                    WHERE FARD.FixedAssetRegisterDisposedId='" + fixedAssetRegisterDisposeId + @"'";
 
@@ -742,22 +748,22 @@ namespace Library.Accounting.FixedAssets
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Article ");
             range.ApplyCharacterFormat(FontBold);
             int colArticle = COL; COL++;
-            wTable.Rows[ROW].Cells[colArticle].Width = 110;
+            wTable.Rows[ROW].Cells[colArticle].Width = 113;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Asset Master");
             range.ApplyCharacterFormat(FontBold);
             int colFixedAssetMaster = COL; COL++;
             wTable.Rows[ROW].Cells[colFixedAssetMaster].Width = 110;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Base Amount(" + dsOrderMaster.Rows[0]["BaseCurrency"].ToString() + ")");
-            range.ApplyCharacterFormat(FontBold);
-            int colBaseAmount = COL; COL++;
-            wTable.Rows[ROW].Cells[colBaseAmount].Width = 90;
-
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Transaction Amount(" + dsOrderMaster.Rows[0]["TrnCurrency"].ToString() + ")");
             range.ApplyCharacterFormat(FontBold);
             int colTrnAmount = COL; COL++;
             wTable.Rows[ROW].Cells[colTrnAmount].Width = 90;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Base Amount(" + dsOrderMaster.Rows[0]["BaseCurrency"].ToString() + ")");
+            range.ApplyCharacterFormat(FontBold);
+            int colBaseAmount = COL; COL++;
+            wTable.Rows[ROW].Cells[colBaseAmount].Width = 90;
 
 
             #endregion column headers

@@ -142,7 +142,7 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Invoice Amount <sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input tabindex="6" ng-model="voucher.Amount" name="Amount" type="text" n-decimals="2" class="form-control text-right" required autocomplete="off">
+                <input tabindex="6" ng-model="voucher.Amount" name="Amount" type="text" n-decimals="3" class="form-control text-right" required autocomplete="off">
             </div>
         </div>
         <div class="form-group">
@@ -229,18 +229,18 @@
                     </td>
                     <td id="td_CrAmount_{{$index}}">
                         <div class="show-message">
-                            <input type="text" n-decimals="4" class="form-control text-right" ng-model="x.Amount" ng-keyup="calculatebackTax($index);calculateTax(x.Id,$index);checkRowValidation(x, $index)">
+                            <input type="text" n-decimals="3" class="form-control text-right" ng-model="x.Amount" ng-keyup="calculatebackTax($index);calculateTax(x.Id,$index);checkRowValidation(x, $index)">
                         </div>
                     </td>
                     <td>
                         <div class="show-message">
-                            <input type="text" n-decimals="4" class="form-control text-right" ng-model="x.TotalTax" readonly>
+                            <input type="text" n-decimals="3" class="form-control text-right" ng-model="x.TotalTax" readonly>
                         </div>
                     </td>
 
                     <td>
                         <div class="show-message">
-                            <input type="text" n-decimals="4" class="form-control text-right" ng-model="x.TotalAmount" readonly>
+                            <input type="text" n-decimals="3" class="form-control text-right" ng-model="x.TotalAmount" readonly>
                         </div>
                     </td>
                     <td class="text-right">
@@ -260,9 +260,9 @@
                 <tr>
                     <td></td>
                     <td colspan="3" class="text-right">Total</td>
-                    <td class="text-right"><b>{{ (voucherDetailList | filter:{TrnType:'Dr'}) | sumByKey:'Amount'| number:4 }}</b></td>
-                    <td class="text-right"><b>{{ (voucherDetailList | filter:{TrnType:'Dr'}) | sumByKey:'TotalTax'| number:4 }}</b></td>
-                    <td class="text-right"><b>{{ (voucherDetailList | filter:{TrnType:'Dr'}) | sumByKey:'TotalAmount'| number:4 }}</b></td>
+                    <td class="text-right"><b>{{ (voucherDetailList | filter:{TrnType:'Dr'}) | sumByKey:'Amount'| number:3 }}</b></td>
+                    <td class="text-right"><b>{{ (voucherDetailList | filter:{TrnType:'Dr'}) | sumByKey:'TotalTax'| number:3 }}</b></td>
+                    <td class="text-right"><b>{{ (voucherDetailList | filter:{TrnType:'Dr'}) | sumByKey:'TotalAmount'| number:3 }}</b></td>
                     <td></td>
                 </tr>
             </tfoot>
@@ -294,12 +294,12 @@
                     </td>
                     <td>
                         <div>
-                            <input type="text" n-decimals="4" class="form-control text-right" ng-disabled="advanceTax.Type =='FixedPercentage' && advanceTax.ValueOfFixed!=null" ng-model="advanceTax.ValueOfFixed">
+                            <input type="text" n-decimals="3" class="form-control text-right" ng-disabled="advanceTax.Type =='FixedPercentage' && advanceTax.ValueOfFixed!=null" ng-model="advanceTax.ValueOfFixed">
                         </div>
                     </td>
                     <td id="td_TaxCodeAmount">
                         <div class="show-message">
-                            <input type="text" n-decimals="4" class="form-control text-right" ng-model="advanceTax.TaxAmount" ng-keyup="copyTaxesAmount();">
+                            <input type="text" n-decimals="3" class="form-control text-right" ng-model="advanceTax.TaxAmount" ng-keyup="copyTaxesAmount();">
                         </div>
                     </td>
                     <td class="text-right">
@@ -309,7 +309,7 @@
                 <tr ng-repeat="x in advanceTaxesList">
                     <td>{{x.TaxName}}</td>
                     <td>{{x.ValueOfFixed}}</td>
-                    <td class="text-right">{{x.TaxAmount | number:4 }}</td>
+                    <td class="text-right">{{x.TaxAmount | number:3 }}</td>
                     <td class="text-right">
                         <button ng-click="removeTaxesRow($index)" data-toggle="modal" ng-disabled="x.AdvanceId" class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
                     </td>
@@ -327,7 +327,7 @@
         <div class="form-group" show-errors>
             <label class="col-sm-6 control-label">Total Invoice Amount (Taxable Amount+Tax+Additional Tax)<sup>*</sup></label>
             <div class="col-sm-2 show-message">
-                <input type="text" n-decimals="4" name="Total Amount" ng-model="TotalInvoiceAmount" class="form-control" tabindex="4" readonly>
+                <input type="text" n-decimals="3" name="Total Amount" ng-model="TotalInvoiceAmount" class="form-control" tabindex="4" readonly>
             </div>
         </div>
     </div>
@@ -354,12 +354,12 @@
                     </td>
                     <td>
                         <div>
-                            <input type="text" n-decimals="4" class="form-control text-right" ng-disabled="TDS.Type =='FixedPercentage' && TDS.ValueOfFixed!=null" ng-model="TDS.ValueOfFixed">
+                            <input type="text" n-decimals="3" class="form-control text-right" ng-disabled="TDS.Type =='FixedPercentage' && TDS.ValueOfFixed!=null" ng-model="TDS.ValueOfFixed">
                         </div>
                     </td>
                     <td id="td_TDS_TaxCodeAmount">
                         <div class="show-message">
-                            <input type="text" n-decimals="4" class="form-control text-right" ng-model="TDS.TaxAmount" ng-keyup="copyTaxesAmount();">
+                            <input type="text" n-decimals="3" class="form-control text-right" ng-model="TDS.TaxAmount" ng-keyup="copyTaxesAmount();">
                         </div>
                     </td>
                     <td class="text-right">
@@ -369,7 +369,7 @@
                 <tr ng-repeat="x in TDSList">
                     <td>{{x.TaxName}}</td>
                     <td>{{x.ValueOfFixed}}</td>
-                    <td class="text-right">{{x.TaxAmount | number:2 }}</td>
+                    <td class="text-right">{{x.TaxAmount | number:3 }}</td>
                     <td class="text-right">
                         <button ng-click="removeTDSRow($index)" data-toggle="modal" ng-disabled="x.AdvanceId" class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
                     </td>
@@ -453,11 +453,11 @@
                     <td>{{x.PartyPlantName}}</td>
                     <td>{{x.PostingDate | dateFiltering}}</td>
                     <td>{{x.CurrencyCode}}</td>
-                    <td class="text-right">{{x.Amount | number:2}}</td>
-                    <td class="text-right"><ul class="list-inline action-list"><li><a ng-click="getInvoiceSetOffDetailByInvoice(x.Id)" href="">{{x.WrittenOffAmount | number:2}}</a></li></ul></td>
-                    <td class="text-right">{{x.Amount-x.WrittenOffAmount | number:2}}</td>
+                    <td class="text-right">{{x.Amount | number:3}}</td>
+                    <td class="text-right"><ul class="list-inline action-list"><li><a ng-click="getInvoiceSetOffDetailByInvoice(x.Id)" href="">{{x.WrittenOffAmount | number:3}}</a></li></ul></td>
+                    <td class="text-right">{{x.Amount-x.WrittenOffAmount | number:3}}</td>
                     <td>{{x.BeneficiaryType}}</td>
-                    <td class="text-right">{{x.AdditionalTax | number:2}}</td>
+                    <td class="text-right">{{x.AdditionalTax | number:3}}</td>
                     <td>{{x.TDSVoucherNo}}</td>
                     <td>{{x.IsPark?'Parked':'Posted'}}</td>
                     <td class="text-right">
