@@ -113,6 +113,7 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
         $scope.voucher.ToCurrencyRate = data.CompanyCurrencyRate;
         $scope.voucher.BaseNagotiationValue = data.BaseNagotiationValue;
         $scope.voucher.DocDate = data.DocDate;
+        $scope.voucher.VoucherNo = data.VoucherNo;
 
         if ($scope.voucher.Status == 'Sales') {
         $scope.getCboPartyPlantList($scope.voucher.PartyId, function (result) {
@@ -244,6 +245,14 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
         }
         if ($scope.voucher.Status == 'Sales' && baseService.isUndefinedOrNull($scope.voucher.PartyId)) {
             ShowResult("Please select Customer!", "failure");
+            return true;
+        }
+        if ($scope.voucher.Status == 'Sales' && baseService.isUndefinedOrNull($scope.voucher.CurrencyId)) {
+            ShowResult("Please select Currency!", "failure");
+            return true;
+        }
+        if ($scope.voucher.Status == 'Sales' && baseService.isUndefinedOrNull($scope.voucher.CompanyCurrencyRate)) {
+            ShowResult("Please Input Rate!", "failure");
             return true;
         }
         if ($scope.voucherDetailList.length == 0) {

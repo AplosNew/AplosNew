@@ -26,8 +26,7 @@ namespace Library.MaterialManagement.JobWork
         {
             try
             {
-                var sql = "";
-                sql = @"SELECT DISTINCT
+                var sql = @"SELECT DISTINCT
 				 IR.GRNType,count(BOQ.SalesOrderId) SOIdCount
 				, IRD.Id InventoryReceiveDetailId
 				,'' POReqDetailsId
@@ -81,13 +80,14 @@ namespace Library.MaterialManagement.JobWork
 						  from trn.GRNPORequisitionAllocation 
 						  group by InventoryReceiveDetailId
 						  )AlreadyAllo ON AlreadyAllo.InventoryReceiveDetailId=IRD.Id
-				WHERE IR.GRNType='GRNBYPO' 
+				WHERE 
+				IR.GRNType IN('GRNBYJW','GRNBYOS')
 				AND Boq.SalesOrderId IS NOT NULL AND isnull(IRD.TransactionQty,0) > isnull(AlreadyAllo.TransactionQty,0)
 				group by IR.GRNType, IRD.Id,IRD.TransactionQty,AlreadyAllo.TransactionQty
 				,IRD.TransactionUoMId,TUoM.UserName,IRD.BaseQty,IRD.BaseUOMId,BUoM.UserName,IRD.OSTransformationPOId,IRD.OSTransformationPODetailId
 				,IM.MaterialMasterId,MM.UserName , IM.ArticleId, ART.StandardName , IM.FirstCharacteristicsValueId, FCV.UserName, IM.SecondCharacteristicsValueId
 				,SCV.UserName, IM.ThirdCharacteristicsValueId,TCV.UserName,MM.IsAsset,MaA.BaseUOMFactor
-				Order by IRD.Id ASC";// ,MMAU.BaseUOMFactor
+				Order by IRD.Id ASC";
                 return _sqlRepository.GetDataCollection(sql);
 
             }

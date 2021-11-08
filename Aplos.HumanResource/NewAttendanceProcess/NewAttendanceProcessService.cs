@@ -593,7 +593,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     if (OriginalDateComp.Tables[0].Rows.Count > 0)
                     {
                         // Getting DayCode from Screen and flagging it 
-                        string OCompensatory = "",DayCode="";
+                        string OCompensatory = "", DayCode = "";
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
 
                         string WkDate = OriginalDateComp.Tables[0].Rows[0][@"WkDate"].ToString();
@@ -615,7 +615,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             if (ForEntirePlant == "True")
                             {
                                 OCompensatory = "1";
-                             
+
                             }
                             else
                             {
@@ -660,12 +660,12 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             }
 
                         }
-                      
+
                         #endregion
 
                     }
                     #endregion
-                    
+
                     #region OTEligibleData Flagging
                     DataSet OTElgbEmp;
                     OTEligibleEmp(Date, out OTElgbEmp, PlantValue); // OT Eligible DataSet Generation
@@ -773,47 +773,51 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     }
                     #endregion
 
-                    #region OTDayLimit Process Row Creation
-                    //DataSet OTDayLimit;
-                    //OTDayLimitRowCreation(Date, out OTDayLimit, PlantValue);
-                    //if (OTDayLimit.Tables[0].Rows.Count > 0) // DayLimit Process DataSet Generation
-                    //{
-                    //    var WkDate = OTDayLimit.Tables[0].Rows[0][@"WorkDate"].ToString();
-                    //    var GpId = OTDayLimit.Tables[0].Rows[0][@"GroupID"].ToString();
-                    //    var PlantId = OTDayLimit.Tables[0].Rows[0][@"PlantID"].ToString();
+                    #region OT Month Year Week Localization
+                    DataSet OTWeek;
+                    OTWeekLocalizationData(Date, out OTWeek);
+                    if (OTWeek.Tables[0].Rows.Count > 0) // OT Week Month Year DataSet Generation
+                    {
+                        // Data From Week Defination
+                        var Month = clsWebLib.RetValidLen(OTWeek.Tables[0].Rows[0][@"Month"]).ToString();
+                        var Year = clsWebLib.RetValidLen(OTWeek.Tables[0].Rows[0][@"Year"]).ToString();
+                        var NoOfDaysInMonth = clsWebLib.RetValidLen(OTWeek.Tables[0].Rows[0][@"NoOfDaysInMonth"]).ToString();
+                        var Pattern28 = clsWebLib.RetValidLen(OTWeek.Tables[0].Rows[0][@"Pattern28"]).ToString();
+                        var Pattern29 = clsWebLib.RetValidLen(OTWeek.Tables[0].Rows[0][@"Pattern29"]).ToString();
+                        var Pattern30 = clsWebLib.RetValidLen(OTWeek.Tables[0].Rows[0][@"Pattern30"]).ToString();
+                        var Pattern31 = clsWebLib.RetValidLen(OTWeek.Tables[0].Rows[0][@"Pattern31"]).ToString();
 
-                    //    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                    //    objCon.OpenDataSetThroughAdapter("select * from OTProcessDayLimit where WorkDate='" + WkDate + "'and PlantID='" + PlantId + "'", out DataSet dsRef, false, false, "", "1");
+                        var sql = @"";
+                        // WeekNo Depending on the No Of Days In Month
+                        if (NoOfDaysInMonth == "28" && Pattern28 !="")
+                        {
+                            sql = "update AttdnProcessData set otmonth = '"+ Month+"', OTYear = '"+Year+"', OTWeek = '"+ Pattern28+"' " +
+                                "where WorkDate = '"+Date+"' and PlantID = '"+PlantValue+"'";
+                        }
+                        else if (NoOfDaysInMonth == "29" && Pattern29 !="")
+                        {
+                            sql = "update AttdnProcessData set otmonth = '" + Month + "', OTYear = '" + Year + "', OTWeek = '" + Pattern29 + "' " +
+                               "where WorkDate = '" + Date + "' and PlantID = '" + PlantValue + "'";
+                        }
+                        else if(NoOfDaysInMonth == "30" && Pattern30!="")
+                        {
+                            sql = "update AttdnProcessData set otmonth = '" + Month + "', OTYear = '" + Year + "', OTWeek = '" + Pattern30 + "' " +
+                               "where WorkDate = '" + Date + "' and PlantID = '" + PlantValue + "'";
+                        }
+                        else if (NoOfDaysInMonth == "31" && Pattern31 != "")
+                        {
+                            sql = "update AttdnProcessData set otmonth = '" + Month + "', OTYear = '" + Year + "', OTWeek = '" + Pattern31 + "' " +
+                               "where WorkDate = '" + Date + "' and PlantID = '" + PlantValue + "'";
+                        }
 
+                        if(sql!="")
+                        {
+                            #region Update Entire Plant Rows
+                            OTUpdateinAPD(sql);
+                            #endregion
+                        }
 
-                    //    for (int i = 0; i < OTDayLimit.Tables[0].Rows.Count; i++)
-                    //    {
-                    //        string EmpId = OTDayLimit.Tables[0].Rows[i][@"EmpSystemID"].ToString();
-                    //        string RowId = OTDayLimit.Tables[0].Rows[i][@"RowId"].ToString();
-
-                    //        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
-                    //        if (dsRef.Tables[0].DefaultView.Count == 0)
-                    //        {
-                    //            // Row Creation in OTProcessDayLimit
-                    //            DataRow drx = dsRef.Tables[0].NewRow();
-                    //            drx["EmpSystemID"] = EmpId;
-                    //            drx["RowId"] = RowId;
-                    //            drx["WorkDate"] = WkDate;
-                    //            drx["GroupID"] = GpId;
-                    //            drx["PlantID"] = PlantId;
-                    //            drx["DayType"] = DBNull.Value;
-                    //            drx["PlannedOT"] = 0;
-                    //            drx["FixedOT"] = 0;
-                    //            drx["LimitSettingOT"] = 0;
-                    //            drx["SlabOT"] = 0;
-                    //            drx["AddedBy"] = "Schedule";
-                    //            drx["DateAdded"] = Convert.ToDateTime(DateTime.Now);
-                    //            dsRef.Tables[0].Rows.Add(drx);
-                    //        }
-                    //    }
-                    //    SaveDataSets(dsRef);
-
-                    //}
+                    }
                     #endregion
 
                     #region CreditLimit Monthly Opening Creation
@@ -1259,7 +1263,43 @@ namespace Library.HumanResource.NewAttendanceProcess {
             PlantInPunchStartTime = Convert.ToDateTime(WorkDate).ToString("dd-MMM-yyyy") + " " + Convert.ToDateTime(PlantInPunchStartTime).ToString("hh:mm:ss tt");
 
         }
-   
+        public void OTWeekLocalizationData(string Date, out DataSet ds)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+
+                var sql = @"select month('"+Date+ @"')as Month,Year('" + Date + @"')as Year,Day('" + Date + @"')as Day,
+                DAY(DATEADD(DD,-1,DATEADD(MM,DATEDIFF(MM,-1,'" + Date + @"'),0)))NoOfDaysInMonth,
+                W.[Days28] AS Pattern28,W.[Days29] as Pattern29,W.[Days30] as Pattern30,W.[Days31] as Pattern31
+                from WeekDefination W where DayNo=Day('" + Date + @"')";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public void OTUpdateinAPD(string sql)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager objCone = null;
+                objCone = new ConnectionManager.DAL.ConManager("1");
+                objCone.OpenConnection("1");
+                objCone.BeginTransaction();
+
+                objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                objCone.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+
         #endregion
 
         #region Attendance Process
@@ -1657,11 +1697,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     {
                                         dr["IsManualOutTime"] = 1;
                                         dr["ManualOutTime"] = Convert.ToDateTime(Out);
+                                        dr["OriginalManualOutTime"]= Convert.ToDateTime(Out);
                                     }
                                     if (In.ToString() != "")
                                     {
                                         dr["ManualInTime"] = Convert.ToDateTime(In);
                                         dr["IsManualInTime"] = 1;
+                                        dr["OriginalManualInTime"]= Convert.ToDateTime(In); 
                                     }
 
                                     dr["UpdatedBy"] = "Schedule";
@@ -2052,10 +2094,12 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     {
                                         dr["IsManualOutTime"] = 1;
                                         dr["ManualOutTime"] = Convert.ToDateTime(Out);
+                                        dr["OriginalManualOutTime"] = Convert.ToDateTime(Out);
                                     }
                                     if (In.ToString() != "")
                                     {
                                         dr["ManualInTime"] = Convert.ToDateTime(In);
+                                        dr["OriginalManualInTime"] = Convert.ToDateTime(In);
                                         dr["IsManualInTime"] = 1;
                                     }
 

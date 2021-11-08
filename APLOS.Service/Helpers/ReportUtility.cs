@@ -193,6 +193,10 @@ namespace Library.Service.Helpers
             return "#,##0.00;(#,##0.00);* ??;@";
             // return "#,##0.00;#,##0.00";
         }
+        public string NumberFormatDecimalThree()
+        {
+            return "#,##0.000;(#,##0.000);* ??;@";
+        }
         public string NumberFormatNegativeSignDelimeterDecimalTwo()
         {
             return "#,##0.00_);#,##0.00";
@@ -357,6 +361,15 @@ namespace Library.Service.Helpers
         {
             sheet.Range[row, col].Number = txt;
             sheet.Range[row, col].NumberFormat = NumberFormatDecimalTwo();
+            sheet.Range[row, col].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet.Range[row, col].VerticalAlignment = ExcelVAlign.VAlignTop;
+            //sheet.Range[row, col].BorderAround(ExcelLineStyle.Thin);
+
+        }
+        public void SetTextDecimalThree(ref IWorksheet sheet, int row, int col, double txt)
+        {
+            sheet.Range[row, col].Number = txt;
+            sheet.Range[row, col].NumberFormat = NumberFormatDecimalThree();
             sheet.Range[row, col].HorizontalAlignment = ExcelHAlign.HAlignRight;
             sheet.Range[row, col].VerticalAlignment = ExcelVAlign.VAlignTop;
             //sheet.Range[row, col].BorderAround(ExcelLineStyle.Thin);

@@ -51,7 +51,7 @@
                             <div class="common-btn">
                                 <ul class="common-btn list-inline text-center">
                                     <li>
-                                        <button ng-click="$parent.SOAllowcation(data);" class="btn small tooltip-here" style="height: 28px; width: 70px; padding: 0px; margin: 0px;" title="Allocation">
+                                        <button ng-click="$parent.SOAllowcation(data);" ng-disabled="data.SOIdCount<=1" class="btn small tooltip-here" style="height: 28px; width: 70px; padding: 0px; margin: 0px;" title="Allocation">
                                             Allocation
                                         </button>
                                     </li>
