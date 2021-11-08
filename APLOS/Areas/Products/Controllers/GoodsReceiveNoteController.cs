@@ -4141,7 +4141,7 @@ UNION ALL
                         dr["POBOQQty"] = item["POBOQQty"];
                         dr["POUoMId"] = item["POUoMId"];
                         dr["SalesOrderId"] = item["SalesOrderId"];
-                        dr["OSPOBOQMAPId "] = item["OSPOBOQMAPId"];
+                        dr["OSPOBOQMAPId"] = item["OSPOBOQMAPId"];
                         dr["RejectQty"] = DBNull.Value;
                         dr["RejectBaseQty"] = DBNull.Value;
                         dr["AddedBy"] = identity.Name;

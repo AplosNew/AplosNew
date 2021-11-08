@@ -185,7 +185,7 @@ namespace Library.MaterialManagement.JobWork
 				,Isnull(IRD.TransactionUoMId,'') TransactionUoMId
 				,ISNULL(TUoM.UserName,'') TransactionUoM
 				,ISNULL(AlreadyAllo.BaseQty,0) OtherBaseQty
-				,ISNULL(AlreadyAllo.OSPOBOQMAPId,'') OSPOBOQMAPId
+				,AlreadyAllo.OSPOBOQMAPId
 				,0 BaseQty
 				,ISNULL(IRD.BaseUOMId,NULL) BaseUoMId
 				,ISNULL(BUoM.UserName,'') BaseUoM
