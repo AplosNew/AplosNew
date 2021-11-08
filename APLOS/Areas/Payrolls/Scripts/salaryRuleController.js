@@ -31,6 +31,8 @@ function salaryRuleController(commonMessage, $scope, $rootScope, baseService, $r
         IsValidGovGrd: null,
         IsActive: true,
         IncomeTaxGroup: null,
+        AddedFromIP: null,
+        UpdatedFromIP: null
     };
     $scope.salaryRuleNew = Object.assign({}, $scope.salaryRule);
 
@@ -88,7 +90,9 @@ function salaryRuleController(commonMessage, $scope, $rootScope, baseService, $r
         PercentageMinLimitSalaryHeadId: null,
         IsSlabBased: false,
         IsPayOnWeekoffForFixedMonthDay: false,
-        IsPayOnHolidayForFixedMonthDay: false
+        IsPayOnHolidayForFixedMonthDay: false,
+        AddedFromIP: null,
+        UpdatedFromIP: null
     }
 
     $scope.salaryRuleAbsent = {
@@ -1353,74 +1357,78 @@ function salaryRuleController(commonMessage, $scope, $rootScope, baseService, $r
     }
 
     $scope.GetGeneralSalaryData = function (obj) {
+        $scope.Row = 'Update Row';
         $scope.showFormula = false;
         $scope.salaryRuleGeneral.SalaryHeadIdFormula = null;
         $scope.salaryRuleGeneral.Operator = null;
         $scope.salaryRuleGeneral.Precedence = null;
         $scope.salaryRuleGeneral.Value = null;
-        var gridObj = $("#RuleGeneralGrid").data("ejGrid");
-        var data = gridObj.getSelectedRecords()[0];
 
-        $scope.salaryRuleGeneral = data;
-        $scope.salaryRuleGeneral.FormulaDescription = data.FormulaDes;
-        $scope.salaryRuleGeneral.FormulaIDDescription = data.FormulaDesID;
-        $scope.salaryRuleGeneralId = data.SalaryRuleGeneralSystemID;
+        //var gridObj = $("#RuleGeneralGrid").data("ejGrid");
+        //var data = gridObj.getSelectedRecords()[0];
 
-        var str = $scope.salaryRuleGeneral.FormulaDescription;
-        $scope.FormulaArray = str.split(" ");
-
-        var strId = $scope.salaryRuleGeneral.FormulaIDDescription;
-        $scope.FormulaIdArray = strId.split(" ");
+        $scope.salaryRuleGeneral = obj.data;
+       
+        $scope.salaryRuleGeneralId = obj.data.SalaryRuleGeneralSystemID;
 
         var value = null;
 
-        if (data.IsNA === true) {
+        if (obj.data.IsNA === true) {
             $scope.salaryRuleGeneral.IsNA = true;
             value = 'IsNA';
         } else {
             $scope.salaryRuleGeneral.IsNA = false;
         }
 
-        if (data.IsFormula === true) {
+        if (obj.data.IsFormula === true) {
             $scope.salaryRuleGeneral.IsFormula = true;
             value = 'IsFormulaDefine';
+
+            $scope.salaryRuleGeneral.FormulaDescription = obj.data.FormulaDes;
+            $scope.salaryRuleGeneral.FormulaIDDescription = obj.data.FormulaDesID;
+            var str = $scope.salaryRuleGeneral.FormulaDescription;
+            $scope.FormulaArray = str.split(" ");
+
+            var strId = $scope.salaryRuleGeneral.FormulaIDDescription;
+            $scope.FormulaIdArray = strId.split(" ");
+
         } else {
             $scope.salaryRuleGeneral.IsFormula = false;
         }
 
-        if (data.IsFixed === true) {
+        if (obj.data.IsFixed === true) {
             $scope.salaryRuleGeneral.IsFixed = true;
             value = 'IsFixed';
         } else {
             $scope.salaryRuleGeneral.IsFixed = false;
         }
 
-        if (data.IsPolicyDerived === true) {
+        if (obj.data.IsPolicyDerived === true) {
             $scope.salaryRuleGeneral.IsPolicyDerived = true;
             value = 'IsPolicyDerived';
         } else {
             $scope.salaryRuleGeneral.IsPolicyDerived = false;
         }
 
-        if (data.IsMonthDay === true) {
+        if (obj.data.IsMonthDay === true) {
             $scope.salaryRuleGeneral.IsMonthDay = true;
         } else {
             $scope.salaryRuleGeneral.IsMonthDay = false;
         }
 
-        if (data.IsMonthWorkDay === true) {
+        if (obj.data.IsMonthWorkDay === true) {
             $scope.salaryRuleGeneral.IsMonthWorkDay = true;
         } else {
             $scope.salaryRuleGeneral.IsMonthWorkDay = false;
         }
 
-        if (data.IsWorkDaysInAMonthIncHold === true) {
+        if (obj.data.IsWorkDaysInAMonthIncHold === true) {
             $scope.salaryRuleGeneral.IsWorkDaysInAMonthIncHold = true;
         } else {
             $scope.salaryRuleGeneral.IsWorkDaysInAMonthIncHold = false;
         }
 
-        if (data.IsFixedDisbus === true) {
+        if (obj.data.IsFixedDisbus === true) {
             $scope.salaryRuleGeneral.IsFixedDisbus = true;
         } else {
             $scope.salaryRuleGeneral.IsFixedDisbus = false;
@@ -1448,7 +1456,7 @@ function salaryRuleController(commonMessage, $scope, $rootScope, baseService, $r
         $scope.checkMin();
         $scope.checkMinLimit($scope.minvalueName);
 
-        $scope.Row = 'Update Row';
+        
     }
 
     $scope.FixedMonthDaydisabled = true;
