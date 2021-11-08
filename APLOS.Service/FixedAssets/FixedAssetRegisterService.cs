@@ -1470,7 +1470,8 @@ namespace Library.Service.FixedAssets
 												LEFT JOIN (SELECT FixedAssetRegisterId,SUM(Amount) SubAssetAmount FROM TRN.SubFixedAssetRegister 
 													GROUP BY FixedAssetRegisterId) SR ON SR.FixedAssetRegisterId=FAR.Id
 												AND FAR.CompanyId='" + companyId + "' AND FAR.PlantId='" + plantId + @"' AND FAR.IsOpeningBalance=1 AND FAR.IsFinancial=1
-												GROUP BY FAR.FABudgetMasterId
+					WHERE FAR.IsOpeningBalance=1 AND FAR.IsFinancial=1							
+GROUP BY FAR.FABudgetMasterId
 										) R ON R.FABudgetMasterId=OBD.BudgetMasterId
                                         WHERE OBD.PartyType='FixedAsset' AND OBD.FAType='AssetCapatalized' AND OB.CompanyId='" + companyId + "' AND OB.PlantId='" + plantId + "'";
                 return _sqlRepository.GetDataCollection(sql);
@@ -4225,12 +4226,11 @@ namespace Library.Service.FixedAssets
 
         #endregion
         #region FixedAsset Sales
-        public string InsertFixedAssetSales(string status, IEnumerable<FixedAssetRegister> fixedAssetRegister, string partyId,string partyPlantId, string remarks, string currencyId, decimal toCurrencyRate)
+        public string InsertFixedAssetSales(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegister> fixedAssetRegister)
         {
             var flag = false;
             try
             {
-               // DateTime dt =docDate;
                 _unitOfWork.BeginTransaction();
                 flag = true;
                 string TableName = "trn.FixedAssetRegisterDisposed";
@@ -4239,15 +4239,18 @@ namespace Library.Service.FixedAssets
                 int detailId = 0;
                 var fixedAssetDispose = new FixedAssetRegisterDisposed
                 {
-                    Status = status,
-                    Remarks = remarks,
-                    PartyId = partyId,
-                    PartyPlantId = partyPlantId,
+                    Status = fixedAssetDisposed.Status,
+                    Remarks = fixedAssetDisposed.Remarks,
+                    PartyId = fixedAssetDisposed.PartyId,
+                    PartyPlantId = fixedAssetDisposed.PartyPlantId,
+                    DeliveryPartyPlantId = fixedAssetDisposed.DeliveryPartyPlantId,
+                    InvoicingByAddress = fixedAssetDisposed.InvoicingByAddress,
+                    DeliveryByAddress = fixedAssetDisposed.DeliveryByAddress,
                     Id = "RD" + _id,
                     IsPark = true,
-                    ToCurrencyRate = toCurrencyRate,
-                    CurrencyId = currencyId
-                   // DocDate = dt
+                    ToCurrencyRate = fixedAssetDisposed.ToCurrencyRate,
+                    CurrencyId = fixedAssetDisposed.CurrencyId,
+                    DocDate = fixedAssetDisposed.DocDate
 
 
                 };
@@ -4261,8 +4264,8 @@ namespace Library.Service.FixedAssets
 
                     fixedAssetReg.NegotiationValue = item.NegotiationValue;
                     fixedAssetReg.BaseNagotiationValue = item.BaseNagotiationValue;
-                    fixedAssetReg.Status = status;
-                    fixedAssetReg.Remarks = remarks;
+                    fixedAssetReg.Status = fixedAssetDisposed.Status;
+                    fixedAssetReg.Remarks = fixedAssetDisposed.Remarks;
                     _fixedAssetRegisterRepository.Update(fixedAssetReg);
 
 
@@ -4281,7 +4284,7 @@ namespace Library.Service.FixedAssets
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
-                return remarks;
+                return fixedAssetDisposed.Remarks;
             }
             catch (CustomException)
             {
@@ -4315,6 +4318,10 @@ namespace Library.Service.FixedAssets
                     Remarks = disposeVM.Remarks,
                     PartyId = disposeVM.PartyId,
                     PartyPlantId = disposeVM.PartyPlantId,
+                    DeliveryPartyPlantId = disposeVM.DeliveryPartyPlantId,
+                    InvoicingByAddress = disposeVM.InvoicingByAddress,
+                    DeliveryByAddress = disposeVM.DeliveryByAddress,
+
                     Id = disposeVM.Id,
                     IsPark = true,
                     ToCurrencyRate = disposeVM.ToCurrencyRate,

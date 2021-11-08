@@ -394,5 +394,9 @@ function AccessControllerConfig($routeProvider, $locationProvider, $windowProvid
             templateUrl: 'Attendances/AttendanceDashboard/Aplos',
             controller: 'AttendanceDashboardController'
         })
+        .when('/sandwich-process', {
+            templateUrl: 'Attendances/SandwichProcess/Aplos',
+            controller: 'SandwichProcessController'
+        })
         ;
 } 

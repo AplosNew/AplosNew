@@ -53,7 +53,7 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
     $scope.getData();
     $scope.voucher = {
         Id: null,
-        DocDate: null,
+        DocDate: $filter("dateFiltering")(Date.now()),
         DocRefNo: null,
         Amount: 0,
         Narration: null,
@@ -70,6 +70,8 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
         LegalDesignation: null,
         CurrencyId: null,
         CompanyCurrencyRate: null,
+        ToCurrencyRate: null,
+        ToCurrencyRate: null,
         PostingDate: $filter("dateFiltering")(Date.now()),
 
     };
@@ -107,12 +109,31 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
         $scope.voucher.CurrencyId = data.trnCurrencyId;
         $scope.voucher.PartyName = data.CustomerName;
         $scope.voucher.PartyId = data.PartyId;
-        $scope.voucher.PartyPlantId = data.PartyPlantId;
         $scope.voucher.CompanyCurrencyRate = data.CompanyCurrencyRate;
         $scope.voucher.ToCurrencyRate = data.CompanyCurrencyRate;
         $scope.voucher.BaseNagotiationValue = data.BaseNagotiationValue;
         $scope.voucher.DocDate = data.DocDate;
-        	
+
+        if ($scope.voucher.Status == 'Sales') {
+        $scope.getCboPartyPlantList($scope.voucher.PartyId, function (result) {
+            $scope.partyPlantList = result;
+            angular.forEach($scope.partyPlantList, function (item, i) {
+                if (item.IsDefault) {
+                    $scope.voucher.InvoicingPartyPlantId = data.PartyPlantId;
+                    $scope.voucher.DeliveryPartyPlantId = data.DeliveryPartyPlantId;
+                    $scope.voucher.InvoicingByAddress = data.InvoicingByAddress;
+                    $scope.voucher.DeliveryByAddress = data.DeliveryByAddress;
+
+                    $scope.voucher.InvoicingState = item.StateName;
+                    $scope.voucher.InvoicingGSTIN = item.GSTIN;
+                    $scope.voucher.DeliveryState = item.StateName;
+                    $scope.voucher.DeliveryGSTIN = item.GSTIN;
+                    $scope.voucher.InvoicingStateId = item.StateId;
+                }
+            });
+        });
+        }
+
         if ($scope.voucher.Status == 'Sales') {
             $scope.DisposeTpye();
             // return true;
@@ -150,12 +171,31 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
         $scope.fixedAssetDisposeStatusList = response.data;
     });
 
+    $scope.invalidDocDate = false;
+    $scope.checkDocDate = function () {
+        var msg = "";
+        if (new Date($scope.voucher.DocDate) > new Date()) {
+            $scope.invalidDocDate = true;
+            msg = "Doc date must be below or equal to current Date!";
+        }
+        else $scope.invalidDocDate = false;
+        return manualValidation("div_DocDate", $scope.invalidDocDate, msg);
+    };
+
     $scope.Clear = function () {
         $scope.Action = "Save";
         $scope.voucher.Active = true;
         $scope.voucher.Amount = 0;
         $scope.voucher.DocRefNo = null;
         $scope.voucher.Narration = null;
+        $scope.voucher.Status = null;
+        $scope.voucher.Remarks = null;
+        $scope.voucher.PartyId = null;
+        $scope.voucher.PartyPlantId = null;
+        $scope.voucher.ToCurrencyRate = null;
+        $scope.voucher.CurrencyId = null;
+        $scope.voucher.PartyName = null;
+        $scope.voucher.DocDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
         $scope.voucher.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
         $scope.voucherDetailList = [];
     };
@@ -210,6 +250,14 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
             ShowResult("Please select Fixed Asset Register!", "failure");
             return true;
         }
+        if ($scope.voucherDetailList.length > 0) {
+            for (var i = 0; i < $scope.voucherDetailList.length; i++) {
+                if (new Date($scope.voucherDetailList[i].PurchaseDate) > new Date($scope.voucher.DocDate)) {
+                    ShowResult("Doc date must be greater or equal to Invoice Date!", "failure");
+                    return true;
+                }
+            } 
+        }
         else {
             return false;
         }
@@ -218,6 +266,8 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
 
 
     $scope.Save = function () {
+        $scope.voucher.ToCurrencyRate = $scope.voucher.CompanyCurrencyRate;
+        $scope.voucher.PartyPlantId = $scope.voucher.InvoicingPartyPlantId;
         $scope.$broadcast("show-errors-check-validity");
         if ($scope.form0.$valid && !$scope.validation()) {
             if ($scope.Action === "Save" && $scope.voucher.Status == 'CompensateByEmployee') {
@@ -250,16 +300,9 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
                     method: "POST",
                     url: "fixedassets/fixedassetregister/CreateFixedAssetSales",
                     data: {
-                        "status": $scope.voucher.Status,
-                        "fixedAssetRegister": $scope.voucherDetailList,
-                        "partyId": $scope.voucher.PartyId,
-                        "partyPlantId": $scope.voucher.InvoicingPartyPlantId,
-                        "remarks": $scope.voucher.Remarks,
-                        "currencyId": $scope.voucher.CurrencyId,
-                        "toCurrencyRate": $scope.voucher.CompanyCurrencyRate
-                        //"docDate": $scope.voucher.DocDate,
-                        
-
+                        "fixedAssetDisposed": $scope.voucher,
+                        "fixedAssetRegister": $scope.voucherDetailList
+                       
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {
@@ -565,6 +608,20 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
             var reportFormat = "Excel";
 
             var file_src = 'FixedAssets/FixedAssetRegister/GetBulletinTamplateIndexReport?reportFormat=' + reportFormat + '&fixedAssetRegisterDisposeId=' + data.Id
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
+
+    $scope.onClickPdfPrints = function (args) {
+
+        try {
+            var data = args.data;
+            var reportFormat = "Pdf";
+
+            var file_src = 'FixedAssets/FixedAssetRegister/GetFixedAssetDisposePdfReport?reportFormat=' + reportFormat + '&fixedAssetRegisterDisposeId=' + data.Id
             $rootScope.report(file_src);
 
         } catch (e) {

@@ -136,7 +136,10 @@ LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
                     activeStatus = " AND isnull(SO.IsConfirm,0)=1 ";
 
 
-            string sql = @"select * from (SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN,0 AS Checked,null AS Id,null AS ProductionOrderId
+            string sql = @"SELECT 
+                             MO.Type,isnull(moi.Consignment,0) AS Consignment,
+                             CASE WHEN ISNULL(eout.Id,'')<>'' OR ISNULL(TOUT.Id,'')<>'' THEN CONCAT(POWN.UserName,'(',EOWN.UserName,')') ELSE '' END AS OrderOwner
+                            ,TEMP.* FROM (SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN,0 AS Checked,null AS Id,null AS ProductionOrderId
 	                            , MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,moi.BuyerReferenceNo,moi.OwnReferenceNo,mo.BuyerReferenceNo BuyerOrderNo,mo.OwnReferenceNo AS OwnOrderNo
 	                            , SO.Id AS SalesOrderId, P.UserName AS Customer,B.UserName AS Buyer,PM.Id AS ProductID,isnull(MOI.ProductionGrouping,'') AS ProductionGrouping 
 	                            , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName,PM.UserName AS ProductName
@@ -161,7 +164,15 @@ LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
                        LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
                        LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
                        LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
-                       WHERE MO.PlantId='" + identity.PlantId + @"'
+                       LEFT JOIN org.Entity AS EOUT ON EOUT.Id=ISNULL(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
+
+                       WHERE   
+                       (
+                            --if there is no jobwork, i can create my own production order
+                       	    (ISNULL(moi.JobWorkType,'')='' AND MO.PlantId='" + identity.PlantId + @"' )
+                                OR 
+                       	    (ISNULL(moi.JobWorkType,'')<>'' AND EOUT.PlantId='" + identity.PlantId + @"' )
+                       )
                        AND (OS.Id='" + Library.Model.Enums.OrderStatusEnum.Active.ToString() + @"' " + activeStatus + @" and  SO.Id not IN (SELECT DISTINCT SalesOrderId FROM [TRN].[ProductionOrderDetail])) AND MOI.ArticleId<>''
                         
 						UNION
@@ -196,7 +207,17 @@ LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
                         
 						
 						
-						) AS TEMP WHERE " + strkey + " ORDER BY  ProductionGrouping,MaterialMasterId,ArticleId";
+						) AS TEMP 
+
+                            LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON TEMP.MasterOrderItemId=MOI.Id
+                            LEFT JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
+							LEFT JOIN org.Entity AS EOUT ON EOUT.Id=ISNULL(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
+							LEFT JOIN org.Plant AS POUT ON POUT.Id=EOUT.PlantId
+							LEFT JOIN hkp.Party AS TOUT ON tout.Id=moi.PartyId
+							LEFT JOIN org.Plant AS POWN ON POWN.Id=MO.PlantId
+							LEFT JOIN org.Entity AS EOWN ON EOWN.Id=MO.EntityId
+
+WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.MaterialMasterId,TEMP.ArticleId";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -2049,7 +2070,7 @@ LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
             {
                 DataSet dataSet = GetOperationDataByCode(para.CompanyGroupId, Code, processId, bulletinTemplateMasterId);
                 ConnectionManager.DAL.ConManager objCon;
-                var id =  GetOperationPK();
+                var id = GetOperationPK();
                 string sql = "SELECT * FROM [TRN].[ProductionBulletinTemplateDetail] WHERE Id=''";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out DataSet dsOperation, false, "1");
@@ -2061,10 +2082,10 @@ LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
                     for (int i = 0; i < dataSet.Tables[0].Rows.Count; i++)
                     {
                         //var filteredSeq = MultiCodeList.Where(p => dataSet.Tables[0].Rows[i]["OperationCode"] = p.OperationCode.Contains(p.Sequenc.ToString()));
-                        var filteredSeq = MultiCodeList.Where(p =>  p.OperationCode== dataSet.Tables[0].Rows[i]["OperationCode"].ToString()).Select(p => p.Sequenc).FirstOrDefault();
+                        var filteredSeq = MultiCodeList.Where(p => p.OperationCode == dataSet.Tables[0].Rows[i]["OperationCode"].ToString()).Select(p => p.Sequenc).FirstOrDefault();
 
                         count++;
-                        
+
                         DataRow dr = dsOperation.Tables[0].NewRow();
 
                         dr["Id"] = id + "-" + count;
@@ -2270,6 +2291,6 @@ LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
     public class MultiCode
     {
         public string Sequenc { get; set; }
-        public string  OperationCode { get; set; }
+        public string OperationCode { get; set; }
     }
 }

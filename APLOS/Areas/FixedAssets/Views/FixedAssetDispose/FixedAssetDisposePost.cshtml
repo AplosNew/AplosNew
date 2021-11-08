@@ -72,6 +72,12 @@
                     <input required datepicker="checkPostingDate();checkDocDate();" id="postingDate" type="text" name="Posting Date" ng-model="voucher.PostingDate" class="form-control" tabindex="1">
                 </div>
             </div>
+            <div id="div_DocDate" class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Doc Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input required  id="docDate" type="text" name="Doc Date" ng-model="voucher.DocDate" class="form-control" tabindex="1" readonly>
+                </div>
+            </div>
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Doc Ref<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
@@ -156,7 +162,7 @@
                             <th class="text-center">Base Negotiation</th>
                             <th>Vendor</th>
                             <th>Invoice No</th>
-                            <th class="text-center">Trn Currency</th>
+                            @*<th class="text-center">Trn Currency</th>*@
                             <th class="text-center">OB</th>
                         </tr>
                     </thead>
@@ -176,10 +182,10 @@
                             <td><input type="text" class="form-control text-right" ng-disabled="true" id="ADBaseAmount" ng-model="x.ADBaseAmount " n-decimals="2"></td>
                             <td><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="NetBookValue" ng-model="x.NetBaseBookValue " n-decimals="2"></td>
                             <td><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="NegotiationValue" ng-disabled="voucher.Status == 'Scrap'" ng-model="x.NegotiationValue " n-decimals="2"></td>
-                            <td><input type="text" class="form-control text-right" ng-disabled="true" id="NegotiationValue" ng-model="x.NagotiationBooksValue " n-decimals="2"></td>
+                            <td><input type="text" class="form-control text-right" ng-disabled="true" id="BaseNagotiationValue" ng-model="x.BaseNagotiationValue " n-decimals="2"></td>
                             <td>{{x.Vendor}}</td>
                             <td>{{x.InvoiceNo}}</td>
-                            <td>{{x.TrnCurrency}}</td>
+                            @*<td>{{x.TrnCurrency}}</td>*@
                             <td>{{x.IsOBBalance}}</td>
 
                         </tr>
@@ -193,7 +199,7 @@
                             <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'ADBaseAmount' }}</b></td>
                             <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'NetBaseBookValue' }}</b></td>
                             <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'NegotiationValue' }}</b></td>
-                            <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'NagotiationBooksValue' }}</b></td>
+                            <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'BaseNagotiationValue' }}</b></td>
                         </tr>
                     </tfoot>
                 </table>
@@ -467,7 +473,7 @@
                                 <div e-column e-field="NetBaseBookValue" e-headertext="Net Base Amount" e-width="80"></div>
                                 @*<div e-column e-field="NetBaseBookValue" e-headertext="NetBaseBookValue" e-width="80"></div>*@
                                 
-                                <div e-column e-field="IsPark" e-headertext="Status" e-width="40"></div>
+                                @*<div e-column e-field="IsPark" e-headertext="Status" e-width="40"></div>*@
                             </div>
                         </div>
                     </div>

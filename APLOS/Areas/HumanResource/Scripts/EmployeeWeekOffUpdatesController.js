@@ -130,4 +130,88 @@ function EmployeeWeekOffUpdatesController(commonMessage, $scope, $rootScope, bas
         $scope.WekId = null;
     }
 
+    // Tab Attendance Process Code
+
+    $scope.EmployeeList = [];
+
+    $scope.EmployeePopUp = function () {
+        if ($scope.selectedValues.FromDate != null) {
+
+            angular.element(document.querySelector("#EmployeePop")).modal("show");
+            //$scope.getEmpDetailsData();
+        }
+        else {
+            ShowResult("Please Select Effective Date", 'failure');
+        }
+    }
+    $scope.getEmpDetailsData = function () {
+
+        $http({
+            method: 'POST',
+            data: { EffectiveDate: $scope.selectedValues.FromDate },
+            url: $scope.path + 'getDistinctEmployeesToBeProcessed'
+        }).then(function successCallback(response) {
+            $scope.EmployeeList = response.data;
+
+        });
+    }
+
+    $scope.closeEmpPopUp = function (popupName) {
+        angular.element(document.querySelector("#" + popupName + "")).modal("hide");
+
+    }
+
+    $scope.EmpSelectedData = [];
+    $scope.SelectEmPDetails = function () {
+        $scope.EmpSelectedData = [];
+        for (var j = 0; j < $scope.EmployeeList.length; j++) {
+            if ($scope.EmployeeList[j].isSelected == true) {
+
+                $scope.EmpSelectedData.push($scope.EmployeeList[j]);
+                $scope.EmployeeList[j].isSelected = true;
+            }
+            else {
+                $scope.EmployeeList[j].isSelected = false;
+            }
+        }
+        angular.element(document.querySelector('#EmployeePop')).modal('hide');
+    }
+
+   
+
+    $scope.ProcessAttendance = function () {
+        if ($scope.selectedValues.FromDate != null && $scope.EmpSelectedData != null) {
+            var EmpString = "''";
+
+            for (var j = 0; j < $scope.EmpSelectedData.length; j++) {
+             
+                EmpString+= ",'" + $scope.EmpSelectedData[j].EmpSystemId + "'";
+
+            }
+            $http({
+                method: 'POST',
+                data: { EffectiveDate: $scope.selectedValues.FromDate, EmpData: EmpString },
+                url: $scope.path + 'ProcessAttendance'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+                }
+                else {
+
+                    ShowResult("Saved Successfully ...", 'success');
+                }
+            });
+        }
+        else {
+            ShowResult("Please Select Prerequisite Data", 'failure');
+        }
+    }
+
+
+    $scope.selectedValues = {
+        FromDate: null
+    };
+
+
+
 }

@@ -1,6 +1,7 @@
 ﻿<togglable name="Employee Information"></togglable>
 @*<p style="color:blue;font-size:11px">This screen has Entity Level access</p>*@
 <style>
+   
     #accordion section, #accordion .pointer, #accordion h1, #accordion p {
         -webkit-transition: all 0.20s ease-in-out;
         -moz-transition: all 0.5s ease-in-out;
@@ -165,6 +166,17 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Applying <span style="text-transform: lowercase;">as fresher</span></label>
+                                    <div class="col-sm-8">
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="employeeInformation.ApplyingAsFresher">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="col-xs-12 col-sm-6 col-md-6">
                                 <div class="form-group" show-errors>
@@ -206,34 +218,23 @@
                                 </div>
                                 <div class="form-group" show-errors>
                                     <label class="col-sm-4 control-label">Job Location<sup>*</sup> </label>
-                                    <div class="col-sm-5 show-message">
+                                    <div class="col-sm-8 input-group show-message">
                                         <div class="select-style">
                                             <select id="JobLocation" class="form-control" name="Job Location" ng-model="employeeInformation.JobLocationID" ng-disabled="employeeInformation.IsApproved" tabindex="14" required>
                                                 <option value="">--Select--</option>
                                                 <option ng-repeat="option in JobLocationList" value="{{option.SystemID}}">{{option.JobLocation}}</option>
                                             </select>
                                         </div>
+                                        <span class="input-group-btn">
+                                            <button ng-show="Flag=='Load All'" ng-click="LoadAllJobLocation();" ng-disabled="employeeInformation.IsApproved" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i>Load All</button>
+                                            <button ng-show="Flag=='Load Less'" ng-click="LoadPlantJobLocation();" ng-disabled="employeeInformation.IsApproved" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i>Load Less</button>
+                                        </span>
                                     </div>
-                                    <div class="col-sm-2" ng-show="Flag=='Load All'">
-                                        <div class="common-btn">
-                                            <ul class="list-inline text-left">
-                                                <li><button ng-click="LoadAllJobLocation();" ng-disabled="employeeInformation.IsApproved" class="btn"><i class="glyphicon glyphicon-refresh"></i>Load All</button></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-2" ng-show="Flag=='Load Less'">
-                                        <div class="common-btn">
-                                            <ul class="list-inline text-left">
-                                                <li><button ng-click="LoadPlantJobLocation();" ng-disabled="employeeInformation.IsApproved" class="btn"><i class="glyphicon glyphicon-refresh"></i>Load Less</button></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-
                                 </div>
 
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">Do<span style="text-transform: lowercase;"> you know anyone in<br /></span> <span style="text-transform: lowercase;">this company?</span></label>
-                                    <div class="col-sm-8">
+                                    <div class="col-sm-2">
                                         <div class="checkbox-site">
                                             <label>
                                                 <input type="checkbox" ng-model="employeeInformation.IsKnownPerson" ng-change="getNum();">
@@ -241,24 +242,14 @@
                                             </label>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="form-group" ng-show="employeeInformation.IsKnownPerson===true">
-                                    <label class="col-sm-4 control-label">Number<span style="text-transform: lowercase;"> of Known Person</span></label>
-                                    <div class="col-sm-8">
+                                    <label ng-show="employeeInformation.IsKnownPerson===true" class="col-sm-3 control-label" title="No. of Known Person">No.<span style="text-transform: lowercase;">of Known Person</span></label>
+                                    <div class="col-sm-3" ng-show="employeeInformation.IsKnownPerson===true">
                                         <input type="number" name="Number of Known Person" ng-model="employeeInformation.NumberOfKnownPerson" class="form-control">
                                     </div>
+
                                 </div>
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">Applying <span style="text-transform: lowercase;">as fresher</span></label>
-                                    <div class="col-sm-8">
-                                        <div class="checkbox-site">
-                                            <label>
-                                                <input type="checkbox" ng-model="employeeInformation.ApplyingAsFresher">
-                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
+
+
                             </div>
                             <div class="common-btn" style="padding-right:18px">
                                 <ul class="list-inline text-right">
@@ -306,11 +297,10 @@
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            <label class="col-sm-4 control-label" style="color: blue;">{{FatherNameLabel}}</label>
-                                            <div class="col-sm-7">
-                                                <input type="text" name="FatherNameLocal" ng-model="employeeInformation.FatherNameLocal" class="form-control" maxlength="100" tabindex="2">
+                                            <label class="col-sm-4 control-label">Mother’s Name</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" name="Mother’s Name" ng-model="employeeInformation.MotherName" ng-disabled="employeeInformation.IsApproved" class="form-control" maxlength="100" tabindex="13">
                                             </div>
-                                            <label class="col-sm-1 control-label" style="color: blue;font-size: 11px;padding-left: 0px;">[Local]</label>
                                         </div>
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label">Religion </label>
@@ -354,13 +344,6 @@
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            <label class="col-sm-4 control-label" style="color: blue;">{{IdentificationMarksLabel}}</label>
-                                            <div class="col-sm-7">
-                                                <input type="text" name="IdentificationMark" ng-model="employeeInformation.LocalIdentificationMark" class="form-control" maxlength="30" tabindex="2">
-                                            </div>
-                                            <label class="col-sm-1 control-label" style="color: blue;font-size: 11px;padding-left: 0px;">[Local]</label>
-                                        </div>
-                                        <div class="form-group">
                                             <label class="col-sm-4 control-label">Marital Status<sup>*</sup></label>
                                             <div class="col-sm-8">
                                                 <div class="select-style">
@@ -378,19 +361,17 @@
                                             </div>
                                         </div>
                                         <div class="form-group" ng-show="celebrationType">
-                                            <label class="col-sm-4 control-label" style="color: blue;">{{SpouseNameLabel}}</label>
-                                            <div class="col-sm-7">
-                                                <input type="text" name="SpouseNameLocal" ng-model="employeeInformation.SpouseNameLocal" class="form-control" maxlength="100" tabindex="2">
-                                            </div>
-                                            <label class="col-sm-1 control-label" style="color: blue;font-size: 11px;padding-left: 0px;">[Local]</label>
-                                        </div>
-                                        <div class="form-group" ng-show="celebrationType">
                                             <label class="col-sm-4 control-label">Spouse Occupation</label>
                                             <div class="col-sm-8">
                                                 <input type="text" name="Spouse Occupation" ng-model="employeeInformation.SpouseOccupation" class="form-control" maxlength="100" tabindex="22">
                                             </div>
                                         </div>
-
+                                        <div class="form-group" ng-show="celebrationType">
+                                            <label class="col-sm-4 control-label">No <span style="text-transform: lowercase;">Of Children</span></label>
+                                            <div class="col-sm-8">
+                                                <input type="number" name="NoOfChildren" ng-model="employeeInformation.NoOfChildren" class="form-control" tabindex="21">
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="col-xs-12 col-sm-6 col-md-6">
                                         <div class="form-group">
@@ -400,11 +381,13 @@
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            <label class="col-sm-4 control-label">Mother’s Name</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" name="Mother’s Name" ng-model="employeeInformation.MotherName" ng-disabled="employeeInformation.IsApproved" class="form-control" maxlength="100" tabindex="13">
+                                            <label class="col-sm-4 control-label" style="color: blue;">{{FatherNameLabel}}</label>
+                                            <div class="col-sm-7">
+                                                <input type="text" name="FatherNameLocal" ng-model="employeeInformation.FatherNameLocal" class="form-control" maxlength="100" tabindex="2">
                                             </div>
+                                            <label class="col-sm-1 control-label" style="color: blue;font-size: 11px;padding-left: 0px;">[Local]</label>
                                         </div>
+
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label" style="color: blue;">{{MotherNameLabel}}</label>
                                             <div class="col-sm-7">
@@ -456,28 +439,33 @@
                                             <label class="col-sm-1 control-label">[Kg]</label>
                                         </div>
                                         <div class="form-group">
-                                            <label class="col-sm-4 hidden control-label"></label>
-                                            <label class="col-sm-8 hidden control-label"></label>
+                                            <label class="col-sm-4 control-label" style="color: blue;">{{IdentificationMarksLabel}}</label>
+                                            <div class="col-sm-7">
+                                                <input type="text" name="IdentificationMark" ng-model="employeeInformation.LocalIdentificationMark" class="form-control" maxlength="30" tabindex="2">
+                                            </div>
+                                            <label class="col-sm-1 control-label" style="color: blue;font-size: 11px;padding-left: 0px;">[Local]</label>
                                         </div>
+
                                         <div class="form-group" ng-show="celebrationType">
-                                            <label class="col-sm-4 control-label"><span>Marriage day Celebration</span><br /> Date</label>
+                                            <label class="col-sm-4 control-label">Marriage day Celebration Date</label>
                                             <div class="col-sm-8">
                                                 <input type="text" ng-model="employeeInformation.MarriagedayCelebrationDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="18">
                                             </div>
                                         </div>
-
+                                        <div class="form-group" ng-show="celebrationType">
+                                            <label class="col-sm-4 control-label" style="color: blue;">{{SpouseNameLabel}}</label>
+                                            <div class="col-sm-7">
+                                                <input type="text" name="SpouseNameLocal" ng-model="employeeInformation.SpouseNameLocal" class="form-control" maxlength="100" tabindex="2">
+                                            </div>
+                                            <label class="col-sm-1 control-label" style="color: blue;font-size: 11px;padding-left: 0px;">[Local]</label>
+                                        </div>
                                         <div class="form-group" ng-show="celebrationType">
                                             <label class="col-sm-4 control-label">Spouse {{Nid}}</label>
                                             <div class="col-sm-8">
                                                 <input type="text" name="Spouse NationalID" ng-model="employeeInformation.SpouseNationalID" class="form-control" maxlength="50" tabindex="20">
                                             </div>
                                         </div>
-                                        <div class="form-group" ng-show="celebrationType">
-                                            <label class="col-sm-4 control-label">No <span style="text-transform: lowercase;">Of Children</span></label>
-                                            <div class="col-sm-8">
-                                                <input type="number" name="NoOfChildren" ng-model="employeeInformation.NoOfChildren" class="form-control" tabindex="21">
-                                            </div>
-                                        </div>
+
                                     </div>
                                     <div class="common-btn">
                                         <ul class="list-inline text-right">
@@ -486,290 +474,313 @@
                                     </div>
                                 </div>
                                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(2), active: isSet2(2) }">
-                                    <div class="col-xs-12 col-sm-6 col-md-6">
-                                        <div class="form-group"></div>
-                                        <div class="form-group"></div>
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">Present Address Line1<sup>*</sup></label>
-                                            <div class="col-sm-8">
-                                                <textarea name="ParmanentAddress1" class="form-control" rows="2" ng-model="employeeInformation.PresentAddress1" tabindex="7" maxlength="200"></textarea>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">Present Address Line2</label>
-                                            <div class="col-sm-8">
-                                                <textarea name="ParmanentAddress2" class="form-control" rows="2" ng-model="employeeInformation.PresentAddress2" tabindex="7" maxlength="200"></textarea>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label" style="color: blue;">{{PAddressLabel}}Line1</label>
-                                            <div class="col-sm-7">
-                                                <textarea class="form-control" rows="2" ng-model="employeeInformation.PresentAddress1Local" tabindex="7" maxlength="200"></textarea>
-                                            </div>
-                                            <label class="col-sm-1 control-label" style="color: blue;font-size: 11px;padding-left: 0px;">[Local]</label>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label" style="color: blue;">Line2</label>
-                                            <div class="col-sm-7">
-                                                <textarea class="form-control" rows="2" ng-model="employeeInformation.PresentAddress2Local" tabindex="7" maxlength="200"></textarea>
-                                            </div>
-                                            <label class="col-sm-1 control-label" style="color: blue;font-size: 11px;padding-left: 0px;">[Local]</label>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">Country</label>
-                                            <div class="col-sm-8">
-                                                <div class="select-style">
-                                                    <select id="PresCountryID" class="form-control" ng-model="employeeInformation.PresCountryID" name="PresCountryID" ng-change="GetPresStateOnCountryChange(employeeInformation.PresCountryID);">
-                                                        <option value="">--Select--</option>
-                                                        <option ng-repeat="option in PresCountryList" value="{{option.Value}}">{{option.Text}}</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">State/Division</label>
-                                            <div class="col-sm-8">
-                                                <div class="select-style">
-                                                    <select name="State" ng-model="employeeInformation.PresStateId" ng-change="getPresDisOnPreStateChange(employeeInformation.PresStateId)" class="col-sm-3 form-control">
-                                                        <option value="">--Select--</option>
-                                                        <option ng-repeat="option in PresStateList" value="{{option.Value}}">{{option.Text}}</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">District</label>
-                                            <div class="col-sm-8">
-                                                <div class="select-style">
-                                                    <select name="City" ng-model="employeeInformation.PresDistrictID" ng-change="GetPresPoliceStationCboByDistrictChange(employeeInformation.PresDistrictID);GetPresPostOfficeCboByDistrictChange(employeeInformation.PresDistrictID);onPreDistrictChange(employeeInformation.PresDistrictID)" class="col-sm-3 form-control">
-                                                        <option value="">--Select--</option>
-                                                        <option ng-repeat="option in PresDistrictList" value="{{option.Value}}">{{option.Text}}</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">City</label>
-                                            <div class="col-sm-8">
-                                                <div class="select-style">
-                                                    <select name="City" ng-model="employeeInformation.PresCityID" class="col-sm-3 form-control">
-                                                        <option value="">--Select--</option>
-                                                        <option ng-repeat="option in PresCityList" value="{{option.Value}}">{{option.Text}}</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">Police Station</label>
-                                            <div class="col-sm-8">
-                                                <div class="select-style">
-                                                    <select name="Police Station" ng-model="employeeInformation.PresThanaID" class="col-sm-3 form-control">
-                                                        <option value="">--Select--</option>
-                                                        <option ng-repeat="option in PresPoliceStationList" value="{{option.Value}}">{{option.Text}}</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">Post Office</label>
-                                            <div class="col-sm-8">
-                                                <div class="select-style">
-                                                    <select name="Post Office" ng-model="employeeInformation.PresPostOfficeID" class="col-sm-3 form-control">
-                                                        <option value="">--Select--</option>
-                                                        <option ng-repeat="option in PresPostOfficeList" value="{{option.Value}}">{{option.Text}}</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">Zip Code</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" name="Present ZipCode" ng-model="employeeInformation.PresZipCode" class="form-control" maxlength="10">
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">Area</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" name="Present Area" ng-model="employeeInformation.PresentArea" class="form-control" maxlength="50" />
-                                                @*<div class="select-style">
-                        <select id="PresAreaID" class="form-control" name="Present Area" ng-model="employeeInformation.PresAreaID">
-                            <option value="">--Select--</option>
-                            <option ng-repeat="option in AreaList" value="{{option.Value}}">{{option.Text}}</option>
-                        </select>
-                    </div>*@
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">Cell Phone No.<sup>*</sup></label>
-                                            <div class="col-sm-8">
-                                                <input type="text" name="Phone" ng-model="employeeInformation.CellPhnNo" class="form-control" tabindex="6">
-                                            </div>
-                                        </div>
+                                    <fieldset class="scheduler-border">
+                                        <legend class="scheduler-border">Present Address </legend>
+                                        <div class="col-xs-12 col-sm-6 col-md-6">
 
-                                        <label style="color:blue">Emergency Contact Person</label>
-                                        <hr />
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">Person(1) Name</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" name="Emergency Contact Person1" ng-model="employeeInformation.EmrCntPer1Name" class="form-control" maxlength="100">
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">Cell Phone No 1</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" name="Emergency Contact Person1 Cell No" ng-model="employeeInformation.EmrCntPer1CellNo" class="form-control" maxlength="20">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-xs-12 col-sm-6 col-md-6">
-                                        <div class="form-group" style="margin-top: -20px;">
-                                            <label class="col-sm-4 control-label">Same As Present Address</label>
-                                            <div class="col-sm-8">
-                                                <div class="checkbox-site" style="margin: 7px;">
-                                                    <label>
-                                                        <input type="checkbox" ng-model="IsSameAddress" ng-change="SetAddress();">
-                                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                                    </label>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">Present Address Line1<sup>*</sup></label>
+                                                <div class="col-sm-8">
+                                                    <textarea name="ParmanentAddress1" class="form-control" rows="2" ng-model="employeeInformation.PresentAddress1" tabindex="7" maxlength="200"></textarea>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">Permanent Address Line1<sup>*</sup></label>
-                                            <div class="col-sm-8">
-                                                <textarea name="Permanent Address1" class="form-control" rows="2" ng-model="employeeInformation.ParmanentAddress1" tabindex="7" maxlength="200"></textarea>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">Present Address Line2</label>
+                                                <div class="col-sm-8">
+                                                    <textarea name="ParmanentAddress2" class="form-control" rows="2" ng-model="employeeInformation.PresentAddress2" tabindex="7" maxlength="200"></textarea>
+                                                </div>
                                             </div>
-                                        </div>
 
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">Permanent Address Line2</label>
-                                            <div class="col-sm-8">
-                                                <textarea name="Permanent Address2" class="form-control" rows="2" ng-model="employeeInformation.ParmanentAddress2" tabindex="7" maxlength="200"></textarea>
+
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">Country</label>
+                                                <div class="col-sm-8">
+                                                    <div class="select-style">
+                                                        <select id="PresCountryID" class="form-control" ng-model="employeeInformation.PresCountryID" name="PresCountryID" ng-change="GetPresStateOnCountryChange(employeeInformation.PresCountryID);">
+                                                            <option value="">--Select--</option>
+                                                            <option ng-repeat="option in PresCountryList" value="{{option.Value}}">{{option.Text}}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label" style="color: blue;">{{PermanentLabel}}Line1</label>
-                                            <div class="col-sm-7">
-                                                <textarea class="form-control" rows="2" ng-model="employeeInformation.ParmanentAddress1Local" tabindex="7" maxlength="200"></textarea>
+
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">District</label>
+                                                <div class="col-sm-8">
+                                                    <div class="select-style">
+                                                        <select name="City" ng-model="employeeInformation.PresDistrictID" ng-change="GetPresPoliceStationCboByDistrictChange(employeeInformation.PresDistrictID);GetPresPostOfficeCboByDistrictChange(employeeInformation.PresDistrictID);onPreDistrictChange(employeeInformation.PresDistrictID)" class="col-sm-3 form-control">
+                                                            <option value="">--Select--</option>
+                                                            <option ng-repeat="option in PresDistrictList" value="{{option.Value}}">{{option.Text}}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <label class="col-sm-1 control-label" style="color: blue;font-size: 11px;padding-left: 0px;">[Local]</label>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label" style="color: blue;">Line2</label>
-                                            <div class="col-sm-7">
-                                                <textarea class="form-control" rows="2" ng-model="employeeInformation.ParmanentAddress2Local" tabindex="7" maxlength="200"></textarea>
+
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">Police Station</label>
+                                                <div class="col-sm-8">
+                                                    <div class="select-style">
+                                                        <select name="Police Station" ng-model="employeeInformation.PresThanaID" class="col-sm-3 form-control">
+                                                            <option value="">--Select--</option>
+                                                            <option ng-repeat="option in PresPoliceStationList" value="{{option.Value}}">{{option.Text}}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <label class="col-sm-1 control-label" style="color: blue;font-size: 11px;padding-left: 0px;">[Local]</label>
+
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">Zip Code</label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" name="Present ZipCode" ng-model="employeeInformation.PresZipCode" class="form-control" maxlength="10">
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">Cell Phone No.<sup>*</sup></label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" name="Phone" ng-model="employeeInformation.CellPhnNo" class="form-control" tabindex="6">
+                                                </div>
+                                            </div>
+
+
                                         </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">Country</label>
-                                            <div class="col-sm-8">
-                                                <div class="select-style">
-                                                    <select name="Country" ng-model="employeeInformation.ParmCountryID" ng-change="GetParmStateOnCountryChange(employeeInformation.ParmCountryID);"
-                                                            class="col-sm-3 form-control">
-                                                        <option value="">--Select--</option>
-                                                        <option ng-repeat="option in ParmCountryList" value="{{option.Value}}">{{option.Text}}</option>
-                                                    </select>
+                                        <div class="col-xs-12 col-sm-6 col-md-6">
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" style="color: blue;">{{PAddressLabel}} Line1</label>
+                                                <div class="col-sm-7">
+                                                    <textarea class="form-control" rows="2" ng-model="employeeInformation.PresentAddress1Local" tabindex="7" maxlength="200"></textarea>
+                                                </div>
+                                                <label class="col-sm-1 control-label" style="color: blue;font-size: 11px;padding-left: 0px;">[Local]</label>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" style="color: blue;">{{PAddressLabel}} Line2</label>
+                                                <div class="col-sm-7">
+                                                    <textarea class="form-control" rows="2" ng-model="employeeInformation.PresentAddress2Local" tabindex="7" maxlength="200"></textarea>
+                                                </div>
+                                                <label class="col-sm-1 control-label" style="color: blue;font-size: 11px;padding-left: 0px;">[Local]</label>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">State/Division</label>
+                                                <div class="col-sm-8">
+                                                    <div class="select-style">
+                                                        <select name="State" ng-model="employeeInformation.PresStateId" ng-change="getPresDisOnPreStateChange(employeeInformation.PresStateId)" class="col-sm-3 form-control">
+                                                            <option value="">--Select--</option>
+                                                            <option ng-repeat="option in PresStateList" value="{{option.Value}}">{{option.Text}}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">City</label>
+                                                <div class="col-sm-8">
+                                                    <div class="select-style">
+                                                        <select name="City" ng-model="employeeInformation.PresCityID" class="col-sm-3 form-control">
+                                                            <option value="">--Select--</option>
+                                                            <option ng-repeat="option in PresCityList" value="{{option.Value}}">{{option.Text}}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">Post Office</label>
+                                                <div class="col-sm-8">
+                                                    <div class="select-style">
+                                                        <select name="Post Office" ng-model="employeeInformation.PresPostOfficeID" class="col-sm-3 form-control">
+                                                            <option value="">--Select--</option>
+                                                            <option ng-repeat="option in PresPostOfficeList" value="{{option.Value}}">{{option.Text}}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">Area</label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" name="Present Area" ng-model="employeeInformation.PresentArea" class="form-control" maxlength="50" />
+                                                    @*<div class="select-style">
+                                                            <select id="PresAreaID" class="form-control" name="Present Area" ng-model="employeeInformation.PresAreaID">
+                                                                <option value="">--Select--</option>
+                                                                <option ng-repeat="option in AreaList" value="{{option.Value}}">{{option.Text}}</option>
+                                                            </select>
+                                                        </div>*@
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">E-mail ID</label>
+                                                <div class="col-sm-8">
+                                                    <input type="email" name="Email" maxlength="50" ng-model="employeeInformation.EmailId" class="form-control" placeholder="example@gmail.co" tabindex="7">
+                                                    <span class="msg-error" ng-show="employeeInformationForm2.EmailId.$error.email">
+                                                        Not valid email!
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">State/Division</label>
-                                            <div class="col-sm-8">
-                                                <div class="select-style">
-                                                    <select name="State" ng-model="employeeInformation.ParmStateId" ng-change="getParmDisOnParmStateChange(employeeInformation.ParmStateId)" class="col-sm-3 form-control">
-                                                        <option value="">--Select--</option>
-                                                        <option ng-repeat="option in ParmStateList" value="{{option.Value}}">{{option.Text}}</option>
-                                                    </select>
+                                    </fieldset>
+                                    <fieldset class="scheduler-border">
+                                        <legend class="scheduler-border">Permanent Address </legend>
+                                        <div class="col-xs-12 col-sm-6 col-md-6">
+                                            <div class="form-group" style="margin-top: -20px;">
+                                                <label class="col-sm-4 control-label">Same As Present Address</label>
+                                                <div class="col-sm-8">
+                                                    <div class="checkbox-site" style="margin: 7px;">
+                                                        <label>
+                                                            <input type="checkbox" ng-model="IsSameAddress" ng-change="SetAddress();">
+                                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">Permanent Address Line1<sup>*</sup></label>
+                                                <div class="col-sm-8">
+                                                    <textarea name="Permanent Address1" class="form-control" rows="2" ng-model="employeeInformation.ParmanentAddress1" tabindex="7" maxlength="200"></textarea>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">Permanent Address Line2</label>
+                                                <div class="col-sm-8">
+                                                    <textarea name="Permanent Address2" class="form-control" rows="2" ng-model="employeeInformation.ParmanentAddress2" tabindex="7" maxlength="200"></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">Country</label>
+                                                <div class="col-sm-8">
+                                                    <div class="select-style">
+                                                        <select name="Country" ng-model="employeeInformation.ParmCountryID" ng-change="GetParmStateOnCountryChange(employeeInformation.ParmCountryID);"
+                                                                class="col-sm-3 form-control">
+                                                            <option value="">--Select--</option>
+                                                            <option ng-repeat="option in ParmCountryList" value="{{option.Value}}">{{option.Text}}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">District</label>
+                                                <div class="col-sm-8">
+                                                    <div class="select-style">
+                                                        <select name="District" ng-model="employeeInformation.ParmDistrictID" ng-change="GetParmPoliceStationCboByDistrictChange(employeeInformation.ParmDistrictID);GetParmPostOfficeCboByDistrictChange(employeeInformation.ParmDistrictID);onParmDistrictChange(employeeInformation.ParmDistrictID);" class="col-sm-3 form-control">
+                                                            <option value="">--Select--</option>
+                                                            <option ng-repeat="option in ParmDistrictList" value="{{option.Value}}">{{option.Text}}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">Police Station</label>
+                                                <div class="col-sm-8">
+                                                    <div class="select-style">
+                                                        <select name="Police Station" ng-model="employeeInformation.ParmThanaID" class="col-sm-3 form-control">
+                                                            <option value="">--Select--</option>
+                                                            <option ng-repeat="option in ParmPoliceStationList" value="{{option.Value}}">{{option.Text}}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">Zip Code</label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" name="Parmanent ZipCode" ng-model="employeeInformation.ParmZipCode" class="form-control" maxlength="10">
+                                                </div>
+                                            </div>
+
+                                            <label style="color:blue;margin-bottom:1px">Emergency Contact Person</label>
+                                            <hr />
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">Person(1) Name</label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" name="Emergency Contact Person1" ng-model="employeeInformation.EmrCntPer1Name" class="form-control" maxlength="100">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">Cell Phone No 1</label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" name="Emergency Contact Person1 Cell No" ng-model="employeeInformation.EmrCntPer1CellNo" class="form-control" maxlength="20">
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">District</label>
-                                            <div class="col-sm-8">
-                                                <div class="select-style">
-                                                    <select name="District" ng-model="employeeInformation.ParmDistrictID" ng-change="GetParmPoliceStationCboByDistrictChange(employeeInformation.ParmDistrictID);GetParmPostOfficeCboByDistrictChange(employeeInformation.ParmDistrictID);onParmDistrictChange(employeeInformation.ParmDistrictID);" class="col-sm-3 form-control">
-                                                        <option value="">--Select--</option>
-                                                        <option ng-repeat="option in ParmDistrictList" value="{{option.Value}}">{{option.Text}}</option>
-                                                    </select>
+                                        <div class="col-xs-12 col-sm-6 col-md-6">
+                                            <div class="form-group"></div>
+                                            <div class="form-group"></div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" style="color: blue;">{{PermanentLabel}} Line1</label>
+                                                <div class="col-sm-7">
+                                                    <textarea class="form-control" rows="2" ng-model="employeeInformation.ParmanentAddress1Local" tabindex="7" maxlength="200"></textarea>
+                                                </div>
+                                                <label class="col-sm-1 control-label" style="color: blue;font-size: 11px;padding-left: 0px;">[Local]</label>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" style="color: blue;">{{PermanentLabel}} Line2</label>
+                                                <div class="col-sm-7">
+                                                    <textarea class="form-control" rows="2" ng-model="employeeInformation.ParmanentAddress2Local" tabindex="7" maxlength="200"></textarea>
+                                                </div>
+                                                <label class="col-sm-1 control-label" style="color: blue;font-size: 11px;padding-left: 0px;">[Local]</label>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">State/Division</label>
+                                                <div class="col-sm-8">
+                                                    <div class="select-style">
+                                                        <select name="State" ng-model="employeeInformation.ParmStateId" ng-change="getParmDisOnParmStateChange(employeeInformation.ParmStateId)" class="col-sm-3 form-control">
+                                                            <option value="">--Select--</option>
+                                                            <option ng-repeat="option in ParmStateList" value="{{option.Value}}">{{option.Text}}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">City</label>
+                                                <div class="col-sm-8">
+                                                    <div class="select-style">
+                                                        <select name="City" ng-model="employeeInformation.ParmCityID" class="col-sm-3 form-control">
+                                                            <option value="">--Select--</option>
+                                                            <option ng-repeat="option in ParmCityList" value="{{option.Value}}">{{option.Text}}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">Post Office</label>
+                                                <div class="col-sm-8">
+                                                    <div class="select-style">
+                                                        <select name="Post Office" ng-model="employeeInformation.ParmPostOfficeID" class="col-sm-3 form-control">
+                                                            <option value="">--Select--</option>
+                                                            <option ng-repeat="option in ParmPostOfficeList" value="{{option.Value}}">{{option.Text}}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">Area</label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" name="Parmanent Area" ng-model="employeeInformation.ParmanentArea" class="form-control" maxlength="50" />
+                                                    @*<div class="select-style">
+                                                            <select id="ParmAreaID" class="form-control" name="Parmanent Area" ng-model="employeeInformation.ParmAreaID">
+                                                                <option value="">--Select--</option>
+                                                                <option ng-repeat="option in AreaList" value="{{option.Value}}">{{option.Text}}</option>
+                                                            </select>
+                                                        </div>*@
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group"></div>
+                                            <hr />
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">Person(2) Name</label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" name="Emergency Contact Person2" ng-model="employeeInformation.EmrCntPer2Name" class="form-control" maxlength="100">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">Cell Phone No 1</label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" name="Emergency Contact Person2 Cell No" ng-model="employeeInformation.EmrCntPer2CellNo" class="form-control" maxlength="20">
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">City</label>
-                                            <div class="col-sm-8">
-                                                <div class="select-style">
-                                                    <select name="City" ng-model="employeeInformation.ParmCityID" class="col-sm-3 form-control">
-                                                        <option value="">--Select--</option>
-                                                        <option ng-repeat="option in ParmCityList" value="{{option.Value}}">{{option.Text}}</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">Police Station</label>
-                                            <div class="col-sm-8">
-                                                <div class="select-style">
-                                                    <select name="Police Station" ng-model="employeeInformation.ParmThanaID" class="col-sm-3 form-control">
-                                                        <option value="">--Select--</option>
-                                                        <option ng-repeat="option in ParmPoliceStationList" value="{{option.Value}}">{{option.Text}}</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">Post Office</label>
-                                            <div class="col-sm-8">
-                                                <div class="select-style">
-                                                    <select name="Post Office" ng-model="employeeInformation.ParmPostOfficeID" class="col-sm-3 form-control">
-                                                        <option value="">--Select--</option>
-                                                        <option ng-repeat="option in ParmPostOfficeList" value="{{option.Value}}">{{option.Text}}</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">Zip Code</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" name="Parmanent ZipCode" ng-model="employeeInformation.ParmZipCode" class="form-control" maxlength="10">
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">Area</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" name="Parmanent Area" ng-model="employeeInformation.ParmanentArea" class="form-control" maxlength="50" />
-                                                @*<div class="select-style">
-                        <select id="ParmAreaID" class="form-control" name="Parmanent Area" ng-model="employeeInformation.ParmAreaID">
-                            <option value="">--Select--</option>
-                            <option ng-repeat="option in AreaList" value="{{option.Value}}">{{option.Text}}</option>
-                        </select>
-                    </div>*@
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">E-mail ID</label>
-                                            <div class="col-sm-8">
-                                                <input type="email" name="Email" maxlength="50" ng-model="employeeInformation.EmailId" class="form-control" placeholder="example@gmail.co" tabindex="7">
-                                                <span class="msg-error" ng-show="employeeInformationForm2.EmailId.$error.email">
-                                                    Not valid email!
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div class="form-group"></div>
-                                        <div class="form-group"></div>
-                                        <hr />
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">Person(2) Name</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" name="Emergency Contact Person2" ng-model="employeeInformation.EmrCntPer2Name" class="form-control" maxlength="100">
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">Cell Phone No 1</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" name="Emergency Contact Person2 Cell No" ng-model="employeeInformation.EmrCntPer2CellNo" class="form-control" maxlength="20">
-                                            </div>
-                                        </div>
-                                    </div>
+                                    </fieldset>
                                     <div class="common-btn">
                                         <ul class="list-inline text-right">
                                             <li> <button ng-click="SaveAddress();" ng-disabled="employeeInformation.SystemId===null" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{employeeInformation.SystemId==null?'Save':'Update'}}</button></li>
@@ -1717,7 +1728,7 @@
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label">Cell No</label>
                                             <div class="col-sm-8">
-                                                <input type="text" name="FatherNameLocal" ng-model="nomineeInfo.CellNo" class="form-control" maxlength="100" tabindex="2">
+                                                <input type="text" name="Cell No" ng-model="nomineeInfo.CellNo" class="form-control" maxlength="100" tabindex="2">
                                             </div>
                                         </div>
 
@@ -2383,7 +2394,7 @@
                             <label class="col-sm-4 control-label">Job Location<sup>*</sup> </label>
                             <div class="col-sm-5 show-message">
                                 <div class="select-style">
-                                    <select id="Religion" class="form-control" name="Job Location" ng-model="employeeNew.JobLocationID" tabindex="15" required ng-change="GetShiftCbo();">
+                                    <select id="Job Location" class="form-control" name="Job Location" ng-model="employeeNew.JobLocationID" tabindex="15" required ng-change="GetShiftCbo();">
                                         <option value="">--Select--</option>
                                         <option ng-repeat="option in JobLocationList" value="{{option.SystemID}}">{{option.JobLocation}}</option>
                                     </select>
@@ -2404,6 +2415,22 @@
                                 </div>
                             </div>
                         </div>
+                        @*<div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Job Location<sup>*</sup> </label>
+                                <div class="col-sm-8 input-group show-message">
+                                    <div class="select-style">
+                                        <select id="JobLocation" class="form-control" name="Job Location" ng-model="employeeNew.JobLocationID" tabindex="14" required ng-change="GetShiftCbo();">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in JobLocationList" value="{{option.SystemID}}">{{option.JobLocation}}</option>
+                                        </select>
+                                    </div>
+                                    <span class="input-group-btn">
+                                        <button ng-show="Flag=='Load All'" ng-click="LoadAllJobLocation();" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i>Load All</button>
+                                        <button ng-show="Flag=='Load Less'" ng-click="LoadPlantJobLocation();" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i>Load Less</button>
+                                    </span>
+                                </div>
+                            </div>*@
+
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Date Of Join<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
@@ -2624,6 +2651,17 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="form-group">
+                            <div class="checkbox-site">
+                                <label>
+                                    <span>Non Eligible OT</span>
+                                    <input type="checkbox" ng-model="NonEligibleOTChild.Exclude" id="OTCheck">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+
+                                </label>
+                            </div>
+                        </div>
+
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Transport Group<sup ng-show="IsTransportGroupMandatory===true">*</sup></label>
                             <div class="col-sm-8">

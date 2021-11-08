@@ -995,7 +995,7 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
             }
 
             if (($scope.productNew.Asset === true) && ($scope.productNew.Inventory === false || $scope.productNew.Inventory === undefined)) {
-                debugger;
+        
                 //$scope.productNew.Asset = 'Asset';
                 $scope.productNew.Inventory = false;
                 $scope.productNew.Asset = true;
@@ -1131,17 +1131,6 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
 
         }
     }
-
-    
-
-
-     //-------Material Stock Balance Report---- End ----//
-
-
-  
-
-
-    //-------Material Store Ledger Report----Start----//
 
     $scope.MaterialStoreLedgerReportExcel = function (reportFormat) {
 

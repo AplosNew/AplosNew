@@ -4087,6 +4087,7 @@ UNION ALL
         {
             try
             {
+                DataRow dr = null;
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 DataSet dsRack = null;
                 if (Data == null)
@@ -4096,17 +4097,26 @@ UNION ALL
                 string Ids = "";
                 for (int i = 0; i < Data.Count; i++)
                 {
-                    if (Ids == "")
-                        Ids = "'" + Data[i]["Id"] + "'";
-                    else
-                        Ids += ",'" + Data[i]["Id"] + "'";
+                    if (!string.IsNullOrEmpty(Data[i]["Id"].ToString()))
+                    {
+                        if (Ids == "")
+                            Ids = "'" + Data[i]["Id"] + "'";
+                        else
+                            Ids += ",'" + Data[i]["Id"] + "'";
+                    }
                 }
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from trn.GRNPORequisitionAllocation where Id='" + Ids + "'", out dsRack, false, "1");
+                if (Ids != "")
+                {
+                    conRack.OpenDataSetThroughAdapter("select * from trn.GRNPORequisitionAllocation where Id in (" + Ids + ")", out dsRack, false, "1");
+                }
+                else
+                {
+                    conRack.OpenDataSetThroughAdapter("select * from trn.GRNPORequisitionAllocation where 1=2", out dsRack, false, "1");
+                }
 
                 foreach (var item in Data)
                 {
-
                     string _Id = "";
 
                     #region data update
@@ -4117,13 +4127,13 @@ UNION ALL
                     {
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID("trn.GRNPORequisitionAllocation", out _Id);
-                        DataRow dr = dsRack.Tables[0].NewRow();
+                        dr = dsRack.Tables[0].NewRow();
                         _Id = "OS" + _Id;
 
                         dr["Id"] = _Id;
                         dr["InventoryReceiveDetailId"] = item["InventoryReceiveDetailId"];
                         dr["POBOQMapId"] = item["POBOQMapId"];
-                        dr["POReqDetailsID"] = item["POReqDetailsID"];
+                        dr["POReqDetailsID"] = DBNull.Value;
                         dr["TransactionQty"] = item["TransactionQty"];
                         dr["TransactionUoMId"] = item["TransactionUoMId"];
                         dr["BaseQty"] = item["BaseQty"];
@@ -4131,8 +4141,9 @@ UNION ALL
                         dr["POBOQQty"] = item["POBOQQty"];
                         dr["POUoMId"] = item["POUoMId"];
                         dr["SalesOrderId"] = item["SalesOrderId"];
-                        dr["RejectQty"] = item["RejectQty"];
-                        dr["RejectBaseQty"] = item["RejectBaseQty"];
+                        dr["OSPOBOQMAPId"] = item["OSPOBOQMAPId"];
+                        dr["RejectQty"] = DBNull.Value;
+                        dr["RejectBaseQty"] = DBNull.Value;
                         dr["AddedBy"] = identity.Name;
                         dr["AddedDate"] = DateTime.Now;
                         dr["AddedFromIP"] = identity.IPAddress;
@@ -4145,7 +4156,25 @@ UNION ALL
                     else
                     {
                         _Id = item["Id"].ToString();
-                        EditRow(dsRack.Tables[0].Rows[0], item);
+                        dr = dsRack.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+                        dr["InventoryReceiveDetailId"] = item["InventoryReceiveDetailId"];
+                        dr["POBOQMapId"] = item["POBOQMapId"];
+                        dr["POReqDetailsID"] = item["POReqDetailsID"];
+                        dr["TransactionQty"] = item["TransactionQty"];
+                        dr["TransactionUoMId"] = item["TransactionUoMId"];
+                        dr["BaseQty"] = item["BaseQty"];
+                        dr["BaseUoMId"] = item["BaseUoMId"];
+                        dr["POBOQQty"] = item["POBOQQty"];
+                        dr["POUoMId"] = item["POUoMId"];
+                        dr["SalesOrderId"] = item["SalesOrderId"];
+                        dr["OSPOBOQMAPId "] = item["OSPOBOQMAPId "];
+                        dr["RejectQty"] = item["RejectQty"];
+                        dr["RejectBaseQty"] = item["RejectBaseQty"];
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = DateTime.Now;
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+                        dr.EndEdit();
                     }
                     #endregion data update 
                 }

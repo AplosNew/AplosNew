@@ -925,7 +925,6 @@ function hrDashboardController(fileReader, cboService, commonMessage, $scope, $r
                     row.date = $scope.date;
                     $scope.ColList.push(row);
                 }
-
             }
 
         });

@@ -109,6 +109,7 @@
   <ItemGroup>
     <Compile Include="CutPlan\clsCutPlan.cs" />
     <Compile Include="InventoryManagements\GatePassService.cs" />
+    <Compile Include="InventoryManagements\InventoryStockReportService.cs" />
     <Compile Include="InventoryManagements\InventorySalesService.cs" />
     <Compile Include="InventoryManagements\MaterialMovementPurposeService.cs" />
     <Compile Include="InventoryManagements\InventoryIssueService.cs" />

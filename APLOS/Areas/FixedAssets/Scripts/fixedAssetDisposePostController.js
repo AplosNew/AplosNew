@@ -127,6 +127,7 @@ function fixedAssetDisposePostController(accountService, cboService, commonMessa
         $scope.voucher.Designation = data.Designation;
         $scope.voucher.Department = data.Department;
         $scope.voucher.Status = data.Status;
+        $scope.voucher.DocDate = $filter("dateFiltering")(data.DocDate);
         if ($scope.voucher.Status =='Sales')
           $scope.paymentTerm();
         $scope.voucher.CurrencyId = data.trnCurrencyId;
@@ -234,7 +235,7 @@ function fixedAssetDisposePostController(accountService, cboService, commonMessa
             if ($scope.voucherTypeList.length === 1) {
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
                 $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
-                $scope.voucher.DocDate = $scope.voucher.PostingDate;
+                //$scope.voucher.DocDate = $scope.voucher.PostingDate;
                 $scope.GetCurrencyExchangeRateList();
             }
         });
@@ -321,7 +322,7 @@ function fixedAssetDisposePostController(accountService, cboService, commonMessa
     };
 
     $scope.Save = function () {
-        $scope.voucher.DocDate = $scope.voucher.PostingDate;
+        //$scope.voucher.DocDate = $scope.voucher.PostingDate;
         $scope.$broadcast("show-errors-check-validity");
         if ($scope.form0.$valid) {
                 $scope.SaveUrl = "fixedassets/FixedAssetRegister/CreateFixedAssetDisposePost"
@@ -617,9 +618,31 @@ function fixedAssetDisposePostController(accountService, cboService, commonMessa
     //}
 
 
-    //$scope.commandExcel = [{    //    type: "details", buttonOptions: {    //        text: "Excel",    //        width: "50",    //        height: "20",    //        //contentType: "imageonly",    //        //prefixIcon: "e-icon e-dataexport",    //        //prefixIcon: "e-icon e-edit" ,    //        //prefixIcon: "e-icon e-delete",    //        //prefixIcon: " e-icon e-save",    //        //prefixIcon: " e-icon e-cancel",    //        click: $scope.onClickReportDownloadExcel    //    }    //}];
+    //$scope.commandExcel = [{
+    //    type: "details", buttonOptions: {
+    //        text: "Excel",
+    //        width: "50",
+    //        height: "20",
+    //        //contentType: "imageonly",
+    //        //prefixIcon: "e-icon e-dataexport",
 
-    $scope.onClickReportDownloadExcel = function (args) {        //debugger;        //var gridObj = $("#GridEdit").data("ejGrid");        ////getting corresponding record         //var data = gridObj.getSelectedRecords()[0];        var reportFormat = "Excel";        //if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');        //$window.open($scope.path + 'FixedAssetsDisposePost?reportFormat=' + reportFormat + '&voucherId=' + data.Id, '_blank');
+    //        //prefixIcon: "e-icon e-edit" ,
+    //        //prefixIcon: "e-icon e-delete",
+    //        //prefixIcon: " e-icon e-save",
+    //        //prefixIcon: " e-icon e-cancel",
+
+    //        click: $scope.onClickReportDownloadExcel
+    //    }
+    //}];
+
+    $scope.onClickReportDownloadExcel = function (args) {
+        //debugger;
+        //var gridObj = $("#GridEdit").data("ejGrid");
+        ////getting corresponding record 
+        //var data = gridObj.getSelectedRecords()[0];
+        var reportFormat = "Excel";
+        //if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
+        //$window.open($scope.path + 'FixedAssetsDisposePost?reportFormat=' + reportFormat + '&voucherId=' + data.Id, '_blank');
 
 
         try {
@@ -639,13 +662,36 @@ function fixedAssetDisposePostController(accountService, cboService, commonMessa
         } catch (e) {
 
         }
-    };
+
+    };
 
 
 
-    //$scope.commandPDF = [{    //    type: "details", buttonOptions: {    //        text: "PDF",    //        width: "50",    //        height: "20",    //        //contentType: "imageonly",    //        //prefixIcon: "e-icon e-dataexport",    //        //prefixIcon: "e-icon e-edit" ,    //        //prefixIcon: "e-icon e-delete",    //        //prefixIcon: " e-icon e-save",    //        //prefixIcon: " e-icon e-cancel",    //        click: $scope.onClickReportDownloadWord    //    }    //}];
+    //$scope.commandPDF = [{
+    //    type: "details", buttonOptions: {
+    //        text: "PDF",
+    //        width: "50",
+    //        height: "20",
+    //        //contentType: "imageonly",
+    //        //prefixIcon: "e-icon e-dataexport",
 
-    $scope.onClickReportDownloadWord = function (args) {        //debugger;        //var gridObj = $("#GridEdit").data("ejGrid");        ////getting corresponding record         //var data = gridObj.getSelectedRecords()[0];        var reportFormat = "Pdf";        if (baseService.isUndefinedOrNull(args.Id)) return ShowResult('No Id found', 'failure');        //$window.open($scope.path + 'FixedAssetsDisposePost?reportFormat=' + reportFormat + '&voucherId=' + args.Id, '_blank');
+    //        //prefixIcon: "e-icon e-edit" ,
+    //        //prefixIcon: "e-icon e-delete",
+    //        //prefixIcon: " e-icon e-save",
+    //        //prefixIcon: " e-icon e-cancel",
+
+    //        click: $scope.onClickReportDownloadWord
+    //    }
+    //}];
+
+    $scope.onClickReportDownloadWord = function (args) {
+        //debugger;
+        //var gridObj = $("#GridEdit").data("ejGrid");
+        ////getting corresponding record 
+        //var data = gridObj.getSelectedRecords()[0];
+        var reportFormat = "Pdf";
+        if (baseService.isUndefinedOrNull(args.Id)) return ShowResult('No Id found', 'failure');
+        //$window.open($scope.path + 'FixedAssetsDisposePost?reportFormat=' + reportFormat + '&voucherId=' + args.Id, '_blank');
 
         try {
             var file_src = $scope.path + 'FixedAssetsDisposePost?reportFormat=' + reportFormat + '&disposedVoucherId=' + args.Id
@@ -663,7 +709,8 @@ function fixedAssetDisposePostController(accountService, cboService, commonMessa
 
         } catch (e) {
 
-        }    };
+        }
+    };
 
     $scope.paymentTerm = function () {
   

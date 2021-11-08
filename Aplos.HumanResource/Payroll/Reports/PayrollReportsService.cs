@@ -5972,7 +5972,7 @@ namespace Library.HumanResource.Payroll
             }
         }
 
-        public IWorkbook GetFinalDeductionReportCompanyWise(out int xlsRow, string companyGroupId, string companyId, string plantId, string userId, string month, string year, Dictionary<string, string> parameters, bool isTopSheet)
+        public IWorkbook GetFinalDeductionReportCompanyWise(out int xlsRow, string companyGroupId, string companyId, string plantId, string userId, string month, string year, Dictionary<string, string> parameters, string format, bool isTopSheet)
         {
             #region Variable
             clsReport objRpt = null;
@@ -6037,8 +6037,8 @@ namespace Library.HumanResource.Payroll
                 DataTable dtSalaryHeadSheet;
                 List<SalarySheetReportUD> listdsSlrProc = new List<SalarySheetReportUD>();
                 //  GeFinalDeductionReportCompanyWiseSQL(companyGroupId, companyId, plantId, fdateOfMonth, ldateOfMonth, parameters, out dsEmpLoyeeInfo);//Sql Query For Salary  Data
-                SalaryHeadSQL(plantId, month, year, parameters, out dsEmpLoyeeInfo);//Sql Query For Salary  Data
-                                                                                    // Dictionary<string, List<DataRow>> dicEmpSalry = GetEmployeeSalaryInfoDetail(companyGroupId, companyId, plantId, fdateOfMonth, ldateOfMonth,  parameters, out dtSalaryHeadSheet);
+                SalaryHeadSQL(plantId, month, year, parameters, format, out dsEmpLoyeeInfo);//Sql Query For Salary  Data
+                                                                                            // Dictionary<string, List<DataRow>> dicEmpSalry = GetEmployeeSalaryInfoDetail(companyGroupId, companyId, plantId, fdateOfMonth, ldateOfMonth,  parameters, out dtSalaryHeadSheet);
 
 
                 dtEmployees = dsEmpLoyeeInfo.Tables[0];//dicEmpSalry.First().Value[0].Table;
@@ -6299,8 +6299,8 @@ namespace Library.HumanResource.Payroll
                         sheet1.Range[xlsRow, colSalaryHead].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, colSalaryHead].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["EntryAmount"].ToString()) == false)
-                            sheet1.Range[xlsRow, colDisbursementAmount].Number = clsStaticInfo.dbl(dtEmployees.Rows[i]["EntryAmount"].ToString());
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["Amount"].ToString()) == false)
+                            sheet1.Range[xlsRow, colDisbursementAmount].Number = clsStaticInfo.dbl(dtEmployees.Rows[i]["Amount"].ToString());
                         sheet1[xlsRow, colDisbursementAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
 
                         sheet1.Range[xlsRow, colDisbursementAmount].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -9321,7 +9321,7 @@ namespace Library.HumanResource.Payroll
 
 
         #region PaySlip
-        public IWorkbook GetEmployeePaySlip(string companyGroupId, string companyId, string plantId, string userId, string month, string year, string salaryProcessId, Dictionary<string, string> parameters, string languageId, bool isActive, bool isSeperated, bool isMaternity, bool IsIncludingZeroHeads)
+        public IWorkbook GetEmployeePaySlip(string companyGroupId, string companyId, string plantId, string userId, string month, string year, string salaryProcessId, Dictionary<string, string> parameters, string languageId, bool isActive, bool isSeperated, bool isMaternity, bool IsIncludingZeroHeads, bool singleEmployee)
         {
             #region Variable
             ReportUtility ru = null;
@@ -9354,6 +9354,10 @@ namespace Library.HumanResource.Payroll
 
             try
             {
+                int EmployeePerPage = 3;
+                if (singleEmployee)
+                    EmployeePerPage = 1;
+
                 ru = new ReportUtility();
                 objRpt = new clsReport();
 
@@ -10078,7 +10082,7 @@ namespace Library.HumanResource.Payroll
                         startRow = _maxRow + 4;
 
 
-                        if ((EmpCounter % 3) == 0)
+                        if ((EmpCounter % EmployeePerPage) == 0)
                         {
                             sheet1.HPageBreaks.Add(sheet1[(_maxRow + 4), xlsColTot + 1]);
                         }
@@ -13904,7 +13908,7 @@ INNER JOIN
                                     ,CASE WHEN ISNULL(PO.DirectManpowerCost,0) = 0 THEN 'No' ELSE 'Yes' END DirectManpowerCost
 
                                      FROM EmployeeInformation E
-                                          Left JOIN (
+                                          INNER JOIN (
                                     SELECT DISTINCT EmpInfoSystemID,SlrProcMstSystemID,PlantID ,m.Description,m.SalaryProcFlag
                                     FROM SalaryProcChild c
                                     JOIN SalaryProcMaster m on m.SystemID=c.SlrProcMstSystemID
@@ -14401,12 +14405,13 @@ INNER JOIN
         //        }//End Function
 
 
-        private void SalaryHeadSQL(string plantId, string month, string year, Dictionary<string, string> parameters, out DataSet dsRef)
+        private void SalaryHeadSQL(string plantId, string month, string year, Dictionary<string, string> parameters, string format, out DataSet dsRef)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-
-            string strSQL = @"SELECT DISTINCT E.SystemID EmpSystemId, isnull(E.VendorId,'') as Vendor ,F.UserName Plant
+            string strSQL = "";
+            if (format == "1")
+            {
+                strSQL = @"SELECT DISTINCT E.SystemID EmpSystemId, isnull(E.VendorId,'') as Vendor ,F.UserName Plant
 									, isnull(p.UserName,'') as Contractor, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus 
 											, E.DesignationSystemID, DE.UserName DesignationName,
 											  F.Id PlantID, F.UserName PlantName, 
@@ -14416,8 +14421,8 @@ INNER JOIN
 											EC.UserName EmpCategoryName,
                                          Format(E.DOJ,'dd-MMM-yyyy') DOJ,Format(E.DOS,'dd-MMM-yyyy') DOS,Format(E.DOB,'dd-MMM-yyyy') DOB
 											,ISNULL(LDS.UserName,'') LegalDesignation
-											,SH.SalaryHead,SH.EntryAmount,SH.DefineAmount,LS.UserName Grade,SH.ExtDataUploadApp,
-CASE WHEN SH.ExtDataUploadApp='Yes' THEN 'System' ELSE SH.ExtDataUploadApp END as ExtDataUploadApp
+											,SH.SalaryHead,SH.Amount,LS.UserName Grade,
+											ExtDataUploadApp='System'
                                      FROM EmployeeInformation E
                                      left join hkp.Party p on p.Id = E.VendorId
 									 			LEFT JOIN ORG.Plant F ON F.Id= E.PlantId
@@ -14438,7 +14443,62 @@ LEFT join  [MST].[DesignationMasterLegalDesignation] dmld on dmld.LegalDesignati
 												LEFT JOIN org.Department DP ON PO.DepartmentID = DP.Id
 												LEFT JOIN org.Section S ON PO.SectionID = S.Id
 												LEFT JOIN org.SubSection SS ON PO.SubSectionID = SS.Id
-												 Join(SELECT m.EmpInfoSystemID, c.SalaryHeadID,Sh.SalaryHead,c.ExtDataUploadApp,SUM(C.EntryAmount)AS EntryAmount,SUM(c.DefineAmount) AS DefineAmount
+											    JOIN
+(select x.EmpSystemId,x.SalaryHeadId,sum(x.Am) Amount,x.SalaryHead
+from (
+select
+d.Amount,d.chargeable,d.Date,d.EmployeeId EmpSystemId,d.Quantity
+,c.Category ServiceCategory,t.Service ServiceName,t.Form
+,h.SalaryHead,h.SalaryHeadID SalaryHeadId,r.Rate
+,Am=case when t.Form='Value' then d.Amount
+else isnull(d.Quantity,0)*isnull(r.Rate ,0) end
+from [EmpServiceData] d
+left join EmpServiceCategory c on c.id=d.EmployeeServiceCategoryId
+left join EmpServiceType t on t.id=c.EmpServiceTypeId
+left join SalaryHead h on h.SalaryHeadID=t.SalaryHeadId
+left join EmployeeServicesRate r on r.EmployeeServiceCategoryId=c.Id
+where d.chargeable=1 
+and d.EmployeeId in  (" + parameters["EmpSystemId"] + @")
+AND MONTH(d.Date)='" + month + @"' AND  Year(d.Date)='" + year + @"'
+)x WHERE x.Am>0
+group by x.EmpSystemId,SalaryHeadId,x.SalaryHead) SH on SH.EmpSystemId=E.SystemId";
+            }
+            else
+            {
+                strSQL = @"SELECT DISTINCT E.SystemID EmpSystemId, isnull(E.VendorId,'') as Vendor ,F.UserName Plant
+									, isnull(p.UserName,'') as Contractor, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus 
+											, E.DesignationSystemID, DE.UserName DesignationName,
+											  F.Id PlantID, F.UserName PlantName, 
+											FU.UserName UnitName,  DV.UserName DivisionName,  DP.UserName DepartmentName,
+											 S.UserName SectionName
+											 , SS.UserName SubSectionName,
+											EC.UserName EmpCategoryName,
+                                         Format(E.DOJ,'dd-MMM-yyyy') DOJ,Format(E.DOS,'dd-MMM-yyyy') DOS,Format(E.DOB,'dd-MMM-yyyy') DOB
+											,ISNULL(LDS.UserName,'') LegalDesignation
+											,SH.SalaryHead,SH.EntryAmount Amount,LS.UserName Grade,
+CASE WHEN SH.ExtDataUploadApp='Yes' THEN 'System' ELSE 'Excel' END as ExtDataUploadApp
+                                     FROM EmployeeInformation E
+                                     left join hkp.Party p on p.Id = E.VendorId
+									 			LEFT JOIN ORG.Plant F ON F.Id= E.PlantId
+												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
+												LEFT JOIN hkp.Designation DE ON E.GivenDesignationId = DE.Id
+												LEFT JOIN hkp.LegalDesignation LDS ON E.LegalDesignationId = LDS.Id
+LEFT join  [MST].[DesignationMasterLegalDesignation] dmld on dmld.LegalDesignationId=LDS.Id
+                        left join [MST].[DesignationMaster] dm on dm.Id=dmld.DesignationMasterId
+                        left join HKP.EmployeeCategory EC on EC.Id=dm.EmployeeCategoryId
+								LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = E.BudgetCode
+								LEFT OUTER JOIN [ORG].[Position] AS PO ON PO.Id = MB.PositionId
+                                LEFT OUTER JOIN [ORG].[Entity] AS ENT ON ENT.Id = MB.EntityId
+                                                LEFT JOIN MST.LegalSalaryGradeDesignation LSGD ON LSGD.LegalDesignationId = LDS.Id and E.PlantId = LSGD.PlantId
+                                                  JOIN [SCS].[LegalSalaryGrade] LS ON LS.Id = LSGD.LegalSalaryGradeId and ls.PlantId=lsgd.PlantId
+												
+												LEFT JOIN org.Unit FU ON ENT.UnitID = FU.Id
+												LEFT JOIN org.Division DV ON PO.DivisionID = DV.Id
+												LEFT JOIN org.Department DP ON PO.DepartmentID = DP.Id
+												LEFT JOIN org.Section S ON PO.SectionID = S.Id
+												LEFT JOIN org.SubSection SS ON PO.SubSectionID = SS.Id
+												 Join(
+												 SELECT m.EmpInfoSystemID, c.SalaryHeadID,Sh.SalaryHead,c.ExtDataUploadApp,SUM(C.EntryAmount)AS EntryAmount,SUM(c.DefineAmount) AS DefineAmount
   FROM MonthWiseExtraSalaryAmtMaster AS m
 JOIN MonthWiseExtraSalaryAmtChild AS C ON c.MWESAMasterSystemID=m.SystemID
 JOIN SalaryHead AS sh ON sh.SalaryHeadID=c.SalaryHeadID
@@ -14446,6 +14506,7 @@ WHERE m.MonthNo='" + month + @"' AND m.YearNo='" + year + @"'
 GROUP BY m.EmpInfoSystemID, c.SalaryHeadID,c.ExtDataUploadApp,Sh.SalaryHead) SH on SH.EmpInfoSystemID=E.SystemId
 
 where E.SystemId in (" + parameters["EmpSystemId"] + @")";
+            }
 
             ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
             con.getDataSet(strSQL, out dsRef);
@@ -18172,46 +18233,53 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
         private void GetSalaryIntegrationWithThirdparty(string plantId, string Year, string Month, out DataTable dtData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT k.AccountsGroup, k.GL, k.GLName, SUM(k.Debit)AS Debit, SUM(k.Credit) AS Credit
-                      FROM (SELECT ag.UserName AS AccountsGroup,  sh.SalaryHead,ac.SalaryHeadID,
-                                                        mb.Id AS ManpowerBudgetId, mb.EntityId, mb.PositionId,mb.AccountsGroupId,e.PlantId,
-                                                        e.ThirdPartyBusinessArea, e.ThirdPartyProfitCenter,ecc.CostCenterId,
-
-									                    GL=CASE WHEN POS.DirectManpowerCost=1 and SH.TransactionType in ('Dr.','Both')  THEN SGL.DrDirectOtherGLCode
-											                    WHEN POS.DirectManpowerCost=0 and SH.TransactionType in ('Dr.','Both')  THEN SGL.DrInDirectOtherGLCode
-											                    WHEN POS.DirectManpowerCost=1 and SH.TransactionType in ('Cr.','Both')  THEN SGL.CrDirectOtherGLCode
-											                    WHEN POS.DirectManpowerCost=0 and SH.TransactionType in ('Cr.','Both')  THEN SGL.CrInDirectOtherGLCode
-											                     END,
-									                    GLName=CASE WHEN POS.DirectManpowerCost=1 and SH.TransactionType in ('Dr.','Both')  THEN SGL.DrDirectOtherGL
-											                    WHEN POS.DirectManpowerCost=0 and SH.TransactionType in ('Dr.','Both')  THEN SGL.DrInDirectOtherGL
-											                    WHEN POS.DirectManpowerCost=1 and SH.TransactionType in ('Cr.','Both')  THEN SGL.CrDirectOtherGL
-											                    WHEN POS.DirectManpowerCost=0 and SH.TransactionType in ('Cr.','Both')  THEN SGL.CrInDirectOtherGL
-											                     END,
-								
-                                                        SUM(CASE WHEN ISNULL(sh.TransactionType,'') IN ('Dr.','Both') THEN ABS(ac.DisbusmentAmount) ELSE 0 END) AS Debit,
-                                                        SUM(CASE WHEN ISNULL(sh.TransactionType,'') IN ('Cr.','Both') THEN ABS(ac.DisbusmentAmount) ELSE 0 END) AS Credit
-		                                                        FROM SalaryProcMaster AS AM
-		                                                        JOIN SalaryProcChild AS AC ON am.SystemID=ac.SlrProcMstSystemID
-		                                                        LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=ac.EmpInfoSystemID
-		                                                        LEFT JOIN mst.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode 
-		                                                        Left Join ORG.Position POS on MB.PositionId=POS.Id
-		                                                        LEFT JOIN [MST].[SalaryHeadGL] SGL ON sgl.SalaryHeadId=ac.SalaryHeadID AND sgl.AccountsGroupId=mb.AccountsGroupId
-		                                                        JOIN SalaryHead AS sh ON sh.SalaryHeadID=ac.SalaryHeadID
-                                                                      
-		                                                        LEFT JOIN org.Entity AS e ON e.Id=mb.EntityId
-		                                                        LEFT JOIN org.EntityCostCenter AS ecc ON ecc.EntityId=e.Id
-		                                                        LEFT JOIN AccountsGroup AS ag ON AG.Id=mb.AccountsGroupId
-		                   
-
-                    WHERE am.MonthNo=" + Month + @"  AND am.YearNo=" + Year + @" 
-                                                        AND ISNULL(sh.TransactionType,'') IN ('Dr.','Cr.','Both')
-                                                        AND ei.PlantId IN (" + plantId + @" )
-                    GROUP BY sh.TransactionType,POS.DirectManpowerCost, ag.UserName, sh.SalaryHead,ac.SalaryHeadID,
-                    SGL.DrDirectOtherGLCode, SGL.DrInDirectOtherGLCode,SGL.CrDirectOtherGLCode, SGL.CrInDirectOtherGLCode,
-                    SGL.DrDirectOtherGL, SGL.DrInDirectOtherGL,SGL.CrDirectOtherGL, SGL.CrInDirectOtherGL,
-                                                        mb.Id, mb.EntityId, mb.PositionId, mb.AccountsGroupId,e.PlantId,
-                                                        e.ThirdPartyBusinessArea, e.ThirdPartyProfitCenter,ecc.CostCenterId
-                    ) AS K GROUP BY  k.AccountsGroup, k.GL, k.GLName";
+            string sql = @"Select ISNULL(AccountsGroupId,'')AccountsGroupId,ISNULL(AccountGroup,'')AccountGroup,ISNULL(GL,'') GL,ISNULL(GLName,'') GLName,Sum(IsNull(DrAmt,0)) Debit, Sum(IsNull(CrAmt,0)) Credit--,SalHeadId SalaryHeadId,SalHeadName SalaryHead
+                        from                                                 
+                        (
+                        Select C.UserName as Company,P.UserName Plant,ENT.ThirdPartyBusinessArea,ENT.ThirdPartyProfitCenter,ENT.UserName Entity,
+                        MB.AccountsGroupId,AGRP.UserName AccountGroup,POS.Code PostionCode,MB.Code BudgetCode,
+                        E.SystemId EmpId,E.EmployeeCode EmpCode,E.EmployeeName EmpName,SH.SalaryHead SalHeadName,TransactionType,TransactionTypeNew
+                        ,CC.UserName CostCenter
+                        ,GL=CASE WHEN POS.DirectManpowerCost=1 and SH.TransactionTypeNew= 'Dr.' THEN SHGL.DrDirectOtherGLCode
+                        		WHEN POS.DirectManpowerCost=0 and SH.TransactionTypeNew = 'Dr.' THEN SHGL.DrInDirectOtherGLCode
+                        		WHEN POS.DirectManpowerCost=1 and SH.TransactionTypeNew = 'Cr.'  THEN SHGL.CrDirectOtherGLCode
+                        		WHEN POS.DirectManpowerCost=0 and SH.TransactionTypeNew = 'Cr.'  THEN SHGL.CrInDirectOtherGLCode
+                        		 END
+                        , abs(SPC.DisbusmentAmount) DisbusmentAmount
+                        ,GLName=CASE WHEN POS.DirectManpowerCost=1 and SH.TransactionTypeNew ='Dr.' THEN SHGL.DrDirectOtherGL
+                        		WHEN POS.DirectManpowerCost=0 and SH.TransactionTypeNew = 'Dr.'  THEN SHGL.DrInDirectOtherGL
+                        		WHEN POS.DirectManpowerCost=1 and SH.TransactionTypeNew = 'Cr.'  THEN SHGL.CrDirectOtherGL
+                        		WHEN POS.DirectManpowerCost=0 and SH.TransactionTypeNew = 'Cr.'  THEN SHGL.CrInDirectOtherGL
+                        		 END
+                        ,SPM.SystemID SalProcessId,SH.SalaryHeadID SalHeadId
+                        ,E.PlantId EmpPlantId, ENT.PlantId EntityPlantId, SPLD.PlantId,E.BudgetCode EmpBudgetId,SPLD.BudgetCode SalBudgetId
+                        ,ENT.UserName SalEntity,POS.Id SalPosId,POS.UserName SalPositon,POS.DirectManpowerCost
+                        ,DrAmt=CASE WHEN SH.TransactionTypeNew in ('Dr.')  THEN abs(isnull(SPC.DisbusmentAmount,0)) END
+                        ,CrAmt=CASE WHEN SH.TransactionTypeNew in ('Cr.')  THEN abs(isnull(SPC.DisbusmentAmount,0)) END
+                        from SalaryProcChild SPC
+                        Inner Join SalaryProcMaster SPM on SPC.SlrProcMstSystemID=SPM.SystemID and SPM.MonthNo='" + Month + "' and SPM.YearNo='" + Year + @"' AND SPC.PlantId IN (" + plantId + @" )
+                        Inner Join SalaryProcessLogDetail SPLD on SPM.SystemID=SPLD.SalaryProcessId and SPLD.EmpSystemId=SPC.EmpInfoSystemID
+                        Left Join EmployeeInformation E on SPLD.EmpSystemId=E.SystemId
+                        Left Join ORG.Plant P on SPLD.PlantId=P.Id
+                        Left Join ORG.Company C on P.CompanyId=C.Id
+                        Left Join MST.ManpowerBudget MB on SPLD.BudgetCode=MB.Id
+                        Left Join ORG.Entity ENT on MB.EntityId=ENT.Id
+                        Left Join ORG.Position POS on MB.PositionId=POS.Id
+                        Left Join ORG.CostCenter CC on POS.CostCenterId=CC.Id
+                        Left Join HKP.LegalDesignation LD on SPLD.LegalDesignationId=LD.Id
+                        Left Join AccountsGroup AGRP on MB.AccountsGroupId=AGRP.Id
+                        Left Join MST.SalaryHeadGL SHGL on SPC.SalaryHeadID=SHGL.SalaryHeadID and P.CompanyID=SHGL.CompanyID and ISNULL(MB.AccountsGroupId,'')=ISNULL(SHGL.AccountsGroupId,'')
+                        Inner Join
+                        (
+                        	SELECT *,CASE WHEN ISNULL(sh.TransactionType,'')='Both' THEN 'Dr.' ELSE sh.TransactionType END AS TransactionTypeNew
+                            FROM SalaryHead AS sh WHERE  ISNULL(sh.TransactionType,'') IN ('Dr.','Both') 
+                        		UNION ALL 
+                        	SELECT *,CASE WHEN ISNULL(sh.TransactionType,'')='Both' THEN 'Cr.' ELSE sh.TransactionType END AS TransactionTypeNew
+                            FROM SalaryHead AS sh WHERE  ISNULL(sh.TransactionType,'') IN ('Cr.','Both') 
+                        ) SH on SPC.SalaryHeadID=SH.SalaryHeadID
+                        Where SPM.MonthNo='" + Month + "' and SPM.YearNo='" + Year + @"'  AND SPC.PlantId IN (" + plantId + @" )
+                        ) TempTbl
+                        group by AccountsGroupId,AccountGroup,GL,GLName--,SalHeadId,SalHeadName";
             dtData = _sqlRepository.GetDataTable(sql);
         }
 
@@ -18289,7 +18357,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                 for (int i = 0; i < dtData.Rows.Count; i++)
                 {
 
-                    sheet[ROW, colAccountsGroup].Text = dtData.Rows[i]["AccountsGroup"].ToString();
+                    sheet[ROW, colAccountsGroup].Text = dtData.Rows[i]["AccountGroup"].ToString();
                     sheet[ROW, colGLCode].Text = dtData.Rows[i]["GL"].ToString();
                     sheet[ROW, colGLName].Text = dtData.Rows[i]["GLName"].ToString();
 

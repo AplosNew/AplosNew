@@ -31,7 +31,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
 
 
-        public PaySlipsController( IEmployeeProfileService employeeProfileService
+        public PaySlipsController(IEmployeeProfileService employeeProfileService
             )
         {
             _payrollReportsService = new PayrollReportsService();
@@ -56,7 +56,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         #region -- Operations
 
         [HttpPost, Authorize]
-        public ActionResult GetEmployeePaySlip(string month, string year, string salaryProcessId, Dictionary<string, string> parameters, string languageId, bool isActive, bool isSeperated, bool isMaternity,bool IsIncludingZeroHeads)
+        public ActionResult GetEmployeePaySlip(string month, string year, string salaryProcessId, Dictionary<string, string> parameters, string languageId, bool isActive, bool isSeperated, bool isMaternity, bool IsIncludingZeroHeads, bool singleEmployee)
         {
             try
             {
@@ -66,15 +66,15 @@ namespace Aplos.Areas.Payrolls.Controllers
                 string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
 
                 //GetEmployeePaySlipWithBal
-                var workbook = _payrollReportsService.GetEmployeePaySlip(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, salaryProcessId, parameters, languageId,  isActive,  isSeperated,  isMaternity, IsIncludingZeroHeads);
-              
+                var workbook = _payrollReportsService.GetEmployeePaySlip(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, salaryProcessId, parameters, languageId, isActive, isSeperated, isMaternity, IsIncludingZeroHeads, singleEmployee);
+
                 workbook.Version = ExcelVersion.Excel2016;
                 //workbook.SaveAs(fullPath);
                 var converter = new ExcelToPdfConverter(workbook);
                 ExcelToPdfConverterSettings _settings = new ExcelToPdfConverterSettings();
                 _settings.AutoDetectComplexScript = true;
                 var pdfDoc = converter.Convert(_settings);
-               
+
                 fileName = month + "-" + year + "PaySlip" + DateTime.Now.ToString("yyMMdd") + identity.Name + ".pdf";
                 string fullPathPDF = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName);
                 pdfDoc.Save(fullPathPDF);
@@ -88,13 +88,13 @@ namespace Aplos.Areas.Payrolls.Controllers
 
 
         [HttpPost, Authorize]
-        public ActionResult GetEmployeePaySlipContractor(string month, string year, string salaryProcessId, Dictionary<string, string> parameters, string languageId,string contractorId, bool isActive, bool isSeperated, bool isMaternity)
+        public ActionResult GetEmployeePaySlipContractor(string month, string year, string salaryProcessId, Dictionary<string, string> parameters, string languageId, string contractorId, bool isActive, bool isSeperated, bool isMaternity)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                var fileName = "PaySlipCotractor"+month+year + DateTime.Now.ToString("yyMMdd") + identity.Name + ".xlsx";
+                var fileName = "PaySlipCotractor" + month + year + DateTime.Now.ToString("yyMMdd") + identity.Name + ".xlsx";
                 string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
 
                 var workbook = _payRegisterBDReportService.GetEmployeePaySlipContractor(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, parameters, languageId, contractorId, isActive, isSeperated, isMaternity);
@@ -119,8 +119,8 @@ namespace Aplos.Areas.Payrolls.Controllers
         public ActionResult GetEmpInfo(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_payrollReportsService.GetEmpInfoSalaryPorcessed(identity.CompanyGroupId, identity.PlantId, effectiveDate, salaryProcessId, identity.IsSysAdmin, identity.IsControlAdmin, identity.UserId,  isActive,  isSeperated, isMaternity), JsonRequestBehavior.AllowGet);
-        }        
+            return Json(_payrollReportsService.GetEmpInfoSalaryPorcessed(identity.CompanyGroupId, identity.PlantId, effectiveDate, salaryProcessId, identity.IsSysAdmin, identity.IsControlAdmin, identity.UserId, isActive, isSeperated, isMaternity), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
         public ActionResult GetPayRollGroupCbo()
