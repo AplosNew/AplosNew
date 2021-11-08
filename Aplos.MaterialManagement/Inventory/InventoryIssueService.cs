@@ -12710,7 +12710,8 @@ namespace Library.MaterialManagement.Inventory
                                                                    //Rate = Convert.ToDecimal(item.BaseRate),
                                                                    //Rate = Math.Round((SelectedGRN.TotalAmount / item.RequisitionQty), 4),
                                                                    //TotalAmount = Math.Round(SelectedGRN.TotalAmount, 2),//Convert.ToDecimal(detailtrnAmount),
-                                                Rate = Math.Round((SelectedGRN.TotalAmount / totalReqQty), 4),//totalGRNQty
+                                                //Rate = Math.Round((SelectedGRN.TotalAmount / totalReqQty), 4),//Old calculation
+                                                Rate = Math.Round(Convert.ToDecimal(item.BooksCurrencyBaseRate), 4),//totalGRNQty
                                                 TotalAmount = Math.Round(SelectedGRN.TotalAmount, 2),//Convert.ToDecimal(detailtrnAmount),
                                                 IssueRequestDetailId = item.IssueRequest,
                                                 IssueReturnQty = 0,
