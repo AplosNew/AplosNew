@@ -615,6 +615,20 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
         }
     }
 
+    $scope.onClickPdfPrints = function (args) {
+
+        try {
+            var data = args.data;
+            var reportFormat = "Pdf";
+
+            var file_src = 'FixedAssets/FixedAssetRegister/GetFixedAssetDisposePdfReport?reportFormat=' + reportFormat + '&fixedAssetRegisterDisposeId=' + data.Id
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
+
 
 
 }
