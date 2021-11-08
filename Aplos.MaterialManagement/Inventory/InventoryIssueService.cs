@@ -2701,7 +2701,7 @@ namespace Library.MaterialManagement.Inventory
                 var sql = "";
                 if (Type == "Posted")
                 {
-                    sql = @"SELECT II.Id AS IssueId
+                    sql = @"SELECT II.Id AS IssueId,ospo.Id as PONumber
 	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate
 	                        --,II.CompanyGroupId
 	                        --,II.CompanyId
@@ -2773,6 +2773,7 @@ namespace Library.MaterialManagement.Inventory
 							,isnull(IA1.UserName,'') AS CActivity
 							,isnull(B1.UserName,'') AS CBUdget
                             ,CC.UserName CostCenterName,EI.EmployeeName
+                            ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,PLC.LCRef as PurchaseLCNo
                         FROM trn.InventoryIssue II
                         LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId
                         LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
@@ -2807,13 +2808,18 @@ namespace Library.MaterialManagement.Inventory
 						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
 						Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
                         LEFT join dbo.EmployeeInformation EI ON EI.SystemId=II.EmployeeId
+                        left join dbo.OSTransformationPO ospo on ospo.Id=II.JWContractId
+						left join [dbo].[Contract] Ct on Ct.Id=ospo.ContractId
+						left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
+						LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
+						left join dbo.PurchaseLC PLC on PLC.Id=ospo.PurchaseLCId
                     where v.VoucherNo is not null ANd II.PlantId='" + identity.PlantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
                      and II.Types='InventoryJWIssue' ";
 
                 }
                 else
                 {
-                    sql = @"SELECT II.Id AS IssueId
+                    sql = @"SELECT II.Id AS IssueId,ospo.Id as PONumber
 	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate
 	                        --,II.CompanyGroupId
 	                        --,II.CompanyId
@@ -2886,6 +2892,7 @@ namespace Library.MaterialManagement.Inventory
 							,isnull(B1.UserName,'') AS CBUdget
                             ,CC.UserName CostCenterName
                             ,EI.EmployeeName
+                            ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,PLC.LCRef as PurchaseLCNo
                         FROM trn.InventoryIssue II
                         LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId
                         LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
@@ -2919,6 +2926,11 @@ namespace Library.MaterialManagement.Inventory
 						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
 						Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
                         LEFT join dbo.EmployeeInformation EI ON EI.SystemId=II.EmployeeId
+                        left join dbo.OSTransformationPO ospo on ospo.Id=II.JWContractId
+						left join [dbo].[Contract] Ct on Ct.Id=ospo.ContractId
+						left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
+						LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
+						left join dbo.PurchaseLC PLC on PLC.Id=ospo.PurchaseLCId
                     where v.VoucherNo is null ANd II.PlantId='" + identity.PlantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
                      and II.Types='InventoryJWIssue' ";
 
@@ -3158,6 +3170,7 @@ namespace Library.MaterialManagement.Inventory
 							,isnull(IA1.UserName,'') AS CActivity
 							,isnull(B1.UserName,'') AS CBUdget
 	                        ,CC.UserName CostCenterName
+                            ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,PLC.LCRef as PurchaseLCNo,ospo.Id as PONumber
                         FROM trn.InventoryIssue II
                         LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId		
                         LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
@@ -3195,7 +3208,11 @@ namespace Library.MaterialManagement.Inventory
 						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
 						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
 						Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
-
+                        left join dbo.OSTransformationPO ospo on ospo.Id=II.JWContractId
+						left join [dbo].[Contract] Ct on Ct.Id=ospo.ContractId
+						left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
+						LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
+						left join dbo.PurchaseLC PLC on PLC.Id=ospo.PurchaseLCId
 
                     where v.VoucherNo is not null ANd II.PlantId='" + identity.PlantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
                      and II.Types='InventoryJWIssue' ";
@@ -3240,6 +3257,7 @@ namespace Library.MaterialManagement.Inventory
 							,isnull(IA1.UserName,'') AS CActivity
 							,isnull(B1.UserName,'') AS CBUdget
                             ,CC.UserName CostCenterName
+                            ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,PLC.LCRef as PurchaseLCNo,ospo.Id as PONumber
                         FROM trn.InventoryIssue II
                         LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId	
                         LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
@@ -3277,6 +3295,11 @@ namespace Library.MaterialManagement.Inventory
 						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
 						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
 						Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
+                        left join dbo.OSTransformationPO ospo on ospo.Id=II.JWContractId
+						left join [dbo].[Contract] Ct on Ct.Id=ospo.ContractId
+						left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
+						LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
+						left join dbo.PurchaseLC PLC on PLC.Id=ospo.PurchaseLCId
 
                     where v.VoucherNo is null ANd II.PlantId='" + identity.PlantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
                     and II.Types='InventoryJWIssue' ";
@@ -3396,7 +3419,7 @@ namespace Library.MaterialManagement.Inventory
 
                 }
 
-                CreateIssueRegisterReportSheet(ref sheet1, report, Head, "Summary", companyId, plantId, fromDate, toDate, Type);
+                CreateOSIssueRegisterReportSheet(ref sheet1, report, Head, "Summary", companyId, plantId, fromDate, toDate, Type);
                 workbook.Version = ExcelVersion.Excel2016;
                 return workbook;
 
@@ -3407,6 +3430,804 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
+        // Outsourcing
+
+        private void CreateOSIssueRegisterReportSheet(ref IWorksheet sheet1, ReportUtility report, string sheet1Name, string sheet2Name, string companyId, string plantId, string fromDate, string toDate, string Type)
+        {
+
+
+            var cmdText = "";
+            if (Type == "Posted")
+            {
+                cmdText = @"SELECT II.Id AS IssueId
+	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate
+	                        --,II.CompanyGroupId
+	                        --,II.CompanyId
+	                        --,II.PlantId
+	                        -- ,II.EntityId  ---userName as Entityname 
+	                        ,En.UserName AS Entityname
+	                        --,II.AddedBy
+	                        --,II.AddedDate
+	                        --,II.AddedFromIP
+	                        --,II.UpdatedBy
+	                        --,II.UpdatedDate
+	                        --,II.UpdatedFromIP
+	                        -- ,II.MaterialStorageId
+	                        ,MS.UserName AS MaterialStorageName
+	                        ,II.STATUS
+							,HSNC.Code HSNCode
+                             ,II.Remarks
+	                        -- ,II.VoucherId 
+	                        --,VoucherNo=CASE WHEN II.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
+	                        ,v.VoucherNo
+	                        --,Posted=CASE WHEN II.Status <>'' then 'Yes' else 'No' END						
+	                        --,PostingDate= CASE WHEN II.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
+	                        --,PostedBy=CASE WHEN II.EmployeeId <> '' Then ep.AddedBy else I.AddedBy END,II.EmployeeId
+	                        ,IID.Id IssueDetailId
+	                        ,IID.InventoryIssueId
+	                        --,IID.InventoryMaterialId
+	                        ,MT.UserName MaterialType
+	                        ,MGM.UserName AS MaterialGroupMasterName
+	                        ,IM.MaterialMasterId
+	                        ,MM.UserName MaterialMasterName
+	                        -- , IM.ArticleId
+	                        ,ART.StandardName ArticleName
+	                        ,IsAsset = CASE 
+		                        WHEN MM.IsAsset = 0
+			                        THEN 'No'
+		                        ELSE 'Yes'
+		                        END
+	                        --, IM.FirstCharacteristicsId
+	                        ,FC.UserName AS FirstCharacteristics
+	                        ,IM.FirstCharacteristicsValueId
+	                        ,ISNULL(FCV.UserName, '') AS FirstCharacteristicsValue
+	                        ,IM.SecondCharacteristicsId
+	                        ,SC.UserName AS SecondCharacteristics
+	                        ,IM.SecondCharacteristicsValueId
+	                        ,ISNULL(SCV.UserName, '') AS SecondCharacteristicsValue
+	                        ,IM.ThirdCharacteristicsId
+	                        ,TC.UserName AS ThirdCharacteristics
+	                        ,IM.ThirdCharacteristicsValueId
+	                        ,ISNULL(TCV.UserName, '') AS ThirdCharacteristicsValue
+	                        ,Round(IID.TransactionQty,2) TransactionQty
+	                        --,IID.BaseUOMId
+	                        ,TUoM.UserName AS UOM
+	                        ,BUoM.UserName AS BaseUOM
+	                        ,Round(IID.AvgRate,4) AvgRate
+	                        ,Round(IID.AvgAmount,2) AvgAmount
+	                        ,Round(IID.PolicyRate,4) PolicyRate
+	                        ,Round(IID.PolicyAmount,2) PolicyAmount
+	                        ,IID.Policy
+	                        --,IID.AddedBy
+	                        --,IID.AddedDate
+	                        --,IID.AddedFromIP
+	                        --,IID.UpdatedBy
+	                        --,IID.UpdatedDate
+	                        --,IID.UpdatedFromIP
+	                        ,IID.BaseQty
+	                        ,IID.InventoryReceiveId
+	                        ,IID.InventoryReceiveDetailId
+                            ,ISNULL(IGL.UserName,'') AS GL
+							,ISNULL(IA.UserName,'') Activity
+							,isnull(B.UserName,'') AS Budget
+							,isnull(IGL1.UserName,'') AS CGL
+							,isnull(IA1.UserName,'') AS CActivity
+							,isnull(B1.UserName,'') AS CBUdget
+                           ,CC.UserName CostCenterName,EI.EmployeeName
+                            ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,PLC.LCRef as PurchaseLCNo,ospo.Id as PONumber
+                        FROM trn.InventoryIssue II
+                        LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId
+					    LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
+                        LEFT JOIN ORG.Entity En ON II.EntityId = En.Id
+                        LEFT JOIN HKP.MaterialStorage MS ON II.MaterialStorageId = MS.Id
+                        LEFT JOIN TRN.InventoryMaterial AS IM ON IM.Id = IID.InventoryMaterialId
+                        LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
+						LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
+                        LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
+                        LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
+                        LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
+                        LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
+                        LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
+                        LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
+                        LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.TransactionUoMId = TUoM.Id
+                        LEFT JOIN [SCS].[UnitOfMeasurement] AS BUoM ON IID.BaseUOMId = BUoM.Id
+                        --left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+                        --LEFT JOIN trn.Invoice AS I ON I.InventoryReceiveId = II.Id
+                        LEFT JOIN trn.Voucher V ON V.Id = II.VoucherId
+                        --left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=II.Id					
+                        --left join trn.Voucher V1 on V1.Id=ep.VoucherId 
+                        LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
+						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.PostDrBudgetMasterId
+						LEFT JOIN HKP.Activity IA ON IA.Id=IID.PostDrActivityId
+						Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
+						LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IID.PostCrGLGeneralInfoId 
+						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
+						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
+						Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
+                       LEFT join dbo.EmployeeInformation EI ON EI.SystemId=II.EmployeeId
+                       left join dbo.OSTransformationPO ospo on ospo.Id=II.JWContractId
+						left join [dbo].[Contract] Ct on Ct.Id=ospo.ContractId
+						left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
+						LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
+						left join dbo.PurchaseLC PLC on PLC.Id=ospo.PurchaseLCId
+                    where v.VoucherNo is not null ANd II.PlantId='" + plantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
+
+            }
+            else
+            {
+                cmdText = @"SELECT II.Id AS IssueId
+	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate
+	                        --,II.CompanyGroupId
+	                        --,II.CompanyId
+	                        --,II.PlantId
+	                        -- ,II.EntityId  ---userName as Entityname 
+	                        ,En.UserName AS Entityname
+							,HSNC.Code HSNCode
+	                        --,II.AddedBy
+	                        --,II.AddedDate
+	                        --,II.AddedFromIP
+	                        --,II.UpdatedBy
+	                        --,II.UpdatedDate
+	                        --,II.UpdatedFromIP
+	                        -- ,II.MaterialStorageId
+	                        ,MS.UserName AS MaterialStorageName
+	                        ,II.STATUS
+                              ,II.Remarks
+	                        -- ,II.VoucherId 
+	                        --,VoucherNo=CASE WHEN II.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
+	                        ,v.VoucherNo
+	                        --,Posted=CASE WHEN II.Status <>'' then 'Yes' else 'No' END						
+	                        --,PostingDate= CASE WHEN II.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
+	                        --,PostedBy=CASE WHEN II.EmployeeId <> '' Then ep.AddedBy else I.AddedBy END,II.EmployeeId
+	                        ,IID.Id IssueDetailId
+	                        ,IID.InventoryIssueId
+	                        --,IID.InventoryMaterialId
+	                        ,MT.UserName MaterialType
+	                        ,MGM.UserName AS MaterialGroupMasterName
+	                        ,IM.MaterialMasterId
+	                        ,MM.UserName MaterialMasterName
+	                        -- , IM.ArticleId
+	                        ,ART.StandardName ArticleName
+	                        ,IsAsset = CASE 
+		                        WHEN MM.IsAsset = 0
+			                        THEN 'No'
+		                        ELSE 'Yes'
+		                        END
+	                        --, IM.FirstCharacteristicsId
+	                        ,FC.UserName AS FirstCharacteristics
+	                        ,IM.FirstCharacteristicsValueId
+	                        ,ISNULL(FCV.UserName, '') AS FirstCharacteristicsValue
+	                        ,IM.SecondCharacteristicsId
+	                        ,SC.UserName AS SecondCharacteristics
+	                        ,IM.SecondCharacteristicsValueId
+	                        ,ISNULL(SCV.UserName, '') AS SecondCharacteristicsValue
+	                        ,IM.ThirdCharacteristicsId
+	                        ,TC.UserName AS ThirdCharacteristics
+	                        ,IM.ThirdCharacteristicsValueId
+	                        ,ISNULL(TCV.UserName, '') AS ThirdCharacteristicsValue
+	                        ,Round(IID.TransactionQty,2) TransactionQty
+	                        --,IID.BaseUOMId
+	                        ,TUoM.UserName AS UOM
+	                        ,BUoM.UserName AS BaseUOM
+	                        ,Round(IID.AvgRate,4) AvgRate
+	                        ,Round(IID.AvgAmount,2) AvgAmount
+	                        ,Round(IID.PolicyRate,4) PolicyRate
+	                        ,Round(IID.PolicyAmount,2) PolicyAmount
+	                        ,IID.Policy
+	                        --,IID.AddedBy
+	                        --,IID.AddedDate
+	                        --,IID.AddedFromIP
+	                        --,IID.UpdatedBy
+	                        --,IID.UpdatedDate
+	                        --,IID.UpdatedFromIP
+	                        ,IID.BaseQty
+	                        ,IID.InventoryReceiveId
+	                        ,IID.InventoryReceiveDetailId
+							,ISNULL(IGL.UserName,'') AS GL
+							,ISNULL(IA.UserName,'') Activity
+							,isnull(B.UserName,'') AS Budget
+							,isnull(IGL1.UserName,'') AS CGL
+							,isnull(IA1.UserName,'') AS CActivity
+							,isnull(B1.UserName,'') AS CBUdget
+                            ,CC.UserName CostCenterName,EI.EmployeeName
+                            ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,PLC.LCRef as PurchaseLCNo,ospo.Id as PONumber
+                        FROM trn.InventoryIssue II
+                        LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId
+                        LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
+                        LEFT JOIN ORG.Entity En ON II.EntityId = En.Id
+                        LEFT JOIN HKP.MaterialStorage MS ON II.MaterialStorageId = MS.Id
+                        LEFT JOIN TRN.InventoryMaterial AS IM ON IM.Id = IID.InventoryMaterialId
+                        LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
+						LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
+                        LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
+                        LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
+                        LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
+                        LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
+                        LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
+                        LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
+                        LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.TransactionUoMId = TUoM.Id
+                        LEFT JOIN [SCS].[UnitOfMeasurement] AS BUoM ON IID.BaseUOMId = BUoM.Id
+                        --left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+                        --LEFT JOIN trn.Invoice AS I ON I.InventoryReceiveId = II.Id
+                        LEFT JOIN trn.Voucher V ON V.Id = II.VoucherId
+                        --left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=II.Id					
+                        --left join trn.Voucher V1 on V1.Id=ep.VoucherId 
+						LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
+						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.PostDrBudgetMasterId
+						LEFT JOIN HKP.Activity IA ON IA.Id=IID.PostDrActivityId
+						Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
+						LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IID.PostCrGLGeneralInfoId 
+						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
+						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
+						Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
+                        LEFT join dbo.EmployeeInformation EI ON EI.SystemId=II.EmployeeId
+                        left join dbo.OSTransformationPO ospo on ospo.Id=II.JWContractId
+						left join [dbo].[Contract] Ct on Ct.Id=ospo.ContractId
+						left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
+						LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
+						left join dbo.PurchaseLC PLC on PLC.Id=ospo.PurchaseLCId
+                    where v.VoucherNo is null ANd II.PlantId='" + plantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
+            }
+            var inventoryMaterialList = _sqlRepository.GetDataTable(cmdText);
+            var plantName = new DataView(_sqlRepository.GetDataTable(@"SELECT UserName from org.Plant WHERE Id='" + plantId + "'")).ToTable(true, "UserName").Rows[0]["UserName"].ToString();
+            if (inventoryMaterialList.Rows.Count == 0)
+                throw new Exception("No Data Found !!!");
+
+
+            var _rowd = 4;
+            var colTransactionQtyTotal = 0.00;
+            var colAvgAmountTotal = 0.00;
+            var colPolicyAmountTotal = 0.00;
+            var colBaseQtyTotal = 0.00;
+
+
+            if (fromDate != "" && toDate != "")
+            {
+
+                sheet1[_rowd, 4].Text = fromDate + " " + "To" + " " + toDate;
+
+                sheet1[_rowd, 4].CellStyle.Font.Size = 8;
+                sheet1[_rowd, 4].CellStyle.Font.Bold = false;
+                sheet1[_rowd, 4].CellStyle.Font.Size = 8;
+                sheet1.Range[_rowd, 3, _rowd, 6].Merge();
+
+
+            }
+
+            var _rows = 5;
+            sheet1[_rows, 6].Text = "Report Ref No:";
+            sheet1[_rows, 6].CellStyle.Font.Size = 8;
+            sheet1.Range[_rows, 3, _rows, 6].Merge();
+            sheet1[_rows, 6].CellStyle.Font.Bold = false;
+            var _row = 6;
+
+
+
+            sheet1[_row, 33].Text = "Posted (Dr.)";
+            sheet1[_row, 33].CellStyle.Font.Size = 10;
+            sheet1[_row, 33].CellStyle.Font.Bold = true;
+            sheet1[_row, 33].WrapText = true;
+            sheet1[_row, 33].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1[_row, 33].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_row, 33, _row, 35].BorderAround(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 33, _row, 35].BorderInside(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 33, _row, 35].Merge();
+            sheet1.Range[_row, 33, _row, 35].CellStyle.FillBackground = ExcelKnownColors.Tan;
+
+            sheet1[_row, 36].Text = "Posted (Cr.)";
+            sheet1[_row, 36].CellStyle.Font.Size = 10;
+            sheet1[_row, 36].CellStyle.Font.Bold = true;
+            sheet1[_row, 36].WrapText = true;
+            sheet1[_row, 36].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1[_row, 36].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_row, 36, _row, 38].BorderAround(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 36, _row, 38].BorderInside(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 36, _row, 38].Merge();
+            sheet1.Range[_row, 36, _row, 38].CellStyle.FillBackground = ExcelKnownColors.Tan;
+
+
+
+            var _rowL = _row;
+            var row = _row + 1;
+            var sheet1headreColIndex = 1;
+            //var sheet2headreColIndex = 1;
+            _rowL += 1;
+            //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Issue Id");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Issue Id";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            // report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Issue Date");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Issue Date";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Entity name");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "PO Number";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Contract No";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Customer";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Ref No";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Purchase LC No";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "UDNo";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Entity name";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Cost Center Name");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Cost Center Name";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Person Name");
+            //sheet1headreColIndex++;
+
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Person Name";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Material Storage Name");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Material Storage Name";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Status");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Status";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Issue Detail Id");
+            //sheet1headreColIndex++;
+
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Issue Detail Id";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Material Type");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Material Type";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 30;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Material Group");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Material Group";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 30;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Material");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Material";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 30;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Article");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Article";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 30;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "SKU1");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "SKU1";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "SKU2");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "SKU2";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "SKU3");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "SKU3";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "HSN No";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Transaction Qty");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Trn. Qty";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            colTransactionQtyTotal = sheet1headreColIndex;
+            sheet1headreColIndex++;
+            //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "UoM");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Trn. UoM";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 8;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Avg Rate");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Avg Rate";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Avg Amount");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Avg Amount";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            colAvgAmountTotal = sheet1headreColIndex;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Policy Rate");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Books Rate";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Policy Amount");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Books Amount";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            colPolicyAmountTotal = sheet1headreColIndex;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Policy");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Policy";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Base Qty");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Base Qty";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            colBaseQtyTotal = sheet1headreColIndex;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Base UoM";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            int colBaseUOMTotal = sheet1headreColIndex;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Remarks");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Remarks";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GL");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "GL";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Budget");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Budget";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Activity");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Activity";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GL");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "GL";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "BUdget");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "BUdget";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Activity");
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Activity";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+
+            //sheet1headreColIndex++;
+            sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+            sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.Font.Size = 10;
+            sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].RowHeight = 22;
+
+            var Row_Total_Start = _rowL + 1;
+            for (int n = 0; n < inventoryMaterialList.Rows.Count; n++)
+            {
+                _rowL++;
+
+                report.SetText(ref sheet1, _rowL, 1, inventoryMaterialList.Rows[n]["IssueId"].ToString());
+                report.SetText(ref sheet1, _rowL, 2, inventoryMaterialList.Rows[n]["IssueDate"].ToString());
+                report.SetText(ref sheet1, _rowL, 3, inventoryMaterialList.Rows[n]["PONumber"].ToString());
+                report.SetText(ref sheet1, _rowL, 4, inventoryMaterialList.Rows[n]["ContractNo"].ToString());
+                report.SetText(ref sheet1, _rowL, 5, inventoryMaterialList.Rows[n]["CustomerName"].ToString());
+                report.SetText(ref sheet1, _rowL, 6, inventoryMaterialList.Rows[n]["LCRef"].ToString());
+                report.SetText(ref sheet1, _rowL, 7, inventoryMaterialList.Rows[n]["PurchaseLCNo"].ToString());
+                report.SetText(ref sheet1, _rowL, 8, inventoryMaterialList.Rows[n]["UDNo"].ToString());
+
+                report.SetText(ref sheet1, _rowL, 9, inventoryMaterialList.Rows[n]["Entityname"].ToString());
+                report.SetText(ref sheet1, _rowL, 10, inventoryMaterialList.Rows[n]["CostCenterName"].ToString());
+                report.SetText(ref sheet1, _rowL, 11, inventoryMaterialList.Rows[n]["EmployeeName"].ToString());
+                report.SetText(ref sheet1, _rowL, 12, inventoryMaterialList.Rows[n]["MaterialStorageName"].ToString());
+                report.SetText(ref sheet1, _rowL, 13, inventoryMaterialList.Rows[n]["Status"].ToString());
+                report.SetText(ref sheet1, _rowL, 14, inventoryMaterialList.Rows[n]["IssueDetailId"].ToString());
+
+                report.SetText(ref sheet1, _rowL, 15, inventoryMaterialList.Rows[n]["MaterialType"].ToString());
+                report.SetText(ref sheet1, _rowL, 16, inventoryMaterialList.Rows[n]["MaterialGroupMasterName"].ToString());
+                report.SetText(ref sheet1, _rowL, 17, inventoryMaterialList.Rows[n]["MaterialMasterName"].ToString());
+                report.SetText(ref sheet1, _rowL, 18, inventoryMaterialList.Rows[n]["ArticleName"].ToString());
+                report.SetText(ref sheet1, _rowL, 19, inventoryMaterialList.Rows[n]["FirstCharacteristicsValue"].ToString());
+                report.SetText(ref sheet1, _rowL, 20, inventoryMaterialList.Rows[n]["SecondCharacteristicsValue"].ToString());
+                report.SetText(ref sheet1, _rowL, 21, inventoryMaterialList.Rows[n]["ThirdCharacteristicsValue"].ToString());
+                report.SetText(ref sheet1, _rowL, 22, inventoryMaterialList.Rows[n]["HSNCode"].ToString());
+                report.SetText(ref sheet1, _rowL, 23, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TransactionQty"].ToString()));
+                report.SetText(ref sheet1, _rowL, 24, inventoryMaterialList.Rows[n]["UOM"].ToString());
+                report.SetText(ref sheet1, _rowL, 25, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["AvgRate"].ToString()));
+                report.SetText(ref sheet1, _rowL, 26, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["AvgAmount"].ToString()));
+                report.SetText(ref sheet1, _rowL, 27, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["PolicyRate"].ToString()), 4);
+                report.SetText(ref sheet1, _rowL, 28, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["PolicyAmount"].ToString()));
+                report.SetText(ref sheet1, _rowL, 29, inventoryMaterialList.Rows[n]["Policy"].ToString());
+                report.SetText(ref sheet1, _rowL, 30, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["BaseQty"].ToString()));
+                report.SetText(ref sheet1, _rowL, colBaseUOMTotal, inventoryMaterialList.Rows[n]["BaseUOM"].ToString());
+                report.SetText(ref sheet1, _rowL, 32, inventoryMaterialList.Rows[n]["Remarks"].ToString());
+                report.SetText(ref sheet1, _rowL, 33, inventoryMaterialList.Rows[n]["GL"].ToString());
+                report.SetText(ref sheet1, _rowL, 34, inventoryMaterialList.Rows[n]["Budget"].ToString());
+                report.SetText(ref sheet1, _rowL, 35, inventoryMaterialList.Rows[n]["Activity"].ToString());
+                report.SetText(ref sheet1, _rowL, 36, inventoryMaterialList.Rows[n]["CGL"].ToString());
+                report.SetText(ref sheet1, _rowL, 37, inventoryMaterialList.Rows[n]["CBUdget"].ToString());
+                report.SetText(ref sheet1, _rowL, 38, inventoryMaterialList.Rows[n]["CActivity"].ToString());
+
+
+            }
+
+            _rowL++;
+
+            if (fromDate != "" && toDate != "")
+            {
+                report.SetText(ref sheet1, _rowL, Convert.ToInt32(colTransactionQtyTotal) - 1, "Total");
+                sheet1.Range[_rowL, Convert.ToInt32(colTransactionQtyTotal) - 1].CellStyle.Font.Bold = true;
+                //sheet1.Range[1, _rowL, Convert.ToInt32(colTransactionQtyTotal) - 1, _rowL].Merge();
+                object sumObject;
+                sumObject = inventoryMaterialList.Compute("Sum(TransactionQty)", "");
+                sheet1.Range[_rowL, Convert.ToInt32(colTransactionQtyTotal)].CellStyle.Font.Bold = true;
+                report.SetText(ref sheet1, _rowL, Convert.ToInt32(colTransactionQtyTotal), Convert.ToDouble(sumObject).ToString("0,##.00"));
+                sheet1.Range[_rowL, Convert.ToInt32(colTransactionQtyTotal)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet1.Range[_rowL, Convert.ToInt32(colTransactionQtyTotal)].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                sumObject = inventoryMaterialList.Compute("Sum(AvgAmount)", "");
+                sheet1.Range[_rowL, Convert.ToInt32(colAvgAmountTotal)].CellStyle.Font.Bold = true;
+                report.SetText(ref sheet1, _rowL, Convert.ToInt32(colAvgAmountTotal), Convert.ToDouble(sumObject).ToString("0,##.00"));
+                sheet1.Range[_rowL, Convert.ToInt32(colAvgAmountTotal)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet1.Range[_rowL, Convert.ToInt32(colAvgAmountTotal)].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+
+                sumObject = inventoryMaterialList.Compute("Sum(PolicyAmount)", "");
+                sheet1.Range[_rowL, Convert.ToInt32(colPolicyAmountTotal)].CellStyle.Font.Bold = true;
+                report.SetText(ref sheet1, _rowL, Convert.ToInt32(colPolicyAmountTotal), Convert.ToDouble(sumObject).ToString("0,##.00"));
+                sheet1.Range[_rowL, Convert.ToInt32(colPolicyAmountTotal)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet1.Range[_rowL, Convert.ToInt32(colPolicyAmountTotal)].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                sumObject = inventoryMaterialList.Compute("Sum(BaseQty)", "");
+                sheet1.Range[_rowL, Convert.ToInt32(colBaseQtyTotal)].CellStyle.Font.Bold = true;
+                report.SetText(ref sheet1, _rowL, Convert.ToInt32(colBaseQtyTotal), Convert.ToDouble(sumObject).ToString("0,##.00"));
+                sheet1.Range[_rowL, Convert.ToInt32(colBaseQtyTotal)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet1.Range[_rowL, Convert.ToInt32(colBaseQtyTotal)].VerticalAlignment = ExcelVAlign.VAlignTop;
+            }
+            sheet1.Range[(Row_Total_Start), 1, _rowL, sheet1headreColIndex].CellStyle.Font.Size = 8;
+            sheet1.Range[(row), 1, _rowL, sheet1headreColIndex].BorderInside(ExcelLineStyle.Hair);
+            sheet1.Range[(row), 1, _rowL, sheet1headreColIndex].BorderAround(ExcelLineStyle.Hair);
+
+
+
+
+            //#endregion Signature
+
+            sheet1.Name = sheet1Name;
+            sheet1.UsedRange.WrapText = true;
+            //sheet1.UsedRange.CellStyle.Font.Size = 8;
+            sheet1.IsGridLinesVisible = false;
+            report.PlantHeader(ref sheet1, sheet1headreColIndex, sheet1Name, plantId);
+            report.PageSetup(ref sheet1, 5, ExcelPageOrientation.Landscape);
+
+
+
+
+        }
 
 
         private void CreateIssueRegisterReportSheet(ref IWorksheet sheet1, ReportUtility report, string sheet1Name, string sheet2Name, string companyId, string plantId, string fromDate, string toDate, string Type)
@@ -4576,7 +5397,7 @@ namespace Library.MaterialManagement.Inventory
                 //var Head = "GRN Wise Stores Issue Register" + " " + fromDate + " " + "To" + " " + toDate;
                 var Head = "GRN Wise Out Source Issue Register";
 
-                CreateIssueRegisterGRNIssueReport(ref sheet1, report, Head, "Summary", companyId, plantId, fromDate, toDate, Type);
+                CreateOSIssueRegisterGRNIssueReport(ref sheet1, report, Head, "Summary", companyId, plantId, fromDate, toDate, Type);
                 workbook.Version = ExcelVersion.Excel2016;
                 return workbook;
             }
@@ -4586,6 +5407,562 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
+        private void CreateOSIssueRegisterGRNIssueReport(ref IWorksheet sheet1, ReportUtility report, string sheet1Name, string sheet2Name, string companyId, string plantId, string fromDate, string toDate, string Type)
+        {
+
+
+            var cmdText = "";
+            if (Type == "Posted")
+            {
+                cmdText = @"SELECT II.Id AS IssueId
+	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate	 
+	                        ,MT.UserName MaterialType
+	                        ,MGM.UserName AS MaterialGroupMasterName
+							,HSNC.Code HSNCode
+	                        ,IM.MaterialMasterId
+	                        ,MM.UserName MaterialMasterName	                      
+	                        ,ART.StandardName ArticleName	                        
+	                        ,FC.UserName AS FirstCharacteristics
+	                        ,IM.FirstCharacteristicsValueId
+	                        ,ISNULL(FCV.UserName, '') AS FirstCharacteristicsValue
+	                        ,IM.SecondCharacteristicsId
+	                        ,SC.UserName AS SecondCharacteristics
+	                        ,IM.SecondCharacteristicsValueId
+	                        ,ISNULL(SCV.UserName, '') AS SecondCharacteristicsValue
+	                        ,IM.ThirdCharacteristicsId
+	                        ,TC.UserName AS ThirdCharacteristics
+	                        ,IM.ThirdCharacteristicsValueId
+	                        ,ISNULL(TCV.UserName, '') AS ThirdCharacteristicsValue
+							,IIH.InventoryReceiveDetailId 
+							,IRD.Id GRNDetailId
+							,IRD.TransactionQty GRNQty
+							,TUoM1.UserName AS GRNUOM
+							,IRD.MaterialTranRate GRNRate
+							,isnull(IIH1.Qty,0) OtherIssuedQty
+							,isnull(IIH.Qty,0) CurrentIssueQty
+							,TUoM.UserName AS IssueUOM							
+	                        ,TotalIssued=(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0))						
+							,Balance=(Isnull(IRD.TransactionQty,0)-(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0)))
+	                        ,ISNULL(IGL.UserName,'') AS GL
+							,ISNULL(IA.UserName,'') Activity
+							,isnull(B.UserName,'') AS Budget
+							,isnull(IGL1.UserName,'') AS CGL
+							,isnull(IA1.UserName,'') AS CActivity
+							,isnull(B1.UserName,'') AS CBUdget
+                            ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,PLC.LCRef as PurchaseLCNo,ospo.Id as PONumber
+                        FROM trn.InventoryIssue II
+                        LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId						
+                        LEFT JOIN ORG.Entity En ON II.EntityId = En.Id
+                        LEFT JOIN HKP.MaterialStorage MS ON II.MaterialStorageId = MS.Id
+                        LEFT JOIN TRN.InventoryMaterial AS IM ON IM.Id = IID.InventoryMaterialId
+                        LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
+						LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
+                        LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
+                        LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
+                        LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
+                        LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
+                        LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
+                        LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
+                        --left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+                        --LEFT JOIN trn.Invoice AS I ON I.InventoryReceiveId = II.Id
+                        LEFT JOIN trn.Voucher V ON V.Id = II.VoucherId
+						LEFT JOIN trn.InventoryIssueHistory IIH ON IIH.InventoryIssueDetailId=IID.Id
+						LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
+						LEFT JOIN(select Sum(Qty) Qty,InventoryIssueDetailId from  trn.InventoryIssueHistory group by InventoryIssueDetailId) IIH1 ON IIH1.InventoryIssueDetailId=IID.Id AND  IID.InventoryIssueId !=II.Id
+                        LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId = TUoM.Id
+					   LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM1 ON IRD.BaseUOMId = TUoM1.Id
+						LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
+						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.PostDrBudgetMasterId
+						LEFT JOIN HKP.Activity IA ON IA.Id=IID.PostDrActivityId
+						Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
+						LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IID.PostCrGLGeneralInfoId 
+						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
+						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
+						Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
+                        left join dbo.OSTransformationPO ospo on ospo.Id=II.JWContractId
+						left join [dbo].[Contract] Ct on Ct.Id=ospo.ContractId
+						left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
+						LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
+						left join dbo.PurchaseLC PLC on PLC.Id=ospo.PurchaseLCId
+                    where v.VoucherNo is not null ANd II.PlantId='" + plantId + "'AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
+            }
+            else
+            {
+                cmdText = @"SELECT II.Id AS IssueId
+	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate	 
+	                        ,MT.UserName MaterialType
+	                        ,MGM.UserName AS MaterialGroupMasterName
+	                        ,IM.MaterialMasterId
+							,HSNC.Code HSNCode
+	                        ,MM.UserName MaterialMasterName	                      
+	                        ,ART.StandardName ArticleName	                        
+	                        ,FC.UserName AS FirstCharacteristics
+	                        ,IM.FirstCharacteristicsValueId
+	                        ,ISNULL(FCV.UserName, '') AS FirstCharacteristicsValue
+	                        ,IM.SecondCharacteristicsId
+	                        ,SC.UserName AS SecondCharacteristics
+	                        ,IM.SecondCharacteristicsValueId
+	                        ,ISNULL(SCV.UserName, '') AS SecondCharacteristicsValue
+	                        ,IM.ThirdCharacteristicsId
+	                        ,TC.UserName AS ThirdCharacteristics
+	                        ,IM.ThirdCharacteristicsValueId
+	                        ,ISNULL(TCV.UserName, '') AS ThirdCharacteristicsValue
+							,IIH.InventoryReceiveDetailId 
+							,IRD.Id GRNDetailId
+							,IRD.TransactionQty GRNQty
+							,TUoM1.UserName AS GRNUOM
+							,IRD.MaterialTranRate GRNRate
+							,isnull(IIH1.Qty,0) OtherIssuedQty
+							,isnull(IIH.Qty,0) CurrentIssueQty
+							,TUoM.UserName AS IssueUOM							
+	                        ,TotalIssued=(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0))						
+							,Balance=(Isnull(IRD.TransactionQty,0)-(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0)))
+	                        ,ISNULL(IGL.UserName,'') AS GL
+							,ISNULL(IA.UserName,'') Activity
+							,isnull(B.UserName,'') AS Budget
+							,isnull(IGL1.UserName,'') AS CGL
+							,isnull(IA1.UserName,'') AS CActivity
+							,isnull(B1.UserName,'') AS CBUdget
+                            ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,PLC.LCRef as PurchaseLCNo,ospo.Id as PONumber
+                        FROM trn.InventoryIssue II
+                        LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId						
+                        LEFT JOIN ORG.Entity En ON II.EntityId = En.Id
+                        LEFT JOIN HKP.MaterialStorage MS ON II.MaterialStorageId = MS.Id
+                        LEFT JOIN TRN.InventoryMaterial AS IM ON IM.Id = IID.InventoryMaterialId
+                        LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
+						LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
+                        LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
+                        LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
+                        LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
+                        LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
+                        LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
+                        LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
+                        --left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+                        --LEFT JOIN trn.Invoice AS I ON I.InventoryReceiveId = II.Id
+                        LEFT JOIN trn.Voucher V ON V.Id = II.VoucherId
+						LEFT JOIN trn.InventoryIssueHistory IIH ON IIH.InventoryIssueDetailId=IID.Id
+						LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
+						LEFT JOIN(select Sum(Qty) Qty,InventoryIssueDetailId from  trn.InventoryIssueHistory group by InventoryIssueDetailId) IIH1 ON IIH1.InventoryIssueDetailId=IID.Id AND  IID.InventoryIssueId !=II.Id
+                        LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId = TUoM.Id
+					   LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM1 ON IRD.BaseUOMId = TUoM1.Id
+						LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
+						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.PostDrBudgetMasterId
+						LEFT JOIN HKP.Activity IA ON IA.Id=IID.PostDrActivityId
+						Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
+						LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IID.PostCrGLGeneralInfoId 
+						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
+						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
+						Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
+                        left join dbo.OSTransformationPO ospo on ospo.Id=II.JWContractId
+						left join [dbo].[Contract] Ct on Ct.Id=ospo.ContractId
+						left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
+						LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
+						left join dbo.PurchaseLC PLC on PLC.Id=ospo.PurchaseLCId
+                    where v.VoucherNo is null ANd II.PlantId='" + plantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
+
+            }
+            var inventoryMaterialList = _sqlRepository.GetDataTable(cmdText);
+            var plantName = new DataView(_sqlRepository.GetDataTable(@"SELECT UserName from org.Plant WHERE Id='" + plantId + "'")).ToTable(true, "UserName").Rows[0]["UserName"].ToString();
+            if (inventoryMaterialList.Rows.Count == 0)
+                throw new Exception("No Data Found !!!");
+            var _rowd = 4;
+            if (fromDate != "" && toDate != "")
+            {
+
+                sheet1[_rowd, 3].Text = fromDate + " " + "To" + " " + toDate;
+                sheet1.UsedRange.CellStyle.Font.Size = 8;
+                sheet1.UsedRange.CellStyle.Font.Bold = true;
+                sheet1.Range[_rowd, 3, _rowd, 6].Merge();
+
+            }
+
+            var _rows = 6;
+            sheet1[_rows, 5].Text = "Report Ref No: ";
+            sheet1.Range[_rows, 3, _rows, 6].Merge();
+            sheet1.UsedRange.CellStyle.Font.Bold = false;
+            var _row = 7;
+
+            sheet1[_row, 25].Text = "Posted Dr.";
+            sheet1.UsedRange.CellStyle.Font.Size = 10;
+            sheet1.UsedRange.CellStyle.Font.Bold = true;
+            sheet1.UsedRange.WrapText = true;
+            sheet1[_row, 25].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1[_row, 25].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_row, 25, _row, 27].BorderAround(ExcelLineStyle.Hair);
+            //sheet1.Range[_row, 18, _row, 20].CellStyle.Color="LightYellow";
+            sheet1.Range[_row, 25, _row, 27].BorderInside(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 25, _row, 27].Merge();
+            sheet1.Range[_row, 25, _row, 27].CellStyle.FillBackground = ExcelKnownColors.Tan;
+
+            sheet1[_row, 28].Text = "Posted (Cr.)";
+            sheet1.UsedRange.CellStyle.Font.Size = 10;
+            sheet1.UsedRange.CellStyle.Font.Bold = true;
+            sheet1.UsedRange.WrapText = true;
+            sheet1[_row, 28].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1[_row, 28].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_row, 28, _row, 30].BorderAround(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 28, _row, 30].BorderInside(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 28, _row, 30].Merge();
+            sheet1.Range[_row, 28, _row, 30].CellStyle.FillBackground = ExcelKnownColors.Tan;
+
+            var _rowL = _row;
+            var row = _row + 1;
+
+
+            var sheet1headreColIndex = 1;
+            //var sheet2headreColIndex = 1;
+            _rowL += 1;
+            //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Issue Id");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Issue Id";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Issue Date");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Issue Date";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GRN Detail Id");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "PO Number";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Contract No";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Customer";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Ref No";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Purchase LC No";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "UDNo";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "GRN Detail Id";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Material Type");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Material Type";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 30;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Material Group");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Material Group";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 30;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Material");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Material";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 30;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Article");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Article";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 30;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "SKU1");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "SKU1";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "SKU2");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "SKU2";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "SKU3");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "SKU3";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "HSN No";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GRNQty");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "GRN Qty";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GRNUOM");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "GRN UOM";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GRN Rate");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "GRN Rate";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Other Issued Qty");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Other Issued Qty";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Current Issue Qty");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Current Issue Qty";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Issue UOM");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Issue UOM";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Balance");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Balance";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GL");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "GL";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Budget");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Budget";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Activity");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Activity";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GL");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "GL";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "BUdget");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "BUdget";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Activity");
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Activity";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+            sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.Font.Size = 10;
+            sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].RowHeight = 22;
+            var Row_Total_Start = _rowL + 1;
+            for (int n = 0; n < inventoryMaterialList.Rows.Count; n++)
+            {
+                _rowL++;
+                report.SetText(ref sheet1, _rowL, 1, inventoryMaterialList.Rows[n]["IssueId"].ToString());
+                report.SetText(ref sheet1, _rowL, 2, inventoryMaterialList.Rows[n]["IssueDate"].ToString());
+                report.SetText(ref sheet1, _rowL, 3, inventoryMaterialList.Rows[n]["PONumber"].ToString());
+                report.SetText(ref sheet1, _rowL, 4, inventoryMaterialList.Rows[n]["ContractNo"].ToString());
+                report.SetText(ref sheet1, _rowL, 5, inventoryMaterialList.Rows[n]["CustomerName"].ToString());
+                report.SetText(ref sheet1, _rowL, 6, inventoryMaterialList.Rows[n]["LCRef"].ToString());
+                report.SetText(ref sheet1, _rowL, 7, inventoryMaterialList.Rows[n]["PurchaseLCNo"].ToString());
+                report.SetText(ref sheet1, _rowL, 8, inventoryMaterialList.Rows[n]["UDNo"].ToString());
+
+                report.SetText(ref sheet1, _rowL, 9, inventoryMaterialList.Rows[n]["GRNDetailId"].ToString());
+                report.SetText(ref sheet1, _rowL, 10, inventoryMaterialList.Rows[n]["MaterialType"].ToString());
+                report.SetText(ref sheet1, _rowL, 11, inventoryMaterialList.Rows[n]["MaterialGroupMasterName"].ToString());
+                report.SetText(ref sheet1, _rowL, 12, inventoryMaterialList.Rows[n]["MaterialMasterName"].ToString());
+                report.SetText(ref sheet1, _rowL, 13, inventoryMaterialList.Rows[n]["ArticleName"].ToString());
+                report.SetText(ref sheet1, _rowL, 14, inventoryMaterialList.Rows[n]["FirstCharacteristicsValue"].ToString());
+
+                report.SetText(ref sheet1, _rowL, 15, inventoryMaterialList.Rows[n]["SecondCharacteristicsValue"].ToString());
+                report.SetText(ref sheet1, _rowL, 16, inventoryMaterialList.Rows[n]["ThirdCharacteristicsValue"].ToString());
+                report.SetText(ref sheet1, _rowL, 17, inventoryMaterialList.Rows[n]["HSNCode"].ToString());
+                report.SetText(ref sheet1, _rowL, 18, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["GRNQty"].ToString()));
+                report.SetText(ref sheet1, _rowL, 19, inventoryMaterialList.Rows[n]["GRNUOM"].ToString());
+                report.SetText(ref sheet1, _rowL, 20, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["GRNRate"].ToString()));
+                report.SetText(ref sheet1, _rowL, 21, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["OtherIssuedQty"].ToString()));
+                report.SetText(ref sheet1, _rowL, 22, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["CurrentIssueQty"].ToString()));
+                report.SetText(ref sheet1, _rowL, 23, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IssueUOM"].ToString()));
+                report.SetText(ref sheet1, _rowL, 24, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["Balance"].ToString()));
+                report.SetText(ref sheet1, _rowL, 25, inventoryMaterialList.Rows[n]["GL"].ToString());
+                report.SetText(ref sheet1, _rowL, 26, inventoryMaterialList.Rows[n]["Budget"].ToString());
+                report.SetText(ref sheet1, _rowL, 27, inventoryMaterialList.Rows[n]["Activity"].ToString());
+                report.SetText(ref sheet1, _rowL, 28, inventoryMaterialList.Rows[n]["CGL"].ToString());
+                report.SetText(ref sheet1, _rowL, 29, inventoryMaterialList.Rows[n]["CBUdget"].ToString());
+                report.SetText(ref sheet1, _rowL, 30, inventoryMaterialList.Rows[n]["CActivity"].ToString());
+            }
+
+            //#endregion sumCalc
+            sheet1.Range[(Row_Total_Start), 1, _rowL, sheet1headreColIndex].CellStyle.Font.Size = 8;
+            sheet1.Range[(row), 1, _rowL, sheet1headreColIndex].BorderInside(ExcelLineStyle.Hair);
+            sheet1.Range[(row), 1, _rowL, sheet1headreColIndex].BorderAround(ExcelLineStyle.Hair);
+
+            sheet1.Name = sheet1Name;
+            sheet1.UsedRange.WrapText = true;
+            sheet1.IsGridLinesVisible = false;
+            report.PlantHeader(ref sheet1, sheet1headreColIndex, sheet1Name, plantId);
+            report.PageSetup(ref sheet1, 5, ExcelPageOrientation.Landscape);
+
+        }
 
 
         private void CreateIssueRegisterGRNIssueReport(ref IWorksheet sheet1, ReportUtility report, string sheet1Name, string sheet2Name, string companyId, string plantId, string fromDate, string toDate, string Type)
