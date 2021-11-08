@@ -179,7 +179,7 @@ namespace Aplos.Areas.Attendances.Controllers
                              LEFT JOIN HourlyOT eot  on eot.EmpSystemId=apd.EmpSystemID and eot.WorkDate=apd.WorkDate 
                              ---LEFT JOIN (select IsExceptionOT=case when id is not null then 1 else 0 end ,EmpSystemId,WorkDate from ExceptionOTProcess) excot  on excot.EmpSystemId=apd.EmpSystemID and excot.WorkDate=apd.WorkDate 
                              WHERE apd.WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'  AND EI.PlantID='" + identity.PlantId + @"'                            
-                             AND  apd.IsOTEntitled=1 AND isnull(APD.IsOTComfirm,0)=0 AND ISNULL(apd.ProcessedOT,0)>0
+                             AND  apd.IsOTEntitled=1 AND isnull(APD.IsOTComfirm,0)=0 --AND ISNULL(apd.ProcessedOT,0)>0
                              --AND apd.EmpSystemID IN (select distinct EmpSystemID from OTfromApp where IsConfirmed=0 and WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' )
 
                             GROUP BY apd.EmpSystemID 
@@ -642,9 +642,9 @@ namespace Aplos.Areas.Attendances.Controllers
                 //            WHERE WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' AND EmpSystemID IN (" + EmpSystemId + @")";
 
 
-                strSql = @"UPDATE AttdnProcessData SET ManualInTime = OriginalManualInTime,
+                strSql = @"UPDATE AttdnProcessData SET ManualInTime = isnull(OriginalManualInTime,ManualInTime),
                             IsManualInTime = CASE WHEN ISNULL(OriginalManualInTime,'')<>'' THEN 1 ELSE 0 END,
-                            ManualOutTime = OriginalManualOutTime,
+                            ManualOutTime = isnull(OriginalManualOutTime,ManualOutTime),
                             IsManualOutTime = CASE WHEN ISNULL(OriginalManualOutTime,'')<>'' THEN 1 ELSE 0 END,
                             ManualFlag=1
                             WHERE WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' AND EmpSystemID IN (" + EmpSystemId + @")";

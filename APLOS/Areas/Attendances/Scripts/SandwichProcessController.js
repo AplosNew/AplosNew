@@ -75,13 +75,47 @@ function SandwichProcessController($window,cboService, commonMessage, $scope, $r
                 url: $scope.path + 'GetEmployeeInformation'
 
             }).then(function successCallback(response) {
-                $scope.EmpList = [];
-                $scope.EmpList = response.data;
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+
+                }
+                else
+                {
+                    $scope.EmpList = [];
+                    $scope.EmpList = response.data;
+                }
+            });
+        }
+        else {
+            ShowResult("Choose Required Fields");
+            throw "Choose Required Fields";
+        }
+    }
+
+    $scope.RunProcess = function () {
+        if ($scope.SandwichForm.$valid) {
+
+            $http({
+                method: "POST",
+                dataType: 'JSON',
+                data: { 'month': $scope.month, 'year': $scope.year },
+                url: $scope.path + 'RunProcess'
+
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                }
 
             });
         }
         else {
-
+            ShowResult("Choose Required Fields");
+            throw "Choose Required Fields";
         }
     }
+
 }

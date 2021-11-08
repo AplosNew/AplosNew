@@ -131,6 +131,7 @@ namespace Library.HumanResource.Dashboard
 
                 }
                 dt.DefaultView.Sort = "RType,Sequence";
+                dt.DefaultView.Sort = "Sequence";
                 dt = dt.DefaultView.ToTable();
 
 
