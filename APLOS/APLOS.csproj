@@ -3507,7 +3507,6 @@
     <Content Include="Areas\Accounts\Views\BalanceSheetReportGroupWise.cshtml" />
     <Content Include="Areas\Accounts\Views\TrialBalanceReportGroupWise.cshtml" />
     <Content Include="Areas\Outsourcing\Views\JWActivity\Aplos.cshtml" />
-    <Content Include="Areas\Outsourcing\Views\web.config" />
     <Content Include="Areas\Outsourcing\Views\JWLocation\Aplos.cshtml" />
     <Content Include="Areas\Outsourcing\Views\JWTransformationMaster\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\TaxReport\_InvoiceTaxPopUp1.cshtml" />
@@ -3827,6 +3826,7 @@
     <Content Include="Areas\JobWork\Views\OSIssueRegister\Aplos.cshtml" />
     <Content Include="Areas\JobWork\Views\OSIssueRegister\IssueReturnRegister.cshtml" />
     <Content Include="Areas\Attendances\Views\SandwichProcess\Aplos.cshtml" />
+    <Content Include="Areas\Outsourcing\Views\web.config" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -3911,6 +3911,7 @@
     <Content Include="POPResources\Templates\JWValAddedGRNReceiptReport20202.docx" />
     <Content Include="POPResources\Templates\JWValAddedPurchaseOrder20202.docx" />
     <Content Include="POPResources\Templates\InventoryPreSalesReport202026.docx" />
+    <Content Include="POPResources\Templates\FixedAssetDisposed20171.docx" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />

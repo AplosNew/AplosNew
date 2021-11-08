@@ -443,7 +443,7 @@ namespace Aplos.Areas.Materials.Controllers
                 }
                 return Json(Slot, JsonRequestBehavior.AllowGet);
             }
-            catch (Exception ex)
+            catch (Exception ex) 
             {
                 throw ex;
             }
