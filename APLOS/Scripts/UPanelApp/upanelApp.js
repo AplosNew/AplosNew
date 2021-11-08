@@ -968,6 +968,7 @@ var upanelApp = angular
     .controller('EmployeeWeekOffUpdatesController', EmployeeWeekOffUpdatesController)
     .controller('SalaryDisbursementReportController', SalaryDisbursementReportController)
     .controller('OSissueRegisterController', OSissueRegisterController)
+    .controller('JobWorkTransformationPOController', JobWorkTransformationPOController)
 
     .config(AccessControllerConfig)
     .config(accountConfig)
@@ -1001,6 +1002,7 @@ var upanelApp = angular
     .config(TaskManagementConfig)
     .config(WorkCenterConfig)
     .config(JobWorkConfig)
+    .config(OutsourcingConfig)
     .config(PerformanceManagementConfig)
 
 
