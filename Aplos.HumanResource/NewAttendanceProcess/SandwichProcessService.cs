@@ -155,7 +155,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     NewAttendanceProcessService ap = new NewAttendanceProcessService();
                     ap.ManualScheduler(PlantId);
                     #endregion
-
+                     
                 }
             }
             catch(Exception ex)
