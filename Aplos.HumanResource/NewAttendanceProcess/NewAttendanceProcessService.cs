@@ -1516,7 +1516,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             //    drx.BeginEdit();
                             //    drx["PunchOutTime"] = DBNull.Value;
                             //    drx.EndEdit();
-                            
+
                             //}
 
                             for (int i = 0; i < OutwithFlag.Tables[0].Rows.Count; i++)
@@ -1697,13 +1697,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     {
                                         dr["IsManualOutTime"] = 1;
                                         dr["ManualOutTime"] = Convert.ToDateTime(Out);
-                                        dr["OriginalManualOutTime"]= Convert.ToDateTime(Out);
+                                        dr["OriginalManualOutTime"] = Convert.ToDateTime(Out);
                                     }
                                     if (In.ToString() != "")
                                     {
                                         dr["ManualInTime"] = Convert.ToDateTime(In);
                                         dr["IsManualInTime"] = 1;
-                                        dr["OriginalManualInTime"]= Convert.ToDateTime(In); 
+                                        dr["OriginalManualInTime"] = Convert.ToDateTime(In);
                                     }
 
                                     dr["UpdatedBy"] = "Schedule";
@@ -1715,7 +1715,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             SaveDataSets(dsRef);
                         }
                         #endregion
-                      
+
                         #region Getting Flagged OutPunch of the Interval
                         DataSet ConfirmOutFlag;
                         FlagDataOutCalculate(PreviousDay, out ConfirmOutFlag, PlantValue);
@@ -1934,7 +1934,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                                 string RowId = "";
                                 if (MinTimeRow != "")
-                                { 
+                                {
                                     // Retrieving RowId of RawData    
                                     string formatString = "yyyyMMddHHmmss";
                                     string sample = MinTimeRow.Split('.')[0].ToString();
@@ -2001,7 +2001,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             InLimitValidation(out InlimitVal, PlantValue);
                             string InEntryLimit = clsWebLib.RetValidLen(InlimitVal.Tables[0].Rows[0][@"InEntryLimit"]).ToString();
                             if (InEntryLimit != "")
-                            { 
+                            {
                                 // Last In of Day Allowed Checking (From OutpunchConfiguration)
                                 InEntryLimit = Convert.ToDateTime(Date).ToString("dd-MMM-yyyy") + " " + Convert.ToDateTime(InEntryLimit).ToString("HH:mm:ss");
                             }
@@ -2017,7 +2017,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                                 string RowId = "";
                                 if (MinTimeRow != "")
-                                { 
+                                {
                                     // Retrieving RowId of RawData   
                                     string formatString = "yyyyMMddHHmmss";
                                     string sample = MinTimeRow.Split('.')[0].ToString();
@@ -2157,12 +2157,12 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         // Intime + Margin < ShiftInTime :- EarlyIn
                                         if (Convert.ToDateTime(InTime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
                                         {
-                                            dr["InStatus"] = "EI"; 
+                                            dr["InStatus"] = "EI";
                                         }
                                         // Intime - Margin > ShiftInTime :- LateIn
                                         else if (Convert.ToDateTime(InTime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
                                         {
-                                            dr["InStatus"] = "LI"; 
+                                            dr["InStatus"] = "LI";
                                         }
 
                                         else
