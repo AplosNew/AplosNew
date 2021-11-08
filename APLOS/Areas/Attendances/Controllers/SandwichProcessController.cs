@@ -71,7 +71,7 @@ namespace Aplos.Areas.Attendances.Controllers
                     }
                     catch (Exception ex)
                     {
-                        repo.CommonLogFunction(ex, CatchPlant, "ShiftProcess");
+                        repo.CommonLogFunction(ex, CatchPlant, "SandwichProcess");
                     }
                 }
             }

@@ -95,6 +95,7 @@ namespace Aplos
             bundles.Add(new ScriptBundle("~/bundles/Farming").Include("~/Areas/Farming/Scripts/*.js"));
             bundles.Add(new ScriptBundle("~/bundles/EmployeeServices").Include("~/Areas/EmployeeServices/Scripts/*.js"));
             bundles.Add(new ScriptBundle("~/bundles/JobWork").Include("~/Areas/JobWork/Scripts/*.js"));
+            bundles.Add(new ScriptBundle("~/bundles/Outsourcing").Include("~/Areas/Outsourcing/Scripts/*.js"));
             bundles.Add(new ScriptBundle("~/bundles/Leave").Include("~/Areas/Leave/Scripts/*.js"));
             bundles.Add(new ScriptBundle("~/bundles/PerformanceManagement").Include("~/Areas/PerformanceManagement/Scripts/*.js"));
 
