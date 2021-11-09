@@ -423,7 +423,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 
 	$scope.Detaillst = [];
 	$scope.GRNListDetails = function () {
-		//debugger;
+		//;
 		$http({
 			method: 'GET',
 			url: $scope.path + 'JWDetailsData'
@@ -437,7 +437,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 
 	$scope.detailTemp = "#tabGridContents";
 	$scope.detailgrid = function detailGridData(e) {
-		//debugger;
+		//;
 
 		var filteredData = e.data["Id"];
 		var data = ej.DataManager(window.Detaillst).executeLocal(ej.Query().where("Id", "equal", parseInt(filteredData), true).take(100));
@@ -1278,7 +1278,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 	//
 
 	$scope.CostCenterLoad = function () {
-		debugger
+		
 		$http({
 			method: "GET",
 			url: 'Outsourcing/OSIssueReturn/GetCostCenterLoadNewFun?EntityId=' + $scope.ModelNew.EntityId
@@ -1290,7 +1290,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 	$scope.CostCenterLoad();
 
 	$scope.CostCenterLoadNew = function () {
-		debugger
+		
 		$http({
 			method: "GET",
 			url: 'Outsourcing/OSIssueReturn/GetCostCenterLoadNewFun?EntityId=' + $scope.IssueTransformation.EntityId
@@ -1303,7 +1303,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 
 	//#region Expense activity select
 	$scope.setSelected = function (data) {
-		//debugger;
+		//;
 		$scope.addRow(data);
 		$scope.closeCOAICodeListPopUp();
 		$scope.setSelectedforGL(data);
@@ -1365,7 +1365,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 	};
 
 	$scope.popUp = function (index) {
-		//debugger;
+		//;
 		$scope.customerInvoiceGLList = [];
 		//baseService.setCurrentPage("cOAICodeList");
 		$scope.GetCOAICodeListData = function (pageno) {
@@ -1397,7 +1397,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 
 
 	$scope.setSelectedforGL = function (data) {
-		//debugger;
+		//;
 		$scope.MaterialInputList[$scope.issueSlipDetailIndex].GLGeneralInfoId = data.GLGeneralInfoId;
 		$scope.MaterialInputList[$scope.issueSlipDetailIndex].BudgetMasterId = data.BudgetMasterId;
 		$scope.MaterialInputList[$scope.issueSlipDetailIndex].ExpenseActivityId = data.ActivityId;
@@ -1413,7 +1413,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 
 	$scope.materialStockList = [];
 	$scope.specificStockList = [];
-	//debugger;
+	//;
 	$scope.getSpecificMaterialStockForSlipIssue = function (data, index) {
 
 		for (var i = 0; i < $scope.detailList.length; i++) {
@@ -1588,7 +1588,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 	};
 
 	$scope.addMaterialStockValAdded = function () {
-		//debugger;
+		//;
 		try {
 			var sumOfmaterialStockList = $filter('sumByKey')($filter('filter')($scope.materialStockList), 'RequisitionQty');
 			if (sumOfmaterialStockList > $scope.selectedRowQty) {
@@ -1774,12 +1774,12 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 	//            return false;
 	//        }
 	//    }
-	//    //debugger;
+	//    //;
 	//    if ($scope.MaterialInputList.length === 0) {
 	//        ShowResult('Please select Atlest one material');
 	//        return false;
 	//    }
-	//    //debugger;
+	//    //;
 	//    for (var i = 0; i < $scope.MaterialInputList.length; i++) {
 	//        if ($scope.MaterialInputList[i].TransactionQty > $scope.MaterialInputList[i].PostingQty) {
 	//            ShowResult("Issue qty can not gaterthen  Ready for issue Qty");
@@ -2040,12 +2040,12 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 		//        return false;
 		//    }
 		//}
-		//debugger;
+		//;
 		//if ($scope.detailList.length === 0) {
 		//    ShowResult('Please select Atlest one material');
 		//    return false;
 		//}
-		////debugger;
+		////;
 
 		if ($scope.ModelNew.TabType == "Transformation") {
 			if (baseService.isUndefinedOrNull($scope.IssueTransformation.IssueDate)) {
@@ -2452,7 +2452,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 	};
 
 	$scope.addMaterialStock = function () {
-		//debugger;
+		//;
 		try {
 			qtyValidation($scope.materialStockList);
 			validationWithTotal($scope.materialStockList);
@@ -2489,7 +2489,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 
 	$scope.PrintIssueTemplateReport = function (data) {
 		if ($scope.ModelNew.TabType == "Transformation") {
-			//debugger;
+			//;
 			//var x = "#" + z;
 			//var gridObj = $(x).data("ejGrid");
 			//var data = gridObj.getSelectedRecords()[0];
@@ -2623,7 +2623,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 	};
 
 	$scope.qtyFuncValAdded = function (x, index) {
-		//debugger;
+		//;
 		// alert('qtyalert');
 		var BaltoIssue;
 		for (var i = 0; i < $scope.IssueChildList.length; i++) {
@@ -2738,7 +2738,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 	}
 
 	$scope.qtyFunc = function (x, index) {
-		//debugger;
+		//;
 		// alert('qtyalert');
 		var BaltoIssue;
 		for (var i = 0; i < $scope.detailList.length; i++) {
@@ -2824,7 +2824,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 	//#region Order Ref
 	$scope.masterOrderCustomerList = [];
 	$scope.GetMasterOrderByContractList = function () {
-		//debugger;
+		//;
 		$http({
 			method: "GET",
 			dataType: 'JSON',
@@ -2839,7 +2839,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 	}
 
 	$scope.SelectedOrder = function (obj) {
-		//debugger;
+		//;
 		//var data = obj.data.ContractId;
 	//	$scope.productNew.OrderRefNo = obj.data.MasterOrderNo;
 		if ($scope.IssueTransformation.ContractType == "Transformation") {
@@ -2879,7 +2879,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 	$scope.productNewPOpUP = Object.assign({}, $scope.productNewPOpUPModelTemp);
 
 	$scope.GetPopUpMasterOrderDetails = function () {
-		//debugger;
+		//;
 		$http({
 			method: "GET",
 			dataType: 'JSON',
@@ -2899,7 +2899,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 	};
 
 	$scope.GetPopUpMODetails = function () {
-		//debugger;
+		//;
 		$http({
 			method: "GET",
 			dataType: 'JSON',
@@ -2927,7 +2927,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 	// Editing mode in Issue
 
 	$scope.recorddoubleclickFromMasterGrid = function ($event) {
-		//debugger;
+		//;
 		if ($scope.ModelNew.TabType == "Transformation") {
 
 			var x = $event;
