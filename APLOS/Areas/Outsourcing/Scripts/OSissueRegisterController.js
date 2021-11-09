@@ -10,7 +10,7 @@ function OSissueRegisterController(fileReader, commonMessage, $scope, $rootScope
 	$scope.exportgriddataUrl = 'GridReports/ExcelExport';
 	$scope.downloadgriddataUrl = 'GridReports/Download';
 	$scope.Print = function () {
-		debugger;
+		;
 		var gridObj1 = $("#GridPO").data("ejGrid");
 		var data1 = gridObj1.model.dataSource();
 		$http({
@@ -29,7 +29,7 @@ function OSissueRegisterController(fileReader, commonMessage, $scope, $rootScope
 		});
 	}
 	$scope.PrintPurchaseRegister = function () {
-		debugger;
+		;
 		var gridObj11 = $("#GridPrint").data("ejGrid");
 		var data11 = gridObj11.model.dataSource();
 		$http({
@@ -74,7 +74,7 @@ function OSissueRegisterController(fileReader, commonMessage, $scope, $rootScope
 	};
 	$scope.productNew.Type = 'NonPosted';
 	$scope.changeSourceFrom = function (from) {
-		debugger;
+		;
 		if (from === 'Posted') {
 			$scope.productNew.Type = 'Posted';
 
@@ -88,7 +88,7 @@ function OSissueRegisterController(fileReader, commonMessage, $scope, $rootScope
 
 	$scope.GriddataMaterialLedger = [];
 	$scope.getaldataMaterialLedger = function () {
-		debugger;
+		;
 		$http({
 			method: 'POST',
 			//url: $scope.getSearchListUrl,
@@ -109,7 +109,7 @@ function OSissueRegisterController(fileReader, commonMessage, $scope, $rootScope
 
 	//$scope.PurchaseRegisterLst = [];
 	//$scope.GetPurchaseRegister = function () {
-	//	debugger;
+	//	;
 	//	if ($scope.report.FromDate === null || $scope.report.FromDate === "") {
 	//		ShowResult('Select From Date', 'failure');
 	//		return false;
@@ -139,7 +139,7 @@ function OSissueRegisterController(fileReader, commonMessage, $scope, $rootScope
 
 	$scope.IssueRegisterList = [];
 	$scope.GetIssueRegister = function () {
-		debugger;
+		;
 		if ($scope.report.FromDate === null || $scope.report.FromDate === "") {
 			ShowResult('Select From Date', 'failure');
 			return false;
@@ -169,7 +169,7 @@ function OSissueRegisterController(fileReader, commonMessage, $scope, $rootScope
 
 	$scope.IssueRegisterListByGRN = [];
 	$scope.GetIssueRegisterListByGRN = function () {
-		debugger;
+		;
 		if ($scope.report.FromDate === null || $scope.report.FromDate === "") {
 			ShowResult('Select From Date', 'failure');
 			return false;
@@ -269,7 +269,7 @@ function OSissueRegisterController(fileReader, commonMessage, $scope, $rootScope
 
 	function IssueHistory(IssueDetailId) {
 
-		debugger;
+		;
 		$scope.IssueDetailList = [];
 		$http.get($scope.path + 'GetIssueRegisterDetail?Id=' + IssueDetailId)
 			.then(function (response) {
@@ -288,7 +288,7 @@ function OSissueRegisterController(fileReader, commonMessage, $scope, $rootScope
 		angular.element(document.querySelector('#ListOfRequisition1')).modal('hide');
 	};
 	$scope.recorddoubleclick = function ($event) {
-		debugger;
+		;
 		var x = $event;
 		var Id = x.data.IssueDetailId;
 		IssueHistory(Id);
@@ -320,7 +320,7 @@ function OSissueRegisterController(fileReader, commonMessage, $scope, $rootScope
 
 
 	$scope.IssueRegisterReportPdf = function (id, reportFormat) {
-		debugger;
+		;
 		if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
 			ShowResult('Select From Date', 'failure');
 			return false;
@@ -330,7 +330,7 @@ function OSissueRegisterController(fileReader, commonMessage, $scope, $rootScope
 			return false;
 		}
 		//$scope.MaterialConsumptionReportPdf = function (id, reportFormat) {
-			debugger;
+			;
 			var reportFormat = "Pdf";
 			//if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
 		$window.open('Outsourcing/OSissueRegister/Report?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Type=' + $scope.productNew.Type, '_blank');
@@ -338,7 +338,7 @@ function OSissueRegisterController(fileReader, commonMessage, $scope, $rootScope
 
 	}
 	//$scope.IssueRegisterReportExcel = function (id, reportFormat) {
-	//	debugger;
+	//	;
 	//	if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
 	//		ShowResult('Select From Date', 'failure');
 	//		return false;
@@ -376,7 +376,7 @@ function OSissueRegisterController(fileReader, commonMessage, $scope, $rootScope
 
 
 	$scope.GRNIssueRegisterReportPdf = function (id, reportFormat) {
-		debugger;
+		;
 		if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
 			ShowResult('Select From Date', 'failure');
 			return false;
