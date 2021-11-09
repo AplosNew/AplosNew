@@ -3155,7 +3155,8 @@ namespace Library.MaterialManagement.Inventory
 							,IIH.InventoryReceiveDetailId 
 							,IRD.Id GRNDetailId
 							,IRD.TransactionQty GRNQty
-							,TUoM1.UserName AS GRNUOM
+							--,TUoM1.UserName AS GRNUOM
+							,GRNUOM=case when IRD.BaseUOMId is not null then TUoM1.UserName else TUoM2.UserName End
 							,IRD.MaterialTranRate GRNRate
 							,isnull(IIH1.Qty,0) OtherIssuedQty
 							,isnull(IIH.Qty,0) CurrentIssueQty
@@ -3196,6 +3197,7 @@ namespace Library.MaterialManagement.Inventory
 						LEFT JOIN(select Sum(Qty) Qty,InventoryIssueDetailId from  trn.InventoryIssueHistory group by InventoryIssueDetailId) IIH1 ON IIH1.InventoryIssueDetailId=IID.Id AND  IID.InventoryIssueId !=II.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId = TUoM.Id
 					   LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM1 ON IRD.BaseUOMId = TUoM1.Id
+                        LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM2 ON IRD.TransactionUoMId = TUoM2.Id
 
 
                         LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
@@ -3241,7 +3243,8 @@ namespace Library.MaterialManagement.Inventory
 							,IIH.InventoryReceiveDetailId 
 							,IRD.Id GRNDetailId
 							,IRD.TransactionQty GRNQty
-							,TUoM1.UserName AS GRNUOM
+							--,TUoM1.UserName AS GRNUOM
+							,GRNUOM=case when IRD.BaseUOMId is not null then TUoM1.UserName else TUoM2.UserName End
 							,IRD.MaterialTranRate GRNRate
 							,isnull(IIH1.Qty,0) OtherIssuedQty
 							,isnull(IIH.Qty,0) CurrentIssueQty
@@ -3283,6 +3286,7 @@ namespace Library.MaterialManagement.Inventory
 						LEFT JOIN(select Sum(Qty) Qty,InventoryIssueDetailId from  trn.InventoryIssueHistory group by InventoryIssueDetailId) IIH1 ON IIH1.InventoryIssueDetailId=IID.Id AND  IID.InventoryIssueId !=II.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId = TUoM.Id
 					   LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM1 ON IRD.BaseUOMId = TUoM1.Id
+                        LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM2 ON IRD.TransactionUoMId = TUoM2.Id
 
 
                       LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 

@@ -551,6 +551,7 @@
     <Compile Include="Areas\Farming\Controllers\VoucherController.cs" />
     <Compile Include="Areas\Farming\FarmingAreaRegistration.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\EntityFixedAssetsRegisterController.cs" />
+    <Compile Include="Areas\FixedAssets\Controllers\AssetWIPStatusController.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\SubAssetTypeController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FinalDeductionReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\PhysicalVerificationReportController.cs" />
@@ -1563,6 +1564,7 @@
     <Content Include="Areas\Accounts\Scripts\accountService.js" />
     <Content Include="Areas\Accounts\Scripts\dayBooksReportController.js" />
     <Content Include="Areas\Accounts\Scripts\entityWiseExpenseAndEarningController.js" />
+    <Content Include="Areas\Accounts\Scripts\AssetWIPStatusController.js" />
     <Content Include="Areas\Accounts\Scripts\PostInvoiceController.js" />
     <Content Include="Areas\Accounts\Scripts\voucherParkController.js" />
     <Content Include="Areas\Accounts\Scripts\expenseRegisterReportController.js" />
@@ -3828,6 +3830,7 @@
     <Content Include="Areas\Outsourcing\Views\web.config" />
     <Content Include="Areas\JobWork\Views\OSIssueRegister\Aplos.cshtml" />
     <Content Include="Areas\JobWork\Views\OSIssueRegister\IssueReturnRegister.cshtml" />
+    <Content Include="Areas\FixedAssets\Views\AssetWIPStatusReport.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
