@@ -8,7 +8,7 @@ using System.Threading;
 using System.Web.Mvc;
 using Library.MaterialManagement.JobWork;
 
-namespace Aplos.Areas.JobWork.Controllers
+namespace Aplos.Areas.Outsourcing.Controllers
 {
     public class JobWorkIssueReturnConfirmationController : BaseController
     {

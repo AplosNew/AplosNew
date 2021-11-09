@@ -696,7 +696,7 @@ namespace Library.Accounting.FixedAssets
             {
                 throw (ex);
             }
-            finally
+            finally 
             {
 
             }
