@@ -584,6 +584,7 @@ namespace Library.MaterialManagement.InventoryManagements
 
 
 
+
             var inventoryMaterialList = _sqlRepository.GetDataTable(cmdText);
             var plantName = new DataView(_sqlRepository.GetDataTable(@"SELECT UserName from org.Plant WHERE Id='" + plantId + "'")).ToTable(true, "UserName").Rows[0]["UserName"].ToString();
 
