@@ -691,7 +691,7 @@ namespace Library.Accounting.FixedAssets
                                    WHERE FARD.FixedAssetRegisterDisposedId='" + fixedAssetRegisterDisposeId + @"'";
 
 
-                return _sqlRepository.GetDataTable(strSQL);
+                return _sqlRepository.GetDataTable(strSQL); 
 
             }
             catch (System.Exception ex) 
