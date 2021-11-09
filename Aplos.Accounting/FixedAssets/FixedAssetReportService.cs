@@ -689,7 +689,6 @@ namespace Library.Accounting.FixedAssets
 									 LEFT JOIN HKP.PartyPlant VPL ON VPL.Id = FAD.DeliveryPartyPlantId
                                     LEFT JOIN ORG.Plant Plant ON Plant.Id =FR.PlantId
                                    WHERE FARD.FixedAssetRegisterDisposedId='" + fixedAssetRegisterDisposeId + @"'";
-
                 return _sqlRepository.GetDataTable(strSQL); 
 
             }  
