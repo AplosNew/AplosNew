@@ -3496,7 +3496,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
             ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
             if (String.IsNullOrEmpty(JWPurchaseOrderId))
             {
-                JWPurchaseOrderId = data[0]["OSTransformationPOId"].ToString();
+                JWPurchaseOrderId = data[0]["JWTransformationPOId"].ToString();
             }
             if (type != "BOQ" && type != "PODETAILLIST")
             {
@@ -3506,7 +3506,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                 //    throw new Exception("Same Activity, JW Output Item, Material and Article already exist.");
                 //}
 
-                con.OpenDataSetThroughAdapter("select * from dbo.OSTransformationPODetail where ArticleId='" + data[0]["ArticleId"] + "' and MaterialMasterId='" + data[0]["MaterialMasterId"] + "' and OSTransformationPOId='" + data[0]["OSTransformationPOId"] + "' AND  Id<>'" + data[0]["Id"] + "' ", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from dbo.OSTransformationPODetail where ArticleId='" + data[0]["ArticleId"] + "' and MaterialMasterId='" + data[0]["MaterialMasterId"] + "' and JWTransformationPOId='" + data[0]["JWTransformationPOId"] + "' AND  Id<>'" + data[0]["Id"] + "' ", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                 {
                     throw new Exception("Same Material and Article already exist.");
@@ -3514,14 +3514,14 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
             }
             
 
-            con.OpenDataSetThroughAdapter("SELECT * FROM OSTransformationPODetail WHERE OSTransformationPOId='" + JWPurchaseOrderId + "'", out dsMaster, false, "1");
+            con.OpenDataSetThroughAdapter("SELECT * FROM OSTransformationPODetail WHERE JWTransformationPOId='" + JWPurchaseOrderId + "'", out dsMaster, false, "1");
 
             List<Dictionary<string, object>> dataBoq = new List<Dictionary<string, object>>();
             List<Dictionary<string, object>> detailBoq = new List<Dictionary<string, object>>();
             //List<Dictionary<string, object>> dataDetail = new List<Dictionary<string, object>>();
 
             DataSet dsTax = null;
-            sql = "SELECT * FROM OSTransformationPOTax WHERE OSTransformationPOId='" + JWPurchaseOrderId + "'";
+            sql = "SELECT * FROM OSTransformationPOTax WHERE JWTransformationPOId='" + JWPurchaseOrderId + "'";
             con = new ConnectionManager.DAL.ConManager("1");
             con.OpenDataSetThroughAdapter(sql, out dsTax, false, "1");
 
@@ -3585,7 +3585,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                             // data[i]["Id"] = "JWPD" + _Id;
                             data[i]["Id"] = "JWPD" + GetOSoutputmatPK();
                             JWPODId = data[i]["Id"].ToString();
-                            data[i]["OSTransformationPOId"] = JWPurchaseOrderId;
+                            data[i]["JWTransformationPOId"] = JWPurchaseOrderId;
                             data[i]["Quantity"] = data[i]["TransactionQty"];
                             data[i]["RatePerUnit"] = data[i]["TransactionRate"];
                             data[i]["ServiceId"] = data[i]["ServiceId"];
@@ -3648,7 +3648,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                             //data[i]["TaxAmount"] = data[i]["TaxAmount"];
                             //    data[i]["TaxAmount"] = data[i]["JWTaxAmount"];
 
-                            data[i]["OSTransformationPOId"] = JWPurchaseOrderId;
+                            data[i]["JWTransformationPOId"] = JWPurchaseOrderId;
                             data[i]["Quantity"] = data[i]["TransactionQty"];
                             data[i]["RatePerUnit"] = data[i]["TransactionRate"];
                             data[i]["ServiceId"] = data[i]["ServiceId"];
@@ -3757,7 +3757,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                             data[i]["TransactionUoMId"] = data[i]["OutputMaterialUOMId"];
                             data[i]["BaseUOMId"] = data[i]["OutputMaterialUOMId"];
 
-                            data[i]["OSTransformationPOId"] = JWPurchaseOrderId;
+                            data[i]["JWTransformationPOId"] = JWPurchaseOrderId;
                             data[i]["Quantity"] = data[i]["TransactionQty"];
                             data[i]["TaxAmount"] = SumTax;
 
@@ -3793,7 +3793,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                             data[i]["TransactionUoMId"] = data[i]["OutputMaterialUOMId"];
                             data[i]["BaseUOMId"] = data[i]["OutputMaterialUOMId"];
 
-                            data[i]["OSTransformationPOId"] = JWPurchaseOrderId;
+                            data[i]["JWTransformationPOId"] = JWPurchaseOrderId;
                             data[i]["Quantity"] = data[i]["TransactionQty"];
                             data[i]["TaxAmount"] = SumTax;
 
@@ -3835,7 +3835,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                                     taxCategoryList[i1]["Id"] = "JWPDT" + GetOSPOTaxPK();
                                     //JWPODId = taxCategoryList[i1]["Id"].ToString();
                                     //data[i]["OSTransformationPOId"] = JWPurchaseOrderId;
-                                    taxCategoryList[i1]["OSTransformationPOId"] = JWPurchaseOrderId;
+                                    taxCategoryList[i1]["JWTransformationPOId"] = JWPurchaseOrderId;
                                 taxCategoryList[i1]["OSTransformationPODetailId"] = DetailIdid;
                                 //data[i]["Quantity"] = data[i]["TransactionQty"];
 
@@ -3869,7 +3869,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                                     bplib.clsGenID genid = new bplib.clsGenID();
                                     genid.GenID("OSTransformationPOTax", out _Id);
                                     taxCategoryList[i1]["Id"] = "JWPDT" + _Id;
-                                    taxCategoryList[i1]["OSTransformationPOId"] = JWPurchaseOrderId;
+                                    taxCategoryList[i1]["JWTransformationPOId"] = JWPurchaseOrderId;
                                     taxCategoryList[i1]["OSTransformationPODetailId"] = DetailIdid;
 
                                     AddNewRow(dsTax.Tables[0], taxCategoryList[i1]);
@@ -3879,7 +3879,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                                     DataRow dr = dsTax.Tables[0].DefaultView[0].Row;
 
                                     dr.BeginEdit();
-                                    dr["OSTransformationPOId"] = JWPurchaseOrderId;
+                                    dr["JWTransformationPOId"] = JWPurchaseOrderId;
                                     dr["OSTransformationPODetailId"] = DetailIdid;
                                     dr["TaxCategoryId"] = taxCategoryList[i1]["TaxCategoryId"];
                                     dr["Percentage"] = taxCategoryList[i1]["Percentage"];
