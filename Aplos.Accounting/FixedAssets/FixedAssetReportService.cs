@@ -690,7 +690,6 @@ namespace Library.Accounting.FixedAssets
                                     LEFT JOIN ORG.Plant Plant ON Plant.Id =FR.PlantId
                                    WHERE FARD.FixedAssetRegisterDisposedId='" + fixedAssetRegisterDisposeId + @"'";
 
-
                 return _sqlRepository.GetDataTable(strSQL); 
 
             }  
