@@ -61,8 +61,8 @@ namespace Library.MaterialManagement.InventoryManagements
 							,TUoM.UserName UOM,  opbal.IsAsset
 							
                              --Opening Balance
-                            ,isnull(opbal.TransactionQty,0)- isnull(IFDOB.IssueQty,0)+isnull(PurchaseReturnOBData.Qty,0) As OpeningBalance	
-							,isnull(opbal.TotalMaterialBooksCurrencyAmount,0) - isnull(IFDOB.PolicyAmount,0) + isnull(PurchaseReturnOBData.PurchaseReturnAmount,0) AS OpeningBalanceAmount
+                            ,isnull(opbal.TransactionQty,0)- isnull(IFDOB.IssueQty,0)-isnull(PurchaseReturnOBData.Qty,0) As OpeningBalance	
+							,isnull(opbal.TotalMaterialBooksCurrencyAmount,0) - isnull(IFDOB.PolicyAmount,0) -isnull(PurchaseReturnOBData.PurchaseReturnAmount,0) AS OpeningBalanceAmount
 
 						    --Receive
 
@@ -101,8 +101,8 @@ namespace Library.MaterialManagement.InventoryManagements
 					        ,0 InventorySalesReturnForThePeriodAmount
 					
 							--Balance    
-							,(((((((isnull(opbal.TransactionQty,0)- isnull(IFDOB.IssueQty,0)+isnull(PurchaseReturnOBData.Qty,0) + isnull(opbal2.TransactionQty,0))-isnull(IFD1.IssueQty,0)-isnull(PurchaseReturnData.Qty,0))-isnull(AdjustmentData.Qty,0))+isnull(IssueReturnData.Qty,0))-isnull(InventorySalesData.Qty,0))-isnull(InventoryScrapData.Qty,0))-isnull(InventoryTransferData.Qty,0)) Closing 
-							,(((((((isnull(opbal.TotalMaterialBooksCurrencyAmount,0) - isnull(IFDOB.PolicyAmount,0)+ isnull(PurchaseReturnOBData.PurchaseReturnAmount,0) + isnull(opbal2.TotalMaterialBooksCurrencyAmount,0))-isnull(IFD1.PolicyAmount,0)-isnull(AdjustmentData.AdjustmentAmount,0))-isnull(PurchaseReturnData.PurchaseReturnAmount,0))+isnull(IssueReturnData.IssueReturnAmount,0)-isnull(InventorySalesData.InventorySalesAmount,0))-isnull(InventoryScrapData.InventoryScrapAmount,0))-isnull(InventoryTransferData.InventoryTransferAmount,0))) ClosingAmount
+							,(((((((isnull(opbal.TransactionQty,0)- isnull(IFDOB.IssueQty,0)-isnull(PurchaseReturnOBData.Qty,0) + isnull(opbal2.TransactionQty,0))-isnull(IFD1.IssueQty,0)-isnull(PurchaseReturnData.Qty,0))-isnull(AdjustmentData.Qty,0))+isnull(IssueReturnData.Qty,0))-isnull(InventorySalesData.Qty,0))-isnull(InventoryScrapData.Qty,0))-isnull(InventoryTransferData.Qty,0)) Closing 
+							,(((((((isnull(opbal.TotalMaterialBooksCurrencyAmount,0) - isnull(IFDOB.PolicyAmount,0)- isnull(PurchaseReturnOBData.PurchaseReturnAmount,0) + isnull(opbal2.TotalMaterialBooksCurrencyAmount,0))-isnull(IFD1.PolicyAmount,0)-isnull(AdjustmentData.AdjustmentAmount,0))-isnull(PurchaseReturnData.PurchaseReturnAmount,0))+isnull(IssueReturnData.IssueReturnAmount,0)-isnull(InventorySalesData.InventorySalesAmount,0))-isnull(InventoryScrapData.InventoryScrapAmount,0))-isnull(InventoryTransferData.InventoryTransferAmount,0))) ClosingAmount
 
 
 						from TRN.InventoryMaterial AS IM
@@ -219,7 +219,7 @@ namespace Library.MaterialManagement.InventoryManagements
 									 WHERE convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND  '" + toDate + @"' AND IR.PlantId='" + plantId + @"'
 									 GROUP BY IRD.InventoryMaterialId
 								 )InventoryTransferData ON InventoryTransferData.InventoryMaterialId=IM.Id      
-                                 where   IM.PlantId='" + plantId + @"' AND MM.UserName is not null ) X where X.ClosingAmount>0 ";
+                                 where   IM.PlantId='" + plantId + @"' AND MM.UserName is not null ) X ";
 
                 }
                 #endregion
@@ -392,7 +392,7 @@ namespace Library.MaterialManagement.InventoryManagements
 									 WHERE convert(Date,IR.GRNDate) <= '" + toDate + @"' AND IR.PlantId='" + plantId + @"'
 									 GROUP BY IRD.InventoryMaterialId
 								 )InventoryTransferData ON InventoryTransferData.InventoryMaterialId=IM.Id      
-                                 where   IM.PlantId='" + plantId + @"' AND MM.UserName is not null ) X where X.ClosingAmount>0 ";
+                                 where   IM.PlantId='" + plantId + @"' AND MM.UserName is not null ) X ";
 
                 }
                 
@@ -575,8 +575,7 @@ namespace Library.MaterialManagement.InventoryManagements
 									 WHERE convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' AND IR.PlantId='" + plantId + @"'
 									 GROUP BY IRD.InventoryMaterialId
 								 )InventoryTransferData ON InventoryTransferData.InventoryMaterialId=IM.Id       
-                               where MM.IsAsset='" + plantId + @"' AND MM.UserName is not null
-";
+                               where MM.IsAsset='" + plantId + @"' AND MM.UserName is not null";
                 }
                
                 #endregion
