@@ -643,9 +643,9 @@ namespace Aplos.Areas.Attendances.Controllers
 
 
                 strSql = @"UPDATE AttdnProcessData SET ManualInTime = isnull(OriginalManualInTime,ManualInTime),
-                            IsManualInTime = CASE WHEN ISNULL(OriginalManualInTime,'')<>'' THEN 1 ELSE 0 END,
+                            IsManualInTime = CASE WHEN ISNULL(OriginalManualInTime,'')<>'' OR IsManualInTime=1 THEN 1 ELSE 0 END,
                             ManualOutTime = isnull(OriginalManualOutTime,ManualOutTime),
-                            IsManualOutTime = CASE WHEN ISNULL(OriginalManualOutTime,'')<>'' THEN 1 ELSE 0 END,
+                            IsManualOutTime = CASE WHEN ISNULL(OriginalManualOutTime,'')<>'' OR IsManualOutTime=1 THEN 1 ELSE 0 END,
                             ManualFlag=1
                             WHERE WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' AND EmpSystemID IN (" + EmpSystemId + @")";
 
