@@ -751,6 +751,8 @@ namespace Library.Service.HumanResources
                     _para.EffectiveDate = Convert.ToDateTime(SalaryInfo.EffectiveDate).ToString("dd-MMM-yyyy");
                     _para.NextDueDate = SalaryInfo.NextDueDate.ToString();
                     _para.User = identity.Name;
+                    _para.AddedFromIP = identity.IPAddress;
+                    _para.UpdatedFromIP = identity.IPAddress;
                     _para.SalaryId = SalaryInfo.SalaryID;
                     _para.ApprovalStatus = "Unapproved";
                     DataSet dsEmpSalaryInfoDefineNew = Library.Service.Helpers.DataTableExtensions.ToDataSet<EmpSalaryInfoDefineModel>(EmpSalaryInfoDefineNew);

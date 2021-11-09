@@ -558,7 +558,9 @@ public class clsSalaryStructureAplos
                     drSlrDefMst["PlantID"] = bplib.clsWebLib.RetValidLen(_para.PlantId);
                     drSlrDefMst["AddedBy"] = bplib.clsWebLib.RetValidLen((_para.User));
                     drSlrDefMst["DateAdded"] = DateTime.Now;
+                    drSlrDefMst["AddedFromIP"] = _para.AddedFromIP;
                     drSlrDefMst["UpdatedBy"] = bplib.clsWebLib.RetValidLen((_para.User));
+                    drSlrDefMst["UpdatedFromIP"] = _para.UpdatedFromIP;
                     drSlrDefMst["DateUpdated"] = DateTime.Now;
                     dtSlrDefMst.Rows.Add(drSlrDefMst);
                 }
@@ -570,6 +572,7 @@ public class clsSalaryStructureAplos
                     drSlrDefMst["SalaryRuleMasterSystemID"] = bplib.clsWebLib.RetValidLen(_para.SalaryRuleId);
                     drSlrDefMst["UpdatedBy"] = bplib.clsWebLib.RetValidLen((_para.User));
                     drSlrDefMst["DateUpdated"] = DateTime.Now;
+                    drSlrDefMst["UpdatedFromIP"] = _para.UpdatedFromIP;
                     drSlrDefMst.EndEdit();
                 }
 
@@ -641,10 +644,12 @@ public class clsSalaryStructureAplos
                         drSlrDef["SalaryCategory"] = bplib.clsWebLib.RetValidLen(_dt.Rows[i]["SalaryCategory"].ToString().Trim());
 
                         drSlrDef["AddedBy"] = bplib.clsWebLib.RetValidLen((_para.User));
+                        drSlrDef["AddedFromIP"] = _para.AddedFromIP;
                         drSlrDef["DateAdded"] = DateTime.Now;
 
                         drSlrDef["UpdatedBy"] = bplib.clsWebLib.RetValidLen((_para.User));
                         drSlrDef["DateUpdated"] = DateTime.Now;
+                        drSlrDef["UpdatedFromIP"] = _para.UpdatedFromIP;
 
                         dtSlrDef.Rows.Add(drSlrDef);
 
@@ -661,9 +666,11 @@ public class clsSalaryStructureAplos
 
                             drSlrDefEffDt["AddedBy"] = bplib.clsWebLib.RetValidLen((_para.User));
                             drSlrDefEffDt["DateAdded"] = DateTime.Now;
+                            drSlrDefEffDt["AddedFromIP"] = _para.AddedFromIP;
 
                             drSlrDefEffDt["UpdatedBy"] = bplib.clsWebLib.RetValidLen((_para.User));
                             drSlrDefEffDt["DateUpdated"] = DateTime.Now;
+                            drSlrDefEffDt["UpdatedFromIP"] = _para.UpdatedFromIP;
 
                             dtSlrDefEffDt.Rows.Add(drSlrDefEffDt);
                         }
@@ -1254,9 +1261,11 @@ public class clsSalaryStructureAplos
                             drSlrBackMst["PlantID"] = bplib.clsWebLib.RetValidLen(dsSlrDefMst.Tables[0].Rows[i]["PlantID"].ToString().Trim());
 
                             drSlrBackMst["AddedBy"] = bplib.clsWebLib.RetValidLen(dsSlrDefMst.Tables[0].Rows[i]["AddedBy"].ToString().Trim());
+                            drSlrBackMst["AddedFromIP"] = bplib.clsWebLib.RetValidLen(dsSlrDefMst.Tables[0].Rows[i]["AddedFromIP"].ToString().Trim());
                             drSlrBackMst["DateAdded"] = dsSlrDefMst.Tables[0].Rows[i]["DateAdded"].ToString().Trim();
 
                             drSlrBackMst["UpdatedBy"] = bplib.clsWebLib.RetValidLen(dsSlrDefMst.Tables[0].Rows[i]["UpdatedBy"].ToString().Trim());
+                            drSlrBackMst["UpdatedFromIP"] = bplib.clsWebLib.RetValidLen(dsSlrDefMst.Tables[0].Rows[i]["UpdatedFromIP"].ToString().Trim());
                             drSlrBackMst["DateUpdated"] = dsSlrDefMst.Tables[0].Rows[i]["DateUpdated"].ToString().Trim();
 
                             drSlrBackMst["IsApproved"] = dsSlrDefMst.Tables[0].Rows[i]["IsApproved"].ToString().Trim();
@@ -1308,9 +1317,11 @@ public class clsSalaryStructureAplos
                             drSlrBack["AmtDefinitionRate"] = bplib.clsWebLib.RetValidLen(dsSlrDef.Tables[0].Rows[i]["AmtDefinitionRate"].ToString().Trim());
 
                             drSlrBack["AddedBy"] = bplib.clsWebLib.RetValidLen(dsSlrDef.Tables[0].Rows[i]["AddedBy"].ToString().Trim());
+                            drSlrBack["AddedFromIP"] = bplib.clsWebLib.RetValidLen(dsSlrDef.Tables[0].Rows[i]["AddedFromIP"].ToString().Trim());
                             drSlrBack["DateAdded"] = dsSlrDef.Tables[0].Rows[i]["DateAdded"].ToString().Trim();
 
                             drSlrBack["UpdatedBy"] = bplib.clsWebLib.RetValidLen(dsSlrDef.Tables[0].Rows[i]["UpdatedBy"].ToString().Trim());
+                            drSlrBack["UpdatedFromIP"] = bplib.clsWebLib.RetValidLen(dsSlrDef.Tables[0].Rows[i]["UpdatedFromIP"].ToString().Trim());
                             drSlrBack["DateUpdated"] = dsSlrDef.Tables[0].Rows[i]["DateUpdated"].ToString().Trim();
 
                             dtSlrBack.Rows.Add(drSlrBack);
@@ -15413,6 +15424,8 @@ public class CustomPara
     //public bool IsPFNotEntitleGetAllo { get; set; } = false;
     public string PFEffectiveDate { get; set; } = "";
     public string IsbuttonPFClicked { get; set; } = "NO";
+    public string AddedFromIP { get; set; }
+    public string UpdatedFromIP { get; set; }
 
 }
 public class EmpSalaryInfoDefineModel
@@ -15453,7 +15466,8 @@ public class EmpSalaryInfoDefineModel
     public string MonthPeriod { get; set; }
     public bool IsNA { get; set; }
     public string SalaryCategory { get; set; }
-
+    public string AddedFromIP { get; set; }
+    public string UpdatedFromIP { get; set; }
 
 }
 
