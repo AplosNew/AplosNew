@@ -3337,9 +3337,7 @@ FixedValue, SequenceNo,
 
             try
             {
-                strSql = @"SELECT * FROM SalaryInfoBackMaster 
-                            WHERE EmpInfoSystemID = '" + sEmpSysID + @"' 
-                                  AND SystemID IS NULL";
+                strSql = @"SELECT * FROM SalaryInfoBackMaster WHERE EmpInfoSystemID = '" + sEmpSysID + @"' AND SystemID IS NULL";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, "1");
