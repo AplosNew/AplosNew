@@ -61,8 +61,8 @@ namespace Library.MaterialManagement.InventoryManagements
 							,TUoM.UserName UOM,  opbal.IsAsset
 							
                              --Opening Balance
-                            ,isnull(opbal.TransactionQty,0)- isnull(IFDOB.IssueQty,0) As OpeningBalance	
-							,isnull(opbal.TotalMaterialBooksCurrencyAmount,0) - isnull(IFDOB.PolicyAmount,0) AS OpeningBalanceAmount
+                            ,isnull(opbal.TransactionQty,0)- isnull(IFDOB.IssueQty,0)+isnull(PurchaseReturnOBData.Qty,0) As OpeningBalance	
+							,isnull(opbal.TotalMaterialBooksCurrencyAmount,0) - isnull(IFDOB.PolicyAmount,0) + isnull(PurchaseReturnOBData.PurchaseReturnAmount,0) AS OpeningBalanceAmount
 
 						    --Receive
 
@@ -174,6 +174,14 @@ namespace Library.MaterialManagement.InventoryManagements
 									 Left join trn.InventoryReceiveDetail IRD ON IRD.Id=IH.InventoryReceiveDetailId
 									 	WHERE convert(Date,II.[POReturnDate]) BETWEEN  '" + fromDate + @"' AND  '" + toDate + @"' AND II.PlantId='" + plantId + @"' GROUP BY IH.InventoryMaterialId
 								 )PurchaseReturnData ON PurchaseReturnData.InventoryMaterialId=IM.Id
+
+                        --Purchase return OB
+						 Left join (select IH.InventoryMaterialId,sum(IH.TransactionQty) Qty,sum(IRD.MaterialTranRate) MaterialTranRate, (sum(IH.TransactionQty)*sum(IRD.MaterialTranRate)) PurchaseReturnAmount 
+					                 from trn.PurchaseReturnDetail IH
+									 Left join trn.PurchaseReturn II ON II.Id=IH.PurchaseReturnId
+									 Left join trn.InventoryReceiveDetail IRD ON IRD.Id=IH.InventoryReceiveDetailId
+									 	WHERE convert(Date,II.[POReturnDate]) < '01-Sep-2021' AND II.PlantId='202034' GROUP BY IH.InventoryMaterialId
+								 )PurchaseReturnOBData ON PurchaseReturnOBData.InventoryMaterialId=IM.Id
 
                        -- Adjustment
 						Left join (select psad.InventoryMaterialId,sum(IH.Qty) Qty,sum(IH.Rate) Rate, (sum(IH.Qty)*sum(IH.Rate)) AdjustmentAmount 
@@ -573,6 +581,7 @@ namespace Library.MaterialManagement.InventoryManagements
                
                 #endregion
             }
+
 
 
 
