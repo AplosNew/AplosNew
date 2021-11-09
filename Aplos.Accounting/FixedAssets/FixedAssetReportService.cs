@@ -694,7 +694,7 @@ namespace Library.Accounting.FixedAssets
                 return _sqlRepository.GetDataTable(strSQL);
 
             }
-            catch (System.Exception ex)
+            catch (System.Exception ex) 
             {
                 throw (ex);
             }
