@@ -6624,7 +6624,7 @@ namespace Library.MaterialManagement.InventoryManagements
                         AND IR.OpeningBalanceId IS NULL 
                         AND IR.EmployeeId IS NULL 
                         And IR.IsApproved = 0 --And IR.POId Is not NULL 
-                        and IR.GRNType='GRNBYPO' and IR.TransformationContractId='" + POId + @"'
+                        and IR.GRNType='GRNBYOS' and IR.TransformationContractId='" + POId + @"'
                         Union All
                         SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
                                     , REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate1
@@ -6760,7 +6760,7 @@ namespace Library.MaterialManagement.InventoryManagements
                         AND IR.OpeningBalanceId IS NULL 
                         AND IR.EmployeeId IS NULL 
                         And IR.IsApproved = 0 --And IR.POId Is not NULL 
-                        and IR.GRNType='GRNBYPO' and IR.TransformationContractId='" + POId + @"'
+                        and IR.GRNType='GRNBYOS' and IR.TransformationContractId='" + POId + @"'
                          Union All
                         SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
                                     , REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate1
@@ -6896,7 +6896,7 @@ namespace Library.MaterialManagement.InventoryManagements
                         AND IR.OpeningBalanceId IS NULL 
                         AND IR.EmployeeId IS NULL 
                         And IR.IsApproved = 1 --And IR.POId Is not NULL 
-                        and IR.GRNType='GRNBYPO' and IR.TransformationContractId='" + POId + @"'
+                        and IR.GRNType='GRNBYOS' and IR.TransformationContractId='" + POId + @"'
                         )x
                         --where x.TransformationContractId=' " + POId + @"'
                         order by GRNDate DESC";
@@ -7034,7 +7034,7 @@ namespace Library.MaterialManagement.InventoryManagements
 								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
 								 left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
                         WHERE IR.CheckedByStatus='Hold' OR IR.CheckedByStatus='Reject' AND IR.PlantId='" + plantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' AND IR.OpeningBalanceId IS NULL AND IR.EmployeeId IS NULL And IR.IsApproved = 0 --And IR.POId Is not NULL 
-                        and IR.GRNType='GRNBYPO'
+                        and IR.GRNType='GRNBYOS'
                 order by IR.GRNDate ASC";
 				}
 
@@ -7169,7 +7169,7 @@ namespace Library.MaterialManagement.InventoryManagements
 								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
 								 left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
                         WHERE  IR.CheckedByStatus='Checked'  AND IR.PlantId='" + plantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' AND IR.OpeningBalanceId IS NULL AND IR.EmployeeId IS NULL And IR.IsApproved = 0 --And IR.POId Is not NULL  
-                         and IR.GRNType='GRNBYPO'  order by IR.GRNDate ASC";
+                         and IR.GRNType='GRNBYOS'  order by IR.GRNDate ASC";
 
 
 				}
