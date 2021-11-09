@@ -247,6 +247,14 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
             ShowResult("Please select Customer!", "failure");
             return true;
         }
+        if ($scope.voucher.Status == 'Sales' && baseService.isUndefinedOrNull($scope.voucher.CurrencyId)) {
+            ShowResult("Please select Currency!", "failure");
+            return true;
+        }
+        if ($scope.voucher.Status == 'Sales' && baseService.isUndefinedOrNull($scope.voucher.CompanyCurrencyRate)) {
+            ShowResult("Please Input Rate!", "failure");
+            return true;
+        }
         if ($scope.voucherDetailList.length == 0) {
             ShowResult("Please select Fixed Asset Register!", "failure");
             return true;
