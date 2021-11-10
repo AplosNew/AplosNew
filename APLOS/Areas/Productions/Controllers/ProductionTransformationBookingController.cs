@@ -1007,7 +1007,7 @@ namespace Aplos.Areas.Productions.Controllers
         //	for (int i = 0; i < TransformationWIPData.Rows.Count; i++)
         //	{
 
-        //		if (WIPJWOutputId != TransformationWIPData.Rows[i]["JobWorkTransformationContractChildMasterId"].ToString())
+        //		if (WIPJWOutputId != TransformationWIPData.Rows[i]["OSTransformationPODetailId"].ToString())
         //		{
 
         //			if (WIPRowIndexNo < WIPROW)
@@ -1019,7 +1019,7 @@ namespace Aplos.Areas.Productions.Controllers
         //			WIPRowIndexNo = WIPROW;
         //		}
 
-        //		sheet[WIPROW, ColJobWorkTransformationContractChildMasterId].Text = TransformationWIPData.Rows[i]["JobWorkTransformationContractChildMasterId"].ToString();
+        //		sheet[WIPROW, ColJobWorkTransformationContractChildMasterId].Text = TransformationWIPData.Rows[i]["OSTransformationPODetailId"].ToString();
         //		sheet[WIPROW, ColWIPJWOutputItem].Text = TransformationWIPData.Rows[i]["JWOutputItem"].ToString();
         //		sheet[WIPROW, ColWIPId].Text = TransformationWIPData.Rows[i]["Id"].ToString();
         //		sheet[WIPROW, ColWIPJWInputItem].Text = TransformationWIPData.Rows[i]["JWInputItem"].ToString();
@@ -1032,7 +1032,7 @@ namespace Aplos.Areas.Productions.Controllers
 
         //		sheet.Range[WIPROW, 1, WIPROW, WIPendCol].BorderInside(ExcelLineStyle.Hair);
         //		sheet.Range[WIPROW, 1, WIPROW, WIPendCol].BorderAround(ExcelLineStyle.Hair);
-        //		WIPJWOutputId = TransformationWIPData.Rows[i]["JobWorkTransformationContractChildMasterId"].ToString();
+        //		WIPJWOutputId = TransformationWIPData.Rows[i]["OSTransformationPODetailId"].ToString();
 
         //		WIPROW++;
         //	}

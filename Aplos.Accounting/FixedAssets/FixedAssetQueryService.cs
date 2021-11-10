@@ -1598,7 +1598,7 @@ namespace Library.Accounting.FixedAssets
 				) sar on sar.FixedAssetRegisterId=FAR.Id
 
 
-		        WHERE FAR.CompanyGroupId='" + companyGroupId + "' AND FAR.CompanyId='" + companyId + "' AND FAR.PlantId='" + plantId + @"'  
+		        WHERE FAR.CompanyGroupId='" + companyGroupId + "' AND FAR.CompanyId='" + companyId + "' AND FAR.PlantId='" + plantId + @"'  AND FAR.Status IS NULL
 			
 
                GROUP BY FAR.MaterialMasterId ,MM.UserName ,MMA.StandardName ,FA.UserName,P.UserName 
@@ -1652,7 +1652,7 @@ namespace Library.Accounting.FixedAssets
 									left join ORG.Department D on D.Id = FR.DepartmentId
 
                                     WHERE FR.CompanyGroupId='" + companyGroupId+"'and FR.CompanyId='"+companyId+"' AND FR.PlantId='"+plantId+ @"'
-                                    and FR.Archive=0 and FR.IsAUC=0 and	FR.DisposedVoucherId IS NULL
+                                    and FR.Archive=0 and FR.IsAUC=0 and	FR.DisposedVoucherId IS NULL AND FR.Status IS NULL
                                     AND FR.Id NOT IN(' ')
 				                     and FR.MaterialMasterId in(" + materialMasterId+") AND FR.MaterialMasterArticleId in ("+materialMasterArticleId+") AND FR.FixedAssetMasterId in ("+fixedAssetMasterId+@")
 					                 and FR.VendorId in ("+vendorId+@") 
