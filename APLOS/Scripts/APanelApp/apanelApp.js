@@ -484,7 +484,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller('OTFormulaController', OTFormulaController)
     .controller('ResidenceGroupController', ResidenceGroupController)
     .controller('TransportGroupController', TransportGroupController)
-    .controller('ContractualEmployeeCodeController', ContractualEmployeeCodeController)
+    .controller('EmployeeCodeGenerationController', EmployeeCodeGenerationController)
    
 
 
