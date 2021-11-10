@@ -673,6 +673,11 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
                 templateUrl: 'humanresource/FinalDeductionReport/Aplos',
                 controller: 'FinalDeductionReportController'
             })
+        .when('/week-definition',
+            {
+                templateUrl: 'humanresource/WeekDefinition/Aplos',
+                controller: 'WeekDefinitionController'
+            })
 ;
     
 

@@ -1,6 +1,7 @@
 ﻿#region Using
 
 using Aplos.Controllers;
+using Aplos.HumanResource;
 using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
@@ -25,10 +26,11 @@ namespace Aplos.Areas.Employees.Controllers
 {
     public class EmployeeCodeGenerationController : BaseController
     {
-        
+
         #region Constructor
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISqlRepository _sqlRepository;
+        EmployeeProfile employeeProfile = new EmployeeProfile();
         public EmployeeCodeGenerationController(IUnitOfWork U, ISqlRepository R)
         {
             _unitOfWork = U;
@@ -44,63 +46,91 @@ namespace Aplos.Areas.Employees.Controllers
         }
         #endregion
 
-        
+        #region Operation
 
-        [HttpGet, Authorize]
-        public JsonResult GetContractCodeList(string Level)
+        [HttpPost]
+        public ActionResult GetList(string column, string value)
         {
-            if (Level == "CompanyGroup")
-            {
-                return Json(_sqlRepository.GetDataCollection(@"Select EC.Id,CG.Id CompanyGroupId,CG.UserName CompanyGroup, EC.StartValue from ORG.CompanyGroup CG
-LEFT JOIN ContractualEmployeeCode EC ON EC.CompanyGroupId = CG.Id Where ISNULL(EC.EmployeeCodeLevel,'" + Level + "')='" + Level + "'"), JsonRequestBehavior.AllowGet);
-            }
-            else if (Level == "Company")
-            {
-                return Json(_sqlRepository.GetDataCollection(@"Select EC.Id,CG.Id CompanyGroupId,CG.UserName CompanyGroup,C.Id CompanyId,C.UserName Company, EC.StartValue from ORG.Company C
-LEFT JOIN ORG.CompanyGroup CG ON CG.Id=C.CompanyGroupId 
-LEFT JOIN ContractualEmployeeCode EC ON EC.CompanyId=C.Id
-Where ISNULL(EC.EmployeeCodeLevel,'" + Level + "')='" + Level + "'"), JsonRequestBehavior.AllowGet);
-            }
-            else
-            {
-                return Json(_sqlRepository.GetDataCollection(@"Select EC.Id,CG.Id CompanyGroupId,CG.UserName CompanyGroup,C.Id CompanyId,C.UserName Company,P.Id PlantId,P.UserName Plant, EC.StartValue from ORG.Plant P
-LEFT JOIN ORG.Company C ON C.Id=P.CompanyId
-LEFT JOIN ORG.CompanyGroup CG ON CG.Id=C.CompanyGroupId
-LEFT JOIN ContractualEmployeeCode EC ON EC.PlantId=P.Id Where ISNULL(EC.EmployeeCodeLevel,'" + Level + "')='" + Level + "'"), JsonRequestBehavior.AllowGet);
-            }
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
 
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select top 100 * from (SELECT * FROM dbo.EmployeeCodeGenGroup) AS TEMP WHERE " + strkey + " order by sequence";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-        private string GetPK()
+        [HttpGet, Authorize]
+        public JsonResult GetAutoSequence()
         {
-            string sID = string.Empty;
-            bplib.clsGenID objGenID = new bplib.clsGenID();
-            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ContractualEmployeeCode", out sID);
-            return sID;
+            return Json(GetSequence(), JsonRequestBehavior.AllowGet);
+        }
+
+        private double GetSequence()
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM dbo.EmployeeCodeGenGroup");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+            return 1;
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetAllEmployeeCodeGenerationPlantData(string masterId)
+        {
+            return Json(employeeProfile.GetAllEmployeeCodeGenerationPlantData(masterId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
-        public JsonResult Create(List<Dictionary<string, object>> data, string Level)
+        public JsonResult Create(Dictionary<string, object> data, List<Dictionary<string, object>> detaildata)
         {
             try
             {
-                DataSet dsMaster;
+                DataSet dsMaster, dsDetail;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("SELECT * FROM dbo.ContractualEmployeeCode", out dsMaster, false, "1");
-                string _Id = GetPK();
+                con.OpenDataSetThroughAdapter("select * from dbo.EmployeeCodeGenGroup where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Code already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from dbo.EmployeeCodeGenGroup where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same User Name already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from dbo.EmployeeCodeGenGroup where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from dbo.EmployeeCodeGenGroupDetail where EmployeeCodeGenGroupId='" + data["Id"] + "'", out dsDetail, false, "1");
+
+                string _Id = "";
+
+                #region EmployeeCodeGenGroup insert update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "EmployeeCodeGenGroup", out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                string mId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                #endregion data update
+
                 int count = 0;
-                foreach (var item in data)
+                foreach (var item in detaildata)
                 {
                     count++;
-                    DataView dv = new DataView(dsMaster.Tables[0]);
+                    DataView dv = new DataView(dsDetail.Tables[0]);
                     dv.RowFilter = "Id='" + item["Id"] + "'";
 
                     if (dv.Count == 0)
                     {
-                        item["Id"] = _Id+count;
-                        item["EmployeeCodeLevel"] = Level;
+                        item["Id"] = mId + count;
+                        item["EmployeeCodeGenGroupId"] = mId;
 
-                        AddNewRow(dsMaster.Tables[0], item);
+                        AddNewRow(dsDetail.Tables[0], item);
                     }
                     else
                     {
@@ -110,14 +140,13 @@ LEFT JOIN ContractualEmployeeCode EC ON EC.PlantId=P.Id Where ISNULL(EC.Employee
                 }
 
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
+                _info.SaveDataSets(dsMaster, dsDetail);
 
-                return Json(new { Error = false, Message = AplosMessage.Updated });
+                return Json(new { Error = false, Data = data, Sequence = GetSequence(), Message = AplosMessage.Updated });
 
             }
             catch (Exception ex)
             {
-
                 return Json(new { Error = true, Message = ex.Message });
 
             }
@@ -142,6 +171,7 @@ LEFT JOIN ContractualEmployeeCode EC ON EC.PlantId=P.Id Where ISNULL(EC.Employee
             dr["AddedFromIP"] = identity.IPAddress;
             dt.Rows.Add(dr);
         }
+
         private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -161,6 +191,32 @@ LEFT JOIN ContractualEmployeeCode EC ON EC.PlantId=P.Id Where ISNULL(EC.Employee
             dr["UpdatedFromIP"] = identity.IPAddress;
             dr.EndEdit();
         }
-       
+
+        public ActionResult Delete(string id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from dbo.[EmployeeCodeGenGroupDetail] where EmployeeCodeGenGroupId='" + id + "'");
+                con.executeQuery("delete from dbo.[EmployeeCodeGenGroup] where id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+
+        }
+
+        #endregion
+
     }
 }

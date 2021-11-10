@@ -141,11 +141,11 @@ namespace Library.MaterialManagement.JobWork
                     //left join SCS.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId
                     //left join SCS.UnitOfMeasurement mpuom on mpuom.Id=jwi.UOMId
                     //left join SCS.Currency c on c.Id=mp.CurrencyId
-                    //left join (Select SUM(GrossConsumption) as TotalGrossConsump,COUNT(JobWorkTransformationContractChildMasterId) as TNoOfInputItem, JobWorkTransformationContractChildMasterId from dbo.JobWorkTransformationContractChild3 group by JobWorkTransformationContractChildMasterId)
-                    //mi on mi.JobWorkTransformationContractChildMasterId=mp.Id
+                    //left join (Select SUM(GrossConsumption) as TotalGrossConsump,COUNT(OSTransformationPODetailId) as TNoOfInputItem, OSTransformationPODetailId from dbo.JobWorkTransformationContractChild3 group by OSTransformationPODetailId)
+                    //mi on mi.OSTransformationPODetailId=mp.Id
                     //left join (select Sum(ReceivedQuantity) as TotalReceivedQuantity,MaterialPlanningId from dbo.JobWorkReceiptTransformationChild group by MaterialPlanningId)
                     //kk on kk.MaterialPlanningId=mp.Id
-                    //left join (select SUM(tirc.Quantity) as TIssuedQty, tmp.Id from dbo.OSTransformationPODetail tmp left join dbo.JobWorkTransformationContractChild3 tmi on tmp.Id=tmi.JobWorkTransformationContractChildMasterId
+                    //left join (select SUM(tirc.Quantity) as TIssuedQty, tmp.Id from dbo.OSTransformationPODetail tmp left join dbo.JobWorkTransformationContractChild3 tmi on tmp.Id=tmi.OSTransformationPODetailId
                     //left join dbo.JobWorkTransformationIssueReturnChild tirc on tmi.Id=tirc.MaterialInputId group by tmp.Id)
                     //IQ on IQ.Id=mp.Id
                     //where (tc.[Date] between CONVERT(DATE, '" + FromDate + @"') AND CONVERT(DATE, '" + ToDate + @"'))
@@ -187,14 +187,14 @@ namespace Library.MaterialManagement.JobWork
                     //left join SCS.UnitOfMeasurement mpuom on mpuom.Id=jwi.UOMId
                     //left join SCS.Currency c on c.Id=mp.CurrencyId
                     //left join SCS.Currency CC on CC.Id=tc.CurrencyId
-                    //left join (Select SUM(GrossConsumption) as TotalGrossConsump,COUNT(JobWorkTransformationContractChildMasterId) as TNoOfInputItem, JobWorkTransformationContractChildMasterId from dbo.JobWorkTransformationContractChild3 group by JobWorkTransformationContractChildMasterId)
-                    //mi on mi.JobWorkTransformationContractChildMasterId=mp.Id
+                    //left join (Select SUM(GrossConsumption) as TotalGrossConsump,COUNT(OSTransformationPODetailId) as TNoOfInputItem, OSTransformationPODetailId from dbo.JobWorkTransformationContractChild3 group by OSTransformationPODetailId)
+                    //mi on mi.OSTransformationPODetailId=mp.Id
                     //left join (select Sum(TransactionQty) as TotalReceivedQuantity,OSTransformationPODetailId from Trn.InventoryReceiveDetail where OSTransformationPODetailId is not null group by OSTransformationPODetailId)
                     //kk on kk.OSTransformationPODetailId=mp.Id
                     //left join (select SUM(iid.TransactionQty) as TIssuedQty,om.Id from Trn.inventoryIssueDetail iid left join TRN.InventoryIssue ii on ii.Id=iid.InventoryIssueId
                     //left join TRN.InventoryMaterial im on im.Id=iid.InventoryMaterialId
                     //left join dbo.OSTransformationPODetail om on om.OSTransformationPOId=ii.JWContractId
-                    //left join dbo.JobWorkTransformationContractChild3 mi on mi.JobWorkTransformationContractChildMasterId=om.Id and mi.ArticleId=im.ArticleId  group by om.Id)
+                    //left join dbo.JobWorkTransformationContractChild3 mi on mi.OSTransformationPODetailId=om.Id and mi.ArticleId=im.ArticleId  group by om.Id)
                     //IQ on IQ.Id=mp.Id
                     //left join [dbo].[Contract] Ct on Ct.Id=tc.ContractId
                     //left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
@@ -252,8 +252,8 @@ left join SCS.UnitOfMeasurement mpuom on mpuom.Id=jwi.UOMId
 left join SCS.Currency c on c.Id=mp.CurrencyId
 left join SCS.Currency CC on CC.Id=tc.CurrencyId
 left join (
---Select SUM(GrossConsumption) as TotalGrossConsump,COUNT(JobWorkTransformationContractChildMasterId) as TNoOfInputItem, JobWorkTransformationContractChildMasterId
---from dbo.JobWorkTransformationContractChild3 group by JobWorkTransformationContractChildMasterId
+--Select SUM(GrossConsumption) as TotalGrossConsump,COUNT(OSTransformationPODetailId) as TNoOfInputItem, OSTransformationPODetailId
+--from dbo.JobWorkTransformationContractChild3 group by OSTransformationPODetailId
 select Sum(x.TotalGrossConsump) as TotalGrossSum
 ,Sum(x.GrossConsumption) as TotalGrossConsump ,COUNT(x.OSTransformationPODetailId) as TNoOfInputItem,x.OSTransformationPODetailId
 from (
@@ -269,7 +269,7 @@ left join (
 --select SUM(iid.TransactionQty) as TIssuedQty,om.Id from Trn.inventoryIssueDetail iid left join TRN.InventoryIssue ii on ii.Id=iid.InventoryIssueId
 --left join TRN.InventoryMaterial im on im.Id=iid.InventoryMaterialId
 --left join dbo.OSTransformationPODetail om on om.OSTransformationPOId=ii.JWContractId
---left join dbo.JobWorkTransformationContractChild3 mi on mi.JobWorkTransformationContractChildMasterId=om.Id and mi.ArticleId=im.ArticleId  group by om.Id
+--left join dbo.JobWorkTransformationContractChild3 mi on mi.OSTransformationPODetailId=om.Id and mi.ArticleId=im.ArticleId  group by om.Id
 select SUM(iid.TransactionQty) as TIssuedQty,OSTransformationPOId
 from Trn.inventoryIssueDetail iid 
 group by OSTransformationPOId
@@ -329,11 +329,11 @@ order by tc.Id";
                         //left join SCS.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId
                         //left join SCS.UnitOfMeasurement mpuom on mpuom.Id=jwi.UOMId
                         //left join SCS.Currency c on c.Id=mp.CurrencyId
-                        //left join (Select SUM(GrossConsumption) as TotalGrossConsump,COUNT(JobWorkTransformationContractChildMasterId) as TNoOfInputItem, JobWorkTransformationContractChildMasterId from dbo.JobWorkTransformationContractChild3 group by JobWorkTransformationContractChildMasterId)
-                        //mi on mi.JobWorkTransformationContractChildMasterId=mp.Id
+                        //left join (Select SUM(GrossConsumption) as TotalGrossConsump,COUNT(OSTransformationPODetailId) as TNoOfInputItem, OSTransformationPODetailId from dbo.JobWorkTransformationContractChild3 group by OSTransformationPODetailId)
+                        //mi on mi.OSTransformationPODetailId=mp.Id
                         //left join (select Sum(ReceivedQuantity) as TotalReceivedQuantity,MaterialPlanningId from dbo.JobWorkReceiptTransformationChild group by MaterialPlanningId)
                         //kk on kk.MaterialPlanningId=mp.Id
-                        //left join (select SUM(tirc.Quantity) as TIssuedQty, tmp.Id from dbo.OSTransformationPODetail tmp left join dbo.JobWorkTransformationContractChild3 tmi on tmp.Id=tmi.JobWorkTransformationContractChildMasterId
+                        //left join (select SUM(tirc.Quantity) as TIssuedQty, tmp.Id from dbo.OSTransformationPODetail tmp left join dbo.JobWorkTransformationContractChild3 tmi on tmp.Id=tmi.OSTransformationPODetailId
                         //left join dbo.JobWorkTransformationIssueReturnChild tirc on tmi.Id=tirc.MaterialInputId group by tmp.Id)
                         //IQ on IQ.Id=mp.Id
                         //where (tc.[Date] between CONVERT(DATE, '" + FromDate + @"') AND CONVERT(DATE, '" + ToDate + @"')) and tc.VendorPartyId='" + PartyVendorId + @"' and tc.Id='" + ContractId + @"'
@@ -375,14 +375,14 @@ order by tc.Id";
                         //left join SCS.UnitOfMeasurement mpuom on mpuom.Id=jwi.UOMId
                         //left join SCS.Currency c on c.Id=mp.CurrencyId
                         //left join SCS.Currency CC on CC.Id=tc.CurrencyId
-                        //left join (Select SUM(GrossConsumption) as TotalGrossConsump,COUNT(JobWorkTransformationContractChildMasterId) as TNoOfInputItem, JobWorkTransformationContractChildMasterId from dbo.JobWorkTransformationContractChild3 group by JobWorkTransformationContractChildMasterId)
-                        //mi on mi.JobWorkTransformationContractChildMasterId=mp.Id
+                        //left join (Select SUM(GrossConsumption) as TotalGrossConsump,COUNT(OSTransformationPODetailId) as TNoOfInputItem, OSTransformationPODetailId from dbo.JobWorkTransformationContractChild3 group by OSTransformationPODetailId)
+                        //mi on mi.OSTransformationPODetailId=mp.Id
                         //left join (select Sum(TransactionQty) as TotalReceivedQuantity,OSTransformationPODetailId from Trn.InventoryReceiveDetail where OSTransformationPODetailId is not null group by OSTransformationPODetailId)
                         //kk on kk.OSTransformationPODetailId=mp.Id
                         //left join (select SUM(iid.TransactionQty) as TIssuedQty,om.Id from Trn.inventoryIssueDetail iid left join TRN.InventoryIssue ii on ii.Id=iid.InventoryIssueId
                         //left join TRN.InventoryMaterial im on im.Id=iid.InventoryMaterialId
                         //left join dbo.OSTransformationPODetail om on om.OSTransformationPOId=ii.JWContractId
-                        //left join dbo.JobWorkTransformationContractChild3 mi on mi.JobWorkTransformationContractChildMasterId=om.Id and mi.ArticleId=im.ArticleId  group by om.Id)
+                        //left join dbo.JobWorkTransformationContractChild3 mi on mi.OSTransformationPODetailId=om.Id and mi.ArticleId=im.ArticleId  group by om.Id)
                         //IQ on IQ.Id=mp.Id
                         //left join [dbo].[Contract] Ct on Ct.Id=tc.ContractId
                         //left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
@@ -440,8 +440,8 @@ left join SCS.UnitOfMeasurement mpuom on mpuom.Id=jwi.UOMId
 left join SCS.Currency c on c.Id=mp.CurrencyId
 left join SCS.Currency CC on CC.Id=tc.CurrencyId
 left join (
---Select SUM(GrossConsumption) as TotalGrossConsump,COUNT(JobWorkTransformationContractChildMasterId) as TNoOfInputItem, JobWorkTransformationContractChildMasterId
---from dbo.JobWorkTransformationContractChild3 group by JobWorkTransformationContractChildMasterId
+--Select SUM(GrossConsumption) as TotalGrossConsump,COUNT(OSTransformationPODetailId) as TNoOfInputItem, OSTransformationPODetailId
+--from dbo.JobWorkTransformationContractChild3 group by OSTransformationPODetailId
 select Sum(x.TotalGrossConsump) as TotalGrossSum
 ,Sum(x.GrossConsumption) as TotalGrossConsump ,COUNT(x.OSTransformationPODetailId) as TNoOfInputItem,x.OSTransformationPODetailId
 from (
@@ -457,7 +457,7 @@ left join (
 --select SUM(iid.TransactionQty) as TIssuedQty,om.Id from Trn.inventoryIssueDetail iid left join TRN.InventoryIssue ii on ii.Id=iid.InventoryIssueId
 --left join TRN.InventoryMaterial im on im.Id=iid.InventoryMaterialId
 --left join dbo.OSTransformationPODetail om on om.OSTransformationPOId=ii.JWContractId
---left join dbo.JobWorkTransformationContractChild3 mi on mi.JobWorkTransformationContractChildMasterId=om.Id and mi.ArticleId=im.ArticleId  group by om.Id
+--left join dbo.JobWorkTransformationContractChild3 mi on mi.OSTransformationPODetailId=om.Id and mi.ArticleId=im.ArticleId  group by om.Id
 select SUM(iid.TransactionQty) as TIssuedQty,OSTransformationPOId
 from Trn.inventoryIssueDetail iid 
 group by OSTransformationPOId
@@ -515,11 +515,11 @@ order by tc.Id ";
                         //left join SCS.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId
                         //left join SCS.UnitOfMeasurement mpuom on mpuom.Id=jwi.UOMId
                         //left join SCS.Currency c on c.Id=mp.CurrencyId
-                        //left join (Select SUM(GrossConsumption) as TotalGrossConsump,COUNT(JobWorkTransformationContractChildMasterId) as TNoOfInputItem, JobWorkTransformationContractChildMasterId from dbo.JobWorkTransformationContractChild3 group by JobWorkTransformationContractChildMasterId)
-                        //mi on mi.JobWorkTransformationContractChildMasterId=mp.Id
+                        //left join (Select SUM(GrossConsumption) as TotalGrossConsump,COUNT(OSTransformationPODetailId) as TNoOfInputItem, OSTransformationPODetailId from dbo.JobWorkTransformationContractChild3 group by OSTransformationPODetailId)
+                        //mi on mi.OSTransformationPODetailId=mp.Id
                         //left join (select Sum(ReceivedQuantity) as TotalReceivedQuantity,MaterialPlanningId from dbo.JobWorkReceiptTransformationChild group by MaterialPlanningId)
                         //kk on kk.MaterialPlanningId=mp.Id
-                        //left join (select SUM(tirc.Quantity) as TIssuedQty, tmp.Id from dbo.OSTransformationPODetail tmp left join dbo.JobWorkTransformationContractChild3 tmi on tmp.Id=tmi.JobWorkTransformationContractChildMasterId
+                        //left join (select SUM(tirc.Quantity) as TIssuedQty, tmp.Id from dbo.OSTransformationPODetail tmp left join dbo.JobWorkTransformationContractChild3 tmi on tmp.Id=tmi.OSTransformationPODetailId
                         //left join dbo.JobWorkTransformationIssueReturnChild tirc on tmi.Id=tirc.MaterialInputId group by tmp.Id)
                         //IQ on IQ.Id=mp.Id
                         //where (tc.[Date] between CONVERT(DATE, '" + FromDate + @"') AND CONVERT(DATE, '" + ToDate + @"')) and (tc.VendorPartyId='" + PartyVendorId + @"' or tc.Id='" + ContractId + @"')
@@ -561,14 +561,14 @@ order by tc.Id ";
                         //left join SCS.UnitOfMeasurement mpuom on mpuom.Id=jwi.UOMId
                         //left join SCS.Currency c on c.Id=mp.CurrencyId
                         //left join SCS.Currency CC on CC.Id=tc.CurrencyId
-                        //left join (Select SUM(GrossConsumption) as TotalGrossConsump,COUNT(JobWorkTransformationContractChildMasterId) as TNoOfInputItem, JobWorkTransformationContractChildMasterId from dbo.JobWorkTransformationContractChild3 group by JobWorkTransformationContractChildMasterId)
-                        //mi on mi.JobWorkTransformationContractChildMasterId=mp.Id
+                        //left join (Select SUM(GrossConsumption) as TotalGrossConsump,COUNT(OSTransformationPODetailId) as TNoOfInputItem, OSTransformationPODetailId from dbo.JobWorkTransformationContractChild3 group by OSTransformationPODetailId)
+                        //mi on mi.OSTransformationPODetailId=mp.Id
                         //left join (select Sum(TransactionQty) as TotalReceivedQuantity,OSTransformationPODetailId from Trn.InventoryReceiveDetail where OSTransformationPODetailId is not null group by OSTransformationPODetailId)
                         //kk on kk.OSTransformationPODetailId=mp.Id
                         //left join (select SUM(iid.TransactionQty) as TIssuedQty,om.Id from Trn.inventoryIssueDetail iid left join TRN.InventoryIssue ii on ii.Id=iid.InventoryIssueId
                         //left join TRN.InventoryMaterial im on im.Id=iid.InventoryMaterialId
                         //left join dbo.OSTransformationPODetail om on om.OSTransformationPOId=ii.JWContractId
-                        //left join dbo.JobWorkTransformationContractChild3 mi on mi.JobWorkTransformationContractChildMasterId=om.Id and mi.ArticleId=im.ArticleId  group by om.Id)
+                        //left join dbo.JobWorkTransformationContractChild3 mi on mi.OSTransformationPODetailId=om.Id and mi.ArticleId=im.ArticleId  group by om.Id)
                         //IQ on IQ.Id=mp.Id
                         //left join [dbo].[Contract] Ct on Ct.Id=tc.ContractId
                         //left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
@@ -626,8 +626,8 @@ left join SCS.UnitOfMeasurement mpuom on mpuom.Id=jwi.UOMId
 left join SCS.Currency c on c.Id=mp.CurrencyId
 left join SCS.Currency CC on CC.Id=tc.CurrencyId
 left join (
---Select SUM(GrossConsumption) as TotalGrossConsump,COUNT(JobWorkTransformationContractChildMasterId) as TNoOfInputItem, JobWorkTransformationContractChildMasterId
---from dbo.JobWorkTransformationContractChild3 group by JobWorkTransformationContractChildMasterId
+--Select SUM(GrossConsumption) as TotalGrossConsump,COUNT(OSTransformationPODetailId) as TNoOfInputItem, OSTransformationPODetailId
+--from dbo.JobWorkTransformationContractChild3 group by OSTransformationPODetailId
 select Sum(x.TotalGrossConsump) as TotalGrossSum
 ,Sum(x.GrossConsumption) as TotalGrossConsump ,COUNT(x.OSTransformationPODetailId) as TNoOfInputItem,x.OSTransformationPODetailId
 from (
@@ -643,7 +643,7 @@ left join (
 --select SUM(iid.TransactionQty) as TIssuedQty,om.Id from Trn.inventoryIssueDetail iid left join TRN.InventoryIssue ii on ii.Id=iid.InventoryIssueId
 --left join TRN.InventoryMaterial im on im.Id=iid.InventoryMaterialId
 --left join dbo.OSTransformationPODetail om on om.OSTransformationPOId=ii.JWContractId
---left join dbo.JobWorkTransformationContractChild3 mi on mi.JobWorkTransformationContractChildMasterId=om.Id and mi.ArticleId=im.ArticleId  group by om.Id
+--left join dbo.JobWorkTransformationContractChild3 mi on mi.OSTransformationPODetailId=om.Id and mi.ArticleId=im.ArticleId  group by om.Id
 select SUM(iid.TransactionQty) as TIssuedQty,OSTransformationPOId
 from Trn.inventoryIssueDetail iid 
 group by OSTransformationPOId
@@ -710,12 +710,12 @@ order by tc.Id";
                     //left join SCS.UnitOfMeasurement uom on uom.Id=jwi.UOMId
                     //left join SCS.Currency c on c.Id=tbp.CurrencyId
                     //left join dbo.JobWorkTransformationContractChild3 mi on mi.Id=tbp.JobWorkTransformationContractChild3MasterId
-                    //                              left join dbo.OSTransformationPODetail mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+                    //                              left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
                     //							  left join (Select SUM(ReceivedQuantity) as TotalReceivedQuantity,ByProductId from dbo.JobWorkReceiptTransformationByProduct group by ByProductId)
                     //                              rvbp on rvbp.ByProductId=tbp.Id
                     //                              left join dbo.JobWorkTransformationContract tc on tc.Id=mp.OSTransformationPOId
-                    //							  left join (Select SUM(GrossConsumption) as TotalGrossConsump,JobWorkTransformationContractChildMasterId from dbo.JobWorkTransformationContractChild3 group by JobWorkTransformationContractChildMasterId)
-                    //tmi on tmi.JobWorkTransformationContractChildMasterId=mp.Id
+                    //							  left join (Select SUM(GrossConsumption) as TotalGrossConsump,OSTransformationPODetailId from dbo.JobWorkTransformationContractChild3 group by OSTransformationPODetailId)
+                    //tmi on tmi.OSTransformationPODetailId=mp.Id
                     //left join ORG.Plant P on P.Id=tc.PlantId
                     //left join ORG.Entity E on E.Id=tc.EntityId
                     //left join HKP.Party Pty on Pty.Id=tc.VendorPartyId
@@ -794,12 +794,12 @@ order by tc.Id ";
                         //left join SCS.UnitOfMeasurement uom on uom.Id=jwi.UOMId
                         //left join SCS.Currency c on c.Id=tbp.CurrencyId
                         //left join dbo.JobWorkTransformationContractChild3 mi on mi.Id=tbp.JobWorkTransformationContractChild3MasterId
-                        //                              left join dbo.OSTransformationPODetail mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+                        //                              left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
                         //							  left join (Select SUM(ReceivedQuantity) as TotalReceivedQuantity,ByProductId from dbo.JobWorkReceiptTransformationByProduct group by ByProductId)
                         //                              rvbp on rvbp.ByProductId=tbp.Id
                         //                              left join dbo.JobWorkTransformationContract tc on tc.Id=mp.OSTransformationPOId
-                        //							  left join (Select SUM(GrossConsumption) as TotalGrossConsump,JobWorkTransformationContractChildMasterId from dbo.JobWorkTransformationContractChild3 group by JobWorkTransformationContractChildMasterId)
-                        //tmi on tmi.JobWorkTransformationContractChildMasterId=mp.Id
+                        //							  left join (Select SUM(GrossConsumption) as TotalGrossConsump,OSTransformationPODetailId from dbo.JobWorkTransformationContractChild3 group by OSTransformationPODetailId)
+                        //tmi on tmi.OSTransformationPODetailId=mp.Id
                         //left join ORG.Plant P on P.Id=tc.PlantId
                         //left join ORG.Entity E on E.Id=tc.EntityId
                         //left join HKP.Party Pty on Pty.Id=tc.VendorPartyId
@@ -876,12 +876,12 @@ order by tc.Id  ";
                         //left join SCS.UnitOfMeasurement uom on uom.Id=jwi.UOMId
                         //left join SCS.Currency c on c.Id=tbp.CurrencyId
                         //left join dbo.JobWorkTransformationContractChild3 mi on mi.Id=tbp.JobWorkTransformationContractChild3MasterId
-                        //                              left join dbo.OSTransformationPODetail mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+                        //                              left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
                         //							  left join (Select SUM(ReceivedQuantity) as TotalReceivedQuantity,ByProductId from dbo.JobWorkReceiptTransformationByProduct group by ByProductId)
                         //                              rvbp on rvbp.ByProductId=tbp.Id
                         //                              left join dbo.JobWorkTransformationContract tc on tc.Id=mp.OSTransformationPOId
-                        //							  left join (Select SUM(GrossConsumption) as TotalGrossConsump,JobWorkTransformationContractChildMasterId from dbo.JobWorkTransformationContractChild3 group by JobWorkTransformationContractChildMasterId)
-                        //tmi on tmi.JobWorkTransformationContractChildMasterId=mp.Id
+                        //							  left join (Select SUM(GrossConsumption) as TotalGrossConsump,OSTransformationPODetailId from dbo.JobWorkTransformationContractChild3 group by OSTransformationPODetailId)
+                        //tmi on tmi.OSTransformationPODetailId=mp.Id
                         //left join ORG.Plant P on P.Id=tc.PlantId
                         //left join ORG.Entity E on E.Id=tc.EntityId
                         //left join HKP.Party Pty on Pty.Id=tc.VendorPartyId
@@ -1003,10 +1003,10 @@ left join SCS.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId
 left join SCS.UnitOfMeasurement mpuom on mpuom.Id=jwi.UOMId
 left join SCS.Currency c on c.Id=mp.CurrencyId
 left join SCS.Currency CC on CC.Id=tc.CurrencyId
-left join (Select SUM(Quantity) as TotalQty, COUNT(JobWorkTransformationContractChildMasterId) as TNoOfInputItem
-, JobWorkTransformationContractChildMasterId from dbo.JobWorkTransformationContractChild2
-group by JobWorkTransformationContractChildMasterId)
-mi on mi.JobWorkTransformationContractChildMasterId=mp.Id
+left join (Select SUM(Quantity) as TotalQty, COUNT(OSTransformationPODetailId) as TNoOfInputItem
+, OSTransformationPODetailId from dbo.OSTransformationPOMasterOrderItem
+group by OSTransformationPODetailId)
+mi on mi.OSTransformationPODetailId=mp.Id
 left join (select Sum(TransactionQty) as TotalReceivedQuantity,OSTransformationPODetailId from Trn.InventoryReceiveDetail where OSTransformationPODetailId is not null group by OSTransformationPODetailId)
 kk on kk.OSTransformationPODetailId=mp.Id
 left join (
@@ -1093,10 +1093,10 @@ left join SCS.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId
 left join SCS.UnitOfMeasurement mpuom on mpuom.Id=jwi.UOMId
 left join SCS.Currency c on c.Id=mp.CurrencyId
 left join SCS.Currency CC on CC.Id=tc.CurrencyId
-left join (Select SUM(Quantity) as TotalQty, COUNT(JobWorkTransformationContractChildMasterId) as TNoOfInputItem
-, JobWorkTransformationContractChildMasterId from dbo.JobWorkTransformationContractChild2
-group by JobWorkTransformationContractChildMasterId)
-mi on mi.JobWorkTransformationContractChildMasterId=mp.Id
+left join (Select SUM(Quantity) as TotalQty, COUNT(OSTransformationPODetailId) as TNoOfInputItem
+, OSTransformationPODetailId from dbo.OSTransformationPOMasterOrderItem
+group by OSTransformationPODetailId)
+mi on mi.OSTransformationPODetailId=mp.Id
 left join (select Sum(TransactionQty) as TotalReceivedQuantity,OSTransformationPODetailId from Trn.InventoryReceiveDetail where OSTransformationPODetailId is not null group by OSTransformationPODetailId)
 kk on kk.OSTransformationPODetailId=mp.Id
 left join (
@@ -1181,10 +1181,10 @@ left join SCS.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId
 left join SCS.UnitOfMeasurement mpuom on mpuom.Id=jwi.UOMId
 left join SCS.Currency c on c.Id=mp.CurrencyId
 left join SCS.Currency CC on CC.Id=tc.CurrencyId
-left join (Select SUM(Quantity) as TotalQty, COUNT(JobWorkTransformationContractChildMasterId) as TNoOfInputItem
-, JobWorkTransformationContractChildMasterId from dbo.JobWorkTransformationContractChild2
-group by JobWorkTransformationContractChildMasterId)
-mi on mi.JobWorkTransformationContractChildMasterId=mp.Id
+left join (Select SUM(Quantity) as TotalQty, COUNT(OSTransformationPODetailId) as TNoOfInputItem
+, OSTransformationPODetailId from dbo.OSTransformationPOMasterOrderItem
+group by OSTransformationPODetailId)
+mi on mi.OSTransformationPODetailId=mp.Id
 left join (select Sum(TransactionQty) as TotalReceivedQuantity,OSTransformationPODetailId from Trn.InventoryReceiveDetail where OSTransformationPODetailId is not null group by OSTransformationPODetailId)
 kk on kk.OSTransformationPODetailId=mp.Id
 left join (

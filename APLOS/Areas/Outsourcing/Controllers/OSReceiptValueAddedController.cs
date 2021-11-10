@@ -2063,7 +2063,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 			for (int i = 0; i < TransformationWIPData.Rows.Count; i++)
 			{
 
-				if (WIPJWOutputId != TransformationWIPData.Rows[i]["JobWorkTransformationContractChildMasterId"].ToString())
+				if (WIPJWOutputId != TransformationWIPData.Rows[i]["OSTransformationPODetailId"].ToString())
 				{
 
 					if (WIPRowIndexNo < WIPROW)
@@ -2075,7 +2075,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 					WIPRowIndexNo = WIPROW;
 				}
 
-				sheet[WIPROW, ColJobWorkTransformationContractChildMasterId].Text = TransformationWIPData.Rows[i]["JobWorkTransformationContractChildMasterId"].ToString();
+				sheet[WIPROW, ColJobWorkTransformationContractChildMasterId].Text = TransformationWIPData.Rows[i]["OSTransformationPODetailId"].ToString();
 				sheet[WIPROW, ColWIPJWOutputItem].Text = TransformationWIPData.Rows[i]["JWOutputItem"].ToString();
 				sheet[WIPROW, ColWIPId].Text = TransformationWIPData.Rows[i]["Id"].ToString();
 				sheet[WIPROW, ColWIPJWInputItem].Text = TransformationWIPData.Rows[i]["JWInputItem"].ToString();
@@ -2089,7 +2089,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
 				sheet.Range[WIPROW, 1, WIPROW, WIPendCol].BorderInside(ExcelLineStyle.Hair);
 				sheet.Range[WIPROW, 1, WIPROW, WIPendCol].BorderAround(ExcelLineStyle.Hair);
-				WIPJWOutputId = TransformationWIPData.Rows[i]["JobWorkTransformationContractChildMasterId"].ToString();
+				WIPJWOutputId = TransformationWIPData.Rows[i]["OSTransformationPODetailId"].ToString();
 
 				WIPROW++;
 			}
@@ -2627,7 +2627,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 			//for (int i = 0; i < TransformationWIPData.Rows.Count; i++)
 			//{
 
-			//	if (WIPJWOutputId != TransformationWIPData.Rows[i]["JobWorkTransformationContractChildMasterId"].ToString())
+			//	if (WIPJWOutputId != TransformationWIPData.Rows[i]["OSTransformationPODetailId"].ToString())
 			//	{
 
 			//		if (WIPRowIndexNo < WIPROW)
@@ -2639,7 +2639,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 			//		WIPRowIndexNo = WIPROW;
 			//	}
 
-			//	sheet[WIPROW, ColJobWorkTransformationContractChildMasterId].Text = TransformationWIPData.Rows[i]["JobWorkTransformationContractChildMasterId"].ToString();
+			//	sheet[WIPROW, ColJobWorkTransformationContractChildMasterId].Text = TransformationWIPData.Rows[i]["OSTransformationPODetailId"].ToString();
 			//	sheet[WIPROW, ColWIPJWOutputItem].Text = TransformationWIPData.Rows[i]["JWOutputItem"].ToString();
 			//	sheet[WIPROW, ColWIPId].Text = TransformationWIPData.Rows[i]["Id"].ToString();
 			//	sheet[WIPROW, ColWIPJWInputItem].Text = TransformationWIPData.Rows[i]["JWInputItem"].ToString();
@@ -2653,7 +2653,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
 			//	sheet.Range[WIPROW, 1, WIPROW, WIPendCol].BorderInside(ExcelLineStyle.Hair);
 			//	sheet.Range[WIPROW, 1, WIPROW, WIPendCol].BorderAround(ExcelLineStyle.Hair);
-			//	WIPJWOutputId = TransformationWIPData.Rows[i]["JobWorkTransformationContractChildMasterId"].ToString();
+			//	WIPJWOutputId = TransformationWIPData.Rows[i]["OSTransformationPODetailId"].ToString();
 
 			//	WIPROW++;
 			//}

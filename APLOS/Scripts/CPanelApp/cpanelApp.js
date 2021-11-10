@@ -90,7 +90,9 @@ angular.module('cpanelApp', ['ngRoute', 'ngCookies', 'angularUtils.directives.di
     .controller("LabelListController", LabelListController)
     .controller("ContractualEmployeeCodeController", ContractualEmployeeCodeController)
 
+    .controller('WeekDefinitionController', WeekDefinitionController)
 
+    .config(HumanResourceConfig)
     .config(accountConfig)
     .config(addressConfig)
     .config(employeeConfig)

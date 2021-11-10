@@ -157,7 +157,7 @@ namespace Library.MaterialManagement.JobWork
 						  from trn.GRNPORequisitionAllocation 
 						  group by InventoryReceiveDetailId
 						  )AlreadyAllo ON AlreadyAllo.InventoryReceiveDetailId=IRD.Id
-				WHERE IR.GRNType='GRNBYPO' 
+				WHERE IR.GRNType='GRNBYOS' 
 				AND Boq.SalesOrderId IS NOT NULL AND isnull(IRD.TransactionQty,0) = isnull(AlreadyAllo.TransactionQty,0)
 				Order by IRD.Id ASC";// ,MMAU.BaseUOMFactor
                 return _sqlRepository.GetDataCollection(sql);
@@ -237,7 +237,7 @@ namespace Library.MaterialManagement.JobWork
 						  from trn.GRNPORequisitionAllocation 
 						  group by InventoryReceiveDetailId,SalesOrderId,OSPOBOQMAPId
 						  )AlreadyAllo ON AlreadyAllo.InventoryReceiveDetailId=IRD.Id AND AlreadyAllo.SalesOrderId=BOQ.SalesOrderId
-				WHERE IR.GRNType='GRNBYPO' and ISNULL(Boq.SalesOrderId,'') IS NOT NULL   
+				WHERE IR.GRNType='GRNBYOS' and ISNULL(Boq.SalesOrderId,'') IS NOT NULL   
 				AND IRD.Id='" + inventoryReceiveDetailId + @"' 
 				Order by IRD.Id ASC";// ,MMAU.BaseUOMFactor
                 return _sqlRepository.GetDataCollection(sql);
