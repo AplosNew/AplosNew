@@ -1,100 +1,7 @@
 ﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Asset WIP Status</h3>
 <div class="form-elements form-horizontal" ng-form="form0">
 
-    @*<div class="col-xs-12 col-sm-5 col-md-5">
-            <div class="form-group" show-errors id="div_Bank">
-                <label class="col-sm-4 control-label">Select<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="select-style">
-                        <select name="partyType" class="form-control" submit-required="true" ng-model="report.partyType" ng-change="partyTypeChange(report.partyType)">
-                            <option value="">--Select--</option>
-                            <option value="All">All</option>
-                            <option value="Vendor">Vendor</option>
-                            <option value="MaterialMaster">Material Master</option>
-                            <option value="FixedAsset">Assets Master</option>
-                            <option value="FixedAsset">Entity</option>
-                        </select>
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="form-group" id="div_FromDate">
-                <label class="col-sm-4 control-label">From Capitalization Date<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="From Date" ng-model="report.FromDate" datepicker class="form-control" required>
-                </div>
-            </div>
-            <div class="form-group" id="div_ToDate">
-                <label class="col-sm-4 control-label">To Capitalization Date<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="To Date" ng-model="report.ToDate" datepicker class="form-control" required>
-                </div>
-            </div>
-
-            <div style="display='All'" report.FromDate inherit  class="form-group">
-                    <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
-                    <div class="col-sm-3">
-                        <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="report.FromDate" />
-                    </div>
-                    <label class="col-sm-2 control-label"></label>
-                    <label class="col-sm-1 control-label">To Date<sup>*</sup></label>
-                    <div class="col-sm-3">
-                        <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="report.ToDate" />
-                    </div>
-                </div>
-
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Format<sup>*</sup></label>
-                <div class="col-sm-8 radio">
-                    <label>
-                        <input type="radio" name="source" ng-model="report.ReportFormat" value="@Library.Model.Enums.ReportFormat.Pdf.ToString()">
-                        <span class="cr" tabindex="1"><i class="cr-icon"></i></span>@Library.Model.Enums.ReportFormat.Pdf.ToString()
-                    </label>
-                    <label>
-                        <input type="radio" name="source" ng-model="report.ReportFormat" value="@Library.Model.Enums.ReportFormat.Excel.ToString()">
-                        <span class="cr" tabindex="2"><i class="cr-icon"></i></span>@Library.Model.Enums.ReportFormat.Excel.ToString()
-                    </label>
-                </div>
-            </div>
-        </div>*@
-
-    @*<div class="col-xs-12 col-sm-5 col-md-5">
-            <div class="form-group" ng-show="report.partyType=='Vendor'">
-                <label class="col-sm-3 control-label" title="Vendor">Vendor<sup>*</sup></label>
-                <div class="col-sm-9 input-group" style="padding-left: 15px;padding-right: 14px;">
-                    <input type="text" ng-model="report.PartyName" class="form-control" readonly>
-                    <span class="input-group-btn">
-                        <button ng-click="showPartyPopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                        <button ng-click="clearVendor()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                    </span>
-                </div>
-            </div>
-            <div class="form-group" ng-show="report.partyType=='FixedAsset'">
-                <label class="col-sm-3 control-label" title="FixedAsset">Fixed Asset<sup>*</sup></label>
-                <div class="col-sm-9 input-group" style="padding-left: 15px;padding-right: 14px;">
-                    <input type="text" ng-model="report.FixedAssetMasterName" class="form-control" readonly>
-                    <span class="input-group-btn">
-                        <button ng-click="getFixedAssetData()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                        <button ng-click="clearVendor()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                    </span>
-                </div>
-            </div>
-            <div class="form-group" ng-show="report.partyType=='MaterialMaster'">
-                <label class="col-sm-3 control-label" title="MaterialMaster">Material Master<sup>*</sup></label>
-                <div class="col-sm-9 input-group" style="padding-left: 15px;padding-right: 14px;">
-                    <input type="text" ng-model="report.MaterialMasterName" class="form-control" readonly>
-                    <span class="input-group-btn">
-                        <button ng-click="getMaterialMasterSearchData()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                        <button ng-click="clearVendor()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                    </span>
-                </div>
-            </div>
-
-        </div>*@
-
-
-    <div class="row">
+      <div class="row">
         @*<div class="clearfix"></div>*@
         <div class="table-responsive modal-table aplos-grid-toggle">
             <div class="content-container-fluid" style="color:black;overflow:scroll">
@@ -110,10 +17,7 @@
                         <div e-column e-type="text" e-field="IsAsset" e-headertext="Asset" e-width="20" style="height: 20px;"></div>
                         <div e-column e-type="text" e-field="Machine" e-headertext="Machine" e-width="20" style="height: 20px;"></div>
                         <div e-column e-type="text" e-field="FACount" e-headertext="FA Count" e-width="30" e-textalign="right" style="height: 20px;"></div>
-                        @*<div e-column e-type="text" e-field="NetFixedAssetsAmount" e-headertext="Net Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                            <div e-column e-type="text" e-field="SubAssetAmount" e-headertext="Net Sub Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                            <div e-column e-type="text" e-field="TotalAssetsBaseAmount" e-headertext="Net Total Base Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>*@
-
+                      
                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="FABaseAmount" e-headertext="FA Base Amount" e-width="65" e-textalign="right" style="height: 20px;"></div>
                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="SubAssetAmount" e-headertext="Sub Asset Amount" e-width="65" e-textalign="right" style="height: 20px;"></div>
                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TotalBaseAmount" e-headertext="Total Base Amount" e-width="65" e-textalign="right" style="height: 20px;"></div>

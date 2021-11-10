@@ -69,15 +69,11 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             try
             {
-                //if (string.IsNullOrEmpty(MasterLCList))
-                //    throw new Exception("Please select at least one master LC");
-
+          
                 ExcelEngine excelEngine = new ExcelEngine();
                 FixedAssetReportService _fixedAssetReportService = new FixedAssetReportService(_sqlRepository);
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                //IWorkbook workbook = _fixedAssetReportService.GetMasterLCReport(excelEngine, MasterLCList);
-                //return Json(_fixedAssetReportService.GetMasterLCReport(excelEngine, MasterLCList), JsonRequestBehavior.AllowGet);
                 IWorkbook workbook = _fixedAssetReportService.GLVSfaReport(excelEngine, identity.CompanyId, identity.PlantId);
 
                 string strFileName = "GLVSFA.xlsx";
@@ -1030,28 +1026,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
         }
 
 
-        //Fixed Assets Dispose Post Report
-
-        //[HttpGet, Authorize]
-        //public ActionResult PabyableJournal(ReportFormat reportFormat, string inventoryReceiveId, string employeeId, bool isReversCharge)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    var reportFileName = "GRN";
-        //    var workbook = _inventoryReportService.PabyableJournal(identity.CompanyId, identity.PlantId, inventoryReceiveId, employeeId, isReversCharge, reportFileName);
-        //    switch (reportFormat)
-        //    {
-        //        case ReportFormat.Pdf:
-        //            return RenderReportAsPdf(workbook, reportFileName);
-
-        //        case ReportFormat.Excel:
-        //            return RenderReportAsExcel(workbook, reportFileName);
-
-        //        default:
-        //            return View();
-        //    }
-        //}
-
-        [HttpGet, Authorize]
+       [HttpGet, Authorize]
         public ActionResult FixedAssetsDisposePost(ReportFormat reportFormat, string disposedVoucherId)
         {
             FixedAssetDisposeService _fixedAssetDisposeService = new FixedAssetDisposeService(_sqlRepository);
@@ -1071,25 +1046,6 @@ namespace Aplos.Areas.FixedAssets.Controllers
             }
         }
 
-
-        //[HttpGet, Authorize]
-        //public ActionResult GetVendorInvoiceChargeWriteOffReport(ReportFormat reportFormat, string voucherId)
-        //{
-        //    AccountsInvoiceReportService _accountsInvoiceReportService = new AccountsInvoiceReportService(_sqlRepository);
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    var workbook = _accountsInvoiceReportService.GetVendorInvoiceChargeReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId);
-        //    switch (reportFormat)
-        //    {
-        //        case ReportFormat.Pdf:
-        //            return RenderReportAsPdf(workbook, reportFileName);
-
-        //        case ReportFormat.Excel:
-        //            return RenderReportAsExcel(workbook, reportFileName);
-
-        //        default:
-        //            return RenderReportAsExcel(workbook, reportFileName);
-        //    }
-        //}
         #endregion
 
         #region Report
@@ -1121,37 +1077,6 @@ namespace Aplos.Areas.FixedAssets.Controllers
             }
             return null;
         }
-
-
-        // [HttpGet, Authorize]
-        //public ActionResult FixedAssetRegisterReportPdf( string MaterialMasterId,string MaterialMasterArticleId,string fixedAssetMasterId, string vendorId)
-        //{
-        //    //string PartyType, string PartyId, string MaterialMasterId, string FixedAssetsId, string FromDate, string ToDate
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    try
-        //    {
-        //        // if (string.IsNullOrEmpty(MasterLCList))
-        //        //   throw new Exception("Please select at least one master Order");
-
-        //        ExcelEngine excelEngine = new ExcelEngine();
-
-        //        IWorkbook workbook =_fixedAssetRegisterService.FixedAssetRegisterList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, MaterialMasterId, MaterialMasterArticleId, fixedAssetMasterId, vendorId);
-        //       // string strFileName = "Fixed Assets Register Report.pdf";
-        //        string strFileName = "Fixed Assets Register Report.xlsx";
-        //        ExcelToPdfConverter convert = new ExcelToPdfConverter(workbook);
-        //        PdfDocument pdfDoc = convert.Convert();
-        //        workbook.Close();
-        //        pdfDoc.Save(strFileName, System.Web.HttpContext.Current.Response, HttpReadType.Save);
-        //        //workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Json(ex.Message, JsonRequestBehavior.AllowGet);
-
-        //    }
-        //    return null;
-        //}
 
         [HttpGet, Authorize]
         public ActionResult GetBulletinTamplateIndexReport(ReportFormat reportFormat, string fixedAssetRegisterDisposeId)
@@ -1190,7 +1115,6 @@ namespace Aplos.Areas.FixedAssets.Controllers
         public ActionResult FixedAssetDisposedTemplate(ReportFormat reportFormat, string fixedAssetRegisterDisposeId)
         {
 
-
             var reportFileName = "Fixed Asset Disposed";
             FixedAssetReportService fixedAssetReportService = new FixedAssetReportService(_sqlRepository);
             var workbook = fixedAssetReportService.FixedAssetDisposedReportWorkSheet(fixedAssetRegisterDisposeId);
@@ -1206,8 +1130,6 @@ namespace Aplos.Areas.FixedAssets.Controllers
                     return RenderReportAsExcel(workbook, reportFileName);
             }
         }
-
-
 
 
         #endregion

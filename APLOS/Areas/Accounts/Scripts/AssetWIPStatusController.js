@@ -28,43 +28,7 @@ function AssetWIPStatusController(commonMessage, $scope, $rootScope, $filter, $h
         FixedAssetMasterName: null
     };
 
-    //For From date and To date
-    //$scope.FixedAssetRegisterReportExcel = function () {
-
-    //    try {
-
-    //        if (angular.isUndefinedOrNull($scope.reportParameters.FromDate))
-    //            throw 'Please enter from date';
-
-
-
-    //        if (angular.isUndefinedOrNull($scope.reportParameters.ToDate))
-    //            throw 'Please enter to date';
-
-
-
-    //        //var MasterLCList = "";
-    //        //for (var i = 0; i < $scope.MasterLCList.length; i++) {
-    //        //    if ($scope.MasterLCList[i].isSelected == true) {
-    //        //        if (MasterLCList == "")
-    //        //            MasterLCList = "'" + $scope.MasterLCList[i].Id + "'";
-    //        //        else
-    //        //            MasterLCList += ",'" + $scope.MasterLCList[i].Id + "'";
-    //        //    }
-    //        //}
-
-    //        var file_src = $scope.path + 'FixedAssetRegisterReportExcel?PartyType=' + $scope.report.PartyType + '&PartyId=' + $scope.report.PartyId + '&MaterialMasterId=' + $scope.report.MaterialMasterId +
-    //            '&FixedAssetsId=' + $scope.report.FixedAssetMasterId;
-    //        $rootScope.report(file_src);
-
-    //    } catch (e) {
-    //        ShowResult(e, 'failure');
-    //    }
-    //}
-
-
-    // Parties/party
-
+   
     $scope.closePartyPopUp = function myfunction() {
         if ($scope.partyIndex !== -1) {
             var data = $scope.partyList[$scope.partyIndex];
@@ -94,20 +58,9 @@ function AssetWIPStatusController(commonMessage, $scope, $rootScope, $filter, $h
         $scope.report.MaterialMasterName = ob.UserName;
         angular.element(document.querySelector('#materialmastersearchpopup')).modal('hide');
     };
-    //fixedAssetsPopUp 
-    //$scope.setFixedAssetsData = function (ob) {
-    //    $scope.report.FixedAssetMasterId = ob.Id;
-    //    $scope.report.MaterialMasterName = ob.UserName;
-    //    angular.element(document.querySelector('#fixedAssetsPopUp')).modal('hide');
-    //};
-
-
-    // clearVendor Method for Refresh
+  
     $scope.clearVendor = function () {
-        //$scope.purchaseLCNew.VendorId = null;
-        //$scope.purchaseLCNew.PartyCode = null;
-        //$scope.purchaseLCNew.PartyName = null;
-
+      
         $scope.report.FixedAssetMasterName = null;
         $scope.report.MaterialMasterName = null;
         $scope.report.PartyName = null;
@@ -115,31 +68,6 @@ function AssetWIPStatusController(commonMessage, $scope, $rootScope, $filter, $h
     }
 
 
-
-    //$scope.getReport = function () {
-    //    if (baseService.isUndefinedOrNull($scope.report.BankMasterId)) {
-    //        manualValidation("div_Bank", true, "Bank is required.");
-    //    }
-    //    else if (baseService.isUndefinedOrNull($scope.report.FromDate)) {
-    //        manualValidation("div_FromDate", true, "From Date is required.");
-    //    }
-    //    else if (baseService.isUndefinedOrNull($scope.report.ToDate)) {
-    //        manualValidation("div_ToDate", true, "To Date is required.");
-    //    }
-    //    else if (new Date($scope.report.FromDate) > new Date($scope.report.ToDate)) {
-    //        manualValidation("div_FromDate", true, "From date must be below or equal to To Date");
-    //    }
-    //    else if (new Date($scope.report.ToDate) < new Date($scope.report.FromDate)) {
-    //        manualValidation("div_ToDate", true, "To date must be above or equal to From Date.");
-    //    }
-    //    else {
-    //        var url = "Banks/BankReport/GetBankLedgerReport?reportFormat=" + $scope.report.ReportFormat + "&fromDate=" + $scope.report.FromDate + "&toDate=" + $scope.report.ToDate + "&bankMasterId=" + $scope.report.BankMasterId;
-    //        $window.open(url, "_blank");
-    //    }
-    //};
-
-
-    //FixedAssetsRegister validation
     $scope.invalidDocDate = false;
     $scope.ToDatevalidation = function () {
         var msg = "";
