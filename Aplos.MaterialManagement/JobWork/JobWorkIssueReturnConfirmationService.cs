@@ -191,7 +191,7 @@ namespace Library.MaterialManagement.JobWork
 													   left join (	select SUM(quantity) as TotalIssuedQuantity,TransformationIssueReturnMasterId,Id, MaterialInputId, ConfirmationQuantity FROM dbo.JobWorkTransformationIssueReturnChild group by TransformationIssueReturnMasterId,Id,MaterialInputId,ConfirmationQuantity
 									                 	) kk on kk.TransformationIssueReturnMasterId=tir.Id
 														left join dbo.JobWorkTransformationContractChild3 mi on mi.Id=kk.MaterialInputId
-														left join dbo.OSTransformationPODetail mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+														left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
 														left join dbo.JobWorkTransformationContract tc on tc.Id=mp.OSTransformationPOId
 														left join HKP.Party p on p.Id=tc.VendorPartyId
 														left join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
@@ -211,7 +211,7 @@ namespace Library.MaterialManagement.JobWork
 													   left join (	select SUM(quantity) as TotalIssuedQuantity,TransformationIssueReturnMasterId,Id, MaterialInputId, ConfirmationQuantity FROM dbo.JobWorkTransformationIssueReturnChild group by TransformationIssueReturnMasterId,Id,MaterialInputId,ConfirmationQuantity
 									                 	) kk on kk.TransformationIssueReturnMasterId=tir.Id
 														left join dbo.JobWorkTransformationContractChild3 mi on mi.Id=kk.MaterialInputId
-														left join dbo.OSTransformationPODetail mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+														left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
 														left join dbo.JobWorkTransformationContract tc on tc.Id=mp.OSTransformationPOId
 														left join HKP.Party p on p.Id=tc.VendorPartyId
 														left join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId

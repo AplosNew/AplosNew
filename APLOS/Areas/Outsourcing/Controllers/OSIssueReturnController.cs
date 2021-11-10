@@ -1214,7 +1214,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
             //					   left join scs.Currency c on c.Id=vcc.CurrencyId
             //					   left join dbo.EmployeeInformation emp on emp.SystemId=vcc.ResponsiblePersonId
             //  left join dbo.OSTransformationPO vc on vc.Id=vcc.OSTransformationPOId
-            //  left join dbo.JobWorkTransformationContractChild2 owr on owr.OSTransformationPODetailId=vcc.Id
+            //  left join dbo.OSTransformationPOMasterOrderItem owr on owr.OSTransformationPODetailId=vcc.Id
             //  left join HKP.Party P on P.Id=owr.CustomerId
             //  left join TRN.MasterOrder mo on mo.Id=owr.MasterOrderNoId												
             //					   left join TRN.MasterOrderItem moi on moi.Id=owr.MasterOrderItemId
@@ -1249,7 +1249,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
             //        					   left join scs.Currency c on c.Id=vcc.CurrencyId
             //        					   left join dbo.EmployeeInformation emp on emp.SystemId=vcc.ResponsiblePersonId
             //							   left join dbo.OSTransformationPO vc on vc.Id=vcc.OSTransformationPOId
-            //							   left join dbo.JobWorkTransformationContractChild2 owr on owr.OSTransformationPODetailId=vcc.Id
+            //							   left join dbo.OSTransformationPOMasterOrderItem owr on owr.OSTransformationPODetailId=vcc.Id
             //							   left join HKP.Party Pr on Pr.Id=owr.CustomerId
             //							   left join TRN.MasterOrder mo on mo.Id=owr.MasterOrderNoId												
             //        					   left join TRN.MasterOrderItem moi on moi.Id=owr.MasterOrderItemId
@@ -1283,7 +1283,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
             //        					   left join scs.Currency c on c.Id=vcc.CurrencyId
             //        					   left join dbo.EmployeeInformation emp on emp.SystemId=vcc.ResponsiblePersonId
             //							   left join dbo.OSTransformationPO vc on vc.Id=vcc.OSTransformationPOId
-            //							   left join dbo.JobWorkTransformationContractChild2 owr on owr.OSTransformationPODetailId=vcc.Id
+            //							   left join dbo.OSTransformationPOMasterOrderItem owr on owr.OSTransformationPODetailId=vcc.Id
             //							   left join HKP.Party Pr on Pr.Id=owr.CustomerId
             //							   left join TRN.MasterOrder mo on mo.Id=owr.MasterOrderNoId												
             //        					   left join TRN.MasterOrderItem moi on moi.Id=owr.MasterOrderItemId
@@ -1339,7 +1339,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
             //        					   left join scs.Currency c on c.Id=vcc.CurrencyId
             //        					   left join dbo.EmployeeInformation emp on emp.SystemId=vcc.ResponsiblePersonId
             //							   left join dbo.OSTransformationPO vc on vc.Id=vcc.OSTransformationPOId
-            //							   left join dbo.JobWorkTransformationContractChild2 owr on owr.OSTransformationPODetailId=vcc.Id
+            //							   left join dbo.OSTransformationPOMasterOrderItem owr on owr.OSTransformationPODetailId=vcc.Id
             //							   left join HKP.Party Pr on Pr.Id=owr.CustomerId
             //							   left join TRN.MasterOrder mo on mo.Id=owr.MasterOrderNoId												
             //        					   left join TRN.MasterOrderItem moi on moi.Id=owr.MasterOrderItemId
@@ -1395,7 +1395,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
             //        					   left join scs.Currency c on c.Id=vcc.CurrencyId
             //        					   left join dbo.EmployeeInformation emp on emp.SystemId=vcc.ResponsiblePersonId
             //							   left join dbo.OSTransformationPO vc on vc.Id=vcc.OSTransformationPOId
-            //							   left join dbo.JobWorkTransformationContractChild2 owr on owr.OSTransformationPODetailId=vcc.Id
+            //							   left join dbo.OSTransformationPOMasterOrderItem owr on owr.OSTransformationPODetailId=vcc.Id
             //							   left join HKP.Party Pr on Pr.Id=owr.CustomerId
             //							   left join TRN.MasterOrder mo on mo.Id=owr.MasterOrderNoId												
             //        					   left join TRN.MasterOrderItem moi on moi.Id=owr.MasterOrderItemId
@@ -1451,7 +1451,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
             //        					   left join scs.Currency c on c.Id=vcc.CurrencyId
             //        					   left join dbo.EmployeeInformation emp on emp.SystemId=vcc.ResponsiblePersonId
             //							   left join dbo.OSTransformationPO vc on vc.Id=vcc.OSTransformationPOId
-            //							   left join dbo.JobWorkTransformationContractChild2 owr on owr.OSTransformationPODetailId=vcc.Id
+            //							   left join dbo.OSTransformationPOMasterOrderItem owr on owr.OSTransformationPODetailId=vcc.Id
             //							   left join HKP.Party Pr on Pr.Id=owr.CustomerId
             //							   left join TRN.MasterOrder mo on mo.Id=owr.MasterOrderNoId												
             //        					   left join TRN.MasterOrderItem moi on moi.Id=owr.MasterOrderItemId
@@ -1532,7 +1532,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
             //        					   left join scs.Currency c on c.Id=vcc.CurrencyId
             //        					   left join dbo.EmployeeInformation emp on emp.SystemId=vcc.ResponsiblePersonId
             //							   left join dbo.OSTransformationPO vc on vc.Id=vcc.OSTransformationPOId
-            //							   left join dbo.JobWorkTransformationContractChild2 owr on owr.OSTransformationPODetailId=vcc.Id
+            //							   left join dbo.OSTransformationPOMasterOrderItem owr on owr.OSTransformationPODetailId=vcc.Id
             //							   left join [TRN].[SalesOrder] AS SO on SO.Id=owr.SalesOrderId
             //							   left JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
             //							   left JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
@@ -1615,7 +1615,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
             //        					   left join scs.Currency c on c.Id=vcc.CurrencyId
             //        					   left join dbo.EmployeeInformation emp on emp.SystemId=vcc.ResponsiblePersonId
             //							   left join dbo.OSTransformationPO vc on vc.Id=vcc.OSTransformationPOId
-            //							   left join dbo.JobWorkTransformationContractChild2 owr on owr.OSTransformationPODetailId=vcc.Id
+            //							   left join dbo.OSTransformationPOMasterOrderItem owr on owr.OSTransformationPODetailId=vcc.Id
             //							 left join [TRN].[SalesOrder] AS SO on SO.Id=owr.SalesOrderId
             //							   left JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
             //							   left JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
@@ -1727,7 +1727,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
             //        					   left join scs.Currency c on c.Id=vcc.CurrencyId
             //        					   left join dbo.EmployeeInformation emp on emp.SystemId=vcc.ResponsiblePersonId
             //							   left join dbo.OSTransformationPO vc on vc.Id=vcc.OSTransformationPOId
-            //							   left join dbo.JobWorkTransformationContractChild2 owr on owr.OSTransformationPODetailId=vcc.Id
+            //							   left join dbo.OSTransformationPOMasterOrderItem owr on owr.OSTransformationPODetailId=vcc.Id
             //							   left join [TRN].[SalesOrder] AS SO on SO.Id=owr.SalesOrderId
             //							   left JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
             //							   left JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
@@ -1840,7 +1840,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
             //        					   left join scs.Currency c on c.Id=vcc.CurrencyId
             //        					   left join dbo.EmployeeInformation emp on emp.SystemId=vcc.ResponsiblePersonId
             //							   left join dbo.OSTransformationPO vc on vc.Id=vcc.OSTransformationPOId
-            //							   left join dbo.JobWorkTransformationContractChild2 owr on owr.OSTransformationPODetailId=vcc.Id
+            //							   left join dbo.OSTransformationPOMasterOrderItem owr on owr.OSTransformationPODetailId=vcc.Id
             //							   left join [TRN].[SalesOrder] AS SO on SO.Id=owr.SalesOrderId
             //							   left JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
             //							   left JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
@@ -1953,7 +1953,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
             //        					   left join scs.Currency c on c.Id=vcc.CurrencyId
             //        					   left join dbo.EmployeeInformation emp on emp.SystemId=vcc.ResponsiblePersonId
             //							   left join dbo.OSTransformationPO vc on vc.Id=vcc.OSTransformationPOId
-            //							   left join dbo.JobWorkTransformationContractChild2 owr on owr.OSTransformationPODetailId=vcc.Id
+            //							   left join dbo.OSTransformationPOMasterOrderItem owr on owr.OSTransformationPODetailId=vcc.Id
             //							   left join [TRN].[SalesOrder] AS SO on SO.Id=owr.SalesOrderId
             //							   left JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
             //							   left JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
@@ -2077,7 +2077,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
         					   left join scs.Currency c on c.Id=vcc.CurrencyId
         					   left join dbo.EmployeeInformation emp on emp.SystemId=vcc.ResponsiblePersonId
 							   left join dbo.OSTransformationPO vc on vc.Id=vcc.OSTransformationPOId
-							   --	   left join dbo.JobWorkTransformationContractChild2 owr on owr.OSTransformationPODetailId=vcc.Id
+							   --	   left join dbo.OSTransformationPOMasterOrderItem owr on owr.OSTransformationPODetailId=vcc.Id
 							   left join dbo.OSTransformationPOMasterOrderItem owr on owr.OSTransformationPODetailId=vcc.Id
 							   left join [TRN].[SalesOrder] AS SO on SO.Id=owr.SalesOrderId
 							   left JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id

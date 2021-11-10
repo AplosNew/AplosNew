@@ -3842,7 +3842,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
     $scope.TransformOrderWiseReqModelTemp = {
         Id: null,
-        JobWorkTransformationContractChildMasterId: null,
+        OSTransformationPODetailId: null,
         OrderType: null,
         CustomerId: null,
         MasterOrderNoId: null,
@@ -3920,7 +3920,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     function ClearFieldsTransformOrderWiseChildData() {
         $scope.TransformOrderWiseReq = Object.assign({}, $scope.TransformOrderWiseReqModelTemp);
         //$scope.TransformOrderWiseReq.Id = null;
-        //$scope.TransformOrderWiseReq.JobWorkTransformationContractChildMasterId = null;
+        //$scope.TransformOrderWiseReq.OSTransformationPODetailId = null;
         //$scope.TransformOrderWiseReq.OrderType = null;
         //$scope.TransformOrderWiseReq.CustomerId = null;
         //$scope.TransformOrderWiseReq.MasterOrderNoId = null;
@@ -4084,7 +4084,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
     $scope.MaterialInputModelTemp = {
         Id: null,
-        JobWorkTransformationContractChildMasterId: null,
+        OSTransformationPODetailId: null,
         MaterialMasterId: null,
         MaterialSpecification: null,
         InputMaterialUOMId: null,

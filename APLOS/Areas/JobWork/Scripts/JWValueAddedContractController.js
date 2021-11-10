@@ -1584,7 +1584,7 @@ function JWValueAddedContractController($window,cboService, commonMessage, $scop
 
     $scope.TransformOrderWiseReqModelTemp = {
         Id: null,
-        JobWorkTransformationContractChildMasterId: null,
+        OSTransformationPODetailId: null,
         OrderType: null,
         CustomerId: null,
         MasterOrderNoId: null,
@@ -1653,7 +1653,7 @@ function JWValueAddedContractController($window,cboService, commonMessage, $scop
 
     function ClearFieldsTransformOrderWiseChildData() {
         $scope.TransformOrderWiseReq.Id = null;
-        $scope.TransformOrderWiseReq.JobWorkTransformationContractChildMasterId = null;
+        $scope.TransformOrderWiseReq.OSTransformationPODetailId = null;
         $scope.TransformOrderWiseReq.OrderType = null;
         $scope.TransformOrderWiseReq.CustomerId = null;
         $scope.TransformOrderWiseReq.MasterOrderNoId = null;
@@ -1785,7 +1785,7 @@ function JWValueAddedContractController($window,cboService, commonMessage, $scop
 
     $scope.MaterialInputModelTemp = {
         Id: null,
-        JobWorkTransformationContractChildMasterId: null,
+        OSTransformationPODetailId: null,
         MaterialMasterId: null,
         MaterialSpecification: null,
         InputMaterialUOMId: null,
@@ -1887,7 +1887,7 @@ function JWValueAddedContractController($window,cboService, commonMessage, $scop
 
     //function ClearFieldsMaterialInputChildData() {
     //    $scope.MaterialInput.Id = null;
-    //    $scope.MaterialInput.JobWorkTransformationContractChildMasterId = null;
+    //    $scope.MaterialInput.OSTransformationPODetailId = null;
     //    $scope.MaterialInput.MaterialMasterId = null;
     //    $scope.MaterialInput.MaterialSpecification = null;
     //    $scope.MaterialInput.NetConsumptionOutputUnit = null;

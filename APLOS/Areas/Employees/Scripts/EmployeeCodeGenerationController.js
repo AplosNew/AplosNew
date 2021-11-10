@@ -14,6 +14,31 @@ function EmployeeCodeGenerationController(cboService, commonMessage, $scope, $ro
     $scope.searchBy = "UserName"; $scope.search = "";
     $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
 
+    $scope.ModelTemp = {
+        Id: null,
+        Sequence: 0,
+        Code: null,
+        ShortName: null,
+        StandardName: null,
+        UserName: null,
+        Description: null,
+        Remarks: null,
+        Active: true,
+        IsEmployeeCodeOpenField: false,
+        EmpCodeGenType: null,
+        IsAutoEmpCodeWithPrefix: false,
+        EmpCodeStartValue: null,
+        Prefix: null
+    };
+    $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+
+    $scope.ModelDetailTemp = {
+        Id: null,
+        EmployeeCodeGenGroupId: null,
+        PlantId: null,
+        EmploymentType: null
+    };
+    $scope.ModelDetailNew = Object.assign({}, $scope.ModelTemp);
 
     $scope.getData = function () {
         $http({
@@ -23,8 +48,6 @@ function EmployeeCodeGenerationController(cboService, commonMessage, $scope, $ro
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelList = response.data;
-            ClearFields(response.data.Sequence);
-            $scope.GetSequence();
         });
     }
     $scope.getData();
@@ -39,6 +62,7 @@ function EmployeeCodeGenerationController(cboService, commonMessage, $scope, $ro
 
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
+        $scope.LoadData();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -54,33 +78,6 @@ function EmployeeCodeGenerationController(cboService, commonMessage, $scope, $ro
     };
 
 
-    $scope.ModelTemp = {
-        Id: null,
-        Sequence: 0,
-        Code: null,
-        ShortName: null,
-        StandardName: null,
-        UserName: null,
-        Description: null,
-        Remarks: null,
-        Active: true,
-        IsEmployeeCodeOpenField: false,
-        EmpCodeGenType: null,
-        IsAutoEmpCodeWithPrefix: false,
-        EmpCodeStartValue:null,
-        Prefix: null
-    };
-    $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
-    //$scope.ModelNew.IsEmployeeCodeOpenField = false;
-    alert($scope.ModelNew.IsEmployeeCodeOpenField);
-    $scope.ModelDetailTemp = {
-        Id: null,
-        EmployeeCodeGenGroupId: null,
-        PlantId: null,
-        EmploymentType: null
-    };
-    $scope.ModelDetailNew = Object.assign({}, $scope.ModelTemp);
-
     $scope.ChangeEmployeeCodeOpenField = function () {
         if ($scope.ModelNew.IsEmployeeCodeOpenField == true) {
             $scope.ModelNew.EmpCodeGenType = null;
@@ -88,12 +85,12 @@ function EmployeeCodeGenerationController(cboService, commonMessage, $scope, $ro
             $scope.ModelNew.Prefix = null;
             $scope.ModelNew.IsAutoEmpCodeWithPrefix = false;
         }
-    }
+    };
 
 
     $scope.AllPlantList = [];
     $scope.LoadData = function () {
-        $http.get('employees/EmployeeCodeGeneration/GetAllEmployeeCodeGenerationPlantData')
+        $http.get('employees/EmployeeCodeGeneration/GetAllEmployeeCodeGenerationPlantData?masterId=' + $scope.ModelNew.Id)
             .then(function (response) {
                 $scope.AllPlantList = [];
                 $scope.AllPlantList = response.data;
@@ -128,29 +125,56 @@ function EmployeeCodeGenerationController(cboService, commonMessage, $scope, $ro
         gridObj.refreshContent();
     };
 
-    // #endregion checkbox all
+    // #endregion checkbox all
+
+    $scope.CheckValidation = function () {
+        if ($scope.ModelNew.EmpCodeGenType == 'AutoIncrement') {
+            if (baseService.isUndefinedOrNull($scope.ModelNew.EmpCodeStartValue)) {
+                throw "Start Value is required.";
+            }
+        }
+        if ($scope.ModelNew.IsAutoEmpCodeWithPrefix) {
+            if (baseService.isUndefinedOrNull($scope.ModelNew.Prefix)) {
+                throw "Prefix is required.";
+            }
+        }
+    }
 
     $scope.Save = function () {
-        $scope.$broadcast('show-errors-check-validity');
-        //if ($scope.ModelNewForm.$valid) {
-        $http({
-            method: 'POST',
-            url: $scope.saveUrl,
-            data: { 'data': $scope.dataList, 'Level': $scope.ModelNew.EmployeeCodeLevel},
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
+        try {
+            $scope.SelectedPlantList = [];
+            for (var i = 0; i < $scope.AllPlantList.length; i++) {
+                if ($scope.AllPlantList[i].Flag) {
+                    $scope.SelectedPlantList.push($scope.AllPlantList[i]);
+                }
             }
-            else {
-                ShowResult(response.data.Message, 'success');
-                $scope.LoadData();
-            }
-        }), function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
-        }
 
-        //}
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.ModelNewForm.$valid) {
+                $scope.CheckValidation();
+                $http({
+                    method: 'POST',
+                    url: $scope.saveUrl,
+                    data: { 'data': $scope.ModelNew, 'detaildata': $scope.SelectedPlantList },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.ModelNew.Id = response.data.Data.Id;
+                        $scope.getData();
+                        $scope.LoadData();
+                        $scope.Action = 'Update';
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     };
 
     $scope.Delete = function () {
@@ -167,6 +191,7 @@ function EmployeeCodeGenerationController(cboService, commonMessage, $scope, $ro
                     ShowResult(response.data.Message, 'success');
                     ClearFields(response.data.Sequence);
                     $scope.getData();
+                    $scope.LoadData();
                 }
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -182,7 +207,7 @@ function EmployeeCodeGenerationController(cboService, commonMessage, $scope, $ro
 
     function ClearFields(seq) {
         $scope.Action = 'Save';
-        $scope.ModelNew = {
+        $scope.ModelTemp = {
             Id: null,
             Sequence: 0,
             Code: null,
@@ -191,9 +216,16 @@ function EmployeeCodeGenerationController(cboService, commonMessage, $scope, $ro
             UserName: null,
             Description: null,
             Remarks: null,
-            Active: true
+            Active: true,
+            IsEmployeeCodeOpenField: false,
+            EmpCodeGenType: null,
+            IsAutoEmpCodeWithPrefix: false,
+            EmpCodeStartValue: null,
+            Prefix: null
         };
+        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ModelNew.Sequence = seq;
+        $scope.LoadData();
     }
 
 }

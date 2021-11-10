@@ -6729,8 +6729,8 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                 //                left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
                 //                left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
                 //                left join SCS.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
-                //                left join dbo.OSTransformationPODetail om on om.Id=mi.JobWorkTransformationContractChildMasterId
-                //                where mi.JobWorkTransformationContractChildMasterId='" + Id + @"' ";
+                //                left join dbo.OSTransformationPODetail om on om.Id=mi.OSTransformationPODetailId
+                //                where mi.OSTransformationPODetailId='" + Id + @"' ";
 
                 var _sql = @"select mm.Id as MaterialMasterId,mi.NetConsumption as NETCon,mi.Rejection as Rej, mi.ValueLoss as ValLoss--, mi.GrossConsumption as GrConsump
                                   ,ROUND(mi.GrossConsumption,4) as GrConsump
@@ -6745,11 +6745,11 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                                 left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
                                 left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
                                 left join SCS.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
-                                left join dbo.OSTransformationPODetail om on om.Id=mi.JobWorkTransformationContractChildMasterId
+                                left join dbo.OSTransformationPODetail om on om.Id=mi.OSTransformationPODetailId
 								left join (Select ArticleId,SUM(BOQRequiredQuantity) as BOQReqQty, Sum(NetConsumption) as NetConsumption, Sum(Rejection) as Rejection
 								,Sum(ValueLoss) ValueLoss, Sum(GrossConsumption) GrossConsumption from dbo.JobWorkTransformationContractChild3 group by ArticleId)
 								KK on KK.ArticleId=mma.Id
-                                where mi.JobWorkTransformationContractChildMasterId='" + Id + @"'
+                                where mi.OSTransformationPODetailId='" + Id + @"'
 								group by mm.Id,mma.Code,mm.UserName,mma.StandardName,mm.Code,uom.UserName
 								,mm.BaseUOMId,om.Quantity,KK.BOQReqQty,KK.NetConsumption,kk.Rejection,KK.ValueLoss,KK.GrossConsumption
                                 ,mi.NetConsumption,mi.Rejection, mi.ValueLoss, mi.GrossConsumption,mi.BOQRequiredQuantity ";
@@ -6779,13 +6779,13 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
                     //if (!string.IsNullOrEmpty(Id))
                     //{
-                    //    con2.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild2 where JobWorkTransformationContractChildMasterId='" + id + "' ", out dsMaster, false, "1");
+                    //    con2.OpenDataSetThroughAdapter("select * from dbo.OSTransformationPOMasterOrderItem where OSTransformationPODetailId='" + id + "' ", out dsMaster, false, "1");
                     //    if (dsMaster.Tables[0].Rows.Count > 0)
                     //    {
                     //        throw new Exception("First Delete Order Wise Data");
                     //    }
 
-                    //    con2.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild3 where JobWorkTransformationContractChildMasterId='" + id + "' ", out dsMaster, false, "1");
+                    //    con2.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild3 where OSTransformationPODetailId='" + id + "' ", out dsMaster, false, "1");
                     //    if (dsMaster.Tables[0].Rows.Count > 0)
                     //    {
                     //        throw new Exception("First Delete Material Input Data");
