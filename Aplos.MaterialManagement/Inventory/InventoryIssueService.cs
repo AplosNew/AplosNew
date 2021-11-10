@@ -3134,7 +3134,94 @@ namespace Library.MaterialManagement.Inventory
                 var sql = "";
                 if (Type == "Posted")
                 {
+                    //              sql = @"SELECT II.Id AS IssueId,IID.Id as IssueDetailId
+                    //                   ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate	 
+                    //                   ,MT.UserName MaterialType
+                    //                   ,MGM.UserName AS MaterialGroupMasterName
+                    //                   ,IM.MaterialMasterId
+                    //                   ,MM.UserName MaterialMasterName	                      
+                    //                   ,ART.StandardName ArticleName	                        
+                    //                   ,FC.UserName AS FirstCharacteristics
+                    //                   ,IM.FirstCharacteristicsValueId
+                    //                   ,ISNULL(FCV.UserName, '') AS FirstCharacteristicsValue
+                    //                   ,IM.SecondCharacteristicsId
+                    //                   ,SC.UserName AS SecondCharacteristics
+                    //                   ,IM.SecondCharacteristicsValueId
+                    //                   ,ISNULL(SCV.UserName, '') AS SecondCharacteristicsValue
+                    //                   ,IM.ThirdCharacteristicsId
+                    //                   ,TC.UserName AS ThirdCharacteristics
+                    //                   ,IM.ThirdCharacteristicsValueId
+                    //                   ,ISNULL(TCV.UserName, '') AS ThirdCharacteristicsValue
+                    //	,IIH.InventoryReceiveDetailId 
+                    //	,IRD.Id GRNDetailId
+                    //	,IRD.TransactionQty GRNQty
+                    //	--,TUoM1.UserName AS GRNUOM
+                    //	,GRNUOM=case when IRD.BaseUOMId is not null then TUoM1.UserName else TUoM2.UserName End
+                    //	,IRD.MaterialTranRate GRNRate
+                    //	,isnull(IIH1.Qty,0) OtherIssuedQty
+                    //	,isnull(IIH.Qty,0) CurrentIssueQty
+                    //	,TUoM.UserName AS IssueUOM							
+                    //                   ,TotalIssued=(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0))						
+                    //	,Balance=(Isnull(IRD.TransactionQty,0)-(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0)))
+
+                    //                      ,ISNULL(IGL.UserName,'') AS GL
+                    //	,ISNULL(IA.UserName,'') Activity
+                    //	,isnull(B.UserName,'') AS Budget
+                    //	,isnull(IGL1.UserName,'') AS CGL
+                    //	,isnull(IA1.UserName,'') AS CActivity
+                    //	,isnull(B1.UserName,'') AS CBUdget
+                    //                   ,CC.UserName CostCenterName
+                    //                      ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,PLC.LCRef as PurchaseLCNo,ospo.Id as PONumber
+                    //                  FROM trn.InventoryIssue II
+                    //                  LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId		
+                    //                  LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
+                    //                  LEFT JOIN ORG.Entity En ON II.EntityId = En.Id
+                    //                  LEFT JOIN HKP.MaterialStorage MS ON II.MaterialStorageId = MS.Id
+                    //                  LEFT JOIN TRN.InventoryMaterial AS IM ON IM.Id = IID.InventoryMaterialId
+                    //                  LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
+                    //                  LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
+                    //                  LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
+                    //                  LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
+                    //                  LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
+                    //                  LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
+                    //                  LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
+                    //                  LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
+                    //                  LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
+                    //                  LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
+
+                    //                  --left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+                    //                  --LEFT JOIN trn.Invoice AS I ON I.InventoryReceiveId = II.Id
+                    //                  LEFT JOIN trn.Voucher V ON V.Id = II.VoucherId
+                    //LEFT JOIN trn.InventoryIssueHistory IIH ON IIH.InventoryIssueDetailId=IID.Id
+                    //LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
+                    //LEFT JOIN(select Sum(Qty) Qty,InventoryIssueDetailId from  trn.InventoryIssueHistory group by InventoryIssueDetailId) IIH1 ON IIH1.InventoryIssueDetailId=IID.Id AND  IID.InventoryIssueId !=II.Id
+                    //                  LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId = TUoM.Id
+                    //  LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM1 ON IRD.BaseUOMId = TUoM1.Id
+                    //                  LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM2 ON IRD.TransactionUoMId = TUoM2.Id
+
+
+                    //                  LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
+                    //LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.PostDrBudgetMasterId
+                    //LEFT JOIN HKP.Activity IA ON IA.Id=IID.PostDrActivityId
+                    //Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
+
+
+                    //LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IID.PostCrGLGeneralInfoId 
+                    //LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
+                    //LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
+                    //Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
+                    //                  left join dbo.OSTransformationPO ospo on ospo.Id=II.JWContractId
+                    //left join [dbo].[Contract] Ct on Ct.Id=ospo.ContractId
+                    //left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
+                    //LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
+                    //left join dbo.PurchaseLC PLC on PLC.Id=ospo.PurchaseLCId
+
+                    //              where v.VoucherNo is not null ANd II.PlantId='" + identity.PlantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
+                    //               and II.Types='InventoryJWIssue' ";
+
+
                     sql = @"SELECT II.Id AS IssueId,IID.Id as IssueDetailId
+                            ,OSPOType=case when PO.POType='OSValueAddedPO' then 'ValueAdded' else 'Transformation' End
 	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate	 
 	                        ,MT.UserName MaterialType
 	                        ,MGM.UserName AS MaterialGroupMasterName
@@ -3157,95 +3244,15 @@ namespace Library.MaterialManagement.Inventory
 							,IRD.TransactionQty GRNQty
 							--,TUoM1.UserName AS GRNUOM
 							,GRNUOM=case when IRD.BaseUOMId is not null then TUoM1.UserName else TUoM2.UserName End
+							,TUoM2.UserName as TrnUoM
 							,IRD.MaterialTranRate GRNRate
-							,isnull(IIH1.Qty,0) OtherIssuedQty
-							,isnull(IIH.Qty,0) CurrentIssueQty
-							,TUoM.UserName AS IssueUOM							
-	                        ,TotalIssued=(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0))						
-							,Balance=(Isnull(IRD.TransactionQty,0)-(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0)))
-
-                            ,ISNULL(IGL.UserName,'') AS GL
-							,ISNULL(IA.UserName,'') Activity
-							,isnull(B.UserName,'') AS Budget
-							,isnull(IGL1.UserName,'') AS CGL
-							,isnull(IA1.UserName,'') AS CActivity
-							,isnull(B1.UserName,'') AS CBUdget
-	                        ,CC.UserName CostCenterName
-                            ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,PLC.LCRef as PurchaseLCNo,ospo.Id as PONumber
-                        FROM trn.InventoryIssue II
-                        LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId		
-                        LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
-                        LEFT JOIN ORG.Entity En ON II.EntityId = En.Id
-                        LEFT JOIN HKP.MaterialStorage MS ON II.MaterialStorageId = MS.Id
-                        LEFT JOIN TRN.InventoryMaterial AS IM ON IM.Id = IID.InventoryMaterialId
-                        LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
-                        LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
-                        LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
-                        LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
-                        LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
-                        LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
-                        LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
-                        LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
-                        LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
-                        LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
-                       
-                        --left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
-                        --LEFT JOIN trn.Invoice AS I ON I.InventoryReceiveId = II.Id
-                        LEFT JOIN trn.Voucher V ON V.Id = II.VoucherId
-						LEFT JOIN trn.InventoryIssueHistory IIH ON IIH.InventoryIssueDetailId=IID.Id
-						LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
-						LEFT JOIN(select Sum(Qty) Qty,InventoryIssueDetailId from  trn.InventoryIssueHistory group by InventoryIssueDetailId) IIH1 ON IIH1.InventoryIssueDetailId=IID.Id AND  IID.InventoryIssueId !=II.Id
-                        LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId = TUoM.Id
-					   LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM1 ON IRD.BaseUOMId = TUoM1.Id
-                        LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM2 ON IRD.TransactionUoMId = TUoM2.Id
-
-
-                        LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
-						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.PostDrBudgetMasterId
-						LEFT JOIN HKP.Activity IA ON IA.Id=IID.PostDrActivityId
-						Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
-
-
-						LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IID.PostCrGLGeneralInfoId 
-						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
-						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
-						Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
-                        left join dbo.OSTransformationPO ospo on ospo.Id=II.JWContractId
-						left join [dbo].[Contract] Ct on Ct.Id=ospo.ContractId
-						left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
-						LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
-						left join dbo.PurchaseLC PLC on PLC.Id=ospo.PurchaseLCId
-
-                    where v.VoucherNo is not null ANd II.PlantId='" + identity.PlantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
-                     and II.Types='InventoryJWIssue' ";
-
-                }
-                else
-                {
-                    sql = @"SELECT II.Id AS IssueId,IID.Id as IssueDetailId
-	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate	 
-	                        ,MT.UserName MaterialType
-	                        ,MGM.UserName AS MaterialGroupMasterName
-	                        ,IM.MaterialMasterId
-	                        ,MM.UserName MaterialMasterName	                      
-	                        ,ART.StandardName ArticleName	                        
-	                        ,FC.UserName AS FirstCharacteristics
-	                        ,IM.FirstCharacteristicsValueId
-	                        ,ISNULL(FCV.UserName, '') AS FirstCharacteristicsValue
-	                        ,IM.SecondCharacteristicsId
-	                        ,SC.UserName AS SecondCharacteristics
-	                        ,IM.SecondCharacteristicsValueId
-	                        ,ISNULL(SCV.UserName, '') AS SecondCharacteristicsValue
-	                        ,IM.ThirdCharacteristicsId
-	                        ,TC.UserName AS ThirdCharacteristics
-	                        ,IM.ThirdCharacteristicsValueId
-	                        ,ISNULL(TCV.UserName, '') AS ThirdCharacteristicsValue
-							,IIH.InventoryReceiveDetailId 
-							,IRD.Id GRNDetailId
-							,IRD.TransactionQty GRNQty
-							--,TUoM1.UserName AS GRNUOM
-							,GRNUOM=case when IRD.BaseUOMId is not null then TUoM1.UserName else TUoM2.UserName End
-							,IRD.MaterialTranRate GRNRate
+							,C.Code AS TransactionCurrency
+							,Ir.ToCurrencyRate CurrencyConvRate
+							,IRD.TotalMaterialBooksCurrencyAmount TrnAmtBDT
+							,IRD.BaseQty GRNBaseQty
+                        	,round(IRD.BooksCurrencyBaseRate,4) BaseRate
+                        	,(IRD.BaseQty * IRD.BooksCurrencyBaseRate) BaseAmtBDT
+							,MS.UserName as MaterialStorage
 							,isnull(IIH1.Qty,0) OtherIssuedQty
 							,isnull(IIH.Qty,0) CurrentIssueQty
 							,TUoM.UserName AS IssueUOM							
@@ -3283,7 +3290,7 @@ namespace Library.MaterialManagement.Inventory
                         LEFT JOIN trn.Voucher V ON V.Id = II.VoucherId
 						LEFT JOIN trn.InventoryIssueHistory IIH ON IIH.InventoryIssueDetailId=IID.Id
 						LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
-						LEFT JOIN(select Sum(Qty) Qty,InventoryIssueDetailId from  trn.InventoryIssueHistory group by InventoryIssueDetailId) IIH1 ON IIH1.InventoryIssueDetailId=IID.Id AND  IID.InventoryIssueId !=II.Id
+						LEFT JOIN(select Sum(Qty) Qty,InventoryIssueDetailId from  trn.InventoryIssueHistory group by InventoryIssueDetailId) IIH1 ON IIH1.InventoryIssueDetailId=IID.Id --AND  IID.InventoryIssueId !=II.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId = TUoM.Id
 					   LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM1 ON IRD.BaseUOMId = TUoM1.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM2 ON IRD.TransactionUoMId = TUoM2.Id
@@ -3304,6 +3311,196 @@ namespace Library.MaterialManagement.Inventory
 						left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
 						LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
 						left join dbo.PurchaseLC PLC on PLC.Id=ospo.PurchaseLCId
+						LEFT JOIN TRN.InventoryReceive IR ON IR.Id = IRD.InventoryReceiveId
+						LEFT JOIN SCS.Currency C ON C.Id = IR.CurrencyId
+						left join dbo.OSTransformationPO PO on PO.Id=II.JWContractId
+
+                    where v.VoucherNo is not null ANd II.PlantId='" + identity.PlantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
+                     and II.Types='InventoryJWIssue' ";
+
+                }
+                else
+                {
+                    //              sql = @"SELECT II.Id AS IssueId,IID.Id as IssueDetailId
+                    //                   ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate	 
+                    //                   ,MT.UserName MaterialType
+                    //                   ,MGM.UserName AS MaterialGroupMasterName
+                    //                   ,IM.MaterialMasterId
+                    //                   ,MM.UserName MaterialMasterName	                      
+                    //                   ,ART.StandardName ArticleName	                        
+                    //                   ,FC.UserName AS FirstCharacteristics
+                    //                   ,IM.FirstCharacteristicsValueId
+                    //                   ,ISNULL(FCV.UserName, '') AS FirstCharacteristicsValue
+                    //                   ,IM.SecondCharacteristicsId
+                    //                   ,SC.UserName AS SecondCharacteristics
+                    //                   ,IM.SecondCharacteristicsValueId
+                    //                   ,ISNULL(SCV.UserName, '') AS SecondCharacteristicsValue
+                    //                   ,IM.ThirdCharacteristicsId
+                    //                   ,TC.UserName AS ThirdCharacteristics
+                    //                   ,IM.ThirdCharacteristicsValueId
+                    //                   ,ISNULL(TCV.UserName, '') AS ThirdCharacteristicsValue
+                    //	,IIH.InventoryReceiveDetailId 
+                    //	,IRD.Id GRNDetailId
+                    //	,IRD.TransactionQty GRNQty
+                    //	--,TUoM1.UserName AS GRNUOM
+                    //	,GRNUOM=case when IRD.BaseUOMId is not null then TUoM1.UserName else TUoM2.UserName End
+                    //	,IRD.MaterialTranRate GRNRate
+                    //	,isnull(IIH1.Qty,0) OtherIssuedQty
+                    //	,isnull(IIH.Qty,0) CurrentIssueQty
+                    //	,TUoM.UserName AS IssueUOM							
+                    //                   ,TotalIssued=(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0))						
+                    //	,Balance=(Isnull(IRD.TransactionQty,0)-(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0)))
+
+
+                    //                     ,ISNULL(IGL.UserName,'') AS GL
+                    //	,ISNULL(IA.UserName,'') Activity
+                    //	,isnull(B.UserName,'') AS Budget
+                    //	,isnull(IGL1.UserName,'') AS CGL
+                    //	,isnull(IA1.UserName,'') AS CActivity
+                    //	,isnull(B1.UserName,'') AS CBUdget
+                    //                      ,CC.UserName CostCenterName
+                    //                      ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,PLC.LCRef as PurchaseLCNo,ospo.Id as PONumber
+                    //                  FROM trn.InventoryIssue II
+                    //                  LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId	
+                    //                  LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
+                    //                  LEFT JOIN ORG.Entity En ON II.EntityId = En.Id
+                    //                  LEFT JOIN HKP.MaterialStorage MS ON II.MaterialStorageId = MS.Id
+                    //                  LEFT JOIN TRN.InventoryMaterial AS IM ON IM.Id = IID.InventoryMaterialId
+                    //                  LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
+                    //                  LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
+                    //                  LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
+                    //                  LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
+                    //                  LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
+                    //                  LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
+                    //                  LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
+                    //                  LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
+                    //                  LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
+                    //                  LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
+
+                    //                  --left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+                    //                  --LEFT JOIN trn.Invoice AS I ON I.InventoryReceiveId = II.Id
+                    //                  LEFT JOIN trn.Voucher V ON V.Id = II.VoucherId
+                    //LEFT JOIN trn.InventoryIssueHistory IIH ON IIH.InventoryIssueDetailId=IID.Id
+                    //LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
+                    //LEFT JOIN(select Sum(Qty) Qty,InventoryIssueDetailId from  trn.InventoryIssueHistory group by InventoryIssueDetailId) IIH1 ON IIH1.InventoryIssueDetailId=IID.Id AND  IID.InventoryIssueId !=II.Id
+                    //                  LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId = TUoM.Id
+                    //  LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM1 ON IRD.BaseUOMId = TUoM1.Id
+                    //                  LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM2 ON IRD.TransactionUoMId = TUoM2.Id
+
+
+                    //                LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
+                    //LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.PostDrBudgetMasterId
+                    //LEFT JOIN HKP.Activity IA ON IA.Id=IID.PostDrActivityId
+                    //Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
+
+
+                    //LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IID.PostCrGLGeneralInfoId 
+                    //LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
+                    //LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
+                    //Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
+                    //                  left join dbo.OSTransformationPO ospo on ospo.Id=II.JWContractId
+                    //left join [dbo].[Contract] Ct on Ct.Id=ospo.ContractId
+                    //left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
+                    //LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
+                    //left join dbo.PurchaseLC PLC on PLC.Id=ospo.PurchaseLCId
+
+                    //              where v.VoucherNo is null ANd II.PlantId='" + identity.PlantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
+                    //              and II.Types='InventoryJWIssue' ";
+
+                    sql = @"SELECT II.Id AS IssueId,IID.Id as IssueDetailId
+                            ,OSPOType=case when PO.POType='OSValueAddedPO' then 'ValueAdded' else 'Transformation' End
+	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate	 
+	                        ,MT.UserName MaterialType
+	                        ,MGM.UserName AS MaterialGroupMasterName
+	                        ,IM.MaterialMasterId
+	                        ,MM.UserName MaterialMasterName	                      
+	                        ,ART.StandardName ArticleName	                        
+	                        ,FC.UserName AS FirstCharacteristics
+	                        ,IM.FirstCharacteristicsValueId
+	                        ,ISNULL(FCV.UserName, '') AS FirstCharacteristicsValue
+	                        ,IM.SecondCharacteristicsId
+	                        ,SC.UserName AS SecondCharacteristics
+	                        ,IM.SecondCharacteristicsValueId
+	                        ,ISNULL(SCV.UserName, '') AS SecondCharacteristicsValue
+	                        ,IM.ThirdCharacteristicsId
+	                        ,TC.UserName AS ThirdCharacteristics
+	                        ,IM.ThirdCharacteristicsValueId
+	                        ,ISNULL(TCV.UserName, '') AS ThirdCharacteristicsValue
+							,IIH.InventoryReceiveDetailId 
+							,IRD.Id GRNDetailId
+							,IRD.TransactionQty GRNQty
+							--,TUoM1.UserName AS GRNUOM
+							,GRNUOM=case when IRD.BaseUOMId is not null then TUoM1.UserName else TUoM2.UserName End
+							,TUoM2.UserName as TrnUoM
+							,IRD.MaterialTranRate GRNRate
+							,C.Code AS TransactionCurrency
+							,Ir.ToCurrencyRate CurrencyConvRate
+							,IRD.TotalMaterialBooksCurrencyAmount TrnAmtBDT
+							,IRD.BaseQty GRNBaseQty
+                        	,round(IRD.BooksCurrencyBaseRate,4) BaseRate
+                        	,(IRD.BaseQty * IRD.BooksCurrencyBaseRate) BaseAmtBDT    
+                             ,MS.UserName as MaterialStorage
+							,isnull(IIH1.Qty,0) OtherIssuedQty
+							,isnull(IIH.Qty,0) CurrentIssueQty
+							,TUoM.UserName AS IssueUOM							
+	                        ,TotalIssued=(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0))						
+							,Balance=(Isnull(IRD.TransactionQty,0)-(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0)))
+	                        
+
+                           ,ISNULL(IGL.UserName,'') AS GL
+							,ISNULL(IA.UserName,'') Activity
+							,isnull(B.UserName,'') AS Budget
+							,isnull(IGL1.UserName,'') AS CGL
+							,isnull(IA1.UserName,'') AS CActivity
+							,isnull(B1.UserName,'') AS CBUdget
+                            ,CC.UserName CostCenterName
+                            ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,PLC.LCRef as PurchaseLCNo,ospo.Id as PONumber
+                        FROM trn.InventoryIssue II
+                        LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId	
+                        LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
+                        LEFT JOIN ORG.Entity En ON II.EntityId = En.Id
+                        LEFT JOIN HKP.MaterialStorage MS ON II.MaterialStorageId = MS.Id
+                        LEFT JOIN TRN.InventoryMaterial AS IM ON IM.Id = IID.InventoryMaterialId
+                        LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
+                        LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
+                        LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
+                        LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
+                        LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
+                        LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
+                        LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
+                       
+                        --left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+                        --LEFT JOIN trn.Invoice AS I ON I.InventoryReceiveId = II.Id
+                        LEFT JOIN trn.Voucher V ON V.Id = II.VoucherId
+						LEFT JOIN trn.InventoryIssueHistory IIH ON IIH.InventoryIssueDetailId=IID.Id
+						LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
+						LEFT JOIN(select Sum(Qty) Qty,InventoryIssueDetailId from  trn.InventoryIssueHistory group by InventoryIssueDetailId) IIH1 ON IIH1.InventoryIssueDetailId=IID.Id --AND  IID.InventoryIssueId !=II.Id
+                        LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId = TUoM.Id
+					   LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM1 ON IRD.BaseUOMId = TUoM1.Id
+                        LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM2 ON IRD.TransactionUoMId = TUoM2.Id
+
+
+                      LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
+						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.PostDrBudgetMasterId
+						LEFT JOIN HKP.Activity IA ON IA.Id=IID.PostDrActivityId
+						Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
+
+
+						LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IID.PostCrGLGeneralInfoId 
+						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
+						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
+						Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
+                        left join dbo.OSTransformationPO ospo on ospo.Id=II.JWContractId
+						left join [dbo].[Contract] Ct on Ct.Id=ospo.ContractId
+						left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
+						LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
+						left join dbo.PurchaseLC PLC on PLC.Id=ospo.PurchaseLCId
+						LEFT JOIN TRN.InventoryReceive IR ON IR.Id = IRD.InventoryReceiveId
+						LEFT JOIN SCS.Currency C ON C.Id = IR.CurrencyId
+                        left join dbo.OSTransformationPO PO on PO.Id=II.JWContractId
 
                     where v.VoucherNo is null ANd II.PlantId='" + identity.PlantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
                     and II.Types='InventoryJWIssue' ";
@@ -5418,11 +5615,87 @@ namespace Library.MaterialManagement.Inventory
             var cmdText = "";
             if (Type == "Posted")
             {
-                cmdText = @"SELECT II.Id AS IssueId
+                //          cmdText = @"SELECT II.Id AS IssueId
+                //                   ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate	 
+                //                   ,MT.UserName MaterialType
+                //                   ,MGM.UserName AS MaterialGroupMasterName
+                //	,HSNC.Code HSNCode
+                //                   ,IM.MaterialMasterId
+                //                   ,MM.UserName MaterialMasterName	                      
+                //                   ,ART.StandardName ArticleName	                        
+                //                   ,FC.UserName AS FirstCharacteristics
+                //                   ,IM.FirstCharacteristicsValueId
+                //                   ,ISNULL(FCV.UserName, '') AS FirstCharacteristicsValue
+                //                   ,IM.SecondCharacteristicsId
+                //                   ,SC.UserName AS SecondCharacteristics
+                //                   ,IM.SecondCharacteristicsValueId
+                //                   ,ISNULL(SCV.UserName, '') AS SecondCharacteristicsValue
+                //                   ,IM.ThirdCharacteristicsId
+                //                   ,TC.UserName AS ThirdCharacteristics
+                //                   ,IM.ThirdCharacteristicsValueId
+                //                   ,ISNULL(TCV.UserName, '') AS ThirdCharacteristicsValue
+                //	,IIH.InventoryReceiveDetailId 
+                //	,IRD.Id GRNDetailId
+                //	,IRD.TransactionQty GRNQty
+                //	,TUoM1.UserName AS GRNUOM
+                //	,IRD.MaterialTranRate GRNRate
+                //	,isnull(IIH1.Qty,0) OtherIssuedQty
+                //	,isnull(IIH.Qty,0) CurrentIssueQty
+                //	,TUoM.UserName AS IssueUOM							
+                //                   ,TotalIssued=(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0))						
+                //	,Balance=(Isnull(IRD.TransactionQty,0)-(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0)))
+                //                   ,ISNULL(IGL.UserName,'') AS GL
+                //	,ISNULL(IA.UserName,'') Activity
+                //	,isnull(B.UserName,'') AS Budget
+                //	,isnull(IGL1.UserName,'') AS CGL
+                //	,isnull(IA1.UserName,'') AS CActivity
+                //	,isnull(B1.UserName,'') AS CBUdget
+                //                      ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,PLC.LCRef as PurchaseLCNo,ospo.Id as PONumber
+                //                  FROM trn.InventoryIssue II
+                //                  LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId						
+                //                  LEFT JOIN ORG.Entity En ON II.EntityId = En.Id
+                //                  LEFT JOIN HKP.MaterialStorage MS ON II.MaterialStorageId = MS.Id
+                //                  LEFT JOIN TRN.InventoryMaterial AS IM ON IM.Id = IID.InventoryMaterialId
+                //                  LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
+                //LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
+                //                  LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
+                //                  LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
+                //                  LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
+                //                  LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
+                //                  LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
+                //                  LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
+                //                  LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
+                //                  LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
+                //                  LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
+                //                  --left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+                //                  --LEFT JOIN trn.Invoice AS I ON I.InventoryReceiveId = II.Id
+                //                  LEFT JOIN trn.Voucher V ON V.Id = II.VoucherId
+                //LEFT JOIN trn.InventoryIssueHistory IIH ON IIH.InventoryIssueDetailId=IID.Id
+                //LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
+                //LEFT JOIN(select Sum(Qty) Qty,InventoryIssueDetailId from  trn.InventoryIssueHistory group by InventoryIssueDetailId) IIH1 ON IIH1.InventoryIssueDetailId=IID.Id AND  IID.InventoryIssueId !=II.Id
+                //                  LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId = TUoM.Id
+                //  LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM1 ON IRD.BaseUOMId = TUoM1.Id
+                //LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
+                //LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.PostDrBudgetMasterId
+                //LEFT JOIN HKP.Activity IA ON IA.Id=IID.PostDrActivityId
+                //Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
+                //LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IID.PostCrGLGeneralInfoId 
+                //LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
+                //LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
+                //Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
+                //                  left join dbo.OSTransformationPO ospo on ospo.Id=II.JWContractId
+                //left join [dbo].[Contract] Ct on Ct.Id=ospo.ContractId
+                //left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
+                //LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
+                //left join dbo.PurchaseLC PLC on PLC.Id=ospo.PurchaseLCId
+                //              where v.VoucherNo is not null ANd II.PlantId='" + plantId + "'AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
+
+
+                cmdText = @"SELECT II.Id AS IssueId,IID.Id as IssueDetailId
+                            ,OSPOType=case when PO.POType='OSValueAddedPO' then 'ValueAdded' else 'Transformation' End
 	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate	 
 	                        ,MT.UserName MaterialType
 	                        ,MGM.UserName AS MaterialGroupMasterName
-							,HSNC.Code HSNCode
 	                        ,IM.MaterialMasterId
 	                        ,MM.UserName MaterialMasterName	                      
 	                        ,ART.StandardName ArticleName	                        
@@ -5440,27 +5713,39 @@ namespace Library.MaterialManagement.Inventory
 							,IIH.InventoryReceiveDetailId 
 							,IRD.Id GRNDetailId
 							,IRD.TransactionQty GRNQty
-							,TUoM1.UserName AS GRNUOM
+							--,TUoM1.UserName AS GRNUOM
+							,GRNUOM=case when IRD.BaseUOMId is not null then TUoM1.UserName else TUoM2.UserName End
+							,TUoM2.UserName as TrnUoM
 							,IRD.MaterialTranRate GRNRate
+							,C.Code AS TransactionCurrency
+							,Ir.ToCurrencyRate CurrencyConvRate
+							,IRD.TotalMaterialBooksCurrencyAmount TrnAmtBDT
+							,IRD.BaseQty GRNBaseQty
+                        	,round(IRD.BooksCurrencyBaseRate,4) BaseRate
+                        	,(IRD.BaseQty * IRD.BooksCurrencyBaseRate) BaseAmtBDT
+							,MS.UserName as MaterialStorage
 							,isnull(IIH1.Qty,0) OtherIssuedQty
 							,isnull(IIH.Qty,0) CurrentIssueQty
 							,TUoM.UserName AS IssueUOM							
 	                        ,TotalIssued=(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0))						
 							,Balance=(Isnull(IRD.TransactionQty,0)-(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0)))
-	                        ,ISNULL(IGL.UserName,'') AS GL
+	                        
+
+                           ,ISNULL(IGL.UserName,'') AS GL
 							,ISNULL(IA.UserName,'') Activity
 							,isnull(B.UserName,'') AS Budget
 							,isnull(IGL1.UserName,'') AS CGL
 							,isnull(IA1.UserName,'') AS CActivity
 							,isnull(B1.UserName,'') AS CBUdget
+                            ,CC.UserName CostCenterName
                             ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,PLC.LCRef as PurchaseLCNo,ospo.Id as PONumber
                         FROM trn.InventoryIssue II
-                        LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId						
+                        LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId	
+                        LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
                         LEFT JOIN ORG.Entity En ON II.EntityId = En.Id
                         LEFT JOIN HKP.MaterialStorage MS ON II.MaterialStorageId = MS.Id
                         LEFT JOIN TRN.InventoryMaterial AS IM ON IM.Id = IID.InventoryMaterialId
                         LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
-						LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
                         LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
                         LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
                         LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
@@ -5470,18 +5755,24 @@ namespace Library.MaterialManagement.Inventory
                         LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
                         LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
                         LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
+                       
                         --left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
                         --LEFT JOIN trn.Invoice AS I ON I.InventoryReceiveId = II.Id
                         LEFT JOIN trn.Voucher V ON V.Id = II.VoucherId
 						LEFT JOIN trn.InventoryIssueHistory IIH ON IIH.InventoryIssueDetailId=IID.Id
 						LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
-						LEFT JOIN(select Sum(Qty) Qty,InventoryIssueDetailId from  trn.InventoryIssueHistory group by InventoryIssueDetailId) IIH1 ON IIH1.InventoryIssueDetailId=IID.Id AND  IID.InventoryIssueId !=II.Id
+						LEFT JOIN(select Sum(Qty) Qty,InventoryIssueDetailId from  trn.InventoryIssueHistory group by InventoryIssueDetailId) IIH1 ON IIH1.InventoryIssueDetailId=IID.Id --AND  IID.InventoryIssueId !=II.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId = TUoM.Id
 					   LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM1 ON IRD.BaseUOMId = TUoM1.Id
-						LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
+                        LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM2 ON IRD.TransactionUoMId = TUoM2.Id
+
+
+                      LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
 						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.PostDrBudgetMasterId
 						LEFT JOIN HKP.Activity IA ON IA.Id=IID.PostDrActivityId
 						Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
+
+
 						LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IID.PostCrGLGeneralInfoId 
 						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
 						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
@@ -5491,16 +5782,95 @@ namespace Library.MaterialManagement.Inventory
 						left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
 						LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
 						left join dbo.PurchaseLC PLC on PLC.Id=ospo.PurchaseLCId
+						LEFT JOIN TRN.InventoryReceive IR ON IR.Id = IRD.InventoryReceiveId
+						LEFT JOIN SCS.Currency C ON C.Id = IR.CurrencyId
+						left join dbo.OSTransformationPO PO on PO.Id=II.JWContractId
                     where v.VoucherNo is not null ANd II.PlantId='" + plantId + "'AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
             }
             else
             {
-                cmdText = @"SELECT II.Id AS IssueId
+                //          cmdText = @"SELECT II.Id AS IssueId
+                //                   ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate	 
+                //                   ,MT.UserName MaterialType
+                //                   ,MGM.UserName AS MaterialGroupMasterName
+                //                   ,IM.MaterialMasterId
+                //	,HSNC.Code HSNCode
+                //                   ,MM.UserName MaterialMasterName	                      
+                //                   ,ART.StandardName ArticleName	                        
+                //                   ,FC.UserName AS FirstCharacteristics
+                //                   ,IM.FirstCharacteristicsValueId
+                //                   ,ISNULL(FCV.UserName, '') AS FirstCharacteristicsValue
+                //                   ,IM.SecondCharacteristicsId
+                //                   ,SC.UserName AS SecondCharacteristics
+                //                   ,IM.SecondCharacteristicsValueId
+                //                   ,ISNULL(SCV.UserName, '') AS SecondCharacteristicsValue
+                //                   ,IM.ThirdCharacteristicsId
+                //                   ,TC.UserName AS ThirdCharacteristics
+                //                   ,IM.ThirdCharacteristicsValueId
+                //                   ,ISNULL(TCV.UserName, '') AS ThirdCharacteristicsValue
+                //	,IIH.InventoryReceiveDetailId 
+                //	,IRD.Id GRNDetailId
+                //	,IRD.TransactionQty GRNQty
+                //	,TUoM1.UserName AS GRNUOM
+                //	,IRD.MaterialTranRate GRNRate
+                //	,isnull(IIH1.Qty,0) OtherIssuedQty
+                //	,isnull(IIH.Qty,0) CurrentIssueQty
+                //	,TUoM.UserName AS IssueUOM							
+                //                   ,TotalIssued=(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0))						
+                //	,Balance=(Isnull(IRD.TransactionQty,0)-(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0)))
+                //                   ,ISNULL(IGL.UserName,'') AS GL
+                //	,ISNULL(IA.UserName,'') Activity
+                //	,isnull(B.UserName,'') AS Budget
+                //	,isnull(IGL1.UserName,'') AS CGL
+                //	,isnull(IA1.UserName,'') AS CActivity
+                //	,isnull(B1.UserName,'') AS CBUdget
+                //                      ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,PLC.LCRef as PurchaseLCNo,ospo.Id as PONumber
+                //                  FROM trn.InventoryIssue II
+                //                  LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId						
+                //                  LEFT JOIN ORG.Entity En ON II.EntityId = En.Id
+                //                  LEFT JOIN HKP.MaterialStorage MS ON II.MaterialStorageId = MS.Id
+                //                  LEFT JOIN TRN.InventoryMaterial AS IM ON IM.Id = IID.InventoryMaterialId
+                //                  LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
+                //LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
+                //                  LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
+                //                  LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
+                //                  LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
+                //                  LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
+                //                  LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
+                //                  LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
+                //                  LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
+                //                  LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
+                //                  LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
+                //                  --left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+                //                  --LEFT JOIN trn.Invoice AS I ON I.InventoryReceiveId = II.Id
+                //                  LEFT JOIN trn.Voucher V ON V.Id = II.VoucherId
+                //LEFT JOIN trn.InventoryIssueHistory IIH ON IIH.InventoryIssueDetailId=IID.Id
+                //LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
+                //LEFT JOIN(select Sum(Qty) Qty,InventoryIssueDetailId from  trn.InventoryIssueHistory group by InventoryIssueDetailId) IIH1 ON IIH1.InventoryIssueDetailId=IID.Id AND  IID.InventoryIssueId !=II.Id
+                //                  LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId = TUoM.Id
+                //  LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM1 ON IRD.BaseUOMId = TUoM1.Id
+                //LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
+                //LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.PostDrBudgetMasterId
+                //LEFT JOIN HKP.Activity IA ON IA.Id=IID.PostDrActivityId
+                //Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
+                //LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IID.PostCrGLGeneralInfoId 
+                //LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
+                //LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
+                //Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
+                //                  left join dbo.OSTransformationPO ospo on ospo.Id=II.JWContractId
+                //left join [dbo].[Contract] Ct on Ct.Id=ospo.ContractId
+                //left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
+                //LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
+                //left join dbo.PurchaseLC PLC on PLC.Id=ospo.PurchaseLCId
+                //              where v.VoucherNo is null ANd II.PlantId='" + plantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
+
+
+                cmdText = @"SELECT II.Id AS IssueId,IID.Id as IssueDetailId
+                            ,OSPOType=case when PO.POType='OSValueAddedPO' then 'ValueAdded' else 'Transformation' End
 	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate	 
 	                        ,MT.UserName MaterialType
 	                        ,MGM.UserName AS MaterialGroupMasterName
 	                        ,IM.MaterialMasterId
-							,HSNC.Code HSNCode
 	                        ,MM.UserName MaterialMasterName	                      
 	                        ,ART.StandardName ArticleName	                        
 	                        ,FC.UserName AS FirstCharacteristics
@@ -5517,27 +5887,39 @@ namespace Library.MaterialManagement.Inventory
 							,IIH.InventoryReceiveDetailId 
 							,IRD.Id GRNDetailId
 							,IRD.TransactionQty GRNQty
-							,TUoM1.UserName AS GRNUOM
+							--,TUoM1.UserName AS GRNUOM
+							,GRNUOM=case when IRD.BaseUOMId is not null then TUoM1.UserName else TUoM2.UserName End
+							,TUoM2.UserName as TrnUoM
 							,IRD.MaterialTranRate GRNRate
+							,C.Code AS TransactionCurrency
+							,Ir.ToCurrencyRate CurrencyConvRate
+							,IRD.TotalMaterialBooksCurrencyAmount TrnAmtBDT
+							,IRD.BaseQty GRNBaseQty
+                        	,round(IRD.BooksCurrencyBaseRate,4) BaseRate
+                        	,(IRD.BaseQty * IRD.BooksCurrencyBaseRate) BaseAmtBDT
+							,MS.UserName as MaterialStorage
 							,isnull(IIH1.Qty,0) OtherIssuedQty
 							,isnull(IIH.Qty,0) CurrentIssueQty
 							,TUoM.UserName AS IssueUOM							
 	                        ,TotalIssued=(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0))						
 							,Balance=(Isnull(IRD.TransactionQty,0)-(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0)))
-	                        ,ISNULL(IGL.UserName,'') AS GL
+	                        
+
+                           ,ISNULL(IGL.UserName,'') AS GL
 							,ISNULL(IA.UserName,'') Activity
 							,isnull(B.UserName,'') AS Budget
 							,isnull(IGL1.UserName,'') AS CGL
 							,isnull(IA1.UserName,'') AS CActivity
 							,isnull(B1.UserName,'') AS CBUdget
+                            ,CC.UserName CostCenterName
                             ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,PLC.LCRef as PurchaseLCNo,ospo.Id as PONumber
                         FROM trn.InventoryIssue II
-                        LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId						
+                        LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId	
+                        LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
                         LEFT JOIN ORG.Entity En ON II.EntityId = En.Id
                         LEFT JOIN HKP.MaterialStorage MS ON II.MaterialStorageId = MS.Id
                         LEFT JOIN TRN.InventoryMaterial AS IM ON IM.Id = IID.InventoryMaterialId
                         LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
-						LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
                         LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
                         LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
                         LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
@@ -5547,18 +5929,24 @@ namespace Library.MaterialManagement.Inventory
                         LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
                         LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
                         LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
+                       
                         --left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
                         --LEFT JOIN trn.Invoice AS I ON I.InventoryReceiveId = II.Id
                         LEFT JOIN trn.Voucher V ON V.Id = II.VoucherId
 						LEFT JOIN trn.InventoryIssueHistory IIH ON IIH.InventoryIssueDetailId=IID.Id
 						LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
-						LEFT JOIN(select Sum(Qty) Qty,InventoryIssueDetailId from  trn.InventoryIssueHistory group by InventoryIssueDetailId) IIH1 ON IIH1.InventoryIssueDetailId=IID.Id AND  IID.InventoryIssueId !=II.Id
+						LEFT JOIN(select Sum(Qty) Qty,InventoryIssueDetailId from  trn.InventoryIssueHistory group by InventoryIssueDetailId) IIH1 ON IIH1.InventoryIssueDetailId=IID.Id --AND  IID.InventoryIssueId !=II.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId = TUoM.Id
 					   LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM1 ON IRD.BaseUOMId = TUoM1.Id
-						LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
+                        LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM2 ON IRD.TransactionUoMId = TUoM2.Id
+
+
+                      LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
 						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.PostDrBudgetMasterId
 						LEFT JOIN HKP.Activity IA ON IA.Id=IID.PostDrActivityId
 						Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
+
+
 						LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IID.PostCrGLGeneralInfoId 
 						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
 						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
@@ -5568,6 +5956,9 @@ namespace Library.MaterialManagement.Inventory
 						left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
 						LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
 						left join dbo.PurchaseLC PLC on PLC.Id=ospo.PurchaseLCId
+						LEFT JOIN TRN.InventoryReceive IR ON IR.Id = IRD.InventoryReceiveId
+						LEFT JOIN SCS.Currency C ON C.Id = IR.CurrencyId
+						left join dbo.OSTransformationPO PO on PO.Id=II.JWContractId
                     where v.VoucherNo is null ANd II.PlantId='" + plantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
 
             }
@@ -5592,28 +5983,28 @@ namespace Library.MaterialManagement.Inventory
             sheet1.UsedRange.CellStyle.Font.Bold = false;
             var _row = 7;
 
-            sheet1[_row, 25].Text = "Posted Dr.";
+            sheet1[_row, 35].Text = "Posted Dr.";
             sheet1.UsedRange.CellStyle.Font.Size = 10;
             sheet1.UsedRange.CellStyle.Font.Bold = true;
             sheet1.UsedRange.WrapText = true;
-            sheet1[_row, 25].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            sheet1[_row, 25].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet1.Range[_row, 25, _row, 27].BorderAround(ExcelLineStyle.Hair);
+            sheet1[_row, 35].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1[_row, 35].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_row, 35, _row, 37].BorderAround(ExcelLineStyle.Hair);
             //sheet1.Range[_row, 18, _row, 20].CellStyle.Color="LightYellow";
-            sheet1.Range[_row, 25, _row, 27].BorderInside(ExcelLineStyle.Hair);
-            sheet1.Range[_row, 25, _row, 27].Merge();
-            sheet1.Range[_row, 25, _row, 27].CellStyle.FillBackground = ExcelKnownColors.Tan;
+            sheet1.Range[_row, 35, _row, 37].BorderInside(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 35, _row, 37].Merge();
+            sheet1.Range[_row, 35, _row, 37].CellStyle.FillBackground = ExcelKnownColors.Tan;
 
-            sheet1[_row, 28].Text = "Posted (Cr.)";
+            sheet1[_row, 38].Text = "Posted (Cr.)";
             sheet1.UsedRange.CellStyle.Font.Size = 10;
             sheet1.UsedRange.CellStyle.Font.Bold = true;
             sheet1.UsedRange.WrapText = true;
-            sheet1[_row, 28].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            sheet1[_row, 28].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet1.Range[_row, 28, _row, 30].BorderAround(ExcelLineStyle.Hair);
-            sheet1.Range[_row, 28, _row, 30].BorderInside(ExcelLineStyle.Hair);
-            sheet1.Range[_row, 28, _row, 30].Merge();
-            sheet1.Range[_row, 28, _row, 30].CellStyle.FillBackground = ExcelKnownColors.Tan;
+            sheet1[_row, 38].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1[_row, 38].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_row, 38, _row, 40].BorderAround(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 38, _row, 40].BorderInside(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 38, _row, 40].Merge();
+            sheet1.Range[_row, 38, _row, 40].CellStyle.FillBackground = ExcelKnownColors.Tan;
 
             var _rowL = _row;
             var row = _row + 1;
@@ -5626,6 +6017,13 @@ namespace Library.MaterialManagement.Inventory
             //sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "Issue Id";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Issue Detail Id";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -5645,6 +6043,13 @@ namespace Library.MaterialManagement.Inventory
             //sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "PO Number";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "PO Type";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -5693,6 +6098,13 @@ namespace Library.MaterialManagement.Inventory
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
             sheet1headreColIndex++;
 
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Storage Location";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
             //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Material Type");
             //sheet1headreColIndex++;
 
@@ -5706,12 +6118,12 @@ namespace Library.MaterialManagement.Inventory
             //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Material Group");
             //sheet1headreColIndex++;
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Material Group";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 30;
-            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-            sheet1headreColIndex++;
+            //sheet1.Range[_rowL, sheet1headreColIndex].Text = "Material Group";
+            //sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 30;
+            //sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            //sheet1headreColIndex++;
 
             //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Material");
             //sheet1headreColIndex++;
@@ -5766,55 +6178,54 @@ namespace Library.MaterialManagement.Inventory
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
             sheet1headreColIndex++;
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "HSN No";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
-            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-            sheet1headreColIndex++;
+            //sheet1.Range[_rowL, sheet1headreColIndex].Text = "HSN No";
+            //sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            //sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            //sheet1headreColIndex++;
 
             //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GRNQty");
             //sheet1headreColIndex++;
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "GRN Qty";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-            sheet1headreColIndex++;
+            //sheet1.Range[_rowL, sheet1headreColIndex].Text = "GRN Qty";
+            //sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            //sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            //sheet1headreColIndex++;
 
 
             //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GRNUOM");
             //sheet1headreColIndex++;
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "GRN UOM";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-            sheet1headreColIndex++;
+            //sheet1.Range[_rowL, sheet1headreColIndex].Text = "GRN UOM";
+            //sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            //sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            //sheet1headreColIndex++;
 
             //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GRN Rate");
             //sheet1headreColIndex++;
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "GRN Rate";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-            sheet1headreColIndex++;
+            //sheet1.Range[_rowL, sheet1headreColIndex].Text = "GRN Rate";
+            //sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            //sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            //sheet1headreColIndex++;
 
 
             //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Other Issued Qty");
             //sheet1headreColIndex++;
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Other Issued Qty";
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Issue UOM";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
             sheet1headreColIndex++;
-
 
             //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Current Issue Qty");
             //sheet1headreColIndex++;
@@ -5826,16 +6237,32 @@ namespace Library.MaterialManagement.Inventory
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
             sheet1headreColIndex++;
 
-
-            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Issue UOM");
-            //sheet1headreColIndex++;
-
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Issue UOM";
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Base UoM";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
             sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Base Current Issue Qty";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Other Issued Qty";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Issue UOM");
+            //sheet1headreColIndex++;
+
+
 
 
             //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Balance");
@@ -5850,6 +6277,76 @@ namespace Library.MaterialManagement.Inventory
 
             //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GL");
             //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Trn UoM";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Trn Qty";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Trn Currency";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Trn Rate";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Currency Conversion Rate";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Trn Amount BDT";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Base UoM";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Base Qty";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Base Rate";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Base Amount BDT";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "GL";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
@@ -5922,37 +6419,60 @@ namespace Library.MaterialManagement.Inventory
             {
                 _rowL++;
                 report.SetText(ref sheet1, _rowL, 1, inventoryMaterialList.Rows[n]["IssueId"].ToString());
-                report.SetText(ref sheet1, _rowL, 2, inventoryMaterialList.Rows[n]["IssueDate"].ToString());
-                report.SetText(ref sheet1, _rowL, 3, inventoryMaterialList.Rows[n]["PONumber"].ToString());
-                report.SetText(ref sheet1, _rowL, 4, inventoryMaterialList.Rows[n]["ContractNo"].ToString());
-                report.SetText(ref sheet1, _rowL, 5, inventoryMaterialList.Rows[n]["CustomerName"].ToString());
-                report.SetText(ref sheet1, _rowL, 6, inventoryMaterialList.Rows[n]["LCRef"].ToString());
-                report.SetText(ref sheet1, _rowL, 7, inventoryMaterialList.Rows[n]["PurchaseLCNo"].ToString());
-                report.SetText(ref sheet1, _rowL, 8, inventoryMaterialList.Rows[n]["UDNo"].ToString());
+                report.SetText(ref sheet1, _rowL, 2, inventoryMaterialList.Rows[n]["IssueDetailId"].ToString());
+                report.SetText(ref sheet1, _rowL, 3, inventoryMaterialList.Rows[n]["IssueDate"].ToString());
+                report.SetText(ref sheet1, _rowL, 4, inventoryMaterialList.Rows[n]["PONumber"].ToString());
+                report.SetText(ref sheet1, _rowL, 5, inventoryMaterialList.Rows[n]["OSPOType"].ToString());
 
-                report.SetText(ref sheet1, _rowL, 9, inventoryMaterialList.Rows[n]["GRNDetailId"].ToString());
-                report.SetText(ref sheet1, _rowL, 10, inventoryMaterialList.Rows[n]["MaterialType"].ToString());
-                report.SetText(ref sheet1, _rowL, 11, inventoryMaterialList.Rows[n]["MaterialGroupMasterName"].ToString());
-                report.SetText(ref sheet1, _rowL, 12, inventoryMaterialList.Rows[n]["MaterialMasterName"].ToString());
-                report.SetText(ref sheet1, _rowL, 13, inventoryMaterialList.Rows[n]["ArticleName"].ToString());
-                report.SetText(ref sheet1, _rowL, 14, inventoryMaterialList.Rows[n]["FirstCharacteristicsValue"].ToString());
+                report.SetText(ref sheet1, _rowL, 6, inventoryMaterialList.Rows[n]["ContractNo"].ToString());
+                report.SetText(ref sheet1, _rowL, 7, inventoryMaterialList.Rows[n]["CustomerName"].ToString());
+                report.SetText(ref sheet1, _rowL, 8, inventoryMaterialList.Rows[n]["LCRef"].ToString());
+                report.SetText(ref sheet1, _rowL, 9, inventoryMaterialList.Rows[n]["PurchaseLCNo"].ToString());
+                report.SetText(ref sheet1, _rowL, 10, inventoryMaterialList.Rows[n]["UDNo"].ToString());
 
-                report.SetText(ref sheet1, _rowL, 15, inventoryMaterialList.Rows[n]["SecondCharacteristicsValue"].ToString());
-                report.SetText(ref sheet1, _rowL, 16, inventoryMaterialList.Rows[n]["ThirdCharacteristicsValue"].ToString());
-                report.SetText(ref sheet1, _rowL, 17, inventoryMaterialList.Rows[n]["HSNCode"].ToString());
-                report.SetText(ref sheet1, _rowL, 18, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["GRNQty"].ToString()));
-                report.SetText(ref sheet1, _rowL, 19, inventoryMaterialList.Rows[n]["GRNUOM"].ToString());
-                report.SetText(ref sheet1, _rowL, 20, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["GRNRate"].ToString()));
-                report.SetText(ref sheet1, _rowL, 21, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["OtherIssuedQty"].ToString()));
+                report.SetText(ref sheet1, _rowL, 11, inventoryMaterialList.Rows[n]["GRNDetailId"].ToString());
+                report.SetText(ref sheet1, _rowL, 12, inventoryMaterialList.Rows[n]["MaterialStorage"].ToString());
+
+                report.SetText(ref sheet1, _rowL, 13, inventoryMaterialList.Rows[n]["MaterialType"].ToString());
+                //report.SetText(ref sheet1, _rowL, 11, inventoryMaterialList.Rows[n]["MaterialGroupMasterName"].ToString());
+                report.SetText(ref sheet1, _rowL, 14, inventoryMaterialList.Rows[n]["MaterialMasterName"].ToString());
+                report.SetText(ref sheet1, _rowL, 15, inventoryMaterialList.Rows[n]["ArticleName"].ToString());
+                report.SetText(ref sheet1, _rowL, 16, inventoryMaterialList.Rows[n]["FirstCharacteristicsValue"].ToString());
+
+                report.SetText(ref sheet1, _rowL, 17, inventoryMaterialList.Rows[n]["SecondCharacteristicsValue"].ToString());
+                report.SetText(ref sheet1, _rowL, 18, inventoryMaterialList.Rows[n]["ThirdCharacteristicsValue"].ToString());
+                //report.SetText(ref sheet1, _rowL, 17, inventoryMaterialList.Rows[n]["HSNCode"].ToString());
+                //report.SetText(ref sheet1, _rowL, 18, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["GRNQty"].ToString()));
+                //report.SetText(ref sheet1, _rowL, 19, inventoryMaterialList.Rows[n]["GRNUOM"].ToString());
+                //report.SetText(ref sheet1, _rowL, 20, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["GRNRate"].ToString()));
+
+                report.SetText(ref sheet1, _rowL, 19, inventoryMaterialList.Rows[n]["IssueUOM"].ToString());
+                report.SetText(ref sheet1, _rowL, 20, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["CurrentIssueQty"].ToString()));
+                report.SetText(ref sheet1, _rowL, 21, inventoryMaterialList.Rows[n]["GRNUOM"].ToString());
                 report.SetText(ref sheet1, _rowL, 22, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["CurrentIssueQty"].ToString()));
-                report.SetText(ref sheet1, _rowL, 23, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IssueUOM"].ToString()));
+                report.SetText(ref sheet1, _rowL, 23, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["OtherIssuedQty"].ToString()));
                 report.SetText(ref sheet1, _rowL, 24, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["Balance"].ToString()));
-                report.SetText(ref sheet1, _rowL, 25, inventoryMaterialList.Rows[n]["GL"].ToString());
-                report.SetText(ref sheet1, _rowL, 26, inventoryMaterialList.Rows[n]["Budget"].ToString());
-                report.SetText(ref sheet1, _rowL, 27, inventoryMaterialList.Rows[n]["Activity"].ToString());
-                report.SetText(ref sheet1, _rowL, 28, inventoryMaterialList.Rows[n]["CGL"].ToString());
-                report.SetText(ref sheet1, _rowL, 29, inventoryMaterialList.Rows[n]["CBUdget"].ToString());
-                report.SetText(ref sheet1, _rowL, 30, inventoryMaterialList.Rows[n]["CActivity"].ToString());
+
+                report.SetText(ref sheet1, _rowL, 25, inventoryMaterialList.Rows[n]["TrnUoM"].ToString());
+                report.SetText(ref sheet1, _rowL, 26, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["GRNQty"].ToString()));
+                report.SetText(ref sheet1, _rowL, 27, inventoryMaterialList.Rows[n]["TransactionCurrency"].ToString());
+                report.SetText(ref sheet1, _rowL, 28, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["GRNRate"].ToString()));
+
+                report.SetText(ref sheet1, _rowL, 29, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["CurrencyConvRate"].ToString()));
+                report.SetText(ref sheet1, _rowL, 30, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TrnAmtBDT"].ToString()));
+                report.SetText(ref sheet1, _rowL, 31, inventoryMaterialList.Rows[n]["GRNUOM"].ToString());
+                report.SetText(ref sheet1, _rowL, 32, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["GRNBaseQty"].ToString()));
+
+                report.SetText(ref sheet1, _rowL, 33, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["BaseRate"].ToString()));
+                report.SetText(ref sheet1, _rowL, 34, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["BaseAmtBDT"].ToString()));
+
+
+                report.SetText(ref sheet1, _rowL, 35, inventoryMaterialList.Rows[n]["GL"].ToString());
+                report.SetText(ref sheet1, _rowL, 36, inventoryMaterialList.Rows[n]["Budget"].ToString());
+                report.SetText(ref sheet1, _rowL, 37, inventoryMaterialList.Rows[n]["Activity"].ToString());
+                report.SetText(ref sheet1, _rowL, 38, inventoryMaterialList.Rows[n]["CGL"].ToString());
+                report.SetText(ref sheet1, _rowL, 39, inventoryMaterialList.Rows[n]["CBUdget"].ToString());
+                report.SetText(ref sheet1, _rowL, 40, inventoryMaterialList.Rows[n]["CActivity"].ToString());
             }
 
             //#endregion sumCalc

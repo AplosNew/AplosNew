@@ -387,6 +387,7 @@
                                         <div e-column e-field="IssueDetailId" e-headertext="Issue Detail Id" e-width="100"></div>
                                         <div e-column e-field="IssueDate" e-headertext="Issue Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
                                         <div e-column e-field="PONumber" e-headertext="PO Number" e-width="130" textAlign='Center'></div>
+                                        <div e-column e-field="OSPOType" e-headertext="PO Type" e-width="130" textAlign='Center'></div>
                                         <div e-column e-field="ContractNo" e-headertext="Contract No" e-width="130" textAlign='Center'></div>
                                         <div e-column e-field="CustomerName" e-headertext="Customer" e-width="130" textAlign='Center'></div>
                                         <div e-column e-field="LCRef" e-headertext="Ref No" e-width="130" textAlign='Center'></div>
@@ -394,20 +395,38 @@
                                         <div e-column e-field="UDNo" e-headertext="UDNo" e-width="130" textAlign='Center'></div>
 
                                         <div e-column e-field="GRNDetailId" e-headertext="GRN Detail Id" e-width="130" textAlign='Center'></div>
+                                        <div e-column e-field="MaterialStorage" e-headertext="Material Storage" e-width="130" textAlign='Center'></div>
                                         <div e-column e-field="MaterialType" e-headertext="Material Type" e-width="180"></div>
-                                        <div e-column e-field="MaterialGroupMasterName" e-headertext="Material Group" e-width="180"></div>
+                                        @*<div e-column e-field="MaterialGroupMasterName" e-headertext="Material Group" e-width="180"></div>*@
                                         <div e-column e-field="MaterialMasterName" e-headertext="Material" e-width="180"></div>
                                         <div e-column e-field="ArticleName" e-headertext="Article" e-width="180"></div>
                                         <div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="80"></div>
                                         <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="80"></div>
                                         <div e-column e-field="ThirdCharacteristicsValue" e-headertext="SKU3" e-width="80"></div>
-                                        <div e-column e-field="GRNUOM" e-headertext="Unit" e-width="100" textAlign='Center'></div>
-                                        <div e-column e-field="GRNQty" e-headertext="GRNQty" e-width="100" textAlign='Right'></div>
-                                        <div e-column e-field="GRNRate" e-headertext="GRN Rate" e-width="100" textAlign='Right'></div>
-                                        <div e-column e-field="OtherIssuedQty" e-headertext="Other Issued Qty" e-width="130" textAlign='Right'></div>
+                                        @*<div e-column e-field="GRNUOM" e-headertext="Unit" e-width="100" textAlign='Center'></div>
+        <div e-column e-field="GRNQty" e-headertext="GRNQty" e-width="100" textAlign='Right'></div>
+        <div e-column e-field="GRNRate" e-headertext="GRN Rate" e-width="100" textAlign='Right'></div>*@
+
+
+
+                                        <div e-column e-field="IssueUOM" e-headertext="Issue UoM" e-width="130" textAlign='Right'></div>
                                         <div e-column e-field="CurrentIssueQty" e-headertext="Current Issue Qty" e-width="100" textAlign='Right'></div>
-                                        <div e-column e-field="IssueUOM" e-headertext="Issue UOM" e-width="130" textAlign='Right'></div>
+                                        <div e-column e-field="GRNUOM" e-headertext="Base UoM" e-width="100" textAlign='Center'></div>
+                                        <div e-column e-field="CurrentIssueQty" e-headertext="Base Current Issue Qty" e-width="100" textAlign='Right'></div>
+                                        <div e-column e-field="OtherIssuedQty" e-headertext="Other Issued Qty" e-width="130" textAlign='Right'></div>
                                         <div e-column e-field="Balance" e-headertext="Balance" e-width="100" textAlign='Right'></div>
+                                        <div e-column e-field="TrnUoM" e-headertext="Trn UoM" e-width="130" textAlign='Right'></div>
+                                        <div e-column e-field="GRNQty" e-headertext="Trn Qty" e-width="100" textAlign='Right'></div>
+                                        <div e-column e-field="TransactionCurrency" e-headertext="Trn Currency" e-width="100" textAlign='Right'></div>
+                                        <div e-column e-field="GRNRate" e-headertext="Trn Rate" e-width="100" textAlign='Right'></div>
+                                        <div e-column e-field="CurrencyConvRate" e-headertext="Currency Conversion Rate" e-width="100" textAlign='Right'></div>
+                                        <div e-column e-field="TrnAmtBDT" e-headertext="Trn Amount BDT" e-width="100" textAlign='Right'></div>
+                                        <div e-column e-field="GRNUOM" e-headertext="Base UoM" e-width="100" textAlign='Center'></div>
+                                        <div e-column e-field="GRNBaseQty" e-headertext="Base Qty" e-width="100" textAlign='Center'></div>
+                                        <div e-column e-field="BaseRate" e-headertext="Base Rate" e-width="100" textAlign='Center'></div>
+                                        <div e-column e-field="BaseAmtBDT" e-headertext="Base Amount BDT" e-width="100" textAlign='Center'></div>
+
+
                                         <div e-column e-field="GL" e-headertext="GL" e-width="130"></div>
                                         <div e-column e-field="Budget" e-headertext="Budget" e-width="130"></div>
                                         <div e-column e-field="Activity" e-headertext="Activity" e-width="130"></div>
