@@ -128,6 +128,10 @@ function fixedAssetDisposePostController(accountService, cboService, commonMessa
         $scope.voucher.Department = data.Department;
         $scope.voucher.Status = data.Status;
         $scope.voucher.DocDate = $filter("dateFiltering")(data.DocDate);
+        $scope.voucher.Remarks = data.Remarks;
+        $scope.voucher.DeliveryPartyPlantId = data.DeliveryPartyPlantId;
+        $scope.voucher.InvoicingByAddress = data.InvoicingByAddress;
+        $scope.voucher.DeliveryByAddress = data.DeliveryByAddress;
         if ($scope.voucher.Status =='Sales')
           $scope.paymentTerm();
         $scope.voucher.CurrencyId = data.trnCurrencyId;
@@ -163,7 +167,7 @@ function fixedAssetDisposePostController(accountService, cboService, commonMessa
         else if ($scope.voucher.Status == 'Sales') {
             $scope.jvurl = 'FixedAssets/FixedAssetRegister/GetFixedAssetSalesSingleJVList?fixedAssetDisposeId=' + id
         }
-        else if ($scope.voucher.Status == 'Scrap') {
+        else if ($scope.voucher.Status == 'Scrap' || $scope.voucher.Status == 'Theft') {
             $scope.jvurl = 'FixedAssets/FixedAssetRegister/GetFixedAssetScrapSingleJVList?fixedAssetDisposeId=' + id
         }
         $http({

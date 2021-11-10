@@ -284,10 +284,9 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
                     method: "POST",
                     url: "fixedassets/fixedassetregister/createfixedassetlost",
                     data: {
-                        "status": $scope.voucher.Status,
-                        "fixedAssetRegister": $scope.voucherDetailList,
-                        "employeeId": $scope.voucher.EmployeeId,
-                        "remarks": $scope.voucher.Remarks
+                        "fixedAssetDisposed": $scope.voucher,
+                        "fixedAssetRegister": $scope.voucherDetailList
+                        
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {
@@ -328,14 +327,16 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
                 });
                 return true;
             }
-            if ($scope.Action === "Save" && $scope.voucher.Status == 'Scrap') {
+            if ($scope.Action === "Save" && ($scope.voucher.Status == 'Scrap' || $scope.voucher.Status == 'Theft')) {
                 $http({
                     method: "POST",
                     url: "fixedassets/fixedassetregister/CreateFixedAssetScrap",
                     data: {
-                        "status": $scope.voucher.Status,
-                        "fixedAssetRegister": $scope.voucherDetailList,
-                        "remarks": $scope.voucher.Remarks
+                        "fixedAssetDisposed": $scope.voucher,
+                        "fixedAssetRegister": $scope.voucherDetailList
+                        //"status": $scope.voucher.Status,
+                        //"fixedAssetRegister": $scope.voucherDetailList,
+                        //"remarks": $scope.voucher.Remarks
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {
@@ -352,7 +353,55 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
                 });
                 return true;
             }
-            else if ($scope.Action === "Update") {
+            if ($scope.Action === "Update" && $scope.voucher.Status == 'CompensateByEmployee' ) {
+                $http({
+                    method: "POST",
+                    url: "fixedassets/fixedassetregister/UpdateFixedAssetLost",
+                    data: {
+                        "fixedAssetDisposed": $scope.voucher,
+                        "fixedAssetRegister": $scope.voucherDetailList
+
+                    },
+                    dataType: "JSON"
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, "failure");
+                    }
+                    else {
+                        ShowResult(response.data.Message, "success");
+                        $scope.getData();
+                        $scope.Clear();
+                    }
+                }, function errorCallback(response) {
+                    ShowResult(response.status.Message, "failure");
+                });
+                return true;
+            }
+            if ($scope.Action === "Update" && ($scope.voucher.Status == 'Scrap' || $scope.voucher.Status == 'Theft')) {
+                $http({
+                    method: "POST",
+                    url: "fixedassets/fixedassetregister/UpdateFixedAssetScrap",
+                    data: {
+                        "fixedAssetDisposed": $scope.voucher,
+                        "fixedAssetRegister": $scope.voucherDetailList
+                        
+                    },
+                    dataType: "JSON"
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, "failure");
+                    }
+                    else {
+                        ShowResult(response.data.Message, "success");
+                        $scope.getData();
+                        $scope.Clear();
+                    }
+                }, function errorCallback(response) {
+                    ShowResult(response.status.Message, "failure");
+                });
+                return true;
+            }
+            else if ($scope.Action === "Update" && $scope.voucher.Status == 'Sales') {
                 $http({
                     method: "POST",
                     url: "fixedassets/fixedassetregister/UpdateFixedAssetSales",
@@ -602,7 +651,13 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
     };
 
     $scope.calBooksNegotiationValue = function (data) {
-        data.BaseNagotiationValue = data.NegotiationValue * $scope.voucher.CompanyCurrencyRate;
+        if ($scope.voucher.Status == 'CompensateByEmployee') {
+            data.BaseNagotiationValue = data.NegotiationValue;
+        }
+        else {
+            data.BaseNagotiationValue = data.NegotiationValue * $scope.voucher.CompanyCurrencyRate;
+        }
+        
     }
     $scope.updateBooksNegotiationValue = function () {
         for (var i = 0; i < $scope.voucherDetailList.length; i++) {

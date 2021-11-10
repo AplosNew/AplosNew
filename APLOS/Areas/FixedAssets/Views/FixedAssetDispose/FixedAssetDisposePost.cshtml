@@ -39,28 +39,28 @@
             </div>
 
 
-            <div class="form-group" show-errors>
+            <div class="form-group" show-errors ng-show="voucher.Status=='Sales'">
                 <label class="col-sm-3 control-label">Payment Term<sup>*</sup></label>
                 <div class="col-sm-3 show-message">
                     <div class="select-style">
-                        <select tabindex="10" required id="paymentTermId" class="form-control" name="Payment Term" ng-model="voucher.PaymentTermId" ng-change="changePaymentTerm(voucher.PaymentTermId);">
+                        <select tabindex="10"  id="paymentTermId" class="form-control" name="Payment Term" ng-model="voucher.PaymentTermId" ng-change="changePaymentTerm(voucher.PaymentTermId);">
                             <option ng-repeat="option in paymentTermList" value="{{option.Value}}">{{option.Text}}</option>
                         </select>
                     </div>
                 </div>
                 <label class="col-sm-3 control-label">Due Date BaseOn<sup>*</sup></label>
                 <div class="col-sm-3 show-message">
-                    <input type="text" name="BaseOnDueDate" ng-model="voucher.BaseOnDueDate" ng-change="getMatureDate(voucher.BaseOnDueDate,voucher.BaseNoOfDays)" datepicker class="form-control datepicker" tabindex="11" required>
+                    <input type="text" name="BaseOnDueDate" ng-model="voucher.BaseOnDueDate" ng-change="getMatureDate(voucher.BaseOnDueDate,voucher.BaseNoOfDays)" datepicker class="form-control datepicker" tabindex="11" >
                 </div>
             </div>
-            <div class="form-group" show-errors>
+            <div class="form-group" show-errors ng-show="voucher.Status=='Sales'">
                 <label class="col-sm-3 control-label">No Of Days</label>
                 <div class="col-sm-3 show-message">
-                    <input id="baseNoOfday" type="number" name="No Of Days" ng-model="voucher.BaseNoOfDays" ng-change="getMatureDate(voucher.BaseOnDueDate, voucher.BaseNoOfDays)" class="form-control" tabindex="12" required>
+                    <input id="baseNoOfday" type="number" name="No Of Days" ng-model="voucher.BaseNoOfDays" ng-change="getMatureDate(voucher.BaseOnDueDate, voucher.BaseNoOfDays)" class="form-control" tabindex="12" >
                 </div>
                 <label class="col-sm-3 control-label">Mature Date</label>
                 <div class="col-sm-3 show-message">
-                    <input type="text" name="Mature Date" ng-model="voucher.MatureDate" class="form-control" readonly required>
+                    <input type="text" name="Mature Date" ng-model="voucher.MatureDate" class="form-control" readonly >
                 </div>
             </div>
 

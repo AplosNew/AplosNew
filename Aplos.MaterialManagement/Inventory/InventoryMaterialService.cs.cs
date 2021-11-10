@@ -4115,7 +4115,7 @@ FROM [TRN].[InventoryReceiveDetail] AS IRD
                                 left join HKP.JobWorkItem jwi on jwi.Id=tbp.JobWorkItemId
                         --        left join dbo.JobWorkTransformationContractChild3 mi on mi.Id=tbp.JobWorkTransformationContractChild3MasterId
 								left join dbo.OSTransformationPOInputMaterial mi on mi.Id=tbp.OSTransformationPOInputMaterialId
-                        --        left join dbo.OSTransformationPODetail mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+                        --        left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
 								left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
                                 left join HKP.JobWorkItem jwit on jwit.Id=mp.JobWorkItemMasterId
 								WHERE IRD.InventoryReceiveId=@inventoryReceiveId and IM.MaterialMasterId IS not null AND IRD.MaterialFor='JWBYPRODUCTMaterial'";

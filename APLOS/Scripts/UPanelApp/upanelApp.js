@@ -970,6 +970,7 @@ var upanelApp = angular
     .controller('OSissueRegisterController', OSissueRegisterController)
     .controller('SandwichProcessController', SandwichProcessController)
     .controller('JobWorkTransformationPOController', JobWorkTransformationPOController)
+    .controller('AssetWIPStatusController', AssetWIPStatusController)
 
     .config(AccessControllerConfig)
     .config(accountConfig)
