@@ -854,7 +854,7 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
     };
 
     $scope.isSet = function (tabNum) {
-        return $scope.tab === tabNum;
+        return $scope.tab === tabNum; 
     };
 
     $scope.delete = function (issueId, voucherId) {
