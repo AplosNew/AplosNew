@@ -46,6 +46,8 @@ namespace Aplos.Areas.Employees.Controllers
         }
         #endregion
 
+        #region Operation
+
         [HttpPost]
         public ActionResult GetList(string column, string value)
         {
@@ -55,9 +57,6 @@ namespace Aplos.Areas.Employees.Controllers
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select top 100 * from (SELECT * FROM dbo.EmployeeCodeGenGroup) AS TEMP WHERE " + strkey + " order by sequence";
-
-
-
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -77,12 +76,10 @@ namespace Aplos.Areas.Employees.Controllers
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetAllEmployeeCodeGenerationPlantData()
+        public JsonResult GetAllEmployeeCodeGenerationPlantData(string masterId)
         {
-            return Json(employeeProfile.GetAllEmployeeCodeGenerationPlantData(), JsonRequestBehavior.AllowGet);
+            return Json(employeeProfile.GetAllEmployeeCodeGenerationPlantData(masterId), JsonRequestBehavior.AllowGet);
         }
-
-        
 
         [HttpPost]
         public JsonResult Create(Dictionary<string, object> data, List<Dictionary<string, object>> detaildata)
@@ -110,7 +107,7 @@ namespace Aplos.Areas.Employees.Controllers
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "EmployeeCodeGenGroup", out _Id);
 
-                    data["Id"] =_Id;
+                    data["Id"] = _Id;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -154,6 +151,7 @@ namespace Aplos.Areas.Employees.Controllers
 
             }
         }
+
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -173,6 +171,7 @@ namespace Aplos.Areas.Employees.Controllers
             dr["AddedFromIP"] = identity.IPAddress;
             dt.Rows.Add(dr);
         }
+
         private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -192,6 +191,32 @@ namespace Aplos.Areas.Employees.Controllers
             dr["UpdatedFromIP"] = identity.IPAddress;
             dr.EndEdit();
         }
+
+        public ActionResult Delete(string id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from dbo.[EmployeeCodeGenGroupDetail] where EmployeeCodeGenGroupId='" + id + "'");
+                con.executeQuery("delete from dbo.[EmployeeCodeGenGroup] where id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+
+        }
+
+        #endregion
 
     }
 }

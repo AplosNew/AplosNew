@@ -2198,31 +2198,39 @@ namespace Aplos.HumanResource
         #endregion
 
         #region EmployeeCodeGeneration
-        public IEnumerable<object> GetAllEmployeeCodeGenerationPlantData()
+        public IEnumerable<object> GetAllEmployeeCodeGenerationPlantData(string masterId)
         {
             try
             {
-                var sql = @"Select Flag=CAST(0 AS bit),D.Id,A.* from (
-                        Select CG.UserName CompanyGroup,C.UserName Company,P.Id PlantId,P.UserName Plant
-                        ,EmploymentType='Permanent'
-                        from ORG.Plant P
-                        LEFT JOIN ORG.Company C ON C.Id=P.CompanyId
-                        LEFT JOIN ORG.CompanyGroup CG ON CG.Id=C.CompanyGroupId
-                        UNION ALL
-                        Select CG.UserName CompanyGroup,C.UserName Company,P.Id PlantId,P.UserName Plant
-                        ,EmploymentType='Temporary'
-                        from ORG.Plant P
-                        LEFT JOIN ORG.Company C ON C.Id=P.CompanyId
-                        LEFT JOIN ORG.CompanyGroup CG ON CG.Id=C.CompanyGroupId
-                        UNION ALL
-                        Select CG.UserName CompanyGroup,C.UserName Company,P.Id PlantId,P.UserName Plant
-                        ,EmploymentType='Contactual'
-                        from ORG.Plant P
-                        LEFT JOIN ORG.Company C ON C.Id=P.CompanyId
-                        LEFT JOIN ORG.CompanyGroup CG ON CG.Id=C.CompanyGroupId
-                        ) A 
-                        LEFT JOIN [dbo].[EmployeeCodeGenGroupDetail] D ON D.PlantId=A.PlantId
-                        order by A.CompanyGroup,A.Company,A.Plant";
+                var sql = @"Select Flag= CAST(CASE WHEN D.Id IS NULL THEN 0 ELSE 1 END AS bit),D.Id,A.* FROM (
+                                    SELECT CG.UserName CompanyGroup,C.UserName Company,P.Id PlantId,P.UserName Plant
+                                    ,EmploymentType='Permanent'
+                                    FROM ORG.Plant P
+                                    LEFT JOIN ORG.Company C ON C.Id=P.CompanyId
+                                    LEFT JOIN ORG.CompanyGroup CG ON CG.Id=C.CompanyGroupId
+                                    UNION ALL
+                                    SELECT CG.UserName CompanyGroup,C.UserName Company,P.Id PlantId,P.UserName Plant
+                                    ,EmploymentType='Temporary'
+                                    FROM ORG.Plant P
+                                    LEFT JOIN ORG.Company C ON C.Id=P.CompanyId
+                                    LEFT JOIN ORG.CompanyGroup CG ON CG.Id=C.CompanyGroupId
+                                    UNION ALL
+                                    SELECT CG.UserName CompanyGroup,C.UserName Company,P.Id PlantId,P.UserName Plant
+                                    ,EmploymentType='Contactual'
+                                    FROM ORG.Plant P
+                                    LEFT JOIN ORG.Company C ON C.Id=P.CompanyId
+                                    LEFT JOIN ORG.CompanyGroup CG ON CG.Id=C.CompanyGroupId
+                                    ) A 
+                                    LEFT JOIN [dbo].[EmployeeCodeGenGroupDetail] D ON D.PlantId=A.PlantId
+                                    WHERE A.PlantId NOT IN (Select PlantId from [dbo].[EmployeeCodeGenGroupDetail])
+                                    UNION ALL
+                                    SELECT Flag= CAST(CASE WHEN d.Id IS NULL THEN 0 ELSE 1 END AS bit),D.Id,CG.UserName CompanyGroup,C.UserName Company,P.Id PlantId,P.UserName Plant,D.EmploymentType
+                                    FROM [dbo].[EmployeeCodeGenGroupDetail] D
+                                    LEFT JOIN ORG.Plant P ON P.Id=D.PlantId
+                                    LEFT JOIN ORG.Company C ON C.Id=P.CompanyId
+                                    LEFT JOIN ORG.CompanyGroup CG ON CG.Id=C.CompanyGroupId
+                                    WHERE ISNULL(D.EmployeeCodeGenGroupId,'')='"+ masterId + @"' 
+                                    ORDER BY A.CompanyGroup,A.Company,A.Plant";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)

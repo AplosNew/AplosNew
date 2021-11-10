@@ -2513,7 +2513,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
         					   left join scs.Currency c on c.Id=vcc.CurrencyId
         					   left join dbo.EmployeeInformation emp on emp.SystemId=vcc.ResponsiblePersonId
 							   left join dbo.OSTransformationPO vc on vc.Id=vcc.OSTransformationPOId
-							   --	   left join dbo.JobWorkTransformationContractChild2 owr on owr.OSTransformationPODetailId=vcc.Id
+							   --	   left join dbo.OSTransformationPOMasterOrderItem owr on owr.OSTransformationPODetailId=vcc.Id
 							   left join dbo.OSTransformationPOMasterOrderItem owr on owr.OSTransformationPODetailId=vcc.Id
 							   left join [TRN].[SalesOrder] AS SO on SO.Id=owr.SalesOrderId
 							   left JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
