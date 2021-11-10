@@ -163,7 +163,7 @@ function fixedAssetDisposePostController(accountService, cboService, commonMessa
         else if ($scope.voucher.Status == 'Sales') {
             $scope.jvurl = 'FixedAssets/FixedAssetRegister/GetFixedAssetSalesSingleJVList?fixedAssetDisposeId=' + id
         }
-        else if ($scope.voucher.Status == 'Scrap') {
+        else if ($scope.voucher.Status == 'Scrap' || $scope.voucher.Status == 'Theft') {
             $scope.jvurl = 'FixedAssets/FixedAssetRegister/GetFixedAssetScrapSingleJVList?fixedAssetDisposeId=' + id
         }
         $http({

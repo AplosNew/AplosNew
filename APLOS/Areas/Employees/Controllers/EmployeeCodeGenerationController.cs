@@ -1,6 +1,7 @@
 ﻿#region Using
 
 using Aplos.Controllers;
+using Aplos.HumanResource;
 using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
@@ -23,13 +24,14 @@ using System.Web.Mvc;
 
 namespace Aplos.Areas.Employees.Controllers
 {
-    public class ContractualEmployeeCodeController : BaseController
+    public class EmployeeCodeGenerationController : BaseController
     {
-        string TableName = "dbo.AccountsGroup";
+
         #region Constructor
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISqlRepository _sqlRepository;
-        public ContractualEmployeeCodeController(IUnitOfWork U, ISqlRepository R)
+        EmployeeProfile employeeProfile = new EmployeeProfile();
+        public EmployeeCodeGenerationController(IUnitOfWork U, ISqlRepository R)
         {
             _unitOfWork = U;
             _sqlRepository = R;
@@ -44,35 +46,40 @@ namespace Aplos.Areas.Employees.Controllers
         }
         #endregion
 
-        [HttpGet, Authorize]
-        public JsonResult GetCbo()
+        [HttpPost]
+        public ActionResult GetList(string column, string value)
         {
-            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM " + TableName + ""), JsonRequestBehavior.AllowGet);
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select top 100 * from (SELECT * FROM dbo.EmployeeCodeGenGroup) AS TEMP WHERE " + strkey + " order by sequence";
+
+
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetContractCodeList(string Level)
+        public JsonResult GetAutoSequence()
         {
-            if (Level == "CompanyGroup")
-            {
-                return Json(_sqlRepository.GetDataCollection(@"Select EC.Id,CG.Id CompanyGroupId,CG.UserName CompanyGroup, EC.StartValue from ORG.CompanyGroup CG
-LEFT JOIN ContractualEmployeeCode EC ON EC.CompanyGroupId = CG.Id Where ISNULL(EC.EmployeeCodeLevel,'" + Level + "')='" + Level + "'"), JsonRequestBehavior.AllowGet);
-            }
-            else if (Level == "Company")
-            {
-                return Json(_sqlRepository.GetDataCollection(@"Select EC.Id,CG.Id CompanyGroupId,CG.UserName CompanyGroup,C.Id CompanyId,C.UserName Company, EC.StartValue from ORG.Company C
-LEFT JOIN ORG.CompanyGroup CG ON CG.Id=C.CompanyGroupId 
-LEFT JOIN ContractualEmployeeCode EC ON EC.CompanyId=C.Id
-Where ISNULL(EC.EmployeeCodeLevel,'" + Level + "')='" + Level + "'"), JsonRequestBehavior.AllowGet);
-            }
-            else
-            {
-                return Json(_sqlRepository.GetDataCollection(@"Select EC.Id,CG.Id CompanyGroupId,CG.UserName CompanyGroup,C.Id CompanyId,C.UserName Company,P.Id PlantId,P.UserName Plant, EC.StartValue from ORG.Plant P
-LEFT JOIN ORG.Company C ON C.Id=P.CompanyId
-LEFT JOIN ORG.CompanyGroup CG ON CG.Id=C.CompanyGroupId
-LEFT JOIN ContractualEmployeeCode EC ON EC.PlantId=P.Id Where ISNULL(EC.EmployeeCodeLevel,'" + Level + "')='" + Level + "'"), JsonRequestBehavior.AllowGet);
-            }
+            return Json(GetSequence(), JsonRequestBehavior.AllowGet);
+        }
 
+        private double GetSequence()
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM dbo.EmployeeCodeGenGroup");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+            return 1;
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetAllEmployeeCodeGenerationPlantData()
+        {
+            return Json(employeeProfile.GetAllEmployeeCodeGenerationPlantData(), JsonRequestBehavior.AllowGet);
         }
 
         private string GetPK()
@@ -101,7 +108,7 @@ LEFT JOIN ContractualEmployeeCode EC ON EC.PlantId=P.Id Where ISNULL(EC.Employee
 
                     if (dv.Count == 0)
                     {
-                        item["Id"] = _Id+count;
+                        item["Id"] = _Id + count;
                         item["EmployeeCodeLevel"] = Level;
 
                         AddNewRow(dsMaster.Tables[0], item);
@@ -127,23 +134,6 @@ LEFT JOIN ContractualEmployeeCode EC ON EC.PlantId=P.Id Where ISNULL(EC.Employee
             }
         }
 
-        public ActionResult Delete(string id)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(id))
-                    throw new Exception("Select entry first");
-                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.BeginTransaction();
-                con.executeQuery("delete from " + TableName + " where id='" + id + "'");
-                con.CommitTransaction();
-                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
-        }
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -182,12 +172,6 @@ LEFT JOIN ContractualEmployeeCode EC ON EC.PlantId=P.Id Where ISNULL(EC.Employee
             dr["UpdatedFromIP"] = identity.IPAddress;
             dr.EndEdit();
         }
-        private double GetSequence()
-        {
-            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM " + TableName + "");
-            if (dt.Rows.Count > 0)
-                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
-            return 1;
-        }
+
     }
 }

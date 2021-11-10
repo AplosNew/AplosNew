@@ -929,5 +929,11 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/PostInvoice/Aplos",
             controller: "PostInvoiceController"
         })
+
+        .when("/asset-wip-status", {
+            templateUrl: "Accounts/VoucherReport/AssetWIPStatusReport",
+            controller: "AssetWIPStatusController"
+        })
+
         ;
 } 

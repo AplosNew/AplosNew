@@ -910,9 +910,15 @@ namespace Aplos.Areas.FixedAssets.Controllers
             return Json(_fixedAssetDisposeService.GetFixedAssetDisposeList(column, value, companyId), JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
-        public JsonResult CreateFixedAssetLost(string status, IEnumerable<FixedAssetRegister> fixedAssetRegister,string employeeId,string remarks)
+        public JsonResult CreateFixedAssetLost(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegister> fixedAssetRegister)
         {
-            _fixedAssetRegisterService.InsertFixedAssetLost(status, fixedAssetRegister, employeeId, remarks);
+            _fixedAssetRegisterService.InsertFixedAssetLost(fixedAssetDisposed, fixedAssetRegister);
+            return Json(new { Message = AplosMessage.Insert });
+        }
+        [HttpPost]
+        public JsonResult UpdateFixedAssetLost(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegisterDisposedDetail> fixedAssetRegister)
+        {
+            _fixedAssetRegisterService.EditFixedAssetLost(fixedAssetDisposed, fixedAssetRegister);
             return Json(new { Message = AplosMessage.Insert });
         }
 
@@ -931,9 +937,15 @@ namespace Aplos.Areas.FixedAssets.Controllers
        
 
         [HttpPost]
-        public JsonResult CreateFixedAssetScrap(string status, IEnumerable<FixedAssetRegister> fixedAssetRegister, string remarks)
+        public JsonResult CreateFixedAssetScrap(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegister> fixedAssetRegister)
         {
-            _fixedAssetRegisterService.InsertFixedAssetScrap(status, fixedAssetRegister, remarks);
+            _fixedAssetRegisterService.InsertFixedAssetScrap(fixedAssetDisposed, fixedAssetRegister);
+            return Json(new { Message = AplosMessage.Insert });
+        }
+        [HttpPost]
+        public JsonResult UpdateFixedAssetScrap(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegisterDisposedDetail> fixedAssetRegister)
+        {
+            _fixedAssetRegisterService.EditFixedAssetScrap(fixedAssetDisposed, fixedAssetRegister);
             return Json(new { Message = AplosMessage.Insert });
         }
 
