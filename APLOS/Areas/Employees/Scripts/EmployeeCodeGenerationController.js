@@ -4,14 +4,46 @@ function EmployeeCodeGenerationController(cboService, commonMessage, $scope, $ro
     $rootScope.title = 'Employee Code Generation';
     $scope.Action = 'Save';
     $scope.index = -1;
-    $scope.bloodGroups = [];
+    $scope.ModelList = [];
     $scope.path = 'employees/EmployeeCodeGeneration/';
+    $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
 
     $scope.searchBy = "UserName"; $scope.search = "";
     $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
+
+
+    $scope.getData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetList",
+            data: { column: $scope.searchBy, value: $scope.search },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ModelList = response.data;
+            ClearFields(response.data.Sequence);
+            $scope.GetSequence();
+        });
+    }
+    $scope.getData();
+
+    $scope.GetSequence = function () {
+        cboService.getSequence($scope.getSeqUrl, function (data) {
+            $scope.ModelTemp.Sequence = data;
+            $scope.ModelNew.Sequence = data;
+        });
+    };
+    $scope.GetSequence();
+
+    $scope.Get = function (args) {
+        $scope.ModelNew = Object.assign({}, args.data);
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
 
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -35,10 +67,12 @@ function EmployeeCodeGenerationController(cboService, commonMessage, $scope, $ro
         IsEmployeeCodeOpenField: false,
         EmpCodeGenType: null,
         IsAutoEmpCodeWithPrefix: false,
+        EmpCodeStartValue:null,
         Prefix: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
-
+    //$scope.ModelNew.IsEmployeeCodeOpenField = false;
+    alert($scope.ModelNew.IsEmployeeCodeOpenField);
     $scope.ModelDetailTemp = {
         Id: null,
         EmployeeCodeGenGroupId: null,
@@ -47,17 +81,54 @@ function EmployeeCodeGenerationController(cboService, commonMessage, $scope, $ro
     };
     $scope.ModelDetailNew = Object.assign({}, $scope.ModelTemp);
 
-    $scope.dataList = [];
-
-    $scope.LoadData = function () {
-        $http.get('employees/EmployeeCodeGeneration/GetContractCodeList?Level=' + $scope.ModelNew.EmployeeCodeLevel)
-            .then(function (response) {
-                $scope.dataList = [];
-                $scope.dataList = response.data;
-            });
+    $scope.ChangeEmployeeCodeOpenField = function () {
+        if ($scope.ModelNew.IsEmployeeCodeOpenField == true) {
+            $scope.ModelNew.EmpCodeGenType = null;
+            $scope.ModelNew.EmpCodeStartValue = null;
+            $scope.ModelNew.Prefix = null;
+            $scope.ModelNew.IsAutoEmpCodeWithPrefix = false;
+        }
     }
 
 
+    $scope.AllPlantList = [];
+    $scope.LoadData = function () {
+        $http.get('employees/EmployeeCodeGeneration/GetAllEmployeeCodeGenerationPlantData')
+            .then(function (response) {
+                $scope.AllPlantList = [];
+                $scope.AllPlantList = response.data;
+            });
+    }
+    $scope.LoadData();
+
+    // #region checkbox all
+
+    $scope.refreshTemplate = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAll });
+    };
+
+    function CheckBoxSelectAll(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridPlant").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.AllPlantList.length; i++) {
+                $scope.AllPlantList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridPlant").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    // #endregion checkbox all
 
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');

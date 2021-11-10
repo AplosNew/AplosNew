@@ -2196,6 +2196,39 @@ namespace Aplos.HumanResource
         }
 
         #endregion
+
+        #region EmployeeCodeGeneration
+        public IEnumerable<object> GetAllEmployeeCodeGenerationPlantData()
+        {
+            try
+            {
+                var sql = @"Select Flag=CAST(0 AS bit),A.* from (
+                        Select CG.UserName CompanyGroup,C.UserName Company,P.Id PlantId,P.UserName Plant
+                        ,EmploymentType='Permanent'
+                        from ORG.Plant P
+                        LEFT JOIN ORG.Company C ON C.Id=P.CompanyId
+                        LEFT JOIN ORG.CompanyGroup CG ON CG.Id=C.CompanyGroupId
+                        UNION ALL
+                        Select CG.UserName CompanyGroup,C.UserName Company,P.Id PlantId,P.UserName Plant
+                        ,EmploymentType='Temporary'
+                        from ORG.Plant P
+                        LEFT JOIN ORG.Company C ON C.Id=P.CompanyId
+                        LEFT JOIN ORG.CompanyGroup CG ON CG.Id=C.CompanyGroupId
+                        UNION ALL
+                        Select CG.UserName CompanyGroup,C.UserName Company,P.Id PlantId,P.UserName Plant
+                        ,EmploymentType='Contactual'
+                        from ORG.Plant P
+                        LEFT JOIN ORG.Company C ON C.Id=P.CompanyId
+                        LEFT JOIN ORG.CompanyGroup CG ON CG.Id=C.CompanyGroupId
+                        ) A order by A.CompanyGroup,A.Company,A.Plant";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
     }
     public class EmployeeOperation
     {
