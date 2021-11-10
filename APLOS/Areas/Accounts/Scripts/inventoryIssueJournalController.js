@@ -879,7 +879,7 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
         }, function errorCallback(response) {
             ShowResult(response.status.Message, "failure");
         });
-        return true; 
+        return true;  
     };
 
     $scope.issueId = null;
