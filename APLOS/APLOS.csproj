@@ -551,6 +551,7 @@
     <Compile Include="Areas\Farming\Controllers\VoucherController.cs" />
     <Compile Include="Areas\Farming\FarmingAreaRegistration.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\EntityFixedAssetsRegisterController.cs" />
+    <Compile Include="Areas\FixedAssets\Controllers\AssetWIPStatusController.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\SubAssetTypeController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FinalDeductionReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\PhysicalVerificationReportController.cs" />
@@ -1563,6 +1564,7 @@
     <Content Include="Areas\Accounts\Scripts\accountService.js" />
     <Content Include="Areas\Accounts\Scripts\dayBooksReportController.js" />
     <Content Include="Areas\Accounts\Scripts\entityWiseExpenseAndEarningController.js" />
+    <Content Include="Areas\Accounts\Scripts\AssetWIPStatusController.js" />
     <Content Include="Areas\Accounts\Scripts\PostInvoiceController.js" />
     <Content Include="Areas\Accounts\Scripts\voucherParkController.js" />
     <Content Include="Areas\Accounts\Scripts\expenseRegisterReportController.js" />
@@ -2686,6 +2688,7 @@
     <Content Include="Areas\Setups\Scripts\employeeLocationController.js" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="images\organization-alt.png" />
+    <Content Include="POPResources\Templates\FixedAssetDisposed20171.docx" />
     <Content Include="POPResources\Templates\PurchaseOrder20188.docx" />
     <Content Include="POPResources\UserPictures\altUser.jpg" />
     <Content Include="Areas\Banks\Scripts\cashBaseController.js" />
@@ -3823,10 +3826,11 @@
     <Content Include="Areas\JobWork\Views\JWValueAddedContract\Aplos.cshtml" />
     <Content Include="Areas\JobWork\Views\JobWorkTransformationPO\Aplos.cshtml" />
     <Content Include="Areas\JobWork\Views\web.config" />
-    <Content Include="Areas\JobWork\Views\OSIssueRegister\Aplos.cshtml" />
-    <Content Include="Areas\JobWork\Views\OSIssueRegister\IssueReturnRegister.cshtml" />
     <Content Include="Areas\Attendances\Views\SandwichProcess\Aplos.cshtml" />
     <Content Include="Areas\Outsourcing\Views\web.config" />
+    <Content Include="Areas\JobWork\Views\OSIssueRegister\Aplos.cshtml" />
+    <Content Include="Areas\JobWork\Views\OSIssueRegister\IssueReturnRegister.cshtml" />
+    <Content Include="Areas\FixedAssets\Views\AssetWIPStatusReport.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -3911,7 +3915,6 @@
     <Content Include="POPResources\Templates\JWValAddedGRNReceiptReport20202.docx" />
     <Content Include="POPResources\Templates\JWValAddedPurchaseOrder20202.docx" />
     <Content Include="POPResources\Templates\InventoryPreSalesReport202026.docx" />
-    <Content Include="POPResources\Templates\FixedAssetDisposed20171.docx" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />

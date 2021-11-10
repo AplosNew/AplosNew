@@ -22607,7 +22607,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 							LEFT JOIN [dbo].[Contract] CON on CON.Id= PO.ContractId
 								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
 								 left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
-                        WHERE IR.GRNType='GRNBYPO' AND (IR.AuthorizedByStatus='Hold' OR IR.AuthorizedByStatus='Reject') AND IR.PlantId='" + plantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' AND IR.OpeningBalanceId IS NULL AND IR.EmployeeId IS NULL And IR.IsApproved = 0 order by IR.GRNDate ASC";
+                        WHERE IR.GRNType='GRNBYOS' AND (IR.AuthorizedByStatus='Hold' OR IR.AuthorizedByStatus='Reject') AND IR.PlantId='" + plantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' AND IR.OpeningBalanceId IS NULL AND IR.EmployeeId IS NULL And IR.IsApproved = 0 order by IR.GRNDate ASC";
                 }
 
                 else if (GRNbyPOApprovedStatus == "Approved")
@@ -23145,7 +23145,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 						LEFT JOIN [dbo].[Contract] CON on CON.Id= PO.ContractId
 								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
 								 left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
-                        WHERE IR.GRNType='GRNBYPO'  AND (IR.AuthorizedByStatus IS Null  AND IR.CheckedByStatus IS Null)
+                        WHERE IR.GRNType='GRNBYOS'  AND (IR.AuthorizedByStatus IS Null  AND IR.CheckedByStatus IS Null)
                         AND IR.PlantId='" + plantId + @"' 
                         AND ISNULL(IR.[Status],'')<>'Posting' 
                         AND IR.OpeningBalanceId IS NULL 
@@ -23282,7 +23282,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 						LEFT JOIN [dbo].[Contract] CON on CON.Id= PO.ContractId
 								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
 								 left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
-                        WHERE IR.GRNType='GRNBYPO' AND (IR.CheckedByStatus Is Null  AND IR.AuthorizedByStatus='Approved')
+                        WHERE IR.GRNType='GRNBYOS' AND (IR.CheckedByStatus Is Null  AND IR.AuthorizedByStatus='Approved')
                         AND IR.PlantId='" + plantId + @"' 
                         AND ISNULL(IR.[Status],'')<>'Posting' 
                         AND IR.OpeningBalanceId IS NULL 
@@ -23419,7 +23419,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 						LEFT JOIN [dbo].[Contract] CON on CON.Id= PO.ContractId
 								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
 								 left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
-                        WHERE IR.GRNType='GRNBYPO' AND (IR.CheckedByStatus ='Checked'  AND IR.AuthorizedByStatus='Approved') 
+                        WHERE IR.GRNType='GRNBYOS' AND (IR.CheckedByStatus ='Checked'  AND IR.AuthorizedByStatus='Approved') 
                         AND IR.PlantId='" + plantId + @"' 
                         AND ISNULL(IR.[Status],'')<>'Posting' 
                         AND IR.OpeningBalanceId IS NULL 
@@ -23696,7 +23696,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 						LEFT JOIN [dbo].[Contract] CON on CON.Id= PO.ContractId
 								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
 								 left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
-                        WHERE IR.GRNType='GRNBYPO' AND IR.Status='Posting'  AND IR.PlantId='" + plantId + @"' AND ISNULL(IR.[Status],'')='Posting' 
+                        WHERE IR.GRNType='GRNBYOS' AND IR.Status='Posting'  AND IR.PlantId='" + plantId + @"' AND ISNULL(IR.[Status],'')='Posting' 
                         AND IR.OpeningBalanceId IS NULL AND IR.EmployeeId IS NULL And IR.IsApproved = 1 
                         And PO.POId is null And IR.TransformationContractId is not null
                         order by IR.GRNDate ASC";
