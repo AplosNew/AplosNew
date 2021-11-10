@@ -3709,7 +3709,7 @@ GROUP BY FAR.FABudgetMasterId
                -- AND FR.Id NOT IN(' ')
 
                      WHERE FR.CompanyGroupId='" + companyGroupId + "'and FR.CompanyId='" + companyId + "' AND FR.PlantId='" + plantId + @"'
-                                    and FR.Archive=0 and FR.IsAUC=0
+                                    and FR.Archive=0 and FR.IsAUC=0 AND FR.Status IS NULL
                                     AND FR.Id NOT IN(' ')
 				                     and FR.MaterialMasterId in(" + MaterialMasterId + ") AND FR.MaterialMasterArticleId in (" + MaterialMasterArticleId + ") AND FR.FixedAssetMasterId in (" + fixedAssetMasterId + @")
 					                 and FR.VendorId in (" + vendorId + @") 

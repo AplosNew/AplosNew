@@ -128,6 +128,10 @@ function fixedAssetDisposePostController(accountService, cboService, commonMessa
         $scope.voucher.Department = data.Department;
         $scope.voucher.Status = data.Status;
         $scope.voucher.DocDate = $filter("dateFiltering")(data.DocDate);
+        $scope.voucher.Remarks = data.Remarks;
+        $scope.voucher.DeliveryPartyPlantId = data.DeliveryPartyPlantId;
+        $scope.voucher.InvoicingByAddress = data.InvoicingByAddress;
+        $scope.voucher.DeliveryByAddress = data.DeliveryByAddress;
         if ($scope.voucher.Status =='Sales')
           $scope.paymentTerm();
         $scope.voucher.CurrencyId = data.trnCurrencyId;
