@@ -20,6 +20,7 @@ using System;
 using System.Threading;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
+using Library.Accounting.FixedAssets;
 
 namespace Aplos.Areas.Accounts.Controllers
 {
@@ -416,8 +417,18 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
 
+        public ActionResult AssetWIPStatusReport()
+        {
+            return View("~/Areas/Accounts/Views/AssetWIPStatusReport.cshtml");
+        }
 
-
+        [HttpPost, Authorize]
+        public ActionResult GetFixedAssetRegisterElasticSearchDataList(string materialMasterId, string materialMasterArticleId, string fixedAssetMasterId, string vendorId, string isAsset, string machine)
+        {
+            AssetWIPQueryService fixedAssetQueryService = new AssetWIPQueryService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(new { DATA = fixedAssetQueryService.GetFixedAssetRegisterElasticSearchDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, materialMasterId, materialMasterArticleId, fixedAssetMasterId, vendorId, isAsset, machine), Error = false }, JsonRequestBehavior.AllowGet);
+        }
 
     }
 

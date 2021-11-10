@@ -137,10 +137,7 @@ function fixedAssetConfig($routeProvider, $locationProvider) {
             controller: "entityFixedAssetsRegisterController"
         })
 
-        .when("/asset-wip-status", {
-            templateUrl: "FixedAssets/AssetWIPStatus/AssetWIPStatus",
-            controller: "AssetWIPStatusController"
-        })
+      
     
 
         ;
