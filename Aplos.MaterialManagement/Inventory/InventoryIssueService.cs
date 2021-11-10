@@ -12839,6 +12839,7 @@ namespace Library.MaterialManagement.Inventory
                                             rdBuilder.Append(builderSql);
 
                                             // End
+
                                         }
                                         issueDetail.PolicyAmount = tempPolicyAmount;
                                         issueDetail.PolicyRate = Math.Round(tempPolicyAmount / issueDetail.TransactionQty,4);
