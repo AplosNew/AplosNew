@@ -45,12 +45,12 @@ namespace Library.Accounting.FixedAssets
 
         public FixedAssetReportService(ISqlRepository sqlRepository)
         {
-            _sqlRepository = sqlRepository; 
+            _sqlRepository = sqlRepository;
 
         }
 
         #region GL vs FA
-        public IWorkbook GLVSfaReport(ExcelEngine excelEngine, string companyId, string plantId) 
+        public IWorkbook GLVSfaReport(ExcelEngine excelEngine, string companyId, string plantId)
         {
             excelEngine = new ExcelEngine();
             //Instantiate the Excel application object
@@ -95,10 +95,10 @@ namespace Library.Accounting.FixedAssets
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 int colBudgetMasterId = COL;
                 worksheet[ROW, COL].ColumnWidth = 15;
-                COL++; 
+                COL++;
 
                 worksheet[ROW, COL].Text = "Budget";
-               // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colBudgetName = COL;
                 worksheet[ROW, COL].ColumnWidth = 35;
                 COL++;
@@ -142,7 +142,7 @@ namespace Library.Accounting.FixedAssets
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colDiffrence = COL;
                 worksheet[ROW, COL].ColumnWidth = 15;
-              //  COL++;
+                //  COL++;
 
                 int endCol = COL;
                 worksheet.Range[ROW, startCol, ROW, COL].CellStyle.Font.Size = 12;
@@ -199,7 +199,7 @@ namespace Library.Accounting.FixedAssets
 
 			                    LEFT JOIN (SELECT FixedAssetRegisterId,SUM(Amount) SubAssetAmount FROM TRN.SubFixedAssetRegister 
 			                    GROUP BY FixedAssetRegisterId
-			                    ) SR ON SR.FixedAssetRegisterId=FAR.Id AND  FAR.CompanyId='"+companyId+"' AND FAR.PlantId='"+plantId+@"'  AND FAR.IsFinancial=1  
+			                    ) SR ON SR.FixedAssetRegisterId=FAR.Id AND  FAR.CompanyId='" + companyId + "' AND FAR.PlantId='" + plantId + @"'  AND FAR.IsFinancial=1  
 			                     WHERE  far.DisposedVoucherId is null
 			                    --GROUP BY FAM.UserName , GL.UserName ,B.UserName ,A.UserName 
 			                    ) X
@@ -217,8 +217,8 @@ namespace Library.Accounting.FixedAssets
 
                 ROW++;
                 int StartDataRow = ROW;
-           
-               // int SerialNumber = 0;
+
+                // int SerialNumber = 0;
                 for (int i = 0; i < dsData.Tables[0].Rows.Count; i++)
                 {
                     //SerialNumber++;
@@ -228,19 +228,19 @@ namespace Library.Accounting.FixedAssets
                     worksheet[ROW, colFixedAssetMasterId].Text = dsData.Tables[0].Rows[i]["FixedAssetMasterId"].ToString();
                     worksheet[ROW, colFixedAsset].Text = dsData.Tables[0].Rows[i]["FixedAsset"].ToString();
                     worksheet[ROW, colGLName].Text = dsData.Tables[0].Rows[i]["GLName"].ToString();
-                    
+
                     worksheet[ROW, colBudgetName].Text = dsData.Tables[0].Rows[i]["BudgetName"].ToString();
                     worksheet[ROW, colBudgetMasterId].Text = dsData.Tables[0].Rows[i]["BudgetMasterId"].ToString();
 
                     worksheet[ROW, colActivityName].Text = dsData.Tables[0].Rows[i]["ActivityName"].ToString();
                     worksheet[ROW, colActivityId].Text = dsData.Tables[0].Rows[i]["ActivityId"].ToString();
-     
+
                     worksheet[ROW, colGLAmount].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["GLAmount"].ToString());
                     worksheet[ROW, colRegisterAmount].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["RegisterAmount"].ToString());
                     worksheet[ROW, colSubAssetAmount].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["SubAssetAmount"].ToString());
                     worksheet[ROW, colTotalRegisterAmount].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["TotalRegisterAmount"].ToString());
                     worksheet[ROW, colDiffrence].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["Diffrence"].ToString());
-                    
+
                     ROW++;
                 }
 
@@ -499,7 +499,19 @@ namespace Library.Accounting.FixedAssets
             ReportUtility ru = new ReportUtility();
 
             //tempId = dtLangName.Rows[0]["UserName"].ToString();
-            fileName = "FixedAssetDisposed" + identity.PlantId  + ".docx";
+            DataTable dtOrderMaster;
+
+
+            dtOrderMaster = loadGRNMaterialMaster(fixedAssetRegisterDisposeId);
+            if(dtOrderMaster.Rows[0]["Status"].ToString()== "Sales")
+            {
+                fileName = "FixedAssetDisposed" + identity.PlantId + ".docx";
+            }
+            else
+            {
+                fileName = "FixedAssetDisposedScrap" + identity.PlantId + ".docx";
+            }
+            
             strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), /*"IDCardBengali.xlsx"*/fileName);  // IDCardEng.xlsx
             File = strPath;
             if (!System.IO.File.Exists(strPath))
@@ -515,10 +527,10 @@ namespace Library.Accounting.FixedAssets
             {
                 WSection section = document.Sections[0];
 
-                DataTable dtOrderMaster;
+                //DataTable dtOrderMaster;
 
 
-                dtOrderMaster = loadGRNMaterialMaster(fixedAssetRegisterDisposeId);
+                //dtOrderMaster = loadGRNMaterialMaster(fixedAssetRegisterDisposeId);
 
 
                 //var invoicePartyAddress = ru.GetAddress(dtOrderMaster.Rows[0]["InvoicePartyAddressMasterId"].ToString(), dtOrderMaster.Rows[0]["InvoicingByAddress"].ToString());
@@ -533,10 +545,19 @@ namespace Library.Accounting.FixedAssets
                 foreach (DataColumn item in dtOrderMaster.Columns)
                     columns.Add("{" + item.ColumnName.ToUpper() + "}", item.ColumnName);
                 //var dsServiceItems = loadGRNServiceMaster(fixedAssetRegisterDisposeId);
-                var materialTotal = makeOrderDetailsTable(document, dtOrderMaster, fixedAssetRegisterDisposeId);//Material Details 
-             
-                document.Replace("{GrandTotal}", ((materialTotal)).ToString("#,##0.00") + " " + dtOrderMaster.Rows[0]["TrnCurrency"].ToString(), true, true);
-                document.Replace("{TotalInWords}", ru.InWord(((materialTotal )), dtOrderMaster.Rows[0]["TrnCurrencyId"].ToString()), true, true);
+                double materialTotal = 0;
+                if (dtOrderMaster.Rows[0]["Status"].ToString() == "Sales")
+                {
+                    materialTotal = makeOrderDetailsTable(document, dtOrderMaster, fixedAssetRegisterDisposeId);
+                }
+                else
+                {
+                    materialTotal = makeScrapDisposedDetailsTable(document, dtOrderMaster, fixedAssetRegisterDisposeId);
+                }
+               
+
+                document.Replace("{GrandTotal}", ((materialTotal)).ToString("#,##0.00"), true, true);
+                document.Replace("{TotalInWords}", ru.InWord(((materialTotal)), dtOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
 
                 Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
 
@@ -616,7 +637,6 @@ namespace Library.Accounting.FixedAssets
                                     , FAM.UserName FixedAssetMasterName, FAC.UserName FixedAssetCategory
                                     , FASC.UserName FixedAssetSubCategory, FAM.FixedAssetCategoryId
                                     , FAM.FixedAssetSubCategoryId, FAM.AssetType
-                                    ,P.UserName Vendor
                                     ,c.Code TrnCurrency
 									,c.id TrnCurrencyId
 	                                ,FORMAT(FAD.DocDate,'dd-MMM-yyyy') DocDate
@@ -645,7 +665,14 @@ namespace Library.Accounting.FixedAssets
 									,format( ii.IssueDate,'dd-MMM-yyyy')IssueDate
 		                            ,FAD.Remarks,
 									Customer.UserName CustomerName
-									,CU.Code Currency,Plant.UserName Plant,FR.Status
+
+									,CU.Code Currency,CU.Id CurrencyId,Plant.UserName Plant,FR.Status
+									,FAD.InvoicingByAddress	
+									
+									,FAD.DeliveryByAddress,VPL.UserName DeliveryParty
+									,FAD.Id FixedAssetNo, FAD.PartyPlantId,fad.DeliveryPartyPlantId
+									,FAD.AddedBy
+								
 									
 
                                     FROM [TRN].[FixedAssetRegister] FR
@@ -669,7 +696,6 @@ namespace Library.Accounting.FixedAssets
                                     LEFT JOIN SCS.Currency C ON C.Id =FR.CurrencyId
                                     LEFT JOIN SCS.Currency BC ON BC.Id =FR.FABaseCurrencyId
 
-	                                LEFT JOIN HKP.Party P ON P.Id = FR.VendorId
 								   LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=BM.GLGeneralInfoId
 								   LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
 								   LEFT JOIN HKP.Activity A ON A.Id=FR.FAActivityId
@@ -681,18 +707,17 @@ namespace Library.Accounting.FixedAssets
                                     LEFT JOIN TRN.FixedAssetRegisterDisposed FAD ON FAD.Id=FARD.FixedAssetRegisterDisposedId
 	                                LEFT JOIN HKP.Party Customer ON Customer.Id = FAD.PartyId
                                     LEFT JOIN SCS.Currency CU ON CU.Id =FAD.CurrencyId
+									 LEFT JOIN HKP.PartyPlant VPL ON VPL.Id = FAD.DeliveryPartyPlantId
                                     LEFT JOIN ORG.Plant Plant ON Plant.Id =FR.PlantId
                                    WHERE FARD.FixedAssetRegisterDisposedId='" + fixedAssetRegisterDisposeId + @"'";
+                return _sqlRepository.GetDataTable(strSQL); 
+            }  
 
-
-                return _sqlRepository.GetDataTable(strSQL);
-
-            }
-            catch (System.Exception ex)
+            catch (System.Exception ex) 
             {
                 throw (ex);
             }
-            finally
+            finally 
             {
 
             }
@@ -703,10 +728,10 @@ namespace Library.Accounting.FixedAssets
             string replaceString = "{materialItems}";
 
             ReportUtility ru = new ReportUtility();
-        
-            int LasColumnIndex = 6;
+
+            int LasColumnIndex = 5;
             Dictionary<string, int> dicTaxes = new Dictionary<string, int>();
-         
+
             WTable wTable = new WTable(document);
             wTable.TableFormat.Borders.LineWidth = 1;
             wTable.TableFormat.Borders.BorderType = BorderStyle.Single;
@@ -736,32 +761,32 @@ namespace Library.Accounting.FixedAssets
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Materials");
             range.ApplyCharacterFormat(FontBold);
             int colMaterialGroup = COL; COL++;
-            wTable.Rows[ROW].Cells[colMaterialGroup].Width = 100;
+            wTable.Rows[ROW].Cells[colMaterialGroup].Width = 130;
 
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Article ");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Article");
             range.ApplyCharacterFormat(FontBold);
             int colArticle = COL; COL++;
-            wTable.Rows[ROW].Cells[colArticle].Width = 110;
+            wTable.Rows[ROW].Cells[colArticle].Width = 180;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Asset Master");
             range.ApplyCharacterFormat(FontBold);
             int colFixedAssetMaster = COL; COL++;
             wTable.Rows[ROW].Cells[colFixedAssetMaster].Width = 110;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Base Amount(" + dsOrderMaster.Rows[0]["BaseCurrency"].ToString() + ")");
-            range.ApplyCharacterFormat(FontBold);
-            int colBaseAmount = COL; COL++;
-            wTable.Rows[ROW].Cells[colBaseAmount].Width = 90;
-
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Transaction Amount(" + dsOrderMaster.Rows[0]["TrnCurrency"].ToString() + ")");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Amount");
             range.ApplyCharacterFormat(FontBold);
             int colTrnAmount = COL; COL++;
             wTable.Rows[ROW].Cells[colTrnAmount].Width = 90;
 
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Base Amount(" + dsOrderMaster.Rows[0]["BaseCurrency"].ToString() + ")");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colBaseAmount = COL; COL++;
+            //wTable.Rows[ROW].Cells[colBaseAmount].Width = 90;
+
 
             #endregion column headers
-    
+
             double totalValue = 0;
             int sl = 0;
             //ROW++;
@@ -790,11 +815,11 @@ namespace Library.Accounting.FixedAssets
                 TROW.Cells[colArticle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Article"].ToString());
                 TROW.Cells[colFixedAssetMaster].AddParagraph().AppendText(dsOrderMaster.Rows[i]["FixedAssetMasterName"].ToString());
 
-                TROW.Cells[colTrnAmount].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["PurchasePrice"].ToString()).ToString("#,##0.00"));
-                TROW.Cells[colBaseAmount].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["BaseValue"].ToString()).ToString("#,##0.00"));
-                totalValue += clsStaticInfo.dbl(dsOrderMaster.Rows[i]["PurchasePrice"].ToString());
+                TROW.Cells[colTrnAmount].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TrnValue"].ToString()).ToString("#,##0.00"));
+                //TROW.Cells[colBaseAmount].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["BaseValue"].ToString()).ToString("#,##0.00"));
+                totalValue += clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TrnValue"].ToString());
                 //TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(totalValue.ToString("F2"));
-           
+
             }
 
             ROW++;
@@ -822,16 +847,16 @@ namespace Library.Accounting.FixedAssets
 
             }
             #endregion Total
-           // ROW++;
+            // ROW++;
             #region Sub Total
             int SubTotalRow = ROW;
             int SubTotalColumn = 0;//_TROW.Cells.Count - 5;
-           // wTable.AddRow();
-           // _TROW = wTable.LastRow;
+                                   // wTable.AddRow();
+                                   // _TROW = wTable.LastRow;
 
             //_TROW.Cells[SubTotalColumn].AddParagraph().AppendText("Sub Total");
 
-            double total = clsStaticInfo.dbl(dsOrderMaster.Compute("SUM(PurchasePrice)", "").ToString());
+            double total = clsStaticInfo.dbl(dsOrderMaster.Compute("SUM(TrnValue)", "").ToString());
             ////- clsStaticInfo.dbl(dsOrderItems.Tables[0].Compute("SUM(Discount)", "").ToString())
 
 
@@ -895,7 +920,225 @@ namespace Library.Accounting.FixedAssets
 
             //tax codes merging (horizontal)
             ROW = 0;
-           
+
+            //primary cells merging (veritcal)
+            ROW++;
+            WTableRow TROWe = wTable.LastRow;
+
+            //wTable.ApplyVerticalMerge(i, ROW - 1, ROW);
+
+
+
+
+            IWParagraphStyle style = document.AddParagraphStyle("SubTotalStyle");
+            style.CharacterFormat.Bold = true;
+            style.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Left;
+            //Adds new paragraph to the section
+
+            #endregion merging section
+            TextBodyPart textBodyPart = new TextBodyPart(document);
+            textBodyPart.BodyItems.Add(wTable);
+            document.Replace(replaceString, textBodyPart, true, true);
+            return total;
+        }
+        public double makeScrapDisposedDetailsTable(WordDocument document, DataTable dsOrderMaster, string fixedAssetRegisterDisposeId)
+        {
+            string replaceString = "{materialItems}";
+
+            ReportUtility ru = new ReportUtility();
+
+            int LasColumnIndex = 4;
+            Dictionary<string, int> dicTaxes = new Dictionary<string, int>();
+
+            WTable wTable = new WTable(document);
+            wTable.TableFormat.Borders.LineWidth = 1;
+            wTable.TableFormat.Borders.BorderType = BorderStyle.Single;
+            wTable.TableFormat.IsAutoResized = true;
+
+            int ROW = 0; int COL = 0;
+            wTable.ResetCells(1, LasColumnIndex + 1);
+
+            WTableRow TemplateRow = wTable.Rows[0].Clone();
+            #region column headers
+            document.EnsureMinimal();
+
+            WCharacterFormat FontBold = new WCharacterFormat(document);
+            FontBold.Bold = true;
+
+            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Sl.");
+            range.ApplyCharacterFormat(FontBold);
+            int colRo = COL; COL++;
+            wTable.Rows[ROW].Cells[colRo].Width = 30;
+
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Asset No.");
+            range.ApplyCharacterFormat(FontBold);
+            int colAssetNo = COL; COL++;
+            wTable.Rows[ROW].Cells[colAssetNo].Width = 50;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Materials");
+            range.ApplyCharacterFormat(FontBold);
+            int colMaterialGroup = COL; COL++;
+            wTable.Rows[ROW].Cells[colMaterialGroup].Width = 130;
+
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Article");
+            range.ApplyCharacterFormat(FontBold);
+            int colArticle = COL; COL++;
+            wTable.Rows[ROW].Cells[colArticle].Width = 180;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Asset Master");
+            range.ApplyCharacterFormat(FontBold);
+            int colFixedAssetMaster = COL; COL++;
+            wTable.Rows[ROW].Cells[colFixedAssetMaster].Width = 200;
+
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Transaction Amount(" + dsOrderMaster.Rows[0]["Currency"].ToString() + ")");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colTrnAmount = COL; COL++;
+            //wTable.Rows[ROW].Cells[colTrnAmount].Width = 90;
+
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Base Amount(" + dsOrderMaster.Rows[0]["BaseCurrency"].ToString() + ")");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colBaseAmount = COL; COL++;
+            //wTable.Rows[ROW].Cells[colBaseAmount].Width = 90;
+
+
+            #endregion column headers
+
+            double totalValue = 0;
+            int sl = 0;
+            //ROW++;
+            //wTable.AddRow();
+            int startRow = 0;
+            for (int i = 0; i < dsOrderMaster.Rows.Count; i++)
+            {
+                sl++;
+                ROW++;
+                wTable.AddRow();
+                //wTable.AddRow();
+                WTableRow TROW = wTable.LastRow;
+
+                // WTableRow TROW = wTable.Rows[1].Clone();
+                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+                {
+                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+                    {
+                        item.Text = "";
+                    }
+                    TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
+                }
+                TROW.Cells[colRo].AddParagraph().AppendText(sl.ToString());
+                TROW.Cells[colAssetNo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["AssetNo"].ToString());
+                TROW.Cells[colMaterialGroup].AddParagraph().AppendText(dsOrderMaster.Rows[i]["MaterialMasterName"].ToString());
+                TROW.Cells[colArticle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Article"].ToString());
+                TROW.Cells[colFixedAssetMaster].AddParagraph().AppendText(dsOrderMaster.Rows[i]["FixedAssetMasterName"].ToString());
+
+                //TROW.Cells[colTrnAmount].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TrnValue"].ToString()).ToString("#,##0.00"));
+                //TROW.Cells[colBaseAmount].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["BaseValue"].ToString()).ToString("#,##0.00"));
+                //totalValue += clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TrnValue"].ToString());
+                //TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(totalValue.ToString("F2"));
+
+            }
+
+            ROW++;
+            #region Total
+            //int TotalRow = ROW;
+            //wTable.AddRow();
+            //WTableRow _TROW = wTable.LastRow;
+            //_TROW.Cells[0].AddParagraph().AppendText("Total").ApplyCharacterFormat(FontBold);
+
+            //for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
+            //{
+            //    if (C == colAssetNo || C == colMaterialGroup || C == colArticle || C == colFixedAssetMaster || dicTaxes.ContainsValue(C))
+            //        continue;
+
+            //    double value = 0;
+            //    for (int i = startRow; i < TotalRow; i++)
+            //    {
+
+            //        foreach (WParagraph item in wTable.Rows[i].Cells[C].Paragraphs)
+            //        {
+            //            value += clsStaticInfo.dbl(item.Text);
+            //        }
+            //    }
+            //    _TROW.Cells[C].AddParagraph().AppendText(value.ToString("#,##0.00")).ApplyCharacterFormat(FontBold);
+
+            //}
+            #endregion Total
+            // ROW++;
+            #region Sub Total
+            int SubTotalRow = ROW;
+            int SubTotalColumn = 0;//_TROW.Cells.Count - 5;
+                                   // wTable.AddRow();
+                                   // _TROW = wTable.LastRow;
+
+            //_TROW.Cells[SubTotalColumn].AddParagraph().AppendText("Sub Total");
+
+            double total = clsStaticInfo.dbl(dsOrderMaster.Compute("SUM(TrnValue)", "").ToString());
+            ////- clsStaticInfo.dbl(dsOrderItems.Tables[0].Compute("SUM(Discount)", "").ToString())
+
+
+            //_TROW.Cells[SubTotalColumn + 1].AddParagraph().AppendText(total.ToString("F2") + " (" + ru.InWord(total, dsOrderMaster.Rows[0]["TrnCurrency"].ToString()) + ")");
+
+            #endregion Total
+            #region paragrpath formats
+            //Adds a new paragraph style named "MyStyle"
+            IWParagraphStyle myStyle = document.AddParagraphStyle("MyStyle");
+            //Sets the formatting of the style
+            myStyle.CharacterFormat.FontSize = 8f;
+            //myStyle.CharacterFormat.TextColor = Color.Black;
+            myStyle.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
+
+            for (int R = 0; R < wTable.Rows.Count; R++)
+            {
+                WTableRow TROW = wTable.Rows[R];
+                // TROW.Cells[0].Width = 120;
+                //if (dv.Count < 3)
+                //    TROW.Cells[0].Width = 120 + ((3 - dv.Count) * 40);//for each tax group missing, adjust width with 0 cell
+
+                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+                {
+                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+                    {
+                        item.ApplyStyle("MyStyle");
+                    }
+                }
+            }
+
+
+            IWParagraphStyle myStyleRightAlign = document.AddParagraphStyle("MyStyleRightAlign");
+            //Sets the formatting of the style
+            myStyleRightAlign.CharacterFormat.FontSize = 8f;
+            myStyleRightAlign.CharacterFormat.TextColor = Color.Black;
+            myStyleRightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
+
+
+
+            for (int R = 1; R < wTable.Rows.Count; R++)
+            {
+                WTableRow TROW = wTable.Rows[R];
+
+
+
+                //foreach (WParagraph item in TROW.Cells[colQty].Paragraphs)
+                //{
+                //    item.ApplyStyle("MyStyleRightAlign");
+                //}
+
+
+                //foreach (WParagraph item in TROW.Cells[colRate].Paragraphs)
+                //{
+                //    item.ApplyStyle("MyStyleRightAlign");
+                //}
+
+            }
+
+            #endregion paragrpath formats
+            #region merging section
+
+            //tax codes merging (horizontal)
+            ROW = 0;
+
             //primary cells merging (veritcal)
             ROW++;
             WTableRow TROWe = wTable.LastRow;

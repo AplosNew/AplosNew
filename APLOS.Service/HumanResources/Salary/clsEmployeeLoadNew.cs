@@ -72,9 +72,7 @@ namespace OTSBD
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                strSQL = @"SELECT * FROM SalaryIncrementNextDueDate
-                                        WHERE GroupID = '" + sGroupID + @"'
-                                              AND PlantID = '" + strPlantID + "' AND EmpSystemId = '" + EmpSystemId + @"' and NextDueDate='" + NextDueDate + "'";
+                strSQL = @"SELECT * FROM SalaryIncrementNextDueDate WHERE GroupID = '" + sGroupID + @"' AND PlantID = '" + strPlantID + "' AND EmpSystemId = '" + EmpSystemId + @"' and NextDueDate='" + NextDueDate + "'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
@@ -1450,9 +1448,7 @@ select EmpInfoSystemID from SalaryInfoBackMaster where PlantId='" + sPlantID + @
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                strSQL = @"SELECT * FROM EmployeeInformation
-                                        WHERE GroupID = '" + sGroupID + @"' AND CompanyID = '" + strCompanyID + @"'
-                                              AND PlantID = '" + strPlantID + "' AND SystemID = '" + strSystemID + @"'";
+                strSQL = @"SELECT * FROM EmployeeInformation WHERE GroupID = '" + sGroupID + @"' AND CompanyID = '" + strCompanyID + @"' AND PlantID = '" + strPlantID + "' AND SystemID = '" + strSystemID + @"'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");

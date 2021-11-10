@@ -870,7 +870,7 @@ namespace Library.MaterialManagement.InventoryManagements
 								,GPM.InventorySalesId
 								,GPM.InventoryScrapId
 								,GPM.InventoryTransferId
-								,GPM.FixedAssetSalesId
+								,GPM.FixedAssetRegisterDisposedId
 								,GPM.FixedAssetScrapId
 						,MT.UserName MaterialType
 						,MGM.UserName AS MaterialGroupMasterName

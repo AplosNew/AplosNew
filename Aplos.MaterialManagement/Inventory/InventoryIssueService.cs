@@ -2701,7 +2701,7 @@ namespace Library.MaterialManagement.Inventory
                 var sql = "";
                 if (Type == "Posted")
                 {
-                    sql = @"SELECT II.Id AS IssueId
+                    sql = @"SELECT II.Id AS IssueId,ospo.Id as PONumber
 	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate
 	                        --,II.CompanyGroupId
 	                        --,II.CompanyId
@@ -2773,6 +2773,7 @@ namespace Library.MaterialManagement.Inventory
 							,isnull(IA1.UserName,'') AS CActivity
 							,isnull(B1.UserName,'') AS CBUdget
                             ,CC.UserName CostCenterName,EI.EmployeeName
+                            ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,PLC.LCRef as PurchaseLCNo
                         FROM trn.InventoryIssue II
                         LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId
                         LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
@@ -2807,13 +2808,18 @@ namespace Library.MaterialManagement.Inventory
 						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
 						Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
                         LEFT join dbo.EmployeeInformation EI ON EI.SystemId=II.EmployeeId
+                        left join dbo.OSTransformationPO ospo on ospo.Id=II.JWContractId
+						left join [dbo].[Contract] Ct on Ct.Id=ospo.ContractId
+						left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
+						LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
+						left join dbo.PurchaseLC PLC on PLC.Id=ospo.PurchaseLCId
                     where v.VoucherNo is not null ANd II.PlantId='" + identity.PlantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
                      and II.Types='InventoryJWIssue' ";
 
                 }
                 else
                 {
-                    sql = @"SELECT II.Id AS IssueId
+                    sql = @"SELECT II.Id AS IssueId,ospo.Id as PONumber
 	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate
 	                        --,II.CompanyGroupId
 	                        --,II.CompanyId
@@ -2886,6 +2892,7 @@ namespace Library.MaterialManagement.Inventory
 							,isnull(B1.UserName,'') AS CBUdget
                             ,CC.UserName CostCenterName
                             ,EI.EmployeeName
+                            ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,PLC.LCRef as PurchaseLCNo
                         FROM trn.InventoryIssue II
                         LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId
                         LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
@@ -2919,6 +2926,11 @@ namespace Library.MaterialManagement.Inventory
 						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
 						Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
                         LEFT join dbo.EmployeeInformation EI ON EI.SystemId=II.EmployeeId
+                        left join dbo.OSTransformationPO ospo on ospo.Id=II.JWContractId
+						left join [dbo].[Contract] Ct on Ct.Id=ospo.ContractId
+						left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
+						LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
+						left join dbo.PurchaseLC PLC on PLC.Id=ospo.PurchaseLCId
                     where v.VoucherNo is null ANd II.PlantId='" + identity.PlantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
                      and II.Types='InventoryJWIssue' ";
 
@@ -3143,7 +3155,8 @@ namespace Library.MaterialManagement.Inventory
 							,IIH.InventoryReceiveDetailId 
 							,IRD.Id GRNDetailId
 							,IRD.TransactionQty GRNQty
-							,TUoM1.UserName AS GRNUOM
+							--,TUoM1.UserName AS GRNUOM
+							,GRNUOM=case when IRD.BaseUOMId is not null then TUoM1.UserName else TUoM2.UserName End
 							,IRD.MaterialTranRate GRNRate
 							,isnull(IIH1.Qty,0) OtherIssuedQty
 							,isnull(IIH.Qty,0) CurrentIssueQty
@@ -3158,6 +3171,7 @@ namespace Library.MaterialManagement.Inventory
 							,isnull(IA1.UserName,'') AS CActivity
 							,isnull(B1.UserName,'') AS CBUdget
 	                        ,CC.UserName CostCenterName
+                            ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,PLC.LCRef as PurchaseLCNo,ospo.Id as PONumber
                         FROM trn.InventoryIssue II
                         LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId		
                         LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
@@ -3183,6 +3197,7 @@ namespace Library.MaterialManagement.Inventory
 						LEFT JOIN(select Sum(Qty) Qty,InventoryIssueDetailId from  trn.InventoryIssueHistory group by InventoryIssueDetailId) IIH1 ON IIH1.InventoryIssueDetailId=IID.Id AND  IID.InventoryIssueId !=II.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId = TUoM.Id
 					   LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM1 ON IRD.BaseUOMId = TUoM1.Id
+                        LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM2 ON IRD.TransactionUoMId = TUoM2.Id
 
 
                         LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
@@ -3195,7 +3210,11 @@ namespace Library.MaterialManagement.Inventory
 						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
 						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
 						Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
-
+                        left join dbo.OSTransformationPO ospo on ospo.Id=II.JWContractId
+						left join [dbo].[Contract] Ct on Ct.Id=ospo.ContractId
+						left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
+						LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
+						left join dbo.PurchaseLC PLC on PLC.Id=ospo.PurchaseLCId
 
                     where v.VoucherNo is not null ANd II.PlantId='" + identity.PlantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
                      and II.Types='InventoryJWIssue' ";
@@ -3224,7 +3243,8 @@ namespace Library.MaterialManagement.Inventory
 							,IIH.InventoryReceiveDetailId 
 							,IRD.Id GRNDetailId
 							,IRD.TransactionQty GRNQty
-							,TUoM1.UserName AS GRNUOM
+							--,TUoM1.UserName AS GRNUOM
+							,GRNUOM=case when IRD.BaseUOMId is not null then TUoM1.UserName else TUoM2.UserName End
 							,IRD.MaterialTranRate GRNRate
 							,isnull(IIH1.Qty,0) OtherIssuedQty
 							,isnull(IIH.Qty,0) CurrentIssueQty
@@ -3240,6 +3260,7 @@ namespace Library.MaterialManagement.Inventory
 							,isnull(IA1.UserName,'') AS CActivity
 							,isnull(B1.UserName,'') AS CBUdget
                             ,CC.UserName CostCenterName
+                            ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,PLC.LCRef as PurchaseLCNo,ospo.Id as PONumber
                         FROM trn.InventoryIssue II
                         LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId	
                         LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
@@ -3265,6 +3286,7 @@ namespace Library.MaterialManagement.Inventory
 						LEFT JOIN(select Sum(Qty) Qty,InventoryIssueDetailId from  trn.InventoryIssueHistory group by InventoryIssueDetailId) IIH1 ON IIH1.InventoryIssueDetailId=IID.Id AND  IID.InventoryIssueId !=II.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId = TUoM.Id
 					   LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM1 ON IRD.BaseUOMId = TUoM1.Id
+                        LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM2 ON IRD.TransactionUoMId = TUoM2.Id
 
 
                       LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
@@ -3277,6 +3299,11 @@ namespace Library.MaterialManagement.Inventory
 						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
 						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
 						Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
+                        left join dbo.OSTransformationPO ospo on ospo.Id=II.JWContractId
+						left join [dbo].[Contract] Ct on Ct.Id=ospo.ContractId
+						left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
+						LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
+						left join dbo.PurchaseLC PLC on PLC.Id=ospo.PurchaseLCId
 
                     where v.VoucherNo is null ANd II.PlantId='" + identity.PlantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
                     and II.Types='InventoryJWIssue' ";
@@ -3396,7 +3423,7 @@ namespace Library.MaterialManagement.Inventory
 
                 }
 
-                CreateIssueRegisterReportSheet(ref sheet1, report, Head, "Summary", companyId, plantId, fromDate, toDate, Type);
+                CreateOSIssueRegisterReportSheet(ref sheet1, report, Head, "Summary", companyId, plantId, fromDate, toDate, Type);
                 workbook.Version = ExcelVersion.Excel2016;
                 return workbook;
 
@@ -3407,6 +3434,804 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
+        // Outsourcing
+
+        private void CreateOSIssueRegisterReportSheet(ref IWorksheet sheet1, ReportUtility report, string sheet1Name, string sheet2Name, string companyId, string plantId, string fromDate, string toDate, string Type)
+        {
+
+
+            var cmdText = "";
+            if (Type == "Posted")
+            {
+                cmdText = @"SELECT II.Id AS IssueId
+	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate
+	                        --,II.CompanyGroupId
+	                        --,II.CompanyId
+	                        --,II.PlantId
+	                        -- ,II.EntityId  ---userName as Entityname 
+	                        ,En.UserName AS Entityname
+	                        --,II.AddedBy
+	                        --,II.AddedDate
+	                        --,II.AddedFromIP
+	                        --,II.UpdatedBy
+	                        --,II.UpdatedDate
+	                        --,II.UpdatedFromIP
+	                        -- ,II.MaterialStorageId
+	                        ,MS.UserName AS MaterialStorageName
+	                        ,II.STATUS
+							,HSNC.Code HSNCode
+                             ,II.Remarks
+	                        -- ,II.VoucherId 
+	                        --,VoucherNo=CASE WHEN II.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
+	                        ,v.VoucherNo
+	                        --,Posted=CASE WHEN II.Status <>'' then 'Yes' else 'No' END						
+	                        --,PostingDate= CASE WHEN II.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
+	                        --,PostedBy=CASE WHEN II.EmployeeId <> '' Then ep.AddedBy else I.AddedBy END,II.EmployeeId
+	                        ,IID.Id IssueDetailId
+	                        ,IID.InventoryIssueId
+	                        --,IID.InventoryMaterialId
+	                        ,MT.UserName MaterialType
+	                        ,MGM.UserName AS MaterialGroupMasterName
+	                        ,IM.MaterialMasterId
+	                        ,MM.UserName MaterialMasterName
+	                        -- , IM.ArticleId
+	                        ,ART.StandardName ArticleName
+	                        ,IsAsset = CASE 
+		                        WHEN MM.IsAsset = 0
+			                        THEN 'No'
+		                        ELSE 'Yes'
+		                        END
+	                        --, IM.FirstCharacteristicsId
+	                        ,FC.UserName AS FirstCharacteristics
+	                        ,IM.FirstCharacteristicsValueId
+	                        ,ISNULL(FCV.UserName, '') AS FirstCharacteristicsValue
+	                        ,IM.SecondCharacteristicsId
+	                        ,SC.UserName AS SecondCharacteristics
+	                        ,IM.SecondCharacteristicsValueId
+	                        ,ISNULL(SCV.UserName, '') AS SecondCharacteristicsValue
+	                        ,IM.ThirdCharacteristicsId
+	                        ,TC.UserName AS ThirdCharacteristics
+	                        ,IM.ThirdCharacteristicsValueId
+	                        ,ISNULL(TCV.UserName, '') AS ThirdCharacteristicsValue
+	                        ,Round(IID.TransactionQty,2) TransactionQty
+	                        --,IID.BaseUOMId
+	                        ,TUoM.UserName AS UOM
+	                        ,BUoM.UserName AS BaseUOM
+	                        ,Round(IID.AvgRate,4) AvgRate
+	                        ,Round(IID.AvgAmount,2) AvgAmount
+	                        ,Round(IID.PolicyRate,4) PolicyRate
+	                        ,Round(IID.PolicyAmount,2) PolicyAmount
+	                        ,IID.Policy
+	                        --,IID.AddedBy
+	                        --,IID.AddedDate
+	                        --,IID.AddedFromIP
+	                        --,IID.UpdatedBy
+	                        --,IID.UpdatedDate
+	                        --,IID.UpdatedFromIP
+	                        ,IID.BaseQty
+	                        ,IID.InventoryReceiveId
+	                        ,IID.InventoryReceiveDetailId
+                            ,ISNULL(IGL.UserName,'') AS GL
+							,ISNULL(IA.UserName,'') Activity
+							,isnull(B.UserName,'') AS Budget
+							,isnull(IGL1.UserName,'') AS CGL
+							,isnull(IA1.UserName,'') AS CActivity
+							,isnull(B1.UserName,'') AS CBUdget
+                           ,CC.UserName CostCenterName,EI.EmployeeName
+                            ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,PLC.LCRef as PurchaseLCNo,ospo.Id as PONumber
+                        FROM trn.InventoryIssue II
+                        LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId
+					    LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
+                        LEFT JOIN ORG.Entity En ON II.EntityId = En.Id
+                        LEFT JOIN HKP.MaterialStorage MS ON II.MaterialStorageId = MS.Id
+                        LEFT JOIN TRN.InventoryMaterial AS IM ON IM.Id = IID.InventoryMaterialId
+                        LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
+						LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
+                        LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
+                        LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
+                        LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
+                        LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
+                        LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
+                        LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
+                        LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.TransactionUoMId = TUoM.Id
+                        LEFT JOIN [SCS].[UnitOfMeasurement] AS BUoM ON IID.BaseUOMId = BUoM.Id
+                        --left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+                        --LEFT JOIN trn.Invoice AS I ON I.InventoryReceiveId = II.Id
+                        LEFT JOIN trn.Voucher V ON V.Id = II.VoucherId
+                        --left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=II.Id					
+                        --left join trn.Voucher V1 on V1.Id=ep.VoucherId 
+                        LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
+						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.PostDrBudgetMasterId
+						LEFT JOIN HKP.Activity IA ON IA.Id=IID.PostDrActivityId
+						Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
+						LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IID.PostCrGLGeneralInfoId 
+						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
+						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
+						Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
+                       LEFT join dbo.EmployeeInformation EI ON EI.SystemId=II.EmployeeId
+                       left join dbo.OSTransformationPO ospo on ospo.Id=II.JWContractId
+						left join [dbo].[Contract] Ct on Ct.Id=ospo.ContractId
+						left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
+						LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
+						left join dbo.PurchaseLC PLC on PLC.Id=ospo.PurchaseLCId
+                    where v.VoucherNo is not null ANd II.PlantId='" + plantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
+
+            }
+            else
+            {
+                cmdText = @"SELECT II.Id AS IssueId
+	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate
+	                        --,II.CompanyGroupId
+	                        --,II.CompanyId
+	                        --,II.PlantId
+	                        -- ,II.EntityId  ---userName as Entityname 
+	                        ,En.UserName AS Entityname
+							,HSNC.Code HSNCode
+	                        --,II.AddedBy
+	                        --,II.AddedDate
+	                        --,II.AddedFromIP
+	                        --,II.UpdatedBy
+	                        --,II.UpdatedDate
+	                        --,II.UpdatedFromIP
+	                        -- ,II.MaterialStorageId
+	                        ,MS.UserName AS MaterialStorageName
+	                        ,II.STATUS
+                              ,II.Remarks
+	                        -- ,II.VoucherId 
+	                        --,VoucherNo=CASE WHEN II.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
+	                        ,v.VoucherNo
+	                        --,Posted=CASE WHEN II.Status <>'' then 'Yes' else 'No' END						
+	                        --,PostingDate= CASE WHEN II.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
+	                        --,PostedBy=CASE WHEN II.EmployeeId <> '' Then ep.AddedBy else I.AddedBy END,II.EmployeeId
+	                        ,IID.Id IssueDetailId
+	                        ,IID.InventoryIssueId
+	                        --,IID.InventoryMaterialId
+	                        ,MT.UserName MaterialType
+	                        ,MGM.UserName AS MaterialGroupMasterName
+	                        ,IM.MaterialMasterId
+	                        ,MM.UserName MaterialMasterName
+	                        -- , IM.ArticleId
+	                        ,ART.StandardName ArticleName
+	                        ,IsAsset = CASE 
+		                        WHEN MM.IsAsset = 0
+			                        THEN 'No'
+		                        ELSE 'Yes'
+		                        END
+	                        --, IM.FirstCharacteristicsId
+	                        ,FC.UserName AS FirstCharacteristics
+	                        ,IM.FirstCharacteristicsValueId
+	                        ,ISNULL(FCV.UserName, '') AS FirstCharacteristicsValue
+	                        ,IM.SecondCharacteristicsId
+	                        ,SC.UserName AS SecondCharacteristics
+	                        ,IM.SecondCharacteristicsValueId
+	                        ,ISNULL(SCV.UserName, '') AS SecondCharacteristicsValue
+	                        ,IM.ThirdCharacteristicsId
+	                        ,TC.UserName AS ThirdCharacteristics
+	                        ,IM.ThirdCharacteristicsValueId
+	                        ,ISNULL(TCV.UserName, '') AS ThirdCharacteristicsValue
+	                        ,Round(IID.TransactionQty,2) TransactionQty
+	                        --,IID.BaseUOMId
+	                        ,TUoM.UserName AS UOM
+	                        ,BUoM.UserName AS BaseUOM
+	                        ,Round(IID.AvgRate,4) AvgRate
+	                        ,Round(IID.AvgAmount,2) AvgAmount
+	                        ,Round(IID.PolicyRate,4) PolicyRate
+	                        ,Round(IID.PolicyAmount,2) PolicyAmount
+	                        ,IID.Policy
+	                        --,IID.AddedBy
+	                        --,IID.AddedDate
+	                        --,IID.AddedFromIP
+	                        --,IID.UpdatedBy
+	                        --,IID.UpdatedDate
+	                        --,IID.UpdatedFromIP
+	                        ,IID.BaseQty
+	                        ,IID.InventoryReceiveId
+	                        ,IID.InventoryReceiveDetailId
+							,ISNULL(IGL.UserName,'') AS GL
+							,ISNULL(IA.UserName,'') Activity
+							,isnull(B.UserName,'') AS Budget
+							,isnull(IGL1.UserName,'') AS CGL
+							,isnull(IA1.UserName,'') AS CActivity
+							,isnull(B1.UserName,'') AS CBUdget
+                            ,CC.UserName CostCenterName,EI.EmployeeName
+                            ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,PLC.LCRef as PurchaseLCNo,ospo.Id as PONumber
+                        FROM trn.InventoryIssue II
+                        LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId
+                        LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
+                        LEFT JOIN ORG.Entity En ON II.EntityId = En.Id
+                        LEFT JOIN HKP.MaterialStorage MS ON II.MaterialStorageId = MS.Id
+                        LEFT JOIN TRN.InventoryMaterial AS IM ON IM.Id = IID.InventoryMaterialId
+                        LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
+						LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
+                        LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
+                        LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
+                        LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
+                        LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
+                        LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
+                        LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
+                        LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.TransactionUoMId = TUoM.Id
+                        LEFT JOIN [SCS].[UnitOfMeasurement] AS BUoM ON IID.BaseUOMId = BUoM.Id
+                        --left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+                        --LEFT JOIN trn.Invoice AS I ON I.InventoryReceiveId = II.Id
+                        LEFT JOIN trn.Voucher V ON V.Id = II.VoucherId
+                        --left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=II.Id					
+                        --left join trn.Voucher V1 on V1.Id=ep.VoucherId 
+						LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
+						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.PostDrBudgetMasterId
+						LEFT JOIN HKP.Activity IA ON IA.Id=IID.PostDrActivityId
+						Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
+						LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IID.PostCrGLGeneralInfoId 
+						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
+						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
+						Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
+                        LEFT join dbo.EmployeeInformation EI ON EI.SystemId=II.EmployeeId
+                        left join dbo.OSTransformationPO ospo on ospo.Id=II.JWContractId
+						left join [dbo].[Contract] Ct on Ct.Id=ospo.ContractId
+						left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
+						LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
+						left join dbo.PurchaseLC PLC on PLC.Id=ospo.PurchaseLCId
+                    where v.VoucherNo is null ANd II.PlantId='" + plantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
+            }
+            var inventoryMaterialList = _sqlRepository.GetDataTable(cmdText);
+            var plantName = new DataView(_sqlRepository.GetDataTable(@"SELECT UserName from org.Plant WHERE Id='" + plantId + "'")).ToTable(true, "UserName").Rows[0]["UserName"].ToString();
+            if (inventoryMaterialList.Rows.Count == 0)
+                throw new Exception("No Data Found !!!");
+
+
+            var _rowd = 4;
+            var colTransactionQtyTotal = 0.00;
+            var colAvgAmountTotal = 0.00;
+            var colPolicyAmountTotal = 0.00;
+            var colBaseQtyTotal = 0.00;
+
+
+            if (fromDate != "" && toDate != "")
+            {
+
+                sheet1[_rowd, 4].Text = fromDate + " " + "To" + " " + toDate;
+
+                sheet1[_rowd, 4].CellStyle.Font.Size = 8;
+                sheet1[_rowd, 4].CellStyle.Font.Bold = false;
+                sheet1[_rowd, 4].CellStyle.Font.Size = 8;
+                sheet1.Range[_rowd, 3, _rowd, 6].Merge();
+
+
+            }
+
+            var _rows = 5;
+            sheet1[_rows, 6].Text = "Report Ref No:";
+            sheet1[_rows, 6].CellStyle.Font.Size = 8;
+            sheet1.Range[_rows, 3, _rows, 6].Merge();
+            sheet1[_rows, 6].CellStyle.Font.Bold = false;
+            var _row = 6;
+
+
+
+            sheet1[_row, 33].Text = "Posted (Dr.)";
+            sheet1[_row, 33].CellStyle.Font.Size = 10;
+            sheet1[_row, 33].CellStyle.Font.Bold = true;
+            sheet1[_row, 33].WrapText = true;
+            sheet1[_row, 33].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1[_row, 33].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_row, 33, _row, 35].BorderAround(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 33, _row, 35].BorderInside(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 33, _row, 35].Merge();
+            sheet1.Range[_row, 33, _row, 35].CellStyle.FillBackground = ExcelKnownColors.Tan;
+
+            sheet1[_row, 36].Text = "Posted (Cr.)";
+            sheet1[_row, 36].CellStyle.Font.Size = 10;
+            sheet1[_row, 36].CellStyle.Font.Bold = true;
+            sheet1[_row, 36].WrapText = true;
+            sheet1[_row, 36].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1[_row, 36].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_row, 36, _row, 38].BorderAround(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 36, _row, 38].BorderInside(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 36, _row, 38].Merge();
+            sheet1.Range[_row, 36, _row, 38].CellStyle.FillBackground = ExcelKnownColors.Tan;
+
+
+
+            var _rowL = _row;
+            var row = _row + 1;
+            var sheet1headreColIndex = 1;
+            //var sheet2headreColIndex = 1;
+            _rowL += 1;
+            //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Issue Id");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Issue Id";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            // report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Issue Date");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Issue Date";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Entity name");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "PO Number";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Contract No";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Customer";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Ref No";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Purchase LC No";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "UDNo";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Entity name";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Cost Center Name");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Cost Center Name";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Person Name");
+            //sheet1headreColIndex++;
+
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Person Name";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Material Storage Name");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Material Storage Name";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Status");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Status";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Issue Detail Id");
+            //sheet1headreColIndex++;
+
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Issue Detail Id";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Material Type");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Material Type";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 30;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Material Group");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Material Group";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 30;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Material");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Material";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 30;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Article");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Article";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 30;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "SKU1");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "SKU1";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "SKU2");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "SKU2";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "SKU3");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "SKU3";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "HSN No";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Transaction Qty");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Trn. Qty";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            colTransactionQtyTotal = sheet1headreColIndex;
+            sheet1headreColIndex++;
+            //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "UoM");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Trn. UoM";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 8;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Avg Rate");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Avg Rate";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Avg Amount");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Avg Amount";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            colAvgAmountTotal = sheet1headreColIndex;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Policy Rate");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Books Rate";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Policy Amount");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Books Amount";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            colPolicyAmountTotal = sheet1headreColIndex;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Policy");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Policy";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Base Qty");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Base Qty";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            colBaseQtyTotal = sheet1headreColIndex;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Base UoM";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            int colBaseUOMTotal = sheet1headreColIndex;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Remarks");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Remarks";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GL");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "GL";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Budget");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Budget";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Activity");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Activity";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GL");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "GL";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "BUdget");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "BUdget";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Activity");
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Activity";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+
+            //sheet1headreColIndex++;
+            sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+            sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.Font.Size = 10;
+            sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].RowHeight = 22;
+
+            var Row_Total_Start = _rowL + 1;
+            for (int n = 0; n < inventoryMaterialList.Rows.Count; n++)
+            {
+                _rowL++;
+
+                report.SetText(ref sheet1, _rowL, 1, inventoryMaterialList.Rows[n]["IssueId"].ToString());
+                report.SetText(ref sheet1, _rowL, 2, inventoryMaterialList.Rows[n]["IssueDate"].ToString());
+                report.SetText(ref sheet1, _rowL, 3, inventoryMaterialList.Rows[n]["PONumber"].ToString());
+                report.SetText(ref sheet1, _rowL, 4, inventoryMaterialList.Rows[n]["ContractNo"].ToString());
+                report.SetText(ref sheet1, _rowL, 5, inventoryMaterialList.Rows[n]["CustomerName"].ToString());
+                report.SetText(ref sheet1, _rowL, 6, inventoryMaterialList.Rows[n]["LCRef"].ToString());
+                report.SetText(ref sheet1, _rowL, 7, inventoryMaterialList.Rows[n]["PurchaseLCNo"].ToString());
+                report.SetText(ref sheet1, _rowL, 8, inventoryMaterialList.Rows[n]["UDNo"].ToString());
+
+                report.SetText(ref sheet1, _rowL, 9, inventoryMaterialList.Rows[n]["Entityname"].ToString());
+                report.SetText(ref sheet1, _rowL, 10, inventoryMaterialList.Rows[n]["CostCenterName"].ToString());
+                report.SetText(ref sheet1, _rowL, 11, inventoryMaterialList.Rows[n]["EmployeeName"].ToString());
+                report.SetText(ref sheet1, _rowL, 12, inventoryMaterialList.Rows[n]["MaterialStorageName"].ToString());
+                report.SetText(ref sheet1, _rowL, 13, inventoryMaterialList.Rows[n]["Status"].ToString());
+                report.SetText(ref sheet1, _rowL, 14, inventoryMaterialList.Rows[n]["IssueDetailId"].ToString());
+
+                report.SetText(ref sheet1, _rowL, 15, inventoryMaterialList.Rows[n]["MaterialType"].ToString());
+                report.SetText(ref sheet1, _rowL, 16, inventoryMaterialList.Rows[n]["MaterialGroupMasterName"].ToString());
+                report.SetText(ref sheet1, _rowL, 17, inventoryMaterialList.Rows[n]["MaterialMasterName"].ToString());
+                report.SetText(ref sheet1, _rowL, 18, inventoryMaterialList.Rows[n]["ArticleName"].ToString());
+                report.SetText(ref sheet1, _rowL, 19, inventoryMaterialList.Rows[n]["FirstCharacteristicsValue"].ToString());
+                report.SetText(ref sheet1, _rowL, 20, inventoryMaterialList.Rows[n]["SecondCharacteristicsValue"].ToString());
+                report.SetText(ref sheet1, _rowL, 21, inventoryMaterialList.Rows[n]["ThirdCharacteristicsValue"].ToString());
+                report.SetText(ref sheet1, _rowL, 22, inventoryMaterialList.Rows[n]["HSNCode"].ToString());
+                report.SetText(ref sheet1, _rowL, 23, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TransactionQty"].ToString()));
+                report.SetText(ref sheet1, _rowL, 24, inventoryMaterialList.Rows[n]["UOM"].ToString());
+                report.SetText(ref sheet1, _rowL, 25, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["AvgRate"].ToString()));
+                report.SetText(ref sheet1, _rowL, 26, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["AvgAmount"].ToString()));
+                report.SetText(ref sheet1, _rowL, 27, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["PolicyRate"].ToString()), 4);
+                report.SetText(ref sheet1, _rowL, 28, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["PolicyAmount"].ToString()));
+                report.SetText(ref sheet1, _rowL, 29, inventoryMaterialList.Rows[n]["Policy"].ToString());
+                report.SetText(ref sheet1, _rowL, 30, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["BaseQty"].ToString()));
+                report.SetText(ref sheet1, _rowL, colBaseUOMTotal, inventoryMaterialList.Rows[n]["BaseUOM"].ToString());
+                report.SetText(ref sheet1, _rowL, 32, inventoryMaterialList.Rows[n]["Remarks"].ToString());
+                report.SetText(ref sheet1, _rowL, 33, inventoryMaterialList.Rows[n]["GL"].ToString());
+                report.SetText(ref sheet1, _rowL, 34, inventoryMaterialList.Rows[n]["Budget"].ToString());
+                report.SetText(ref sheet1, _rowL, 35, inventoryMaterialList.Rows[n]["Activity"].ToString());
+                report.SetText(ref sheet1, _rowL, 36, inventoryMaterialList.Rows[n]["CGL"].ToString());
+                report.SetText(ref sheet1, _rowL, 37, inventoryMaterialList.Rows[n]["CBUdget"].ToString());
+                report.SetText(ref sheet1, _rowL, 38, inventoryMaterialList.Rows[n]["CActivity"].ToString());
+
+
+            }
+
+            _rowL++;
+
+            if (fromDate != "" && toDate != "")
+            {
+                report.SetText(ref sheet1, _rowL, Convert.ToInt32(colTransactionQtyTotal) - 1, "Total");
+                sheet1.Range[_rowL, Convert.ToInt32(colTransactionQtyTotal) - 1].CellStyle.Font.Bold = true;
+                //sheet1.Range[1, _rowL, Convert.ToInt32(colTransactionQtyTotal) - 1, _rowL].Merge();
+                object sumObject;
+                sumObject = inventoryMaterialList.Compute("Sum(TransactionQty)", "");
+                sheet1.Range[_rowL, Convert.ToInt32(colTransactionQtyTotal)].CellStyle.Font.Bold = true;
+                report.SetText(ref sheet1, _rowL, Convert.ToInt32(colTransactionQtyTotal), Convert.ToDouble(sumObject).ToString("0,##.00"));
+                sheet1.Range[_rowL, Convert.ToInt32(colTransactionQtyTotal)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet1.Range[_rowL, Convert.ToInt32(colTransactionQtyTotal)].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                sumObject = inventoryMaterialList.Compute("Sum(AvgAmount)", "");
+                sheet1.Range[_rowL, Convert.ToInt32(colAvgAmountTotal)].CellStyle.Font.Bold = true;
+                report.SetText(ref sheet1, _rowL, Convert.ToInt32(colAvgAmountTotal), Convert.ToDouble(sumObject).ToString("0,##.00"));
+                sheet1.Range[_rowL, Convert.ToInt32(colAvgAmountTotal)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet1.Range[_rowL, Convert.ToInt32(colAvgAmountTotal)].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+
+                sumObject = inventoryMaterialList.Compute("Sum(PolicyAmount)", "");
+                sheet1.Range[_rowL, Convert.ToInt32(colPolicyAmountTotal)].CellStyle.Font.Bold = true;
+                report.SetText(ref sheet1, _rowL, Convert.ToInt32(colPolicyAmountTotal), Convert.ToDouble(sumObject).ToString("0,##.00"));
+                sheet1.Range[_rowL, Convert.ToInt32(colPolicyAmountTotal)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet1.Range[_rowL, Convert.ToInt32(colPolicyAmountTotal)].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                sumObject = inventoryMaterialList.Compute("Sum(BaseQty)", "");
+                sheet1.Range[_rowL, Convert.ToInt32(colBaseQtyTotal)].CellStyle.Font.Bold = true;
+                report.SetText(ref sheet1, _rowL, Convert.ToInt32(colBaseQtyTotal), Convert.ToDouble(sumObject).ToString("0,##.00"));
+                sheet1.Range[_rowL, Convert.ToInt32(colBaseQtyTotal)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet1.Range[_rowL, Convert.ToInt32(colBaseQtyTotal)].VerticalAlignment = ExcelVAlign.VAlignTop;
+            }
+            sheet1.Range[(Row_Total_Start), 1, _rowL, sheet1headreColIndex].CellStyle.Font.Size = 8;
+            sheet1.Range[(row), 1, _rowL, sheet1headreColIndex].BorderInside(ExcelLineStyle.Hair);
+            sheet1.Range[(row), 1, _rowL, sheet1headreColIndex].BorderAround(ExcelLineStyle.Hair);
+
+
+
+
+            //#endregion Signature
+
+            sheet1.Name = sheet1Name;
+            sheet1.UsedRange.WrapText = true;
+            //sheet1.UsedRange.CellStyle.Font.Size = 8;
+            sheet1.IsGridLinesVisible = false;
+            report.PlantHeader(ref sheet1, sheet1headreColIndex, sheet1Name, plantId);
+            report.PageSetup(ref sheet1, 5, ExcelPageOrientation.Landscape);
+
+
+
+
+        }
 
 
         private void CreateIssueRegisterReportSheet(ref IWorksheet sheet1, ReportUtility report, string sheet1Name, string sheet2Name, string companyId, string plantId, string fromDate, string toDate, string Type)
@@ -4576,7 +5401,7 @@ namespace Library.MaterialManagement.Inventory
                 //var Head = "GRN Wise Stores Issue Register" + " " + fromDate + " " + "To" + " " + toDate;
                 var Head = "GRN Wise Out Source Issue Register";
 
-                CreateIssueRegisterGRNIssueReport(ref sheet1, report, Head, "Summary", companyId, plantId, fromDate, toDate, Type);
+                CreateOSIssueRegisterGRNIssueReport(ref sheet1, report, Head, "Summary", companyId, plantId, fromDate, toDate, Type);
                 workbook.Version = ExcelVersion.Excel2016;
                 return workbook;
             }
@@ -4586,6 +5411,562 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
+        private void CreateOSIssueRegisterGRNIssueReport(ref IWorksheet sheet1, ReportUtility report, string sheet1Name, string sheet2Name, string companyId, string plantId, string fromDate, string toDate, string Type)
+        {
+
+
+            var cmdText = "";
+            if (Type == "Posted")
+            {
+                cmdText = @"SELECT II.Id AS IssueId
+	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate	 
+	                        ,MT.UserName MaterialType
+	                        ,MGM.UserName AS MaterialGroupMasterName
+							,HSNC.Code HSNCode
+	                        ,IM.MaterialMasterId
+	                        ,MM.UserName MaterialMasterName	                      
+	                        ,ART.StandardName ArticleName	                        
+	                        ,FC.UserName AS FirstCharacteristics
+	                        ,IM.FirstCharacteristicsValueId
+	                        ,ISNULL(FCV.UserName, '') AS FirstCharacteristicsValue
+	                        ,IM.SecondCharacteristicsId
+	                        ,SC.UserName AS SecondCharacteristics
+	                        ,IM.SecondCharacteristicsValueId
+	                        ,ISNULL(SCV.UserName, '') AS SecondCharacteristicsValue
+	                        ,IM.ThirdCharacteristicsId
+	                        ,TC.UserName AS ThirdCharacteristics
+	                        ,IM.ThirdCharacteristicsValueId
+	                        ,ISNULL(TCV.UserName, '') AS ThirdCharacteristicsValue
+							,IIH.InventoryReceiveDetailId 
+							,IRD.Id GRNDetailId
+							,IRD.TransactionQty GRNQty
+							,TUoM1.UserName AS GRNUOM
+							,IRD.MaterialTranRate GRNRate
+							,isnull(IIH1.Qty,0) OtherIssuedQty
+							,isnull(IIH.Qty,0) CurrentIssueQty
+							,TUoM.UserName AS IssueUOM							
+	                        ,TotalIssued=(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0))						
+							,Balance=(Isnull(IRD.TransactionQty,0)-(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0)))
+	                        ,ISNULL(IGL.UserName,'') AS GL
+							,ISNULL(IA.UserName,'') Activity
+							,isnull(B.UserName,'') AS Budget
+							,isnull(IGL1.UserName,'') AS CGL
+							,isnull(IA1.UserName,'') AS CActivity
+							,isnull(B1.UserName,'') AS CBUdget
+                            ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,PLC.LCRef as PurchaseLCNo,ospo.Id as PONumber
+                        FROM trn.InventoryIssue II
+                        LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId						
+                        LEFT JOIN ORG.Entity En ON II.EntityId = En.Id
+                        LEFT JOIN HKP.MaterialStorage MS ON II.MaterialStorageId = MS.Id
+                        LEFT JOIN TRN.InventoryMaterial AS IM ON IM.Id = IID.InventoryMaterialId
+                        LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
+						LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
+                        LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
+                        LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
+                        LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
+                        LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
+                        LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
+                        LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
+                        --left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+                        --LEFT JOIN trn.Invoice AS I ON I.InventoryReceiveId = II.Id
+                        LEFT JOIN trn.Voucher V ON V.Id = II.VoucherId
+						LEFT JOIN trn.InventoryIssueHistory IIH ON IIH.InventoryIssueDetailId=IID.Id
+						LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
+						LEFT JOIN(select Sum(Qty) Qty,InventoryIssueDetailId from  trn.InventoryIssueHistory group by InventoryIssueDetailId) IIH1 ON IIH1.InventoryIssueDetailId=IID.Id AND  IID.InventoryIssueId !=II.Id
+                        LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId = TUoM.Id
+					   LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM1 ON IRD.BaseUOMId = TUoM1.Id
+						LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
+						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.PostDrBudgetMasterId
+						LEFT JOIN HKP.Activity IA ON IA.Id=IID.PostDrActivityId
+						Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
+						LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IID.PostCrGLGeneralInfoId 
+						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
+						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
+						Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
+                        left join dbo.OSTransformationPO ospo on ospo.Id=II.JWContractId
+						left join [dbo].[Contract] Ct on Ct.Id=ospo.ContractId
+						left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
+						LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
+						left join dbo.PurchaseLC PLC on PLC.Id=ospo.PurchaseLCId
+                    where v.VoucherNo is not null ANd II.PlantId='" + plantId + "'AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
+            }
+            else
+            {
+                cmdText = @"SELECT II.Id AS IssueId
+	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate	 
+	                        ,MT.UserName MaterialType
+	                        ,MGM.UserName AS MaterialGroupMasterName
+	                        ,IM.MaterialMasterId
+							,HSNC.Code HSNCode
+	                        ,MM.UserName MaterialMasterName	                      
+	                        ,ART.StandardName ArticleName	                        
+	                        ,FC.UserName AS FirstCharacteristics
+	                        ,IM.FirstCharacteristicsValueId
+	                        ,ISNULL(FCV.UserName, '') AS FirstCharacteristicsValue
+	                        ,IM.SecondCharacteristicsId
+	                        ,SC.UserName AS SecondCharacteristics
+	                        ,IM.SecondCharacteristicsValueId
+	                        ,ISNULL(SCV.UserName, '') AS SecondCharacteristicsValue
+	                        ,IM.ThirdCharacteristicsId
+	                        ,TC.UserName AS ThirdCharacteristics
+	                        ,IM.ThirdCharacteristicsValueId
+	                        ,ISNULL(TCV.UserName, '') AS ThirdCharacteristicsValue
+							,IIH.InventoryReceiveDetailId 
+							,IRD.Id GRNDetailId
+							,IRD.TransactionQty GRNQty
+							,TUoM1.UserName AS GRNUOM
+							,IRD.MaterialTranRate GRNRate
+							,isnull(IIH1.Qty,0) OtherIssuedQty
+							,isnull(IIH.Qty,0) CurrentIssueQty
+							,TUoM.UserName AS IssueUOM							
+	                        ,TotalIssued=(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0))						
+							,Balance=(Isnull(IRD.TransactionQty,0)-(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0)))
+	                        ,ISNULL(IGL.UserName,'') AS GL
+							,ISNULL(IA.UserName,'') Activity
+							,isnull(B.UserName,'') AS Budget
+							,isnull(IGL1.UserName,'') AS CGL
+							,isnull(IA1.UserName,'') AS CActivity
+							,isnull(B1.UserName,'') AS CBUdget
+                            ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,PLC.LCRef as PurchaseLCNo,ospo.Id as PONumber
+                        FROM trn.InventoryIssue II
+                        LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId						
+                        LEFT JOIN ORG.Entity En ON II.EntityId = En.Id
+                        LEFT JOIN HKP.MaterialStorage MS ON II.MaterialStorageId = MS.Id
+                        LEFT JOIN TRN.InventoryMaterial AS IM ON IM.Id = IID.InventoryMaterialId
+                        LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
+						LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
+                        LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
+                        LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
+                        LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
+                        LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
+                        LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
+                        LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
+                        --left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+                        --LEFT JOIN trn.Invoice AS I ON I.InventoryReceiveId = II.Id
+                        LEFT JOIN trn.Voucher V ON V.Id = II.VoucherId
+						LEFT JOIN trn.InventoryIssueHistory IIH ON IIH.InventoryIssueDetailId=IID.Id
+						LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
+						LEFT JOIN(select Sum(Qty) Qty,InventoryIssueDetailId from  trn.InventoryIssueHistory group by InventoryIssueDetailId) IIH1 ON IIH1.InventoryIssueDetailId=IID.Id AND  IID.InventoryIssueId !=II.Id
+                        LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId = TUoM.Id
+					   LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM1 ON IRD.BaseUOMId = TUoM1.Id
+						LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
+						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.PostDrBudgetMasterId
+						LEFT JOIN HKP.Activity IA ON IA.Id=IID.PostDrActivityId
+						Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
+						LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IID.PostCrGLGeneralInfoId 
+						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
+						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
+						Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
+                        left join dbo.OSTransformationPO ospo on ospo.Id=II.JWContractId
+						left join [dbo].[Contract] Ct on Ct.Id=ospo.ContractId
+						left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
+						LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
+						left join dbo.PurchaseLC PLC on PLC.Id=ospo.PurchaseLCId
+                    where v.VoucherNo is null ANd II.PlantId='" + plantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
+
+            }
+            var inventoryMaterialList = _sqlRepository.GetDataTable(cmdText);
+            var plantName = new DataView(_sqlRepository.GetDataTable(@"SELECT UserName from org.Plant WHERE Id='" + plantId + "'")).ToTable(true, "UserName").Rows[0]["UserName"].ToString();
+            if (inventoryMaterialList.Rows.Count == 0)
+                throw new Exception("No Data Found !!!");
+            var _rowd = 4;
+            if (fromDate != "" && toDate != "")
+            {
+
+                sheet1[_rowd, 3].Text = fromDate + " " + "To" + " " + toDate;
+                sheet1.UsedRange.CellStyle.Font.Size = 8;
+                sheet1.UsedRange.CellStyle.Font.Bold = true;
+                sheet1.Range[_rowd, 3, _rowd, 6].Merge();
+
+            }
+
+            var _rows = 6;
+            sheet1[_rows, 5].Text = "Report Ref No: ";
+            sheet1.Range[_rows, 3, _rows, 6].Merge();
+            sheet1.UsedRange.CellStyle.Font.Bold = false;
+            var _row = 7;
+
+            sheet1[_row, 25].Text = "Posted Dr.";
+            sheet1.UsedRange.CellStyle.Font.Size = 10;
+            sheet1.UsedRange.CellStyle.Font.Bold = true;
+            sheet1.UsedRange.WrapText = true;
+            sheet1[_row, 25].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1[_row, 25].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_row, 25, _row, 27].BorderAround(ExcelLineStyle.Hair);
+            //sheet1.Range[_row, 18, _row, 20].CellStyle.Color="LightYellow";
+            sheet1.Range[_row, 25, _row, 27].BorderInside(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 25, _row, 27].Merge();
+            sheet1.Range[_row, 25, _row, 27].CellStyle.FillBackground = ExcelKnownColors.Tan;
+
+            sheet1[_row, 28].Text = "Posted (Cr.)";
+            sheet1.UsedRange.CellStyle.Font.Size = 10;
+            sheet1.UsedRange.CellStyle.Font.Bold = true;
+            sheet1.UsedRange.WrapText = true;
+            sheet1[_row, 28].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1[_row, 28].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_row, 28, _row, 30].BorderAround(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 28, _row, 30].BorderInside(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 28, _row, 30].Merge();
+            sheet1.Range[_row, 28, _row, 30].CellStyle.FillBackground = ExcelKnownColors.Tan;
+
+            var _rowL = _row;
+            var row = _row + 1;
+
+
+            var sheet1headreColIndex = 1;
+            //var sheet2headreColIndex = 1;
+            _rowL += 1;
+            //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Issue Id");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Issue Id";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Issue Date");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Issue Date";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GRN Detail Id");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "PO Number";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Contract No";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Customer";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Ref No";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Purchase LC No";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "UDNo";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "GRN Detail Id";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Material Type");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Material Type";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 30;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Material Group");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Material Group";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 30;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Material");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Material";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 30;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Article");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Article";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 30;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "SKU1");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "SKU1";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "SKU2");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "SKU2";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "SKU3");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "SKU3";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "HSN No";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GRNQty");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "GRN Qty";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GRNUOM");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "GRN UOM";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GRN Rate");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "GRN Rate";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Other Issued Qty");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Other Issued Qty";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Current Issue Qty");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Current Issue Qty";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Issue UOM");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Issue UOM";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Balance");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Balance";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GL");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "GL";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Budget");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Budget";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Activity");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Activity";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GL");
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "GL";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "BUdget");
+            //sheet1headreColIndex++;
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "BUdget";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Activity");
+
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Activity";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+
+            //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+            sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.Font.Size = 10;
+            sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].RowHeight = 22;
+            var Row_Total_Start = _rowL + 1;
+            for (int n = 0; n < inventoryMaterialList.Rows.Count; n++)
+            {
+                _rowL++;
+                report.SetText(ref sheet1, _rowL, 1, inventoryMaterialList.Rows[n]["IssueId"].ToString());
+                report.SetText(ref sheet1, _rowL, 2, inventoryMaterialList.Rows[n]["IssueDate"].ToString());
+                report.SetText(ref sheet1, _rowL, 3, inventoryMaterialList.Rows[n]["PONumber"].ToString());
+                report.SetText(ref sheet1, _rowL, 4, inventoryMaterialList.Rows[n]["ContractNo"].ToString());
+                report.SetText(ref sheet1, _rowL, 5, inventoryMaterialList.Rows[n]["CustomerName"].ToString());
+                report.SetText(ref sheet1, _rowL, 6, inventoryMaterialList.Rows[n]["LCRef"].ToString());
+                report.SetText(ref sheet1, _rowL, 7, inventoryMaterialList.Rows[n]["PurchaseLCNo"].ToString());
+                report.SetText(ref sheet1, _rowL, 8, inventoryMaterialList.Rows[n]["UDNo"].ToString());
+
+                report.SetText(ref sheet1, _rowL, 9, inventoryMaterialList.Rows[n]["GRNDetailId"].ToString());
+                report.SetText(ref sheet1, _rowL, 10, inventoryMaterialList.Rows[n]["MaterialType"].ToString());
+                report.SetText(ref sheet1, _rowL, 11, inventoryMaterialList.Rows[n]["MaterialGroupMasterName"].ToString());
+                report.SetText(ref sheet1, _rowL, 12, inventoryMaterialList.Rows[n]["MaterialMasterName"].ToString());
+                report.SetText(ref sheet1, _rowL, 13, inventoryMaterialList.Rows[n]["ArticleName"].ToString());
+                report.SetText(ref sheet1, _rowL, 14, inventoryMaterialList.Rows[n]["FirstCharacteristicsValue"].ToString());
+
+                report.SetText(ref sheet1, _rowL, 15, inventoryMaterialList.Rows[n]["SecondCharacteristicsValue"].ToString());
+                report.SetText(ref sheet1, _rowL, 16, inventoryMaterialList.Rows[n]["ThirdCharacteristicsValue"].ToString());
+                report.SetText(ref sheet1, _rowL, 17, inventoryMaterialList.Rows[n]["HSNCode"].ToString());
+                report.SetText(ref sheet1, _rowL, 18, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["GRNQty"].ToString()));
+                report.SetText(ref sheet1, _rowL, 19, inventoryMaterialList.Rows[n]["GRNUOM"].ToString());
+                report.SetText(ref sheet1, _rowL, 20, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["GRNRate"].ToString()));
+                report.SetText(ref sheet1, _rowL, 21, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["OtherIssuedQty"].ToString()));
+                report.SetText(ref sheet1, _rowL, 22, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["CurrentIssueQty"].ToString()));
+                report.SetText(ref sheet1, _rowL, 23, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IssueUOM"].ToString()));
+                report.SetText(ref sheet1, _rowL, 24, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["Balance"].ToString()));
+                report.SetText(ref sheet1, _rowL, 25, inventoryMaterialList.Rows[n]["GL"].ToString());
+                report.SetText(ref sheet1, _rowL, 26, inventoryMaterialList.Rows[n]["Budget"].ToString());
+                report.SetText(ref sheet1, _rowL, 27, inventoryMaterialList.Rows[n]["Activity"].ToString());
+                report.SetText(ref sheet1, _rowL, 28, inventoryMaterialList.Rows[n]["CGL"].ToString());
+                report.SetText(ref sheet1, _rowL, 29, inventoryMaterialList.Rows[n]["CBUdget"].ToString());
+                report.SetText(ref sheet1, _rowL, 30, inventoryMaterialList.Rows[n]["CActivity"].ToString());
+            }
+
+            //#endregion sumCalc
+            sheet1.Range[(Row_Total_Start), 1, _rowL, sheet1headreColIndex].CellStyle.Font.Size = 8;
+            sheet1.Range[(row), 1, _rowL, sheet1headreColIndex].BorderInside(ExcelLineStyle.Hair);
+            sheet1.Range[(row), 1, _rowL, sheet1headreColIndex].BorderAround(ExcelLineStyle.Hair);
+
+            sheet1.Name = sheet1Name;
+            sheet1.UsedRange.WrapText = true;
+            sheet1.IsGridLinesVisible = false;
+            report.PlantHeader(ref sheet1, sheet1headreColIndex, sheet1Name, plantId);
+            report.PageSetup(ref sheet1, 5, ExcelPageOrientation.Landscape);
+
+        }
 
 
         private void CreateIssueRegisterGRNIssueReport(ref IWorksheet sheet1, ReportUtility report, string sheet1Name, string sheet2Name, string companyId, string plantId, string fromDate, string toDate, string Type)
@@ -10681,123 +12062,123 @@ namespace Library.MaterialManagement.Inventory
                 if (inventoryIssue.Id.IsNull())
                 {
 
-                var GRNCalculateList = new List<InventoryIssueHistory>();
-                if (entities.IsNotNull())
-                {
-                    _unitOfWork.BeginTransaction();
-                    flag = true;
-                    var _pk = GetPK();
-                    var inventoryMaterialList = _inventoryMaterialService.GetJWInventoryMaterialListByUpToSku(entities, inventoryIssue.CompanyId, inventoryIssue.PlantId);
-                    var currencyId = _companyRepository.Find(inventoryIssue.CompanyId).BaseCurrencyId;
-                    foreach (var item in entities)// update view model (inventory material field)
+                    var GRNCalculateList = new List<InventoryIssueHistory>();
+                    if (entities.IsNotNull())
                     {
-                        //  JWArtId += ",'" + item.ArticleId + "' ";
-                        if (item.ArticleId.IsNotNull())
+                        _unitOfWork.BeginTransaction();
+                        flag = true;
+                        var _pk = GetPK();
+                        var inventoryMaterialList = _inventoryMaterialService.GetJWInventoryMaterialListByUpToSku(entities, inventoryIssue.CompanyId, inventoryIssue.PlantId);
+                        var currencyId = _companyRepository.Find(inventoryIssue.CompanyId).BaseCurrencyId;
+                        foreach (var item in entities)// update view model (inventory material field)
                         {
-                            if (string.IsNullOrEmpty(JWArtId))
+                            //  JWArtId += ",'" + item.ArticleId + "' ";
+                            if (item.ArticleId.IsNotNull())
                             {
-                                JWArtId = item.ArticleId;
-                            }
-
-                            var im = inventoryMaterialList.FirstOrDefault(t => t.MaterialMasterId == item.MaterialMasterId && t.ArticleId == item.ArticleId
-                                && t.FirstCharacteristicsId == item.FirstCharacteristicsId
-                                && t.FirstCharacteristicsValueId == item.FirstCharacteristicsValueId
-                                && t.SecondCharacteristicsId == item.SecondCharacteristicsId
-                                && t.SecondCharacteristicsValueId == item.SecondCharacteristicsValueId
-                                && t.ThirdCharacteristicsId == item.ThirdCharacteristicsId
-                                && t.ThirdCharacteristicsValueId == item.ThirdCharacteristicsValueId
-                                //&& t.CountryId == item.CountryId
-                                && t.CompanyId == inventoryIssue.CompanyId && t.PlantId == inventoryIssue.PlantId // && t.CountryId == item.CountryId
-                               );
-
-                            if (im.IsNotNull())
-                            {
-
-                                if (im.TotalQty < item.TransactionQty) throw new CustomException(@"Stock is limited for {" + item.MaterialMasterName + "} {" + item.ArticleName + "} {" + item.TransactionQty + "} . Available stock is {" + im.TotalQty + "}");
-                                item.InventoryIssueId = _pk;
-                                item.InventoryMaterialId = im.Id;
-                                item.CompanyGroupId = im.CompanyGroupId;
-                                item.CompanyId = inventoryIssue.CompanyId;
-                                item.PlantId = inventoryIssue.PlantId;
-                                item.CurrencyId = currencyId;
-                                item.MaterialStorageId = null;
-                                item.MaterialMasterId = im.MaterialMasterId;
-                                item.ArticleId = im.ArticleId;
-                                item.FirstCharacteristicsId = im.FirstCharacteristicsId;
-                                item.FirstCharacteristicsValueId = im.FirstCharacteristicsValueId;
-                                item.SecondCharacteristicsId = im.SecondCharacteristicsId;
-                                item.SecondCharacteristicsValueId = im.SecondCharacteristicsValueId;
-                                item.ThirdCharacteristicsId = im.ThirdCharacteristicsId;
-                                item.ThirdCharacteristicsValueId = im.ThirdCharacteristicsValueId;
-                                item.TotalQty = im.TotalQty;
-                                item.AvgRate = im.AvgRate;
-
-                            }
-                        }
-
-                    }// update view model (inventory material field)
-                    inventoryIssue.CurrencyId = currencyId;
-                    inventoryIssue.ProductionOrderId = inventoryIssue.ProductionOrderId;
-                    inventoryIssue.ContractId = inventoryIssue.ContractId;
-                    inventoryIssue.OrderRefNo = inventoryIssue.OrderRefNo;
-
-                    inventoryIssue.JWContractId = inventoryIssue.JWContractId;
-                    inventoryIssue.ContractType = inventoryIssue.ContractType;
-                    inventoryIssue.Types = inventoryIssue.Types;
-
-                    inventoryIssue.RefferenceNo = inventoryIssue.RefferenceNo;
-                    inventoryIssue.IssueType = inventoryIssue.IssueType;
-                    inventoryIssue.EmployeeId = inventoryIssue.EmployeeId;
-
-                    inventoryIssue.MaterialStorageId = inventoryIssue.MaterialStorageId;
-                    inventoryIssue.EmployeeId = inventoryIssue.EmployeeId;
-
-                    inventoryIssue.IssueDate = inventoryIssue.IssueDate;
-                    inventoryIssue.EntityId = inventoryIssue.EntityId;
-                    inventoryIssue.PlantId = inventoryIssue.PlantId;
-
-                    inventoryIssue.CompanyGroupId = inventoryIssue.CompanyGroupId;
-                    inventoryIssue.CompanyId = inventoryIssue.CompanyId;
-
-                    inventoryIssue.Id = _pk;
-                    InsertGraph(inventoryIssue);
-                    var rdBuilder = new System.Text.StringBuilder();
-                    var builderSql = "";
-                    //_issueDetailService.InsertRange(entities, specificStockList, inventoryIssue);
-
-
-                    #region ===========IssueDetail And IssueHistory And Update GRN And Stock=======
-
-
-                    if (!string.IsNullOrEmpty(JWArtId))
-                    {
-                        try
-                        {
-                            //    var inventoryMaterialIds = new string[] { };
-
-                            var uiList = entities.ToList();
-                            var currentId = _issueHistoryRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[InventoryIssueDetail] WHERE InventoryIssueId='{inventoryIssue.Id}'").First();
-                            var inventoryMaterialIds = entities.Select(t => t.InventoryMaterialId).ToArray();
-                            //    inventoryMaterialIds = entities.Select(t => t.InventoryMaterialId).Distinct().ToArray();
-
-                            var specificInvaterialIds = new string[] { };
-                    //        var specificInventoryReceiveDetailIds = new string[] { };
-                                var maIds = new string[] { };
-                            if (specificStockList.IsNotNull())
-                            {
-                                specificInvaterialIds = specificStockList.Select(t => t.InventoryMaterialId).Distinct().ToArray();
-                      //          specificInventoryReceiveDetailIds = specificStockList.Select(t => t.InventoryReceiveDetailId).Distinct().ToArray();
-                                    maIds = inventoryMaterialIds.Except(specificInvaterialIds).Distinct().ToArray();
-
-                                for (int i = uiList.Count() - 1; i >= 0; i--)
+                                if (string.IsNullOrEmpty(JWArtId))
                                 {
-                                    var row = uiList.ElementAt(i);
-                                    if (specificInvaterialIds.Any(t => t == row.InventoryMaterialId))
-                                        uiList.RemoveAt(i);
+                                    JWArtId = item.ArticleId;
+                                }
+
+                                var im = inventoryMaterialList.FirstOrDefault(t => t.MaterialMasterId == item.MaterialMasterId && t.ArticleId == item.ArticleId
+                                    && t.FirstCharacteristicsId == item.FirstCharacteristicsId
+                                    && t.FirstCharacteristicsValueId == item.FirstCharacteristicsValueId
+                                    && t.SecondCharacteristicsId == item.SecondCharacteristicsId
+                                    && t.SecondCharacteristicsValueId == item.SecondCharacteristicsValueId
+                                    && t.ThirdCharacteristicsId == item.ThirdCharacteristicsId
+                                    && t.ThirdCharacteristicsValueId == item.ThirdCharacteristicsValueId
+                                    //&& t.CountryId == item.CountryId
+                                    && t.CompanyId == inventoryIssue.CompanyId && t.PlantId == inventoryIssue.PlantId // && t.CountryId == item.CountryId
+                                   );
+
+                                if (im.IsNotNull())
+                                {
+
+                                    if (im.TotalQty < item.TransactionQty) throw new CustomException(@"Stock is limited for {" + item.MaterialMasterName + "} {" + item.ArticleName + "} {" + item.TransactionQty + "} . Available stock is {" + im.TotalQty + "}");
+                                    item.InventoryIssueId = _pk;
+                                    item.InventoryMaterialId = im.Id;
+                                    item.CompanyGroupId = im.CompanyGroupId;
+                                    item.CompanyId = inventoryIssue.CompanyId;
+                                    item.PlantId = inventoryIssue.PlantId;
+                                    item.CurrencyId = currencyId;
+                                    item.MaterialStorageId = null;
+                                    item.MaterialMasterId = im.MaterialMasterId;
+                                    item.ArticleId = im.ArticleId;
+                                    item.FirstCharacteristicsId = im.FirstCharacteristicsId;
+                                    item.FirstCharacteristicsValueId = im.FirstCharacteristicsValueId;
+                                    item.SecondCharacteristicsId = im.SecondCharacteristicsId;
+                                    item.SecondCharacteristicsValueId = im.SecondCharacteristicsValueId;
+                                    item.ThirdCharacteristicsId = im.ThirdCharacteristicsId;
+                                    item.ThirdCharacteristicsValueId = im.ThirdCharacteristicsValueId;
+                                    item.TotalQty = im.TotalQty;
+                                    item.AvgRate = im.AvgRate;
+
                                 }
                             }
-                            else maIds = inventoryMaterialIds;
-                            var receiveDetailList = _sqlRepository.GetModelCollection<InventoryMaterialViewModel>(@"SELECT MGM.InventoryIssuePolicy AS [Policy], IRD.Id, IRD.Id AS InventoryReceiveDetailId, IRD.InventoryReceiveId, IRD.InventoryMaterialId, IRD.MaterialStorageId, IRD.TransactionQty, IRD.TransactionUoMId, IRD.BaseQty, IRD.BaseUOMId, IRD.BaseUoMFactor
+
+                        }// update view model (inventory material field)
+                        inventoryIssue.CurrencyId = currencyId;
+                        inventoryIssue.ProductionOrderId = inventoryIssue.ProductionOrderId;
+                        inventoryIssue.ContractId = inventoryIssue.ContractId;
+                        inventoryIssue.OrderRefNo = inventoryIssue.OrderRefNo;
+
+                        inventoryIssue.JWContractId = inventoryIssue.JWContractId;
+                        inventoryIssue.ContractType = inventoryIssue.ContractType;
+                        inventoryIssue.Types = inventoryIssue.Types;
+
+                        inventoryIssue.RefferenceNo = inventoryIssue.RefferenceNo;
+                        inventoryIssue.IssueType = inventoryIssue.IssueType;
+                        inventoryIssue.EmployeeId = inventoryIssue.EmployeeId;
+
+                        inventoryIssue.MaterialStorageId = inventoryIssue.MaterialStorageId;
+                        inventoryIssue.EmployeeId = inventoryIssue.EmployeeId;
+
+                        inventoryIssue.IssueDate = inventoryIssue.IssueDate;
+                        inventoryIssue.EntityId = inventoryIssue.EntityId;
+                        inventoryIssue.PlantId = inventoryIssue.PlantId;
+
+                        inventoryIssue.CompanyGroupId = inventoryIssue.CompanyGroupId;
+                        inventoryIssue.CompanyId = inventoryIssue.CompanyId;
+
+                        inventoryIssue.Id = _pk;
+                        InsertGraph(inventoryIssue);
+                        var rdBuilder = new System.Text.StringBuilder();
+                        var builderSql = "";
+                        //_issueDetailService.InsertRange(entities, specificStockList, inventoryIssue);
+
+
+                        #region ===========IssueDetail And IssueHistory And Update GRN And Stock=======
+
+
+                        if (!string.IsNullOrEmpty(JWArtId))
+                        {
+                            try
+                            {
+                                //    var inventoryMaterialIds = new string[] { };
+
+                                var uiList = entities.ToList();
+                                var currentId = _issueHistoryRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[InventoryIssueDetail] WHERE InventoryIssueId='{inventoryIssue.Id}'").First();
+                                var inventoryMaterialIds = entities.Select(t => t.InventoryMaterialId).ToArray();
+                                //    inventoryMaterialIds = entities.Select(t => t.InventoryMaterialId).Distinct().ToArray();
+
+                                var specificInvaterialIds = new string[] { };
+                                //        var specificInventoryReceiveDetailIds = new string[] { };
+                                var maIds = new string[] { };
+                                if (specificStockList.IsNotNull())
+                                {
+                                    specificInvaterialIds = specificStockList.Select(t => t.InventoryMaterialId).Distinct().ToArray();
+                                    //          specificInventoryReceiveDetailIds = specificStockList.Select(t => t.InventoryReceiveDetailId).Distinct().ToArray();
+                                    maIds = inventoryMaterialIds.Except(specificInvaterialIds).Distinct().ToArray();
+
+                                    for (int i = uiList.Count() - 1; i >= 0; i--)
+                                    {
+                                        var row = uiList.ElementAt(i);
+                                        if (specificInvaterialIds.Any(t => t == row.InventoryMaterialId))
+                                            uiList.RemoveAt(i);
+                                    }
+                                }
+                                else maIds = inventoryMaterialIds;
+                                var receiveDetailList = _sqlRepository.GetModelCollection<InventoryMaterialViewModel>(@"SELECT MGM.InventoryIssuePolicy AS [Policy], IRD.Id, IRD.Id AS InventoryReceiveDetailId, IRD.InventoryReceiveId, IRD.InventoryMaterialId, IRD.MaterialStorageId, IRD.TransactionQty, IRD.TransactionUoMId, IRD.BaseQty, IRD.BaseUOMId, IRD.BaseUoMFactor
                                         , IRD.MaterialTranRate, IRD.MaterialTranAmount, IRD.TotalMaterialTranAmount, COALESCE((IRD.IssueQty),0) AS IssueQty, COALESCE((IRD.BaseIssueQty),0) AS BaseIssueQty,1 RequisitionQty,IRD.InventorySalesQty,IRD.InventoryScrapQty,IRD.PurchaseReturnQty,IRD.IssueReturnQty,IRD.ReductionByAdjustmentQty
                                     FROM [TRN].[InventoryReceiveDetail] AS IRD JOIN TRN.InventoryMaterial AS IM ON IRD.InventoryMaterialId=IM.Id
                                     JOIN [MST].[MaterialMaster] AS MM ON IM.MaterialMasterId=MM.Id JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
@@ -10811,44 +12192,44 @@ namespace Library.MaterialManagement.Inventory
                                         , CASE WHEN MGM.InventoryIssuePolicy='" + InventoryIssuePolicy.LIFO + @"' THEN IRD.AddedDate END DESC
                                         , CASE WHEN MGM.InventoryIssuePolicy='" + InventoryIssuePolicy.WeightedAverage + @"' THEN IRD.AddedDate END ASC").ToList();
 
-                            if (receiveDetailList.IsNotNull())
-                            {
-                                foreach (var issue in uiList)
+                                if (receiveDetailList.IsNotNull())
                                 {
-                                    if (issue.ArticleId.IsNotNull())
+                                    foreach (var issue in uiList)
                                     {
-                                        var receiveDetailRow = receiveDetailList.FirstOrDefault(t => t.InventoryMaterialId == issue.InventoryMaterialId);
-
-                                        decimal detailtrnAmount = 0;
-                                        decimal totalGRNQty = 0;
-                                        /*Amount=MaterialTrnAmount - ((TRN Qty - IssueQty)* (TotalMmaterialTrnAmount/MaterialTrnRate))*/
-                                        /*Rate= Amount/Sum GRN Qty */
-
-                                        if (receiveDetailRow.TransactionUoMId != receiveDetailRow.BaseUOMId)
-                                            //input.BaseRate = receiveDetailRow.BaseAmount / receiveDetailRow.BaseQty;
-                                            issue.BaseRate = receiveDetailRow.MaterialTranAmount / receiveDetailRow.BaseQty;
-                                        else issue.BaseRate = receiveDetailRow.MaterialTranRate;
-                                        if (issue.TransactionUoMId != issue.BaseUOMId)
-                                            issue.BaseQty = Convert.ToDecimal(issue.TransactionQty * receiveDetailRow.BaseUoMFactor);
-
-                                        decimal IssueTransactionQty = issue.TransactionQty;
-                                        foreach (var item in receiveDetailList.Where(r => r.InventoryMaterialId == issue.InventoryMaterialId))
+                                        if (issue.ArticleId.IsNotNull())
                                         {
+                                            var receiveDetailRow = receiveDetailList.FirstOrDefault(t => t.InventoryMaterialId == issue.InventoryMaterialId);
 
-                                            if (IssueTransactionQty <= 0)
-                                                break;
+                                            decimal detailtrnAmount = 0;
+                                            decimal totalGRNQty = 0;
+                                            /*Amount=MaterialTrnAmount - ((TRN Qty - IssueQty)* (TotalMmaterialTrnAmount/MaterialTrnRate))*/
+                                            /*Rate= Amount/Sum GRN Qty */
 
-                                            //decimal totalIssuedAmount = Convert.ToDecimal(_issueHistoryRepository.SqlQuery<decimal>(@"SELECT ISNULL(SUM(Qty*Rate),0) FROM [TRN].[InventoryIssueHistory] where  InventoryReceiveDetailId='" + item.InventoryReceiveDetailId + "'").FirstOrDefault());
-                                            //decimal totalIssuedAmount = Convert.ToDecimal(_issueHistoryRepository.SqlQuery<decimal>(@"SELECT totalIssuedAmount=((ISNULL(SUM(IIH.TotalAmount),0)+isnull(sum(PR.TotalMaterialTranAmount),0)+isnull(sum(PSAH.TotalAmount),0)+isnull(sum(ISH.TotalBaseAmount),0)+isnull(sum(InvS.TotalAmount),0)) -isnull(sum(IIR.TotalAmount),0)) 
-                                            //																						   FROM trn.InventoryReceiveDetail IRD  
-                                            //																							left JOIN [TRN].[InventoryIssueHistory] IIH ON IIH.InventoryReceiveDetailId=IRD.Id
-                                            //																							LEFT JOIN trn.PurchaseReturnDetail PR ON PR.InventoryReceiveDetailId=IRD.Id
-                                            //																							LEFT JOIN trn.PhysicalStockAdjustmentHistory PSAH ON PSAH.InventoryReceiveDetailId=IRD.Id
-                                            //																							LEFT join trn.InventorySalesHistory ISH ON ISH.InventoryReceiveDetailId=IRD.Id
-                                            //																							LEFT JOIN TRN.InventoryScrapHistory InvS ON InvS.InventoryReceiveDetailId=IRD.Id
-                                            //																							LEFT join TRN.InventoryIssueReturnHistory IIR ON IIR.InventoryReceiveDetailId=IRD.Id
-                                            //																						   WHERE  IIH.InventoryReceiveDetailId='" + item.InventoryReceiveDetailId + "'").FirstOrDefault());
-                                            decimal totalIssuedAmount = Convert.ToDecimal(_issueHistoryRepository.SqlQuery<decimal>(@"SELECT totalIssuedAmount=((ISNULL(SUM(x.ISHTotalBaseAmount),0)+isnull(sum(x.PRTotalMaterialTranAmount),0)+isnull(sum(x.PSAHTotalAmount),0)+isnull(sum(x.IIHTotalAmount),0) +isnull(sum(x.InvSTotalAmount),0) +isnull(sum(x.ITHTotalAmount),0)) -isnull(sum(x.IIRTotalAmount),0))  
+                                            if (receiveDetailRow.TransactionUoMId != receiveDetailRow.BaseUOMId)
+                                                //input.BaseRate = receiveDetailRow.BaseAmount / receiveDetailRow.BaseQty;
+                                                issue.BaseRate = receiveDetailRow.MaterialTranAmount / receiveDetailRow.BaseQty;
+                                            else issue.BaseRate = receiveDetailRow.MaterialTranRate;
+                                            if (issue.TransactionUoMId != issue.BaseUOMId)
+                                                issue.BaseQty = Convert.ToDecimal(issue.TransactionQty * receiveDetailRow.BaseUoMFactor);
+
+                                            decimal IssueTransactionQty = issue.TransactionQty;
+                                            foreach (var item in receiveDetailList.Where(r => r.InventoryMaterialId == issue.InventoryMaterialId))
+                                            {
+
+                                                if (IssueTransactionQty <= 0)
+                                                    break;
+
+                                                //decimal totalIssuedAmount = Convert.ToDecimal(_issueHistoryRepository.SqlQuery<decimal>(@"SELECT ISNULL(SUM(Qty*Rate),0) FROM [TRN].[InventoryIssueHistory] where  InventoryReceiveDetailId='" + item.InventoryReceiveDetailId + "'").FirstOrDefault());
+                                                //decimal totalIssuedAmount = Convert.ToDecimal(_issueHistoryRepository.SqlQuery<decimal>(@"SELECT totalIssuedAmount=((ISNULL(SUM(IIH.TotalAmount),0)+isnull(sum(PR.TotalMaterialTranAmount),0)+isnull(sum(PSAH.TotalAmount),0)+isnull(sum(ISH.TotalBaseAmount),0)+isnull(sum(InvS.TotalAmount),0)) -isnull(sum(IIR.TotalAmount),0)) 
+                                                //																						   FROM trn.InventoryReceiveDetail IRD  
+                                                //																							left JOIN [TRN].[InventoryIssueHistory] IIH ON IIH.InventoryReceiveDetailId=IRD.Id
+                                                //																							LEFT JOIN trn.PurchaseReturnDetail PR ON PR.InventoryReceiveDetailId=IRD.Id
+                                                //																							LEFT JOIN trn.PhysicalStockAdjustmentHistory PSAH ON PSAH.InventoryReceiveDetailId=IRD.Id
+                                                //																							LEFT join trn.InventorySalesHistory ISH ON ISH.InventoryReceiveDetailId=IRD.Id
+                                                //																							LEFT JOIN TRN.InventoryScrapHistory InvS ON InvS.InventoryReceiveDetailId=IRD.Id
+                                                //																							LEFT join TRN.InventoryIssueReturnHistory IIR ON IIR.InventoryReceiveDetailId=IRD.Id
+                                                //																						   WHERE  IIH.InventoryReceiveDetailId='" + item.InventoryReceiveDetailId + "'").FirstOrDefault());
+                                                decimal totalIssuedAmount = Convert.ToDecimal(_issueHistoryRepository.SqlQuery<decimal>(@"SELECT totalIssuedAmount=((ISNULL(SUM(x.ISHTotalBaseAmount),0)+isnull(sum(x.PRTotalMaterialTranAmount),0)+isnull(sum(x.PSAHTotalAmount),0)+isnull(sum(x.IIHTotalAmount),0) +isnull(sum(x.InvSTotalAmount),0) +isnull(sum(x.ITHTotalAmount),0)) -isnull(sum(x.IIRTotalAmount),0))  
 																FROM (
 																		SELECT 	IRD.Id,0 ITHTotalAmount, ISNULL(ISH.TotalBaseAmount,0) ISHTotalBaseAmount,0 PRTotalMaterialTranAmount,0 PSAHTotalAmount,0 IIHTotalAmount,0 InvSTotalAmount,0 IIRTotalAmount	
 																		FROM TRN.InventoryReceiveDetail IRD
@@ -10881,315 +12262,316 @@ namespace Library.MaterialManagement.Inventory
 																WHERE x.Id='" + item.InventoryReceiveDetailId + "'").FirstOrDefault());
 
 
-                                            decimal RemainingGRNQty = Convert.ToDecimal((item.TransactionQty - (item.IssueQty + item.PurchaseReturnQty + item.ReductionByAdjustmentQty + item.InventorySalesQty + item.InventoryScrapQty)) + item.IssueReturnQty);
-                                            decimal IssueDeduactionQty = 0;
+                                                decimal RemainingGRNQty = Convert.ToDecimal((item.TransactionQty - (item.IssueQty + item.PurchaseReturnQty + item.ReductionByAdjustmentQty + item.InventorySalesQty + item.InventoryScrapQty)) + item.IssueReturnQty);
+                                                decimal IssueDeduactionQty = 0;
 
 
-                                            if (RemainingGRNQty <= IssueTransactionQty)
-                                            {
-                                                IssueDeduactionQty = RemainingGRNQty;
-                                                IssueTransactionQty = IssueTransactionQty - RemainingGRNQty;
-                                                RemainingGRNQty = 0;
-
-                                            }
-                                            else
-                                            {
-                                                IssueDeduactionQty = IssueTransactionQty;
-                                                RemainingGRNQty = RemainingGRNQty - IssueTransactionQty;
-                                                IssueTransactionQty = 0;
-                                            }
-
-                                            //decimal balaceGRNQty = Convert.ToInt16(_issueHistoryRepository.Query(r => r.InventoryReceiveDetailId == item.InventoryReceiveDetailId));
-                                            if (item.TransactionUoMId == issue.TransactionUoMId)
-                                            {
-
-                                                detailtrnAmount += Convert.ToDecimal((item.TotalMaterialTranAmount - totalIssuedAmount) - (((item.TransactionQty - (item.IssueQty + item.PurchaseReturnQty + item.ReductionByAdjustmentQty + item.InventorySalesQty + item.InventoryScrapQty) - item.IssueReturnQty) - IssueDeduactionQty) * (item.TotalMaterialTranAmount / item.TransactionQty)));
-                                                var newgrn = new InventoryIssueHistory
+                                                if (RemainingGRNQty <= IssueTransactionQty)
                                                 {
-                                                    TotalAmount = Convert.ToDecimal((item.TotalMaterialTranAmount - totalIssuedAmount) - (((item.TransactionQty - (item.IssueQty + item.PurchaseReturnQty + item.ReductionByAdjustmentQty + item.InventorySalesQty + item.InventoryScrapQty) - item.IssueReturnQty) - IssueDeduactionQty) * (item.TotalMaterialTranAmount / item.TransactionQty))),
-                                                    InventoryReceiveDetailId = item.InventoryReceiveDetailId,
-                                                    Qty = IssueDeduactionQty
+                                                    IssueDeduactionQty = RemainingGRNQty;
+                                                    IssueTransactionQty = IssueTransactionQty - RemainingGRNQty;
+                                                    RemainingGRNQty = 0;
 
-                                                };
-                                                GRNCalculateList.Add(newgrn);
-                                                //detailtrnAmount += Convert.ToDecimal((item.MaterialTranAmount - totalIssuedAmount) - (((item.TransactionQty - item.IssueQty)) * (item.TotalMaterialTranAmount / item.TransactionQty)));
-
-                                                totalGRNQty += Convert.ToDecimal(IssueDeduactionQty);
-                                            }
-                                            else
-                                            {
-                                                detailtrnAmount += Convert.ToDecimal(item.MaterialTranAmount - ((((item.TransactionQty - (item.IssueQty + item.PurchaseReturnQty + item.ReductionByAdjustmentQty + item.InventorySalesQty + item.InventoryScrapQty) - item.IssueReturnQty) * item.BaseUoMFactor) - IssueDeduactionQty) * (item.TotalMaterialTranAmount / item.TransactionQty)));
-                                                var newgrn = new InventoryIssueHistory
+                                                }
+                                                else
                                                 {
-                                                    TotalAmount = Convert.ToDecimal(item.MaterialTranAmount - ((((item.TransactionQty - (item.IssueQty + item.PurchaseReturnQty + item.ReductionByAdjustmentQty + item.InventorySalesQty + item.InventoryScrapQty) - item.IssueReturnQty) * item.BaseUoMFactor) - IssueDeduactionQty) * (item.TotalMaterialTranAmount / item.TransactionQty))),
-                                                    InventoryReceiveDetailId = item.InventoryReceiveDetailId,
-                                                    Qty = IssueDeduactionQty
-                                                };
-                                                GRNCalculateList.Add(newgrn);
-                                                //detailtrnAmount += Convert.ToDecimal((item.MaterialTranAmount - totalIssuedAmount) - ((((item.TransactionQty - item.IssueQty) * item.BaseUoMFactor) - item.RequisitionQty) * (item.TotalMaterialTranAmount / item.TransactionQty)));
+                                                    IssueDeduactionQty = IssueTransactionQty;
+                                                    RemainingGRNQty = RemainingGRNQty - IssueTransactionQty;
+                                                    IssueTransactionQty = 0;
+                                                }
 
-                                                totalGRNQty += Convert.ToDecimal(IssueDeduactionQty);
+                                                //decimal balaceGRNQty = Convert.ToInt16(_issueHistoryRepository.Query(r => r.InventoryReceiveDetailId == item.InventoryReceiveDetailId));
+                                                if (item.TransactionUoMId == issue.TransactionUoMId)
+                                                {
+
+                                                    detailtrnAmount += Convert.ToDecimal((item.TotalMaterialTranAmount - totalIssuedAmount) - (((item.TransactionQty - (item.IssueQty + item.PurchaseReturnQty + item.ReductionByAdjustmentQty + item.InventorySalesQty + item.InventoryScrapQty) - item.IssueReturnQty) - IssueDeduactionQty) * (item.TotalMaterialTranAmount / item.TransactionQty)));
+                                                    var newgrn = new InventoryIssueHistory
+                                                    {
+                                                        TotalAmount = Convert.ToDecimal((item.TotalMaterialTranAmount - totalIssuedAmount) - (((item.TransactionQty - (item.IssueQty + item.PurchaseReturnQty + item.ReductionByAdjustmentQty + item.InventorySalesQty + item.InventoryScrapQty) - item.IssueReturnQty) - IssueDeduactionQty) * (item.TotalMaterialTranAmount / item.TransactionQty))),
+                                                        InventoryReceiveDetailId = item.InventoryReceiveDetailId,
+                                                        Qty = IssueDeduactionQty
+
+                                                    };
+                                                    GRNCalculateList.Add(newgrn);
+                                                    //detailtrnAmount += Convert.ToDecimal((item.MaterialTranAmount - totalIssuedAmount) - (((item.TransactionQty - item.IssueQty)) * (item.TotalMaterialTranAmount / item.TransactionQty)));
+
+                                                    totalGRNQty += Convert.ToDecimal(IssueDeduactionQty);
+                                                }
+                                                else
+                                                {
+                                                    detailtrnAmount += Convert.ToDecimal(item.MaterialTranAmount - ((((item.TransactionQty - (item.IssueQty + item.PurchaseReturnQty + item.ReductionByAdjustmentQty + item.InventorySalesQty + item.InventoryScrapQty) - item.IssueReturnQty) * item.BaseUoMFactor) - IssueDeduactionQty) * (item.TotalMaterialTranAmount / item.TransactionQty)));
+                                                    var newgrn = new InventoryIssueHistory
+                                                    {
+                                                        TotalAmount = Convert.ToDecimal(item.MaterialTranAmount - ((((item.TransactionQty - (item.IssueQty + item.PurchaseReturnQty + item.ReductionByAdjustmentQty + item.InventorySalesQty + item.InventoryScrapQty) - item.IssueReturnQty) * item.BaseUoMFactor) - IssueDeduactionQty) * (item.TotalMaterialTranAmount / item.TransactionQty))),
+                                                        InventoryReceiveDetailId = item.InventoryReceiveDetailId,
+                                                        Qty = IssueDeduactionQty
+                                                    };
+                                                    GRNCalculateList.Add(newgrn);
+                                                    //detailtrnAmount += Convert.ToDecimal((item.MaterialTranAmount - totalIssuedAmount) - ((((item.TransactionQty - item.IssueQty) * item.BaseUoMFactor) - item.RequisitionQty) * (item.TotalMaterialTranAmount / item.TransactionQty)));
+
+                                                    totalGRNQty += Convert.ToDecimal(IssueDeduactionQty);
+                                                }
+                                                //}
                                             }
-                                            //}
-                                        }
 
-                                        if (receiveDetailRow.IsNull()) throw new CustomException("Stock 0");
-                                        currentId++;
-                                        //totalGRNQty = issue.TransactionQty;
-                                        if (issue.BaseQty == null) issue.BaseQty = totalGRNQty;
-                                        var detail = new InventoryIssueDetail
-                                        {
-                                            Id = MakePK(inventoryIssue.Id, currentId, 2),
-                                            InventoryIssueId = inventoryIssue.Id,
-                                            IsAsset = FlagIsAsset,//false,
-                                                                  //InventoryIssue = inventoryIssue,
-                                            InventoryMaterialId = issue.InventoryMaterialId,
-                                            TransactionQty = issue.TransactionQty,
-                                            BaseQty = issue.BaseQty,
-                                            BaseUOMId = issue.BaseUOMId,
-                                            TransactionUoMId = issue.TransactionUoMId,
-
-                                            //TrnCurrencyBaseRate = Math.Round(Convert.ToDecimal(itemDetail.TrnCurrencyBaseRate), 4),
-                                            AvgRate = Math.Round(issue.AvgRate, 4),
-                                            AvgAmount = Math.Round((issue.TransactionQty * issue.AvgRate), 2),
-                                            Policy = receiveDetailRow.Policy,
-
-                                            PolicyAmount = Math.Round(detailtrnAmount, 2),
-                                            PolicyRate = Math.Round((detailtrnAmount / totalGRNQty), 4),
-
-                                            //PolicyAmount = issue.TransactionQty*(detailtrnAmount / totalGRNQty),
-                                            //PolicyRate = detailtrnAmount / totalGRNQty,
-                                            BudgetMasterId = entities.Where(r => r.MaterialMasterId == issue.MaterialMasterId).Select(t => t.BudgetMasterId).FirstOrDefault(),
-                                            ActivityId = entities.Where(r => r.MaterialMasterId == issue.MaterialMasterId).Select(t => t.ActivityId).FirstOrDefault(),
-                                            Comments = issue.Comments,
-                                            CostCenterId = issue.CostCenterId,
-                                           // OSTransformationPOId = entities.Where(r => r.MaterialMasterId == issue.MaterialMasterId).Select(t => t.OSTransformationPOId).FirstOrDefault(),
-                                            OSTransformationPOId = entities.Where(r => r.MaterialMasterId == issue.MaterialMasterId).Select(t => t.OSTransformationPODetailId).FirstOrDefault(),
-                                            ModelState = ModelState.Added
-
-                                            //InventoryReceiveId= receiveDetailRow.InventoryReceiveId,
-                                            //InventoryReceiveDetailId= receiveDetailRow.InventoryReceiveDetailId
-
-                                        };
-                                        var historyId = _issueHistoryRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[InventoryIssueHistory] WHERE InventoryIssueDetailId='{detail.Id}'").First();
-                                        // single entry (history)
-                                        //if (input.TransactionQty <= (receiveDetailRow.BaseQty - receiveDetailRow.BaseIssueQty))
-                                        //if (issue.BaseQty <= (receiveDetailRow.BaseQty - receiveDetailRow.BaseIssueQty))
-                                        var SelectedGRN = GRNCalculateList.Where(r => r.InventoryReceiveDetailId == receiveDetailRow.Id).FirstOrDefault();
-                                        if (issue.BaseQty <= (receiveDetailRow.BaseQty - receiveDetailRow.BaseIssueQty - receiveDetailRow.PurchaseReturnQty - receiveDetailRow.ReductionByAdjustmentQty - receiveDetailRow.InventorySalesQty - receiveDetailRow.InventoryScrapQty) + receiveDetailRow.IssueReturnQty)
-                                        {
-                                            historyId++;
-                                            var history = new InventoryIssueHistory
+                                            if (receiveDetailRow.IsNull()) throw new CustomException("Stock 0");
+                                            currentId++;
+                                            //totalGRNQty = issue.TransactionQty;
+                                            if (issue.BaseQty == null) issue.BaseQty = totalGRNQty;
+                                            var detail = new InventoryIssueDetail
                                             {
-                                                Id = MakePK(detail.Id, historyId, 2),
-                                                InventoryIssueDetailId = detail.Id,
-                                                InventoryReceiveDetailId = receiveDetailRow.Id,
-                                                Qty = SelectedGRN.Qty,
-                                                //Rate = Convert.ToDecimal(issue.BaseRate),
-                                                //Rate = Convert.ToDecimal(issue.ToCurrencyRate),
-                                                //Rate = detailtrnAmount / totalGRNQty,
-                                                //TotalAmount = Convert.ToDecimal(detailtrnAmount),
-                                                Rate = Math.Round((SelectedGRN.TotalAmount / SelectedGRN.Qty), 4),
-                                                TotalAmount = Math.Round(SelectedGRN.TotalAmount, 2),//Convert.ToDecimal(detailtrnAmount),
-                                                IsCapitalize = false,
-                                                IssueRequestDetailId = receiveDetailRow.IssueRequest,
-                                                IssueReturnQty = 0,
-                                                BooksCurrencyBaseRate = Math.Round(Convert.ToDecimal(issue.BooksCurrencyBaseRate), 4),
-                                                TotalMaterialBooksCurrencyAmount = Math.Round(Convert.ToDecimal(SelectedGRN.Qty * issue.BooksCurrencyBaseRate), 2)
+                                                Id = MakePK(inventoryIssue.Id, currentId, 2),
+                                                InventoryIssueId = inventoryIssue.Id,
+                                                IsAsset = FlagIsAsset,//false,
+                                                                      //InventoryIssue = inventoryIssue,
+                                                InventoryMaterialId = issue.InventoryMaterialId,
+                                                TransactionQty = issue.TransactionQty,
+                                                BaseQty = issue.BaseQty,
+                                                BaseUOMId = issue.BaseUOMId,
+                                                TransactionUoMId = issue.TransactionUoMId,
+
+                                                //TrnCurrencyBaseRate = Math.Round(Convert.ToDecimal(itemDetail.TrnCurrencyBaseRate), 4),
+                                                AvgRate = Math.Round(issue.AvgRate, 4),
+                                                AvgAmount = Math.Round((issue.TransactionQty * issue.AvgRate), 2),
+                                                Policy = receiveDetailRow.Policy,
+
+                                                PolicyAmount = Math.Round(detailtrnAmount, 2),
+                                                PolicyRate = Math.Round((detailtrnAmount / totalGRNQty), 4),
+
+                                                //PolicyAmount = issue.TransactionQty*(detailtrnAmount / totalGRNQty),
+                                                //PolicyRate = detailtrnAmount / totalGRNQty,
+                                                BudgetMasterId = entities.Where(r => r.MaterialMasterId == issue.MaterialMasterId).Select(t => t.BudgetMasterId).FirstOrDefault(),
+                                                ActivityId = entities.Where(r => r.MaterialMasterId == issue.MaterialMasterId).Select(t => t.ActivityId).FirstOrDefault(),
+                                                Comments = issue.Comments,
+                                                CostCenterId = issue.CostCenterId,
+                                                // OSTransformationPOId = entities.Where(r => r.MaterialMasterId == issue.MaterialMasterId).Select(t => t.OSTransformationPOId).FirstOrDefault(),
+                                                OSTransformationPOId = entities.Where(r => r.MaterialMasterId == issue.MaterialMasterId).Select(t => t.OSTransformationPODetailId).FirstOrDefault(),
+                                                ModelState = ModelState.Added
+
+                                                //InventoryReceiveId= receiveDetailRow.InventoryReceiveId,
+                                                //InventoryReceiveDetailId= receiveDetailRow.InventoryReceiveDetailId
+
                                             };
-                                            //detail.PolicyRate = Convert.ToDecimal(issue.BaseRate);
-                                            //detail.PolicyAmount = Convert.ToDecimal(issue.TransactionQty * issue.BaseRate);
-
-                                            builderSql = @"UPDATE [TRN].[InventoryReceiveDetail] SET IssueQty='" + Convert.ToDecimal(Convert.ToDecimal(receiveDetailRow.BaseIssueQty) + Convert.ToDecimal(issue.TransactionQty)) + @"'
-									 , BaseIssueQty='" + Convert.ToDecimal(Convert.ToDecimal(receiveDetailRow.BaseIssueQty) + Convert.ToDecimal(issue.TransactionQty)) + "' WHERE Id='" + receiveDetailRow.InventoryReceiveDetailId + "'";
-                                            rdBuilder.Append(builderSql);
-                                            AuditService.AddedLog(history);
-                                            _issueHistoryRepository.Insert(history);
-
-
-                                        }
-                                        // multiple entry (history)
-                                        else
-                                        {
-                                            var rdList = receiveDetailList.Where(t => t.InventoryMaterialId == issue.InventoryMaterialId).ToList();
-                                            var tqty = receiveDetailList.Where(t => t.InventoryMaterialId == issue.InventoryMaterialId).Select(t => t.BaseQty).Sum()
-                                                       - receiveDetailList.Where(t => t.InventoryMaterialId == issue.InventoryMaterialId).Select(t => t.BaseIssueQty).Sum();
-                                            //if (tqty < input.TransactionQty) throw new CustomException("Stock 0");
-                                            if (tqty < issue.BaseQty) throw new CustomException("Stock 0");
-                                            decimal policyAmount = 0;
-                                            //decimal qtyDifference = input.TransactionQty;
-                                            decimal qtyDifference = Convert.ToDecimal(issue.BaseQty);
-
-                                            foreach (var item in rdList)
+                                            var historyId = _issueHistoryRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[InventoryIssueHistory] WHERE InventoryIssueDetailId='{detail.Id}'").First();
+                                            // single entry (history)
+                                            //if (input.TransactionQty <= (receiveDetailRow.BaseQty - receiveDetailRow.BaseIssueQty))
+                                            //if (issue.BaseQty <= (receiveDetailRow.BaseQty - receiveDetailRow.BaseIssueQty))
+                                            var SelectedGRN = GRNCalculateList.Where(r => r.InventoryReceiveDetailId == receiveDetailRow.Id).FirstOrDefault();
+                                            if (issue.BaseQty <= (receiveDetailRow.BaseQty - receiveDetailRow.BaseIssueQty - receiveDetailRow.PurchaseReturnQty - receiveDetailRow.ReductionByAdjustmentQty - receiveDetailRow.InventorySalesQty - receiveDetailRow.InventoryScrapQty) + receiveDetailRow.IssueReturnQty)
                                             {
                                                 historyId++;
-                                                if (item.TransactionUoMId != item.BaseUOMId)
-                                                    //input.BaseRate = item.BaseAmount / item.BaseQty;
-                                                    issue.BaseRate = item.MaterialTranAmount / item.BaseQty;
-                                                //else input.BaseRate = item.TransactionRate;
-                                                else issue.BaseRate = item.MaterialTranRate;
-
-                                                //var issueQty = Convert.ToDecimal(item.BaseQty - item.BaseIssueQty);
-                                                var issueQty = Convert.ToDecimal(item.BaseQty - item.BaseIssueQty - item.PurchaseReturnQty - item.ReductionByAdjustmentQty - item.InventorySalesQty - item.InventoryScrapQty) + Convert.ToDecimal(item.IssueReturnQty);
-                                                // (10 - 3)//Issueable Qty
-                                                //if (issueQty != 0)
-                                                //{
-
-                                                if (qtyDifference >= issueQty) // (17 >= (10 - 3))
-                                                {
-                                                    policyAmount = policyAmount + Convert.ToDecimal(((item.BaseQty - item.BaseIssueQty) * issue.BaseRate));
-                                                    qtyDifference = Convert.ToDecimal(qtyDifference - issueQty);
-                                                    issueQty = Convert.ToDecimal(item.BaseIssueQty + issueQty);
-                                                }
-                                                else // (6 < 7) (qtyDifference < issueQty)
-                                                {
-                                                    //issueQty = Convert.ToDecimal(issueQty - qtyDifference);
-                                                    issueQty = Convert.ToDecimal(item.BaseIssueQty + qtyDifference);
-                                                    policyAmount = policyAmount + Convert.ToDecimal((issueQty * issue.BaseRate));
-                                                    qtyDifference = 0;
-                                                }
-                                                SelectedGRN = GRNCalculateList.Where(r => r.InventoryReceiveDetailId == item.Id).FirstOrDefault();
                                                 var history = new InventoryIssueHistory
                                                 {
                                                     Id = MakePK(detail.Id, historyId, 2),
                                                     InventoryIssueDetailId = detail.Id,
-                                                    InventoryReceiveDetailId = item.Id,
-                                                    Qty = SelectedGRN.Qty,//Convert.ToDecimal(issueQty - item.BaseIssueQty),//TODO
-                                                                          //Qty = Convert.ToDecimal(issueQty),//TODO
-                                                                          // Qty = Convert.ToDecimal(qtyDifference),//TODO
-                                                                          //Rate = Convert.ToInt32(issue.BaseRate),
-                                                                          //Rate = Convert.ToDecimal(issue.BaseRate),
-                                                                          //Rate = Convert.ToDecimal(issue.ToCurrencyRate),
-                                                                          //Rate = detailtrnAmount / totalGRNQty,
-                                                                          //TotalAmount = Convert.ToDecimal(detailtrnAmount),
+                                                    InventoryReceiveDetailId = receiveDetailRow.Id,
+                                                    Qty = SelectedGRN.Qty,
+                                                    //Rate = Convert.ToDecimal(issue.BaseRate),
+                                                    //Rate = Convert.ToDecimal(issue.ToCurrencyRate),
+                                                    //Rate = detailtrnAmount / totalGRNQty,
+                                                    //TotalAmount = Convert.ToDecimal(detailtrnAmount),
                                                     Rate = Math.Round((SelectedGRN.TotalAmount / SelectedGRN.Qty), 4),
                                                     TotalAmount = Math.Round(SelectedGRN.TotalAmount, 2),//Convert.ToDecimal(detailtrnAmount),
                                                     IsCapitalize = false,
                                                     IssueRequestDetailId = receiveDetailRow.IssueRequest,
-                                                    BooksCurrencyBaseRate = Math.Round(Convert.ToDecimal(item.BooksCurrencyBaseRate), 4),
-                                                    TotalMaterialBooksCurrencyAmount = Math.Round(Convert.ToDecimal(SelectedGRN.Qty * item.BooksCurrencyBaseRate), 2)
-
+                                                    IssueReturnQty = 0,
+                                                    BooksCurrencyBaseRate = Math.Round(Convert.ToDecimal(issue.BooksCurrencyBaseRate), 4),
+                                                    TotalMaterialBooksCurrencyAmount = Math.Round(Convert.ToDecimal(SelectedGRN.Qty * issue.BooksCurrencyBaseRate), 2)
                                                 };
+                                                //detail.PolicyRate = Convert.ToDecimal(issue.BaseRate);
+                                                //detail.PolicyAmount = Convert.ToDecimal(issue.TransactionQty * issue.BaseRate);
 
+                                                builderSql = @"UPDATE [TRN].[InventoryReceiveDetail] SET IssueQty='" + Convert.ToDecimal(Convert.ToDecimal(receiveDetailRow.BaseIssueQty) + Convert.ToDecimal(issue.TransactionQty)) + @"'
+									 , BaseIssueQty='" + Convert.ToDecimal(Convert.ToDecimal(receiveDetailRow.BaseIssueQty) + Convert.ToDecimal(issue.TransactionQty)) + "' WHERE Id='" + receiveDetailRow.InventoryReceiveDetailId + "'";
+                                                rdBuilder.Append(builderSql);
                                                 AuditService.AddedLog(history);
                                                 _issueHistoryRepository.Insert(history);
 
-                                                builderSql = @"UPDATE [TRN].[InventoryReceiveDetail] SET BaseIssueQty='" + Convert.ToDecimal(issueQty) + "',IssueQty='" + Convert.ToDecimal(issueQty) + "'  WHERE Id='" + item.Id + "'";
-                                                rdBuilder.Append(builderSql);
-                                                if (qtyDifference == 0)
-                                                    break;
-                                                //}
+
                                             }
+                                            // multiple entry (history)
+                                            else
+                                            {
+                                                var rdList = receiveDetailList.Where(t => t.InventoryMaterialId == issue.InventoryMaterialId).ToList();
+                                                var tqty = receiveDetailList.Where(t => t.InventoryMaterialId == issue.InventoryMaterialId).Select(t => t.BaseQty).Sum()
+                                                           - receiveDetailList.Where(t => t.InventoryMaterialId == issue.InventoryMaterialId).Select(t => t.BaseIssueQty).Sum();
+                                                //if (tqty < input.TransactionQty) throw new CustomException("Stock 0");
+                                                if (tqty < issue.BaseQty) throw new CustomException("Stock 0");
+                                                decimal policyAmount = 0;
+                                                //decimal qtyDifference = input.TransactionQty;
+                                                decimal qtyDifference = Convert.ToDecimal(issue.BaseQty);
 
-                                            //detail.PolicyRate = Convert.ToDecimal(policyAmount / issue.TransactionQty);
-                                            //detail.PolicyAmount = Convert.ToDecimal(policyAmount);
-                                        }
-                                        builderSql = @"UPDATE [TRN].[InventoryMaterial] SET TotalQty='" + Convert.ToDecimal(issue.TotalQty - issue.TransactionQty) + "' WHERE Id='" + issue.InventoryMaterialId + "'";
-                                        rdBuilder.Append(builderSql);
-                                        AuditService.AddedLog(detail);
-                                        _issueDetailService.InsertGraph(detail);
+                                                foreach (var item in rdList)
+                                                {
+                                                    historyId++;
+                                                    if (item.TransactionUoMId != item.BaseUOMId)
+                                                        //input.BaseRate = item.BaseAmount / item.BaseQty;
+                                                        issue.BaseRate = item.MaterialTranAmount / item.BaseQty;
+                                                    //else input.BaseRate = item.TransactionRate;
+                                                    else issue.BaseRate = item.MaterialTranRate;
 
-                                        //Mapping Data=========================================================
-                                        var receiveDetailList1 = _sqlRepository.GetModelCollection<IssueRequestViewModel>(@"select IRBM.Id,IRBM.IssueRequestDetailId,IRBM.BOQID,Isnull(IRBM.Qty,0) IssueRequestBOQMapQty,Isnull(IDRM.Qty,0) AllocatedIssueSlipQty
+                                                    //var issueQty = Convert.ToDecimal(item.BaseQty - item.BaseIssueQty);
+                                                    var issueQty = Convert.ToDecimal(item.BaseQty - item.BaseIssueQty - item.PurchaseReturnQty - item.ReductionByAdjustmentQty - item.InventorySalesQty - item.InventoryScrapQty) + Convert.ToDecimal(item.IssueReturnQty);
+                                                    // (10 - 3)//Issueable Qty
+                                                    //if (issueQty != 0)
+                                                    //{
+
+                                                    if (qtyDifference >= issueQty) // (17 >= (10 - 3))
+                                                    {
+                                                        policyAmount = policyAmount + Convert.ToDecimal(((item.BaseQty - item.BaseIssueQty) * issue.BaseRate));
+                                                        qtyDifference = Convert.ToDecimal(qtyDifference - issueQty);
+                                                        issueQty = Convert.ToDecimal(item.BaseIssueQty + issueQty);
+                                                    }
+                                                    else // (6 < 7) (qtyDifference < issueQty)
+                                                    {
+                                                        //issueQty = Convert.ToDecimal(issueQty - qtyDifference);
+                                                        issueQty = Convert.ToDecimal(item.BaseIssueQty + qtyDifference);
+                                                        policyAmount = policyAmount + Convert.ToDecimal((issueQty * issue.BaseRate));
+                                                        qtyDifference = 0;
+                                                    }
+                                                    SelectedGRN = GRNCalculateList.Where(r => r.InventoryReceiveDetailId == item.Id).FirstOrDefault();
+                                                    var history = new InventoryIssueHistory
+                                                    {
+                                                        Id = MakePK(detail.Id, historyId, 2),
+                                                        InventoryIssueDetailId = detail.Id,
+                                                        InventoryReceiveDetailId = item.Id,
+                                                        Qty = SelectedGRN.Qty,//Convert.ToDecimal(issueQty - item.BaseIssueQty),//TODO
+                                                                              //Qty = Convert.ToDecimal(issueQty),//TODO
+                                                                              // Qty = Convert.ToDecimal(qtyDifference),//TODO
+                                                                              //Rate = Convert.ToInt32(issue.BaseRate),
+                                                                              //Rate = Convert.ToDecimal(issue.BaseRate),
+                                                                              //Rate = Convert.ToDecimal(issue.ToCurrencyRate),
+                                                                              //Rate = detailtrnAmount / totalGRNQty,
+                                                                              //TotalAmount = Convert.ToDecimal(detailtrnAmount),
+                                                        Rate = Math.Round((SelectedGRN.TotalAmount / SelectedGRN.Qty), 4),
+                                                        TotalAmount = Math.Round(SelectedGRN.TotalAmount, 2),//Convert.ToDecimal(detailtrnAmount),
+                                                        IsCapitalize = false,
+                                                        IssueRequestDetailId = receiveDetailRow.IssueRequest,
+                                                        BooksCurrencyBaseRate = Math.Round(Convert.ToDecimal(item.BooksCurrencyBaseRate), 4),
+                                                        TotalMaterialBooksCurrencyAmount = Math.Round(Convert.ToDecimal(SelectedGRN.Qty * item.BooksCurrencyBaseRate), 2)
+
+                                                    };
+
+                                                    AuditService.AddedLog(history);
+                                                    _issueHistoryRepository.Insert(history);
+
+                                                    builderSql = @"UPDATE [TRN].[InventoryReceiveDetail] SET BaseIssueQty='" + Convert.ToDecimal(issueQty) + "',IssueQty='" + Convert.ToDecimal(issueQty) + "'  WHERE Id='" + item.Id + "'";
+                                                    rdBuilder.Append(builderSql);
+                                                    if (qtyDifference == 0)
+                                                        break;
+                                                    //}
+                                                }
+
+                                                //detail.PolicyRate = Convert.ToDecimal(policyAmount / issue.TransactionQty);
+                                                //detail.PolicyAmount = Convert.ToDecimal(policyAmount);
+                                            }
+                                            builderSql = @"UPDATE [TRN].[InventoryMaterial] SET TotalQty='" + Convert.ToDecimal(issue.TotalQty - issue.TransactionQty) + "' WHERE Id='" + issue.InventoryMaterialId + "'";
+                                            rdBuilder.Append(builderSql);
+                                            AuditService.AddedLog(detail);
+                                            _issueDetailService.InsertGraph(detail);
+
+                                            //Mapping Data=========================================================
+                                            var receiveDetailList1 = _sqlRepository.GetModelCollection<IssueRequestViewModel>(@"select IRBM.Id,IRBM.IssueRequestDetailId,IRBM.BOQID,Isnull(IRBM.Qty,0) IssueRequestBOQMapQty,Isnull(IDRM.Qty,0) AllocatedIssueSlipQty
 															from [TRN].[IssueRequestBOQMap] IRBM
 															Left Join (Select IssueRequestBOQMapId, sum(Qty) Qty from [TRN].[IssueDetailAndIssueRequestMap]  group by IssueRequestBOQMapId) IDRM ON IDRM.IssueRequestBOQMapId=IRBM.BOQID
 															where IssueRequestDetailId='" + issue.IssueRequest + @"' Order By IRBM.Qty ASC").ToList();
-                                        if (receiveDetailList1.Count > 0)
-                                        {
-                                            bool isQtyAlocated = true;
-                                            decimal temp = 0;
-                                            int count = 0;
-                                            foreach (var receiveDetailListNew in receiveDetailList1)
+                                            if (receiveDetailList1.Count > 0)
                                             {
-
-
-                                                count++;
-                                                if (count == 1)
+                                                bool isQtyAlocated = true;
+                                                decimal temp = 0;
+                                                int count = 0;
+                                                foreach (var receiveDetailListNew in receiveDetailList1)
                                                 {
-                                                    if ((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) > detail.TransactionQty)
-                                                    {
 
-                                                        detail.TransactionQty = detail.TransactionQty;
-                                                        //temp += itemDetail.TransactionQty;
-                                                        isQtyAlocated = false;
 
-                                                    }
-                                                    else if ((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) < detail.TransactionQty)
+                                                    count++;
+                                                    if (count == 1)
                                                     {
-                                                        //temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
-                                                        temp = (detail.TransactionQty - (receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty));
-                                                        detail.TransactionQty = (receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty);
-                                                        isQtyAlocated = true;
-
-                                                    }
-                                                    else
-                                                    {
-                                                        //temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
-                                                        detail.TransactionQty = detail.TransactionQty;
-                                                        isQtyAlocated = true;
-
-                                                    }
-                                                }
-                                                if (count > 1)
-                                                {
-                                                    if (isQtyAlocated == true)
-                                                    {
-                                                        if ((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) > temp)
+                                                        if ((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) > detail.TransactionQty)
                                                         {
-                                                            //temp = itemDetail.TransactionQty- issue.TransactionQtyForPO;
+
                                                             detail.TransactionQty = detail.TransactionQty;
+                                                            //temp += itemDetail.TransactionQty;
                                                             isQtyAlocated = false;
+
                                                         }
-                                                        if ((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) < temp)
+                                                        else if ((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) < detail.TransactionQty)
                                                         {
-                                                            //temp = temp - issue.TransactionQtyForPO;
-                                                            temp = (temp - (receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty));
-                                                            //itemDetail.TransactionQty = issue.TransactionQtyForPO;
+                                                            //temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
+                                                            temp = (detail.TransactionQty - (receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty));
                                                             detail.TransactionQty = (receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty);
                                                             isQtyAlocated = true;
+
                                                         }
                                                         else
                                                         {
                                                             //temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
-                                                            detail.TransactionQty = temp;
+                                                            detail.TransactionQty = detail.TransactionQty;
                                                             isQtyAlocated = true;
 
                                                         }
-
                                                     }
-                                                    else
+                                                    if (count > 1)
                                                     {
-                                                        detail.TransactionQty = 0;
+                                                        if (isQtyAlocated == true)
+                                                        {
+                                                            if ((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) > temp)
+                                                            {
+                                                                //temp = itemDetail.TransactionQty- issue.TransactionQtyForPO;
+                                                                detail.TransactionQty = detail.TransactionQty;
+                                                                isQtyAlocated = false;
+                                                            }
+                                                            if ((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) < temp)
+                                                            {
+                                                                //temp = temp - issue.TransactionQtyForPO;
+                                                                temp = (temp - (receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty));
+                                                                //itemDetail.TransactionQty = issue.TransactionQtyForPO;
+                                                                detail.TransactionQty = (receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty);
+                                                                isQtyAlocated = true;
+                                                            }
+                                                            else
+                                                            {
+                                                                //temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
+                                                                detail.TransactionQty = temp;
+                                                                isQtyAlocated = true;
+
+                                                            }
+
+                                                        }
+                                                        else
+                                                        {
+                                                            detail.TransactionQty = 0;
+                                                        }
                                                     }
+
+
+                                                    var IssueDetailAndIssueRequestMapNew = new IssueDetailAndIssueRequestMap
+                                                    {
+                                                        Id = GetIssueDetailAndIssueRequestMapPK(),
+                                                        InventoryIssueDetailId = detail.Id,
+                                                        IssueRequestBOQMapId = receiveDetailListNew.Id,
+                                                        Qty = detail.TransactionQty
+                                                        //AutoAllocate = true
+
+                                                    };
+                                                    AuditService.AddedLog(IssueDetailAndIssueRequestMapNew);
+                                                    _IssueDetailAndIssueRequestMapRepository.Insert(IssueDetailAndIssueRequestMapNew);
                                                 }
-
-
-                                                var IssueDetailAndIssueRequestMapNew = new IssueDetailAndIssueRequestMap
-                                                {
-                                                    Id = GetIssueDetailAndIssueRequestMapPK(),
-                                                    InventoryIssueDetailId = detail.Id,
-                                                    IssueRequestBOQMapId = receiveDetailListNew.Id,
-                                                    Qty = detail.TransactionQty
-                                                    //AutoAllocate = true
-
-                                                };
-                                                AuditService.AddedLog(IssueDetailAndIssueRequestMapNew);
-                                                _IssueDetailAndIssueRequestMapRepository.Insert(IssueDetailAndIssueRequestMapNew);
                                             }
+
+                                            //===================
+
                                         }
-
-                                        //===================
-
                                     }
+
                                 }
 
-                            }
-                            if (specificStockList.IsNotNull())
-                            {
+                                if (specificStockList.IsNotNull())
+                                {
 
                                     //foreach (var RecId in specificInventoryReceiveDetailIds)
                                     //{
-                                        foreach (var invMaterialId in specificInvaterialIds)
+                                    foreach (var invMaterialId in specificInvaterialIds)
                                     {
                                         var invMaterial = _issueHistoryRepository.SqlQuery<InventoryMaterial>(@"SELECT * FROM [TRN].[InventoryMaterial] WHERE Id='" + invMaterialId + "'").FirstOrDefault();
                                         var stockList = specificStockList.Where(t => t.InventoryMaterialId == invMaterialId).ToList();
@@ -11198,7 +12580,7 @@ namespace Library.MaterialManagement.Inventory
                                         decimal detailtrnAmount = 0;
                                         decimal totalGRNQty = 0;
                                         var IssueRequestDetailIdnew = "";
-                                   
+
                                         foreach (var item in specificStockList.Where(r => r.InventoryMaterialId == invMaterialId))
                                         {
                                             decimal IssueTransactionQty = item.RequisitionQty;
@@ -11277,230 +12659,234 @@ namespace Library.MaterialManagement.Inventory
                                             }
                                             item.IssueRequest = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.IssueRequest).FirstOrDefault();
                                         }
-                                   
 
-                                    currentId++;
-                                    var issueDetail = new InventoryIssueDetail
-                                    {
-                                        Id = MakePK(inventoryIssue.Id, currentId, 2),
-                                        InventoryIssueId = inventoryIssue.Id,
-                                        IsAsset = FlagIsAsset,//false,
-                                                              //InventoryIssue = inventoryIssue,
-                                        InventoryMaterialId = invMaterialId,
-                                        BaseUOMId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.BaseUOMId).FirstOrDefault(),
-                                        TransactionUoMId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.TransactionUoMId).FirstOrDefault(),
-                                        AvgRate = Math.Round(invMaterial.AvgRate, 4),
-                                        Policy = "N/A",
 
-                                        TransactionQty = Math.Round(totalGRNQty, 2), //stockList.Sum(r => r.RequisitionQty),//stockList.Select(t => t.RequisitionQty).FirstOrDefault(),
-                                        PolicyRate = Math.Round((detailtrnAmount / totalGRNQty), 4),
-                                        PolicyAmount = Math.Round(detailtrnAmount, 2),
-                                        BaseQty = Math.Round(totalGRNQty, 2),//stockList.Sum(r => r.RequisitionQty),
-                                        AvgAmount = Math.Round((totalGRNQty * invMaterial.AvgRate), 2),
-                                        BudgetMasterId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.BudgetMasterId).FirstOrDefault(),
-                                        ActivityId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.ActivityId).FirstOrDefault(),
-                                        CostCenterId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.CostCenterId).FirstOrDefault(),
-                                        Comments = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.Comments).FirstOrDefault(),
-                                       // OSTransformationPOId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId).Select(t => t.OSTransformationPOId).FirstOrDefault(),
-                                        OSTransformationPOId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId).Select(t => t.OSTransformationPODetailId).FirstOrDefault(),
-                                        //JWTCInputId = entities.Where(r => r.MaterialMasterId != invMaterial.MaterialMasterId && r.ArticleId != invMaterial.ArticleId).Select(t => t.JWInputItemId).FirstOrDefault(),
-                                        //  JWTCInputId = entities.Where(r => r.MaterialMasterId == null && r.ArticleId == null).Select(t => t.JWInputItemId).FirstOrDefault(),
-                                        ModelState = ModelState.Added
-                                    };
-                                    if (invMaterial.ArticleId.IsNotNull())
-                                    {
-                                        // start
-
-                                        var historyId = _issueHistoryRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[InventoryIssueHistory] WHERE InventoryIssueDetailId='{issueDetail.Id}'").First();
-                                        foreach (var item in stockList)
+                                        currentId++;
+                                        var issueDetail = new InventoryIssueDetail
                                         {
+                                            Id = MakePK(inventoryIssue.Id, currentId, 2),
+                                            InventoryIssueId = inventoryIssue.Id,
+                                            IsAsset = FlagIsAsset,//false,
+                                                                  //InventoryIssue = inventoryIssue,
+                                            InventoryMaterialId = invMaterialId,
+                                            BaseUOMId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.BaseUOMId).FirstOrDefault(),
+                                            TransactionUoMId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.TransactionUoMId).FirstOrDefault(),
+                                            AvgRate = Math.Round(invMaterial.AvgRate, 4),
+                                            Policy = "N/A",
 
-                                            if (item.RequisitionQty > item.StockQty) throw new CustomException("Requisition qty can't greater stock qty.");
+                                            TransactionQty = Math.Round(totalGRNQty, 2), //stockList.Sum(r => r.RequisitionQty),//stockList.Select(t => t.RequisitionQty).FirstOrDefault(),
+                                            PolicyRate = Math.Round((detailtrnAmount / totalGRNQty), 4),
+                                            PolicyAmount = Math.Round(detailtrnAmount, 2),
+                                            BaseQty = Math.Round(totalGRNQty, 2),//stockList.Sum(r => r.RequisitionQty),
+                                            AvgAmount = Math.Round((totalGRNQty * invMaterial.AvgRate), 2),
+                                            BudgetMasterId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.BudgetMasterId).FirstOrDefault(),
+                                            ActivityId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.ActivityId).FirstOrDefault(),
+                                            CostCenterId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.CostCenterId).FirstOrDefault(),
+                                            Comments = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.Comments).FirstOrDefault(),
+                                            // OSTransformationPOId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId).Select(t => t.OSTransformationPOId).FirstOrDefault(),
+                                            OSTransformationPOId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId).Select(t => t.OSTransformationPODetailId).FirstOrDefault(),
+                                            //JWTCInputId = entities.Where(r => r.MaterialMasterId != invMaterial.MaterialMasterId && r.ArticleId != invMaterial.ArticleId).Select(t => t.JWInputItemId).FirstOrDefault(),
+                                            //  JWTCInputId = entities.Where(r => r.MaterialMasterId == null && r.ArticleId == null).Select(t => t.JWInputItemId).FirstOrDefault(),
+                                            ModelState = ModelState.Added
+                                        };
+                                        decimal tempPolicyAmount = 0;
+                                        if (invMaterial.ArticleId.IsNotNull())
+                                        {
+                                            // start
 
-                                            if (item.TransactionUoMId != item.BaseUOMId)
-                                                // totalReqQty = Convert.ToInt32(item.RequisitionQty * item.BaseUoMFactor);
-                                                totalReqQty = Convert.ToDecimal(item.RequisitionQty * item.BaseUoMFactor);
-                                            else
-                                                totalReqQty = item.RequisitionQty;
-                                            historyId++;
-                                            var SelectedGRN = GRNCalculateList.Where(r => r.InventoryReceiveDetailId == item.InventoryReceiveDetailId).FirstOrDefault();
-                                            var history = new InventoryIssueHistory
+                                            var historyId = _issueHistoryRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[InventoryIssueHistory] WHERE InventoryIssueDetailId='{issueDetail.Id}'").First();
+                                            foreach (var item in stockList)
                                             {
-                                                Id = MakePK(issueDetail.Id, historyId, 2),
-                                                InventoryIssueDetailId = issueDetail.Id,
-                                                InventoryReceiveDetailId = item.InventoryReceiveDetailId,
-                                                Qty = totalReqQty, //item.RequisitionQty,
-                                                                   //Rate = Convert.ToDecimal(item.BaseRate),
-                                                                   //Rate = Math.Round((SelectedGRN.TotalAmount / item.RequisitionQty), 4),
-                                                                   //TotalAmount = Math.Round(SelectedGRN.TotalAmount, 2),//Convert.ToDecimal(detailtrnAmount),
-                                                Rate = Math.Round((SelectedGRN.TotalAmount / totalReqQty), 4),//totalGRNQty
-                                                TotalAmount = Math.Round(SelectedGRN.TotalAmount, 2),//Convert.ToDecimal(detailtrnAmount),
-                                                IssueRequestDetailId = item.IssueRequest,
-                                                IssueReturnQty = 0,
-                                                BooksCurrencyBaseRate = Math.Round(Convert.ToDecimal(item.BooksCurrencyBaseRate), 4),
-                                                TotalMaterialBooksCurrencyAmount = Math.Round(Convert.ToDecimal(item.RequisitionQty * item.BooksCurrencyBaseRate), 2)
-                                            };
-                                            //policyAmmount += history.Qty * history.Rate;
 
+                                                if (item.RequisitionQty > item.StockQty) throw new CustomException("Requisition qty can't greater stock qty.");
 
+                                                if (item.TransactionUoMId != item.BaseUOMId)
+                                                    // totalReqQty = Convert.ToInt32(item.RequisitionQty * item.BaseUoMFactor);
+                                                    totalReqQty = Convert.ToDecimal(item.RequisitionQty * item.BaseUoMFactor);
+                                                else
+                                                    totalReqQty = item.RequisitionQty;
+                                                historyId++;
+                                                var SelectedGRN = GRNCalculateList.Where(r => r.InventoryReceiveDetailId == item.InventoryReceiveDetailId).FirstOrDefault();
+                                                var history = new InventoryIssueHistory
+                                                {
+                                                    Id = MakePK(issueDetail.Id, historyId, 2),
+                                                    InventoryIssueDetailId = issueDetail.Id,
+                                                    InventoryReceiveDetailId = item.InventoryReceiveDetailId,
+                                                    Qty = totalReqQty, //item.RequisitionQty,
+                                                                       //Rate = Convert.ToDecimal(item.BaseRate),
+                                                                       //Rate = Math.Round((SelectedGRN.TotalAmount / item.RequisitionQty), 4),
+                                                                       //TotalAmount = Math.Round(SelectedGRN.TotalAmount, 2),//Convert.ToDecimal(detailtrnAmount),
+                                                                       //Rate = Math.Round((SelectedGRN.TotalAmount / totalReqQty), 4),//Old calculation
+                                                    Rate = Math.Round(Convert.ToDecimal(item.BooksCurrencyBaseRate), 4),//totalGRNQty
+                                                                                                                        //TotalAmount = Math.Round(SelectedGRN.TotalAmount, 2),//Convert.ToDecimal(detailtrnAmount),
+                                                    TotalAmount = Math.Round(Convert.ToDecimal(item.RequisitionQty * item.BooksCurrencyBaseRate), 2),
+                                                    IssueRequestDetailId = item.IssueRequest,
+                                                    IssueReturnQty = 0,
+                                                    BooksCurrencyBaseRate = Math.Round(Convert.ToDecimal(item.BooksCurrencyBaseRate), 4),
+                                                    TotalMaterialBooksCurrencyAmount = Math.Round(Convert.ToDecimal(item.RequisitionQty * item.BooksCurrencyBaseRate), 2)
+                                                };
+                                                //policyAmmount += history.Qty * history.Rate;
 
-                                            builderSql = @"UPDATE [TRN].[InventoryReceiveDetail] SET IssueQty='" + Convert.ToDecimal(item.RequisitionQty + item.IssueQty) + @"' 
+                                                tempPolicyAmount += Math.Round(Convert.ToDecimal(history.TotalMaterialBooksCurrencyAmount), 4);
+
+                                                builderSql = @"UPDATE [TRN].[InventoryReceiveDetail] SET IssueQty='" + Convert.ToDecimal(item.RequisitionQty + item.IssueQty) + @"' 
 										,BaseIssueQty = '" + (Convert.ToDecimal(Convert.ToDecimal(item.BaseIssueQty) + Convert.ToDecimal(totalReqQty))) + "' WHERE Id = '" + item.InventoryReceiveDetailId + "'";
 
-                                            rdBuilder.Append(builderSql);
-                                            AuditService.AddedLog(history);
-                                            _issueHistoryRepository.Insert(history);
+                                                rdBuilder.Append(builderSql);
+                                                AuditService.AddedLog(history);
+                                                _issueHistoryRepository.Insert(history);
 
 
 
-                                            //Mapping Data=========================================================
-                                            if (entitiesAll.IsNotNull())
-                                            {
-                                                foreach (var itemall in entitiesAll)
+                                                //Mapping Data=========================================================
+                                                if (entitiesAll.IsNotNull())
                                                 {
-                                                    var receiveDetailList1 = _sqlRepository.GetModelCollection<IssueRequestViewModel>(@"select IRBM.Id,IRBM.IssueRequestDetailId,IRBM.BOQID,Isnull(IRBM.Qty,0) IssueRequestBOQMapQty,Isnull(IDRM.Qty,0) AllocatedIssueSlipQty
+                                                    foreach (var itemall in entitiesAll)
+                                                    {
+                                                        var receiveDetailList1 = _sqlRepository.GetModelCollection<IssueRequestViewModel>(@"select IRBM.Id,IRBM.IssueRequestDetailId,IRBM.BOQID,Isnull(IRBM.Qty,0) IssueRequestBOQMapQty,Isnull(IDRM.Qty,0) AllocatedIssueSlipQty
 															from [TRN].[IssueRequestBOQMap] IRBM
 															Left Join (Select IssueRequestBOQMapId, sum(Qty) Qty from [TRN].[IssueDetailAndIssueRequestMap]  group by IssueRequestBOQMapId) IDRM ON IDRM.IssueRequestBOQMapId=IRBM.BOQID
 															where IssueRequestDetailId='" + itemall.IssueRequest + @"' Order By IRBM.Qty ASC").ToList();
-                                                    if (receiveDetailList1.IsNotNull())
-                                                    {
-                                                        bool isQtyAlocated = true;
-                                                        decimal temp = 0;
-                                                        int count = 0;
-                                                        foreach (var receiveDetailListNew in receiveDetailList1)
+                                                        if (receiveDetailList1.IsNotNull())
                                                         {
-
-
-                                                            //count++;
-                                                            //if (count == 1)
-                                                            //{
-                                                            //    if (((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor) > issueDetail.TransactionQty)
-                                                            //    {
-
-                                                            //        issueDetail.TransactionQty =Convert.ToDecimal(issueDetail.TransactionQty * item.BaseUoMFactor);
-                                                            //        //temp += itemDetail.TransactionQty;
-                                                            //        isQtyAlocated = false;
-
-                                                            //    }
-                                                            //    else if (((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor) < issueDetail.TransactionQty)
-                                                            //    {
-                                                            //        //temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
-                                                            //        temp = Convert.ToDecimal((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor);
-                                                            //        issueDetail.TransactionQty = Convert.ToDecimal((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor);
-                                                            //        isQtyAlocated = true;
-
-                                                            //    }
-                                                            //    else
-                                                            //    {
-                                                            //        //temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
-                                                            //        issueDetail.TransactionQty = Convert.ToDecimal(issueDetail.TransactionQty * item.BaseUoMFactor);
-                                                            //        isQtyAlocated = true;
-
-                                                            //    }
-                                                            //}
-                                                            //if (count > 1)
-                                                            //{
-                                                            //    if (isQtyAlocated == true)
-                                                            //    {
-                                                            //        if ((Convert.ToDecimal(receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor) > temp)
-                                                            //        {
-                                                            //            //temp = itemDetail.TransactionQty- issue.TransactionQtyForPO;
-                                                            //            issueDetail.TransactionQty = Convert.ToDecimal(issueDetail.TransactionQty * item.BaseUoMFactor);
-                                                            //            isQtyAlocated = false;
-                                                            //        }
-                                                            //        if ((Convert.ToDecimal(receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor) < temp)
-                                                            //        {
-                                                            //            //temp = temp - issue.TransactionQtyForPO;
-                                                            //            temp = Convert.ToDecimal(temp - ((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor));
-                                                            //            //itemDetail.TransactionQty = issue.TransactionQtyForPO;
-                                                            //            issueDetail.TransactionQty = Convert.ToDecimal((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor);
-                                                            //            isQtyAlocated = true;
-                                                            //        }
-                                                            //        else
-                                                            //        {
-                                                            //            //temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
-                                                            //            issueDetail.TransactionQty = temp;
-                                                            //            isQtyAlocated = true;
-
-                                                            //        }
-
-                                                            //    }
-                                                            //    else
-                                                            //    {
-                                                            //        issueDetail.TransactionQty = 0;
-                                                            //    }
-                                                            //}
-
-
-                                                            var IssueDetailAndIssueRequestMapNew = new IssueDetailAndIssueRequestMap
+                                                            bool isQtyAlocated = true;
+                                                            decimal temp = 0;
+                                                            int count = 0;
+                                                            foreach (var receiveDetailListNew in receiveDetailList1)
                                                             {
-                                                                Id = GetIssueDetailAndIssueRequestMapPK(),
-                                                                InventoryIssueDetailId = issueDetail.Id,
-                                                                IssueRequestBOQMapId = receiveDetailListNew.Id,
-                                                                Qty = receiveDetailListNew.IssueRequestBOQMapQty,
-                                                                //AutoAllocate = true
 
-                                                            };
-                                                            AuditService.AddedLog(IssueDetailAndIssueRequestMapNew);
-                                                            _IssueDetailAndIssueRequestMapRepository.Insert(IssueDetailAndIssueRequestMapNew);
+
+                                                                //count++;
+                                                                //if (count == 1)
+                                                                //{
+                                                                //    if (((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor) > issueDetail.TransactionQty)
+                                                                //    {
+
+                                                                //        issueDetail.TransactionQty =Convert.ToDecimal(issueDetail.TransactionQty * item.BaseUoMFactor);
+                                                                //        //temp += itemDetail.TransactionQty;
+                                                                //        isQtyAlocated = false;
+
+                                                                //    }
+                                                                //    else if (((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor) < issueDetail.TransactionQty)
+                                                                //    {
+                                                                //        //temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
+                                                                //        temp = Convert.ToDecimal((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor);
+                                                                //        issueDetail.TransactionQty = Convert.ToDecimal((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor);
+                                                                //        isQtyAlocated = true;
+
+                                                                //    }
+                                                                //    else
+                                                                //    {
+                                                                //        //temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
+                                                                //        issueDetail.TransactionQty = Convert.ToDecimal(issueDetail.TransactionQty * item.BaseUoMFactor);
+                                                                //        isQtyAlocated = true;
+
+                                                                //    }
+                                                                //}
+                                                                //if (count > 1)
+                                                                //{
+                                                                //    if (isQtyAlocated == true)
+                                                                //    {
+                                                                //        if ((Convert.ToDecimal(receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor) > temp)
+                                                                //        {
+                                                                //            //temp = itemDetail.TransactionQty- issue.TransactionQtyForPO;
+                                                                //            issueDetail.TransactionQty = Convert.ToDecimal(issueDetail.TransactionQty * item.BaseUoMFactor);
+                                                                //            isQtyAlocated = false;
+                                                                //        }
+                                                                //        if ((Convert.ToDecimal(receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor) < temp)
+                                                                //        {
+                                                                //            //temp = temp - issue.TransactionQtyForPO;
+                                                                //            temp = Convert.ToDecimal(temp - ((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor));
+                                                                //            //itemDetail.TransactionQty = issue.TransactionQtyForPO;
+                                                                //            issueDetail.TransactionQty = Convert.ToDecimal((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor);
+                                                                //            isQtyAlocated = true;
+                                                                //        }
+                                                                //        else
+                                                                //        {
+                                                                //            //temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
+                                                                //            issueDetail.TransactionQty = temp;
+                                                                //            isQtyAlocated = true;
+
+                                                                //        }
+
+                                                                //    }
+                                                                //    else
+                                                                //    {
+                                                                //        issueDetail.TransactionQty = 0;
+                                                                //    }
+                                                                //}
+
+
+                                                                var IssueDetailAndIssueRequestMapNew = new IssueDetailAndIssueRequestMap
+                                                                {
+                                                                    Id = GetIssueDetailAndIssueRequestMapPK(),
+                                                                    InventoryIssueDetailId = issueDetail.Id,
+                                                                    IssueRequestBOQMapId = receiveDetailListNew.Id,
+                                                                    Qty = receiveDetailListNew.IssueRequestBOQMapQty,
+                                                                    //AutoAllocate = true
+
+                                                                };
+                                                                AuditService.AddedLog(IssueDetailAndIssueRequestMapNew);
+                                                                _IssueDetailAndIssueRequestMapRepository.Insert(IssueDetailAndIssueRequestMapNew);
+                                                            }
                                                         }
+
+
                                                     }
-
-
                                                 }
+
+
                                             }
 
 
+                                            builderSql = @"UPDATE [TRN].[InventoryMaterial] SET TotalQty='" + Convert.ToDecimal(invMaterial.TotalQty - issueDetail.BaseQty) + "' WHERE Id='" + invMaterialId + "'";
+                                            rdBuilder.Append(builderSql);
+
+                                            // End
+
                                         }
+                                        issueDetail.PolicyAmount = tempPolicyAmount;
+                                        issueDetail.PolicyRate = Math.Round(tempPolicyAmount / issueDetail.TransactionQty,4);
+                                        AuditService.AddedLog(issueDetail);
+                                        _issueDetailService.InsertGraph(issueDetail);
+                                        tempPolicyAmount = 0;
 
-
-                                        builderSql = @"UPDATE [TRN].[InventoryMaterial] SET TotalQty='" + Convert.ToDecimal(invMaterial.TotalQty - issueDetail.BaseQty) + "' WHERE Id='" + invMaterialId + "'";
-                                        rdBuilder.Append(builderSql);
-
-                                        // End
+                                        //===================
 
                                     }
-
-                                    AuditService.AddedLog(issueDetail);
-                                    _issueDetailService.InsertGraph(issueDetail);
-
-
-                                    //===================
-
-                                }
-                             //       }
+                                    //       }
                                 }
 
 
-                            //        _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                                //        _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
 
+                            }
+                            catch (CustomException)
+                            {
+                                throw;
+                            }
+                            #endregion
                         }
-                        catch (CustomException)
+
+
+                        _unitOfWork.SaveChanges();
+                        if (!string.IsNullOrEmpty(JWArtId))
                         {
-                            throw;
+                            _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
                         }
-                        #endregion
-                    }
 
+                        flag = false;
+                        _unitOfWork.Commit();
+                        if (TabType == "Transformation")
+                        {
+                            SaveIssueTransformationChild(entities, _pk);
+                        }
+                        else
+                        {
+                            SaveIssueValAddedChild(entities, _pk);
+                        }
 
-                    _unitOfWork.SaveChanges();
-                    if (!string.IsNullOrEmpty(JWArtId))
-                    {
-                        _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
                     }
-
-                    flag = false;
-                    _unitOfWork.Commit();
-                    if (TabType == "Transformation")
-                    {
-                        SaveIssueTransformationChild(entities, _pk);
-                    }
-                    else
-                    {
-                        SaveIssueValAddedChild(entities, _pk);
-                    }
-
-                }
 
                 }
                 else
@@ -11510,7 +12896,7 @@ namespace Library.MaterialManagement.Inventory
                     {
                         _unitOfWork.BeginTransaction();
                         flag = true;
-                   //     var _pk = GetPK();
+                        //     var _pk = GetPK();
                         var inventoryMaterialList = _inventoryMaterialService.GetJWInventoryMaterialListByUpToSku(entities, inventoryIssue.CompanyId, inventoryIssue.PlantId);
                         var currencyId = _companyRepository.Find(inventoryIssue.CompanyId).BaseCurrencyId;
                         foreach (var item in entities)// update view model (inventory material field)
@@ -11538,7 +12924,7 @@ namespace Library.MaterialManagement.Inventory
                                 {
 
                                     if (im.TotalQty < item.TransactionQty) throw new CustomException(@"Stock is limited for {" + item.MaterialMasterName + "} {" + item.ArticleName + "} {" + item.TransactionQty + "} . Available stock is {" + im.TotalQty + "}");
-                               //     item.InventoryIssueId = _pk;
+                                    //     item.InventoryIssueId = _pk;
                                     item.InventoryIssueId = inventoryIssue.Id;
                                     item.InventoryMaterialId = im.Id;
                                     item.CompanyGroupId = im.CompanyGroupId;
@@ -11584,9 +12970,9 @@ namespace Library.MaterialManagement.Inventory
                         inventoryIssue.CompanyGroupId = inventoryIssue.CompanyGroupId;
                         inventoryIssue.CompanyId = inventoryIssue.CompanyId;
 
-                       // inventoryIssue.Id = _pk;
+                        // inventoryIssue.Id = _pk;
                         inventoryIssue.Id = inventoryIssue.Id;
-                      //  InsertGraph(inventoryIssue);
+                        //  InsertGraph(inventoryIssue);
                         UpdateGraph(inventoryIssue);
                         var rdBuilder = new System.Text.StringBuilder();
                         var builderSql = "";
@@ -11608,12 +12994,12 @@ namespace Library.MaterialManagement.Inventory
                                 //    inventoryMaterialIds = entities.Select(t => t.InventoryMaterialId).Distinct().ToArray();
 
                                 var specificInvaterialIds = new string[] { };
-                         //       var specificInventoryReceiveDetailIds = new string[] { };
+                                //       var specificInventoryReceiveDetailIds = new string[] { };
                                 var maIds = new string[] { };
                                 if (specificStockList.IsNotNull())
                                 {
                                     specificInvaterialIds = specificStockList.Select(t => t.InventoryMaterialId).Distinct().ToArray();
-                          //          specificInventoryReceiveDetailIds = specificStockList.Select(t => t.InventoryReceiveDetailId).Distinct().ToArray();
+                                    //          specificInventoryReceiveDetailIds = specificStockList.Select(t => t.InventoryReceiveDetailId).Distinct().ToArray();
                                     maIds = inventoryMaterialIds.Except(specificInvaterialIds).Distinct().ToArray();
 
                                     for (int i = uiList.Count() - 1; i >= 0; i--)
@@ -12016,7 +13402,7 @@ namespace Library.MaterialManagement.Inventory
                                     //foreach (var RecId in specificInventoryReceiveDetailIds)
                                     //{
 
-                                        foreach (var invMaterialId in specificInvaterialIds)
+                                    foreach (var invMaterialId in specificInvaterialIds)
                                     {
                                         var invMaterial = _issueHistoryRepository.SqlQuery<InventoryMaterial>(@"SELECT * FROM [TRN].[InventoryMaterial] WHERE Id='" + invMaterialId + "'").FirstOrDefault();
                                         var stockList = specificStockList.Where(t => t.InventoryMaterialId == invMaterialId).ToList();
@@ -12025,7 +13411,7 @@ namespace Library.MaterialManagement.Inventory
                                         decimal detailtrnAmount = 0;
                                         decimal totalGRNQty = 0;
                                         var IssueRequestDetailIdnew = "";
-                                
+
 
                                         foreach (var item in specificStockList.Where(r => r.InventoryMaterialId == invMaterialId))
                                         {
@@ -12106,12 +13492,12 @@ namespace Library.MaterialManagement.Inventory
                                             }
                                             item.IssueRequest = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.IssueRequest).FirstOrDefault();
                                         }
-                                   
+
 
                                         currentId++;
                                         var issueDetail = new InventoryIssueDetail
                                         {
-                                             //   Id = MakePK(inventoryIssue.Id, currentId, 2),
+                                            //   Id = MakePK(inventoryIssue.Id, currentId, 2),
                                             Id = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId).Select(t => t.InventoryIssueDetailId).FirstOrDefault(),
                                             InventoryIssueId = inventoryIssue.Id,
                                             IsAsset = FlagIsAsset,//false,
@@ -12137,18 +13523,19 @@ namespace Library.MaterialManagement.Inventory
                                             //  JWTCInputId = entities.Where(r => r.MaterialMasterId == null && r.ArticleId == null).Select(t => t.JWInputItemId).FirstOrDefault(),
                                             ModelState = ModelState.Added
                                         };
+                                        decimal tempPolicyAmount = 0;
                                         if (invMaterial.ArticleId.IsNotNull())
                                         {
                                             // start
 
-                                           // var historyId = _issueHistoryRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[InventoryIssueHistory] WHERE InventoryIssueDetailId='{issueDetail.Id}'").First();
+                                            // var historyId = _issueHistoryRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[InventoryIssueHistory] WHERE InventoryIssueDetailId='{issueDetail.Id}'").First();
                                             foreach (var item in stockList)
                                             {
-                                                var IRHUPId="";
+                                                var IRHUPId = "";
                                                 var historyId = _issueHistoryRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[InventoryIssueHistory] WHERE InventoryIssueDetailId='{issueDetail.Id}' and InventoryReceiveDetailId='{item.InventoryReceiveDetailId}'").First();
                                                 if (historyId != 0)
                                                 {
-                                                     IRHUPId = _issueHistoryRepository.SqlQuery<string>($"SELECT Id FROM [TRN].[InventoryIssueHistory] WHERE InventoryIssueDetailId='{issueDetail.Id}' and InventoryReceiveDetailId='{item.InventoryReceiveDetailId}'").First();
+                                                    IRHUPId = _issueHistoryRepository.SqlQuery<string>($"SELECT Id FROM [TRN].[InventoryIssueHistory] WHERE InventoryIssueDetailId='{issueDetail.Id}' and InventoryReceiveDetailId='{item.InventoryReceiveDetailId}'").First();
                                                 }
                                                 if (item.RequisitionQty > item.StockQty) throw new CustomException("Requisition qty can't greater stock qty.");
 
@@ -12157,7 +13544,7 @@ namespace Library.MaterialManagement.Inventory
                                                     totalReqQty = Convert.ToDecimal(item.RequisitionQty * item.BaseUoMFactor);
                                                 else
                                                     totalReqQty = item.RequisitionQty;
-                                               // historyId++;
+                                                // historyId++;
                                                 var SelectedGRN = GRNCalculateList.Where(r => r.InventoryReceiveDetailId == item.InventoryReceiveDetailId).FirstOrDefault();
                                                 if (historyId == 0)
                                                 {
@@ -12171,8 +13558,8 @@ namespace Library.MaterialManagement.Inventory
                                                                            //Rate = Convert.ToDecimal(item.BaseRate),
                                                                            //Rate = Math.Round((SelectedGRN.TotalAmount / item.RequisitionQty), 4),
                                                                            //TotalAmount = Math.Round(SelectedGRN.TotalAmount, 2),//Convert.ToDecimal(detailtrnAmount),
-                                                        Rate = Math.Round((SelectedGRN.TotalAmount / totalReqQty), 4),//totalGRNQty
-                                                        TotalAmount = Math.Round(SelectedGRN.TotalAmount, 2),//Convert.ToDecimal(detailtrnAmount),
+                                                        Rate = Math.Round(Convert.ToDecimal(item.BooksCurrencyBaseRate), 4),//totalGRNQty
+                                                        TotalAmount = Math.Round(Convert.ToDecimal(item.RequisitionQty * item.BooksCurrencyBaseRate), 2),//Convert.ToDecimal(detailtrnAmount),
                                                         IssueRequestDetailId = item.IssueRequest,
                                                         IssueReturnQty = 0,
                                                         BooksCurrencyBaseRate = Math.Round(Convert.ToDecimal(item.BooksCurrencyBaseRate), 4),
@@ -12202,8 +13589,8 @@ namespace Library.MaterialManagement.Inventory
                                                                            //Rate = Convert.ToDecimal(item.BaseRate),
                                                                            //Rate = Math.Round((SelectedGRN.TotalAmount / item.RequisitionQty), 4),
                                                                            //TotalAmount = Math.Round(SelectedGRN.TotalAmount, 2),//Convert.ToDecimal(detailtrnAmount),
-                                                        Rate = Math.Round((SelectedGRN.TotalAmount / totalReqQty), 4),//totalGRNQty
-                                                        TotalAmount = Math.Round(SelectedGRN.TotalAmount, 2),//Convert.ToDecimal(detailtrnAmount),
+                                                        Rate = Math.Round(Convert.ToDecimal(item.BooksCurrencyBaseRate), 4),//totalGRNQty
+                                                        TotalAmount = Math.Round(Convert.ToDecimal(item.RequisitionQty * item.BooksCurrencyBaseRate), 2),//Convert.ToDecimal(detailtrnAmount),
                                                         IssueRequestDetailId = item.IssueRequest,
                                                         IssueReturnQty = 0,
                                                         BooksCurrencyBaseRate = Math.Round(Convert.ToDecimal(item.BooksCurrencyBaseRate), 4),
@@ -12224,15 +13611,15 @@ namespace Library.MaterialManagement.Inventory
 
 
 
-          //                                      builderSql = @"UPDATE [TRN].[InventoryReceiveDetail] SET IssueQty='" + Convert.ToDecimal(item.RequisitionQty + item.IssueQty) + @"' 
-										//,BaseIssueQty = '" + (Convert.ToDecimal(Convert.ToDecimal(item.BaseIssueQty) + Convert.ToDecimal(totalReqQty))) + "' WHERE Id = '" + item.InventoryReceiveDetailId + "'";
+                                                //                                      builderSql = @"UPDATE [TRN].[InventoryReceiveDetail] SET IssueQty='" + Convert.ToDecimal(item.RequisitionQty + item.IssueQty) + @"' 
+                                                //,BaseIssueQty = '" + (Convert.ToDecimal(Convert.ToDecimal(item.BaseIssueQty) + Convert.ToDecimal(totalReqQty))) + "' WHERE Id = '" + item.InventoryReceiveDetailId + "'";
 
-          //                                      rdBuilder.Append(builderSql);
-          //                                      //AuditService.AddedLog(history);
-          //                                      //_issueHistoryRepository.Insert(history);
+                                                //                                      rdBuilder.Append(builderSql);
+                                                //                                      //AuditService.AddedLog(history);
+                                                //                                      //_issueHistoryRepository.Insert(history);
 
-          //                                      AuditService.UpdatedLog(history);
-          //                                      _issueHistoryRepository.Update(history);
+                                                //                                      AuditService.UpdatedLog(history);
+                                                //                                      _issueHistoryRepository.Update(history);
 
 
 
@@ -12349,15 +13736,16 @@ namespace Library.MaterialManagement.Inventory
 
                                         //AuditService.AddedLog(issueDetail);
                                         //_issueDetailService.InsertGraph(issueDetail);
-
+                                        issueDetail.PolicyAmount = tempPolicyAmount;
+                                        issueDetail.PolicyRate = Math.Round(tempPolicyAmount / issueDetail.TransactionQty,4);
                                         AuditService.UpdatedLog(issueDetail);
                                         _issueDetailService.UpdateGraph(issueDetail);
 
-
+                                        tempPolicyAmount = 0;
                                         //===================
 
                                     }
-                            //        }
+                                    //        }
                                 }
 
 
@@ -12382,12 +13770,12 @@ namespace Library.MaterialManagement.Inventory
                         _unitOfWork.Commit();
                         if (TabType == "Transformation")
                         {
-                     //       SaveIssueTransformationChild(entities, _pk);
+                            //       SaveIssueTransformationChild(entities, _pk);
                             SaveIssueTransformationChild(entities, inventoryIssue.Id);
                         }
                         else
                         {
-                     //       SaveIssueValAddedChild(entities, _pk);
+                            //       SaveIssueValAddedChild(entities, _pk);
                             SaveIssueValAddedChild(entities, inventoryIssue.Id);
                         }
 

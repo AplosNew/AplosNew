@@ -577,6 +577,7 @@ public class clsSalaryStructureAplosNew
                     drSlrDefMst["GroupID"] = bplib.clsWebLib.RetValidLen(_para.CompanyGroupId);
                     drSlrDefMst["PlantID"] = bplib.clsWebLib.RetValidLen(_para.PlantId);
                     drSlrDefMst["AddedBy"] = bplib.clsWebLib.RetValidLen((_para.User));
+                    drSlrDefMst["AddedFromIP"] = _para.AddedFromIP;
                     drSlrDefMst["DateAdded"] = DateTime.Now;
                     drSlrDefMst["UpdatedBy"] = bplib.clsWebLib.RetValidLen((_para.User));
                     drSlrDefMst["DateUpdated"] = DateTime.Now;
@@ -662,9 +663,11 @@ public class clsSalaryStructureAplosNew
 
                         drSlrDef["AddedBy"] = bplib.clsWebLib.RetValidLen((_para.User));
                         drSlrDef["DateAdded"] = DateTime.Now;
+                        drSlrDef["AddedFromIP"] = _para.AddedFromIP;
 
                         drSlrDef["UpdatedBy"] = bplib.clsWebLib.RetValidLen((_para.User));
                         drSlrDef["DateUpdated"] = DateTime.Now;
+                        drSlrDef["UpdatedFromIP"] = _para.UpdatedFromIP;
 
                         dtSlrDef.Rows.Add(drSlrDef);
 
@@ -19868,6 +19871,8 @@ public class CustomParaNew
 
     public bool IsBonusRtnMandatory { get; set; } = false;
     public bool IsBonusRtnPolicyDefined { get; set; } = false;
+    public string AddedFromIP { get; set; }
+    public string UpdatedFromIP { get; set; }
 
 }
 public class EmpSalaryInfoDefineModelNew
