@@ -905,12 +905,12 @@ namespace Aplos.Areas.FixedAssets.Controllers
                 companyId = identity.CompanyId;
             return Json(_fixedAssetDisposeService.GetFixedAssetDisposeList(column, value, companyId), JsonRequestBehavior.AllowGet);
         }
-        [HttpPost]
-        public JsonResult CreateFixedAssetLost(string status, IEnumerable<FixedAssetRegister> fixedAssetRegister, string employeeId, string remarks)
-        {
-            _fixedAssetRegisterService.InsertFixedAssetLost(status, fixedAssetRegister, employeeId, remarks);
-            return Json(new { Message = AplosMessage.Insert });
-        }
+        //[HttpPost]
+        //public JsonResult CreateFixedAssetLost(string status, IEnumerable<FixedAssetRegister> fixedAssetRegister, string employeeId, string remarks)
+        //{
+        //    _fixedAssetRegisterService.InsertFixedAssetLost(status, fixedAssetRegister, employeeId, remarks);
+        //    return Json(new { Message = AplosMessage.Insert });
+        //}
 
         [HttpPost]
         public JsonResult CreateFixedAssetSales(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegister> fixedAssetRegister)
@@ -926,12 +926,12 @@ namespace Aplos.Areas.FixedAssets.Controllers
         }
 
 
-        [HttpPost]
-        public JsonResult CreateFixedAssetScrap(string status, IEnumerable<FixedAssetRegister> fixedAssetRegister, string remarks)
-        {
-            _fixedAssetRegisterService.InsertFixedAssetScrap(status, fixedAssetRegister, remarks);
-            return Json(new { Message = AplosMessage.Insert });
-        }
+        //[HttpPost]
+        //public JsonResult CreateFixedAssetScrap(string status, IEnumerable<FixedAssetRegister> fixedAssetRegister, string remarks)
+        //{
+        //    _fixedAssetRegisterService.InsertFixedAssetScrap(status, fixedAssetRegister, remarks);
+        //    return Json(new { Message = AplosMessage.Insert });
+        //}
 
         [HttpPost, Authorize]
         public ActionResult GetFixedAssetRegisterDisposePopUpList(string column, string value, string companyId)
