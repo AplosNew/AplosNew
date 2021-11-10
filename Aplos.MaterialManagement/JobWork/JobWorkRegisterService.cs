@@ -255,14 +255,14 @@ left join (
 --Select SUM(GrossConsumption) as TotalGrossConsump,COUNT(JobWorkTransformationContractChildMasterId) as TNoOfInputItem, JobWorkTransformationContractChildMasterId
 --from dbo.JobWorkTransformationContractChild3 group by JobWorkTransformationContractChildMasterId
 select Sum(x.TotalGrossConsump) as TotalGrossSum
-,Sum(x.GrossConsumption) as TotalGrossConsump ,COUNT(x.JobWorkTransformationContractChildMasterId) as TNoOfInputItem,x.JobWorkTransformationContractChildMasterId
+,Sum(x.GrossConsumption) as TotalGrossConsump ,COUNT(x.OSTransformationPODetailId) as TNoOfInputItem,x.OSTransformationPODetailId
 from (
-Select SUM(GrossConsumption) as TotalGrossConsump,GrossConsumption,COUNT(JobWorkTransformationContractChildMasterId) as TNoOfInputItem
-, JobWorkTransformationContractChildMasterId from dbo.JobWorkTransformationContractChild3 
+Select SUM(GrossConsumption) as TotalGrossConsump,GrossConsumption,COUNT(OSTransformationPODetailId) as TNoOfInputItem
+, OSTransformationPODetailId from dbo.OSTransformationPOInputMaterial --dbo.JobWorkTransformationContractChild3 
 group by ArticleId, 
-JobWorkTransformationContractChildMasterId,GrossConsumption
-) x group by x.JobWorkTransformationContractChildMasterId)
-mi on mi.JobWorkTransformationContractChildMasterId=mp.Id
+OSTransformationPODetailId,GrossConsumption
+) x group by x.OSTransformationPODetailId)
+mi on mi.OSTransformationPODetailId=mp.Id
 left join (select Sum(TransactionQty) as TotalReceivedQuantity,OSTransformationPODetailId from Trn.InventoryReceiveDetail where OSTransformationPODetailId is not null group by OSTransformationPODetailId)
 kk on kk.OSTransformationPODetailId=mp.Id
 left join (
@@ -443,14 +443,14 @@ left join (
 --Select SUM(GrossConsumption) as TotalGrossConsump,COUNT(JobWorkTransformationContractChildMasterId) as TNoOfInputItem, JobWorkTransformationContractChildMasterId
 --from dbo.JobWorkTransformationContractChild3 group by JobWorkTransformationContractChildMasterId
 select Sum(x.TotalGrossConsump) as TotalGrossSum
-,Sum(x.GrossConsumption) as TotalGrossConsump ,COUNT(x.JobWorkTransformationContractChildMasterId) as TNoOfInputItem,x.JobWorkTransformationContractChildMasterId
+,Sum(x.GrossConsumption) as TotalGrossConsump ,COUNT(x.OSTransformationPODetailId) as TNoOfInputItem,x.OSTransformationPODetailId
 from (
-Select SUM(GrossConsumption) as TotalGrossConsump,GrossConsumption,COUNT(JobWorkTransformationContractChildMasterId) as TNoOfInputItem
-, JobWorkTransformationContractChildMasterId from dbo.JobWorkTransformationContractChild3 
+Select SUM(GrossConsumption) as TotalGrossConsump,GrossConsumption,COUNT(OSTransformationPODetailId) as TNoOfInputItem
+, OSTransformationPODetailId from dbo.OSTransformationPOInputMaterial --dbo.JobWorkTransformationContractChild3 
 group by ArticleId, 
-JobWorkTransformationContractChildMasterId,GrossConsumption
-) x group by x.JobWorkTransformationContractChildMasterId)
-mi on mi.JobWorkTransformationContractChildMasterId=mp.Id
+OSTransformationPODetailId,GrossConsumption
+) x group by x.OSTransformationPODetailId)
+mi on mi.OSTransformationPODetailId=mp.Id
 left join (select Sum(TransactionQty) as TotalReceivedQuantity,OSTransformationPODetailId from Trn.InventoryReceiveDetail where OSTransformationPODetailId is not null group by OSTransformationPODetailId)
 kk on kk.OSTransformationPODetailId=mp.Id
 left join (
@@ -629,14 +629,14 @@ left join (
 --Select SUM(GrossConsumption) as TotalGrossConsump,COUNT(JobWorkTransformationContractChildMasterId) as TNoOfInputItem, JobWorkTransformationContractChildMasterId
 --from dbo.JobWorkTransformationContractChild3 group by JobWorkTransformationContractChildMasterId
 select Sum(x.TotalGrossConsump) as TotalGrossSum
-,Sum(x.GrossConsumption) as TotalGrossConsump ,COUNT(x.JobWorkTransformationContractChildMasterId) as TNoOfInputItem,x.JobWorkTransformationContractChildMasterId
+,Sum(x.GrossConsumption) as TotalGrossConsump ,COUNT(x.OSTransformationPODetailId) as TNoOfInputItem,x.OSTransformationPODetailId
 from (
-Select SUM(GrossConsumption) as TotalGrossConsump,GrossConsumption,COUNT(JobWorkTransformationContractChildMasterId) as TNoOfInputItem
-, JobWorkTransformationContractChildMasterId from dbo.JobWorkTransformationContractChild3 
+Select SUM(GrossConsumption) as TotalGrossConsump,GrossConsumption,COUNT(OSTransformationPODetailId) as TNoOfInputItem
+, OSTransformationPODetailId from dbo.OSTransformationPOInputMaterial --dbo.JobWorkTransformationContractChild3 
 group by ArticleId, 
-JobWorkTransformationContractChildMasterId,GrossConsumption
-) x group by x.JobWorkTransformationContractChildMasterId)
-mi on mi.JobWorkTransformationContractChildMasterId=mp.Id
+OSTransformationPODetailId,GrossConsumption
+) x group by x.OSTransformationPODetailId)
+mi on mi.OSTransformationPODetailId=mp.Id
 left join (select Sum(TransactionQty) as TotalReceivedQuantity,OSTransformationPODetailId from Trn.InventoryReceiveDetail where OSTransformationPODetailId is not null group by OSTransformationPODetailId)
 kk on kk.OSTransformationPODetailId=mp.Id
 left join (
@@ -744,19 +744,19 @@ where I.ContractId=Ct.Id for xml path('') ), 1, 1, ''
 ,TotalReceiptAmount=case when mp.RateApplyId='Output' then (ISNULL(rvbp.TotalReceivedQuantity,'0') * (((tbp.PercentageOfInput * (mi.NetConsumption * mp.Quantity))/100) * tbp.StandardRate))/ ((tbp.PercentageOfInput * (mi.NetConsumption * mp.Quantity))/100)
 else (ISNULL(rvbp.TotalReceivedQuantity,'0') * (mp.Quantity * tmi.TotalGrossConsump * tbp.StandardRate))/ ((tbp.PercentageOfInput * (mi.NetConsumption * mp.Quantity))/100) End
 ,PLC.LCRef as PurchaseLCNo,B.UserName as OpeningBank
-from dbo.JobWorkTransformationContractChild4 tbp left join HKP.JobWorkItem jwi on jwi.Id=tbp.JobWorkItemId
+from dbo.OSTransformationPOByProduct tbp left join HKP.JobWorkItem jwi on jwi.Id=tbp.JobWorkItemId
 left join MST.MaterialMasterArticle mma on mma.Id=tbp.ArticleId
 left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
 left join SCS.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId
 left join SCS.UnitOfMeasurement uom on uom.Id=jwi.UOMId
 left join SCS.Currency c on c.Id=tbp.CurrencyId
-left join dbo.JobWorkTransformationContractChild3 mi on mi.Id=tbp.JobWorkTransformationContractChild3MasterId
-                              left join dbo.OSTransformationPODetail mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+left join dbo.OSTransformationPOInputMaterial mi on mi.Id=tbp.OSTransformationPOInputMaterialId
+                              left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
 							  left join (Select SUM(TransactionQty) as TotalReceivedQuantity,OSTransformationPOByProductId from Trn.InventoryReceiveDetail where OSTransformationPOByProductId is not null group by OSTransformationPOByProductId)
                               rvbp on rvbp.OSTransformationPOByProductId=tbp.Id
                               left join dbo.OSTransformationPO tc on tc.Id=mp.OSTransformationPOId
-							  left join (Select SUM(GrossConsumption) as TotalGrossConsump,JobWorkTransformationContractChildMasterId from dbo.JobWorkTransformationContractChild3 group by JobWorkTransformationContractChildMasterId)
-tmi on tmi.JobWorkTransformationContractChildMasterId=mp.Id
+							  left join (Select SUM(GrossConsumption) as TotalGrossConsump,OSTransformationPODetailId from dbo.OSTransformationPOInputMaterial group by OSTransformationPODetailId)
+tmi on tmi.OSTransformationPODetailId=mp.Id
 left join ORG.Plant P on P.Id=tc.PlantId
 left join ORG.Entity E on E.Id=tc.EntityId
 left join HKP.Party Pty on Pty.Id=tc.PartyId
@@ -828,19 +828,19 @@ where I.ContractId=Ct.Id for xml path('') ), 1, 1, ''
 ,TotalReceiptAmount=case when mp.RateApplyId='Output' then (ISNULL(rvbp.TotalReceivedQuantity,'0') * (((tbp.PercentageOfInput * (mi.NetConsumption * mp.Quantity))/100) * tbp.StandardRate))/ ((tbp.PercentageOfInput * (mi.NetConsumption * mp.Quantity))/100)
 else (ISNULL(rvbp.TotalReceivedQuantity,'0') * (mp.Quantity * tmi.TotalGrossConsump * tbp.StandardRate))/ ((tbp.PercentageOfInput * (mi.NetConsumption * mp.Quantity))/100) End
 ,PLC.LCRef as PurchaseLCNo,B.UserName as OpeningBank
-from dbo.JobWorkTransformationContractChild4 tbp left join HKP.JobWorkItem jwi on jwi.Id=tbp.JobWorkItemId
+from dbo.OSTransformationPOByProduct tbp left join HKP.JobWorkItem jwi on jwi.Id=tbp.JobWorkItemId
 left join MST.MaterialMasterArticle mma on mma.Id=tbp.ArticleId
 left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
 left join SCS.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId
 left join SCS.UnitOfMeasurement uom on uom.Id=jwi.UOMId
 left join SCS.Currency c on c.Id=tbp.CurrencyId
-left join dbo.JobWorkTransformationContractChild3 mi on mi.Id=tbp.JobWorkTransformationContractChild3MasterId
-                              left join dbo.OSTransformationPODetail mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+left join dbo.OSTransformationPOInputMaterial mi on mi.Id=tbp.OSTransformationPOInputMaterialId
+                              left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
 							  left join (Select SUM(TransactionQty) as TotalReceivedQuantity,OSTransformationPOByProductId from Trn.InventoryReceiveDetail where OSTransformationPOByProductId is not null group by OSTransformationPOByProductId)
                               rvbp on rvbp.OSTransformationPOByProductId=tbp.Id
                               left join dbo.OSTransformationPO tc on tc.Id=mp.OSTransformationPOId
-							  left join (Select SUM(GrossConsumption) as TotalGrossConsump,JobWorkTransformationContractChildMasterId from dbo.JobWorkTransformationContractChild3 group by JobWorkTransformationContractChildMasterId)
-tmi on tmi.JobWorkTransformationContractChildMasterId=mp.Id
+							  left join (Select SUM(GrossConsumption) as TotalGrossConsump,OSTransformationPODetailId from dbo.OSTransformationPOInputMaterial group by OSTransformationPODetailId)
+tmi on tmi.OSTransformationPODetailId=mp.Id
 left join ORG.Plant P on P.Id=tc.PlantId
 left join ORG.Entity E on E.Id=tc.EntityId
 left join HKP.Party Pty on Pty.Id=tc.PartyId
@@ -910,19 +910,19 @@ where I.ContractId=Ct.Id for xml path('') ), 1, 1, ''
 ,TotalReceiptAmount=case when mp.RateApplyId='Output' then (ISNULL(rvbp.TotalReceivedQuantity,'0') * (((tbp.PercentageOfInput * (mi.NetConsumption * mp.Quantity))/100) * tbp.StandardRate))/ ((tbp.PercentageOfInput * (mi.NetConsumption * mp.Quantity))/100)
 else (ISNULL(rvbp.TotalReceivedQuantity,'0') * (mp.Quantity * tmi.TotalGrossConsump * tbp.StandardRate))/ ((tbp.PercentageOfInput * (mi.NetConsumption * mp.Quantity))/100) End
 ,PLC.LCRef as PurchaseLCNo,B.UserName as OpeningBank
-from dbo.JobWorkTransformationContractChild4 tbp left join HKP.JobWorkItem jwi on jwi.Id=tbp.JobWorkItemId
+from dbo.OSTransformationPOByProduct tbp left join HKP.JobWorkItem jwi on jwi.Id=tbp.JobWorkItemId
 left join MST.MaterialMasterArticle mma on mma.Id=tbp.ArticleId
 left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
 left join SCS.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId
 left join SCS.UnitOfMeasurement uom on uom.Id=jwi.UOMId
 left join SCS.Currency c on c.Id=tbp.CurrencyId
-left join dbo.JobWorkTransformationContractChild3 mi on mi.Id=tbp.JobWorkTransformationContractChild3MasterId
-                              left join dbo.OSTransformationPODetail mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+left join dbo.OSTransformationPOInputMaterial mi on mi.Id=tbp.OSTransformationPOInputMaterialId
+                              left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
 							  left join (Select SUM(TransactionQty) as TotalReceivedQuantity,OSTransformationPOByProductId from Trn.InventoryReceiveDetail where OSTransformationPOByProductId is not null group by OSTransformationPOByProductId)
                               rvbp on rvbp.OSTransformationPOByProductId=tbp.Id
                               left join dbo.OSTransformationPO tc on tc.Id=mp.OSTransformationPOId
-							  left join (Select SUM(GrossConsumption) as TotalGrossConsump,JobWorkTransformationContractChildMasterId from dbo.JobWorkTransformationContractChild3 group by JobWorkTransformationContractChildMasterId)
-tmi on tmi.JobWorkTransformationContractChildMasterId=mp.Id
+							  left join (Select SUM(GrossConsumption) as TotalGrossConsump,OSTransformationPODetailId from dbo.OSTransformationPOInputMaterial group by OSTransformationPODetailId)
+tmi on tmi.OSTransformationPODetailId=mp.Id
 left join ORG.Plant P on P.Id=tc.PlantId
 left join ORG.Entity E on E.Id=tc.EntityId
 left join HKP.Party Pty on Pty.Id=tc.PartyId
