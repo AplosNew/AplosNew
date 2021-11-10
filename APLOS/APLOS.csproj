@@ -600,6 +600,7 @@
     <Compile Include="Areas\HumanResource\Controllers\TablesUploadController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\LeaveWithWagesRegistersForm18Controller.cs" />
     <Compile Include="Areas\HumanResource\Controllers\WeeklyOffController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\WeekDefinitionController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\WeekOffUpdatesController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\WelFareReportsController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\AttendanceProcessDataManualStatusController.cs" />
@@ -1892,6 +1893,7 @@
     <Content Include="Areas\HumanResource\Scripts\TablesUploadController.js" />
     <Content Include="Areas\HumanResource\Scripts\WeeklyOffController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeWeekOffUpdatesController.js" />
+    <Content Include="Areas\HumanResource\Scripts\WeekDefinitionController.js" />
     <Content Include="Areas\HumanResource\Scripts\WeekOffUpdatesController.js" />
     <Content Include="Areas\HumanResource\Scripts\yearlySalaryProcessedReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryProcessedReportExtraOTCTCController.js" />
@@ -3816,6 +3818,7 @@
     <Content Include="Areas\JobWork\Views\OSIssueRegister\Aplos.cshtml" />
     <Content Include="Areas\JobWork\Views\OSIssueRegister\IssueReturnRegister.cshtml" />
     <Content Include="Areas\Attendances\Views\SandwichProcess\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\WeekDefinition\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
