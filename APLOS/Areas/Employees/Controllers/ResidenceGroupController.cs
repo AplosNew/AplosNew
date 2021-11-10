@@ -110,7 +110,7 @@ namespace Aplos.Areas.Employees.Controllers
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID(TableName, out _Id);
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), TableName, out _Id);
 
                     data["Id"] = "RG" + _Id;
                     AddNewRow(dsMaster.Tables[0], data);

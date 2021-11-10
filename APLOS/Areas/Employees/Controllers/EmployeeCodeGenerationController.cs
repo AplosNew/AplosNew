@@ -82,36 +82,58 @@ namespace Aplos.Areas.Employees.Controllers
             return Json(employeeProfile.GetAllEmployeeCodeGenerationPlantData(), JsonRequestBehavior.AllowGet);
         }
 
-        private string GetPK()
-        {
-            string sID = string.Empty;
-            bplib.clsGenID objGenID = new bplib.clsGenID();
-            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ContractualEmployeeCode", out sID);
-            return sID;
-        }
+        
 
         [HttpPost]
-        public JsonResult Create(List<Dictionary<string, object>> data, string Level)
+        public JsonResult Create(Dictionary<string, object> data, List<Dictionary<string, object>> detaildata)
         {
             try
             {
-                DataSet dsMaster;
+                DataSet dsMaster, dsDetail;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("SELECT * FROM dbo.ContractualEmployeeCode", out dsMaster, false, "1");
-                string _Id = GetPK();
+                con.OpenDataSetThroughAdapter("select * from dbo.EmployeeCodeGenGroup where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Code already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from dbo.EmployeeCodeGenGroup where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same User Name already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from dbo.EmployeeCodeGenGroup where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from dbo.EmployeeCodeGenGroupDetail where EmployeeCodeGenGroupId='" + data["Id"] + "'", out dsDetail, false, "1");
+
+                string _Id = "";
+
+                #region EmployeeCodeGenGroup insert update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "EmployeeCodeGenGroup", out _Id);
+
+                    data["Id"] =_Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                string mId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                #endregion data update
+
                 int count = 0;
-                foreach (var item in data)
+                foreach (var item in detaildata)
                 {
                     count++;
-                    DataView dv = new DataView(dsMaster.Tables[0]);
+                    DataView dv = new DataView(dsDetail.Tables[0]);
                     dv.RowFilter = "Id='" + item["Id"] + "'";
 
                     if (dv.Count == 0)
                     {
-                        item["Id"] = _Id + count;
-                        item["EmployeeCodeLevel"] = Level;
+                        item["Id"] = mId + count;
+                        item["EmployeeCodeGenGroupId"] = mId;
 
-                        AddNewRow(dsMaster.Tables[0], item);
+                        AddNewRow(dsDetail.Tables[0], item);
                     }
                     else
                     {
@@ -121,19 +143,17 @@ namespace Aplos.Areas.Employees.Controllers
                 }
 
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
+                _info.SaveDataSets(dsMaster, dsDetail);
 
-                return Json(new { Error = false, Message = AplosMessage.Updated });
+                return Json(new { Error = false, Data = data, Sequence = GetSequence(), Message = AplosMessage.Updated });
 
             }
             catch (Exception ex)
             {
-
                 return Json(new { Error = true, Message = ex.Message });
 
             }
         }
-
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

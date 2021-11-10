@@ -2202,7 +2202,7 @@ namespace Aplos.HumanResource
         {
             try
             {
-                var sql = @"Select Flag=CAST(0 AS bit),A.* from (
+                var sql = @"Select Flag=CAST(0 AS bit),D.Id,A.* from (
                         Select CG.UserName CompanyGroup,C.UserName Company,P.Id PlantId,P.UserName Plant
                         ,EmploymentType='Permanent'
                         from ORG.Plant P
@@ -2220,7 +2220,9 @@ namespace Aplos.HumanResource
                         from ORG.Plant P
                         LEFT JOIN ORG.Company C ON C.Id=P.CompanyId
                         LEFT JOIN ORG.CompanyGroup CG ON CG.Id=C.CompanyGroupId
-                        ) A order by A.CompanyGroup,A.Company,A.Plant";
+                        ) A 
+                        LEFT JOIN [dbo].[EmployeeCodeGenGroupDetail] D ON D.PlantId=A.PlantId
+                        order by A.CompanyGroup,A.Company,A.Plant";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
