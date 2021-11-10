@@ -23,13 +23,13 @@ using System.Web.Mvc;
 
 namespace Aplos.Areas.Employees.Controllers
 {
-    public class ContractualEmployeeCodeController : BaseController
+    public class EmployeeCodeGenerationController : BaseController
     {
-        string TableName = "dbo.AccountsGroup";
+        
         #region Constructor
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISqlRepository _sqlRepository;
-        public ContractualEmployeeCodeController(IUnitOfWork U, ISqlRepository R)
+        public EmployeeCodeGenerationController(IUnitOfWork U, ISqlRepository R)
         {
             _unitOfWork = U;
             _sqlRepository = R;
@@ -44,11 +44,7 @@ namespace Aplos.Areas.Employees.Controllers
         }
         #endregion
 
-        [HttpGet, Authorize]
-        public JsonResult GetCbo()
-        {
-            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM " + TableName + ""), JsonRequestBehavior.AllowGet);
-        }
+        
 
         [HttpGet, Authorize]
         public JsonResult GetContractCodeList(string Level)
@@ -127,23 +123,6 @@ LEFT JOIN ContractualEmployeeCode EC ON EC.PlantId=P.Id Where ISNULL(EC.Employee
             }
         }
 
-        public ActionResult Delete(string id)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(id))
-                    throw new Exception("Select entry first");
-                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.BeginTransaction();
-                con.executeQuery("delete from " + TableName + " where id='" + id + "'");
-                con.CommitTransaction();
-                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
-        }
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -182,12 +161,6 @@ LEFT JOIN ContractualEmployeeCode EC ON EC.PlantId=P.Id Where ISNULL(EC.Employee
             dr["UpdatedFromIP"] = identity.IPAddress;
             dr.EndEdit();
         }
-        private double GetSequence()
-        {
-            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM " + TableName + "");
-            if (dt.Rows.Count > 0)
-                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
-            return 1;
-        }
+       
     }
 }

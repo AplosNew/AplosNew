@@ -832,9 +832,9 @@ namespace Library.Accounting.FixedAssets
 							,ActivityId=  FGL.LossOnDisposalAssetActivityId     
 							,ActivityCode=  A.Code    
 							,ActivityName=  A.UserName    
-							, Dr=   SUM(FR.NegotiationValue-FR.ADBaseAmount)
+							, Dr=  SUM(FR.Price+isnull(SAR.subAssetAmount,0))- SUM(FR.ADBaseAmount)
 							, Cr=0
-							, Amount= SUM(FR.NegotiationValue-FR.ADBaseAmount)
+							, Amount= SUM(FR.Price+isnull(SAR.subAssetAmount,0))- SUM(FR.ADBaseAmount)
 						FROM  TRN.FixedAssetRegisterDisposedDetail FRDD
 						LEFT JOIN TRN.FixedAssetRegisterDisposed FRD ON FRD.Id=FRDD.FixedAssetRegisterDisposedId
 						LEFT JOIN TRN.FixedAssetRegister FR ON FR.Id=FRDD.FixedAssetRegisterId
@@ -861,8 +861,8 @@ namespace Library.Accounting.FixedAssets
 							,ActivityName =A.UserName
 							
 							, NULL Dr
-							, SUM(FR.Price+SAR.subAssetAmount) AS Cr
-							, SUM(FR.Price+SAR.subAssetAmount) AS Amount
+							, SUM(FR.Price+isnull(SAR.subAssetAmount,0)) AS Cr
+							, SUM(FR.Price+isnull(SAR.subAssetAmount,0)) AS Amount
 						FROM  TRN.FixedAssetRegisterDisposedDetail FRDD
 						LEFT JOIN TRN.FixedAssetRegisterDisposed FRD ON FRD.Id=FRDD.FixedAssetRegisterDisposedId
 						LEFT JOIN TRN.FixedAssetRegister FR ON FR.Id=FRDD.FixedAssetRegisterId
@@ -875,6 +875,7 @@ namespace Library.Accounting.FixedAssets
 						WHERE FRDD.FixedAssetRegisterDisposedId=@fixedAssetDisposeId
 						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, FR.FABudgetMasterId, B.Code, B.UserName, FR.FAActivityId, A.Code, A.UserName
 						) X 
+                        WHERE X.Amount>0
 						ORDER BY 2 DESC";
             return _sqlRepository.GetDataCollection(sql);
         }
@@ -1701,7 +1702,7 @@ namespace Library.Accounting.FixedAssets
 				) sar on sar.FixedAssetRegisterId=FAR.Id
 
 
-		        WHERE FAR.CompanyGroupId='" + companyGroupId + "' AND FAR.CompanyId='" + companyId + "' AND FAR.PlantId='" + plantId + @"'  
+		        WHERE FAR.CompanyGroupId='" + companyGroupId + "' AND FAR.CompanyId='" + companyId + "' AND FAR.PlantId='" + plantId + @"'  AND FAR.Status is null
 				  --and FAR.MaterialMasterId in (" + materialMasterId + ") AND FAR.MaterialMasterArticleId in (" + materialMasterArticleId + ") AND FAR.FixedAssetMasterId in (" + fixedAssetMasterId + @")
 					-- and FAR.VendorId in (" + vendorId + ") AND MM.IsAsset in (" + isAsset + ") AND MBP.BusinessProcessName in (" + machine + @")
 
