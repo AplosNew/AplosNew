@@ -2196,6 +2196,48 @@ namespace Aplos.HumanResource
         }
 
         #endregion
+
+        #region EmployeeCodeGeneration
+        public IEnumerable<object> GetAllEmployeeCodeGenerationPlantData(string masterId)
+        {
+            try
+            {
+                var sql = @"select Flag= CAST(CASE WHEN D.Id IS NULL THEN 0 ELSE 1 END AS bit),ET.EmploymentType,D.Id,CG.UserName CompanyGroup,C.UserName Company,P.Id PlantId,P.UserName Plant
+                                    FROM 
+                                    (Select 'Permanent' AS EmploymentType  
+                                    UNION ALL
+                                    Select 'Temporary' AS EmploymentType  
+                                    UNION ALL 
+                                    Select 'Contactual' AS EmploymentType  
+                                    ) ET
+                                    left join ORG.Plant P ON 1=1
+                                    LEFT JOIN ORG.Company C ON C.Id=P.CompanyId
+                                    LEFT JOIN ORG.CompanyGroup CG ON CG.Id=C.CompanyGroupId
+                                    LEFT JOIN [dbo].[EmployeeCodeGenGroupDetail] D ON D.PlantId=P.Id and D.EmploymentType=ET.EmploymentType
+                                    Where ISNULL(D.EmployeeCodeGenGroupId,'')=''
+                                    UNION ALL
+                                    select Flag= CAST(CASE WHEN D.Id IS NULL THEN 0 ELSE 1 END AS bit),ET.EmploymentType,D.Id,CG.UserName CompanyGroup,C.UserName Company,P.Id PlantId,P.UserName Plant
+                                    FROM 
+                                    (Select 'Permanent' AS EmploymentType  
+                                    UNION ALL
+                                    Select 'Temporary' AS EmploymentType  
+                                    UNION ALL 
+                                    Select 'Contactual' AS EmploymentType  
+                                    ) ET
+                                    left join ORG.Plant P ON 1=1
+                                    LEFT JOIN ORG.Company C ON C.Id=P.CompanyId
+                                    LEFT JOIN ORG.CompanyGroup CG ON CG.Id=C.CompanyGroupId
+                                    LEFT JOIN [dbo].[EmployeeCodeGenGroupDetail] D ON D.PlantId=P.Id and D.EmploymentType=ET.EmploymentType
+                                    Where ISNULL(D.EmployeeCodeGenGroupId,'')='"+masterId+@"'
+                                    Order BY CG.UserName,C.UserName,P.UserName";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
     }
     public class EmployeeOperation
     {

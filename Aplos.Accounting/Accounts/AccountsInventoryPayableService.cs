@@ -3840,7 +3840,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
                     LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
                     WHERE IR.PlantId='" + plantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' AND IR.IsPaymentHold=0 AND IR.PlantId='" + plantId + @"' AND IR.FixedAssetOrInventory='Inventory' AND IR.OpeningBalanceId IS NULL 
 					--AND IR.IsApproved=1 AND IR.RequiredPosting=1 
-					AND IR.GRNType='GRNBYJW'
+					AND IR.GRNType='GRNBYOS'
                     order by IR.GRNDate desc";
                 return _sqlRepository.GetDataCollection(sql);
             }

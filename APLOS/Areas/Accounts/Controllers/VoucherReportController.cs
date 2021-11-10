@@ -20,6 +20,7 @@ using System;
 using System.Threading;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
+using Library.Accounting.FixedAssets;
 
 namespace Aplos.Areas.Accounts.Controllers
 {
@@ -416,7 +417,41 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
 
+        public ActionResult AssetWIPStatusReport()
+        {
+            return View("~/Areas/Accounts/Views/AssetWIPStatusReport.cshtml");
+        }
 
+        [HttpGet, Authorize]
+        public ActionResult GetAssetWIPData()
+        {
+            AssetWIPQueryService assetWIPQueryService = new AssetWIPQueryService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(new { DATA = assetWIPQueryService.GetFixedAssetWIPstatusSQL(), Error = false }, JsonRequestBehavior.AllowGet);
+        }
+
+        //[Authorize]
+        //public ActionResult AssetWIPstatusReportExcel(string materialMasterId, string materialMasterArticleId, string voucherId, string grnNo,string glId, string activityId)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    try
+        //    {
+
+        //        ExcelEngine excelEngine = new ExcelEngine();
+
+        //        IWorkbook workbook = _fixedAssetRegisterService.FixedAssetRegisterList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, MaterialMasterId, MaterialMasterArticleId, fixedAssetMasterId, vendorId);
+
+        //        string strFileName = "Fixed Assets Register Report.xlsx";
+        //        workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+        //        workbook.Close();
+        //    }
+        //    catch (CustomException ex)
+        //    {
+        //        return Json(ex.Message, JsonRequestBehavior.AllowGet);
+
+        //    }
+        //    return null;
+        //}
 
 
     }

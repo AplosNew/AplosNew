@@ -136,6 +136,8 @@ function fixedAssetConfig($routeProvider, $locationProvider) {
             templateUrl: "FixedAssets/EntityFixedAssetsRegister/Aplos",
             controller: "entityFixedAssetsRegisterController"
         })
+
+      
     
 
         ;

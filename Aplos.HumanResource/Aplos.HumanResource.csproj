@@ -228,6 +228,7 @@
     <Compile Include="NewAttendanceProcess\RosterPatternService.cs" />
     <Compile Include="NewAttendanceProcess\TablesUploadService.cs" />
     <Compile Include="NewAttendanceProcess\WeeklyOffService.cs" />
+    <Compile Include="NewAttendanceProcess\WeekDefinitionService.cs" />
     <Compile Include="NewAttendanceProcess\WeekOffUpdatesService.cs" />
     <Compile Include="NewAttendanceProcess\SandwichProcessService.cs" />
     <Compile Include="Payroll\Allowance\clsDiscreteAllowanceReport.cs" />

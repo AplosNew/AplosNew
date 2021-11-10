@@ -491,9 +491,9 @@ function employeeConfig($routeProvider, $locationProvider, $windowProvider) {
             templateUrl: 'Employees/AccountsGroup/Aplos',
             controller: 'AccountsGroupController'
         })
-        .when('/contractual-employeecode', {
-            templateUrl: 'Employees/ContractualEmployeeCode/Aplos',
-            controller: 'ContractualEmployeeCodeController'
+        .when('/empcode-gen', {
+            templateUrl: 'Employees/EmployeeCodeGeneration/Aplos',
+            controller: 'EmployeeCodeGenerationController'
         })
         .when('/residence-group', {
             templateUrl: 'Employees/ResidenceGroup/Aplos',

@@ -253,13 +253,19 @@
                 </div>
             </div>
             <div class="form-group" style="margin-bottom: 25px;">
-                <label class="col-sm-4 control-label"></label>
+                @*<label class="col-sm-4 control-label"></label>
 
-                <div class="col-sm-2" style="padding-right:0;">
-                    <button ng-click="masterGo(true);" ng-disabled="disGo" class="btn" tabindex="9"><i class="glyphicon glyphicon-send"></i> GO</button>
-                </div>
-                <div class="col-sm-2" style="padding-left:0;">
-                    <button ng-click="SetBack(false);" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-left"></i> Back</button>
+        <div class="col-sm-2" style="padding-right:0;">
+            <button ng-click="masterGo(true);loadWC();" ng-disabled="disGo" class="btn" tabindex="9"><i class="glyphicon glyphicon-send"></i> GO</button>
+        </div>
+        <div class="col-sm-2" style="padding-left:0;">
+            <button ng-click="SetBack(false);" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-left"></i> Back</button>
+        </div>*@
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="masterGo(true);loadWC(productionSummaryNew.ProcessId);" ng-disabled="disGo" class="btn" tabindex="9"><i class="glyphicon glyphicon-send"></i> GO</button></li>
+                        <li> <button ng-click="SetBack(false);" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-left"></i> Back</button>
+                    </ul>
                 </div>
             </div>
 
