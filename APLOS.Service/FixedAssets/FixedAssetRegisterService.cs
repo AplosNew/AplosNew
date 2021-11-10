@@ -4155,7 +4155,7 @@ GROUP BY FAR.FABudgetMasterId
         }
 
         #region FixedAssetLost
-        public string InsertFixedAssetLost(string status, IEnumerable<FixedAssetRegister> fixedAssetRegister, string employeeId, string remarks)
+        public string InsertFixedAssetLost(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegister> fixedAssetRegister)
         {
             var flag = false;
             try
@@ -4169,11 +4169,12 @@ GROUP BY FAR.FABudgetMasterId
                 int detailId = 0;
                 var fixedAssetDispose = new FixedAssetRegisterDisposed
                 {
-                    Status = status,
-                    Remarks = remarks,
-                    EmployeeId = employeeId,
+                    Status = fixedAssetDisposed.Status,
+                    Remarks = fixedAssetDisposed.Remarks,
+                    EmployeeId = fixedAssetDisposed.EmployeeId,
                     Id = "RD" + _id,
                     IsPark = true,
+                    DocDate = fixedAssetDisposed.DocDate
                 };
                 AuditService.AddedLog(fixedAssetDispose);
                 _fixedAssetRegisterDisposedRepository.Insert(fixedAssetDispose);
@@ -4184,8 +4185,8 @@ GROUP BY FAR.FABudgetMasterId
                   var fixedAssetReg=  _fixedAssetRegisterRepository.Find(item.Id);
 
                     fixedAssetReg.NegotiationValue = item.NegotiationValue;
-                    fixedAssetReg.Status = status;
-                    fixedAssetReg.Remarks = remarks;
+                    fixedAssetReg.Status = fixedAssetDisposed.Status;
+                    fixedAssetReg.Remarks = fixedAssetDisposed.Remarks;
                     _fixedAssetRegisterRepository.Update(fixedAssetReg);
 
                    
@@ -4205,7 +4206,74 @@ GROUP BY FAR.FABudgetMasterId
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
-                return remarks;
+                return fixedAssetDisposed.Remarks;
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+
+        public string EditFixedAssetLost(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegisterDisposedDetail> fixedAssetRegister)
+        {
+            var flag = false;
+            try
+            {
+
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                int detailId = 0;
+                var fixedAssetDispose = new FixedAssetRegisterDisposed
+                {
+                    Status = fixedAssetDisposed.Status,
+                    Remarks = fixedAssetDisposed.Remarks,
+                    EmployeeId = fixedAssetDisposed.EmployeeId,
+                    Id = fixedAssetDisposed.Id,
+                    IsPark = true,
+                    DocDate = fixedAssetDisposed.DocDate
+                };
+                AuditService.UpdatedLog(fixedAssetDispose);
+                _fixedAssetRegisterDisposedRepository.Update(fixedAssetDispose);
+
+                foreach (var item in fixedAssetRegister)
+                {
+                    detailId++;
+                    var fixedAssetReg = _fixedAssetRegisterRepository.Find(item.FixedAssetRegisterId);
+
+                    fixedAssetReg.NegotiationValue = item.NegotiationValue;
+                    fixedAssetReg.BaseNagotiationValue = item.BaseNagotiationValue;
+                    fixedAssetReg.Status = fixedAssetDisposed.Status;
+                    fixedAssetReg.Remarks = fixedAssetDisposed.Remarks;
+                    _fixedAssetRegisterRepository.Update(fixedAssetReg);
+
+
+                    var fixedAssetDisposeDetail = new FixedAssetRegisterDisposedDetail
+                    {
+                        FixedAssetRegisterId = item.FixedAssetRegisterId,
+                        NegotiationValue = item.NegotiationValue,
+                        BaseNagotiationValue = item.BaseNagotiationValue,
+                        FixedAssetRegisterDisposedId = fixedAssetDispose.Id,
+                        Id = item.Id,
+                    };
+                    AuditService.UpdatedLog(fixedAssetDisposeDetail);
+                    _fixedAssetRegisterDisposedDetailRepository.Update(fixedAssetDisposeDetail);
+                }
+
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+                return fixedAssetDisposed.Remarks;
             }
             catch (CustomException)
             {
@@ -4381,8 +4449,8 @@ GROUP BY FAR.FABudgetMasterId
 
         #endregion
 
-        #region FixedAsset Sales
-        public string InsertFixedAssetScrap(string status, IEnumerable<FixedAssetRegister> fixedAssetRegister, string remarks)
+        #region FixedAsset Scrap and Theft
+        public string InsertFixedAssetScrap(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegister> fixedAssetRegister)
         {
             var flag = false;
             try
@@ -4396,10 +4464,11 @@ GROUP BY FAR.FABudgetMasterId
                 int detailId = 0;
                 var fixedAssetDispose = new FixedAssetRegisterDisposed
                 {
-                    Status = status,
-                    Remarks = remarks,
+                    Status = fixedAssetDisposed.Status,
+                    Remarks = fixedAssetDisposed.Remarks,
                     Id = "RD" + _id,
                     IsPark = true,
+                    DocDate = fixedAssetDisposed.DocDate
                 };
                 AuditService.AddedLog(fixedAssetDispose);
                 _fixedAssetRegisterDisposedRepository.Insert(fixedAssetDispose);
@@ -4409,16 +4478,17 @@ GROUP BY FAR.FABudgetMasterId
                     detailId++;
                     var fixedAssetReg = _fixedAssetRegisterRepository.Find(item.Id);
 
-                    fixedAssetReg.NegotiationValue = item.NegotiationValue;
-                    fixedAssetReg.Status = status;
-                    fixedAssetReg.Remarks = remarks;
+                    fixedAssetReg.NegotiationValue = 0;
+                    fixedAssetReg.BaseNagotiationValue = 0;
+                    fixedAssetReg.Status = fixedAssetDisposed.Status;
+                    fixedAssetReg.Remarks = fixedAssetDisposed.Remarks;
                     _fixedAssetRegisterRepository.Update(fixedAssetReg);
 
 
                     var fixedAssetDisposeDetail = new FixedAssetRegisterDisposedDetail
                     {
                         FixedAssetRegisterId = fixedAssetReg.Id,
-                        NegotiationValue = item.NegotiationValue,
+                        NegotiationValue = 0,
                         FixedAssetRegisterDisposedId = fixedAssetDispose.Id,
                         Id = "D" + fixedAssetDispose.Id + detailId,
                     };
@@ -4429,7 +4499,71 @@ GROUP BY FAR.FABudgetMasterId
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
-                return remarks;
+                return fixedAssetDisposed.Remarks;
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+        public string EditFixedAssetScrap(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegisterDisposedDetail> fixedAssetRegister)
+        {
+            var flag = false;
+            try
+            {
+
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                int detailId = 0;
+                var fixedAssetDispose = new FixedAssetRegisterDisposed
+                {
+                    Status = fixedAssetDisposed.Status,
+                    Remarks = fixedAssetDisposed.Remarks,
+                    Id = fixedAssetDisposed.Id,
+                    IsPark = true,
+                    DocDate = fixedAssetDisposed.DocDate
+                };
+                AuditService.UpdatedLog(fixedAssetDispose);
+                _fixedAssetRegisterDisposedRepository.Update(fixedAssetDispose);
+
+                foreach (var item in fixedAssetRegister)
+                {
+                    detailId++;
+                    var fixedAssetReg = _fixedAssetRegisterRepository.Find(item.FixedAssetRegisterId);
+
+                    fixedAssetReg.NegotiationValue = 0;
+                    fixedAssetReg.BaseNagotiationValue = 0;
+                    fixedAssetReg.Status = fixedAssetDisposed.Status;
+                    fixedAssetReg.Remarks = fixedAssetDisposed.Remarks;
+                    _fixedAssetRegisterRepository.Update(fixedAssetReg);
+
+
+                    var fixedAssetDisposeDetail = new FixedAssetRegisterDisposedDetail
+                    {
+                        FixedAssetRegisterId = item.FixedAssetRegisterId,
+                        NegotiationValue = 0,
+                        FixedAssetRegisterDisposedId = fixedAssetDispose.Id,
+                        Id = item.Id,
+                    };
+                    AuditService.UpdatedLog(fixedAssetDisposeDetail);
+                    _fixedAssetRegisterDisposedDetailRepository.Update(fixedAssetDisposeDetail);
+                }
+
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+                return fixedAssetDisposed.Remarks;
             }
             catch (CustomException)
             {

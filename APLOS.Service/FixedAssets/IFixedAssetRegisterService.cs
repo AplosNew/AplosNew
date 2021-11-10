@@ -108,10 +108,12 @@ namespace Library.Service.FixedAssets
         // List<Dictionary<string, object>> GetFixedAssetRegisterPopUpList(string column, string value, string companyId);
         //GridModel GetFixedAssetAccDepGL(GridParameter parameters, string companyId);
      
-        string InsertFixedAssetLost(string status, IEnumerable<FixedAssetRegister> fixedAssetRegister, string employeeId, string id);
+        string InsertFixedAssetLost(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegister> fixedAssetRegister);
         string InsertFixedAssetSales(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegister> fixedAssetRegister);
-        string InsertFixedAssetScrap(string status, IEnumerable<FixedAssetRegister> fixedAssetRegister, string remarks);
+        string InsertFixedAssetScrap(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegister> fixedAssetRegister);
+        string EditFixedAssetScrap(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegisterDisposedDetail> fixedAssetRegister);
 
         string EditFixedAssetSales(string status, FixedAssetRegisterDisposed disposeVM, IEnumerable<FixedAssetRegisterDisposedDetail> fixedAssetRegister);
+        string EditFixedAssetLost(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegisterDisposedDetail> fixedAssetRegister);
     }
 }
