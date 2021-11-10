@@ -136,6 +136,11 @@ function fixedAssetConfig($routeProvider, $locationProvider) {
             templateUrl: "FixedAssets/EntityFixedAssetsRegister/Aplos",
             controller: "entityFixedAssetsRegisterController"
         })
+
+        .when("/asset-wip-status", {
+            templateUrl: "FixedAssets/AssetWIPStatus/AssetWIPStatus",
+            controller: "AssetWIPStatusController"
+        })
     
 
         ;

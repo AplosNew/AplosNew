@@ -40,6 +40,11 @@ namespace Library.MaterialManagement.InventoryManagements
             { assetInvStatus = ""; }
             else if (Asset == "true") { assetInvStatus = "and IRD.IsAsset=1"; } else if (Inventory == "true") { assetInvStatus = "and IRD.IsAsset=0"; }else { assetInvStatus = "and IRD.IsAsset=0"; }
 
+            var assetIssuInvStatus = "";
+            if (Asset == "true" && Inventory == "true")
+            { assetIssuInvStatus = ""; }
+            else if (Asset == "true") { assetIssuInvStatus = "and IID.IsAsset=1"; } else if (Inventory == "true") { assetIssuInvStatus = "and IID.IsAsset=0"; } else { assetIssuInvStatus = "and IID.IsAsset=0"; }
+
             if (!string.IsNullOrEmpty(fromDate) && !string.IsNullOrEmpty(toDate))
             {
                 if (Country == "undefined" || Country == "null") Country = "false";
@@ -57,12 +62,12 @@ namespace Library.MaterialManagement.InventoryManagements
 							 ,ART.Id ArticleId		
 							, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue
 							, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
-							, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue ,MS.UserName MaterialStorageLocation	
+							, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue --,MS.UserName MaterialStorageLocation	
 							,TUoM.UserName UOM,  opbal.IsAsset
 							
                              --Opening Balance
-                            ,isnull(opbal.TransactionQty,0)- isnull(IFDOB.IssueQty,0)+isnull(PurchaseReturnOBData.Qty,0) As OpeningBalance	
-							,isnull(opbal.TotalMaterialBooksCurrencyAmount,0) - isnull(IFDOB.PolicyAmount,0) + isnull(PurchaseReturnOBData.PurchaseReturnAmount,0) AS OpeningBalanceAmount
+                            ,isnull(opbal.TransactionQty,0)- isnull(IFDOB.IssueQty,0)-isnull(PurchaseReturnOBData.Qty,0) As OpeningBalance	
+							,isnull(opbal.TotalMaterialBooksCurrencyAmount,0) - isnull(IFDOB.PolicyAmount,0) -isnull(PurchaseReturnOBData.PurchaseReturnAmount,0) AS OpeningBalanceAmount
 
 						    --Receive
 
@@ -101,8 +106,8 @@ namespace Library.MaterialManagement.InventoryManagements
 					        ,0 InventorySalesReturnForThePeriodAmount
 					
 							--Balance    
-							,(((((((isnull(opbal.TransactionQty,0)- isnull(IFDOB.IssueQty,0) + isnull(opbal2.TransactionQty,0))-isnull(IFD1.IssueQty,0)-isnull(PurchaseReturnData.Qty,0))-isnull(AdjustmentData.Qty,0))+isnull(IssueReturnData.Qty,0))-isnull(InventorySalesData.Qty,0))-isnull(InventoryScrapData.Qty,0))-isnull(InventoryTransferData.Qty,0)) Closing 
-							,(((((((isnull(opbal.TotalMaterialBooksCurrencyAmount,0) - isnull(IFDOB.PolicyAmount,0) + isnull(opbal2.TotalMaterialBooksCurrencyAmount,0))-isnull(IFD1.PolicyAmount,0)-isnull(AdjustmentData.AdjustmentAmount,0))-isnull(PurchaseReturnData.PurchaseReturnAmount,0))+isnull(IssueReturnData.IssueReturnAmount,0)-isnull(InventorySalesData.InventorySalesAmount,0))-isnull(InventoryScrapData.InventoryScrapAmount,0))-isnull(InventoryTransferData.InventoryTransferAmount,0))) ClosingAmount
+							,(((((((isnull(opbal.TransactionQty,0)- isnull(IFDOB.IssueQty,0)-isnull(PurchaseReturnOBData.Qty,0) + isnull(opbal2.TransactionQty,0))-isnull(IFD1.IssueQty,0)-isnull(PurchaseReturnData.Qty,0))-isnull(AdjustmentData.Qty,0))+isnull(IssueReturnData.Qty,0))-isnull(InventorySalesData.Qty,0))-isnull(InventoryScrapData.Qty,0))-isnull(InventoryTransferData.Qty,0)) Closing 
+							,(((((((isnull(opbal.TotalMaterialBooksCurrencyAmount,0) - isnull(IFDOB.PolicyAmount,0)- isnull(PurchaseReturnOBData.PurchaseReturnAmount,0) + isnull(opbal2.TotalMaterialBooksCurrencyAmount,0))-isnull(IFD1.PolicyAmount,0)-isnull(AdjustmentData.AdjustmentAmount,0))-isnull(PurchaseReturnData.PurchaseReturnAmount,0))+isnull(IssueReturnData.IssueReturnAmount,0)-isnull(InventorySalesData.InventorySalesAmount,0))-isnull(InventoryScrapData.InventoryScrapAmount,0))-isnull(InventoryTransferData.InventoryTransferAmount,0))) ClosingAmount
 
 
 						from TRN.InventoryMaterial AS IM
@@ -117,21 +122,25 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
 						LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
 						left join( 
-			                        SELECT IRD.InventoryMaterialId, IRD.MaterialStorageId,IRD.IsAsset,Sum(IRD.TransactionQty) AS TransactionQty, Sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
+			                        SELECT IRD.InventoryMaterialId--, IRD.MaterialStorageId
+                                    ,IRD.IsAsset,Sum(IRD.TransactionQty) AS TransactionQty, Sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
 			                        FROM [TRN].[InventoryReceiveDetail] IRD
 			                        LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
 			                        where convert(Date,IR.GRNDate) <= '" + fromDate + @"' AND IR.OpeningBalanceId IS NOT NULL  " + assetInvStatus + @"
-									group By IRD.InventoryMaterialId,IRD.MaterialStorageId,IRD.IsAsset
+									group By IRD.InventoryMaterialId--,IRD.MaterialStorageId
+                                    ,IRD.IsAsset
 			                        UNION ALL 
-									SELECT IRD.InventoryMaterialId, IRD.MaterialStorageId,IRD.IsAsset,Sum(IRD.TransactionQty) AS TransactionQty, Sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
+									SELECT IRD.InventoryMaterialId--, IRD.MaterialStorageId
+                                    ,IRD.IsAsset,Sum(IRD.TransactionQty) AS TransactionQty, Sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
 			                        FROM [TRN].[InventoryReceiveDetail] IRD
 			                        LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
 			                        where convert(Date,IR.GRNDate) < '" + fromDate + @"' AND isnull(IR.OpeningBalanceId,NULL) IS NULL  " + assetInvStatus + @" --MaterialMasterId='2447'
-									group By IRD.InventoryMaterialId,IRD.MaterialStorageId,IRD.IsAsset
+									group By IRD.InventoryMaterialId--,IRD.MaterialStorageId
+                                    ,IRD.IsAsset
 			                        
                                     ) AS opbal ON opbal.InventoryMaterialId=IM.Id AND IM.PlantId='" + plantId + @"' 
                         
-                        left join [HKP].[MaterialStorage] MS on ms.id=opbal.MaterialStorageId
+                        --left join [HKP].[MaterialStorage] MS on ms.id=opbal.MaterialStorageId
                         LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
                         left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id
 						
@@ -151,7 +160,7 @@ namespace Library.MaterialManagement.InventoryManagements
 									FROM TRN.InventoryIssueDetail IID  
 									LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId=II.Id	 
 									--LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryIssueDetailId=IID.Id
-								WHERE convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND  '" + toDate + @"' AND II.PlantId='" + plantId + @"' GROUP BY IID.InventoryMaterialId
+								WHERE convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND  '" + toDate + @"' " + assetIssuInvStatus + " AND II.PlantId='" + plantId + @"'  GROUP BY IID.InventoryMaterialId
 								) IFD1 On IFD1.InventoryMaterialId=IM.Id
 
                                --Issue OB
@@ -159,7 +168,7 @@ namespace Library.MaterialManagement.InventoryManagements
 									FROM TRN.InventoryIssueDetail IID  
 									LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId=II.Id	 
 									--LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryIssueDetailId=IID.Id
-								WHERE convert(Date,II.IssueDate) < '" + fromDate + @"' AND II.PlantId='" + plantId + @"' GROUP BY IID.InventoryMaterialId
+								WHERE convert(Date,II.IssueDate) < '" + fromDate + @"' " + assetIssuInvStatus + " AND II.PlantId='" + plantId + @"'  GROUP BY IID.InventoryMaterialId
 								) IFDOB On IFDOB.InventoryMaterialId=IM.Id
                        --Issue Return
                         Left join (select IH.InventoryMaterialId,sum(IH.Qty) Qty,sum(IRD.MaterialTranRate) MaterialTranRate, (sum(IH.Qty)*sum(IRD.MaterialTranRate)) IssueReturnAmount from trn.InventoryIssueReturnHistory IH
@@ -219,7 +228,7 @@ namespace Library.MaterialManagement.InventoryManagements
 									 WHERE convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND  '" + toDate + @"' AND IR.PlantId='" + plantId + @"'
 									 GROUP BY IRD.InventoryMaterialId
 								 )InventoryTransferData ON InventoryTransferData.InventoryMaterialId=IM.Id      
-                                 where   IM.PlantId='" + plantId + @"' AND MM.UserName is not null ) X where X.ClosingAmount>0 ";
+                                 where   IM.PlantId='" + plantId + @"' AND MM.UserName is not null ) X ";
 
                 }
                 #endregion
@@ -244,7 +253,7 @@ namespace Library.MaterialManagement.InventoryManagements
 							 ,ART.Id ArticleId		
 							, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue
 							, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
-							, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue ,MS.UserName MaterialStorageLocation	
+							, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue --,MS.UserName MaterialStorageLocation	
 							,TUoM.UserName UOM,  opbal.IsAsset
 							
                             --Opening Balance
@@ -300,15 +309,17 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
 						LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
 						left join( 
-			                        SELECT IRD.InventoryMaterialId, IRD.MaterialStorageId,IRD.IsAsset,Sum(IRD.TransactionQty) AS TransactionQty, Sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
+			                        SELECT IRD.InventoryMaterialId--, IRD.MaterialStorageId
+            ,IRD.IsAsset,Sum(IRD.TransactionQty) AS TransactionQty, Sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
 			                        FROM [TRN].[InventoryReceiveDetail] IRD
 			                        LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
 			                        where convert(Date,IR.GRNDate) <= '" + toDate + @"' AND IR.OpeningBalanceId IS NOT NULL  "+assetInvStatus+@"
-									group By IRD.InventoryMaterialId,IRD.MaterialStorageId,IRD.IsAsset
+									group By IRD.InventoryMaterialId--,IRD.MaterialStorageId
+                            ,IRD.IsAsset
 			                        
                                     ) AS opbal ON opbal.InventoryMaterialId=IM.Id AND IM.PlantId='" + plantId + @"' 
                         
-                        left join [HKP].[MaterialStorage] MS on ms.id=opbal.MaterialStorageId
+                       -- left join [HKP].[MaterialStorage] MS on ms.id=opbal.MaterialStorageId
                         LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
                         left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id
 
@@ -392,7 +403,7 @@ namespace Library.MaterialManagement.InventoryManagements
 									 WHERE convert(Date,IR.GRNDate) <= '" + toDate + @"' AND IR.PlantId='" + plantId + @"'
 									 GROUP BY IRD.InventoryMaterialId
 								 )InventoryTransferData ON InventoryTransferData.InventoryMaterialId=IM.Id      
-                                 where   IM.PlantId='" + plantId + @"' AND MM.UserName is not null ) X where X.ClosingAmount>0 ";
+                                 where   IM.PlantId='" + plantId + @"' AND MM.UserName is not null ) X";
 
                 }
                 

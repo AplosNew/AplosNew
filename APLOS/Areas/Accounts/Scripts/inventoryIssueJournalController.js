@@ -854,7 +854,7 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
     };
 
     $scope.isSet = function (tabNum) {
-        return $scope.tab === tabNum;
+        return $scope.tab === tabNum; 
     };
 
     $scope.delete = function (issueId, voucherId) {
@@ -879,7 +879,7 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
         }, function errorCallback(response) {
             ShowResult(response.status.Message, "failure");
         });
-        return true;
+        return true;  
     };
 
     $scope.issueId = null;
@@ -895,6 +895,6 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
     };
     $scope.downloadIssueExcel = function () {
         var reportFormat = "Excel";
-        location.href = "JobWork/OSIssueReturn/GetIIPrintReport?reportFormat=" + reportFormat + '&IssueId=' + $scope.modelNew.Id;
+        location.href = "Outsourcing/OSIssueReturn/GetIIPrintReport?reportFormat=" + reportFormat + '&IssueId=' + $scope.modelNew.Id;
     };
 } 
