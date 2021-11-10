@@ -343,6 +343,13 @@ namespace Library.Accounting.FixedAssets
                             EmployeeId = voucherVM.EmployeeId,
                             PartyId = voucherVM.PartyId,
                             PartyPlantId = voucherVM.PartyPlantId,
+                            //Remarks = voucherVM.Remarks,
+                            DeliveryPartyPlantId = voucherVM.DeliveryPartyPlantId,
+                            InvoicingByAddress = voucherVM.InvoicingByAddress,
+                            DeliveryByAddress = voucherVM.DeliveryByAddress,
+                            ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                            CurrencyId = voucherVM.CurrencyId,
+                            DocDate = voucherVM.DocDate,
                             AddedBy = item.AddedBy,
                             AddedDate = item.AddedDate,
                             AddedFromIP = item.AddedFromIP
