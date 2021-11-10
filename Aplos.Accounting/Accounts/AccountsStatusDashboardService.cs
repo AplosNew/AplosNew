@@ -7157,7 +7157,7 @@ x.ParticularName
 				group by FixedAssetRegisterId
 				) sar on sar.FixedAssetRegisterId=FAR.Id
                 
-				where DisposedVoucherId IS NULL
+				where DisposedVoucherId IS NULL AND FAR.Status IS NULL
                 GROUP BY FAR.MaterialMasterId, FAR.DisposedVoucherId,far.CompanyGroupId,FAR.CompanyId,FAR.PlantId
 				)FA ON FA.MaterialMasterId=M.Id
 
@@ -7224,7 +7224,7 @@ x.ParticularName
                 WHERE BP.BusinessProcessName = 'MachineDefinition') AS MBP ON MBP.MaterialMasterId = M.Id
 
                  WHERE M.IsAsset = 0 
-				  and FAR.CompanyGroupId = '" + companyGroupId + "'and FAR.CompanyId = '" + companyId + "' AND FAR.PlantId = '" + plantId + @"'
+				  and FAR.CompanyGroupId = '" + companyGroupId + "'and FAR.CompanyId = '" + companyId + "' AND FAR.PlantId = '" + plantId + @"' AND FAR.Status IS NULL
                 group by
                 T.Id ,T.UserName,MGM.Id,MGM.UserName
                 , M.Id,M.Code,M.ShortName, M.UserName
@@ -7480,7 +7480,7 @@ x.ParticularName
 				group by FixedAssetRegisterId
 				) sar on sar.FixedAssetRegisterId=FAR.Id
                 
-				where DisposedVoucherId IS NULL
+				where FAR.Status IS NULL
                 GROUP BY FAR.MaterialMasterId, FAR.DisposedVoucherId,far.CompanyGroupId,FAR.CompanyId,FAR.PlantId
 				)FA ON FA.MaterialMasterId=M.Id
 
@@ -9185,7 +9185,7 @@ union ALL
 				group by FixedAssetRegisterId
 				) sar on sar.FixedAssetRegisterId=FAR.Id
                 
-				where DisposedVoucherId IS NULL
+				where DisposedVoucherId IS NULL AND  FAR.Status IS NULL
                 GROUP BY FAR.MaterialMasterId, FAR.DisposedVoucherId,far.CompanyGroupId,FAR.CompanyId,FAR.PlantId,FAR.MaterialMasterArticleId
 				)FA ON FA.MaterialMasterId=M.Id and fa.MaterialMasterArticleId=mma.Id
 
@@ -9304,7 +9304,7 @@ union ALL
 				) sar on sar.FixedAssetRegisterId=FAR.Id 
 
                 
-				where FAR.DisposedVoucherId IS NULL 
+				where FAR.DisposedVoucherId IS NULL AND FAR.Status IS NULL
                 GROUP BY FAR.MaterialMasterId, FAR.DisposedVoucherId,far.CompanyGroupId,FAR.CompanyId,FAR.PlantId,FAR.MaterialMasterArticleId
 				)FA ON FA.MaterialMasterId=M.Id and fa.MaterialMasterArticleId =mma.Id 
 
@@ -9419,7 +9419,7 @@ union ALL
                 LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                 WHERE BP.BusinessProcessName = 'MachineDefinition') AS MBP ON MBP.MaterialMasterId = M.Id
 
-                 WHERE M.IsAsset = 0 
+                 WHERE M.IsAsset = 0 AND FAR.Status IS NULL
 				---- and FAR.CompanyGroupId = 'CG20171'and FAR.CompanyId = 'C20171' AND FAR.PlantId = '20171'
 				-- and M.IsAsset in ('','No','Yes') and MBP.BusinessProcessName in ('','Yes','No')
 				--  and M.Id in ('','76','84','86','96','71','82','103','74','186','97','75','79','1357','1354','1350','1355','1351','1352','1353','1349','1358','157','1356','1578','1603','123','126','548','462','1394','1396','1395','1397','697','1332','662','589','1104','908','1619','907','1618','1044','1056','1055','134','1034','1040','1041','1054','1058','1038','1048','1042','1035','1067','1043','1045','1980','1053','1507','137','927','1032','1057','1194','1324','806','1046','1047','1036','154','1037','1052','1039','1360','1361','1366','1370','1367','1364','1371','1362','1359','1373','1372','1365','1363','1369','1193','129','132','144','1097','1460','1068','1452','1459','1454','1070','689','1063','1392','1713','1466','163','1088','1444','1453','1071','698','694','811','1341','1310','1620','1608','1606','1616','1607','1065','1617','1605','1927','1308','1342','1346','1345','1344','1343','980','1321','1073','1080','1083','1077','1389','1704','1388','1074','1049','1099','1084','1470','1387','1085','1091','1090','940','1654','1126','1127','1722','1928','1131','1427','1642','1128','794','785','1233','1653','945','1142','1714','788','1650','1178','192','191','795','1144','1610','1135','1651','792','1086','181','787','94','1720','1644','1149','1137','963','1143','793','1668','783','1461','1671','1741','1652','1428','1736','1134','1737','1640','1368','803','1307','772','1112','1146','1064','1643','1641','1111','1147','1723','786','1859','1726','1727','1724','1721','1132','1123','784','1136','1739','782','1118','120','121','265','1599','1638','1601','1273','1497','95','1022','1851','1634','902','1738','1637','1021','1633','1600','702','1705','1715','700','1100','1101','690','1384','1393','1309','1381','1383','1382','1098','1122','1378','36','1937','48','45','570','1379','1019','35','46','1509','1510','1526','1531','1529','1522','1518','1525','1517','1516','1527','1534','1535','1533','1532','1523','1530','1528','1521','1514','1515','1511','1512','1513','1519','1524','1467','1549','136','593','139','1472','1508','1520','140','1547','1560','1629','1553','1543','1536','1542','1540','1541','1544','143','1485','1672','596','1538','1537','138','145','1552','1627','1709','850','1471','1554','1555','1550','1551','1548','1539','1546','1545','591','590','1561','1562','664','101','1563','51','918','80','1500','98','1197','MM-201822','100','1602','54','39','556','555','176','1130','1129','195','1504','1502','1050','1711','1505','174','1399','172','175','1119','1503','1204','1060','1203','583','1115','1114','1398','168','1403','1401','189','1402','177','90','625','1116','584','581','613','592','568','1501','164','171','621','1405','1577','1061','1569','1094','178','1202','614','612','1860','1095','582','1113','160','1404','158','159','1059','114','104','564','68','1282','105','1287','87','92','1291','558','552','1027','89','1290','65','62','559','917','565','69','60','571','66','111','1288','88','55','1289','560','63','99','MM-201812','67','574','85','109','167','845','110','569','106','57','1499','59','563','575','576','1286','56','1301','53','561','116','107','MM-201811','557','49','93','553','572','91','165','1302','1303','61','1285','102','72','562','1284','58','52','117','166','MM-201817','550','MM-20185','MM-201813','108','77','113','MM-20184','551','70','549','554','MM-20186','64','50','1347','78','73','112','1295','1484','1252','1268','1254','1265','1257','577','1266','1256','1487','1117','1249','1251','1488','1255','1253','1306','578','1489','1490','1483','1267','1486','1250','579','1248','1626','1331','1330','1623','1625','1328','1803','1622','1339','1877','1621','1329','1338','1572','1576','148','146','1493','1556','580','1066','317','1930','1934','1082','1087','701','1673','1092','983','1465','1096','1340','1075','1076','1380','1031','1719','1079','1078','1390','1712','693','1089','1081','1611','155','1323','156','153','1433','1598','152','1437','1628','147','1614','1568','151','1476','1765','1475','1436','1440','1612') 
@@ -10274,6 +10274,7 @@ union ALL
 	                            LEFT JOIN TRN.InventoryIssueHistory IIH ON IIH.Id=FRD.InventoryIssueHistoryId
 	                            LEFT JOIN TRN.VoucherDetail VD ON VD.Id=IIH.CapitalizeVoucherDetailId
 	                            LEFT JOIN TRN.Voucher V ON V.Id=VD.VoucherId
+                                WHERE  FR.Status IS NULL
 								)
 								X
 
