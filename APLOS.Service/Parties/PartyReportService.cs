@@ -3880,7 +3880,8 @@ namespace Library.Service.Parties
 
                             WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + @"' 
 							AND V.PlantId='" + plantId + "' AND VD.PartyId='" + partyId + "' AND V.PostingDate BETWEEN '" + fromDate + "' AND '" + toDate + @"'
-                            AND V.SourceType<>'OpeningBalance' 
+                            --AND V.SourceType<>'OpeningBalance' 
+                            AND V.SourceType NOT IN ('OpeningBalance','VendorAdvanceWriteOff')
                             --AND VD.PartyPlantId='201924801' 
 
 							-- GROUP BY V.PostingDate, V.VoucherNo, V.VoucherDate
@@ -4189,8 +4190,9 @@ namespace Library.Service.Parties
                             ) AS CC ON CC.VoucherDetailId=VD.Id
 
                             WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='"+companyGroupId+"' AND V.CompanyId='"+companyId+@"' 
-							AND V.PlantId='"+plantId+"' AND VD.PartyId='"+partyId+"' AND V.PostingDate BETWEEN '"+fromDate+"' AND '"+toDate+@"'
-                            AND V.SourceType<>'OpeningBalance' 
+							AND V.PlantId='"+plantId+"' AND VD.PartyId='"+partyId+"' AND V.PostingDate BETWEEN '"+fromDate+"' AND '"+toDate+ @"'
+                            --AND V.SourceType<>'OpeningBalance' 
+                            AND V.SourceType NOT IN ('OpeningBalance','VendorAdvanceWriteOff')
                             --AND VD.PartyPlantId='201924801' 
 
 							-- GROUP BY V.PostingDate, V.VoucherNo, V.VoucherDate
