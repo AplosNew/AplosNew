@@ -166,7 +166,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
         Ref1Name: null,
         ApprovalAuthorityId: null,
         TransportGroupId: null,
-        ResidenceGroupId:null
+        ResidenceGroupId: null
     };
     $scope.employeeNew = Object.assign({}, $scope.model);
     $scope.employeeInformation = Object.assign({}, $scope.model);
@@ -190,16 +190,38 @@ function employeeInformationController(addressService, fileReader, cboService, c
     $scope.TransportGroupCbo();
 
     $scope.AddNewEmpPopUp = function () {
-        $scope.Clean();
-        angular.element(document.querySelector('#NewEmpEntryPopUp')).modal('show');
-
-        //$("#NewEmpEntryPopUp").ejDialog("setTitle", "Add Employee Information");
-        //var eDialog = $("#NewEmpEntryPopUp").data("ejDialog");
-        //eDialog.open();
+        try {
+            if (!baseService.isUndefinedOrNull($scope.employeeNew.EmploymentType)) {
+                $scope.EmploymentType = $scope.employeeNew.EmploymentType;
+                $scope.Clean();
+                $scope.employeeNew.EmploymentType = $scope.EmploymentType;
+                angular.element(document.querySelector('#NewEmpEntryPopUp')).modal('show');
+                $scope.ShowVendorCtrl();
+                //$http({
+                //    method: 'GET',
+                //    url: 'Employees/EmployeeInformation/GetEmpCodeGenSetting?EmploymentType=' + $scope.employeeNew.EmploymentType
+                //}).then(function successCallback(response) {
+                //    if (baseService.arrayLength(response.data)==0) {
+                //        ShowResult("Employee Code Generation Setting is not defined.", 'failure');
+                //    } else {
+                //        $scope.IsEmployeeCodeOpenField = response.data[0].IsEmployeeCodeOpenField;
+                        
+                        
+                //    }
+                //})
+                
+            } else {
+                throw "Select Employment Type.";
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     }
 
     $scope.CloseNewEmpPopUp = function () {
+        $scope.EmploymentType = $scope.employeeNew.EmploymentType;
         $scope.Clean();
+        $scope.employeeNew.EmploymentType = $scope.EmploymentType;
         angular.element(document.querySelector('#NewEmpEntryPopUp')).modal('hide');
         $scope.ShowVendor = false;
         $scope.ShowEVendor = false;
@@ -207,6 +229,8 @@ function employeeInformationController(addressService, fileReader, cboService, c
         //var eDialog = $("#NewEmpEntryPopUp").data("ejDialog");
         //eDialog.close();
     }
+
+   
 
     $scope.CheckDuplicateEmployeeCode = function () {
         $http({
@@ -406,7 +430,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
         $scope.employeeNew.SubSectionId = data.SubSectionId;
         $scope.employeeNew.SubdivisionID = data.SubdivisionID;
         $scope.employeeNew.LineId = data.LineId;
-        $scope.employeeNew.EmploymentType = data.EmploymentType;
+       // $scope.employeeNew.EmploymentType = data.EmploymentType;
         $scope.employeeNew.PositionID = data.PositionId;
         $scope.employeeNew.IsDirect = data.IsDirect;
 
@@ -551,7 +575,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
                 $scope.employeeInformation.GivenDesignationId = response.data[0].Value;
                 $scope.employeeInformation.GivenDesignation = response.data[0].Text;
             }
-            
+
         })
         $scope.GetInActiveLegalDesignaion(legalDesignationId);
     };
@@ -643,9 +667,9 @@ function employeeInformationController(addressService, fileReader, cboService, c
                 if (!baseService.isUndefinedOrNull($scope.LocalLabel.LandLabel)) $scope.LandLabel = $scope.LocalLabel.LandLabel; else $scope.LandLabel = "Land";
                 if (!baseService.isUndefinedOrNull($scope.LocalLabel.MobileNoLabel)) $scope.MobileNoLabel = $scope.LocalLabel.MobileNoLabel; else $scope.MobileNoLabel = "MobileNo";
                 if (!baseService.isUndefinedOrNull($scope.LocalLabel.MobileNoLabel)) $scope.MobileNoLabel = $scope.LocalLabel.MobileNoLabel; else $scope.MobileNoLabel = "MobileNo";
-                
-                
-               // $scope.PAddressLabel = $scope.LocalLabel.PAddressLabel;
+
+
+                // $scope.PAddressLabel = $scope.LocalLabel.PAddressLabel;
                 //$scope.OperationSetting = $scope.LocalLabel.OperationSetting;
 
             });
@@ -1013,7 +1037,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
         $scope.approved = "";
 
         $scope.employeeInformation = obj.data;
-        $scope.imageSrc = virtualPath.EmployeePic + $scope.employeeInformation.EmpPicPath;       
+        $scope.imageSrc = virtualPath.EmployeePic + $scope.employeeInformation.EmpPicPath;
         $scope.EmpSignature = virtualPath.CardHolderSignature + $scope.employeeInformation.EmpSignature;
         $rootScope.img = $scope.employeeInformation.EmpPicPath;
         $scope.user = $scope.employeeInformation.SystemId;
@@ -1639,7 +1663,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
             $http({
                 method: 'POST',
                 url: $scope.saveNewUrl,
-                data: { 'entity': $scope.employeeNew, 'EmployeeCodeCheckLevel': $scope.EmployeeCodeCheckLevel, 'empRef': $scope.empReferenceInformation, 'OT': $scope.NonEligibleOTChild},
+                data: { 'entity': $scope.employeeNew, 'EmployeeCodeCheckLevel': $scope.EmployeeCodeCheckLevel, 'empRef': $scope.empReferenceInformation, 'OT': $scope.NonEligibleOTChild },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -1664,7 +1688,10 @@ function employeeInformationController(addressService, fileReader, cboService, c
 
     function ClearEmpFields() {
         $scope.employeeInformation = {};
+        $scope.EmploymentType = $scope.employeeNew.EmploymentType;
         $scope.employeeNew = {};
+        $scope.Clean();
+        $scope.employeeNew.EmploymentType = $scope.EmploymentType;
         $scope.ShowEVendor = false;
         $scope.ShowVendor = false;
         $scope.EmployeeCodeCheckLevel = null;
@@ -3716,7 +3743,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
 
     }
     $scope.uploadUrl = "Employees/EmployeeInformation/SaveSignature";
-    
+
 
     $scope.getFileList = function () {
         $http({
@@ -3882,7 +3909,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
         angular.element(document.querySelector('#employeePopUp')).modal('hide');
     }
 
-    
+
 
 
     //Line no - 518 : GetGivenDesignationByLegalDesignaiton

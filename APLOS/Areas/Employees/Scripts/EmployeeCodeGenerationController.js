@@ -81,9 +81,23 @@ function EmployeeCodeGenerationController(cboService, commonMessage, $scope, $ro
     $scope.ChangeEmployeeCodeOpenField = function () {
         if ($scope.ModelNew.IsEmployeeCodeOpenField == true) {
             $scope.ModelNew.EmpCodeGenType = null;
-            $scope.ModelNew.EmpCodeStartValue = null;
+            $scope.ModelNew.EmpCodeStartValue = 0;
             $scope.ModelNew.Prefix = null;
             $scope.ModelNew.IsAutoEmpCodeWithPrefix = false;
+        }
+    };
+
+    $scope.ChangeEmpCodeGenType = function () {
+        if ($scope.ModelNew.EmpCodeGenType != 'AutoIncrement') {
+            $scope.ModelNew.EmpCodeStartValue = 0;
+            $scope.ModelNew.Prefix = null;
+            $scope.ModelNew.IsAutoEmpCodeWithPrefix = false;
+        }
+    };
+
+    $scope.ChangeAutoEmpCodeWithPrefix = function () {
+        if ($scope.ModelNew.IsAutoEmpCodeWithPrefix == false) {
+            $scope.ModelNew.Prefix = null;
         }
     };
 

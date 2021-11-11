@@ -4,6 +4,7 @@ using System.Linq;
 using System.Data;
 using Library.Data.Sql;
 using OTSBD;
+using Library.HumanResource.NewAttendanceProcess;
 
 namespace Library.Service.EmployeeServices
 {
@@ -354,6 +355,57 @@ namespace Library.Service.EmployeeServices
             }
         }
 
+        public string SaveManualOT(IEnumerable<AttendanceProcessNewProcess> DataToSave)
+        {
+            try
+            {
+                int i = 0;
+                DataSet ManualOTData;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+               
+                List<AttendanceProcessNewProcess> items = DataToSave.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from dbo.AttdnProcessData where RowId='"+items[0].RowId+"'", out ManualOTData, false, "1");
+
+                if (ManualOTData.Tables[0].Rows.Count > 0)
+                {
+                    ManualOTData.Tables[0].Rows[0].BeginEdit();
+                    ManualOTData.Tables[0].Rows[0]["ManualOt"] = items[0].ManualOt;
+                    ManualOTData.Tables[0].Rows[0]["IsLock"] = false;
+                    ManualOTData.Tables[0].Rows[0]["LockedBy"] = DBNull.Value;
+                    ManualOTData.Tables[0].Rows[0]["LockedDate"] = DBNull.Value;
+                    ManualOTData.Tables[0].Rows[0]["ManualByWhom"] = items[0].AddedBy;
+                    ManualOTData.Tables[0].Rows[0]["ManualEntryTime"] = DateTime.Now;
+                    ManualOTData.Tables[0].Rows[0]["ManualFlag"] = true;
+                    ManualOTData.Tables[0].Rows[0]["OTComfirmBy"] = DBNull.Value;
+                    ManualOTData.Tables[0].Rows[0]["DateOTComfirm"] = DBNull.Value;
+                    ManualOTData.Tables[0].Rows[0]["IsOTComfirm"] = false;
+                    ManualOTData.Tables[0].Rows[0].EndEdit();
+                    i = 1;
+
+                }
+
+
+                clsStaticInfo info = new clsStaticInfo();
+                info.SaveDataSets(ManualOTData);
+                if (i == 1)
+                {
+                    return "true";
+                }
+                else
+                {
+                    return "false";
+                }
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
+
 
         public string Createx(IEnumerable<EmployeeInformationViewModel> DataToSave)
         {
@@ -580,6 +632,7 @@ namespace Library.Service.EmployeeServices
                 throw ex;
             }
         }
+        
         public IEnumerable<object> GetDepartment()
         {
             try
@@ -692,12 +745,12 @@ namespace Library.Service.EmployeeServices
         {
             try
             {
-                var sql = @"select distinct p.ShiftSystemID as ShiftId,p.InTime,p.DayStatus,e.EmployeeName,
-                p.OutTime,d.UserName as Shift,OTHr as OTHour,t.Category from dbo.AttdnProcessData p
+                var sql = @"select distinct p.ShiftSystemID as ShiftId,p.InTime,p.DayStatus,e.EmployeeName,p.RowId,
+                p.OutTime,d.UserName as Shift,ProcessedOT as OTHour,t.Category from dbo.AttdnProcessData p
                 left join dbo.ShiftDefination d on d.SystemID=p.ShiftSystemID
-				 left join DayType t on t.DayType=p.DayStatus
-				 left join dbo.EmployeeInformation e on e.SystemId=p.EmpSystemID
-                where  EmpSystemID='"+EmpId+"' and WorkDate='"+Date+"'";
+				left join DayType t on t.DayType=p.DayStatus
+				left join dbo.EmployeeInformation e on e.SystemId=p.EmpSystemID
+                where EmpSystemID='"+EmpId+"' and WorkDate='"+Date+"'";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)

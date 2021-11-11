@@ -1008,6 +1008,13 @@ namespace Aplos.Areas.FixedAssets.Controllers
             FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
             return Json(_fixedAssetQueryService.GetFixedAssetScrapSingleJVList(fixedAssetDisposeId, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);//, new JavaScriptSerializer().Deserialize<string[]>(ids)
         }
+        [HttpPost, Authorize]
+        public ActionResult GetFixedAssetTheftSingleJVList(string fixedAssetDisposeId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            return Json(_fixedAssetQueryService.GetFixedAssetTheftSingleJVList(fixedAssetDisposeId, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);//, new JavaScriptSerializer().Deserialize<string[]>(ids)
+        }
 
         [Authorize, HttpPost]
         public ActionResult GetFixedAssetDisposePostedList(string column, string value, string companyId)
@@ -1033,7 +1040,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
             _fixedAssetDisposeService.InsertFixedAssetDisposeSalesPosting(voucherVM, voucherDetailVMList, farDisposeDetailList, advanceSalarySchedulelist);
 
             }
-            else if (voucherVM.Status == "Scrap")
+            else 
             {
                 _fixedAssetDisposeService.InsertFixedAssetDisposeScrapPosting(voucherVM, voucherDetailVMList, farDisposeDetailList, advanceSalarySchedulelist);
 

@@ -18,23 +18,29 @@
         <legend class="scheduler-border">General Info</legend>
         <div class="col-xs-12 col-sm-4 col-md-4">
             <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Disposal Type<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Disposal Type" ng-model="voucher.Status"  class="form-control" readonly >
+                </div>
+            </div>
+            <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Entry Date<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <input type="text" name="Entry Date" ng-model="voucher.VoucherDate" datepicker class="form-control" disabled required>
                 </div>
             </div>
-            <div class="form-group" show-errors>
+            <div class="form-group" show-errors ng-show="voucher.Status=='Sales'">
                 <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
                 <div class="col-sm-5 show-message" style="padding-right:0px;">
                     <div class="select-style">
-                        <select id="currencyTransactionId" readonly class="form-control" name="CurrencyTransaction" ng-model="voucher.CurrencyId" ng-change="GetCurrencyExchangeRateList();" required>
-                            <option value="" >--Select--</option>
+                        <select id="currencyTransactionId" readonly class="form-control" name="CurrencyTransaction" ng-model="voucher.CurrencyId" ng-change="GetCurrencyExchangeRateList();" >
+                            <option value="">--Select--</option>
                             <option ng-repeat="option in tranCurrencyList" value="{{option.Value}}">{{option.Text}}</option>
                         </select>
                     </div>
                 </div>
                 <div class="col-sm-3 show-message" style="padding-left:0px;">
-                    <input type="text" maxlength="50" id="Rate" readonly name="Rate" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" autocomplete="off" required ng-disabled="baseCurrencyId==voucher.CurrencyId">
+                    <input type="text" maxlength="50" id="Rate" readonly name="Rate" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" autocomplete="off"  ng-disabled="baseCurrencyId==voucher.CurrencyId">
                 </div>
             </div>
 
@@ -43,24 +49,24 @@
                 <label class="col-sm-3 control-label">Payment Term<sup>*</sup></label>
                 <div class="col-sm-3 show-message">
                     <div class="select-style">
-                        <select tabindex="10"  id="paymentTermId" class="form-control" name="Payment Term" ng-model="voucher.PaymentTermId" ng-change="changePaymentTerm(voucher.PaymentTermId);">
+                        <select tabindex="10" id="paymentTermId" class="form-control" name="Payment Term" ng-model="voucher.PaymentTermId" ng-change="changePaymentTerm(voucher.PaymentTermId);">
                             <option ng-repeat="option in paymentTermList" value="{{option.Value}}">{{option.Text}}</option>
                         </select>
                     </div>
                 </div>
                 <label class="col-sm-3 control-label">Due Date BaseOn<sup>*</sup></label>
                 <div class="col-sm-3 show-message">
-                    <input type="text" name="BaseOnDueDate" ng-model="voucher.BaseOnDueDate" ng-change="getMatureDate(voucher.BaseOnDueDate,voucher.BaseNoOfDays)" datepicker class="form-control datepicker" tabindex="11" >
+                    <input type="text" name="BaseOnDueDate" ng-model="voucher.BaseOnDueDate" ng-change="getMatureDate(voucher.BaseOnDueDate,voucher.BaseNoOfDays)" datepicker class="form-control datepicker" tabindex="11">
                 </div>
             </div>
             <div class="form-group" show-errors ng-show="voucher.Status=='Sales'">
                 <label class="col-sm-3 control-label">No Of Days</label>
                 <div class="col-sm-3 show-message">
-                    <input id="baseNoOfday" type="number" name="No Of Days" ng-model="voucher.BaseNoOfDays" ng-change="getMatureDate(voucher.BaseOnDueDate, voucher.BaseNoOfDays)" class="form-control" tabindex="12" >
+                    <input id="baseNoOfday" type="number" name="No Of Days" ng-model="voucher.BaseNoOfDays" ng-change="getMatureDate(voucher.BaseOnDueDate, voucher.BaseNoOfDays)" class="form-control" tabindex="12">
                 </div>
                 <label class="col-sm-3 control-label">Mature Date</label>
                 <div class="col-sm-3 show-message">
-                    <input type="text" name="Mature Date" ng-model="voucher.MatureDate" class="form-control" readonly >
+                    <input type="text" name="Mature Date" ng-model="voucher.MatureDate" class="form-control" readonly>
                 </div>
             </div>
 
@@ -158,8 +164,8 @@
                             <th style="width:100px">Total Base Amount</th>
                             <th class="text-center">Depreciation</th>
                             <th class="text-center">Net Base Amount</th>
-                            <th class="text-center">Negotiation</th>
-                            <th class="text-center">Base Negotiation</th>
+                            <th class="text-center" ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'">Negotiation</th>
+                            <th class="text-center" ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'">Base Negotiation</th>
                             <th>Vendor</th>
                             <th>Invoice No</th>
                             @*<th class="text-center">Trn Currency</th>*@
@@ -181,8 +187,8 @@
                             <td><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="PurchasePrice" ng-model="x.PurchaseBaseAmount " n-decimals="2"></td>
                             <td><input type="text" class="form-control text-right" ng-disabled="true" id="ADBaseAmount" ng-model="x.ADBaseAmount " n-decimals="2"></td>
                             <td><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="NetBookValue" ng-model="x.NetBaseBookValue " n-decimals="2"></td>
-                            <td><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="NegotiationValue" ng-disabled="voucher.Status == 'Scrap'" ng-model="x.NegotiationValue " n-decimals="2"></td>
-                            <td><input type="text" class="form-control text-right" ng-disabled="true" id="BaseNagotiationValue" ng-model="x.BaseNagotiationValue " n-decimals="2"></td>
+                            <td ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'"><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="NegotiationValue" ng-disabled="voucher.Status == 'Scrap'" ng-model="x.NegotiationValue " n-decimals="2"></td>
+                            <td ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'"><input type="text" class="form-control text-right" ng-disabled="true" id="BaseNagotiationValue" ng-model="x.BaseNagotiationValue " n-decimals="2"></td>
                             <td>{{x.Vendor}}</td>
                             <td>{{x.InvoiceNo}}</td>
                             @*<td>{{x.TrnCurrency}}</td>*@
@@ -198,8 +204,8 @@
                             <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'PurchaseBaseAmount' }}</b></td>
                             <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'ADBaseAmount' }}</b></td>
                             <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'NetBaseBookValue' }}</b></td>
-                            <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'NegotiationValue' }}</b></td>
-                            <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'BaseNagotiationValue' }}</b></td>
+                            <td class="text-right" ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'NegotiationValue' }}</b></td>
+                            <td class="text-right" ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'BaseNagotiationValue' }}</b></td>
                         </tr>
                     </tfoot>
                 </table>
@@ -383,16 +389,16 @@
             <div e-column e-field="CustomerName" e-headertext="Customer" e-width="120"></div>
             <div e-column e-field="TrnCurrency" e-headertext="Currency" e-width="60"></div>
             @*<div e-column e-field="BaseCurrency" e-headertext="Base Currency" e-width="60"></div>*@
-            <div e-column e-field="NegotiationValue" e-headertext="Negotiation" e-width="80"></div>
-            <div e-column e-field="NagotiationBooksValue" e-headertext="Base Negotiation" e-width="80"></div>
+            <div e-column e-field="NegotiationValue" e-headertext="Negotiation Amount" e-width="80"></div>
+            @*<div e-column e-field="NagotiationBooksValue" e-headertext="Base Negotiation" e-width="80"></div>*@
 
             @*<div e-column e-field="FABaseAmount" e-headertext="FABaseAmount" e-width="80"></div>
             <div e-column e-field="SubAssetBaseAmount" e-headertext="Sub Base Amount" e-width="80"></div>
             <div e-column e-field="PurchaseBaseAmount" e-headertext="Total Base Amount" e-width="80"></div>
             <div e-column e-field="ADBaseAmount" e-headertext="Depreciation" e-width="80"></div>
             <div e-column e-field="NetBaseBookValue" e-headertext="Net Base Amount" e-width="80"></div>*@
-            <div e-column e-field="NetBookValue" e-headertext="Net Amount" e-width="80"></div>
-            <div e-column e-field="IsPark" e-headertext="Status" e-width="40"></div>
+            @*<div e-column e-field="NetBookValue" e-headertext="Net Amount" e-width="80"></div>*@
+            @*<div e-column e-field="IsPark" e-headertext="Status" e-width="40"></div>*@
             <div e-column e-template="#ShowActionButtonsassigned" e-headertext="PDF&Excel" e-width="70"></div>
             @*<div e-column e-headertext="PDF" e-commands="commandPDF" e-isunbound=true e-textalign="center" e-width="60"></div>
         <div e-column e-headertext="Excel" e-commands="commandExcel" e-isunbound=true e-textalign="left" e-width="60"></div>*@
@@ -401,7 +407,20 @@
 
     <script type="text/ng-template" id="ShowActionButtonsassigned">
         <div class="common-btn">
-            <ul class="list-inline text-right small">
+            <ul class="common-btn list-inline text-left">
+                <li>
+                    <div ej-tooltip e-showshadow="true" e-content="Excel" ng-click="$parent.onClickReportDownloadExcel(data);" e-width="width">
+                        <button class="btn" style="background-color: #1c1f32;"><i class="fa fa-file-excel-o"></i></button>
+                    </div>
+                </li>
+                <li>
+                    <div ej-tooltip e-showshadow="true" e-content="Pdf" ng-click="$parent.onClickReportDownloadWord(data);" e-width="width">
+                        <button class="btn" style="background-color: #1c1f32;"><i class="fa fa-file-pdf-o"></i></button>
+                    </div>
+                </li>
+
+            </ul>
+            @*<ul class="list-inline text-left small">
                 <li>
                     <button ng-click="$parent.onClickReportDownloadWord(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
                         <i class="glyphicon glyphicon-minus-sign" style="color:orangered;"></i>
@@ -410,13 +429,9 @@
                 <li>
                     <button ng-click="$parent.onClickReportDownloadExcel(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
                         <i class="glyphicon glyphicon-play" style="color:{{data.HasBOQ==true?'#00ff00':'orange'}}"></i>
-                    </button>
-
-                    @*<button ng-click="$parent.AttachmentBOMProcess(data.MasterOrderItemId);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
-                        <i class="glyphicon glyphicon-play" style="color:{{data.HasBOQ==true?'#00ff00':'orange'}}"></i>
-                    </button>*@
+                    </button> 
                 </li>
-            </ul>
+            </ul>*@
         </div>
     </script>
 </div>
@@ -469,8 +484,8 @@
                                 <div e-column e-field="SubAssetBaseAmount" e-headertext="SubAssetBaseAmount" e-width="80"></div>
                                 <div e-column e-field="PurchaseBaseAmount" e-headertext="Total Base Amount" e-width="80"></div>
                                 <div e-column e-field="ADBaseAmount" e-headertext="Depreciation" e-width="80"></div>*@
-                                <div e-column e-field="NegotiationValue" e-headertext="Negotiation" e-width="80"></div>
-                                <div e-column e-field="NetBaseBookValue" e-headertext="Net Base Amount" e-width="80"></div>
+                                <div e-column e-field="NegotiationValue" e-headertext="Negotiation Amount" e-width="80"></div>
+                                @*<div e-column e-field="NetBaseBookValue" e-headertext="Net Base Amount" e-width="80"></div>*@
                                 @*<div e-column e-field="NetBaseBookValue" e-headertext="NetBaseBookValue" e-width="80"></div>*@
                                 
                                 @*<div e-column e-field="IsPark" e-headertext="Status" e-width="40"></div>*@
