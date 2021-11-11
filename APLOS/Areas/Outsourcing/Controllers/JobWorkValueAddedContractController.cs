@@ -2460,6 +2460,18 @@ namespace Aplos.Areas.Outsourcing.Controllers
 
             report.SetHeaderText(ref sheet, ROW, COL, "Remarks", 10, ExcelHAlign.HAlignLeft);
             int ColVCCRemarks = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Base UoM", 10, ExcelHAlign.HAlignLeft);
+            int ColIssueBaseUoM = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Issue Qty", 8, ExcelHAlign.HAlignLeft);
+            int ColIssuedQty = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Amount BC", 10, ExcelHAlign.HAlignLeft);
+            int ColAmtBDT = COL;
             ROW++;
             endCol = COL;
             #endregion Headers
@@ -2553,6 +2565,10 @@ namespace Aplos.Areas.Outsourcing.Controllers
                 sheet[ROW, ColEmployeeName].Text = data.Rows[i]["EmployeeName"].ToString();
                 sheet[ROW, ColVCCRemarks].Text = data.Rows[i]["TCCRemarks"].ToString();
                 sheet[ROW, ColOutputMaterialType].Text = data.Rows[i]["OutputMaterialType"].ToString();
+
+                sheet[ROW, ColIssueBaseUoM].Text = data.Rows[i]["IssueBaseUoM"].ToString();
+                sheet[ROW, ColIssuedQty].Number = Math.Round(clsStaticInfo.dbl(data.Rows[i]["IssuedQty"].ToString()), 2);
+                sheet[ROW, ColAmtBDT].Number = Math.Round(clsStaticInfo.dbl(data.Rows[i]["AmtBDT"].ToString()), 2);
 
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -2709,6 +2725,7 @@ namespace Aplos.Areas.Outsourcing.Controllers
 								--	, mi.TotalGrossConsumptionPerUnit, TotalGrossInputQuantity=(mi.TotalGrossConsumptionPerUnit * tcc.Quantity)
 									--, Amount= case when tcc.RateApplyId='Output' then (tcc.Quantity * tcc.RatePerUnit) else ((mi.TotalGrossConsumptionPerUnit * tcc.Quantity) * tcc.RatePerUnit) End
                                     , Amount= round((tcc.Quantity * tcc.RatePerUnit),2)
+                                    ,round(ISNULL(BA.IssuedQty,'0'),2) IssuedQty, round(ISNULL(BA.AmountBDT,'0'),2) AmtBDT, BA.BaseUoM as IssueBaseUoM
                                     from dbo.OSTransformationPO tc left join ORG.Entity e on e.Id=tc.EntityId
 									left join ORG.Plant Pnt on Pnt.Id=tc.PlantId
 									left join HKP.Party p on p.Id=tc.PartyId
@@ -2722,6 +2739,12 @@ namespace Aplos.Areas.Outsourcing.Controllers
                                     left join SCS.Currency cc on cc.Id=tc.CurrencyId
 									left join dbo.EmployeeInformation emp on emp.SystemId=tcc.ResponsiblePersonId
 									left join HKP.MaterialStorage MS on MS.Id=tcc.MaterialLocationId	
+                                    left join (select SUM(IIH.Qty) as IssuedQty, Sum(IIH.TotalMaterialBooksCurrencyAmount) AmountBDT, IM.ArticleId, IID.InventoryMaterialId
+													,BUom.UserName as BaseUoM
+													from TRN.InventoryIssueDetail IID left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
+													left join TRN.InventoryMaterial IM on IM.Id=IID.InventoryMaterialId
+													left join SCS.UnitOfMeasurement BUom on BUom.Id=IID.BaseUOMId
+													group by IM.ArticleId,IID.InventoryMaterialId,BUom.UserName) BA on BA.ArticleId=tcc.ArticleId
                                     where tc.Id = '" + PrintTabId + @"' ";
 
             return _sqlRepository.GetDataTable(sql);
@@ -3285,7 +3308,22 @@ namespace Aplos.Areas.Outsourcing.Controllers
 
             report.SetHeaderText(ref sheet, MIChildROW, MIChildCOL, "Remarks", 12, ExcelHAlign.HAlignLeft);
             int ColMIRemarks = MIChildCOL;
+            MIChildCOL++;
+
+            report.SetHeaderText(ref sheet, MIChildROW, MIChildCOL, "Base UoM", 12, ExcelHAlign.HAlignLeft);
+            int ColIssueBaseUoM = MIChildCOL;
+            MIChildCOL++;
+
+            report.SetHeaderText(ref sheet, MIChildROW, MIChildCOL, "Issue Qty", 15, ExcelHAlign.HAlignLeft);
+            int ColIssuedQty = MIChildCOL;
+            MIChildCOL++;
+
+            report.SetHeaderText(ref sheet, MIChildROW, MIChildCOL, "Amount BC", 12, ExcelHAlign.HAlignLeft);
+            int ColAmtBDT = MIChildCOL;
             MIChildROW++;
+
+
+
             MIChildendCol = MIChildCOL;
             #endregion Headers
 
@@ -3327,6 +3365,10 @@ namespace Aplos.Areas.Outsourcing.Controllers
                 sheet[MIChildROW, ColMIEmployeeCode].Text = MaterialInputChilddata.Rows[i]["EmployeeCode"].ToString();
                 sheet[MIChildROW, ColResponsiblePerson].Text = MaterialInputChilddata.Rows[i]["ResponsiblePerson"].ToString();
                 sheet[MIChildROW, ColMIRemarks].Text = MaterialInputChilddata.Rows[i]["Remarks"].ToString();
+
+                sheet[MIChildROW, ColIssueBaseUoM].Text = MaterialInputChilddata.Rows[i]["IssueBaseUoM"].ToString();
+                sheet[MIChildROW, ColIssuedQty].Number = clsStaticInfo.dbl(MaterialInputChilddata.Rows[i]["IssuedQty"].ToString());
+                sheet[MIChildROW, ColAmtBDT].Number = clsStaticInfo.dbl(MaterialInputChilddata.Rows[i]["AmtBDT"].ToString());
 
                 sheet.Range[MIChildROW, 1, MIChildROW, MIChildendCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[MIChildROW, 1, MIChildROW, MIChildendCol].BorderAround(ExcelLineStyle.Hair);
@@ -3625,12 +3667,13 @@ from dbo.OSTransformationPO tc left join ORG.Entity e on e.Id=tc.EntityId
             //	tmi on tmi.OSTransformationPODetailId=mp.Id
             //          where tc.Id='" + PrintTabId + "' ";
 
-            var sql = @"select mi.OSTransformationPODetailId,mi.JobWorkItemId,mi.ItemSpecification,mi.NetConsumption,mi.Rejection,mi.ValueLoss,mi.GrossConsumption,mi.ResponsiblePersonId
+            var sql = @"select mi.OSTransformationPODetailId,mi.JobWorkItemId,mi.ItemSpecification,mi.NetConsumption,isnull(mi.Rejection,'0') Rejection,ISNULL(mi.ValueLoss,'0') ValueLoss,mi.GrossConsumption,mi.ResponsiblePersonId
                                                     ,mi.ArticleId,jwi.UserName as JWInputItem,juom.UserName as JWIUnit,mm.UserName as JWInputMaterial,mma.StandardName as JWInputArticle
 													, uom.UserName as BaseUOM, emp.EmployeeCode, emp.EmployeeStatus, emp.EmployeeName as ResponsiblePerson     
 													,Unit=case when mi.ArticleId is not null then uom.UserName else juom.UserName END
                                                     ,TotalNetConsumption= (mi.NetConsumption * mp.Quantity)
 													,TotalGrossConsumption=(mi.GrossConsumption * mp.Quantity),mi.Remarks
+                                                    ,round(ISNULL(BA.IssuedQty,'0'),2) IssuedQty, round(ISNULL(BA.AmountBDT,'0'),2) AmtBDT, BA.BaseUoM as IssueBaseUoM
                                                     from dbo.OSTransformationPOInputMaterial mi
 													left join HKP.JobWorkItem jwi on jwi.Id=mi.JobWorkItemId
 													left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
@@ -3643,10 +3686,17 @@ from dbo.OSTransformationPO tc left join ORG.Entity e on e.Id=tc.EntityId
 													left join (select SUM(GrossConsumption) as GrossConsumptionPerUnit, OSTransformationPODetailId 
 													from dbo.OSTransformationPOInputMaterial group by OSTransformationPODetailId,ArticleId)
 													tmi on tmi.OSTransformationPODetailId=mp.Id
+                                                    left join (select SUM(IIH.Qty) as IssuedQty, Sum(IIH.TotalMaterialBooksCurrencyAmount) AmountBDT, IM.ArticleId, IID.InventoryMaterialId
+													,BUom.UserName as BaseUoM
+													from TRN.InventoryIssueDetail IID left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
+													left join TRN.InventoryMaterial IM on IM.Id=IID.InventoryMaterialId
+													left join SCS.UnitOfMeasurement BUom on BUom.Id=IID.BaseUOMId
+													group by IM.ArticleId,IID.InventoryMaterialId,BUom.UserName) BA on BA.ArticleId=mi.ArticleId
 										            where tc.Id='" + PrintTabId + @"'
                                                     group by mi.OSTransformationPODetailId,mi.JobWorkItemId,mi.ItemSpecification,mi.NetConsumption,mi.Rejection
 													,mi.ValueLoss,mi.GrossConsumption,mi.ResponsiblePersonId,mi.ArticleId,jwi.UserName,juom.UserName,mm.UserName
-													,mma.StandardName, uom.UserName, emp.EmployeeCode, emp.EmployeeStatus, emp.EmployeeName,mp.Quantity,mi.Remarks ";
+													,mma.StandardName, uom.UserName, emp.EmployeeCode, emp.EmployeeStatus, emp.EmployeeName,mp.Quantity,mi.Remarks
+                                                    ,BA.IssuedQty,BA.AmountBDT,BA.BaseUoM ";
 
             return _sqlRepository.GetDataTable(sql);
         }
