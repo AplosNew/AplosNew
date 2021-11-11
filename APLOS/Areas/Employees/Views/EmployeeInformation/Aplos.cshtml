@@ -2597,7 +2597,7 @@
                             <label class="col-sm-4 control-label">Employment Type<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
                                 <div class="select-style">
-                                    <select class="form-control" ng-model="employeeNew.EmploymentType" name="Employment Type" required ng-change="ShowVendorCtrl();" tabindex="18">
+                                    <select class="form-control" ng-model="employeeNew.EmploymentType" disabled name="Employment Type" required ng-change="ShowVendorCtrl();" tabindex="18">
                                         <option value="">--Select--</option>
                                         <option value="Permanent">Permanent</option>
                                         <option value="Contractual">Contractual</option>
@@ -2652,13 +2652,15 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <div class="checkbox-site">
-                                <label>
-                                    <span>Non Eligible OT</span>
-                                    <input type="checkbox" ng-model="NonEligibleOTChild.Exclude" id="OTCheck">
-                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            <label class="col-sm-4 control-label">Non Eligible OT</label>
+                            <div class="col-sm-8">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="NonEligibleOTChild.Exclude" id="OTCheck">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
 
-                                </label>
+                                    </label>
+                                </div>
                             </div>
                         </div>
 
@@ -3038,12 +3040,31 @@
 <confirm-archive-generic modalid="confirmLandLordDelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeLandLord()"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmRelationDelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRelative()"></confirm-archive-generic>
 <div class="row text-right aplos-grid-toggle">
-    <div class="common-btn" style="padding-left: 10px;">
-        <ul class="list-inline text-left">
-            <li>
-                <btton ng-click="AddNewEmpPopUp();" tooltip data-placement="top" title="Add New Employee" class="btn single-small-btn"><i class="glyphicon glyphicon-plus"></i></btton>
-            </li>
-        </ul>
+    <div class="col-xs-12 form-element form-horizontal">
+        <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Employment Type<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="employeeNew.EmploymentType" name="Employment Type" ng-change="ShowVendorCtrl();">
+                            <option value="">--Select--</option>
+                            <option value="Permanent">Permanent</option>
+                            <option value="Contractual">Contractual</option>
+                            <option value="Temporary">Temporary</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-6">
+            <div class="common-btn" style="padding-left: 10px;">
+                <ul class="list-inline text-left">
+                    <li>
+                        <btton ng-click="AddNewEmpPopUp();" tooltip data-placement="top" title="Add New Employee" class="btn single-small-btn"><i class="glyphicon glyphicon-plus"></i></btton>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </div>
     <div class="col-xs-12 col-sm-12 col-sm-12">
         <div class="search-form">
