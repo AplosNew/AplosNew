@@ -96,6 +96,18 @@ namespace Aplos.Areas.Employees.Controllers
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same User Name already exists!!!");
 
+                if (data.ContainsKey("Prefix"))
+                {
+                    var name = data["Prefix"]?.ToString();
+                    if (!string.IsNullOrEmpty(name))
+                    {
+                        con.OpenDataSetThroughAdapter("select * from dbo.EmployeeCodeGenGroup where Prefix='" + data["Prefix"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                        if (dsMaster.Tables[0].Rows.Count > 0)
+                            throw new Exception("Same Prefix already exists!!!");
+                    }
+                }
+
+
                 con.OpenDataSetThroughAdapter("select * from dbo.EmployeeCodeGenGroup where Id='" + data["Id"] + "'", out dsMaster, false, "1");
                 con.OpenDataSetThroughAdapter("select * from dbo.EmployeeCodeGenGroupDetail where EmployeeCodeGenGroupId='" + data["Id"] + "'", out dsDetail, false, "1");
 
@@ -120,24 +132,27 @@ namespace Aplos.Areas.Employees.Controllers
                 #endregion data update
 
                 int count = 0;
-                foreach (var item in detaildata)
+                if (detaildata!=null)
                 {
-                    count++;
-                    DataView dv = new DataView(dsDetail.Tables[0]);
-                    dv.RowFilter = "Id='" + item["Id"] + "'";
-
-                    if (dv.Count == 0)
+                    foreach (var item in detaildata)
                     {
-                        item["Id"] = mId + count;
-                        item["EmployeeCodeGenGroupId"] = mId;
+                        count++;
+                        DataView dv = new DataView(dsDetail.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
 
-                        AddNewRow(dsDetail.Tables[0], item);
-                    }
-                    else
-                    {
-                        DataRow drmo = dv[0].Row;
-                        EditRow(drmo, item);
-                    }
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = mId + count;
+                            item["EmployeeCodeGenGroupId"] = mId;
+
+                            AddNewRow(dsDetail.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    } 
                 }
 
                 clsStaticInfo _info = new clsStaticInfo();
