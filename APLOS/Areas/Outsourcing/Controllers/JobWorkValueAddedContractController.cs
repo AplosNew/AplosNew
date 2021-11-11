@@ -2744,6 +2744,8 @@ namespace Aplos.Areas.Outsourcing.Controllers
 													from TRN.InventoryIssueDetail IID left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
 													left join TRN.InventoryMaterial IM on IM.Id=IID.InventoryMaterialId
 													left join SCS.UnitOfMeasurement BUom on BUom.Id=IID.BaseUOMId
+                                                    left join TRN.InventoryIssue II on II.Id=IID.InventoryIssueId
+													where II.JWContractId='" + PrintTabId + @"'
 													group by IM.ArticleId,IID.InventoryMaterialId,BUom.UserName) BA on BA.ArticleId=tcc.ArticleId
                                     where tc.Id = '" + PrintTabId + @"' ";
 
@@ -3691,6 +3693,8 @@ from dbo.OSTransformationPO tc left join ORG.Entity e on e.Id=tc.EntityId
 													from TRN.InventoryIssueDetail IID left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
 													left join TRN.InventoryMaterial IM on IM.Id=IID.InventoryMaterialId
 													left join SCS.UnitOfMeasurement BUom on BUom.Id=IID.BaseUOMId
+                                                    left join TRN.InventoryIssue II on II.Id=IID.InventoryIssueId
+													where II.JWContractId='" + PrintTabId + @"'
 													group by IM.ArticleId,IID.InventoryMaterialId,BUom.UserName) BA on BA.ArticleId=mi.ArticleId
 										            where tc.Id='" + PrintTabId + @"'
                                                     group by mi.OSTransformationPODetailId,mi.JobWorkItemId,mi.ItemSpecification,mi.NetConsumption,mi.Rejection

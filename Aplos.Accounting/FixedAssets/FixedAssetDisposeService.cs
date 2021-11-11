@@ -281,7 +281,8 @@ namespace Library.Accounting.FixedAssets
                             Narration = voucherDetailVM.Narration,
                             InvoiceDetailId = invoiceDetail.Id
                         };
-                        totalAmountDr += voucherDr.DrAmount;
+                        //totalAmountDr += voucherDr.DrAmount;
+                        totalAmountDr += voucherDetailVM.Amount;
                         if (voucherDetailVM.OtherName == "A/R")
                         {
                             voucherDr.PartyId = voucherVM.PartyId;
@@ -315,7 +316,8 @@ namespace Library.Accounting.FixedAssets
                             DrAmount = 0,
                             CrAmount = Math.Round((voucherDetailVM.Amount / voucherVM.CompanyCurrencyRate),4),
                         };
-                        totalAmountCr += voucherCr.CrAmount;
+                        //totalAmountCr += voucherCr.CrAmount;
+                        totalAmountCr += voucherDetailVM.Amount;
                         currentVoucherDetaiRecord++;
                         _accountsCommonService.InsertVoucherDetail(voucher, voucherCr, currentVoucherDetaiRecord, ref _crvDetailData);
 
@@ -425,7 +427,7 @@ namespace Library.Accounting.FixedAssets
                     CompanyGroupId = voucherVM.CompanyGroupId,
                     CompanyId = voucherVM.CompanyId,
                     PlantId = voucherVM.PlantId,
-                    CurrencyId = voucherVM.CurrencyId,
+                    CurrencyId = companyCurrencyId,
                     FiscalYearId = voucherVM.FiscalYearId,
                     FiscalYearPeriodId = voucherVM.FiscalYearPeriodId,
                     TaxYearId = voucherVM.TaxYearId,
@@ -470,10 +472,10 @@ namespace Library.Accounting.FixedAssets
                         _accountsCommonService.InsertVoucherDetailCompanyCurrency(voucherDr, new VoucherDetailCurrency
                         {
                             ParallelCurrencyId = companyCurrencyId,
-                            FromCurrencyId = voucher.CurrencyId,
+                            FromCurrencyId = companyCurrencyId,
                             ToCurrencyId = companyCurrencyId,
                             ToCurrencyRate = voucherVM.CompanyCurrencyRate,
-                            ToCurrencyConversion = 0,
+                            ToCurrencyConversion = 1,
                             DrAmount = voucherDr.DrAmount 
                         }, ref _drvDetailCurrencyData);
                     }
@@ -497,10 +499,10 @@ namespace Library.Accounting.FixedAssets
                         _accountsCommonService.InsertVoucherDetailCompanyCurrency(voucherCr, new VoucherDetailCurrency
                         {
                             ParallelCurrencyId = companyCurrencyId,
-                            FromCurrencyId = voucher.CurrencyId,
+                            FromCurrencyId = companyCurrencyId,
                             ToCurrencyId = companyCurrencyId,
                             ToCurrencyRate = voucherVM.CompanyCurrencyRate,
-                            ToCurrencyConversion =0,
+                            ToCurrencyConversion =1,
                             CrAmount = voucherCr.CrAmount 
                         }, ref _crvDetailCurrencyData);
                     }
@@ -673,7 +675,7 @@ namespace Library.Accounting.FixedAssets
             string strkey = "1=1";
             if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                 strkey = column + " like '%" + value + "%'";
-            var sql = @"select top 100 * from (select frd.Id DisposeNo,V.VoucherNo,V.PostingDate,V.Id,fr.Remarks,fr.[Status],ei.EmployeeName,D.UserName Department,DG.UserName Designation,frd.IsPark
+            var sql = @"select top 100 * from (select frd.Id DisposeNo,cast(substring(frd.Id,3,8) as int)SlNo,V.VoucherNo,V.PostingDate,V.Id,fr.Remarks,fr.[Status],ei.EmployeeName,D.UserName Department,DG.UserName Designation,frd.IsPark
 
 
 			,P.UserName CustomerName
@@ -707,7 +709,7 @@ namespace Library.Accounting.FixedAssets
                 LEFT JOIN ( SELECT FixedAssetRegisterId,ISNULL(Sum(Amount),0) subAssetAmount ,ISNULL(Sum(BaseAmount),0) subAssetBaseAmount FROM TRN.SubFixedAssetRegister group by FixedAssetRegisterId) SAR ON SAR.FixedAssetRegisterId=FR.Id
                     where fr.CompanyId='" + companyId+@"'
                     group by fr.Remarks,fr.[Status],ei.EmployeeName,frd.IsPark,frd.Id,D.UserName 
-					,DG.UserName,V.VoucherNo,V.PostingDate,V.Id,c.Code ,P.UserName , BC.Code ) AS TEMP WHERE "+strkey+" order by DisposeNo ";
+					,DG.UserName,V.VoucherNo,V.PostingDate,V.Id,c.Code ,P.UserName , BC.Code ) AS TEMP WHERE "+strkey+ " order by SlNo desc ";
             return _sqlRepository.GetDataCollection(sql);
         }
 
@@ -784,7 +786,7 @@ namespace Library.Accounting.FixedAssets
             , UPPER(V.Narration) AS Narration, CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
             , P.UserName AS Vendor, PP.UserName AS VendorPlant
 			, V.CurrencyId, C.Code AS CurrencyCode
-			,EI.EmployeeName,BJ.Status DisposedStatus
+			,EI.EmployeeName,BJ.Status DisposedStatus,BJ.Id DisposedNo
             FROM [TRN].FixedAssetRegisterDisposed AS BJ
             LEFT JOIN [TRN].[Voucher] AS V ON V.Id=BJ.DisposedVoucherId
             LEFT JOIN [SCS].[VoucherType] AS VT ON VT.Id=V.VoucherTypeId
@@ -841,13 +843,24 @@ namespace Library.Accounting.FixedAssets
             sheet[row, 5].ColumnWidth = 15;
             row++;
 
+            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Disposed No");
+            reportUtility.SetText(ref sheet, row, 2, header["DisposedNo"].ToString());
+            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Disposal Type");
+            reportUtility.SetText(ref sheet, row, 5, header["DisposedStatus"].ToString());
+            row++;
+
             reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Posting Date");
             reportUtility.SetText(ref sheet, row, 2, header["PostingDate"].ToString());
             reportUtility.SetMasterHeaderText(ref sheet, row, 4, "DocDate");
             reportUtility.SetText(ref sheet, row, 5, header["DocDate"].ToString());
             row++;
 
-            if(header["DisposedStatus"].ToString()== "CompensateByEmployee")
+            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Narration");
+            reportUtility.SetText(ref sheet, row, 2, header["Narration"].ToString());
+            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Status");
+            reportUtility.SetText(ref sheet, row, 5, header["Status"].ToString());
+            row++;
+            if (header["DisposedStatus"].ToString()== "CompensateByEmployee")
             {
                 reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Employee");
                 reportUtility.SetText(ref sheet, row, 2, header["EmployeeName"].ToString());
@@ -867,31 +880,29 @@ namespace Library.Accounting.FixedAssets
                 reportUtility.SetText(ref sheet, row, 2, header["VendorPlant"].ToString());
             }
 
-            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Status");
-            reportUtility.SetText(ref sheet, row, 5, header["Status"].ToString());
-            row++;
+            //reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Status");
+            //reportUtility.SetText(ref sheet, row, 5, header["Status"].ToString());
+            //row++;
 
             colLast = companyCurrencyId == transcationCurrency ? 5 : 7;
-            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Narration");
-            reportUtility.SetText(ref sheet, row, 2, header["Narration"].ToString());
             sheet[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(colLast) + row].Merge();
             sheet[row, 2].ColumnWidth = 30;
 
             row++;  //10
 
-            if (companyCurrencyId == transcationCurrency)
-            {
+            //if (companyCurrencyId == transcationCurrency)
+            //{
                 reportUtility.SetHeaderText(ref sheet, row, 4, companyCurrencyCode, ExcelHAlign.HAlignCenter);
                 sheet[row, 4, row, 5].Merge();
-            }
-            else
-            {
-                reportUtility.SetHeaderText(ref sheet, row, 4, header["CurrencyCode"].ToString(), ExcelHAlign.HAlignCenter);
-                sheet[row, 4, row, 5].Merge();
+            //}
+            //else
+            //{
+            //    reportUtility.SetHeaderText(ref sheet, row, 4, header["CurrencyCode"].ToString(), ExcelHAlign.HAlignCenter);
+            //    sheet[row, 4, row, 5].Merge();
 
-                reportUtility.SetHeaderText(ref sheet, row, 6, companyCurrencyCode, ExcelHAlign.HAlignCenter);
-                sheet[row, 6, row, 7].Merge();
-            }
+            //    reportUtility.SetHeaderText(ref sheet, row, 6, companyCurrencyCode, ExcelHAlign.HAlignCenter);
+            //    sheet[row, 6, row, 7].Merge();
+            //}
             sheet[row, 6].ColumnWidth = 15;
             //sheet[row, 6].RowHeight = 15;
             sheet[row, 7].ColumnWidth = 15;
@@ -906,25 +917,25 @@ namespace Library.Accounting.FixedAssets
             xlsCol++; xlsCol++;
 
 
-            if (companyCurrencyId != transcationCurrency)
-            {
-                reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Debit", 13, ExcelHAlign.HAlignRight); colinrDebit = xlsCol; xlsCol++;
-                reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Credit", 13, ExcelHAlign.HAlignRight); colinrCredit = xlsCol; xlsCol++;
+            //if (companyCurrencyId != transcationCurrency)
+            //{
+            //    reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Debit", 13, ExcelHAlign.HAlignRight); colinrDebit = xlsCol; xlsCol++;
+            //    reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Credit", 13, ExcelHAlign.HAlignRight); colinrCredit = xlsCol; xlsCol++;
 
 
-                reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Debit", 13, ExcelHAlign.HAlignRight); colusdDebit = xlsCol; xlsCol++;
-                reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Credit", 13, ExcelHAlign.HAlignRight); colusdCradit = xlsCol;
-                colLast = xlsCol;
+            //    reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Debit", 13, ExcelHAlign.HAlignRight); colusdDebit = xlsCol; xlsCol++;
+            //    reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Credit", 13, ExcelHAlign.HAlignRight); colusdCradit = xlsCol;
+            //    colLast = xlsCol;
 
-                //sheet.Range[row, 4, row, colLast].BorderAround(ExcelLineStyle.Thin);
-                //sheet.Range[row, 4, row, colLast].BorderInside(ExcelLineStyle.Thin);
+            //    //sheet.Range[row, 4, row, colLast].BorderAround(ExcelLineStyle.Thin);
+            //    //sheet.Range[row, 4, row, colLast].BorderInside(ExcelLineStyle.Thin);
 
-                sheet.Range[row, colGl, row, colLast].BorderAround(ExcelLineStyle.Hair);
-                sheet.Range[row, colGl, row, colLast].BorderInside(ExcelLineStyle.Hair);
-                //sheet.Range[row, colGl, row, colLast].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-            }
-            else
-            {
+            //    sheet.Range[row, colGl, row, colLast].BorderAround(ExcelLineStyle.Hair);
+            //    sheet.Range[row, colGl, row, colLast].BorderInside(ExcelLineStyle.Hair);
+            //    //sheet.Range[row, colGl, row, colLast].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
+            //}
+            //else
+            //{
 
                 reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Debit", 14, ExcelHAlign.HAlignRight); colinrDebit = xlsCol; xlsCol++;
                 reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Credit", 14, ExcelHAlign.HAlignRight); colinrCredit = xlsCol;
@@ -936,7 +947,7 @@ namespace Library.Accounting.FixedAssets
                 sheet.Range[row, colGl, row, colLast].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[row, colGl, row, colLast].BorderInside(ExcelLineStyle.Hair);
                 //sheet.Range[row, 4, row, colLast].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-            }
+            //}
 
 
             int formulaStartRow = 0;
@@ -984,14 +995,44 @@ namespace Library.Accounting.FixedAssets
                 formulaEndRow = row - 1;
                 reportUtility.SetText(ref sheet, row, 3, "Total: ", true);
 
-                if (companyCurrencyId != transcationCurrency)
-                {
-                    //worksheet[ROW, colAmount].Formula = "SUM(" + CellAddr(colAmount, strRow) + ":" + CellAddr(colAmount, ROW - 1) + ")";
-                    //worksheet[ROW, colAmount].NumberFormat = clsStaticInfo.NumberFormat();
-                    //worksheet[ROW, colAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-                    //worksheet[ROW, colAmount].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, colAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //if (companyCurrencyId != transcationCurrency)
+                //{
+                //    //worksheet[ROW, colAmount].Formula = "SUM(" + CellAddr(colAmount, strRow) + ":" + CellAddr(colAmount, ROW - 1) + ")";
+                //    //worksheet[ROW, colAmount].NumberFormat = clsStaticInfo.NumberFormat();
+                //    //worksheet[ROW, colAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                //    //worksheet[ROW, colAmount].CellStyle.Font.Bold = true;
+                //    //worksheet[ROW, colAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
+                //    sheet.Range[row, colinrDebit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colinrDebit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colinrDebit) + (formulaEndRow) + ")";
+                //    sheet.Range[row, colinrDebit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                //    sheet.Range[row, colinrDebit].CellStyle.Font.Bold = true;
+                //    sheet.Range[row, colinrDebit].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                //    sheet.Range[row, colinrDebit].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //    sheet.Range[row, colinrDebit].BorderAround(ExcelLineStyle.Hair);
+
+                //    sheet.Range[row, colinrCredit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colinrCredit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colinrCredit) + (formulaEndRow) + ")";
+                //    sheet.Range[row, colinrCredit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                //    sheet.Range[row, colinrCredit].CellStyle.Font.Bold = true;
+                //    sheet.Range[row, colinrCredit].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                //    sheet.Range[row, colinrCredit].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //    sheet.Range[row, colinrCredit].BorderAround(ExcelLineStyle.Hair);
+
+                //    sheet.Range[row, colusdDebit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colusdDebit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colusdDebit) + (formulaEndRow) + ")";
+                //    sheet.Range[row, colusdDebit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                //    sheet.Range[row, colusdDebit].CellStyle.Font.Bold = true;
+                //    sheet.Range[row, colusdDebit].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                //    sheet.Range[row, colusdDebit].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //    sheet.Range[row, colusdDebit].BorderAround(ExcelLineStyle.Hair);
+
+                //    sheet.Range[row, colusdCradit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colusdCradit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colusdCradit) + (formulaEndRow) + ")";
+                //    sheet.Range[row, colusdCradit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                //    sheet.Range[row, colusdCradit].CellStyle.Font.Bold = true;
+                //    sheet.Range[row, colusdCradit].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                //    sheet.Range[row, colusdCradit].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //    sheet.Range[row, colusdCradit].BorderAround(ExcelLineStyle.Hair);
+                //}
+                //else
+                //{
                     sheet.Range[row, colinrDebit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colinrDebit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colinrDebit) + (formulaEndRow) + ")";
                     sheet.Range[row, colinrDebit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
                     sheet.Range[row, colinrDebit].CellStyle.Font.Bold = true;
@@ -1005,37 +1046,7 @@ namespace Library.Accounting.FixedAssets
                     sheet.Range[row, colinrCredit].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet.Range[row, colinrCredit].HorizontalAlignment = ExcelHAlign.HAlignRight;
                     sheet.Range[row, colinrCredit].BorderAround(ExcelLineStyle.Hair);
-
-                    sheet.Range[row, colusdDebit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colusdDebit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colusdDebit) + (formulaEndRow) + ")";
-                    sheet.Range[row, colusdDebit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                    sheet.Range[row, colusdDebit].CellStyle.Font.Bold = true;
-                    sheet.Range[row, colusdDebit].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet.Range[row, colusdDebit].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                    sheet.Range[row, colusdDebit].BorderAround(ExcelLineStyle.Hair);
-
-                    sheet.Range[row, colusdCradit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colusdCradit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colusdCradit) + (formulaEndRow) + ")";
-                    sheet.Range[row, colusdCradit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                    sheet.Range[row, colusdCradit].CellStyle.Font.Bold = true;
-                    sheet.Range[row, colusdCradit].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet.Range[row, colusdCradit].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                    sheet.Range[row, colusdCradit].BorderAround(ExcelLineStyle.Hair);
-                }
-                else
-                {
-                    sheet.Range[row, colinrDebit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colinrDebit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colinrDebit) + (formulaEndRow) + ")";
-                    sheet.Range[row, colinrDebit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                    sheet.Range[row, colinrDebit].CellStyle.Font.Bold = true;
-                    sheet.Range[row, colinrDebit].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet.Range[row, colinrDebit].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                    sheet.Range[row, colinrDebit].BorderAround(ExcelLineStyle.Hair);
-
-                    sheet.Range[row, colinrCredit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colinrCredit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colinrCredit) + (formulaEndRow) + ")";
-                    sheet.Range[row, colinrCredit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                    sheet.Range[row, colinrCredit].CellStyle.Font.Bold = true;
-                    sheet.Range[row, colinrCredit].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet.Range[row, colinrCredit].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                    sheet.Range[row, colinrCredit].BorderAround(ExcelLineStyle.Hair);
-                }
+                //}
 
                 sheet.Range[row, colinrDebit, row, colLast].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[row, colinrDebit, row, colLast].BorderAround(ExcelLineStyle.Hair);
@@ -1076,7 +1087,7 @@ namespace Library.Accounting.FixedAssets
                 sheet.Range[row, 5].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
                 reportUtility.SetTextMiddle(ref sheet, row, 5, "Authorized By", true);
 
-                reportUtility.CompanyPlantHeader(ref sheet, colLast, "Fixed Asset Dispose", companyId, plantName, null);
+                reportUtility.CompanyPlantHeader(ref sheet, colLast, "Fixed Asset Dispose" + "(" + header["DisposedStatus"].ToString() + ")", companyId, plantName, null);
                 reportUtility.PageSetup(ref sheet, colLast, ExcelPageOrientation.Portrait);
 
                 //    //else

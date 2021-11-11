@@ -778,6 +778,7 @@ namespace Library.Accounting.FixedAssets
             range.ApplyCharacterFormat(FontBold);
             int colTrnAmount = COL; COL++;
             wTable.Rows[ROW].Cells[colTrnAmount].Width = 90;
+           
 
             //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Base Amount(" + dsOrderMaster.Rows[0]["BaseCurrency"].ToString() + ")");
             //range.ApplyCharacterFormat(FontBold);
@@ -896,16 +897,16 @@ namespace Library.Accounting.FixedAssets
 
 
 
-            for (int R = 1; R < wTable.Rows.Count; R++)
+            for (int R = 0; R < wTable.Rows.Count; R++)
             {
                 WTableRow TROW = wTable.Rows[R];
 
 
 
-                //foreach (WParagraph item in TROW.Cells[colQty].Paragraphs)
-                //{
-                //    item.ApplyStyle("MyStyleRightAlign");
-                //}
+                foreach (WParagraph item in TROW.Cells[colTrnAmount].Paragraphs)
+                {
+                    item.ApplyStyle("MyStyleRightAlign");
+                }
 
 
                 //foreach (WParagraph item in TROW.Cells[colRate].Paragraphs)

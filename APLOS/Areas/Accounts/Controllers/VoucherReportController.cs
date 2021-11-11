@@ -430,28 +430,30 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { DATA = assetWIPQueryService.GetFixedAssetWIPstatusSQL(), Error = false }, JsonRequestBehavior.AllowGet);
         }
 
-        //[Authorize]
-        //public ActionResult AssetWIPstatusReportExcel(string materialMasterId, string materialMasterArticleId, string voucherId, string grnNo,string glId, string activityId)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    try
-        //    {
+        [Authorize]
+        public ActionResult AssetWIPstatusReportExcel(string materialMasterId, string materialMasterArticleId, string voucherId, string grnNo, string glId, string activityId)
+        {
+            AssetWIPQueryService assetWIPQueryService = new AssetWIPQueryService(_sqlRepository);
 
-        //        ExcelEngine excelEngine = new ExcelEngine();
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
 
-        //        IWorkbook workbook = _fixedAssetRegisterService.FixedAssetRegisterList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, MaterialMasterId, MaterialMasterArticleId, fixedAssetMasterId, vendorId);
+                ExcelEngine excelEngine = new ExcelEngine();
 
-        //        string strFileName = "Fixed Assets Register Report.xlsx";
-        //        workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
-        //        workbook.Close();
-        //    }
-        //    catch (CustomException ex)
-        //    {
-        //        return Json(ex.Message, JsonRequestBehavior.AllowGet);
+                IWorkbook workbook = assetWIPQueryService.AssetWIPstatusList( materialMasterId, materialMasterArticleId, voucherId, grnNo, glId, activityId);
 
-        //    }
-        //    return null;
-        //}
+                string strFileName = "Fixed Assets Register Report.xlsx";
+                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                workbook.Close();
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+
+            }
+            return null;
+        }
 
 
     }

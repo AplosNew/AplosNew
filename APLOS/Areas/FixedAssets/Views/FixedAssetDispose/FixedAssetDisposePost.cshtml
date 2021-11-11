@@ -407,7 +407,20 @@
 
     <script type="text/ng-template" id="ShowActionButtonsassigned">
         <div class="common-btn">
-            <ul class="list-inline text-right small">
+            <ul class="common-btn list-inline text-left">
+                <li>
+                    <div ej-tooltip e-showshadow="true" e-content="Excel" ng-click="$parent.onClickReportDownloadExcel(data);" e-width="width">
+                        <button class="btn" style="background-color: #1c1f32;"><i class="fa fa-file-excel-o"></i></button>
+                    </div>
+                </li>
+                <li>
+                    <div ej-tooltip e-showshadow="true" e-content="Pdf" ng-click="$parent.onClickReportDownloadWord(data);" e-width="width">
+                        <button class="btn" style="background-color: #1c1f32;"><i class="fa fa-file-pdf-o"></i></button>
+                    </div>
+                </li>
+
+            </ul>
+            @*<ul class="list-inline text-left small">
                 <li>
                     <button ng-click="$parent.onClickReportDownloadWord(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
                         <i class="glyphicon glyphicon-minus-sign" style="color:orangered;"></i>
@@ -416,13 +429,9 @@
                 <li>
                     <button ng-click="$parent.onClickReportDownloadExcel(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
                         <i class="glyphicon glyphicon-play" style="color:{{data.HasBOQ==true?'#00ff00':'orange'}}"></i>
-                    </button>
-
-                    @*<button ng-click="$parent.AttachmentBOMProcess(data.MasterOrderItemId);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
-                        <i class="glyphicon glyphicon-play" style="color:{{data.HasBOQ==true?'#00ff00':'orange'}}"></i>
-                    </button>*@
+                    </button> 
                 </li>
-            </ul>
+            </ul>*@
         </div>
     </script>
 </div>
