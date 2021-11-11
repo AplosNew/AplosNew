@@ -1375,6 +1375,21 @@ namespace Aplos.Areas.Employees.Controllers
         }//End Function
 
         [HttpGet, Authorize]
+        public JsonResult GetEmpCodeGenSetting(string EmploymentType)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                return Json(employeeProfile.GetEmpCodeGenSetting(identity.PlantId, EmploymentType), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }//End Function
+
+        [HttpGet, Authorize]
         public JsonResult SetDOC()
         {
             try
