@@ -276,7 +276,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            return @" SELECT top 300
+            return @" SELECT 
                             emp.SystemId AS Id,emp.EmployeeCode,
                             emp.EmployeeName,isnull(s.UserName,'') AS Section,isnull(ss.UserName,'') AS SubSection,
                             isnull(d.UserName,'') AS Designation,isnull(dept.UserName,'') AS Department,

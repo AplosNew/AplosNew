@@ -276,7 +276,7 @@
                         <ul class="list-inline action-list">
                             <li><a class="btn btn-action" href="Accounts/InventoryPayable/IssueJournalReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&inventoryIssueId={{x.IssueNo}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
                             <li><a class="btn btn-action" href="Accounts/InventoryPayable/IssueJournalReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&inventoryIssueId={{x.IssueNo}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
-                            <li><a class="btn btn-action" href="Products/InventoryIssue/IssueReport?grnId={{x.IssueNo}}" target="_blank"><i class="glyphicon glyphicon-print"></i></a></li>
+                            <li><a class="btn btn-action"  ng-click="issueReportDownload(x)" ><i class="glyphicon glyphicon-print"></i></a></li>
                             <li ><a ng-show="x.IsPark" class="btn btn-action" ng-click="confirmDelete(x.IssueNo,x.VoucherId);" href="" ><i class="glyphicon glyphicon-trash"></i></a></li>
                         </ul>
                     </td>
@@ -326,7 +326,7 @@
                                 <th>Issue Date</th>
                                 <th>Employee</th>
                                 <th>Type</th>
-                                <th>Source No</th>
+                                <th>PO No</th>
 
                                 <th>OrderRefNo</th>
                                 <th>Qty</th>

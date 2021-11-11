@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using APLOS;
+using Library.HumanResource.NewAttendanceProcess;
 
 namespace Aplos.Controllers
 {
@@ -423,6 +424,22 @@ namespace Aplos.Controllers
 
             }
         }
+
+        [HttpPost]
+        public string SaveManualOT([FromBody] IEnumerable<AttendanceProcessNewProcess> DataToSave)
+        {
+            try
+            {
+                string Id = _emp.SaveManualOT(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
 
         [HttpGet]
         public IHttpActionResult GetOTId(string EmpId, string Date)
