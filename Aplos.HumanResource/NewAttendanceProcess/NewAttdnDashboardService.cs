@@ -639,7 +639,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             left join hkp.Designation desg on desg.Id = dm.DesignationId
                             left join org.Department dept on dept.id = pos.DepartmentId
                             left join dbo.ShiftDefination shift on shift.SystemID = mb.ShiftDefinationId
-                            left join hkp.Designation dess on dess.Id = ei.LegalDesignationId
+                            left join hkp.LegalDesignation dess on dess.Id = ei.LegalDesignationId
                             where company.CompanyGroupId = '" + companyGroupId + @"' and apd.WorkDate='" + date + @"' " + empStat + @" " + whereSt + @"  " + empCat + @" " + statP + @"
                             " + whereCol + @"
                             ";

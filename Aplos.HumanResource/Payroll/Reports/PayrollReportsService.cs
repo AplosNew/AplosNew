@@ -9481,28 +9481,35 @@ namespace Library.HumanResource.Payroll
                         #region ******************Report Header******************
 
                         xlsCol = 1;
-
-                        Image companyLogo = null;
-                        string strPath = "";
-                        int additionalColumn = 1;
-
-                        strPath = Path.Combine(ResourcesPathReader.GetLogoOrImagePath(), dsCmp.Tables[0].Rows[0]["CompanyImage"].ToString());  // IDCardEng.xlsx
-                        companyLogo = Image.FromFile(strPath);
-                        additionalColumn = 3;
-
-                        if (companyLogo != null)
+                        try
                         {
-                            double totalWidth = sheet1.GetColumnWidth(1) + sheet1.GetColumnWidth(2);
-                            int totalWidthPixel = (int)(totalWidth * 5.0);
-                            int totalheight = (int)((sheet1.GetRowHeight(1) + sheet1.GetRowHeight(2)) * 1.5);
 
-                            companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
-                            IPictureShape pic = null;
 
-                            pic = sheet1.Pictures.AddPicture(xlsRow, 1, companyLogo);
+                            Image companyLogo = null;
+                            string strPath = "";
+                            int additionalColumn = 1;
+
+                            strPath = Path.Combine(ResourcesPathReader.GetLogoOrImagePath(), dsCmp.Tables[0].Rows[0]["CompanyImage"].ToString());  // IDCardEng.xlsx
+                            companyLogo = Image.FromFile(strPath);
+                            additionalColumn = 3;
+
+                            if (companyLogo != null)
+                            {
+                                double totalWidth = sheet1.GetColumnWidth(1) + sheet1.GetColumnWidth(2);
+                                int totalWidthPixel = (int)(totalWidth * 5.0);
+                                int totalheight = (int)((sheet1.GetRowHeight(1) + sheet1.GetRowHeight(2)) * 1.5);
+
+                                companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
+                                IPictureShape pic = null;
+
+                                pic = sheet1.Pictures.AddPicture(xlsRow, 1, companyLogo);
+
+                            }
+                        }
+                        catch (Exception ex)
+                        {
 
                         }
-
                         xlsCol = xlsCol + 2;
                         string FactoryAddress = string.Empty;
                         headerEndxlsCol = xlsCol + 14;
@@ -12309,7 +12316,8 @@ ELSE CONVERT(BIT,0) END  ---No
 
                     string strSql = @"SELECT SystemID FROM SalaryProcMaster
                                       WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
-                                                        WHERE PlantID  in(" + plantId + @")  GROUP BY SlrProcMstSystemID)
+                                                       -- WHERE PlantID  in(" + plantId + @")  
+                                        GROUP BY SlrProcMstSystemID)
                                         AND MonthNo =  MONTH('" + effectiveDate + @"') AND YearNo =  YEAR('" + effectiveDate + @"')";
 
                     DataTable dtSalPrcId = _sqlRepository.GetDataTable(strSql);
@@ -12360,10 +12368,10 @@ ELSE CONVERT(BIT,0) END  ---No
 
                 var cListOId = string.Empty; var cList = string.Empty; ; var cListId = string.Empty; var Join = string.Empty;
                 var param = string.Empty;
-                if (!string.IsNullOrEmpty(companyGroupId) && !string.IsNullOrEmpty(plantId))
-                    param = "E.GroupID='" + companyGroupId + "' AND E.PlantId in(" + plantId + @") ";
-                else if (!string.IsNullOrEmpty(companyGroupId) && string.IsNullOrEmpty(plantId))
-                    param = "E.GroupID='" + companyGroupId + "'";
+                if (!string.IsNullOrEmpty(plantId))
+                    param = "SPLD.PlantId in(" + plantId + @") ";
+                //else if (!string.IsNullOrEmpty(companyGroupId) && string.IsNullOrEmpty(plantId))
+                //    param = "E.GroupID='" + companyGroupId + "'";
 
                 var cmdText = @"SELECT [isSelect] = Convert(bit, 'True'),[isToBeSelect] = Convert(bit, 'False'),* FROM (  SELECT   dISTINCT   
                                      isnull(e.SystemId,'') EmpSystemId
@@ -12401,11 +12409,12 @@ ELSE CONVERT(BIT,0) END  ---No
                                     FROM SalaryProcChild c
                                    INNER JOIN SalaryProcMaster m on M.MonthNo= MONTH('" + effectiveDate + @"') AND M.YearNo=YEAR('" + effectiveDate + @"') AND M.SystemID=C.SlrProcMstSystemID
                                    
-                                    ) SPM ON spm.EmpInfoSystemID=e.SystemId and " + param + @"
+                                    ) SPM ON spm.EmpInfoSystemID=e.SystemId 
 									  JOIN SalaryProcessLogDetail SPLD ON 
 								
 									  SPLD.SalaryProcessId=SPM.SlrProcMstSystemID
 									 AND SPM.EmpInfoSystemID = SPLD.EmpSystemId 
+                                        and " + param + @"
 
                                     LEFT OUTER JOIN HKP.LegalDesignation  ld on ld.Id=SPLD.LegalDesignationId
                                    
@@ -13979,7 +13988,7 @@ INNER JOIN
 										,ISNULL(TotalOTHr,0) TotalOTHr,ISNULL(TotalNormalOTHr,0) TotalNormalOTHr,ISNULL(TotalExtraOTHr,0) TotalExtraOTHr,ISNULL(WeekOffOTHr,0) WeekOffOTHr
 										,ISNULL(HoliDayOTHr,0) HoliDayOTHr,ISNULL(TotalLWP,0) TotalLWP,ISNULL(IsOTEntitled,0) IsOTEntitled,ISNULL(OTRate,0) OTRate,ISNULL(TotalHoliDay,0) TotalHoliDay
 										  FROM SalaryProceAttdnData MMDSA where MMDSA.MonthNo = MONTH('" + fromDate + @"') AND
-						                               MMDSA.YearNo = YEAR('" + fromDate + @"') AND MMDSA.PlantID = '" + plantId + @"' 
+						                               MMDSA.YearNo = YEAR('" + fromDate + @"') 
 											) MMDSA ON EmpBasic.EmpSystemID = MMDSA.EmpSystemID 
                                             WHERE EmpBasic.CompanyGroupId = '" + companyGroupId + @"'  AND EmpBasic.PlantId ='" + plantId + @"' " + wcEmpStatus + @"";
                 try
