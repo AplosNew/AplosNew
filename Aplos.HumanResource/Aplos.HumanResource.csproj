@@ -226,6 +226,7 @@
     <Compile Include="NewAttendanceProcess\DayStatusService.cs" />
     <Compile Include="NewAttendanceProcess\OutPunchConfigurationService.cs" />
     <Compile Include="NewAttendanceProcess\RosterPatternService.cs" />
+    <Compile Include="NewAttendanceProcess\OTConfirmationProcessService.cs" />
     <Compile Include="NewAttendanceProcess\TablesUploadService.cs" />
     <Compile Include="NewAttendanceProcess\WeeklyOffService.cs" />
     <Compile Include="NewAttendanceProcess\WeekDefinitionService.cs" />
