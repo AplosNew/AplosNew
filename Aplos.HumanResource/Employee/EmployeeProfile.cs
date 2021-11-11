@@ -2202,35 +2202,34 @@ namespace Aplos.HumanResource
         {
             try
             {
-                var sql = @"Select Flag= CAST(CASE WHEN D.Id IS NULL THEN 0 ELSE 1 END AS bit),D.Id,A.* FROM (
-                                    SELECT CG.UserName CompanyGroup,C.UserName Company,P.Id PlantId,P.UserName Plant
-                                    ,EmploymentType='Permanent'
-                                    FROM ORG.Plant P
-                                    LEFT JOIN ORG.Company C ON C.Id=P.CompanyId
-                                    LEFT JOIN ORG.CompanyGroup CG ON CG.Id=C.CompanyGroupId
+                var sql = @"select Flag= CAST(CASE WHEN D.Id IS NULL THEN 0 ELSE 1 END AS bit),ET.EmploymentType,D.Id,CG.UserName CompanyGroup,C.UserName Company,P.Id PlantId,P.UserName Plant
+                                    FROM 
+                                    (Select 'Permanent' AS EmploymentType  
                                     UNION ALL
-                                    SELECT CG.UserName CompanyGroup,C.UserName Company,P.Id PlantId,P.UserName Plant
-                                    ,EmploymentType='Temporary'
-                                    FROM ORG.Plant P
+                                    Select 'Temporary' AS EmploymentType  
+                                    UNION ALL 
+                                    Select 'Contactual' AS EmploymentType  
+                                    ) ET
+                                    left join ORG.Plant P ON 1=1
                                     LEFT JOIN ORG.Company C ON C.Id=P.CompanyId
                                     LEFT JOIN ORG.CompanyGroup CG ON CG.Id=C.CompanyGroupId
+                                    LEFT JOIN [dbo].[EmployeeCodeGenGroupDetail] D ON D.PlantId=P.Id and D.EmploymentType=ET.EmploymentType
+                                    Where ISNULL(D.EmployeeCodeGenGroupId,'')=''
                                     UNION ALL
-                                    SELECT CG.UserName CompanyGroup,C.UserName Company,P.Id PlantId,P.UserName Plant
-                                    ,EmploymentType='Contactual'
-                                    FROM ORG.Plant P
-                                    LEFT JOIN ORG.Company C ON C.Id=P.CompanyId
-                                    LEFT JOIN ORG.CompanyGroup CG ON CG.Id=C.CompanyGroupId
-                                    ) A 
-                                    LEFT JOIN [dbo].[EmployeeCodeGenGroupDetail] D ON D.PlantId=A.PlantId
-                                    WHERE A.PlantId NOT IN (Select PlantId from [dbo].[EmployeeCodeGenGroupDetail])
+                                    select Flag= CAST(CASE WHEN D.Id IS NULL THEN 0 ELSE 1 END AS bit),ET.EmploymentType,D.Id,CG.UserName CompanyGroup,C.UserName Company,P.Id PlantId,P.UserName Plant
+                                    FROM 
+                                    (Select 'Permanent' AS EmploymentType  
                                     UNION ALL
-                                    SELECT Flag= CAST(CASE WHEN d.Id IS NULL THEN 0 ELSE 1 END AS bit),D.Id,CG.UserName CompanyGroup,C.UserName Company,P.Id PlantId,P.UserName Plant,D.EmploymentType
-                                    FROM [dbo].[EmployeeCodeGenGroupDetail] D
-                                    LEFT JOIN ORG.Plant P ON P.Id=D.PlantId
+                                    Select 'Temporary' AS EmploymentType  
+                                    UNION ALL 
+                                    Select 'Contactual' AS EmploymentType  
+                                    ) ET
+                                    left join ORG.Plant P ON 1=1
                                     LEFT JOIN ORG.Company C ON C.Id=P.CompanyId
                                     LEFT JOIN ORG.CompanyGroup CG ON CG.Id=C.CompanyGroupId
-                                    WHERE ISNULL(D.EmployeeCodeGenGroupId,'')='"+ masterId + @"' 
-                                    ORDER BY A.CompanyGroup,A.Company,A.Plant";
+                                    LEFT JOIN [dbo].[EmployeeCodeGenGroupDetail] D ON D.PlantId=P.Id and D.EmploymentType=ET.EmploymentType
+                                    Where ISNULL(D.EmployeeCodeGenGroupId,'')='"+masterId+@"'
+                                    Order BY CG.UserName,C.UserName,P.UserName";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)

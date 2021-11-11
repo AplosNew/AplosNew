@@ -880,7 +880,98 @@ namespace Library.Accounting.FixedAssets
             return _sqlRepository.GetDataCollection(sql);
         }
 
-        public List<Dictionary<string, object>> GetFixedAssetSalesBookAsSalesJV2List(string fixedAssetDisposeId, string companyId, string plantId)
+		public List<Dictionary<string, object>> GetFixedAssetTheftSingleJVList(string fixedAssetDisposeId, string companyId, string plantId)
+		{
+
+			var sql = @"DECLARE @fixedAssetDisposeId varchar(10)='" + fixedAssetDisposeId + "', @companyId varchar(10)='" + companyId + "', @plantId varchar(30)='" + plantId + @"'
+
+						SELECT X.* FROM(
+						SELECT  'Depreciation' AS OtherName, 'Dr' AS TrnType
+							,GLGeneralInfoId =BM.GLGeneralInfoId        
+							,GLGeneralInfoCode =GL.AccountCode 
+							,GLGeneralInfoName =GL.UserName
+							,BudgetMasterId =FR.ADBudgetMasterId
+							,BudgetCode = B.Code
+							,BudgetName =B.UserName 
+							,ActivityId = FR.ADActivityId
+							,ActivityCode = A.Code
+							,ActivityName =A.UserName
+							, SUM(FR.ADBaseAmount) AS Dr
+							, NULL Cr
+							, SUM(FR.ADBaseAmount) AS Amount
+						FROM  TRN.FixedAssetRegisterDisposedDetail FRDD
+						LEFT JOIN TRN.FixedAssetRegisterDisposed FRD ON FRD.Id=FRDD.FixedAssetRegisterDisposedId
+						LEFT JOIN TRN.FixedAssetRegister FR ON FR.Id=FRDD.FixedAssetRegisterId
+						LEFT JOIN[MST].[BudgetMaster] AS BM ON FR.ADBudgetMasterId= BM.Id
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON FR.ADActivityId= A.Id
+						WHERE FRDD.FixedAssetRegisterDisposedId=@fixedAssetDisposeId
+						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, FR.ADBudgetMasterId, B.Code, B.UserName, FR.ADActivityId, A.Code, A.UserName
+						
+					    UNION
+						SELECT  OtherName='LossOnDisposal'
+						
+						,TrnType='Dr'
+
+							,GLGeneralInfoId=FGL.LossOnDisposalAssetGLId   
+							,GLGeneralInfoCode=GL.AccountCode     
+							,GLGeneralInfoName=  GL.UserName    
+							,BudgetMasterId= FGL.LossOnDisposalAssetBudgetMasterId     
+							,BudgetCode=  B.Code    
+							,BudgetName=  B.UserName    
+							,ActivityId=  FGL.LossOnDisposalAssetActivityId     
+							,ActivityCode=  A.Code    
+							,ActivityName=  A.UserName    
+							, Dr=  SUM(FR.Price+isnull(SAR.subAssetAmount,0))- SUM(FR.ADBaseAmount)
+							, Cr=0
+							, Amount= SUM(FR.Price+isnull(SAR.subAssetAmount,0))- SUM(FR.ADBaseAmount)
+						FROM  TRN.FixedAssetRegisterDisposedDetail FRDD
+						LEFT JOIN TRN.FixedAssetRegisterDisposed FRD ON FRD.Id=FRDD.FixedAssetRegisterDisposedId
+						LEFT JOIN TRN.FixedAssetRegister FR ON FR.Id=FRDD.FixedAssetRegisterId
+						LEFT JOIN HKP.FixedAssetMasterGL FGL ON FGL.FixedAssetMasterId=FR.FixedAssetMasterId
+						LEFT JOIN[MST].[BudgetMaster] AS BM ON FGL.LossOnDisposalAssetBudgetMasterId= BM.Id
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON FGL.LossOnDisposalAssetGLId=GL.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON FGL.LossOnDisposalAssetActivityId= A.Id
+
+						LEFT JOIN ( SELECT FixedAssetRegisterId,ISNULL(Sum(Amount),0) subAssetAmount FROM TRN.SubFixedAssetRegister group by FixedAssetRegisterId) SAR ON SAR.FixedAssetRegisterId=FR.Id
+						WHERE FRDD.FixedAssetRegisterDisposedId=@fixedAssetDisposeId
+						GROUP BY  FGL.LossOnSaleOfAssetGLId,FGL.LossOnDisposalAssetGLId, GL.AccountCode, GL.UserName, FGL.LossOnDisposalAssetBudgetMasterId, B.Code, B.UserName, FGL.LossOnDisposalAssetActivityId, A.Code, A.UserName
+						,FGL.GainOnSaleOfAssetActivityId,FGL.GainOnSaleOfAssetBudgetMasterId
+						UNION
+						SELECT  'Asset' AS OtherName, 'Cr' AS TrnType
+							,GLGeneralInfoId =BM.GLGeneralInfoId        
+							,GLGeneralInfoCode =GL.AccountCode 
+							,GLGeneralInfoName =GL.UserName
+							,BudgetMasterId =FR.FABudgetMasterId
+							,BudgetCode = B.Code
+							,BudgetName =B.UserName 
+							,ActivityId = FR.FAActivityId
+							,ActivityCode = A.Code
+							,ActivityName =A.UserName
+							
+							, NULL Dr
+							, SUM(FR.Price+isnull(SAR.subAssetAmount,0)) AS Cr
+							, SUM(FR.Price+isnull(SAR.subAssetAmount,0)) AS Amount
+						FROM  TRN.FixedAssetRegisterDisposedDetail FRDD
+						LEFT JOIN TRN.FixedAssetRegisterDisposed FRD ON FRD.Id=FRDD.FixedAssetRegisterDisposedId
+						LEFT JOIN TRN.FixedAssetRegister FR ON FR.Id=FRDD.FixedAssetRegisterId
+
+						LEFT JOIN[MST].[BudgetMaster] AS BM ON FR.FABudgetMasterId= BM.Id
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON FR.FAActivityId= A.Id
+						LEFT JOIN ( SELECT FixedAssetRegisterId,ISNULL(Sum(Amount),0) subAssetAmount FROM TRN.SubFixedAssetRegister group by FixedAssetRegisterId) SAR ON SAR.FixedAssetRegisterId=FR.Id
+						WHERE FRDD.FixedAssetRegisterDisposedId=@fixedAssetDisposeId
+						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, FR.FABudgetMasterId, B.Code, B.UserName, FR.FAActivityId, A.Code, A.UserName
+						) X 
+                        WHERE X.Amount>0
+						ORDER BY 2 DESC";
+			return _sqlRepository.GetDataCollection(sql);
+		}
+
+		public List<Dictionary<string, object>> GetFixedAssetSalesBookAsSalesJV2List(string fixedAssetDisposeId, string companyId, string plantId)
         {
 
             var sql = @"DECLARE @fixedAssetDisposeId varchar(10)='" + fixedAssetDisposeId + @"', @companyId varchar(10)='" + companyId + "', @plantId varchar(30)='" + plantId + @"'
@@ -1598,7 +1689,7 @@ namespace Library.Accounting.FixedAssets
 				) sar on sar.FixedAssetRegisterId=FAR.Id
 
 
-		        WHERE FAR.CompanyGroupId='" + companyGroupId + "' AND FAR.CompanyId='" + companyId + "' AND FAR.PlantId='" + plantId + @"'  
+		        WHERE FAR.CompanyGroupId='" + companyGroupId + "' AND FAR.CompanyId='" + companyId + "' AND FAR.PlantId='" + plantId + @"'  AND FAR.Status IS NULL
 			
 
                GROUP BY FAR.MaterialMasterId ,MM.UserName ,MMA.StandardName ,FA.UserName,P.UserName 
@@ -1652,7 +1743,7 @@ namespace Library.Accounting.FixedAssets
 									left join ORG.Department D on D.Id = FR.DepartmentId
 
                                     WHERE FR.CompanyGroupId='" + companyGroupId+"'and FR.CompanyId='"+companyId+"' AND FR.PlantId='"+plantId+ @"'
-                                    and FR.Archive=0 and FR.IsAUC=0 and	FR.DisposedVoucherId IS NULL
+                                    and FR.Archive=0 and FR.IsAUC=0 and	FR.DisposedVoucherId IS NULL AND FR.Status IS NULL
                                     AND FR.Id NOT IN(' ')
 				                     and FR.MaterialMasterId in(" + materialMasterId+") AND FR.MaterialMasterArticleId in ("+materialMasterArticleId+") AND FR.FixedAssetMasterId in ("+fixedAssetMasterId+@")
 					                 and FR.VendorId in ("+vendorId+@") 
