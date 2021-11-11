@@ -343,7 +343,7 @@ namespace Library.Accounting.FixedAssets
                             EmployeeId = voucherVM.EmployeeId,
                             PartyId = voucherVM.PartyId,
                             PartyPlantId = voucherVM.PartyPlantId,
-                            //Remarks = voucherVM.Remarks,
+                            Remarks = voucherVM.Remarks,
                             DeliveryPartyPlantId = voucherVM.DeliveryPartyPlantId,
                             InvoicingByAddress = voucherVM.InvoicingByAddress,
                             DeliveryByAddress = voucherVM.DeliveryByAddress,
@@ -473,8 +473,8 @@ namespace Library.Accounting.FixedAssets
                             FromCurrencyId = voucher.CurrencyId,
                             ToCurrencyId = companyCurrencyId,
                             ToCurrencyRate = voucherVM.CompanyCurrencyRate,
-                            ToCurrencyConversion = _accountsCommonService.GetCompanyCurrencyExchange(voucher.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                            DrAmount = voucherDr.DrAmount * voucherVM.CompanyCurrencyRate
+                            ToCurrencyConversion = 0,
+                            DrAmount = voucherDr.DrAmount 
                         }, ref _drvDetailCurrencyData);
                     }
                     else if (voucherDetailVM.TrnType == "Cr" && voucherDetailVM.Amount > 0)
@@ -500,8 +500,8 @@ namespace Library.Accounting.FixedAssets
                             FromCurrencyId = voucher.CurrencyId,
                             ToCurrencyId = companyCurrencyId,
                             ToCurrencyRate = voucherVM.CompanyCurrencyRate,
-                            ToCurrencyConversion = _accountsCommonService.GetCompanyCurrencyExchange(voucher.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                            CrAmount = voucherCr.CrAmount * voucherVM.CompanyCurrencyRate
+                            ToCurrencyConversion =0,
+                            CrAmount = voucherCr.CrAmount 
                         }, ref _crvDetailCurrencyData);
                     }
                 }
@@ -515,9 +515,11 @@ namespace Library.Accounting.FixedAssets
                             DisposedVoucherId = voucher.Id,
                             Id = item.FixedAssetRegisterDisposedId,
                             Status = voucherVM.Status,
+                            Remarks = voucherVM.Remarks,
                             EmployeeId = voucherVM.EmployeeId,
                             PartyId = voucherVM.PartyId,
                             PartyPlantId = voucherVM.PartyPlantId,
+                            DocDate = voucherVM.DocDate,
                             AddedBy = item.AddedBy,
                             AddedDate = item.AddedDate,
                             AddedFromIP = item.AddedFromIP
