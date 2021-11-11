@@ -113,6 +113,7 @@ namespace Aplos.Areas.Employees.Controllers
                 else
                 {
                     _Id = data["Id"].ToString();
+                    
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
                 string mId = dsMaster.Tables[0].Rows[0]["Id"].ToString();

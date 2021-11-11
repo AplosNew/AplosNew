@@ -226,4 +226,95 @@ function AssetWIPStatusController(commonMessage, $scope, $rootScope, $filter, $h
         angular.element(document.querySelector("#assetmastermodal")).modal("hide");
 
     };
+    $scope.AssetWIPstatusList = [];
+    $scope.GetAssetWIPstatusList = function () {
+            $http({
+            method: "GET",
+            dataType: 'JSON',
+            url: 'Accounts/VoucherReport/GetAssetWIPData',
+            
+        }).then(function successCallback(response) {           
+            $scope.AssetWIPstatusList = response.data.DATA
+        });
+    }
+    $scope.GetAssetWIPstatusList();
+
+
+
+    //$scope.FixedAssetRegisterElasticSearchList = [];
+    //$scope.GetFixedAssetRegisterElasticSearchData = function () {
+    //    try {
+    //        $http({
+    //            method: 'POST',
+    //            url: $scope.path + "GetFixedAssetRegisterElasticSearchDataList",
+    //            data: { /*FromDate: $scope.reportParameters.FromDate, ToDate: $scope.reportParameters.ToDate*/
+
+    //            },
+    //            dataType: 'JSON'
+
+    //        }).then(function successCallback(response) {
+
+    //            $scope.FixedAssetRegisterElasticSearchList = response.data.DATA;
+    //        }),
+    //            function errorCallBack(response) {
+    //                ShowResult(response.data.Message, 'failure');
+    //            }
+    //    }
+    //    catch (e) {
+
+    //    }
+    //}
+    //$scope.GetFixedAssetRegisterElasticSearchData();
+
+
+    $scope.TotalAssetWIPstatus = [{
+        title: "Total", summaryColumns: [
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Amount", dataMember: "Amount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BaseQty", dataMember: "BaseQty", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "IssueQty", dataMember: "IssueQty", format: "{0:N2}" },
+            //{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "ADBaseAmount", dataMember: "ADBaseAmount", format: "{0:N2}" },
+            //{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "NetFixedAssetsAmount", dataMember: "NetFixedAssetsAmount", format: "{0:N2}" },
+            //{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "FACount", dataMember: "FACount" }
+
+        ],
+        showCaptionSummary: true
+    }];
+
+
+
+    $scope.AssetWIPstatusReportExcel = function () {
+        $scope.FromDateValidation();
+        $scope.ToDatevalidation()
+        if ($scope.form0.$valid && !$scope.invalidFromDate && !$scope.invalidDocDate && !$scope.validation()) {
+
+
+            var filtered = $("#GridAssetWIPstatus").data("ejGrid").getFilteredRecords();
+            if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+                filtered = $scope.AssetWIPstatusList;
+            }
+            //filtered = ej.DataManager(filtered).executeLocal(ej.Query().select(["AccountGroupName"]));
+            var materialMasterId = getString(filtered, "MaterialMasterId");
+            var materialMasterArticleId = getString(filtered, "ArticleId");
+            var voucherId = getString(filtered, "VoucherId");
+            var grnNo = getString(filtered, "GRNNo");
+            var glId = getString(filtered, "GlId");
+            var activityId = getString(filtered, "ActivityId");
+            try {
+            //var file_src = $scope.path + 'FixedAssetRegisterReportExcel?PartyType=' + $scope.report.PartyType + '&PartyId=' + $scope.report.PartyId + '&MaterialMasterId=' + $scope.report.MaterialMasterId +
+            //    '&FixedAssetsId=' + $scope.report.FixedAssetMasterId + '&FromDate=' + $scope.report.FromDate + '&ToDate=' + $scope.report.ToDate;
+            //$rootScope.report(file_src);
+
+            var file_src = $scope.path + 'AssetWIPstatusReportExcel?materialMasterId=' + materialMasterId + '&materialMasterArticleId=' + materialMasterArticleId + '&voucherId=' + voucherId +
+                '&grnNo=' + grnNo + '&glId=' + glId + '&activityId=' + activityId ;
+                //var file_src = $scope.path + 'FixedAssetRegisterReportExcel' 
+                $rootScope.report(file_src);
+
+            } catch (e) {
+                // ShowResult(e, 'failure');
+                ShowResult(commonMessage.NetworkError, 'failure');
+            }
+        }
+    }
+
+
 }

@@ -65,12 +65,12 @@
 
                 <script type="text/template" id="ApprovalINPending">
                     <button ng-click="$parent.SaveSingleDayPending(this,'IN')" ng-disabled="data.isApprovedIN==true||data.InTime==''" class="btn" style="height: 30px;width: 30px; padding: 0px; margin: 0px;">
-                        <i class="glyphicon glyphicon glyphicon-ok"></i>
+                        <i style="color:{{data.isApprovedIN==true||data.InTime==''?'inherit':'blue'}}" class="glyphicon glyphicon glyphicon-ok"></i>
                     </button>
                 </script>
                 <script type="text/template" id="ApprovalOUTPending">
                     <button ng-click="$parent.SaveSingleDayPending(this,'OUT')" ng-disabled="data.isApprovedOUT==true||data.OutTime==''" class="btn" style="height: 30px;width: 30px; padding: 0px; margin: 0px;">
-                        <i class="glyphicon glyphicon glyphicon-ok"></i>
+                        <i style="color:{{data.isApprovedOUT==true||data.OutTime==''?'inherit':'blue'}}"  class="glyphicon glyphicon glyphicon-ok"></i>
                     </button>
 
                 </script>
@@ -155,12 +155,12 @@
 
                 <script type="text/template" id="ApprovalIN">
                     <button ng-click="$parent.SaveSingleDay(this,'IN')" ng-disabled="data.isApprovedIN==true||data.InTime==''" class="btn" style="height: 30px;width: 30px; padding: 0px; margin: 0px;">
-                        <i class="glyphicon glyphicon glyphicon-ok"></i>
+                        <i style="color:{{data.isApprovedIN==true||data.InTime==''?'inherit':'blue'}}" class="glyphicon glyphicon glyphicon-ok"></i>
                     </button>
                 </script>
                 <script type="text/template" id="ApprovalOUT">
                     <button ng-click="$parent.SaveSingleDay(this,'OUT')" ng-disabled="data.isApprovedOUT==true||data.OutTime==''" class="btn" style="height: 30px;width: 30px; padding: 0px; margin: 0px;">
-                        <i class="glyphicon glyphicon glyphicon-ok"></i>
+                        <i  style="color:{{data.isApprovedOUT==true||data.OutTime==''?'inherit':'blue'}}" class="glyphicon glyphicon glyphicon-ok"></i>
                     </button>
 
                 </script>

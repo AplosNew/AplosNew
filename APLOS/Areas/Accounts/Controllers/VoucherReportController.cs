@@ -422,13 +422,37 @@ namespace Aplos.Areas.Accounts.Controllers
             return View("~/Areas/Accounts/Views/AssetWIPStatusReport.cshtml");
         }
 
-        [HttpPost, Authorize]
-        public ActionResult GetFixedAssetRegisterElasticSearchDataList(string materialMasterId, string materialMasterArticleId, string fixedAssetMasterId, string vendorId, string isAsset, string machine)
+        [HttpGet, Authorize]
+        public ActionResult GetAssetWIPData()
         {
-            AssetWIPQueryService fixedAssetQueryService = new AssetWIPQueryService(_sqlRepository);
+            AssetWIPQueryService assetWIPQueryService = new AssetWIPQueryService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(new { DATA = fixedAssetQueryService.GetFixedAssetRegisterElasticSearchDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, materialMasterId, materialMasterArticleId, fixedAssetMasterId, vendorId, isAsset, machine), Error = false }, JsonRequestBehavior.AllowGet);
+            return Json(new { DATA = assetWIPQueryService.GetFixedAssetWIPstatusSQL(), Error = false }, JsonRequestBehavior.AllowGet);
         }
+
+        //[Authorize]
+        //public ActionResult AssetWIPstatusReportExcel(string materialMasterId, string materialMasterArticleId, string voucherId, string grnNo,string glId, string activityId)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    try
+        //    {
+
+        //        ExcelEngine excelEngine = new ExcelEngine();
+
+        //        IWorkbook workbook = _fixedAssetRegisterService.FixedAssetRegisterList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, MaterialMasterId, MaterialMasterArticleId, fixedAssetMasterId, vendorId);
+
+        //        string strFileName = "Fixed Assets Register Report.xlsx";
+        //        workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+        //        workbook.Close();
+        //    }
+        //    catch (CustomException ex)
+        //    {
+        //        return Json(ex.Message, JsonRequestBehavior.AllowGet);
+
+        //    }
+        //    return null;
+        //}
+
 
     }
 
