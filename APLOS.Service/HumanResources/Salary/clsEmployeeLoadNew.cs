@@ -8551,14 +8551,72 @@ and dm.plantid=e.plantid
             }
         }
 
+        public void GetEmpCodeGenSetting(string plantId, string EmploymentType, out string pfx, out DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            pfx = string.Empty;
+            try
+            {
+                strSQL = @"Select A.IsEmployeeCodeOpenField,A.EmpCodeGenType,A.EmpCodeStartValue,A.IsAutoEmpCodeWithPrefix,A.Prefix from [dbo].[EmployeeCodeGenGroup] A
+                            LEFT JOIN [dbo].[EmployeeCodeGenGroupDetail] B ON B.EmployeeCodeGenGroupId=A.Id
+                            where B.PlantId='"+ plantId + "' and B.EmploymentType='"+ EmploymentType + "'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+
+                if (dsRef.Tables[0].Rows.Count > 0)
+                {
+                    if (Convert.ToBoolean(dsRef.Tables[0].Rows[0]["IsAutoEmpCodeWithPrefix"].ToString()))
+                    {
+                        pfx = dsRef.Tables[0].Rows[0]["Prefix"].ToString();
+                        if (pfx.Trim().Length == 0)
+                        {
+                            throw new Exception("No prefix found for this plant...");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetMaxEmpCode(string plantId, string EmploymentType, out DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                strSQL = @"Select ISNULL(max(EmployeeCodeNumeric),0)EmployeeCode from EmployeeInformation A 
+                        where exists (Select * from EmployeeCodeGenGroupDetail B where A.PlantId=B.PlantId and A.EmploymentType=B.EmploymentType 
+                        and EmployeeCodeGenGroupId=(Select EmployeeCodeGenGroupId from EmployeeCodeGenGroupDetail where PlantId='" + plantId + "' and EmploymentType='"+ EmploymentType + "'))";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
         public void getEmpCodeAuto(string plantId, out DataSet dsRef)
         {
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                strSQL = @"	SELECT max(EmployeeCodeNumeric) c from EmployeeInformation
-                            WHERE plantid='" + plantId + "'";
+                strSQL = @"SELECT max(EmployeeCodeNumeric) c from EmployeeInformation WHERE plantid='" + plantId + "'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
