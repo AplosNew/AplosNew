@@ -77,7 +77,7 @@
                         <div class="col-sm-2" style="margin-left: -163px; padding-top: 8px;">
                             <div class="checkbox-site">
                                 <label>
-                                    <input type="checkbox" name="IsEmployeeCodeOpenField" ng-model="ModelNew.IsEmployeeCodeOpenField" tabindex="8" ng-click="ChangeEmployeeCodeOpenField();">
+                                    <input type="checkbox" name="IsEmployeeCodeOpenField" ng-model="ModelNew.IsEmployeeCodeOpenField" tabindex="8" ng-change="ChangeEmployeeCodeOpenField();">
                                     <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                 </label>
                             </div>
@@ -87,7 +87,7 @@
                         <label class="col-sm-4 control-label" title="EmpCode Generation Type">EmpCode Gen Type</label>
                         <div class="col-sm-4">
                             <div class="select-style">
-                                <select id="EmpCodeGenType" class="form-control" ng-model="ModelNew.EmpCodeGenType" name="EmpCodeGenType">
+                                <select id="EmpCodeGenType" class="form-control" ng-model="ModelNew.EmpCodeGenType" name="EmpCodeGenType" ng-change="ChangeEmpCodeGenType();">
                                     <option value=""></option>
                                     <option Value="AutoIncrement">AutoIncrement</option>
                                     <option Value="EmpSystemId">EmpSystemId</option>
@@ -109,7 +109,7 @@
                         <div class="col-sm-2">
                             <div class="checkbox-site">
                                 <label>
-                                    <input type="checkbox" name="IsAutoEmpCodeWithPrefix" ng-model="ModelNew.IsAutoEmpCodeWithPrefix">
+                                    <input type="checkbox" name="IsAutoEmpCodeWithPrefix" ng-model="ModelNew.IsAutoEmpCodeWithPrefix" ng-change="ChangeAutoEmpCodeWithPrefix();">
                                     <span class="cr" style="margin-top: 5px;"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                 </label>
                             </div>

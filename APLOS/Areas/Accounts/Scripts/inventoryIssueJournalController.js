@@ -1,6 +1,6 @@
 ﻿'use strict';
-inventoryIssueJournalController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter'];
-function inventoryIssueJournalController(cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter) {
+inventoryIssueJournalController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter', '$window'];
+function inventoryIssueJournalController(cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $window) {
     $rootScope.title = "Inventory Issue";
     $scope.Action = 'Save';
     $scope.index = -1;
@@ -891,10 +891,20 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
     };
 
     $scope.downloadIssue = function () {
+        
         location.href = "Products/InventoryIssue/IssueReport?grnId=" + $scope.modelNew.Id;
     };
     $scope.downloadIssueExcel = function () {
         var reportFormat = "Excel";
         location.href = "Outsourcing/OSIssueReturn/GetIIPrintReport?reportFormat=" + reportFormat + '&IssueId=' + $scope.modelNew.Id;
     };
+
+    $scope.issueReportDownload = function (x) {
+        if (x.Types)
+            $window.open("Products/InventoryIssue/JWValAddedIssueReport?grnId=" + x.IssueNo);// href = target = "_blank"
+        else
+            $window.open("Products/InventoryIssue/IssueReport?grnId=" + x.IssueNo);// href = target = "_blank"
+
+    };
+
 } 

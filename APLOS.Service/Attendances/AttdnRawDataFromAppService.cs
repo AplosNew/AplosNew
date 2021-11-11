@@ -335,7 +335,7 @@ namespace Library.Service.Attendances
         {
             try
             {
-                var sql = @"SELECT TOP 90 apd.EmpSystemID, apd.WorkDate,sd.ShiftDefinationName,apd.InTime,
+                var sql = @"SELECT TOP 45 apd.EmpSystemID, apd.WorkDate,sd.ShiftDefinationName,apd.InTime,
                             apd.OutTime, apd.DayStatus
                             FROM AttdnProcessData apd 
                             left outer join ShiftDefination sd ON sd.SystemID=apd.ShiftSystemID
