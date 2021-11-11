@@ -5,9 +5,8 @@
         @*<div class="clearfix"></div>*@
         <div class="table-responsive modal-table aplos-grid-toggle">
             <div class="content-container-fluid" style="color:black;overflow:scroll">
-                <div style="color:black;" id="GridAssetWIPstatus" ej-grid e-datasource="AssetWIPstatusList" e-recorddoubleclick="getdata" e-templaterefresh="refreshTemplateEntityandDepartment"
-                     e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true" e-summaryrows="TotalAssetWIPstatus"
-                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowresizing="true" e-allowselection="false" e-allowsorting="true">
+                <div style="color:black;" id="GridAssetWIPstatus" ej-grid e-datasource="AssetWIPstatusList" e-summaryrows="TotalAssetWIPstatus" e-recorddoubleclick="getdata" e-templaterefresh="refreshTemplateEntityandDepartment"
+                     e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true" e-filtersettings-filterType="excel" e-enabletouch="false" e-allowresizing="true" e-allowselection="false" e-allowsorting="true">
                     <div e-columns>
                         <div e-column e-field="MaterialMasterName" e-headertext="Material" e-width="150"></div>
                         <div e-column e-type="text" e-field="ArticleName" e-headertext="Article" e-width="420" style="height: 20px;"></div>
@@ -49,7 +48,7 @@
 <div class="common-btn">
     <ul class="list-inline text-left">
         @*<li><button ng-click="getReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>*@
-        <li><button ng-click="AssetWIPstatusReportExcel();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+        <li><button ng-click="getAssetWIPstatusReportExcel();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
     </ul>
 </div>
 

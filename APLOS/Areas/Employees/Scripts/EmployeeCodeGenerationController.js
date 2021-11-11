@@ -142,6 +142,12 @@ function EmployeeCodeGenerationController(cboService, commonMessage, $scope, $ro
     // #endregion checkbox all
 
     $scope.CheckValidation = function () {
+        if (!$scope.ModelNew.IsEmployeeCodeOpenField) {
+            if (baseService.isUndefinedOrNull($scope.ModelNew.EmpCodeGenType)) {
+                throw "EmpCode Gen Type is required.";
+            }
+        }
+
         if ($scope.ModelNew.EmpCodeGenType == 'AutoIncrement') {
             if (baseService.isUndefinedOrNull($scope.ModelNew.EmpCodeStartValue)) {
                 throw "Start Value is required.";

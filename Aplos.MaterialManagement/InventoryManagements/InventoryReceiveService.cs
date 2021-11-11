@@ -1005,6 +1005,15 @@ namespace Library.MaterialManagement.InventoryManagements
 														LEFT JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id=a.BaseUoMId
 															--where a.SalesOrderId='212160101' --and b.BOQDetailId='21223-25'
 														group by b.BOQDetailId,UOM.UserName,UOM.Id,a.SalesOrderId,a.BaseUoMId
+														
+														UNION ALL
+
+														select a.SalesOrderId, OSPOBOQM.BOQDetailId,sum(a.BaseQty) TransactionQty ,UOM.UserName,UOM.Id StockTransactionUoMId,a.BaseUoMId
+														 from trn.GRNPORequisitionAllocation a
+														left join [dbo].OSPOBOQMAP OSPOBOQM ON OSPOBOQM.Id=a.OSPOBOQMAPId
+														LEFT JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id=a.BaseUoMId
+															--where a.SalesOrderId='212160101' --and b.BOQDetailId='21223-25'
+														group by OSPOBOQM.BOQDetailId,UOM.UserName,UOM.Id,a.SalesOrderId,a.BaseUoMId
 								) GRNALLO ON GRNALLO.BOQDetailId=BOQD.Id
 						LEFT JOIN [SCS].[UnitOfMeasurement] POUoMId ON POUoMId.Id=BOQD.POUoMId
 						LEFT JOIN [SCS].[UnitOfMeasurement] BaseUoMId ON BaseUoMId.Id=BOQD.BaseUoMId

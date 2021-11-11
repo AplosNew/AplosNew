@@ -195,19 +195,20 @@ function employeeInformationController(addressService, fileReader, cboService, c
                 $scope.EmploymentType = $scope.employeeNew.EmploymentType;
                 $scope.Clean();
                 $scope.employeeNew.EmploymentType = $scope.EmploymentType;
-
-                $http({
-                    method: 'GET',
-                    url: 'Employees/EmployeeInformation/GetEmpCodeGenSetting?EmploymentType=' + $scope.employeeNew.EmploymentType
-                }).then(function successCallback(response) {
-                    if (baseService.arrayLength(response.data)==0) {
-                        ShowResult("Employee Code Generation Setting is not defined.", 'failure');
-                    } else {
-                        $scope.IsEmployeeCodeOpenField = response.data[0].IsEmployeeCodeOpenField;
-                        $scope.ShowVendorCtrl();
-                        angular.element(document.querySelector('#NewEmpEntryPopUp')).modal('show');
-                    }
-                })
+                angular.element(document.querySelector('#NewEmpEntryPopUp')).modal('show');
+                $scope.ShowVendorCtrl();
+                //$http({
+                //    method: 'GET',
+                //    url: 'Employees/EmployeeInformation/GetEmpCodeGenSetting?EmploymentType=' + $scope.employeeNew.EmploymentType
+                //}).then(function successCallback(response) {
+                //    if (baseService.arrayLength(response.data)==0) {
+                //        ShowResult("Employee Code Generation Setting is not defined.", 'failure');
+                //    } else {
+                //        $scope.IsEmployeeCodeOpenField = response.data[0].IsEmployeeCodeOpenField;
+                        
+                        
+                //    }
+                //})
                 
             } else {
                 throw "Select Employment Type.";
@@ -288,7 +289,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
                 $scope.ShowDOCIsDayInPut();
 
             }
-            // $scope.IsEmployeeCodeOpenField = response.data[0].IsEmployeeCodeOpenField;
+            $scope.IsEmployeeCodeOpenField = response.data[0].IsEmployeeCodeOpenField;
             $scope.EmployeeCodeCheckLevel = response.data[0].EmployeeCodeCheckLevel;
             $scope.IsReferenceRequired = response.data[0].IsReferenceRequired;
             $scope.IsTransportGroupMandatory = response.data[0].IsTransportGroupMandatory;
