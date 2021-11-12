@@ -92,7 +92,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     DaySt = "and a.DayStatus = '"+DayStatus+"'";
                 }
 
-                var str = @"select a.EmpSystemID,e.EmployeeCode,a.DayStatus,a.WorkDate,e.PlantId,p.UserName as Plant,
+                var str = @"select a.EmpSystemID,e.EmployeeCode,a.DayStatus,format(a.WorkDate ,'dd-MMM-yyyy') as WorkDate,e.PlantId,p.UserName as Plant,
                             a.InTime,a.OutTime,a.ProcessedOT,isnull((a.ProcessedOT*dt.OTMultiplingFactor),'0') as TargetOT,
                             isnull(PreallocatedOTHr*60,'0') as PlanOT,dt.DayLimit,a.IsOTComfirm,a.StandardOT,
                             --- Week Data
@@ -115,8 +115,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                             left join ORG.SubSection ss on ss.Id=e.SubSectionId
                             left join hkp.LegalDesignation l on l.Id=e.LegalDesignationId
                             left join org.Department d on d.Id=e.DepartmentId
-                            left join PreallocatedOT pot on (pot.PlantID=e.PlantId and pot.WorkDate between '2021-11-1'
-                            and '2021-11-08') and ISNULL(ExtendTheDayLimit,'')! =''
+                            left join PreallocatedOT pot on (pot.PlantID=e.PlantId and pot.WorkDate between '"+FromDate+@"'
+                            and '"+ToDate+@"') and ISNULL(ExtendTheDayLimit,'')! =''
                             where  IsOTEntitled=1
                             and dt.DayType=a.DayStatus 
                             "+OTConfirm+@" "+isDayStatus+@"

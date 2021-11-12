@@ -94,6 +94,16 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
 
     $scope.getData = function () {
 
+        if (angular.isNullOrUndefined($scope.Week)) {
+            ShowResult("Please Select the Week!!", 'failure');
+            throw ('Invaild Request');
+        }
+
+        if (angular.isNullOrUndefined($scope.FromDate) || angular.isNullOrUndefined($scope.ToDate)) {
+            ShowResult("Please Select the From and To Date!!", 'failure');
+            throw ('Invaild Request');
+        }
+
         var gridObj = $("#WeekList").data("ejGrid");
         var filteredRecords = gridObj.getFilteredRecords();
         if (filteredRecords.length == 0) {
