@@ -117,7 +117,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             left join org.Department d on d.Id=e.DepartmentId
                             left join PreallocatedOT pot on (pot.PlantID=e.PlantId and pot.WorkDate between '2021-11-1'
                             and '2021-11-08') and ISNULL(ExtendTheDayLimit,'')! =''
-                            where a.WorkDate between '2021-11-1' and '2021-11-08' and IsOTEntitled=1
+                            where  IsOTEntitled=1
                             and dt.DayType=a.DayStatus 
                             "+OTConfirm+@" "+isDayStatus+@"
                             "+ProcessFil+@" "+DaySt+@"
