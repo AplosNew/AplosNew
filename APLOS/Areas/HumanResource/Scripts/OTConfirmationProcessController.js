@@ -25,7 +25,17 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
     }
     $scope.loadfilters();
 
-
+    var getString = function (data, column) {
+        var string = "''";
+        var collection = [];
+        for (var i = 0; i < data.length; i++) {
+            if (collection.includes(data[i][column]) == false) {
+                string += ",'" + data[i][column] + "'";
+                collection.push(data[i][column]);
+            }
+        }
+        return string;
+    }
    
 
 
@@ -50,7 +60,7 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
 
     //Process Filter
     $scope.Process = null;
-    $scope.ProcessValue = 0.0;
+    $scope.ProcessValue = null;
     $scope.OTLimit = null;
     $scope.DSApp = null;
 
@@ -79,6 +89,9 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
         angular.element(document.querySelector('#CurrDayStatusModal')).modal('hide');
     }
 
+
+    $scope.Data = [];
+
     $scope.getData = function () {
 
         var gridObj = $("#WeekList").data("ejGrid");
@@ -91,23 +104,38 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
         parameters.push({ "Key": "PlantId", "Value": getString(filteredRecords, "PlantId") });
         parameters.push({ "Key": "EntityId", "Value": getString(filteredRecords, "EntityId") });
 
-
-        console.log($scope.Process, ' ',
-            $scope.ProcessValue, ' ',
-            $scope.OTLimit, ' ',
-            $scope.DSApp, ' ',
-            $scope.DayStatus, ' ', $scope.OTConfirmationValue, ' ', $scope.ToDate, ' ', $scope.FromDate, ' ', $scope.Week , ' = ' , parameters);
-    }
-
-    var getString = function (data, column) {
-        var string = "''";
-        var collection = [];
-        for (var i = 0; i < data.length; i++) {
-            if (collection.includes(data[i][column]) == false) {
-                string += ",'" + data[i][column] + "'";
-                collection.push(data[i][column]);
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getGridData',
+            data: {
+                'Week': $scope.Week, 'FromDate': $scope.FromDate, 'ToDate': $scope.ToDate, 'OTConfirmationValue': $scope.OTConfirmationValue
+                , 'OTLimit': $scope.OTLimit, 'Process': $scope.Process, 'ProcessValue': $scope.ProcessValue, 'DayStatus': $scope.DayStatus, 'DSApp':$scope.DSApp,'Parameters': parameters },
+        }).then(function succ(resp) {
+            if (resp.data.Error === true) {
+                ShowResult(resp.data.Message, 'failure');
             }
-        }
-        return string;
+            else {
+                $scope.Data = [];
+                $scope.Data = resp.data;
+            }
+            
+        })
     }
+
+    $scope.ProcessAll = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'ProcessData',
+            data: {'Data' : $scope.Data},
+        }).then(function succ(resp) {
+            if (resp.data.Error === true) {
+                ShowResult(resp.data.Message, 'failure');
+            }
+            else {
+                console.log(resp);
+            }
+
+        })
+    }
+   
 }
