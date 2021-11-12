@@ -6681,7 +6681,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             dt.Rows.Add(dr);
         }
 
-        #endregion
+        #endregion 
 
         #region GroupWise Calling Functions
         public void ShiftProcessGroupWise(string Date, string GroupId)

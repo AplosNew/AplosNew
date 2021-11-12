@@ -363,11 +363,11 @@ namespace Library.Service.Attendances
 
                 if (string.IsNullOrEmpty(items[0].InTimeUI) == false)
                 {
-                    _date = Convert.ToDateTime(System.DateTime.Now).ToString("dd-MMM-yyyy");
+                    _date = Convert.ToDateTime(DateTime.Now).ToString("dd-MMM-yyyy");
                 }
                 else
                 {
-                    _date = Convert.ToDateTime(System.DateTime.Now).ToString("dd-MMM-yyyy");
+                    _date = Convert.ToDateTime(DateTime.Now).ToString("dd-MMM-yyyy");
                 }
 
 
@@ -378,11 +378,14 @@ namespace Library.Service.Attendances
 
 
 
-                DataSet dsRef;
+                DataSet dsRef,dsMaster;
                 ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                 string strSql = @"select * from AttdnRawDataFromApp where EmployeeId='" + items[0].EmployeeId + "' and PDate='" + _date2.ToString("dd-MMM-yyyy") + "'";
                 objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, "1");
 
+                // APD Manual Entry
+                string Sql = @"select * from AttdnProcessData where EmpSystemID='" + items[0].EmployeeId + "' and WorkDate='" + _date2.ToString("dd-MMM-yyyy") + "'";
+                objCon.OpenDataSetThroughAdapter(Sql, out dsMaster, false, "1");
 
 
                 if (dsRef.Tables[0].Rows.Count > 0)
@@ -438,15 +441,9 @@ namespace Library.Service.Attendances
                     dr["PDate"] = _date2;
 
 
-
-
-
                     if (string.IsNullOrEmpty(items[0].InTimeUI) == false)
                     {
-
-
-
-                        dr["InTime"] = System.DateTime.Now.ToString();
+                        dr["InTime"] = DateTime.Now.ToString();
                         dr["Latitude"] = items[0].Latitude;
                         dr["Longitude"] = items[0].Longitude;
                         dr["INLocationDesc"] = items[0].INLocationDesc;
@@ -476,48 +473,29 @@ namespace Library.Service.Attendances
                     dr["UpdatedBy"] = items[0].EmployeeId;
                     dr["UpdatedDate"] = DateTime.Now.ToString();
 
-
-
-
                     dsRef.Tables[0].Rows.Add(dr);
-
-
-
                 }
                 else
                 {
-
-
-
                     DataRow dr = dsRef.Tables[0].Rows[0];
                     dr.BeginEdit();
 
-
-
-
                     if (string.IsNullOrEmpty(items[0].InTimeUI) == false)
                     {
-
-
-
-                        dr["InTime"] = System.DateTime.Now.ToString();
+                        dr["InTime"] = DateTime.Now.ToString();
                         dr["Latitude"] = items[0].Latitude;
                         dr["Longitude"] = items[0].Longitude;
                         dr["INLocationDesc"] = items[0].INLocationDesc;
                         dr["Remarks"] = items[0].Remarks;
                     }
 
-
-
                     if (string.IsNullOrEmpty(items[0].OutTimeUI) == false)
                     {
-                        dr["OutTime"] = System.DateTime.Now.ToString();
+                        dr["OutTime"] = DateTime.Now.ToString();
                         dr["LatitudeOUT"] = items[0].LatitudeOUT;
                         dr["LongitudeOUT"] = items[0].LongitudeOUT;
                         dr["OutLocationDesc"] = items[0].OutLocationDesc;
                         dr["RemarksOUT"] = items[0].RemarksOUT;
-
-
 
                     }
 
@@ -530,19 +508,41 @@ namespace Library.Service.Attendances
                     dr["UpdatedBy"] = items[0].EmployeeId;
                     dr["UpdatedDate"] = DateTime.Now.ToString();
 
-
-
                     dr.EndEdit();
 
+                }
 
+                // Entry in APD 
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    DataRow drx = dsMaster.Tables[0].Rows[0];
+                    drx.BeginEdit();
 
+                    if (string.IsNullOrEmpty(items[0].InTimeUI) == false)
+                    {
+                        drx["ManualInTime"] = DateTime.Now.ToString();                        
+                        drx["OriginalManualInTime"] = DateTime.Now.ToString();
+                        drx["IsManualInTime"] = true;
+                        drx["InTime"]= DateTime.Now.ToString();
+                    }
+
+                    if (string.IsNullOrEmpty(items[0].OutTimeUI) == false)
+                    {
+                        drx["OutTime"] = DateTime.Now.ToString();                        
+                        drx["ManualOutTime"] = DateTime.Now.ToString();
+                        drx["OriginalManualOutTime"] = DateTime.Now.ToString();
+                        drx["IsManualOutTime"] = true;
+
+                    }
+                    drx["DataSource"] = "MobileAppEntry";
+                    drx["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                    drx.EndEdit();
 
                 }
 
 
-
                 clsStaticInfo info = new clsStaticInfo();
-                info.SaveDataSets(dsRef);
+                info.SaveDataSets(dsRef,dsMaster);
 
                 string MasterId = dsRef.Tables[0].Rows[0]["Id"].ToString();
                 return MasterId;
