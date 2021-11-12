@@ -351,13 +351,9 @@ namespace Library.Service.Attendances
         public string SaveData(IEnumerable<AttdnRawDataFromApp> DataToSave)
         {
 
-
-
             try
             {
                 List<AttdnRawDataFromApp> items = DataToSave.ToList();
-
-
 
                 string _date = string.Empty;
 
@@ -370,13 +366,7 @@ namespace Library.Service.Attendances
                     _date = Convert.ToDateTime(DateTime.Now).ToString("dd-MMM-yyyy");
                 }
 
-
-
-
-
                 DateTime _date2 = Convert.ToDateTime(_date);
-
-
 
                 DataSet dsRef,dsMaster;
                 ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
@@ -390,14 +380,11 @@ namespace Library.Service.Attendances
 
                 if (dsRef.Tables[0].Rows.Count > 0)
                 {
-
-
-
+                    // Validation Section
                     if (string.IsNullOrEmpty(items[0].InTimeUI) == false)
                     {
                         if (bplib.clsWebLib.GetBoolData(dsRef.Tables[0].Rows[0]["isApprovedIN"].ToString()) == true)
                             return "In data has been approved";
-
 
 
                         if (dsRef.Tables[0].Rows[0]["InTime"].ToString() != "")
@@ -405,34 +392,24 @@ namespace Library.Service.Attendances
                     }
 
 
-
                     if (string.IsNullOrEmpty(items[0].OutTimeUI) == false)
                     {
                         if (bplib.clsWebLib.GetBoolData(dsRef.Tables[0].Rows[0]["isApprovedOUT"].ToString()) == true)
                             return "Out data has been approved";
 
-
-
                     }
 
 
-
-
                 }
-
-
 
 
                 if (dsRef.Tables[0].Rows.Count == 0)
                 {
                     string NewId = "";
                     bplib.clsGenID id = new bplib.clsGenID();
-                    id.GenIDYearly(System.DateTime.Now.ToShortDateString(), "MANUAL ATTENDANCE", out NewId);
-
-
+                    id.GenIDYearly(DateTime.Now.ToShortDateString(), "MANUAL ATTENDANCE", out NewId);
 
                     DataRow dr = dsRef.Tables[0].NewRow();
-
 
 
                     dr["Id"] = NewId;
