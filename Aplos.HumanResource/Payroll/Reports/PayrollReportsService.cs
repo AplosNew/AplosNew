@@ -9456,7 +9456,7 @@ namespace Library.HumanResource.Payroll
                     int empDetailFirstXlsRow = 0;
 
                     int empPaySlipDetailXlsRow = 0;
-                    Dictionary<string, List<DataRow>> dicLeaveEmp = objRpt.GetEmpLeaveInfoPaySlipSaad(para);
+                    Dictionary<string, List<DataRow>> dicLeaveEmp = objRpt.GetEmpLeaveInfoPaySlipSaad(parameters, para);
                     xlsRow = startRow;
 
 
@@ -10309,7 +10309,7 @@ namespace Library.HumanResource.Payroll
                     int empDetailFirstXlsRow = 0;
 
                     int empPaySlipDetailXlsRow = 0;
-                    Dictionary<string, List<DataRow>> dicLeaveEmp = objRpt.GetEmpLeaveInfoPaySlipSaad(para);
+                    Dictionary<string, List<DataRow>> dicLeaveEmp = objRpt.GetEmpLeaveInfoPaySlipSaad(parameters, para);
                     xlsRow = startRow;
 
 
