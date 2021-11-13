@@ -325,6 +325,7 @@
     <Folder Include="POPResources\GRN\" />
     <Folder Include="POPResources\JobDescriptions\" />
     <Folder Include="POPResources\JobWorkPurchaseOrder\" />
+    <Folder Include="POPResources\JWPurchaseOrder\" />
     <Folder Include="POPResources\Materials\" />
     <Folder Include="POPResources\PreRecruitments\Documents\" />
     <Folder Include="POPResources\PreRecruitments\EmpPic\" />

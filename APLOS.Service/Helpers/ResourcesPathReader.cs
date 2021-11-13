@@ -206,7 +206,19 @@ namespace Library.Service.Helpers
             }
         }
 
-        public static string GetGRNPath()
+		public static string GetJWPurchaseOrderPath()
+		{
+			try
+			{
+				return ResolveFilePath(GetVirtualDirectory() + "/JWPurchaseOrder/");
+			}
+			catch
+			{
+				throw new CustomException(ServiceResources.FilePathNotFound);
+			}
+		}
+
+		public static string GetGRNPath()
 		{
 			try
 			{
