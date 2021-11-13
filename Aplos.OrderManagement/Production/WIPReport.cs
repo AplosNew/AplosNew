@@ -1910,6 +1910,7 @@ namespace Library.OrderManagement.Production
                             left join scs.WorkCenterMaster AS wcm ON wcm.Id = prSum.WorkCenterMasterId
                             JOIN org.Entity AS e ON e.Id=wcm.EntityId
                             JOIN org.Plant AS p ON p.Id=e.PlantId
+
 				ORDER BY wcm.Sequence";
 
                 dt = _sqlRepository.GetDataTable(strSql);
