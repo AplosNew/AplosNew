@@ -13,7 +13,6 @@ using Library.Data.Sql;
 using OTSBD;
 using System.Data;
 using System.Collections.Generic;
-using Library.Service.Attendances;
 using Library.Model.Enums;
 using Syncfusion.XlsIO;
 using Library.Service.Helpers;
@@ -26,12 +25,9 @@ namespace Aplos.Areas.HumanResource.Controllers
 
     public class OTConfirmationProcessController : BaseController
     {
-        // add a header verification - 1. Basic Authentication .... 2. Payload
-
+        
         #region Constructor
-        /// <summary>   The separationTypeService service. </summary>
-
-
+        
         OTConfirmationProcessService ot = new OTConfirmationProcessService();
         public OTConfirmationProcessController()
         {
@@ -73,9 +69,24 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost , Authorize]
-        public void ProcessData(IEnumerable<object> Data)
+        public void ProcessData(string Data)
         {
             int j = 1;
+
+            DataTable dx = new DataTable();
+            dx.Columns.Add("empcode", typeof(string));
+            dx.Columns.Add("workdate", typeof(DateTime));
+
+            string WorkDate = "";
+
+            var StringDates = new List<DateTime>();
+            StringDates.Add(Convert.ToDateTime(WorkDate));
+
+            DateTime MaxDate=StringDates.Max(date => date);
+            DateTime MinDate=StringDates.Min(date => date);                  
+
+            // var EmpData= Data.Where(k => k["empsystemid"].ToString() == "1223" && ).FirstOrDefault(); 
+
         }
         #endregion Operations
     }

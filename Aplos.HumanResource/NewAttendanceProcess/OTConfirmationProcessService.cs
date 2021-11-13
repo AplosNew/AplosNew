@@ -94,7 +94,8 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 var str = @"select a.EmpSystemID,e.EmployeeCode,a.DayStatus,format(a.WorkDate ,'dd-MMM-yyyy') as WorkDate,e.PlantId,p.UserName as Plant,
                             a.InTime,a.OutTime,a.ProcessedOT,isnull((a.ProcessedOT*dt.OTMultiplingFactor),'0') as TargetOT,
-                            isnull(PreallocatedOTHr*60,'0') as PlanOT,dt.DayLimit,a.IsOTComfirm,a.StandardOT,
+                            isnull(PreallocatedOTHr*60,'0') as PlanOT,dt.DayLimit,a.IsOTComfirm,a.StandardOT,a.AppliedOTLimit,
+                            a.AllowedOTLimit,a.AdditionalOT,dt.ApplicableWM,
                             --- Week Data
                             WeekLimit= case when a.OTWeek='1' then (select dt.Week1Limit)
                             when a.OTWeek='2' then (select dt.Week2Limit)
@@ -115,7 +116,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             left join ORG.SubSection ss on ss.Id=e.SubSectionId
                             left join hkp.LegalDesignation l on l.Id=e.LegalDesignationId
                             left join org.Department d on d.Id=e.DepartmentId
-                            left join PreallocatedOT pot on (pot.PlantID=e.PlantId and pot.WorkDate between '"+FromDate+@"'
+                            left join PreallocatedOT pot on (pot.PlantID=e.PlantId and pot.WorkDate between '" + FromDate+@"'
                             and '"+ToDate+@"') and ISNULL(ExtendTheDayLimit,'')! =''
                             where  IsOTEntitled=1
                             and dt.DayType=a.DayStatus 

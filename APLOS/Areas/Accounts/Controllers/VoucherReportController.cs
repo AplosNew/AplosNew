@@ -21,6 +21,8 @@ using System.Threading;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
 using Library.Accounting.FixedAssets;
+using Syncfusion.ExcelToPdfConverter;
+using Syncfusion.Pdf;
 
 namespace Aplos.Areas.Accounts.Controllers
 {
@@ -455,7 +457,36 @@ namespace Aplos.Areas.Accounts.Controllers
             return null;
         }
 
+        //[HttpGet, Authorize]
+        //public ActionResult AssetWIPstatusReportPdf(string materialMasterId, string materialMasterArticleId, string voucherId, string grnNo, string glId, string activityId)
+        //{
+        //    AssetWIPQueryService assetWIPQueryService = new AssetWIPQueryService(_sqlRepository);
+        //    //string PartyType, string PartyId, string MaterialMasterId, string FixedAssetsId, string FromDate, string ToDate
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    try
+        //    {
+        //        // if (string.IsNullOrEmpty(MasterLCList))
+        //        //   throw new Exception("Please select at least one master Order");
 
+        //        ExcelEngine excelEngine = new ExcelEngine();
+
+        //        IWorkbook workbook = assetWIPQueryService.AssetWIPstatusList(materialMasterId, materialMasterArticleId, voucherId, grnNo, glId, activityId);
+        //        // string strFileName = "Fixed Assets Register Report.pdf";
+        //        string strFileName = "Fixed Assets Register Report.xlsx";
+        //        ExcelToPdfConverter convert = new ExcelToPdfConverter(workbook);
+        //        PdfDocument pdfDoc = convert.Convert();
+        //        workbook.Close();
+        //        pdfDoc.Save(strFileName, System.Web.HttpContext.Current.Response, HttpReadType.Save);
+        //        //workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(ex.Message, JsonRequestBehavior.AllowGet);
+
+        //    }
+        //    return null;
+        //}
     }
 
 

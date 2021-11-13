@@ -32,8 +32,17 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
         , { value: 'PostingDate', name: "PostingDate" }, { value: 'GateEntryNo', name: "Gate EntryNo" }, { value: 'DocRefNo', name: "DocRef No" }
         , { value: 'DocDate', name: "Doc Date" }];
 
-    $scope.products = [];    $scope.getDataList = function () {        $http({            method: 'POST',            url: 'Accounts/InventoryPayable/GetPostingList',            data: { column: $scope.searchByPostedGRN, value: $scope.searchGRN },
-            dataType: 'JSON',        }).then(function successCallback(response) {            $scope.products = response.data;        });    };
+    $scope.products = [];
+    $scope.getDataList = function () {
+        $http({
+            method: 'POST',
+            url: 'Accounts/InventoryPayable/GetPostingList',
+            data: { column: $scope.searchByPostedGRN, value: $scope.searchGRN },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            $scope.products = response.data;
+        });
+    };
     $scope.getDataList();
 
     $scope.model = {
@@ -196,10 +205,20 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
     }
    
 
-    $scope.approvedGRNList = [];    $scope.getPopUpData = function () {        $http({            method: 'GET',            url: 'Accounts/InventoryPayable/GetListForInvPayable',        }).then(function successCallback(response) {            $scope.approvedGRNList = response.data;            for (var i = 0; i < $scope.approvedGRNList.length; i++) {
-                response.data[i].GRNDate = new Date($scope.approvedGRNList[i].GRNDate);                response.data[i].DocDate = new Date($scope.approvedGRNList[i].DocDate);
+    $scope.approvedGRNList = [];
+    $scope.getPopUpData = function () {
+        $http({
+            method: 'GET',
+            url: 'Accounts/InventoryPayable/GetListForInvPayable',
+        }).then(function successCallback(response) {
+            $scope.approvedGRNList = response.data;
+            for (var i = 0; i < $scope.approvedGRNList.length; i++) {
+                response.data[i].GRNDate = new Date($scope.approvedGRNList[i].GRNDate);
+                response.data[i].DocDate = new Date($scope.approvedGRNList[i].DocDate);
                 response.data[i].PODate = new Date($scope.approvedGRNList[i].PODate);
-            }        });    };
+            }
+        });
+    };
     $scope.popUp = function () {
         $scope.getPopUpData();
         angular.element(document.querySelector('#GRNpopUp')).modal('show');
@@ -345,26 +364,30 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
     }
 
     $scope.PurchaseOrderDiscountList = [];
-    $scope.GetPurchaseOrderDiscount = function (id) {        $http({
+    $scope.GetPurchaseOrderDiscount = function (id) {
+        $http({
             method: 'POST',
             url: 'Accounts/InventoryPayable/GetPurchaseOrderDiscount?grnId=' + id,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.PurchaseOrderDiscountList = response.data;
             $scope.PODiscountAmount = $scope.PurchaseOrderDiscountList[0].DiscountAmount;
-        });    };
+        });
+    };
 
     $scope.purchcaseDiscountList = [];
 
 
-    $scope.GetPurchaseDiscountGL = function () {        $http({
+    $scope.GetPurchaseDiscountGL = function () {
+        $http({
             method: 'POST',
             url: 'Accounts/InventoryPayable/GetPurchaseDiscountGL',
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.purchcaseDiscountList = response.data;
 
-        });    };
+        });
+    };
     $scope.GetPurchaseDiscountGL();
 
     $scope.materialConfigMassege = function () {
@@ -753,9 +776,21 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
         }
     }
 
-    $scope.getNewDataList = function (grnId) {        $http({            method: 'POST',            url: 'Accounts/InventoryPayable/GetPostingList',            data: { column: $scope.searchByPostedGRN, value: $scope.searchGRN },
-            dataType: 'JSON',        }).then(function successCallback(response) {            $scope.products = response.data;            var rowdata = $filter("filter")($scope.products, { Id: grnId });            if (!baseService.isUndefinedOrNull(rowdata[0].AdditionalTaxId)) {                $scope.onClickadditionalTaxPop(rowdata[0]);
-            }            $scope.Clear();        });    };
+    $scope.getNewDataList = function (grnId) {
+        $http({
+            method: 'POST',
+            url: 'Accounts/InventoryPayable/GetPostingList',
+            data: { column: $scope.searchByPostedGRN, value: $scope.searchGRN },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            $scope.products = response.data;
+            var rowdata = $filter("filter")($scope.products, { Id: grnId });
+            if (!baseService.isUndefinedOrNull(rowdata[0].AdditionalTaxId)) {
+                $scope.onClickadditionalTaxPop(rowdata[0]);
+            }
+            $scope.Clear();
+        });
+    };
     $scope.updatePayableGL = function () {
         for (var i = 0; i < $scope.newList.length; i++) {
             if ($scope.newList[i].OtherName == 'LCBase' && $scope.newList[i].TrnType == 'Cr') {
@@ -873,10 +908,26 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
 
 
 
-    $scope.onClickReportDownloadWord = function (data) {        var reportFormat = "Pdf";        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');        $window.open($scope.path + 'PabyableJournal?reportFormat=' + reportFormat + '&inventoryReceiveId=' + data.Id + '&employeeId=' + data.EmployeeId + '&isReversCharge=' + data.IsTaxApplicable + '&isFoc=' + data.IsFOC, '_blank');
-    };    $scope.commandPDF = [{        type: "details", buttonOptions: {            text: "PDF",            width: "50",            height: "20",            click: $scope.onClickReportDownloadWord        }    }];
+    $scope.onClickReportDownloadWord = function (data) {
+        var reportFormat = "Pdf";
+        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
+        $window.open($scope.path + 'PabyableJournal?reportFormat=' + reportFormat + '&inventoryReceiveId=' + data.Id + '&employeeId=' + data.EmployeeId + '&isReversCharge=' + data.IsTaxApplicable + '&isFoc=' + data.IsFOC, '_blank');
 
-    $scope.onClickReportDownloadExcel = function (data) {        var reportFormat = "Excel";        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');        $window.open($scope.path + 'PabyableJournal?reportFormat=' + reportFormat + '&inventoryReceiveId=' + data.Id + '&employeeId=' + data.EmployeeId + '&isReversCharge=' + data.IsTaxApplicable + '&isFoc=' + data.IsFOC, '_blank');
+    };
+
+    $scope.commandPDF = [{
+        type: "details", buttonOptions: {
+            text: "PDF",
+            width: "50",
+            height: "20",
+            click: $scope.onClickReportDownloadWord
+        }
+    }];
+
+    $scope.onClickReportDownloadExcel = function (data) {
+        var reportFormat = "Excel";
+        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
+        $window.open($scope.path + 'PabyableJournal?reportFormat=' + reportFormat + '&inventoryReceiveId=' + data.Id + '&employeeId=' + data.EmployeeId + '&isReversCharge=' + data.IsTaxApplicable + '&isFoc=' + data.IsFOC, '_blank');
     };
    
 
@@ -982,19 +1033,31 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
    
     $scope.additionalTaxPostUrl = 'Accounts/InvoicePost/InsertAdditionalTaxPayable';
     $scope.additionalTaxDetailList = [];
-    $scope.onClickadditionalTaxPop = function (x) {        $scope.additionalTaxData = {};        var data = x;        data.VoucherTypeId = null;        data.VoucherTypeId = $scope.additionalTaxVoucherTypeId;        data.VoucherDate = new Date();        $scope.additionalTaxData = data;        $http({
+    $scope.onClickadditionalTaxPop = function (x) {
+        $scope.additionalTaxData = {};
+        var data = x;
+        data.VoucherTypeId = null;
+        data.VoucherTypeId = $scope.additionalTaxVoucherTypeId;
+        data.VoucherDate = new Date();
+        $scope.additionalTaxData = data;
+        $http({
             method: 'POST',
             url: 'Accounts/InventoryPayable/GetAdditionalTaxDetail?additionalTaxId=' + data.AdditionalTaxId,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.additionalTaxDetailList = response.data;
-        });        $scope.getPaymentVoucherType();        angular.element(document.querySelector('#additionalTaxPopUp')).modal('show');
-    };    $scope.postAdditionalTax = function () {
+        });
+        $scope.getPaymentVoucherType();
+        angular.element(document.querySelector('#additionalTaxPopUp')).modal('show');
+    };
+
+    $scope.postAdditionalTax = function () {
         if ($scope.additionalTaxVoucherTypeId == null)
             ShowResult('Please select VoucherType', 'failure', 'additionalTaxPopUp');
 
         $scope.additionalTaxData.VoucherTypeId = $scope.additionalTaxVoucherTypeId;
-        if ($scope.additionalTaxData != null && $scope.additionalTaxVoucherTypeId != null) {            $http({
+        if ($scope.additionalTaxData != null && $scope.additionalTaxVoucherTypeId != null) {
+            $http({
                 method: 'POST',
                 url: $scope.additionalTaxPostUrl,
                 data: {
@@ -1015,11 +1078,20 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
             angular.element(document.querySelector('#additionalTaxPopUp')).modal('hide');
         }
 
-    }    $scope.closeAdditionalTax = function () {
+    }
+    $scope.closeAdditionalTax = function () {
         $scope.additionalTaxData = {};
         angular.element(document.querySelector('#additionalTaxPopUp')).modal('hide');
 
-    }    //$scope.additionalTaxPop = [{    //    type: "details", buttonOptions: {    //        text: "TDS Post",    //        width: "80",    //        height: "20",    //        click: $scope.onClickadditionalTaxPop    //    }    //}];
+    }
+    //$scope.additionalTaxPop = [{
+    //    type: "details", buttonOptions: {
+    //        text: "TDS Post",
+    //        width: "80",
+    //        height: "20",
+    //        click: $scope.onClickadditionalTaxPop
+    //    }
+    //}];
 
     $scope.additionalTaxPrint = function () {
         try {
@@ -1080,7 +1152,9 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
                 $scope.GRNId = null;
                 $scope.VoucherId = null;
                 $scope.Type = null;
-                $scope.TDSTaxVoucherId = null;                $scope.TDSVoucherNo = null;                $scope.InvoiceId = null;
+                $scope.TDSTaxVoucherId = null;
+                $scope.TDSVoucherNo = null;
+                $scope.InvoiceId = null;
             }
         }, function errorCallback(response) {
             ShowResult(response.status.Message, "failure");
@@ -1088,7 +1162,16 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
         return true;
     };
 
-    $scope.onClickDeletePopUp = function (x) {        var data = x;        $scope.GRNId = data.Id;        $scope.VoucherId = data.VoucherId;        $scope.TDSTaxVoucherId = data.TDSTaxVoucherId;        $scope.TDSVoucherNo = data.TDSVoucherNo;        $scope.InvoiceId = data.InvoiceId;        $scope.Type = data.GRNType;        $scope.message_delete_confirmation = "Are you sure to Delete?";        angular.element(document.querySelector('#confirmDeletePopUp')).modal('show');
+    $scope.onClickDeletePopUp = function (x) {
+        var data = x;
+        $scope.GRNId = data.Id;
+        $scope.VoucherId = data.VoucherId;
+        $scope.TDSTaxVoucherId = data.TDSTaxVoucherId;
+        $scope.TDSVoucherNo = data.TDSVoucherNo;
+        $scope.InvoiceId = data.InvoiceId;
+        $scope.Type = data.GRNType;
+        $scope.message_delete_confirmation = "Are you sure to Delete?";
+        angular.element(document.querySelector('#confirmDeletePopUp')).modal('show');
     };
 
     $scope.fiscalinvoiceAmountByParty = [];
