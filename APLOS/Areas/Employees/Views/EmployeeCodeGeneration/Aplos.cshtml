@@ -114,8 +114,8 @@
                                 </label>
                             </div>
                         </div>
-                        <label class="col-sm-2 control-label">Prefix</label>
-                        <div class="col-sm-4 show-message">
+                        <label class="col-sm-2 control-label" ng-show="ModelNew.IsAutoEmpCodeWithPrefix==true">Prefix</label>
+                        <div class="col-sm-4" ng-show="ModelNew.IsAutoEmpCodeWithPrefix==true">
                             <input type="text" name="Prefix" ng-model="ModelNew.Prefix" class="form-control" maxlength="10">
                         </div>
                     </div>

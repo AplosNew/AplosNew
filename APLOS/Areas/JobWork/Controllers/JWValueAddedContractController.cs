@@ -102,13 +102,13 @@ namespace Aplos.Areas.JobWork.Controllers
         public JsonResult getactivitylistTransformation(string ContractType)
         {
             string sql = "";
-            if(ContractType== "OSTransformationPO")
+            if(ContractType== "JWTransformationPO")
             {
                 sql = @"select distinct jwa.Id as Value, jwa.UserName as Text from MST.JobWorkTransformationMaster tm 
                         left join HKP.JobWorkActivity jwa on jwa.Id=tm.JobWorkActivityId order by jwa.UserName ";
             }
 
-            if (ContractType == "OSValueAddedPO")
+            if (ContractType == "JWValueAddedPO")
             {
                 sql = @"select distinct jwa.Id as Value, jwa.UserName as Text from MST.JobWorkValueAddedMaster tm 
                         left join HKP.JobWorkActivity jwa on jwa.Id=tm.JobWorkActivityId order by jwa.UserName ";
@@ -122,13 +122,13 @@ namespace Aplos.Areas.JobWork.Controllers
         public JsonResult getTransformationjobworkitemlist(string ActivityId, string ContractType)
         {
             string sql = "";
-            if (ContractType == "OSTransformationPO")
+            if (ContractType == "JWTransformationPO")
             {
                 sql = @"select jwi.Id as Value, jwi.UserName as Text from MST.JobWorkTransformationMaster tm 
                         left join HKP.JobWorkItem jwi on jwi.Id=tm.JobWorkActivityChildId where tm.JobWorkActivityId='" + ActivityId + @"' order by jwi.UserName ";
             }
 
-            if (ContractType == "OSValueAddedPO")
+            if (ContractType == "JWValueAddedPO")
             {
                 sql = @"select jwi.Id as Value, jwi.UserName as Text from MST.JobWorkValueAddedMaster vm 
                         left join HKP.JobWorkItem jwi on jwi.Id=vm.JobWorkActivityChildId where vm.JobWorkActivityId='" + ActivityId + @"' order by jwi.UserName";
@@ -144,7 +144,7 @@ namespace Aplos.Areas.JobWork.Controllers
         public JsonResult GetJWitemDataFromTrans(string ActivityId, string JWItemId, string ContractType)
         {
             string sql = "";
-            if(ContractType== "OSTransformationPO")
+            if(ContractType== "JWTransformationPO")
             {
                 sql = @"select tm.Id, tm.RateApplicable,tm.ByProductApplicable,c.Id as CId,c.Code as Currency,uom.Id as UOMId ,uom.UserName as Unit 
                     from MST.JobWorkTransformationMaster tm left join scs.Currency c on c.Id=tm.CurrencyId
@@ -206,7 +206,7 @@ namespace Aplos.Areas.JobWork.Controllers
         {
 
             string sql = "";
-            if (ContractType == "OSTransformationPO")
+            if (ContractType == "JWTransformationPO")
             {
                 sql = @"Select M.RateApplicable as Value, M.RateApplicable as Text,M.MinRate, M.MaxRate,SM.UserName as Service,M.ServiceId 
                         from MST.JobWorkTransformationMaster M
@@ -214,7 +214,7 @@ namespace Aplos.Areas.JobWork.Controllers
                         where JobWorkActivityChildId='" + JobWorkItemId + "' and JobWorkActivityId='" + ActivityId + @"' order by RateApplicable ";
             }
 
-            if (ContractType == "OSValueAddedPO")
+            if (ContractType == "JWValueAddedPO")
             {
                 sql = @"Select M.RateApplicable as Value, M.RateApplicable as Text,M.MinRate, M.MaxRate,SM.UserName as Service,M.ServiceId
                         from MST.JobWorkValueAddedMaster M
@@ -235,13 +235,13 @@ namespace Aplos.Areas.JobWork.Controllers
         public JsonResult gettransformationcurrency(string JobWorkItemId, string ActivityId, string ContractType)
         {
             string sql = "";
-            if (ContractType == "OSTransformationPO")
+            if (ContractType == "JWTransformationPO")
             {
                 sql = @"Select distinct c.Id as Value, c.Code as Text from scs.Currency c left join MST.JobWorkTransformationMaster tm on tm.CurrencyId=c.Id 
                         where tm.JobWorkActivityId='" + ActivityId + @"' and tm.JobWorkActivityChildId='" + JobWorkItemId + "' order by c.Code ";
             }
 
-            if (ContractType == "OSValueAddedPO")
+            if (ContractType == "JWValueAddedPO")
             {
                 sql = @"Select distinct c.Id as Value, c.Code as Text, vam.StdRejection, vam.StdValueLoss 
                         from scs.Currency c left join MST.JobWorkValueAddedMaster vam on vam.CurrencyId=c.Id 
@@ -1485,7 +1485,7 @@ namespace Aplos.Areas.JobWork.Controllers
         {
             string sID = string.Empty;
             bplib.clsGenID objGenID = new bplib.clsGenID();
-            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "OSTransformationPOMasterOrderItem", out sID);
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "JWTransformationPOMasterOrderItem", out sID);
             return sID;
         }
 
@@ -1498,7 +1498,7 @@ namespace Aplos.Areas.JobWork.Controllers
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                con.OpenDataSetThroughAdapter("select * from dbo.OSTransformationPOMasterOrderItem where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from dbo.JWTransformationPOMasterOrderItem where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
 
@@ -1508,7 +1508,7 @@ namespace Aplos.Areas.JobWork.Controllers
                     DataRow dr = dsMaster.Tables[0].NewRow();
 
                     dr["Id"] = "OW" + GetOWTRPK();
-                    dr["OSTransformationPODetailId"] = ChildMasterId;
+                    dr["JWTransformationPODetailId"] = ChildMasterId;
                     dr["OrderType"] = data["OrderType"];
                     dr["CustomerId"] = data["CustomerId"];
                     dr["MasterOrderNoId"] = data["MasterOrderNoId"];
@@ -1537,7 +1537,7 @@ namespace Aplos.Areas.JobWork.Controllers
                     DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
 
                     dr.BeginEdit();
-                    dr["OSTransformationPODetailId"] = ChildMasterId;
+                    dr["JWTransformationPODetailId"] = ChildMasterId;
                     dr["OrderType"] = data["OrderType"];
                     dr["CustomerId"] = data["CustomerId"];
                     dr["MasterOrderNoId"] = data["MasterOrderNoId"];
@@ -1586,7 +1586,7 @@ namespace Aplos.Areas.JobWork.Controllers
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
-                con.executeQuery("delete from dbo.OSTransformationPOMasterOrderItem where Id='" + Id + "'");
+                con.executeQuery("delete from dbo.JWTransformationPOMasterOrderItem where Id='" + Id + "'");
                 con.CommitTransaction();
 
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
@@ -1625,7 +1625,7 @@ namespace Aplos.Areas.JobWork.Controllers
 	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription
 								,CN.ContractNo,MLC.LCRef MasterLCNo, Uom.UserName as MasterOrderUoM
 								,owr.OrderType, owr.ParticularSpecification,owr.PlanQuantity as OWPlanQuantity, owr.Remarks as OWRemarks, owr.Id
-                       FROM dbo.OSTransformationPOMasterOrderItem owr left join [TRN].[SalesOrder] AS SO on owr.SalesOrderId=SO.Id 
+                       FROM dbo.JWTransformationPOMasterOrderItem owr left join [TRN].[SalesOrder] AS SO on owr.SalesOrderId=SO.Id 
                         left outer join [TRN].[ProductionOrderDetail] POD on POD.SalesOrderId=SO.Id 
                        JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
                        JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
@@ -1643,7 +1643,7 @@ namespace Aplos.Areas.JobWork.Controllers
                        LEFT JOIN dbo.[Contract] AS CN ON CN.Id=MOI.ContractId
                        LEFT JOIN dbo.MasterLC AS MLC ON MLC.Id=CN.MasterLCId
 					   left join SCS.UnitOfMeasurement Uom on Uom.Id=MO.TotalQtyUOMId
-					   where owr.OSTransformationPODetailId='" + MaterialMasterId + @"' ";
+					   where owr.JWTransformationPODetailId='" + MaterialMasterId + @"' ";
 
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
@@ -1675,7 +1675,7 @@ namespace Aplos.Areas.JobWork.Controllers
         {
             string sID = string.Empty;
             bplib.clsGenID objGenID = new bplib.clsGenID();
-            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "OSTransformationPOInputMaterial", out sID);
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "JWTransformationPOInputMaterial", out sID);
             return sID;
         }
 
@@ -1697,18 +1697,18 @@ namespace Aplos.Areas.JobWork.Controllers
                     ArtId += ",'" + empitem.ArticleId + "' ";
 
                 }
-                con.OpenDataSetThroughAdapter("select * from dbo.OSTransformationPOInputMaterial where JobWorkItemId IN ( " + JWIId + " ) and ArticleId IN ("+ ArtId + ") and OSTransformationPODetailId='" + ChildMasterId + "'  ", out ExistOrNot, false, "1");
+                con.OpenDataSetThroughAdapter("select * from dbo.JWTransformationPOInputMaterial where JobWorkItemId IN ( " + JWIId + " ) and ArticleId IN ("+ ArtId + ") and JWTransformationPODetailId='" + ChildMasterId + "'  ", out ExistOrNot, false, "1");
 
                 foreach (var item in SelectedMatInputData)
                 {
-                    ExistOrNot.Tables[0].DefaultView.RowFilter = "JobWorkItemId ='" + item.JobWorkItemId + "' and ArticleId='"+ item.ArticleId +"' and OSTransformationPODetailId='" + ChildMasterId + "' ";
+                    ExistOrNot.Tables[0].DefaultView.RowFilter = "JobWorkItemId ='" + item.JobWorkItemId + "' and ArticleId='"+ item.ArticleId +"' and JWTransformationPODetailId='" + ChildMasterId + "' ";
 
                     if (ExistOrNot.Tables[0].DefaultView.Count == 0)
                     {
                         DataRow dr = ExistOrNot.Tables[0].NewRow();
                         dr["Id"] = "MI" + GetMaterialInputPK();
 
-                        dr["OSTransformationPODetailId"] = ChildMasterId;
+                        dr["JWTransformationPODetailId"] = ChildMasterId;
                         dr["JobWorkItemId"] = item.JobWorkItemId;
                         dr["ItemSpecification"] = item.ItemSpecification;
                         dr["NetConsumption"] = item.NetConsumption;
@@ -1734,7 +1734,7 @@ namespace Aplos.Areas.JobWork.Controllers
 
                         dr.BeginEdit();
 
-                        dr["OSTransformationPODetailId"] = ChildMasterId;
+                        dr["JWTransformationPODetailId"] = ChildMasterId;
                         dr["JobWorkItemId"] = item.JobWorkItemId;
                         dr["ItemSpecification"] = item.ItemSpecification;
                         dr["NetConsumption"] = item.NetConsumption;
@@ -1784,7 +1784,7 @@ namespace Aplos.Areas.JobWork.Controllers
 
                 if (!string.IsNullOrEmpty(Id))
                 {
-                    con.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild4 where JobWorkTransformationContractChild3MasterId='" + Id + "' ", out dsMaster, false, "1");
+                    con.OpenDataSetThroughAdapter("select * from dbo.JWTransformationPOByProduct where JWTransformationPOInputMaterialId='" + Id + "' ", out dsMaster, false, "1");
                     if (dsMaster.Tables[0].Rows.Count > 0)
                     {
                         throw new Exception("First Delete By Product Data");
@@ -1793,7 +1793,7 @@ namespace Aplos.Areas.JobWork.Controllers
                 }
 
                 con.BeginTransaction();
-                con.executeQuery("delete from dbo.OSTransformationPOInputMaterial where Id='" + Id + "'");
+                con.executeQuery("delete from dbo.JWTransformationPOInputMaterial where Id='" + Id + "'");
                 con.CommitTransaction();
 
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
@@ -1814,14 +1814,14 @@ namespace Aplos.Areas.JobWork.Controllers
             string sql = @"select mi.*,jwi.UserName as JWInputItem,juom.UserName as JWIUnit, emp.EmployeeCode, emp.EmployeeStatus, emp.EmployeeName as ResponsiblePerson
                                                    ,mm.UserName as InputMaterial, uom.UserName as MMUnit, mma.StandardName as InputArticle, mma.Id as InputArticleId
                                                     ,Unit=case when jwi.MaterialMasterId is not null then uom.UserName else juom.UserName end 
-													from dbo.OSTransformationPOInputMaterial mi 
+													from dbo.JWTransformationPOInputMaterial mi 
 													left join HKP.JobWorkItem jwi on jwi.Id=mi.JobWorkItemId
 													left join dbo.EmployeeInformation emp on emp.SystemId=mi.ResponsiblePersonId
 													left join MST.MaterialMaster mm on mm.Id=jwi.MaterialMasterId
 							             			left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
 							            			left join scs.UnitOfMeasurement juom on juom.Id=jwi.UOMId
 													left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
-										            where mi.OSTransformationPODetailId='" + MaterialMasterId + "' ";
+										            where mi.JWTransformationPODetailId='" + MaterialMasterId + "' ";
 
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
@@ -1872,7 +1872,7 @@ namespace Aplos.Areas.JobWork.Controllers
         {
             string sID = string.Empty;
             bplib.clsGenID objGenID = new bplib.clsGenID();
-            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "JobWorkTransformationContractChild4", out sID);
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "JWTransformationPOByProduct", out sID);
             return sID;
         }
 
@@ -1894,18 +1894,18 @@ namespace Aplos.Areas.JobWork.Controllers
                     ArtId += ",'" + empitem.BPArticleId + "' ";
 
                 }
-                con.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild4 where JobWorkItemId IN ( " + JWId + " ) and ArticleId IN (" + ArtId + ") and JobWorkTransformationContractChild3MasterId='" + ChildMasterId + "'  ", out ExistOrNot, false, "1");
+                con.OpenDataSetThroughAdapter("select * from dbo.JWTransformationPOByProduct where JobWorkItemId IN ( " + JWId + " ) and ArticleId IN (" + ArtId + ") and JWTransformationPOInputMaterialId='" + ChildMasterId + "'  ", out ExistOrNot, false, "1");
 
                 foreach (var item in ByProductMstData)
                 {
-                    ExistOrNot.Tables[0].DefaultView.RowFilter = "JobWorkItemId ='" + item.JobWorkItemId + "' and ArticleId='" + item.BPArticleId + "' and JobWorkTransformationContractChild3MasterId='" + ChildMasterId + "' ";
+                    ExistOrNot.Tables[0].DefaultView.RowFilter = "JobWorkItemId ='" + item.JobWorkItemId + "' and ArticleId='" + item.BPArticleId + "' and JWTransformationPOInputMaterialId='" + ChildMasterId + "' ";
 
                     if (ExistOrNot.Tables[0].DefaultView.Count == 0)
                     {
                         DataRow dr = ExistOrNot.Tables[0].NewRow();
                         dr["Id"] = "BP" + GetByProductPK();
 
-                        dr["JobWorkTransformationContractChild3MasterId"] = ChildMasterId;
+                        dr["JWTransformationPOInputMaterialId"] = ChildMasterId;
                         dr["JobWorkItemId"] = item.JobWorkItemId;
                         dr["ItemSpecification"] = item.ItemSpecification;
                         dr["CurrencyId"] = item.CurrencyId;
@@ -1930,7 +1930,7 @@ namespace Aplos.Areas.JobWork.Controllers
 
                         dr.BeginEdit();
 
-                        dr["JobWorkTransformationContractChild3MasterId"] = ChildMasterId;
+                        dr["JWTransformationPOInputMaterialId"] = ChildMasterId;
                         dr["JobWorkItemId"] = item.JobWorkItemId;
                         dr["ItemSpecification"] = item.ItemSpecification;
                         dr["CurrencyId"] = item.CurrencyId;
@@ -1977,7 +1977,7 @@ namespace Aplos.Areas.JobWork.Controllers
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
-                con.executeQuery("delete from dbo.JobWorkTransformationContractChild4 where Id='" + Id + "'");
+                con.executeQuery("delete from dbo.JWTransformationPOByProduct where Id='" + Id + "'");
                 con.CommitTransaction();
 
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
@@ -2020,7 +2020,7 @@ namespace Aplos.Areas.JobWork.Controllers
             string sql = @"select bp.*,jwi.UserName as ByProductItem, c.Code as Currency, emp.EmployeeCode, emp.EmployeeName, mma.StandardName as ArticleName, mma.Code as ArticleCode
                                                     , mm.UserName as ByProductMaterial, mm.Code as BPMaterialCode
 													,Unit= case when bp.ArticleId is not null then mmuom.UserName else uom.UserName End
-                                                    from dbo.JobWorkTransformationContractChild4 bp
+                                                    from dbo.JWTransformationPOByProduct bp
 													left join HKP.JobWorkItem jwi on jwi.Id=bp.JobWorkItemId
                                                     left join scs.Currency c on c.Id=bp.CurrencyId
                                                     left join dbo.EmployeeInformation emp on emp.SystemId=bp.ResponsiblePersonId
@@ -2028,7 +2028,7 @@ namespace Aplos.Areas.JobWork.Controllers
 													left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
 													left join SCS.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId
 													left join SCS.UnitOfMeasurement uom on uom.Id=jwi.UOMId
-										            where bp.JobWorkTransformationContractChild3MasterId='" + MaterialInputId + "' ";
+										            where bp.JWTransformationPOInputMaterialId='" + MaterialInputId + "' ";
 
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);

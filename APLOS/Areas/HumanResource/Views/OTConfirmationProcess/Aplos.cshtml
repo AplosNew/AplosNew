@@ -3,8 +3,8 @@
 <div class="row">
     <div class="col-sm-12 col-md-6 col-lg-4">
         <div id="WeekList" ej-grid e-datasource="filters"
-             e-allowfiltering="true"  e-responsive="true"
-             e-filtersettings-filterType="excel" e-allowtextwrap="true" >
+             e-allowfiltering="true" e-responsive="true"
+             e-filtersettings-filterType="excel" e-allowtextwrap="true">
             <div e-columns>
                 <div e-column e-field="Plant" e-type="string" e-headertext="Plant" e-width="80"></div>
                 <div e-column e-field="Entity" e-type="string" e-headertext="Entity" e-width="80"></div>
@@ -17,7 +17,7 @@
             <label class="col-sm-4 control-label">Week</label>
             <div class="col-sm-8 ">
                 <div class="select-style">
-                    <select id="OTWApp" class="form-control" ng-model="Week" name="Week" >
+                    <select id="OTWApp" class="form-control" ng-model="Week" name="Week">
                         <option value="">-Select-</option>
                         <option Value="1">Week 1</option>
                         <option Value="2">Week 2</option>
@@ -35,7 +35,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input id="datepicker"  e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="FromDate" e-width="100%" />
+                        <input id="datepicker" e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="FromDate" e-width="100%" />
                     </div>
                 </div>
             </div>
@@ -47,15 +47,15 @@
                     </div>
                 </div>
             </div>
-                
+
         </div>
-        
+
     </div>
 </div>
 
 <div class="row" style="margin-top:10px;">
     <div class="col-md-3 col-lg-3 col-sm-6">
-        <div class="form-group" >
+        <div class="form-group">
             <label class="col-sm-4 control-label">OT Confirm<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
@@ -72,7 +72,7 @@
             <label class="col-sm-4 control-label">OT LImit Applicable</label>
             <div class="col-sm-8 ">
                 <div class="select-style">
-                    <select id="OtLimit" class="form-control" ng-model="OTLimit" name="OT Limit" >
+                    <select id="OtLimit" class="form-control" ng-model="OTLimit" name="OT Limit">
                         <option value="">-Select-</option>
                         <option Value="P">P</option>
                         <option Value="F">F</option>
@@ -83,25 +83,25 @@
             </div>
         </div>
     </div>
-        
 
-     <div class="col-md-6 col-lg-6 col-sm-12">
-            <div class="form-group">
-                <label class="col-sm-2 control-label">Process Filter</label>
-                <div class="col-sm-6 ">
-                    <div class="select-style">
-                        <select id="OTWApp" class="form-control" ng-model="Process" name="ProcessOT" tabindex="1">
-                            <option value="">-Select-</option>
-                            <option Value="0"><=Process OT</option>
-                            <option Value="1">>=Process OT</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-sm-4 control-label">
-                    <input type="text" onkeypress="return isNumber(event)" ng-model="ProcessValue" class="form-control" maxlength="100" tabindex="2">
+
+    <div class="col-md-6 col-lg-6 col-sm-12">
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Process Filter</label>
+            <div class="col-sm-6 ">
+                <div class="select-style">
+                    <select id="OTWApp" class="form-control" ng-model="Process" name="ProcessOT" tabindex="1">
+                        <option value="">-Select-</option>
+                        <option Value="ProcessedOT<=">Process OT <=</option>
+                        <option Value="ProcessedOT>=">Process OT >=</option>
+                    </select>
                 </div>
             </div>
-     </div>
+            <div class="col-sm-4 control-label">
+                <input type="text" onkeypress="return isNumber(event)" ng-model="ProcessValue" class="form-control" maxlength="100" tabindex="2">
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="row" style="margin-top:10px">
@@ -143,6 +143,46 @@
     </div>
 </div>
 
+<div class="row">
+    <div id="getAllData" ej-grid e-datasource="Data" 
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" style="margin-top:30px;" e-allowtextwrap="true" >
+        <div e-columns>
+            @*<div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplateForPO" e-textalign="center" e-width="30"></div>*@
+            <div e-column e-field="Plant" e-headertext="Plant" e-width="80" e-type="string"></div>
+            <div e-column e-field="Department" e-headertext="Department" e-width="80" e-type="number"></div>
+            <div e-column e-field="Section" e-type="number" e-headertext="Section" e-width="80"></div>
+            <div e-column e-field="SubSection" e-type="number" e-headertext="SubSection" e-width="80"></div>
+            <div e-column e-field="Designation" e-type="number" e-headertext="Designation" e-width="80"></div>
+            <div e-column e-field="EmployeeCode" e-type="number" e-headertext="EmpoyeeCode" e-width="80"></div>
+            <div e-column e-field="WorkDate" e-type="number" e-headertext="WorkDate" e-width="80"></div>
+            <div e-column e-field="DayStatus" e-type="number" e-headertext="DayStatus" e-width="80"></div>
+            <div e-column e-field="InTime" e-type="number" e-headertext="InTime" e-width="80"></div>
+            <div e-column e-field="OutTime" e-type="number" e-headertext="OutTime" e-width="80"></div>
+            <div e-column e-field="ProcessedOT" e-type="number" e-headertext="ProcessedOT" e-width="80"></div>
+            <div e-column e-field="TargetOT" e-type="number" e-headertext="TargetOT" e-width="80"></div>
+            <div e-column e-headertext="PlanOT" e-template="#PlantOT" e-textalign="center" e-type="number" e-width="80"></div>
+            
+            <div e-column e-field="OTWeek" e-type="number" e-headertext="OTWeek" e-width="80"></div>
+            <div e-column e-field="OTMonth" e-type="number" e-headertext="OTMonth" e-width="80"></div>
+            <div e-column e-field="OTYear" e-type="number" e-headertext="OTYear" e-width="80"></div>
+        </div>
+    </div>
+
+    <script type="text/template" id="PlantOT">
+        <input type="number" ng-model="data.PlanOT" style="color:black; text-align:center" />
+    </script>
+</div>
+<div class="row">
+    <div class="common-btn" style="margin:10px;">
+        <ul class="common-btn list-inline text-right">
+            <li><button ng-click="ProcessAll()" class="btn "><i class="glyphicon glyphicon-arrow-down"></i> Process </button></li>
+        </ul>
+    </div>
+</div>
+
+@* The Modals for the page *@
+
 <div class="modal fade site-modal in" id="CurrDayStatusModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -180,15 +220,17 @@
     </div>
 </div>
 
-    <script>
-        function isNumber(evt) {
-            evt = (evt) ? evt : window.event;
-            var charCode = (evt.which) ? evt.which : evt.keyCode;
-            if (charCode > 31 && (charCode < 48 || charCode > 57) && charCode != 46) {
-                return false;
-            }
-            return true;
+
+<script>
+    function isNumber(evt) {
+        evt = (evt) ? evt : window.event;
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode > 31 && (charCode < 48 || charCode > 57) && charCode != 46) {
+            return false;
         }
+        return true;
+    }
 
         //onkeypress = "return isNumber(event)"
-    </script>
+</script>
+
