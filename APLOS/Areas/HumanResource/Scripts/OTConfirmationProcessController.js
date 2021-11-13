@@ -94,12 +94,12 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
 
     $scope.getData = function () {
 
-        if (angular.isNullOrUndefined($scope.Week)) {
+        if (angular.isUndefinedOrNull($scope.Week)) {
             ShowResult("Please Select the Week!!", 'failure');
             throw ('Invaild Request');
         }
 
-        if (angular.isNullOrUndefined($scope.FromDate) || angular.isNullOrUndefined($scope.ToDate)) {
+        if (angular.isUndefinedOrNull($scope.FromDate) || angular.isUndefinedOrNull($scope.ToDate)) {
             ShowResult("Please Select the From and To Date!!", 'failure');
             throw ('Invaild Request');
         }
@@ -133,10 +133,22 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
     }
 
     $scope.ProcessAll = function () {
+        var ProcArr = [];
+        for (var i = 0; i < $scope.Data.length; i++) {
+            ProcArr.push({
+                'EmpSystemID': $scope.Data[i].EmpSystemID, 'WorkDate': $scope.Data[i].WorkDate, 'PlanOT': $scope.Data[i].PlanOT,
+                //'DayLimit': $scope.Data[i].DayLimit, 'StandardOT': $scope.Data[i].StandardOT, 'AppliedOTLimit': $scope.Data[i].AppliedOTLimit,
+                //'AllowedOTLimit': $scope.Data[i].AllowedOTLimit, 'AdditionalOT': $scope.Data[i].AdditionalOT, 'WeekLimit': $scope.Data[i].WeekLimit,
+                //'TargetOT': $scope.Data[i].TargetOT, 'ApplicableWM': $scope.Data[i].ApplicableWM, 'OTWeek': $scope.Data[i].OTWeek
+            });
+        }
+
+        var Proc = JSON.stringify(ProcArr);
+
         $http({
             method: 'POST',
             url: $scope.path + 'ProcessData',
-            data: {'Data' : $scope.Data},
+            data: {'Data' : Proc},
         }).then(function succ(resp) {
             if (resp.data.Error === true) {
                 ShowResult(resp.data.Message, 'failure');
