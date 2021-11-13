@@ -185,7 +185,7 @@ namespace Library.MaterialManagement.JobWork
 				,Isnull(IRD.TransactionUoMId,'') TransactionUoMId
 				,ISNULL(TUoM.UserName,'') TransactionUoM
 				,ISNULL(AlreadyAllo.BaseQty,0) OtherBaseQty
-				,AlreadyAllo.OSPOBOQMAPId
+				,OSBOQMAP.Id OSPOBOQMAPId
 				,0 BaseQty
 				,ISNULL(IRD.BaseUOMId,NULL) BaseUoMId
 				,ISNULL(BUoM.UserName,'') BaseUoM
@@ -233,9 +233,9 @@ namespace Library.MaterialManagement.JobWork
 				LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
 				LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
 				left join [MST].[MaterialMasterAlternativeUOM] MaA ON MaA.MaterialMasterId=mm.Id
-				left join(select InventoryReceiveDetailId,SalesOrderId ,Sum(TransactionQty) TransactionQty,Sum(BaseQty) BaseQty ,OSPOBOQMAPId
+				left join(select InventoryReceiveDetailId,SalesOrderId ,Sum(TransactionQty) TransactionQty,Sum(BaseQty) BaseQty 
 						  from trn.GRNPORequisitionAllocation 
-						  group by InventoryReceiveDetailId,SalesOrderId,OSPOBOQMAPId
+						  group by InventoryReceiveDetailId,SalesOrderId
 						  )AlreadyAllo ON AlreadyAllo.InventoryReceiveDetailId=IRD.Id AND AlreadyAllo.SalesOrderId=BOQ.SalesOrderId
 				WHERE IR.GRNType='GRNBYOS' and ISNULL(Boq.SalesOrderId,'') IS NOT NULL   
 				AND IRD.Id='" + inventoryReceiveDetailId + @"' 

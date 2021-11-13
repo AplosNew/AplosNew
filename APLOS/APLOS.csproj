@@ -325,6 +325,7 @@
     <Folder Include="POPResources\GRN\" />
     <Folder Include="POPResources\JobDescriptions\" />
     <Folder Include="POPResources\JobWorkPurchaseOrder\" />
+    <Folder Include="POPResources\JWPurchaseOrder\" />
     <Folder Include="POPResources\Materials\" />
     <Folder Include="POPResources\PreRecruitments\Documents\" />
     <Folder Include="POPResources\PreRecruitments\EmpPic\" />
@@ -597,6 +598,7 @@
     <Compile Include="Areas\HumanResource\Controllers\DailyAttendanceSummaryController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\RestTypeController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ShiftSummaryController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\OTConfirmationProcessController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\TablesUploadController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\LeaveWithWagesRegistersForm18Controller.cs" />
     <Compile Include="Areas\HumanResource\Controllers\WeeklyOffController.cs" />
@@ -1894,6 +1896,7 @@
     <Content Include="Areas\HumanResource\Scripts\SalaryIntegrationWithThirdPartyController.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryStructureAndProcessedReportNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryStructureSheetDailyController.js" />
+    <Content Include="Areas\HumanResource\Scripts\OTConfirmationProcessController.js" />
     <Content Include="Areas\HumanResource\Scripts\TablesUploadController.js" />
     <Content Include="Areas\HumanResource\Scripts\WeeklyOffController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeWeekOffUpdatesController.js" />
@@ -3834,6 +3837,7 @@
     <Content Include="Areas\Attendances\Views\SandwichProcess\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\WeekDefinition\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\AssetWIPStatusReport.cshtml" />
+    <Content Include="Areas\HumanResource\Views\OTConfirmationProcess\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

@@ -1,0 +1,236 @@
+﻿<h3 class="site-heading">{{title}}</h3>
+
+<div class="row">
+    <div class="col-sm-12 col-md-6 col-lg-4">
+        <div id="WeekList" ej-grid e-datasource="filters"
+             e-allowfiltering="true" e-responsive="true"
+             e-filtersettings-filterType="excel" e-allowtextwrap="true">
+            <div e-columns>
+                <div e-column e-field="Plant" e-type="string" e-headertext="Plant" e-width="80"></div>
+                <div e-column e-field="Entity" e-type="string" e-headertext="Entity" e-width="80"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-md-4 col-lg-2">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Week</label>
+            <div class="col-sm-8 ">
+                <div class="select-style">
+                    <select id="OTWApp" class="form-control" ng-model="Week" name="Week">
+                        <option value="">-Select-</option>
+                        <option Value="1">Week 1</option>
+                        <option Value="2">Week 2</option>
+                        <option Value="3">Week 3</option>
+                        <option Value="4">Week 4</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-md-6 col-lg-6">
+        <div class="row">
+            <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input id="datepicker" e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="FromDate" e-width="100%" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="ToDate" e-width="100%" />
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<div class="row" style="margin-top:10px;">
+    <div class="col-md-3 col-lg-3 col-sm-6">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">OT Confirm<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="OTConfirmationValue" name="OTConfirmation"
+                            ng-options="item.Id as item.Value for item in OTConfirmSelection" required>
+                        <option value="">--Select--</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-lg-3 col-sm-6">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">OT LImit Applicable</label>
+            <div class="col-sm-8 ">
+                <div class="select-style">
+                    <select id="OtLimit" class="form-control" ng-model="OTLimit" name="OT Limit">
+                        <option value="">-Select-</option>
+                        <option Value="P">P</option>
+                        <option Value="F">F</option>
+                        <option Value="W">W</option>
+                        <option Value="M">M</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-md-6 col-lg-6 col-sm-12">
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Process Filter</label>
+            <div class="col-sm-6 ">
+                <div class="select-style">
+                    <select id="OTWApp" class="form-control" ng-model="Process" name="ProcessOT" tabindex="1">
+                        <option value="">-Select-</option>
+                        <option Value="ProcessedOT<=">Process OT <=</option>
+                        <option Value="ProcessedOT>=">Process OT >=</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-4 control-label">
+                <input type="text" onkeypress="return isNumber(event)" ng-model="ProcessValue" class="form-control" maxlength="100" tabindex="2">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" style="margin-top:10px">
+    <div class="col-md-6 col-lg-6 col-sm-12">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Day Status</label>
+            <div class="col-sm-4">
+                <input type="text" ng-model="DayStatus" ng-click="selectCurrDayStatus()" class="form-control" maxlength="100">
+            </div>
+            <div class="col-sm-4 ">
+                <div class="common-btn">
+                    <ul class="common-btn list-inline text-right">
+                        <li><button ng-click="selectCurrDayStatus()" class="btn" tabindex="10"><i class="glyphicon glyphicon-search"></i></button></li>
+                    </ul>
+                </div>
+            </div>
+            @*<div class="col-sm-4"></div>*@
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-6 col-sm-12">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Day Status Applicable</label>
+            <div class="col-sm-8 ">
+                <div class="select-style">
+                    <select id="OtLimit" class="form-control" ng-model="DSApp" name="OT Limit">
+                        <option value="">-Select-</option>
+                        <option Value=0>Yes</option>
+                        <option Value=1>No</option>
+                        <option Value=2>All</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="getData();" class="btn" tabindex="10"><i class="glyphicon glyphicon-download"></i> View </button></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div id="getAllData" ej-grid e-datasource="Data" 
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" style="margin-top:30px;" e-allowtextwrap="true" >
+        <div e-columns>
+            @*<div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplateForPO" e-textalign="center" e-width="30"></div>*@
+            <div e-column e-field="Plant" e-headertext="Plant" e-width="80" e-type="string"></div>
+            <div e-column e-field="Department" e-headertext="Department" e-width="80" e-type="number"></div>
+            <div e-column e-field="Section" e-type="number" e-headertext="Section" e-width="80"></div>
+            <div e-column e-field="SubSection" e-type="number" e-headertext="SubSection" e-width="80"></div>
+            <div e-column e-field="Designation" e-type="number" e-headertext="Designation" e-width="80"></div>
+            <div e-column e-field="EmployeeCode" e-type="number" e-headertext="EmpoyeeCode" e-width="80"></div>
+            <div e-column e-field="WorkDate" e-type="number" e-headertext="WorkDate" e-width="80"></div>
+            <div e-column e-field="DayStatus" e-type="number" e-headertext="DayStatus" e-width="80"></div>
+            <div e-column e-field="InTime" e-type="number" e-headertext="InTime" e-width="80"></div>
+            <div e-column e-field="OutTime" e-type="number" e-headertext="OutTime" e-width="80"></div>
+            <div e-column e-field="ProcessedOT" e-type="number" e-headertext="ProcessedOT" e-width="80"></div>
+            <div e-column e-field="TargetOT" e-type="number" e-headertext="TargetOT" e-width="80"></div>
+            <div e-column e-headertext="PlanOT" e-template="#PlantOT" e-textalign="center" e-type="number" e-width="80"></div>
+            
+            <div e-column e-field="OTWeek" e-type="number" e-headertext="OTWeek" e-width="80"></div>
+            <div e-column e-field="OTMonth" e-type="number" e-headertext="OTMonth" e-width="80"></div>
+            <div e-column e-field="OTYear" e-type="number" e-headertext="OTYear" e-width="80"></div>
+        </div>
+    </div>
+
+    <script type="text/template" id="PlantOT">
+        <input type="number" ng-model="data.PlanOT" style="color:black; text-align:center" />
+    </script>
+</div>
+<div class="row">
+    <div class="common-btn" style="margin:10px;">
+        <ul class="common-btn list-inline text-right">
+            <li><button ng-click="ProcessAll()" class="btn "><i class="glyphicon glyphicon-arrow-down"></i> Process </button></li>
+        </ul>
+    </div>
+</div>
+
+@* The Modals for the page *@
+
+<div class="modal fade site-modal in" id="CurrDayStatusModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close" data-dismiss="modal">&times;</button>
+                <h1 class="modal-title" style="font-size:20px; text-align:center; margin:-10px;">Day Types</h1>
+            </div>
+            <div class="modal-body" style="min-height:300px; min-width:100%;">
+                <div class="row" style="margin: 20px; font-style:italic"> </div>
+                <p style="margin:10px;">
+                    Select the Day Type by Double Clicking.
+                <p>
+
+                    <div id="getDaysList" ej-grid e-datasource="DayTypesList" e-templaterefresh="refreshTemplate"
+                         e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                         e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true"
+                         e-recorddoubleclick="doubleCurrDayStatus">
+                        <div e-columns>
+                            <div e-column e-field="DayType" e-headertext="Day Type" e-width="80"></div>
+                            <div e-column e-field="Description" e-headertext="Description" e-width="120"></div>
+                            <div e-column e-field="Category" e-headertext="Category" e-width="120"></div>
+                            <div e-column e-field="OriginalDayType" e-headertext="Original Day Type" e-width="120"></div>
+
+                        </div>
+                    </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<script>
+    function isNumber(evt) {
+        evt = (evt) ? evt : window.event;
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode > 31 && (charCode < 48 || charCode > 57) && charCode != 46) {
+            return false;
+        }
+        return true;
+    }
+
+        //onkeypress = "return isNumber(event)"
+</script>
+

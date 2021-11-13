@@ -678,6 +678,11 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
                 templateUrl: 'humanresource/WeekDefinition/Aplos',
                 controller: 'WeekDefinitionController'
             })
+        .when('/ot-confirmation-process',
+            {
+                templateUrl: 'humanresource/OTConfirmationProcess/Aplos',
+                controller: 'OTConfirmationProcessController'
+            })
 ;
     
 
