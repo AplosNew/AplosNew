@@ -157,7 +157,7 @@ namespace Aplos.Areas.Accounts.Controllers
         [HttpGet, Authorize]
         public JsonResult GetListForDepartmentApprovedHoldReject()
         {
-            return Json(_expenseBookingService.GetListForDepartmentApprovedHoldReject(), JsonRequestBehavior.AllowGet);
+            return Json(_expenseBookingService.GetListForDepartmentApprovedHoldReject(), JsonRequestBehavior.AllowGet); 
         }
 
         [HttpGet, Authorize]
