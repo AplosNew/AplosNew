@@ -73,9 +73,16 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost , Authorize]
-        public void ProcessData(IEnumerable<object> Data)
+        public void ProcessData(List<Dictionary<string,object>> Data)
         {
             int j = 1;
+
+            DataTable dx = new DataTable();
+            dx.Columns.Add("empcode", typeof(string));
+            dx.Columns.Add("workdate", typeof(DateTime));
+
+           // var EmpData= Data.Where(k => k["empsystemid"].ToString() == "1223" && ).FirstOrDefault(); 
+
         }
         #endregion Operations
     }
