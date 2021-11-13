@@ -73,7 +73,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost , Authorize]
-        public void ProcessData(List<Dictionary<string,object>> Data)
+        public void ProcessData(string Data)
         {
             int j = 1;
 
