@@ -95,7 +95,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 var str = @"select a.EmpSystemID,e.EmployeeCode,a.DayStatus,format(a.WorkDate ,'dd-MMM-yyyy') as WorkDate,e.PlantId,p.UserName as Plant,
                             a.InTime,a.OutTime,a.ProcessedOT,isnull((a.ProcessedOT*dt.OTMultiplingFactor),'0') as TargetOT,
                             isnull(PreallocatedOTHr*60,'0') as PlanOT,dt.DayLimit,a.IsOTComfirm,a.StandardOT,a.AppliedOTLimit,
-                            a.AllowedOTLimit,a.AdditionalOT,
+                            a.AllowedOTLimit,a.AdditionalOT,dt.ApplicableWM,
                             --- Week Data
                             WeekLimit= case when a.OTWeek='1' then (select dt.Week1Limit)
                             when a.OTWeek='2' then (select dt.Week2Limit)
