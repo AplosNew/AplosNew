@@ -904,9 +904,9 @@ namespace Library.MaterialManagement.InventoryManagements
 						--,Sum(ISNULL(x.RejectedQty,0))  RejectedQty				
 						--,Sum(ISNULL(x.ShortageQty,0))  ShortageQty
 						--,Sum(ISNULL(x.RejectionQty,0))  RejectionQty			
-						--,Sum(ISNULL(x.TransactionQty,0))  TransactionQty
+						,Sum(ISNULL(x.TransactionQty,0))  TransactionQty
 						--,Sum(ISNULL(x.BaseUOMFactor,0))  BaseUOMFactor
-						--,Sum(ISNULL(x.TotalQty,0))  TotalQty	 
+						,Sum(ISNULL(x.TotalQty,0))  TotalQty	 
 
 						--,sum(ISNULL(x.Qty,0))  Qty
 						,ISNULL(x.Consumption,0)  Consumption
@@ -918,9 +918,9 @@ namespace Library.MaterialManagement.InventoryManagements
 						,ISNULL(x.RejectedQty,0)  RejectedQty				
 						,ISNULL(x.ShortageQty,0) ShortageQty
 						,ISNULL(x.RejectionQty,0)  RejectionQty			
-						,ISNULL(x.TransactionQty,0)  TransactionQty
+						--,ISNULL(x.TransactionQty,0)  TransactionQty
 						,ISNULL(x.BaseUOMFactor,0)  BaseUOMFactor
-						,ISNULL(x.TotalQty,0)  TotalQty	 
+						--,ISNULL(x.TotalQty,0)  TotalQty	 
 						from(
 						Select distinct Convert(bit, 'False') 'check'
 						, MGM.UserName MaterialMasterGroupName
@@ -1040,7 +1040,8 @@ namespace Library.MaterialManagement.InventoryManagements
 						) FGQty)FGQty ON FGQty.ID=Concat(BOQD.SalesOrderId,'-',ISNULL(BOQFGM.FirstCharacteristicsValueId,''),'-',ISNULL(BOQFGM.SecondCharacteristicsValueId,''),'-',ISNULL(BOQFGM.ThirdCharacteristicsValueId,''))
 
 
-						Where BOQD.ProcessId='" + processId + @"'   and Concat(BOQD.SalesOrderId,'-',ISNULL(BOQFGM.FirstCharacteristicsValueId,''),'-',ISNULL(BOQFGM.SecondCharacteristicsValueId,''),'-',ISNULL(BOQFGM.ThirdCharacteristicsValueId,'')) in (" + SOMATART + "))x	group by x.MaterialMasterGroupName,x.MaterialType,x.MaterialMasterId,x.MaterialMasterName,x.ArticleId,x.StandardName,x.FirstCharacteristicsId,x.FirstCharacteristics,x.FirstCharacteristicsValue,x.SecondCharacteristicsId,x.SecondCharacteristics,x.SecondCharacteristicsValue,x.ThirdCharacteristicsId,x.ThirdCharacteristics,x.ThirdCharacteristicsValue,x.TransactionUoMId,x.TransactionUoMName ,x.POUoMId,x.POUoM,x.BaseUoMId,x.BaseUoM,x.StockTransactionUoMId,x.StockUOM ,x.consumptionUoM,x.consumptionUoMId,x.RwFirstCharacteristicsValueId,x.RwSecondCharacteristicsValueId,x.RwThirdCharacteristicsValueId,x.SalesOrderId,x.BOQDFirstCharacteristicsValueId,x.BOQDSecondCharacteristicsValueId,x.BOQDThirdCharacteristicsValueId,x.BOQId ,ISNULL(x.Consumption,0)  ,ISNULL(x.WastagePer,0) ,ISNULL(x.RequestedQty,0)  ,ISNULL(x.RequestedQtyNew,0)   ,ISNULL(x.RejectedQty,0),ISNULL(x.ShortageQty,0) ,ISNULL(x.RejectionQty,0),ISNULL(x.TransactionQty,0)  ,ISNULL(x.BaseUOMFactor,0)  ,ISNULL(x.TotalQty,0)";
+						Where BOQD.ProcessId='" + processId + @"'   and 
+Concat(BOQD.SalesOrderId,'-',ISNULL(BOQFGM.FirstCharacteristicsValueId,''),'-',ISNULL(BOQFGM.SecondCharacteristicsValueId,''),'-',ISNULL(BOQFGM.ThirdCharacteristicsValueId,'')) in (" + SOMATART + "))x	group by x.MaterialMasterGroupName,x.MaterialType,x.MaterialMasterId,x.MaterialMasterName,x.ArticleId,x.StandardName,x.FirstCharacteristicsId,x.FirstCharacteristics,x.FirstCharacteristicsValue,x.SecondCharacteristicsId,x.SecondCharacteristics,x.SecondCharacteristicsValue,x.ThirdCharacteristicsId,x.ThirdCharacteristics,x.ThirdCharacteristicsValue,x.TransactionUoMId,x.TransactionUoMName ,x.POUoMId,x.POUoM,x.BaseUoMId,x.BaseUoM,x.StockTransactionUoMId,x.StockUOM ,x.consumptionUoM,x.consumptionUoMId,x.RwFirstCharacteristicsValueId,x.RwSecondCharacteristicsValueId,x.RwThirdCharacteristicsValueId,x.SalesOrderId,x.BOQDFirstCharacteristicsValueId,x.BOQDSecondCharacteristicsValueId,x.BOQDThirdCharacteristicsValueId,x.BOQId ,ISNULL(x.Consumption,0)  ,ISNULL(x.WastagePer,0) ,ISNULL(x.RequestedQty,0)  ,ISNULL(x.RequestedQtyNew,0)   ,ISNULL(x.RejectedQty,0),ISNULL(x.ShortageQty,0) ,ISNULL(x.RejectionQty,0) ,ISNULL(x.BaseUOMFactor,0)";
 
 				var Data = _sqlRepository.GetDataCollection(sql);
 				StringCollection strCol = new StringCollection();
