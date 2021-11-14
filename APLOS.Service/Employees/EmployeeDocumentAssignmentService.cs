@@ -58,74 +58,74 @@ namespace Library.Service.Employees
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 foreach (var item in entities)
                 {
-                    if (string.IsNullOrEmpty(item.EmploymentType))
-                    {
-                        var sql = @"DECLARE @employeeId varchar(20)='" + item.SystemId + @"';
-									DECLARE @plantId varchar(20)='" + item.PlantID + @"';
-									DECLARE @manpowerBudgetId varchar(20);
-									DECLARE @givenDesignationId varchar(20);
-									DECLARE @empType varchar(20);
-									DELETE FROM EmployeeDocument WHERE EmpSystemID=@employeeId AND FileName IS NULL;
-									SELECT  @ManpowerBudgetId=BudgetCode, @givenDesignationId=GivenDesignationId, @empType=EmpType FROM EmployeeInformation WHERE SystemId=@employeeId;
-									INSERT INTO EmployeeDocument (Id, EmpSystemID, AddedBy, AddedDate, ComplianceDocumentId, OptionalOrMandatory, ComplianceDocumentSetId, ResponsiblePersonId)
-									SELECT @employeeId+'-'+ X.ComplianceDocumentId, @employeeId, '" + identity.Name + @"', GETDATE(), X.ComplianceDocumentId, X.OptionalOrMandatory, X.ComplianceDocumentSetId, X.ResponsiblePersonId from (
-									SELECT CD.Id AS ComplianceDocumentId
-									,CDSD.OptionalOrMandatory
-									,DC.ComplianceDocumentSetId
-									,DC.ResponsiblePersonId
-								FROM
-								(
-								SELECT DISTINCT
-										P.EmploymentType
-										,DM.EmployeeCategoryId
-										,DM.DesignationId
-										,P.GivenDesignationId
-									FROM EmployeeInformation P
-									--LEFT OUTER JOIN MST.DesignationMaster DM ON P.GivenDesignationId = DM.DesignationId
-                                    LEFT OUTER JOIN MST.DesignationMasterLegalDesignation LDM ON P.LegalDesignationId = LDM.LegalDesignationId
-									LEFT OUTER JOIN MST.DesignationMaster DM ON LDM.DesignationMasterId = DM.Id
-									WHERE P.GivenDesignationId=@givenDesignationId
-									) BD
-								LEFT OUTER JOIN HKP.DocumentConfigurationDesignationGroup DC ON DC.EmployeeCategoryId = BD.EmployeeCategoryId
-								--AND DC.EmploymentType = BD.EmploymentType
-								LEFT OUTER JOIN HKP.ComplianceDocumentSet AS CDS ON CDS.Id = DC.ComplianceDocumentSetId
-								LEFT OUTER JOIN HKP.ComplianceDocumentSetDetail AS CDSD ON CDS.Id = CDSD.ComplianceDocumentSetId
-								LEFT OUTER JOIN HKP.ComplianceDocument AS CD ON CDSD.ComplianceDocumentId = CD.Id
-								LEFT OUTER JOIN HKP.EmployeeCategory AS E ON DC.EmployeeCategoryId = E.Id
-								LEFT OUTER JOIN HKP.ComplianceDocumentPositonCode PC ON CD.Id = PC.ComplianceDocumentId
-								LEFT OUTER JOIN ORG.Position PO ON PC.PositionId = PO.Id
-								LEFT JOIN MST.ManpowerBudget MB ON MB.PositionId=PO.Id
-								WHERE CD.[Type]='EmployeeRelated' AND DC.PlantId =@plantId AND CD.IsSkillBased = 1
-								AND MB.Id=@manpowerBudgetId AND (CD.EmpType = @empType OR CD.EmpType = 'Both')
-							UNION
-									SELECT  CD.Id AS ComplianceDocumentId
-									,CDSD.OptionalOrMandatory
-									,DC.ComplianceDocumentSetId
-									,DC.ResponsiblePersonId
-								FROM (
-							SELECT DISTINCT
-										P.EmploymentType
-										,DM.EmployeeCategoryId
-										,DM.DesignationId
-										,P.GivenDesignationId
-									FROM EmployeeInformation P
-									--LEFT OUTER JOIN MST.DesignationMaster DM ON P.GivenDesignationId = DM.DesignationId
-                                    LEFT OUTER JOIN MST.DesignationMasterLegalDesignation LDM ON P.LegalDesignationId = LDM.LegalDesignationId
-									LEFT OUTER JOIN MST.DesignationMaster DM ON LDM.DesignationMasterId = DM.Id
-									WHERE P.GivenDesignationId=@givenDesignationId
-									) BD
-								LEFT OUTER JOIN HKP.DocumentConfigurationDesignationGroup DC ON DC.EmployeeCategoryId = BD.EmployeeCategoryId
-								--AND DC.EmploymentType = BD.EmploymentType
-								LEFT OUTER JOIN HKP.ComplianceDocumentSet AS CDS ON CDS.Id = DC.ComplianceDocumentSetId
-								LEFT OUTER JOIN HKP.ComplianceDocumentSetDetail AS CDSD ON CDS.Id = CDSD.ComplianceDocumentSetId
-								LEFT OUTER JOIN HKP.ComplianceDocument AS CD ON CDSD.ComplianceDocumentId = CD.Id
-								LEFT OUTER JOIN HKP.EmployeeCategory AS E ON DC.EmployeeCategoryId = E.Id
-								WHERE CD.[Type]='EmployeeRelated' AND DC.PlantId = @plantId AND CD.IsSkillBased = 0 AND (CD.EmpType = @empType OR CD.EmpType = 'Both')
-								)X  WHERE X.ComplianceDocumentId NOT IN(SELECT ComplianceDocumentId from EmployeeDocument ED WHERE ED.EmpSystemID=@employeeId)";
-                        _employeeDocumentRepository.ExecuteSqlCommand(sql);
-                    }
-                    else
-                    {
+       //             if (string.IsNullOrEmpty(item.EmploymentType))
+       //             {
+       //                 var sql = @"DECLARE @employeeId varchar(20)='" + item.SystemId + @"';
+							//		DECLARE @plantId varchar(20)='" + item.PlantID + @"';
+							//		DECLARE @manpowerBudgetId varchar(20);
+							//		DECLARE @givenDesignationId varchar(20);
+							//		DECLARE @empType varchar(20);
+							//		DELETE FROM EmployeeDocument WHERE EmpSystemID=@employeeId AND FileName IS NULL;
+							//		SELECT  @ManpowerBudgetId=BudgetCode, @givenDesignationId=GivenDesignationId, @empType=EmpType FROM EmployeeInformation WHERE SystemId=@employeeId;
+							//		INSERT INTO EmployeeDocument (Id, EmpSystemID, AddedBy, AddedDate, ComplianceDocumentId, OptionalOrMandatory, ComplianceDocumentSetId, ResponsiblePersonId)
+							//		SELECT @employeeId+'-'+ X.ComplianceDocumentId, @employeeId, '" + identity.Name + @"', GETDATE(), X.ComplianceDocumentId, X.OptionalOrMandatory, X.ComplianceDocumentSetId, X.ResponsiblePersonId from (
+							//		SELECT CD.Id AS ComplianceDocumentId
+							//		,CDSD.OptionalOrMandatory
+							//		,DC.ComplianceDocumentSetId
+							//		,DC.ResponsiblePersonId
+							//	FROM
+							//	(
+							//	SELECT DISTINCT
+							//			P.EmploymentType
+							//			,DM.EmployeeCategoryId
+							//			,DM.DesignationId
+							//			,P.GivenDesignationId
+							//		FROM EmployeeInformation P
+							//		--LEFT OUTER JOIN MST.DesignationMaster DM ON P.GivenDesignationId = DM.DesignationId
+       //                             LEFT OUTER JOIN MST.DesignationMasterLegalDesignation LDM ON P.LegalDesignationId = LDM.LegalDesignationId
+							//		LEFT OUTER JOIN MST.DesignationMaster DM ON LDM.DesignationMasterId = DM.Id
+							//		WHERE P.GivenDesignationId=@givenDesignationId
+							//		) BD
+							//	LEFT OUTER JOIN HKP.DocumentConfigurationDesignationGroup DC ON DC.EmployeeCategoryId = BD.EmployeeCategoryId
+							//	--AND DC.EmploymentType = BD.EmploymentType
+							//	LEFT OUTER JOIN HKP.ComplianceDocumentSet AS CDS ON CDS.Id = DC.ComplianceDocumentSetId
+							//	LEFT OUTER JOIN HKP.ComplianceDocumentSetDetail AS CDSD ON CDS.Id = CDSD.ComplianceDocumentSetId
+							//	LEFT OUTER JOIN HKP.ComplianceDocument AS CD ON CDSD.ComplianceDocumentId = CD.Id
+							//	LEFT OUTER JOIN HKP.EmployeeCategory AS E ON DC.EmployeeCategoryId = E.Id
+							//	LEFT OUTER JOIN HKP.ComplianceDocumentPositonCode PC ON CD.Id = PC.ComplianceDocumentId
+							//	LEFT OUTER JOIN ORG.Position PO ON PC.PositionId = PO.Id
+							//	LEFT JOIN MST.ManpowerBudget MB ON MB.PositionId=PO.Id
+							//	WHERE CD.[Type]='EmployeeRelated' AND DC.PlantId =@plantId AND CD.IsSkillBased = 1
+							//	AND MB.Id=@manpowerBudgetId AND (CD.EmpType = @empType OR CD.EmpType = 'Both')
+							//UNION
+							//		SELECT  CD.Id AS ComplianceDocumentId
+							//		,CDSD.OptionalOrMandatory
+							//		,DC.ComplianceDocumentSetId
+							//		,DC.ResponsiblePersonId
+							//	FROM (
+							//SELECT DISTINCT
+							//			P.EmploymentType
+							//			,DM.EmployeeCategoryId
+							//			,DM.DesignationId
+							//			,P.GivenDesignationId
+							//		FROM EmployeeInformation P
+							//		--LEFT OUTER JOIN MST.DesignationMaster DM ON P.GivenDesignationId = DM.DesignationId
+       //                             LEFT OUTER JOIN MST.DesignationMasterLegalDesignation LDM ON P.LegalDesignationId = LDM.LegalDesignationId
+							//		LEFT OUTER JOIN MST.DesignationMaster DM ON LDM.DesignationMasterId = DM.Id
+							//		WHERE P.GivenDesignationId=@givenDesignationId
+							//		) BD
+							//	LEFT OUTER JOIN HKP.DocumentConfigurationDesignationGroup DC ON DC.EmployeeCategoryId = BD.EmployeeCategoryId
+							//	--AND DC.EmploymentType = BD.EmploymentType
+							//	LEFT OUTER JOIN HKP.ComplianceDocumentSet AS CDS ON CDS.Id = DC.ComplianceDocumentSetId
+							//	LEFT OUTER JOIN HKP.ComplianceDocumentSetDetail AS CDSD ON CDS.Id = CDSD.ComplianceDocumentSetId
+							//	LEFT OUTER JOIN HKP.ComplianceDocument AS CD ON CDSD.ComplianceDocumentId = CD.Id
+							//	LEFT OUTER JOIN HKP.EmployeeCategory AS E ON DC.EmployeeCategoryId = E.Id
+							//	WHERE CD.[Type]='EmployeeRelated' AND DC.PlantId = @plantId AND CD.IsSkillBased = 0 AND (CD.EmpType = @empType OR CD.EmpType = 'Both')
+							//	)X  WHERE X.ComplianceDocumentId NOT IN(SELECT ComplianceDocumentId from EmployeeDocument ED WHERE ED.EmpSystemID=@employeeId)";
+       //                 _employeeDocumentRepository.ExecuteSqlCommand(sql);
+       //             }
+       //             else
+       //             {
                         var sql = @"DECLARE @employeeId varchar(20)='" + item.SystemId + @"';
 									DECLARE @plantId varchar(20)='" + item.PlantID + @"';
 									DECLARE @manpowerBudgetId varchar(20);
@@ -189,7 +189,7 @@ namespace Library.Service.Employees
 								WHERE CD.[Type]='EmployeeRelated' AND DC.PlantId = @plantId AND CD.IsSkillBased = 0 AND (CD.EmpType = @empType OR CD.EmpType = 'Both')
 								)X  WHERE X.ComplianceDocumentId NOT IN(SELECT ComplianceDocumentId from EmployeeDocument ED WHERE ED.EmpSystemID=@employeeId)";
                         _employeeDocumentRepository.ExecuteSqlCommand(sql);
-                    }
+                   //}
                 }
             }
             catch (Exception ex)
