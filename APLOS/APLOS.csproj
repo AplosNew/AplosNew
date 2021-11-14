@@ -1837,6 +1837,7 @@
     <Content Include="Areas\Farming\Scripts\VoucherController.js" />
     <Content Include="Areas\FixedAssets\Scripts\fixedAssetDisposePostController.js" />
     <Content Include="Areas\FixedAssets\Scripts\fixedAssetDisposeController.js" />
+    <Content Include="Areas\FixedAssets\Scripts\FixedAssetsRegisterDisposedReportController.js" />
     <Content Include="Areas\FixedAssets\Scripts\FixedAssetsRegisterReportController.js" />
     <Content Include="Areas\FixedAssets\Scripts\generalLedgerVSfixedAssetsController.js" />
     <Content Include="Areas\FixedAssets\Scripts\nonAssetRegisterController.js" />
@@ -3838,6 +3839,9 @@
     <Content Include="Areas\HumanResource\Views\WeekDefinition\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\AssetWIPStatusReport.cshtml" />
     <Content Include="Areas\HumanResource\Views\OTConfirmationProcess\Aplos.cshtml" />
+    <Content Include="Areas\FixedAssets\Views\_ViewStart.cshtml" />
+    <Content Include="Areas\FixedAssets\Views\Shared\_Layout.cshtml" />
+    <Content Include="Areas\FixedAssets\Views\FixedAssetsRegisterDisposedReport.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

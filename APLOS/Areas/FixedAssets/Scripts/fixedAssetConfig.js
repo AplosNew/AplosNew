@@ -112,6 +112,10 @@ function fixedAssetConfig($routeProvider, $locationProvider) {
             templateUrl: "FixedAssets/FixedAssetRegister/FixedAssetsRegisterReport",
             controller: "FixedAssetsRegisterReportController"
         })
+        .when("/fixed-assets-Register-Disposed-report", {
+            templateUrl: "FixedAssets/FixedAssetRegister/FixedAssetsRegisterDisposedReport",
+            controller: "FixedAssetsRegisterDisposedReportController"
+        })
 
         .when("/expense-capitalize", {
             templateUrl: "FixedAssets/FixedAssetRegister/ExpensesCapitalized",
