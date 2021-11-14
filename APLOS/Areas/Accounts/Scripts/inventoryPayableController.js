@@ -927,7 +927,7 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
     $scope.onClickReportDownloadExcel = function (data) {
         var reportFormat = "Excel";
         if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
-        $window.open($scope.path + 'PabyableJournal?reportFormat=' + reportFormat + '&inventoryReceiveId=' + data.Id + '&employeeId=' + data.EmployeeId + '&isReversCharge=' + data.IsTaxApplicable + '&isFoc=' + data.IsFOC, '_blank');
+        $window.open($scope.path + 'PabyableJournal?reportFormat=' + reportFormat + 'CompanyId=' +  + '&inventoryReceiveId=' + data.Id + '&employeeId=' + data.EmployeeId + '&isReversCharge=' + data.IsTaxApplicable + '&isFoc=' + data.IsFOC, '_blank');
     };
    
 
