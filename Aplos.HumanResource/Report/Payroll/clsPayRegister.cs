@@ -15070,6 +15070,7 @@ where h.HeadCategory='GROSS'
                                     ,EmployeeCodePreFix,EmployeeCodeNumeric 
                                     ,Case when ISNULL(SalaryProcFlag,'') = '' THEN '' else ISNULL(st.UserName,'') end SeperationType
                                     ,Party.UserName ContractorName,Party.Id ContractorId 
+									,e.EmploymentType
                                     FROM EmployeeInformation e
 
                                      --JOIN (
@@ -15122,7 +15123,9 @@ where h.HeadCategory='GROSS'
 									left join [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=e.SystemId
 									left join [HKP].[Bank] bb on bb.Id = SPLD.BankSystemID
                                     Inner JOIN Hkp.Party Party ON Party.Id = E.VendorId  
-                                     WHERE ISNULL(Party.Id,'')<>'' AND  " + param + @"
+                                    left join [dbo].[EmployeeCodeType] ect on ect.Id=e.EmployeeCodeTypeId
+                                     WHERE ISNULL(Party.Id,'')<>'' and ect.IsOutSider =1 
+                                        AND  " + param + @"
                                             " + wcPayrollGroup + @"                                   
                                      ) DD " + wcEmpStatus + " ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric ";
                 return _sqlRepository.GetDataCollection(cmdText);
