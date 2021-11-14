@@ -503,5 +503,9 @@ function employeeConfig($routeProvider, $locationProvider, $windowProvider) {
             templateUrl: 'Employees/TransportGroup/Aplos',
             controller: 'TransportGroupController'
         })
+        .when('/empcode-type', {
+            templateUrl: 'Employees/EmployeeCodeType/Aplos',
+            controller: 'EmployeeCodeTypeController'
+        })
         ;
 } 

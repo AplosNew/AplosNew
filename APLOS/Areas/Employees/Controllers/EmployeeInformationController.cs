@@ -1382,12 +1382,12 @@ namespace Aplos.Areas.Employees.Controllers
         }//End Function
 
         [HttpGet, Authorize]
-        public JsonResult GetEmpCodeGenSetting(string EmploymentType)
+        public JsonResult GetEmpCodeGenSetting(string employeeCodeTypeId)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                return Json(employeeProfile.GetEmpCodeGenSetting(identity.PlantId, EmploymentType), JsonRequestBehavior.AllowGet);
+                return Json(employeeProfile.GetEmpCodeGenSetting(identity.PlantId, employeeCodeTypeId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {

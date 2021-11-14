@@ -499,6 +499,7 @@
     <Compile Include="Areas\Employees\Controllers\AllowanceDailyController.cs" />
     <Compile Include="Areas\Employees\Controllers\CompensatoryOffNewController.cs" />
     <Compile Include="Areas\Employees\Controllers\ResidenceGroupController.cs" />
+    <Compile Include="Areas\Employees\Controllers\EmployeeCodeTypeController.cs" />
     <Compile Include="Areas\Employees\Controllers\TransportGroupController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmpActiveInActiveNewController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmployeeInFoReportController.cs" />
@@ -1778,6 +1779,7 @@
     <Content Include="Areas\Employees\Scripts\AccountsGroupController.js" />
     <Content Include="Areas\Employees\Scripts\CompensatoryOffNewController.js" />
     <Content Include="Areas\Employees\Scripts\ResidenceGroupController.js" />
+    <Content Include="Areas\Employees\Scripts\EmployeeCodeTypeController.js" />
     <Content Include="Areas\Employees\Scripts\TransportGroupController.js" />
     <Content Include="Areas\Employees\Scripts\empActiveInActiveNewController.js" />
     <Content Include="Areas\Employees\Scripts\employeeBaseMultipleController.js" />
@@ -3838,6 +3840,7 @@
     <Content Include="Areas\HumanResource\Views\WeekDefinition\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\AssetWIPStatusReport.cshtml" />
     <Content Include="Areas\HumanResource\Views\OTConfirmationProcess\Aplos.cshtml" />
+    <Content Include="Areas\Employees\Views\EmployeeCodeType\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
