@@ -12440,8 +12440,8 @@ ELSE CONVERT(BIT,0) END  ---No
 									left join [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=e.SystemId
 									left join [HKP].[Bank] bb on bb.Id = SPLD.BankSystemID
 									left join [HKP].[BankBranch] bbranch on bbranch.Id = SPLD.BankBranchId
-   
-                                     WHERE 1=1 " + strDOJ + @"
+                                    left join [dbo].[EmployeeCodeType] ect on ect.Id=e.EmployeeCodeTypeId
+                                     WHERE 1=1 " + strDOJ + @" --and ect.IsOutSider =0
                                             " + wcPayrollGroup + @"                                
                                      ) DD " + wcEmpStatus + @" ORDER BY ISNULL(EmployeeCodePreFix,''),ISNULL(EmployeeCodeNumeric,0)";
                 return _sqlRepository.GetDataCollection(cmdText);
