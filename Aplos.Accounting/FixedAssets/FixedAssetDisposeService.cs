@@ -884,7 +884,7 @@ namespace Library.Accounting.FixedAssets
             if (companyCurrencyId != transcationCurrency)
             {
                 reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Sales Amount");
-                reportUtility.SetText(ref sheet, row, 5, Convert.ToDouble(header["SalesAmount"].ToString()) + "(" + header["CurrencyCode"].ToString() + ")");
+                reportUtility.SetText(ref sheet, row, 5, Convert.ToDouble(header["SalesAmount"].ToString()) + " " + header["CurrencyCode"].ToString() );
             }
             //reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Status");
             //reportUtility.SetText(ref sheet, row, 5, header["Status"].ToString());
