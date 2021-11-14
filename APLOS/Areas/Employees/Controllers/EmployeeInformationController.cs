@@ -514,6 +514,13 @@ namespace Aplos.Areas.Employees.Controllers
             return jsondata;
         }
 
+        [HttpGet, Authorize]
+        public JsonResult GetIsOTEntitled(string designationId)
+        {
+            clsEmployeeLoad clsEmployee = new clsEmployeeLoad();
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(employeeProfile.GetIsOTEntitled(identity.PlantId, designationId), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
         public JsonResult CheckDuplicateEmployeeCode(string systemId, string employeeCode, string EmployeeCodeCheckLevel)
@@ -681,7 +688,7 @@ namespace Aplos.Areas.Employees.Controllers
         //}
 
         [HttpPost]
-        public JsonResult CreateNew(EmployeeInformation entity, string EmployeeCodeCheckLevel, EmpReferenceInformation empRef, Dictionary<string, object> OT)
+        public JsonResult CreateNew(EmployeeInformation entity, string EmployeeCodeCheckLevel, EmpReferenceInformation empRef)
         {
             try
             {
@@ -730,7 +737,7 @@ namespace Aplos.Areas.Employees.Controllers
                         }
                     }
                 }
-                employeeProfile.SaveData(entity, para, EmployeeCodeCheckLevel, empRef, OT); //, WeekOff, OT
+                employeeProfile.SaveData(entity, para, EmployeeCodeCheckLevel, empRef); //, WeekOff, OT
                 return Json(new { EmployeeInformation = entity, Message = AplosMessage.Insert + "Employee Code: " + entity.EmployeeCode + "" });
             }
             catch (Exception ex)

@@ -1,7 +1,7 @@
 ﻿<togglable name="Employee Information"></togglable>
 @*<p style="color:blue;font-size:11px">This screen has Entity Level access</p>*@
 <style>
-   
+
     #accordion section, #accordion .pointer, #accordion h1, #accordion p {
         -webkit-transition: all 0.20s ease-in-out;
         -moz-transition: all 0.5s ease-in-out;
@@ -790,11 +790,7 @@
                                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(3), active: isSet2(3) }">
                                     <label style="color:blue">Employment Information</label>
                                     <hr />
-                                    @*<div class="col-xs-12">
-
-                                        </div>*@
                                     <div class="col-xs-12 col-sm-6 col-md-6">
-
                                         <div class="form-group" show-errors>
                                             <label class="col-sm-4 control-label">Date Of Join<sup>*</sup></label>
                                             <div class="col-sm-8 show-message">
@@ -804,7 +800,6 @@
                                         <div class="form-group">
                                             <label class="control-label">DOC will be confirm</label>
                                         </div>
-
                                         <div class="form-group" style="margin-top: -20px;">
                                             <div class="col-sm-5 radio">
                                                 <div class="checkbox-site">
@@ -840,8 +835,6 @@
                                                 </div>
                                             </div>
                                         </div>
-
-
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label">Unit</label>
                                             <label class="col-sm-8 control-label">{{employeeInformation.Unit}}</label>
@@ -883,7 +876,6 @@
                                         </div>
                                     </div>
                                     <div class="col-xs-12 col-sm-6 col-md-6">
-
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label">Is Confirmed</label>
                                             <div class="col-sm-8">
@@ -907,9 +899,6 @@
                                                 <input type="text" ng-model="employeeInformation.PaymentModeEffectiveDate" ng-disabled="employeeInformation.IsApproved" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="18">
                                             </div>
                                         </div>
-
-
-
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label">Employee Group</label>
                                             <label class="col-sm-8 control-label">{{employeeInformation.EmployeeGroup}}</label>
@@ -959,6 +948,18 @@
                                                 <input type="text" name="Given Designation" ng-model="employeeInformation.GivenDesignation" class="form-control" readonly>
                                                 <input type="text" name="Given Designation" ng-model="employeeInformation.GivenDesignationId" class="form-control" hidden>
                                             </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Exclude OT</label>
+                                            <div class="col-sm-2">
+                                                <div class="checkbox-site">
+                                                    <label>
+                                                        <input type="checkbox" ng-model="employeeInformation.ExcludeOT" id="ExcludeOT" ng-disabled="employeeInformation.IsApproved || IsOTEntitled==false">
+                                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6" style="margin-left: -60px;"><p style="color:blue;font-size:11px">{{OTEntitledmsg}}</p></div>
                                         </div>
                                     </div>
                                     <div class="common-btn">
@@ -2489,17 +2490,17 @@
                                 <input type="text" name="Cell Phone No" ng-model="empReferenceInformation.Ref1CellPhnNo" class="form-control" maxlength="30">
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Residence Group<sup ng-show="IsResidenceGroupMandatory===true">*</sup></label>
-                            <div class="col-sm-8">
-                                <div class="select-style">
-                                    <select id="ResidenceGroup" class="form-control" name="Residence Group" ng-model="employeeNew.ResidenceGroupId" tabindex="3">
-                                        <option value="">--Select--</option>
-                                        <option ng-repeat="option in ResidenceGroupList" value="{{option.Value}}">{{option.Text}}</option>
-                                    </select>
+                        @*<div class="form-group">
+                                <label class="col-sm-4 control-label">Residence Group<sup ng-show="IsResidenceGroupMandatory===true">*</sup></label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select id="ResidenceGroup" class="form-control" name="Residence Group" ng-model="employeeNew.ResidenceGroupId" tabindex="3">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in ResidenceGroupList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
+                            </div>*@
                     </div>
                     <div class="col-xs-12 col-sm-6 col-md-6">
                         <div class="form-group">
@@ -2651,30 +2652,19 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Non Eligible OT</label>
-                            <div class="col-sm-8">
-                                <div class="checkbox-site">
-                                    <label>
-                                        <input type="checkbox" ng-model="NonEligibleOTChild.Exclude" id="OTCheck">
-                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
 
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
 
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Transport Group<sup ng-show="IsTransportGroupMandatory===true">*</sup></label>
-                            <div class="col-sm-8">
-                                <div class="select-style">
-                                    <select id="TransportGroupId" class="form-control" name="Transport Group" ng-model="employeeNew.TransportGroupId" tabindex="3">
-                                        <option value="">--Select--</option>
-                                        <option ng-repeat="option in TransportGroupList" value="{{option.Value}}">{{option.Text}}</option>
-                                    </select>
+                        @*<div class="form-group">
+                                <label class="col-sm-4 control-label">Transport Group<sup ng-show="IsTransportGroupMandatory===true">*</sup></label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select id="TransportGroupId" class="form-control" name="Transport Group" ng-model="employeeNew.TransportGroupId" tabindex="3">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in TransportGroupList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
+                            </div>*@
                     </div>
                 </div>
                 <div class="common-btn">

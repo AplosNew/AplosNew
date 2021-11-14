@@ -32,7 +32,7 @@ namespace Library.Service.Productions
         void SaveSecondDetail(IEnumerable<ProductionSummaryDetail> psd, ProductionSummary productionSummary, string companyGroupId, string plantId);
         IEnumerable<ComboModel> GetCharacteristicsValueCbo(string soid);
         IEnumerable<object> Query(string plantId);
-        IEnumerable<ComboModel> GetCbo(string plantId, string ProcessId, string entityId);
+        IEnumerable<ComboModel> GetCbo(string plantId, string ProcessId, string entityId, string CompanyId);
         void Save(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd);
         void DeleteDetail(string masterid);
         IEnumerable<object> GetSOItem(string entityid, string workCenterMasterId, string productionLevel, string processId);

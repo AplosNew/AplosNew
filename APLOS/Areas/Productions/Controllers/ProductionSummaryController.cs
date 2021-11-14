@@ -82,7 +82,7 @@ namespace Aplos.Areas.Productions.Controllers
         public JsonResult GetWCProcessCbo(string processid, string entityId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_ProductionSummaryService.GetCbo(identity.PlantId, processid, entityId), JsonRequestBehavior.AllowGet);
+            return Json(_ProductionSummaryService.GetCbo(identity.PlantId, processid, entityId,identity.CompanyId), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
         public ActionResult GetBookingLevel(string FromId, string ToId)
