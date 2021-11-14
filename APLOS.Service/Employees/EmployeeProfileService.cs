@@ -433,6 +433,7 @@ namespace Library.Service.Employees
 
                 dblist.IsConfirmed = entity.IsConfirmed;
                 dblist.VendorId = entity.VendorId;
+                dblist.ExcludeOT = entity.ExcludeOT;
                 dblist.UpdatedBy = name;
                 dblist.DateUpdated = DateTime.Now;
                 Update(dblist);

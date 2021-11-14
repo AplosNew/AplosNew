@@ -150,6 +150,23 @@ namespace Aplos.HumanResource
             }
         }
 
+        public IEnumerable<object> GetIsOTEntitled(string PlantId, string designationId)
+        {
+            try
+            {
+                string strSQL = string.Empty;
+                strSQL = @"SELECT C.IsOTEntitled FROM SCS.DesignationMasterConfiguration C
+                            LEFT JOIN MST.DesignationMaster M ON M.Id=C.DesignationMasterId
+                            LEFT JOIN HKP.Designation D ON D.Id=M.DesignationId
+                            WHERE D.Id='"+ designationId + "' AND C.PlantId='"+ PlantId + "'";
+                return _sqlRepository.GetDataCollection(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public IEnumerable<object> GetEmpCodeGenSetting(string PlantId, string EmploymentType)
         {
             try
@@ -306,7 +323,7 @@ namespace Aplos.HumanResource
         }//End Function
 
 
-        public void SaveData(EmployeeInformation data, IdentityParameter para, string EmployeeCodeCheckLevel, EmpReferenceInformation empRef, Dictionary<string, object> OT) 
+        public void SaveData(EmployeeInformation data, IdentityParameter para, string EmployeeCodeCheckLevel, EmpReferenceInformation empRef) 
         {
             // , Dictionary<string, object> WeekOff, Dictionary<string, object> OT
             #region DataSet Declare
@@ -1037,41 +1054,41 @@ namespace Aplos.HumanResource
                     #endregion
 
                     #region Employee Non Eligible OT
-                    DataSet dsCTOD = null;
-                    GetCutOffDate(para.PlantId, out dsCTOD);
-                    OT["EmpSystemId"] = data.SystemId;
-                    if (Convert.ToDateTime(dsCTOD.Tables[0].Rows[0]["CutOffDate"].ToString()) < data.DOJ)
-                    {
-                        OT["EffectiveDate"] = data.DOJ;
-                    }
-                    else
-                    {
-                        OT["EffectiveDate"] = Convert.ToDateTime(dsCTOD.Tables[0].Rows[0]["CutOffDate"].ToString());
-                    }
+                    //DataSet dsCTOD = null;
+                    //GetCutOffDate(para.PlantId, out dsCTOD);
+                    //OT["EmpSystemId"] = data.SystemId;
+                    //if (Convert.ToDateTime(dsCTOD.Tables[0].Rows[0]["CutOffDate"].ToString()) < data.DOJ)
+                    //{
+                    //    OT["EffectiveDate"] = data.DOJ;
+                    //}
+                    //else
+                    //{
+                    //    OT["EffectiveDate"] = Convert.ToDateTime(dsCTOD.Tables[0].Rows[0]["CutOffDate"].ToString());
+                    //}
 
-                    string TableName1 = "dbo.EmployeeWeeklyOff";
-                    DataSet dsNonOT;
-                    ConnectionManager.DAL.ConManager conn = new ConnectionManager.DAL.ConManager("1");
-                    conn.OpenDataSetThroughAdapter("Select * from dbo.NonEligibleOT where Id = '" + OT["Id"] + "'", out dsNonOT, false, "1");
+                    //string TableName1 = "dbo.EmployeeWeeklyOff";
+                    //DataSet dsNonOT;
+                    //ConnectionManager.DAL.ConManager conn = new ConnectionManager.DAL.ConManager("1");
+                    //conn.OpenDataSetThroughAdapter("Select * from dbo.NonEligibleOT where Id = '" + OT["Id"] + "'", out dsNonOT, false, "1");
 
-                    if (Boolean.Parse(OT["Exclude"].ToString()) == true)
-                    {
-                        string _Id1 = "";
-                        if (dsNonOT.Tables[0].Rows.Count == 0)
-                        {
-                            bplib.clsGenID genid = new bplib.clsGenID();
-                            genid.GenID(TableName1, out _Id1);
+                    //if (Boolean.Parse(OT["Exclude"].ToString()) == true)
+                    //{
+                    //    string _Id1 = "";
+                    //    if (dsNonOT.Tables[0].Rows.Count == 0)
+                    //    {
+                    //        bplib.clsGenID genid = new bplib.clsGenID();
+                    //        genid.GenID(TableName1, out _Id1);
 
-                            OT["Id"] = _Id1;
-                            AddNewRow(dsNonOT.Tables[0], OT);
-                        }
-                    }
+                    //        OT["Id"] = _Id1;
+                    //        AddNewRow(dsNonOT.Tables[0], OT);
+                    //    }
+                    //}
 
                     #endregion
 
 
 
-                    objApp.SaveDataSets(dsLocal, dsShiftAssign, dsEmpJbLc, dsWeekOffByDay, dsEmpPin, dsEmpRef, dsNonOT); // , dsWeeklyOff, dsNonOT
+                    objApp.SaveDataSets(dsLocal, dsShiftAssign, dsEmpJbLc, dsWeekOffByDay, dsEmpPin, dsEmpRef); // , dsWeeklyOff, dsNonOT
 
 
                     #region att process only for new emp
