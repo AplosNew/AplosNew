@@ -125,14 +125,14 @@ function EmployeeCodeGenerationController(cboService, commonMessage, $scope, $ro
         }
 
         var filtered = $("#GridPlant").data("ejGrid").getFilteredRecords();
-        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+        if (baseService.isUndefinedOrNull(filtered) || filtered.length == 0) {
             for (var i = 0; i < $scope.AllPlantList.length; i++) {
                 $scope.AllPlantList[i].Flag = ChkOrUnchk;
             }
         }
         else {
             for (var j = 0; j < filtered.length; j++) {
-                filtered[j].CheckBoxSelect = ChkOrUnchk;
+                filtered[j].Flag = ChkOrUnchk;
             }
         }
         var gridObj = $("#GridPlant").data("ejGrid");

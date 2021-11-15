@@ -49,7 +49,7 @@ namespace Aplos.HumanResource
                              ,EAG.AttendanceGroupId,PGM.PayrollGroupId, OM.Code OperationMasterCode , OV.Code OperationVariationCode,LD.UserName LegalDesignation
 	                         ,EC.UserName EmpCategoryName, U.UserName Unit,Dv.UserName Division,SD.UserName SubDivision,Se.UserName Section, SuS.UserName SubSection,Ln.UserName Line
 	                         , EBC.StandardName BudgetCategoryName--,ESHIFT.FixSystemID
-							 ,PT.UserName PartyName
+							 ,PT.UserName PartyName,ECT.UserName EmployeeCodeType,ECT.IsOutSider
 							 ,ShiftDf.UserName ShiftDefination
 							 ,FORMAT(EI.DOJ,'dd-MMM-yyyy') DateOfJoin 
                              ,TenureDay=DATEDIFF(day, FORMAT(EI.DOJ,'dd-MMM-yyyy'),FORMAT(GetDate(),'dd-MMM-yyyy'))
@@ -79,6 +79,7 @@ namespace Aplos.HumanResource
                             LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
                             LEFT JOIN dbo.EmployeeAttendanceGroup EAG on EAG.EmployeeId=EI.SystemId
                             LEFT JOIN MST.PayrollGroupMaster PGM on PGM.EmployeeId=EI.SystemId
+                            LEFT JOIN dbo.EmployeeCodeType ECT on ECT.Id=EI.EmployeeCodeTypeId
                             
                             LEFT JOIN MST.OperationMaster OM ON OM.Id=EI.OperationMasterID
                             LEFT JOIN MST.OperationVariation OV ON OV.Id=EI.OperationVariationId
@@ -167,14 +168,14 @@ namespace Aplos.HumanResource
             }
         }
 
-        public IEnumerable<object> GetEmpCodeGenSetting(string PlantId, string EmploymentType)
+        public IEnumerable<object> GetEmpCodeGenSetting(string PlantId, string employeeCodeTypeId)
         {
             try
             {
                 string strSQL = string.Empty;
                 strSQL = @"Select A.IsEmployeeCodeOpenField,A.EmpCodeGenType,A.EmpCodeStartValue,A.IsAutoEmpCodeWithPrefix,A.Prefix from [dbo].[EmployeeCodeGenGroup] A
                             LEFT JOIN [dbo].[EmployeeCodeGenGroupDetail] B ON B.EmployeeCodeGenGroupId=A.Id
-                            where B.PlantId='"+ PlantId + "' and B.EmploymentType='"+ EmploymentType + "'";
+                            where B.PlantId='"+ PlantId + "' and B.EmployeeCodeTypeId='" + employeeCodeTypeId + "'";
                 return _sqlRepository.GetDataCollection(strSQL);
             }
             catch (Exception ex)
@@ -702,97 +703,44 @@ namespace Aplos.HumanResource
                     string syspad = GetPadding(strEmpSystemID);
                     data.SystemId = DateTime.Now.ToString("yy") + syspad;
 
-                    string Prefix = null;
-                    string incrementvalue = string.Empty;
-                    objApp.GetPlantPrefix(para.PlantId, out Prefix);
-                    objGenID.GenHRID(DateTime.Now.ToShortDateString().ToString(), para.PlantId + "EMP_BASIC", out incrementvalue);
-                    string pad = GetPadding(incrementvalue);
-                    data.EmployeeId = Prefix + DateTime.Now.ToString("yy") + pad;
+                    //string Prefix = null;
+                    //string incrementvalue = string.Empty;
+                    //objApp.GetPlantPrefix(para.PlantId, out Prefix);
+                    //objGenID.GenHRID(DateTime.Now.ToShortDateString().ToString(), para.PlantId + "EMP_BASIC", out incrementvalue);
+                    //string pad = GetPadding(incrementvalue);
+                    //data.EmployeeId = Prefix + DateTime.Now.ToString("yy") + pad;
 
 
 
                     #region empCode new
-                    //string Prefix = null;
-                    //objEL.GetEmpCodeGenSetting(para.PlantId, data.EmploymentType, out Prefix, out dsEmpCodeGenSetting);
-                    //data.EmployeeId = Prefix + data.SystemId;
+                    string Prefix = null;
+                    objEL.GetEmpCodeGenSetting(para.PlantId, data.EmployeeCodeTypeId, out Prefix, out dsEmpCodeGenSetting);
+                    data.EmployeeId = Prefix + data.SystemId;
 
 
-                    //if (string.IsNullOrEmpty(data.EmployeeCode))
-                    //{
-                    //    objEL.GetMaxEmpCode(para.PlantId, data.EmploymentType, out dsMaxEmpCode);
-
-                    //    if (dsEmpCodeGenSetting.Tables[0].Rows.Count > 0)
-                    //    {
-                    //        if (Convert.ToBoolean(dsEmpCodeGenSetting.Tables[0].Rows[0]["IsEmployeeCodeOpenField"]) == false)
-                    //        {
-                    //            if (dsEmpCodeGenSetting.Tables[0].Rows[0]["EmpCodeGenType"].ToString() == "AutoIncrement")
-                    //            {
-                    //                if (dsMaxEmpCode.Tables[0].Rows.Count > 0)
-                    //                {
-                    //                    int v = Convert.ToInt32(bplib.clsWebLib.GetNumData(dsMaxEmpCode.Tables[0].Rows[0]["EmployeeCode"].ToString())) + 1;
-                    //                    if (v == 1)
-                    //                    {
-                    //                        if (Convert.ToInt32(bplib.clsWebLib.GetNumData(dsEmpCodeGenSetting.Tables[0].Rows[0]["EmpCodeStartValue"].ToString())) != 0)
-                    //                        {
-                    //                            int code = Convert.ToInt32(bplib.clsWebLib.GetNumData(dsEmpCodeGenSetting.Tables[0].Rows[0]["EmpCodeStartValue"].ToString())) + 1;
-                    //                            data.EmployeeCode = code.ToString();
-                    //                        }
-                    //                        else
-                    //                        {
-                    //                            Exception ex = new Exception("Employee code start value doesn't define in Employee Code Generation...");
-                    //                            throw ex;
-                    //                        }
-                    //                    }
-                    //                    else
-                    //                    {
-                    //                        data.EmployeeCode = v.ToString();
-                    //                    }
-                    //                }
-                    //            }
-                    //            else
-                    //            {
-                    //                data.EmployeeCode = data.SystemId;
-                    //            }
-                    //        }
-                    //        if (dsEmpCodeGenSetting.Tables[0].Rows[0]["IsAutoEmpCodeWithPrefix"].ToString() == "True")
-                    //        {
-                    //            data.EmployeeCode = Prefix + data.EmployeeCode;
-                    //        }
-
-                    //    }
-                    //}
-                    #endregion
-
-                    #region empCode old
-                    ///empCode old
                     if (string.IsNullOrEmpty(data.EmployeeCode))
                     {
-                        DataSet dsEC = null;
-                        DataSet dsECSV = null;
+                        objEL.GetMaxEmpCode(para.PlantId, data.EmployeeCodeTypeId, out dsMaxEmpCode);
 
-                        objEL.getEmpCodeAuto(para.PlantId, out dsEC);
-                        objEL.GetEmpCodeStartValue(para.PlantId, out dsECSV);
-                        objEmpLoad.GetDefaultPlantWiseHRMSSetting(para.CompanyGroupId, para.PlantId, out dsHRsettin);
-
-                        if (dsHRsettin.Tables[0].Rows.Count > 0)
+                        if (dsEmpCodeGenSetting.Tables[0].Rows.Count > 0)
                         {
-                            if (Convert.ToBoolean(dsHRsettin.Tables[0].Rows[0]["IsEmployeeCodeOpenField"]) == false)
+                            if (Convert.ToBoolean(dsEmpCodeGenSetting.Tables[0].Rows[0]["IsEmployeeCodeOpenField"]) == false)
                             {
-                                if (dsHRsettin.Tables[0].Rows[0]["EmployeeCodeStart"].ToString() == "AutoIncrement")
+                                if (dsEmpCodeGenSetting.Tables[0].Rows[0]["EmpCodeGenType"].ToString() == "AutoIncrement")
                                 {
-                                    if (dsEC.Tables[0].Rows.Count > 0)
+                                    if (dsMaxEmpCode.Tables[0].Rows.Count > 0)
                                     {
-                                        int v = Convert.ToInt32(bplib.clsWebLib.GetNumData(dsEC.Tables[0].Rows[0]["c"].ToString())) + 1;
+                                        int v = Convert.ToInt32(bplib.clsWebLib.GetNumData(dsMaxEmpCode.Tables[0].Rows[0]["EmployeeCode"].ToString())) + 1;
                                         if (v == 1)
                                         {
-                                            if (Convert.ToInt32(bplib.clsWebLib.GetNumData(dsECSV.Tables[0].Rows[0]["EmpCodeStartValue"].ToString())) != 0)
+                                            if (Convert.ToInt32(bplib.clsWebLib.GetNumData(dsEmpCodeGenSetting.Tables[0].Rows[0]["EmpCodeStartValue"].ToString())) != 0)
                                             {
-                                                int code = Convert.ToInt32(bplib.clsWebLib.GetNumData(dsECSV.Tables[0].Rows[0]["EmpCodeStartValue"].ToString())) + 1;
+                                                int code = Convert.ToInt32(bplib.clsWebLib.GetNumData(dsEmpCodeGenSetting.Tables[0].Rows[0]["EmpCodeStartValue"].ToString())) + 1;
                                                 data.EmployeeCode = code.ToString();
                                             }
                                             else
                                             {
-                                                Exception ex = new Exception("Employee code start value doesn't define in plant wise setting...");
+                                                Exception ex = new Exception("Employee code start value doesn't define in Employee Code Generation...");
                                                 throw ex;
                                             }
                                         }
@@ -807,13 +755,66 @@ namespace Aplos.HumanResource
                                     data.EmployeeCode = data.SystemId;
                                 }
                             }
-                            if (dsHRsettin.Tables[0].Rows[0]["IsAutoEmpCodeWithPrefix"].ToString() == "True")
+                            if (dsEmpCodeGenSetting.Tables[0].Rows[0]["IsAutoEmpCodeWithPrefix"].ToString() == "True")
                             {
                                 data.EmployeeCode = Prefix + data.EmployeeCode;
                             }
 
                         }
                     }
+                    #endregion
+
+                    #region empCode old
+                    ///empCode old
+                    //if (string.IsNullOrEmpty(data.EmployeeCode))
+                    //{
+                    //    DataSet dsEC = null;
+                    //    DataSet dsECSV = null;
+
+                    //    objEL.getEmpCodeAuto(para.PlantId, out dsEC);
+                    //    objEL.GetEmpCodeStartValue(para.PlantId, out dsECSV);
+                    //    objEmpLoad.GetDefaultPlantWiseHRMSSetting(para.CompanyGroupId, para.PlantId, out dsHRsettin);
+
+                    //    if (dsHRsettin.Tables[0].Rows.Count > 0)
+                    //    {
+                    //        if (Convert.ToBoolean(dsHRsettin.Tables[0].Rows[0]["IsEmployeeCodeOpenField"]) == false)
+                    //        {
+                    //            if (dsHRsettin.Tables[0].Rows[0]["EmployeeCodeStart"].ToString() == "AutoIncrement")
+                    //            {
+                    //                if (dsEC.Tables[0].Rows.Count > 0)
+                    //                {
+                    //                    int v = Convert.ToInt32(bplib.clsWebLib.GetNumData(dsEC.Tables[0].Rows[0]["c"].ToString())) + 1;
+                    //                    if (v == 1)
+                    //                    {
+                    //                        if (Convert.ToInt32(bplib.clsWebLib.GetNumData(dsECSV.Tables[0].Rows[0]["EmpCodeStartValue"].ToString())) != 0)
+                    //                        {
+                    //                            int code = Convert.ToInt32(bplib.clsWebLib.GetNumData(dsECSV.Tables[0].Rows[0]["EmpCodeStartValue"].ToString())) + 1;
+                    //                            data.EmployeeCode = code.ToString();
+                    //                        }
+                    //                        else
+                    //                        {
+                    //                            Exception ex = new Exception("Employee code start value doesn't define in plant wise setting...");
+                    //                            throw ex;
+                    //                        }
+                    //                    }
+                    //                    else
+                    //                    {
+                    //                        data.EmployeeCode = v.ToString();
+                    //                    }
+                    //                }
+                    //            }
+                    //            else
+                    //            {
+                    //                data.EmployeeCode = data.SystemId;
+                    //            }
+                    //        }
+                    //        if (dsHRsettin.Tables[0].Rows[0]["IsAutoEmpCodeWithPrefix"].ToString() == "True")
+                    //        {
+                    //            data.EmployeeCode = Prefix + data.EmployeeCode;
+                    //        }
+
+                    //    }
+                    //}
                     #endregion
 
 
@@ -1289,7 +1290,7 @@ namespace Aplos.HumanResource
 
                 drLocal["GivenDesignationId"] = data.GivenDesignationId;
                 drLocal["LegalDesignationId"] = data.LegalDesignationId;
-                drLocal["EmploymentType"] = data.EmploymentType;
+                drLocal["EmployeeCodeTypeId"] = data.EmployeeCodeTypeId;
                 drLocal["VendorId"] = data.VendorId;
 
                 drLocal["CardNumber"] = data.CardNumber;
@@ -2290,34 +2291,24 @@ namespace Aplos.HumanResource
         {
             try
             {
-                var sql = @"select Flag= CAST(CASE WHEN D.Id IS NULL THEN 0 ELSE 1 END AS bit),ET.EmploymentType,D.Id,CG.UserName CompanyGroup,C.UserName Company,P.Id PlantId,P.UserName Plant
-                                    FROM 
-                                    (Select 'Permanent' AS EmploymentType  
-                                    UNION ALL
-                                    Select 'Temporary' AS EmploymentType  
-                                    UNION ALL 
-                                    Select 'Contractual' AS EmploymentType  
-                                    ) ET
-                                    left join ORG.Plant P ON 1=1
-                                    LEFT JOIN ORG.Company C ON C.Id=P.CompanyId
-                                    LEFT JOIN ORG.CompanyGroup CG ON CG.Id=C.CompanyGroupId
-                                    LEFT JOIN [dbo].[EmployeeCodeGenGroupDetail] D ON D.PlantId=P.Id and D.EmploymentType=ET.EmploymentType
-                                    Where ISNULL(D.EmployeeCodeGenGroupId,'')=''
-                                    UNION ALL
-                                    select Flag= CAST(CASE WHEN D.Id IS NULL THEN 0 ELSE 1 END AS bit),ET.EmploymentType,D.Id,CG.UserName CompanyGroup,C.UserName Company,P.Id PlantId,P.UserName Plant
-                                    FROM 
-                                    (Select 'Permanent' AS EmploymentType  
-                                    UNION ALL
-                                    Select 'Temporary' AS EmploymentType  
-                                    UNION ALL 
-                                    Select 'Contractual' AS EmploymentType  
-                                    ) ET
-                                    left join ORG.Plant P ON 1=1
-                                    LEFT JOIN ORG.Company C ON C.Id=P.CompanyId
-                                    LEFT JOIN ORG.CompanyGroup CG ON CG.Id=C.CompanyGroupId
-                                    LEFT JOIN [dbo].[EmployeeCodeGenGroupDetail] D ON D.PlantId=P.Id and D.EmploymentType=ET.EmploymentType
-                                    Where ISNULL(D.EmployeeCodeGenGroupId,'')='" + masterId+@"'
-                                    Order BY CG.UserName,C.UserName,P.UserName";
+                var sql = @"SELECT Flag= CAST(CASE WHEN D.Id IS NULL THEN 0 ELSE 1 END AS bit),ET.EmploymentType,D.Id,CG.UserName CompanyGroup,C.UserName Company,P.Id PlantId,P.UserName Plant,ET.Id EmployeeCodeTypeId
+                                        FROM 
+                                        (SELECT UserName AS EmploymentType,Id  From dbo.EmployeeCodeType) ET
+                                        LEFT JOIN ORG.Plant P ON 1=1
+                                        LEFT JOIN ORG.Company C ON C.Id=P.CompanyId
+                                        LEFT JOIN ORG.CompanyGroup CG ON CG.Id=C.CompanyGroupId
+                                        LEFT JOIN [dbo].[EmployeeCodeGenGroupDetail] D ON D.PlantId=P.Id and D.EmployeeCodeTypeId=ET.Id
+                                        WHERE ISNULL(D.EmployeeCodeGenGroupId,'')=''
+                                        UNION ALL
+                                        SELECT Flag= CAST(CASE WHEN D.Id IS NULL THEN 0 ELSE 1 END AS bit),ET.EmploymentType,D.Id,CG.UserName CompanyGroup,C.UserName Company,P.Id PlantId,P.UserName Plant,ET.Id EmployeeCodeTypeId
+                                        FROM 
+                                        (SELECT UserName AS EmploymentType,Id  From dbo.EmployeeCodeType) ET
+                                        LEFT JOIN ORG.Plant P ON 1=1
+                                        LEFT JOIN ORG.Company C ON C.Id=P.CompanyId
+                                        LEFT JOIN ORG.CompanyGroup CG ON CG.Id=C.CompanyGroupId
+                                        LEFT JOIN [dbo].[EmployeeCodeGenGroupDetail] D ON D.PlantId=P.Id and D.EmployeeCodeTypeId=ET.Id
+                                        WHERE ISNULL(D.EmployeeCodeGenGroupId,'')='" + masterId + @"'
+                                        ORDER BY CG.UserName,C.UserName,P.UserName";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)

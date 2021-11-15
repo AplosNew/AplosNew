@@ -432,7 +432,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { DATA = assetWIPQueryService.GetFixedAssetWIPstatusSQL(), Error = false }, JsonRequestBehavior.AllowGet);
         }
 
-        [Authorize]
+        [HttpPost, Authorize]
         public ActionResult AssetWIPstatusReportExcel(string materialMasterId, string materialMasterArticleId, string voucherId, string grnNo, string glId, string activityId)
         {
             AssetWIPQueryService assetWIPQueryService = new AssetWIPQueryService(_sqlRepository);
@@ -443,18 +443,23 @@ namespace Aplos.Areas.Accounts.Controllers
 
                 ExcelEngine excelEngine = new ExcelEngine();
 
-                IWorkbook workbook = assetWIPQueryService.AssetWIPstatusList( materialMasterId, materialMasterArticleId, voucherId, grnNo, glId, activityId);
+                //IWorkbook workbook = assetWIPQueryService.AssetWIPstatusList( materialMasterId, materialMasterArticleId, voucherId, grnNo, glId, activityId);
 
-                string strFileName = "Fixed Assets Register Report.xlsx";
-                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
-                workbook.Close();
+                //string strFileName = "Fixed Assets Register Report.xlsx";
+                //workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                //workbook.Close();
+
+                string fileName = "";
+          
+                fileName = assetWIPQueryService.AssetWIPstatusList(materialMasterId, materialMasterArticleId, voucherId, grnNo, glId, activityId);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
                 return Json(ex.Message, JsonRequestBehavior.AllowGet);
 
             }
-            return null;
+
         }
 
         //[HttpGet, Authorize]
@@ -487,6 +492,9 @@ namespace Aplos.Areas.Accounts.Controllers
         //    }
         //    return null;
         //}
+
+
+       
     }
 
 

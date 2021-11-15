@@ -2,59 +2,62 @@
 
 @*<div class="table-responsive modal-table aplos-grid-toggle">*@
 
-    <div class="row">
-        <div class="clearfix"></div>
+<div class="row">
+    <div class="clearfix"></div>
 
-        <div class="col-md-12">
-            <div style="color:black;" id="GridAssetWIPstatus" ej-grid e-datasource="AssetWIPstatusList"
-                 e-summaryrows="TotalAssetWIPstatus" e-recorddoubleclick="getdata" @*e-templaterefresh="refreshTemplateEntityandDepartment"*@
-                 e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
-                 e-allowscrolling="true" e-filtersettings-filterType="excel" e-enabletouch="false"
-                 e-allowresizing="true" e-allowselection="false" e-allowsorting="true">
+    <div class="col-md-12">
+        <div style="color:black;" id="GridAssetWIPstatus" ej-grid e-datasource="AssetWIPstatusList"
+             e-summaryrows="TotalAssetWIPstatus" e-recorddoubleclick="getdata" @*e-templaterefresh="refreshTemplateEntityandDepartment"*@
+             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
+             e-allowscrolling="true" e-filtersettings-filterType="excel" e-enabletouch="false"
+             e-allowresizing="true" e-allowselection="false" e-allowsorting="true">
 
-                <div e-columns>
-                    <div e-column e-field="MaterialMasterName" e-headertext="Material" e-width="120"></div>
-                    <div e-column e-type="text" e-field="ArticleName" e-headertext="Article" e-width="120" style="height: 20px;"></div>
+            <div e-columns>
+                <div e-column e-field="MaterialMasterName" e-headertext="Material" e-width="120"></div>
+                <div e-column e-type="text" e-field="ArticleName" e-headertext="Article" e-width="120" style="height: 20px;"></div>
 
-                    <div e-column e-type="text" e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="40" style="height: 20px;"></div>
-                    <div e-column e-type="text" e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="40" style="height: 20px;"></div>
-                    <div e-column e-type="text" e-field="ThirdCharacteristicsValue" e-headertext="SKU3" e-width="40" style="height: 20px;"></div>
-                    <div e-column e-type="text" e-field="MaterialStorageLocation" e-headertext="Storage Location" e-width="100" style="height: 20px;"></div>
-                    <div e-column e-type="text" e-field="GL" e-headertext="GL" e-width="100" e-textalign="right" style="height: 20px;"></div>
-                    @* <div e-column e-type="text" e-field="Activity" e-headertext="Activity" e-width="50" e-textalign="right" style="height: 20px;"></div>*@
-                    <div e-column e-type="text" e-field="GRNNo" e-headertext="GRN No." e-width="100" e-textalign="right" style="height: 20px;"></div>
-                    <div e-column e-type="text" e-field="GRNDate" e-headertext="GRN Date" e-width="100" e-textalign="right" style="height: 20px;"></div>
-                    <div e-column e-type="text" e-field="VoucherNo" e-headertext="Voucher No." e-width="100" e-textalign="right" style="height: 20px;"></div>
-                    <div e-column e-type="text" e-field="TransactionQty" e-headertext="Transaction Qty" e-width="100" e-textalign="right" style="height: 20px;"></div>
-                    <div e-column e-type="text" e-field="TrnUOM" e-headertext="Trn UOM" e-width="50" e-textalign="right" style="height: 20px;"></div>
-                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TrnRate" e-headertext="Trn Rate" e-width="100" e-textalign="right" style="height: 20px;"></div>
-                    <div e-column e-type="text" e-field="Currency" e-headertext="Currency" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                <div e-column e-type="text" e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="40" style="height: 20px;"></div>
+                <div e-column e-type="text" e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="40" style="height: 20px;"></div>
+                <div e-column e-type="text" e-field="ThirdCharacteristicsValue" e-headertext="SKU3" e-width="40" style="height: 20px;"></div>
+                <div e-column e-type="text" e-field="MaterialStorageLocation" e-headertext="Storage Location" e-width="100" style="height: 20px;"></div>
+                <div e-column e-type="text" e-field="AssetMaster" e-headertext="Asset Master" e-width="100" style="height: 20px;"></div>
+                <div e-column e-type="text" e-field="GL" e-headertext="GL" e-width="100" e-textalign="left" style="height: 20px;"></div>
+                @* <div e-column e-type="text" e-field="Activity" e-headertext="Activity" e-width="50" e-textalign="right" style="height: 20px;"></div>*@
 
-                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TrnAmount" e-headertext="Trn Amount" e-width="100" e-textalign="right" style="height: 20px;"></div>
-                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BaseQty" e-headertext="Base Qty" e-width="100" e-textalign="right" style="height: 20px;"></div>
-                    <div e-column e-type="text" e-field="BaseUOM" e-headertext="Base UOM" e-width="50" e-textalign="right" style="height: 20px;"></div>
-                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BaseRate" e-headertext="Base Rate" e-width="100" e-textalign="right" style="height: 20px;"></div>
-                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksAmount" e-headertext="Books Amount" e-width="100" e-textalign="right" style="height: 20px;"></div>
-                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="IssueQty" e-headertext="Issue Qty" e-width="100" e-textalign="right" style="height: 20px;"></div>
+                <div e-column e-template="#templateGRNNo" e-type="text" e-field="GRNNo" e-headertext="GRN No." e-width="100" e-textalign="right" style="height: 20px;"></div>
+                <div e-column e-type="text" e-field="GRNDate" e-headertext="GRN Date" e-width="100" e-textalign="right" style="height: 20px;"></div>
+                <div e-column e-template="#templateVoucherNo" e-type="text" e-field="VoucherNo" e-headertext="Voucher No." e-width="100" e-textalign="right" style="height: 20px;"></div>
 
-                </div>
+                <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TransactionQty" e-headertext="Transaction Qty" e-width="100" e-textalign="right" style="height: 20px;"></div>
+                <div e-column e-type="text" e-field="TrnUOM" e-headertext="Transaction UOM" e-width="50" e-textalign="right" style="height: 20px;"></div>
+                <div e-column e-type="numeric" e-format="{0:0.0000}" e-field="TrnRate" e-headertext="Transaction Rate" e-width="100" e-textalign="right" style="height: 20px;"></div>
+                <div e-column e-type="text" e-field="Currency" e-headertext="Currency" e-width="60" e-textalign="left" style="height: 20px;"></div>
+
+                <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TrnAmount" e-headertext="Transaction Amount" e-width="100" e-textalign="right" style="height: 20px;"></div>
+                <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BaseQty" e-headertext="Base Qty" e-width="100" e-textalign="right" style="height: 20px;"></div>
+                <div e-column e-type="text" e-field="BaseUOM" e-headertext="Base UOM" e-width="50" e-textalign="left" style="height: 20px;"></div>
+                <div e-column e-type="numeric" e-format="{0:0.0000}" e-field="BaseRate" e-headertext="Base Rate" e-width="100" e-textalign="right" style="height: 20px;"></div>
+                <div e-column e-type="numeric" e-format="{0:0.0000}" e-field="BooksAmount" e-headertext="Books Amount" e-width="100" e-textalign="right" style="height: 20px;"></div>
+                <div e-column e-type="numeric" e-format="{0:0.00}" e-field="IssueQty" e-headertext="Issue Qty" e-width="100" e-textalign="right" style="height: 20px;"></div>
+
             </div>
+
         </div>
 
+        <script type="text/template" id="templateGRNNo">
+            <div class="text-left" style="width:100%">
+                <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.onGRNNoDownloadExcel(data);">{{data.GRNNo}}</a>
+            </div>
+        </script>
 
+        <script type="text/template" id="templateVoucherNo">
+            <div class="text-left" style="width:100%">
+                <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.onVoucherNoDownloadExcel(data);">{{data.VoucherNo}}</a>
+            </div>
+        </script>
     </div>
 
-
-
-    @*<div class="common-btn">
-            <ul class="list-inline text-left">
-                <li><button ng-click="InvoiceSummaryReport();" title="All active summary with corresponding values" class="btn"><i class="glyphicon glyphicon-file"></i> Summary</button></li>
-            </ul>
-        </div>*@
-
-    @*</div>*@
-
-@*</div>*@
+</div>
 
 <div class="common-btn">
     <ul class="list-inline text-left">

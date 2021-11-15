@@ -956,7 +956,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-               
+
                 var sql = @"select distinct e.SystemId as EmpId,dc.IsOTEntitled,
 				Format(p.WorkDate,'yyyy-MMM-dd')WorkDate
                 from AttdnProcessData p join
@@ -971,12 +971,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 and E.DOJ <= '" + Date + @"' 
 				AND (E.DOS >= '" + Date + @"' OR ISNULL(E.DOS,'') = '' 
 				OR E.DOS = '01/01/1901') and dc.IsOTEntitled=1 
-				and e.SystemId not in (select final.EmpSystemId from 
-				(select distinct o.empsystemId,
-				(select top 1 Exclude from NonEligibleOT m where 
-				m.EmpSystemId=o.EmpSystemId order by EffectiveDate desc)as x 
-				from NonEligibleOT o) final where final.x=1)";
-                
+				and e.ExcludeOT=0";   
+                                
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }

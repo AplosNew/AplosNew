@@ -422,7 +422,7 @@ namespace Library.Service.Employees
                 var dblist = Find(entity.SystemId);
                 dblist.LegalDesignationId = entity.LegalDesignationId;
                 dblist.GivenDesignationId = entity.GivenDesignationId;
-                dblist.EmploymentType = entity.EmploymentType;
+                dblist.EmployeeCodeTypeId = entity.EmployeeCodeTypeId;
                 dblist.DOC = entity.DOC;
                 dblist.DOCBy = entity.DOCBy;
                 dblist.DOCDay = entity.DOCDay;

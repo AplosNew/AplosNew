@@ -25,10 +25,10 @@ function JobWorkConfig($routeProvider, $locationProvider) {
         //    templateUrl: 'JobWork/JobWorkValueAddedContract/aplos',
         //    controller: 'JobWorkValueAddedContractController'
         //})
-        //.when('/os-issue-return', {
-        //    templateUrl: 'JobWork/OSIssueReturn/aplos',
-        //    controller: 'OSIssueReturnController'
-        //})
+        .when('/jw-issue-return', {
+            templateUrl: 'JobWork/JWIssueReturn/aplos',
+            controller: 'JWIssueReturnController'
+        })
         //.when('/confirm-issue', {
         //    templateUrl: 'JobWork/JobWorkIssueReturnConfirmation/aplos',
         //    controller: 'JobWorkIssueReturnConfirmationController'

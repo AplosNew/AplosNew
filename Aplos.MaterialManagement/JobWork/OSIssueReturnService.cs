@@ -2306,7 +2306,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 							left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
 							left join TRN.InventoryReceiveDetail IRD on IRD.Id=IIH.InventoryReceiveDetailId
         					left join TRN.InventoryReceive IR on IR.Id=IRD.InventoryReceiveId
-						WHERE II.PlantId= '" + plantId + @"' AND ISNULL(II.[Status],'') <>'Posting' AND IID.IsAsset= 0 and II.Types='InventoryJWIssue' and II.JWContractId='" + Id + @"'
+						WHERE II.PlantId= '" + plantId + @"' AND ISNULL(II.[Status],'') <>'Posting' AND IID.IsAsset= 0 and II.Types='InventoryOSIssue' and II.JWContractId='" + Id + @"'
 						GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
 						,II.IssueDate, MS.UserName
 						,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo  
@@ -2350,7 +2350,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 							left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
 							left join TRN.InventoryReceiveDetail IRD on IRD.Id=IIH.InventoryReceiveDetailId
         					left join TRN.InventoryReceive IR on IR.Id=IRD.InventoryReceiveId
-						WHERE II.PlantId= '" + plantId + @"' AND ISNULL(II.[Status],'')='Posting' AND IID.IsAsset= 0 and II.Types='InventoryJWIssue' and II.JWContractId='" + Id + @"'
+						WHERE II.PlantId= '" + plantId + @"' AND ISNULL(II.[Status],'')='Posting' AND IID.IsAsset= 0 and II.Types='InventoryOSIssue' and II.JWContractId='" + Id + @"'
 						GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
 						,II.IssueDate, MS.UserName
 						,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo  
