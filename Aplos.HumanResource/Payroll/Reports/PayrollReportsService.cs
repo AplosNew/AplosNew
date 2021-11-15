@@ -12400,7 +12400,7 @@ ELSE CONVERT(BIT,0) END  ---No
                                     ,e.EmployeeCodePreFix,e.EmployeeCodeNumeric
                                     ,ISNULL(jl.JobLocation, '') JobLocation
 									,ISNULL(SPLD.PaymentMode,'') PaymentMode
-									,ISNULL(bb.UserName,'') BankName
+									,ISNULL(bb.UserName,'') BankName,e.EmploymentType
 
                                      FROM EmployeeInformation e
                                 

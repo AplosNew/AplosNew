@@ -14947,8 +14947,8 @@ where h.HeadCategory='GROSS'
                                     Left Join [dbo].[JobLocation] jl on jl.SystemID = E.JobLocationID
 									left join [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=e.SystemId
 									left join [HKP].[Bank] bb on bb.Id = SPLD.BankSystemID
-
-                                     WHERE 1=1
+                                    left join [dbo].[EmployeeCodeType] ect on ect.Id=e.EmployeeCodeTypeId
+                                     WHERE 1=1 and ect.IsOutSider =0
                                             " + wcPayrollGroup + @"                                   
                                      ) DD " + wcEmpStatus + " ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric ";
                 return _sqlRepository.GetDataCollection(cmdText);
