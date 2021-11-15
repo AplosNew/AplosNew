@@ -1,26 +1,8 @@
-﻿using Library.Model.Employees;
-using Library.Data;
-using Library.Service.Employees;
-
-using System;
+﻿using System;
 using System.Web.Mvc;
-using System.Linq;
 using Aplos.Controllers;
-using Aplos.Properties;
-using Library.Crosscutting.Security;
-using System.Threading;
-using Library.Data.Sql;
-using OTSBD;
-using System.Data;
 using System.Collections.Generic;
-using Library.Model.Enums;
-using Syncfusion.XlsIO;
-using Library.Service.Helpers;
-using System.IO;
 using Library.HumanResource.NewAttendanceProcess;
-using Newtonsoft.Json;
-using System.Collections.Specialized;
-//using TBS;
 
 namespace Aplos.Areas.HumanResource.Controllers
 {

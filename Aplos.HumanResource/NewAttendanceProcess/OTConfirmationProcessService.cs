@@ -197,32 +197,52 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                     while (MinDate <= MaxDate)
                     {
+                        string ApplicablePattern = clsWebLib.RetValidLen(Table.Rows[i]["ApplicableWM"]).ToString();
                         string FormatDate = MinDate.ToString("dd-MMM-yyyy");
-                        Table.DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' AND WorkDate <>#" + FormatDate + "# " +
-                        "AND WorkDate >= #" + WeekMinDate + "# and WorkDate<= #" + WeekMaxDate + "# ";
 
-                        int StandardOTMaster = 0;
-                        if (Table.DefaultView.Count > 0)
+                        if (ApplicablePattern == "W")
                         {
-                            for (int j = 0; j <= Table.DefaultView.Count; j++)
+                            Table.DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' AND WorkDate <>#" + FormatDate + "# " +
+                            "AND WorkDate >= #" + WeekMinDate + "# and WorkDate<= #" + WeekMaxDate + "# ";
+
+                            int StandardOTMaster = 0;
+                            if (Table.DefaultView.Count > 0)
                             {
-                                int StandardOT = Convert.ToInt32(Table.DefaultView[j][@"StandardOT"].ToString());
-                                StandardOTMaster += StandardOT;
+                                for (int j = 0; j <= Table.DefaultView.Count; j++)
+                                {
+                                    string ApplicableWM = Table.DefaultView[j][@"ApplicableWM"].ToString();
+                                    if (ApplicableWM == "W")
+                                    {
+                                        int StandardOT = Convert.ToInt32(Table.DefaultView[j][@"StandardOT"].ToString());
+                                        StandardOTMaster += StandardOT;
+                                    }
+                                }
                             }
+
+                            Table.DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' AND WorkDate =#" + FormatDate + "# ";
+                            if (Table.DefaultView.Count > 0)
+                            {
+                                int TargetOT = Convert.ToInt32(Table.DefaultView[0][@"TargetOT"].ToString());
+                                int DailyLimit = Convert.ToInt32(Table.DefaultView[0][@"DailyLimit"].ToString());
+                                if (DailyLimit == 0)
+                                {
+                                    DataRow dr = Table.DefaultView[0].Row;
+                                    dr.BeginEdit();
+
+                                    dr["StandardOT"] = 0;
+                                    dr["AdditionalOT"] = TargetOT;
+                                    dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                    dr.EndEdit();                                    
+                                }
+
+                            }
+
                         }
 
                         MinDate = MinDate.AddDays(1);
                     }
 
                 }
-
-                string DailyLimit = "";
-                if (DailyLimit == "0")
-                {
-                    decimal StdOT = 0;
-                    decimal ExtraOT; // All;
-                }
-                // var EmpData= Data.Where(k => k["empsystemid"].ToString() == "1223" && ).FirstOrDefault(); 
             }
             catch(Exception ex)
             {
