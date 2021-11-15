@@ -99,6 +99,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             #endregion
 
+            DataTable OTProcessTable = ToDataTable(_objects);
 
             //DataTable dx = new DataTable();
             //dx.Columns.Add("empcode", typeof(string));
@@ -126,6 +127,21 @@ namespace Aplos.Areas.HumanResource.Controllers
                 Param = "1";
                 WorkDatesMaster += ",'" + Value + "'";
             }
+        }
+
+        static DataTable ToDataTable(List<Dictionary<string, object>> list)
+        {
+            DataTable result = new DataTable();
+            if (list.Count == 0)
+                return result;
+
+            result.Columns.AddRange(
+                list.First().Select(r => new DataColumn(r.Key)).ToArray()
+            );
+
+            list.ForEach(r => result.Rows.Add(r.Select(c => c.Value).Cast<object>().ToArray()));
+
+            return result;
         }
 
         #endregion Operations
