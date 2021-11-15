@@ -7258,7 +7258,7 @@ x.ParticularName
 				,uom.Id BaseUOMId,Isnull (uom.UserName,'') BaseUOM
                  ,IsAsset =case when M.IsAsset =1 then 'Yes' else  'No'  end
 				 , Machine=case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end 
-
+                ,mma.RPM,mma.MachineAllowance
 				 ,ISNULL(FA.FACount,0) FACount
                 , ISNULL(FA.FABaseAmount,0)FABaseAmount
 				  , isnull(FA.SubAssetAmount,0)SubAssetAmount
@@ -7325,7 +7325,7 @@ x.ParticularName
 				,uom.Id BaseUOMId,Isnull (uom.UserName,'') BaseUOM
                  ,IsAsset =case when M.IsAsset =1 then 'Yes' else  'No'  end
 				 , Machine=case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end 
-
+                ,mma.RPM,mma.MachineAllowance
 				 ,Count(ISNULL(FAR.Id,0)) FACount
 
                 , SUM(ISNULL(FAR.FABaseAmount,0))FABaseAmount
@@ -7378,7 +7378,7 @@ x.ParticularName
 				,uom.Id,uom.UserName
                  ,M.IsAsset
 				 ,MBP.BusinessProcessName ,S.UserName,M.BudgetMasterId,fam.UserName
-				   ,gl.UserName ,b.UserName , a.UserName ";
+				   ,gl.UserName ,b.UserName , a.UserName,mma.RPM,mma.MachineAllowance ";
             return _sqlRepository.GetDataCollection(sql);
 
         }

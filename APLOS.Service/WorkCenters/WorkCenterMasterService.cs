@@ -651,7 +651,8 @@ namespace Library.Service.WorkCenters
                     from_db.Sequence = from_ui.Sequence;
                     from_db.Capacity = from_ui.Capacity;
                     from_db.Code = from_ui.Code;
-                    from_db.CompanyId = identity.CompanyId;
+                    //from_db.CompanyId = identity.CompanyId;
+                    from_db.CompanyId = from_ui.CompanyId;
                     from_db.Description = from_ui.Description;
                     from_db.PlantId = from_ui.PlantId;
                     from_db.EntityId = from_ui.EntityId;
@@ -694,7 +695,7 @@ namespace Library.Service.WorkCenters
                     from_db.Sequence = from_ui.Sequence;
                     from_db.Capacity = from_ui.Capacity;
                     from_db.Code = from_ui.Code;
-                    from_db.CompanyId = identity.CompanyId;
+                    from_db.CompanyId = from_ui.CompanyId;
                     from_db.Description = from_ui.Description;
                     from_db.PlantId = from_ui.PlantId;
                     from_db.EntityId = from_ui.EntityId;

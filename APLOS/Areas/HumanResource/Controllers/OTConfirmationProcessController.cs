@@ -1,37 +1,17 @@
-﻿using Library.Model.Employees;
-using Library.Data;
-using Library.Service.Employees;
-
-using System;
+﻿using System;
 using System.Web.Mvc;
-using System.Linq;
 using Aplos.Controllers;
-using Aplos.Properties;
-using Library.Crosscutting.Security;
-using System.Threading;
-using Library.Data.Sql;
-using OTSBD;
-using System.Data;
 using System.Collections.Generic;
-using Library.Service.Attendances;
-using Library.Model.Enums;
-using Syncfusion.XlsIO;
-using Library.Service.Helpers;
-using System.IO;
 using Library.HumanResource.NewAttendanceProcess;
-//using TBS;
 
 namespace Aplos.Areas.HumanResource.Controllers
 {
 
     public class OTConfirmationProcessController : BaseController
     {
-        // add a header verification - 1. Basic Authentication .... 2. Payload
-
+        
         #region Constructor
-        /// <summary>   The separationTypeService service. </summary>
-
-
+        
         OTConfirmationProcessService ot = new OTConfirmationProcessService();
         public OTConfirmationProcessController()
         {
@@ -73,10 +53,23 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost , Authorize]
-        public void ProcessData(IEnumerable<object> Data)
+        public ActionResult ProcessData(string Data,string OTWeek)
         {
-            int j = 1;
+            try
+            {
+                ot.ProcessData(Data, OTWeek);             
+            }
+            catch (Exception ex)
+            {
+                ot.CommonLogFunction(ex);
+                return Json(new { Error = true, Message = "Error Occured..." }, JsonRequestBehavior.AllowGet);
+
+            }
+            return Json(new { Error = false, Message = "OT Confirmation Process Ran Successfully..." }, JsonRequestBehavior.AllowGet);
+
         }
+
+
         #endregion Operations
     }
-}
+} 

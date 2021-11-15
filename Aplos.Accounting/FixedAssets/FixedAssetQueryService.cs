@@ -1804,9 +1804,77 @@ namespace Library.Accounting.FixedAssets
 
         }
 
+		public List<Dictionary<string, object>> GetFixedAssetRegisterDisposedElasticSearchDataList(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string nonPosted, string posted, string DisposeStatus)
+		{
+			var Posted = 0;
+			if (nonPosted == "True")
+			{
+				Posted = 1;
+			}
+			if (posted == "True")
+			{
+				Posted = 0;
+			}
+			if (posted == "True" && nonPosted == "True")
+			{
+				Posted = 2;
+			}
+			var sql = @"select distinct MM.UserName MaterialMaster,MMA.StandardName Article,FA.UserName AssetMaster,P.UserName Party
+                , FAR.MaterialMasterId,FAR.MaterialMasterArticleId,FAR.VendorId,FAR.FixedAssetMasterId
 
-        #endregion Fixed Assets Register Report for Elastis Search
+                 ,IsAsset =case when MM.IsAsset =1 then 'Yes' else  'No'  end
+				 , Machine=case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end 
+				,FAR.Status,format( frd.DocDate,'dd-MMM-yyyy')DocDate,v.VoucherNo,frd.Id DisposalNo
+				,CASE WHEN frd.IsPark=0 THEN 'Posted' ELSE 'Non Posted' END PostingStatus
+				 , count(FAR.FixedAssetMasterId) FACount
+
+				-- ,sum( ISNULL(FAR.FABaseAmount,0))FABaseAmount
+				 --,sum( ISNULL(FAR.ADBaseAmount,0)) ADBaseAmount
+				-- ,sum( ISNULL(FAR.FABaseAmount,0)- ISNULL(FAR.ADBaseAmount,0)) NetFixedAssetsAmount
+				 -- ,sum( isnull(sar.SubAssetAmount,0))SubAssetAmount
+				 -- ,TotalAssetsBaseAmount= sum( ISNULL(FAR.FABaseAmount,0) + (isnull(sar.SubAssetAmount,0) )) 
+				 ,sum( ISNULL(FAR.FABaseAmount,0))FABaseAmount
+				  ,sum( isnull(sar.SubAssetAmount,0))SubAssetAmount
+				  ,sum(ISNULL(FAR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) ) TotalBaseAmount
+				 ,sum( ISNULL(FAR.ADBaseAmount,0)) ADBaseAmount
+				 ,sum( ISNULL(FAR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) - ISNULL(FAR.ADBaseAmount,0) ) NetFixedAssetsAmount
+				  --,TotalAssetsBaseAmount= sum( ISNULL(FAR.FABaseAmount,0) + (isnull(sar.SubAssetAmount,0) )) 
 
 
-    }
+		        from TRN.FixedAssetRegister FAR 
+				JOIN MST.MaterialMaster MM ON MM.Id=FAR.MaterialMasterId
+				JOIN MST.MaterialMasterArticle MMA ON MMA.Id=FAR.MaterialMasterArticleId
+				JOIN MST.FixedAssetMaster FA ON FA.Id=FAR.FixedAssetMasterId
+				LEFT JOIN HKP.Party P ON P.Id=FAR.VendorId
+				LEFT JOIN TRN.FixedAssetRegisterDisposedDetail rdd ON rdd.FixedAssetRegisterId=FAR.Id
+				LEFT JOIN TRN.FixedAssetRegisterDisposed frd ON rdd.FixedAssetRegisterDisposedId=frd.Id
+				LEFT JOIN TRN.Voucher V ON V.Id =frd.DisposedVoucherId
+
+			    LEFT JOIN (SELECT MBP.MaterialMasterId,BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
+                LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
+                WHERE BP.BusinessProcessName ='MachineDefinition') AS MBP ON MBP.MaterialMasterId=MM.Id
+
+
+		        left join(select sum(Amount * CapitalizationRate) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
+				group by FixedAssetRegisterId
+				) sar on sar.FixedAssetRegisterId=FAR.Id
+
+
+		        WHERE FAR.CompanyGroupId='" + companyGroupId + "' AND FAR.CompanyId='" + companyId + "' AND FAR.PlantId='" + plantId + @"'  AND FAR.Status is not null
+				AND FAR.Status in (" + DisposeStatus + @") 
+				AND  frd.IsPark=case when  " + Posted + @"=2 then frd.IsPark else " + Posted + @" end
+				AND convert(Date,frd.DocDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' 
+
+			   GROUP BY FAR.MaterialMasterId ,MM.UserName ,MMA.StandardName ,FA.UserName,P.UserName 
+			   ,MM.IsAsset,MBP.BusinessProcessName,FAR.FixedAssetMasterId
+			    ,FAR.MaterialMasterId,FAR.MaterialMasterArticleId,FAR.VendorId,FAR.FixedAssetMasterId,FAR.Status,frd.DocDate,v.VoucherNo,frd.Id,frd.IsPark";
+			return _sqlRepository.GetDataCollection(sql);
+
+		}
+
+
+		#endregion Fixed Assets Register Report for Elastis Search
+
+
+	}
 }

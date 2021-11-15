@@ -4,7 +4,7 @@ function AssetWIPStatusController(commonMessage, $scope, $rootScope, $filter, $h
     $rootScope.title = "Asset WIP Status";
     $scope.path = 'FixedAssets/AssetWIPStatus/';
     $scope.Voucherpath = 'Accounts/VoucherReport/';
-    
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.partyType = 'Vendor';
     $controller('partyBaseController', { $scope: $scope, $http: $http });
@@ -228,6 +228,7 @@ function AssetWIPStatusController(commonMessage, $scope, $rootScope, $filter, $h
         angular.element(document.querySelector("#assetmastermodal")).modal("hide");
 
     };
+
     $scope.AssetWIPstatusList = [];
     $scope.GetAssetWIPstatusList = function () {
             $http({
@@ -244,8 +245,10 @@ function AssetWIPStatusController(commonMessage, $scope, $rootScope, $filter, $h
 
     $scope.TotalAssetWIPstatus = [{
         title: "Total", summaryColumns: [
-            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Amount", dataMember: "Amount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TransactionQty", dataMember: "TransactionQty", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TrnAmount", dataMember: "TrnAmount", format: "{0:N2}" },
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BaseQty", dataMember: "BaseQty", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksAmount", dataMember: "BooksAmount", format: "{0:N2}" },
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "IssueQty", dataMember: "IssueQty", format: "{0:N2}" },
             //{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "ADBaseAmount", dataMember: "ADBaseAmount", format: "{0:N2}" },
             //{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "NetFixedAssetsAmount", dataMember: "NetFixedAssetsAmount", format: "{0:N2}" },
@@ -269,15 +272,11 @@ function AssetWIPStatusController(commonMessage, $scope, $rootScope, $filter, $h
     }
 
     $scope.getAssetWIPstatusReportExcel = function () {
-        //$scope.FromDateValidation();
-        //$scope.ToDatevalidation()
-     //   if ($scope.form0.$valid && !$scope.invalidFromDate && !$scope.invalidDocDate && !$scope.validation()) {
-
-
             var filtered = $("#GridAssetWIPstatus").data("ejGrid").getFilteredRecords();
             if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
                 filtered = $scope.AssetWIPstatusList;
-            }
+        }
+        $scope.fileName = 'AssetWIPStatus.xls';
             //filtered = ej.DataManager(filtered).executeLocal(ej.Query().select(["AccountGroupName"]));
             var materialMasterId = getString(filtered, "MaterialMasterId");
             var materialMasterArticleId = getString(filtered, "ArticleId");
@@ -286,10 +285,27 @@ function AssetWIPStatusController(commonMessage, $scope, $rootScope, $filter, $h
             var glId = getString(filtered, "GlId");
             var activityId = getString(filtered, "ActivityId");
             try {
-                var file_src = $scope.Voucherpath + 'AssetWIPstatusReportExcel?materialMasterId=' + materialMasterId + '&materialMasterArticleId=' + materialMasterArticleId + '&voucherId=' + voucherId +
-                '&grnNo=' + grnNo + '&glId=' + glId + '&activityId=' + activityId;
-                //var file_src = $scope.path + 'FixedAssetRegisterReportExcel' 
-                $rootScope.report(file_src);
+               
+                $http({
+                    method: 'POST',
+                    url: 'Accounts/VoucherReport/AssetWIPstatusReportExcel',
+                    data: {
+                
+                        'MaterialMasterId': materialMasterId,
+                        'materialMasterArticleId': materialMasterArticleId,
+                        'VoucherId': voucherId,
+                        'GRNNo': grnNo,
+                        'GlId': glId,
+                        'ActivityId': activityId
+                    }
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
+                    }
+                });
 
             } catch (e) {
                 // ShowResult(e, 'failure');
@@ -298,5 +314,14 @@ function AssetWIPStatusController(commonMessage, $scope, $rootScope, $filter, $h
         
     }
 
+    $scope.onGRNNoDownloadExcel = function (data) {
+        location.href = "GoodsReceiveNote/GRNReport?grnId=" + data.GRNNo;
+        };
+
+    $scope.onVoucherNoDownloadExcel = function (data) {
+        var reportFormat = "Excel";
+        if (baseService.isUndefinedOrNull(data.VoucherNo)) return ShowResult('No Id found', 'failure');
+        $window.open('Accounts/InventoryPayable/PabyableJournal?' + '&reportFormat=' + reportFormat + '&inventoryReceiveId=' + data.GRNNo + '&employeeId=' + null + '&isReversCharge=' + false + '&isFoc=' + false);
+    };
 
 }
