@@ -9,6 +9,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using bplib;
+using Newtonsoft.Json;
+using System.Collections.Specialized;
 
 namespace Library.HumanResource.NewAttendanceProcess
 
@@ -35,6 +37,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 throw e;
             }
         }
+      
         public object getFilters()
         {
             try
@@ -94,8 +97,9 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 var str = @"select a.EmpSystemID,e.EmployeeCode,a.DayStatus,format(a.WorkDate ,'dd-MMM-yyyy') as WorkDate,e.PlantId,p.UserName as Plant,
                             a.InTime,a.OutTime,a.ProcessedOT,isnull((a.ProcessedOT*dt.OTMultiplingFactor),'0') as TargetOT,
-                            isnull(PreallocatedOTHr*60,'0') as PlanOT,dt.DayLimit,a.IsOTComfirm,a.StandardOT,a.AppliedOTLimit,
-                            a.AllowedOTLimit,a.AdditionalOT,dt.ApplicableWM,
+                            isnull(PreallocatedOTHr*60,'0') as PlanOT,isnull(dt.DayLimit,'0')DayLimit,a.IsOTComfirm,
+                            isnull(a.StandardOT,'0')StandardOT,isnull(a.AppliedOTLimit,'0')AppliedOTLimit,
+                            isnull(a.AllowedOTLimit,'0')AllowedOTLimit,isnull(a.AdditionalOT,'0')AdditionalOT,dt.ApplicableWM,
                             --- Week Data
                             WeekLimit= case when a.OTWeek='1' then (select dt.Week1Limit)
                             when a.OTWeek='2' then (select dt.Week2Limit)
@@ -124,7 +128,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             "+ProcessFil+@" "+DaySt+@"
                             and OTWeek="+Week+@"
                             and a.WorkDate between '"+FromDate+@"' and '"+ToDate+@"'
-                            and p.Id in ("+ Parameters["PlantId"] + ") ";
+                            and p.Id in ("+ Parameters["PlantId"] + ") order by WorkDate asc";
 
                 return _sqlRepository.GetDataCollection(str);
             }
@@ -133,5 +137,150 @@ namespace Library.HumanResource.NewAttendanceProcess
                 throw e;
             }
         }
+
+        public void ProcessData(string Data, string OTWeek)
+        {
+            try
+            {
+                List<Dictionary<string, object>> _objects = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(Data);
+                var StringDates = new List<DateTime>();
+
+                #region To Find Max & Min Date
+
+                string WorkDatesMaster = "''";
+
+                foreach (Dictionary<string, object> AllWorkDates in _objects)
+                {
+                    if (AllWorkDates.ContainsKey("WorkDate"))
+                    {
+
+                        string value = AllWorkDates["WorkDate"].ToString();
+                        string Param = "";
+                        DistinctFunction(ref WorkDatesMaster, value, out Param);
+                        if (Param == "1")
+                        {
+                            StringDates.Add(Convert.ToDateTime(value));
+                        }
+                    }
+                }
+
+                #endregion
+
+                #region List to DataTable
+
+                DataTable Table = ToDataTable(_objects);
+
+                #endregion
+
+                StringCollection StrDistinctEmployee = new StringCollection();
+
+
+                for (int i = 0; i <= Table.Rows.Count; i++)
+                {
+
+                    #region Distinct Employees 
+                    string EmpId = Table.Rows[i][@"EmpSystemId"].ToString();
+
+                    if (StrDistinctEmployee.Contains(EmpId))
+                    {
+                        continue;
+                    }
+
+                    StrDistinctEmployee.Add(EmpId);
+                    #endregion
+
+                    string WeekMaxDate = StringDates.Max(date => date).ToString("dd-MMM-yyyy");
+                    string WeekMinDate = StringDates.Min(date => date).ToString("dd-MMM-yyyy");
+
+                    DateTime MaxDate = StringDates.Max(date => date);
+                    DateTime MinDate = StringDates.Min(date => date);
+
+                    while (MinDate <= MaxDate)
+                    {
+                        string FormatDate = MinDate.ToString("dd-MMM-yyyy");
+                        Table.DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' AND WorkDate <>#" + FormatDate + "# " +
+                        "AND WorkDate >= #" + WeekMinDate + "# and WorkDate<= #" + WeekMaxDate + "# ";
+
+                        int StandardOTMaster = 0;
+                        if (Table.DefaultView.Count > 0)
+                        {
+                            for (int j = 0; j <= Table.DefaultView.Count; j++)
+                            {
+                                int StandardOT = Convert.ToInt32(Table.DefaultView[j][@"StandardOT"].ToString());
+                                StandardOTMaster += StandardOT;
+                            }
+                        }
+
+                        MinDate = MinDate.AddDays(1);
+                    }
+
+                }
+
+                string DailyLimit = "";
+                if (DailyLimit == "0")
+                {
+                    decimal StdOT = 0;
+                    decimal ExtraOT; // All;
+                }
+                // var EmpData= Data.Where(k => k["empsystemid"].ToString() == "1223" && ).FirstOrDefault(); 
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void DistinctFunction(ref string WorkDatesMaster, string Value, out string Param)
+        {
+            if (WorkDatesMaster.Contains(Value))
+            {
+                Param = "0";
+                return;
+            }
+            else
+            {
+                Param = "1";
+                WorkDatesMaster += ",'" + Value + "'";
+            }
+        }
+
+        static DataTable ToDataTable(List<Dictionary<string, object>> list)
+        {
+            DataTable result = new DataTable();
+            if (list.Count == 0)
+                return result;
+
+            result.Columns.AddRange(
+                list.First().Select(r => new DataColumn(r.Key)).ToArray()
+            );
+
+            list.ForEach(r => result.Rows.Add(r.Select(c => c.Value).Cast<object>().ToArray()));
+
+            return result;
+        }
+    
+        public void CommonLogFunction(Exception ex)
+        {
+            string Message = "";
+            if (ex.ToString().Length > 2000)
+            {
+               Message = ex.ToString().Substring(0, 2000);
+            }
+            ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+            objCon.OpenDataSetThroughAdapter("select * from SchedulerLog where 1=2", out DataSet dsRef, false, false, "", "1");
+
+            DataRow dr = dsRef.Tables[0].NewRow();
+            dr["ScheduleMessage"] = Message;
+            dr["UserName"] = "OTConfirmation";
+            dr["isError"] = true;
+            dr["AddedDate"] = DateTime.Now.ToString();
+            dsRef.Tables[0].Rows.Add(dr);
+
+            clsStaticInfo info = new clsStaticInfo();
+            info.SaveDataSets(dsRef);
+
+        }
+
+
     }
 }
