@@ -3841,7 +3841,7 @@
     <Content Include="Areas\HumanResource\Views\OTConfirmationProcess\Aplos.cshtml" />
     <Content Include="Areas\FixedAssets\Views\_ViewStart.cshtml" />
     <Content Include="Areas\FixedAssets\Views\Shared\_Layout.cshtml" />
-    <Content Include="Areas\FixedAssets\Views\FixedAssetsRegisterDisposedReport.cshtml" />
+    <Content Include="Areas\FixedAssets\Views\FixedAssetsRegisterDisposeReport.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
