@@ -973,6 +973,8 @@ var upanelApp = angular
     .controller('JobWorkTransformationPOController', JobWorkTransformationPOController)
     .controller('AssetWIPStatusController', AssetWIPStatusController)
     .controller('OTConfirmationProcessController' , OTConfirmationProcessController)
+    .controller("multipleResignationApprovalNewController", multipleResignationApprovalNewController)
+
 
     .config(AccessControllerConfig)
     .config(accountConfig)
