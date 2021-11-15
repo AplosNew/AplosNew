@@ -499,6 +499,8 @@
     <Compile Include="Areas\Employees\Controllers\AllowanceDailyController.cs" />
     <Compile Include="Areas\Employees\Controllers\CompensatoryOffNewController.cs" />
     <Compile Include="Areas\Employees\Controllers\ResidenceGroupController.cs" />
+    <Compile Include="Areas\Employees\Controllers\EmployeeCodeTypeController.cs" />
+    <Compile Include="Areas\Employees\Controllers\ResignationApprovalMultipleNewController.cs" />
     <Compile Include="Areas\Employees\Controllers\TransportGroupController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmpActiveInActiveNewController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmployeeInFoReportController.cs" />
@@ -1778,7 +1780,9 @@
     <Content Include="Areas\Employees\Scripts\EmployeeCodeGenerationController.js" />
     <Content Include="Areas\Employees\Scripts\AccountsGroupController.js" />
     <Content Include="Areas\Employees\Scripts\CompensatoryOffNewController.js" />
+    <Content Include="Areas\Employees\Scripts\multipleResignationApprovalNewController.js" />
     <Content Include="Areas\Employees\Scripts\ResidenceGroupController.js" />
+    <Content Include="Areas\Employees\Scripts\EmployeeCodeTypeController.js" />
     <Content Include="Areas\Employees\Scripts\TransportGroupController.js" />
     <Content Include="Areas\Employees\Scripts\empActiveInActiveNewController.js" />
     <Content Include="Areas\Employees\Scripts\employeeBaseMultipleController.js" />
@@ -1838,6 +1842,7 @@
     <Content Include="Areas\Farming\Scripts\VoucherController.js" />
     <Content Include="Areas\FixedAssets\Scripts\fixedAssetDisposePostController.js" />
     <Content Include="Areas\FixedAssets\Scripts\fixedAssetDisposeController.js" />
+    <Content Include="Areas\FixedAssets\Scripts\FixedAssetsRegisterDisposedReportController.js" />
     <Content Include="Areas\FixedAssets\Scripts\FixedAssetsRegisterReportController.js" />
     <Content Include="Areas\FixedAssets\Scripts\generalLedgerVSfixedAssetsController.js" />
     <Content Include="Areas\FixedAssets\Scripts\nonAssetRegisterController.js" />
@@ -3840,7 +3845,11 @@
     <Content Include="Areas\HumanResource\Views\WeekDefinition\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\AssetWIPStatusReport.cshtml" />
     <Content Include="Areas\HumanResource\Views\OTConfirmationProcess\Aplos.cshtml" />
-    <Content Include="Areas\JobWork\Views\JWIssueReturn\Aplos.cshtml" />
+    <Content Include="Areas\Employees\Views\EmployeeCodeType\Aplos.cshtml" />
+    <Content Include="Areas\FixedAssets\Views\_ViewStart.cshtml" />
+    <Content Include="Areas\FixedAssets\Views\Shared\_Layout.cshtml" />
+    <Content Include="Areas\FixedAssets\Views\FixedAssetsRegisterDisposedReport.cshtml" />
+    <Content Include="Areas\Employees\Views\ResignationApprovalMultipleNew\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

@@ -540,6 +540,7 @@ var upanelApp = angular
     .controller('fixedAssetDisposeController', fixedAssetDisposeController)
     .controller('fixedAssetDisposePostController', fixedAssetDisposePostController)
     .controller('FixedAssetsRegisterReportController', FixedAssetsRegisterReportController)
+    .controller('FixedAssetsRegisterDisposedReportController', FixedAssetsRegisterDisposedReportController)
     .controller('goodsReceiveNoteController', goodsReceiveNoteController)
     .controller('gratuityReportController', gratuityReportController)
     .controller('gratuityPolicyController', gratuityPolicyController)
@@ -971,8 +972,9 @@ var upanelApp = angular
     .controller('SandwichProcessController', SandwichProcessController)
     .controller('JobWorkTransformationPOController', JobWorkTransformationPOController)
     .controller('AssetWIPStatusController', AssetWIPStatusController)
-    .controller('OTConfirmationProcessController', OTConfirmationProcessController)
-    .controller('JWIssueReturnController', JWIssueReturnController)
+    .controller('OTConfirmationProcessController' , OTConfirmationProcessController)
+    .controller("multipleResignationApprovalNewController", multipleResignationApprovalNewController)
+
 
     .config(AccessControllerConfig)
     .config(accountConfig)

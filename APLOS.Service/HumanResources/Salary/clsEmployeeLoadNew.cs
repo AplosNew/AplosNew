@@ -8560,7 +8560,7 @@ and dm.plantid=e.plantid
             {
                 strSQL = @"Select A.IsEmployeeCodeOpenField,A.EmpCodeGenType,A.EmpCodeStartValue,A.IsAutoEmpCodeWithPrefix,A.Prefix from [dbo].[EmployeeCodeGenGroup] A
                             LEFT JOIN [dbo].[EmployeeCodeGenGroupDetail] B ON B.EmployeeCodeGenGroupId=A.Id
-                            where B.PlantId='"+ plantId + "' and B.EmploymentType='"+ EmploymentType + "'";
+                            where B.PlantId='"+ plantId + "' and B.EmployeeCodeTypeId='" + EmploymentType + "'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
@@ -8587,15 +8587,15 @@ and dm.plantid=e.plantid
             }
         }
 
-        public void GetMaxEmpCode(string plantId, string EmploymentType, out DataSet dsRef)
+        public void GetMaxEmpCode(string plantId, string employeeCodeTypeId, out DataSet dsRef)
         {
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;
             try
             {
                 strSQL = @"Select ISNULL(max(EmployeeCodeNumeric),0)EmployeeCode from EmployeeInformation A 
-                        where exists (Select * from EmployeeCodeGenGroupDetail B where A.PlantId=B.PlantId and A.EmploymentType=B.EmploymentType 
-                        and EmployeeCodeGenGroupId=(Select EmployeeCodeGenGroupId from EmployeeCodeGenGroupDetail where PlantId='" + plantId + "' and EmploymentType='"+ EmploymentType + "'))";
+                        where exists (Select * from EmployeeCodeGenGroupDetail B where A.PlantId=B.PlantId and A.EmployeeCodeTypeId=B.EmployeeCodeTypeId 
+                        and EmployeeCodeGenGroupId=(Select EmployeeCodeGenGroupId from EmployeeCodeGenGroupDetail where PlantId='" + plantId + "' and EmployeeCodeTypeId='" + employeeCodeTypeId + "'))";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");

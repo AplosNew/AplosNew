@@ -39,6 +39,11 @@ namespace Aplos.Areas.Organizations.Controllers
         [HttpGet, AllowAnonymous]
         public JsonResult GetCboByCompanyGroup(string companyGroupId)
         {
+            if (string.IsNullOrEmpty(companyGroupId))
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                companyGroupId = identity.CompanyGroupId;
+            }
             return Json(_companyService.GetCboCompanyByCompanyGroup(companyGroupId), JsonRequestBehavior.AllowGet);
         }
 

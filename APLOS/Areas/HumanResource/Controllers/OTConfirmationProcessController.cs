@@ -13,12 +13,12 @@ using Library.Data.Sql;
 using OTSBD;
 using System.Data;
 using System.Collections.Generic;
-using Library.Service.Attendances;
 using Library.Model.Enums;
 using Syncfusion.XlsIO;
 using Library.Service.Helpers;
 using System.IO;
 using Library.HumanResource.NewAttendanceProcess;
+using Newtonsoft.Json;
 //using TBS;
 
 namespace Aplos.Areas.HumanResource.Controllers
@@ -26,12 +26,9 @@ namespace Aplos.Areas.HumanResource.Controllers
 
     public class OTConfirmationProcessController : BaseController
     {
-        // add a header verification - 1. Basic Authentication .... 2. Payload
-
+        
         #region Constructor
-        /// <summary>   The separationTypeService service. </summary>
-
-
+        
         OTConfirmationProcessService ot = new OTConfirmationProcessService();
         public OTConfirmationProcessController()
         {
@@ -73,10 +70,80 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost , Authorize]
-        public void ProcessData(IEnumerable<object> Data)
+        public void ProcessData(string Data,string OTWeek)
         {
-            int j = 1;
+            List<Dictionary<string,object>> _objects = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(Data);
+            var StringDates = new List<DateTime>();
+
+            #region To Find Max & Min Date
+
+            string WorkDatesMaster = "''";
+
+            foreach (Dictionary<string, object> AllWorkDates in _objects)
+            {
+                if (AllWorkDates.ContainsKey("WorkDate"))
+                {
+
+                    string value = AllWorkDates["WorkDate"].ToString();
+                    string Param = "";
+                    DistinctFunction(ref WorkDatesMaster, value,out Param);
+                    if (Param == "1")
+                    {
+                        StringDates.Add(Convert.ToDateTime(value));
+                    }
+                }
+            }
+
+            DateTime MaxDate = StringDates.Max(date => date);
+            DateTime MinDate = StringDates.Min(date => date);
+
+            #endregion
+
+            DataTable OTProcessTable = ToDataTable(_objects);
+
+            //DataTable dx = new DataTable();
+            //dx.Columns.Add("empcode", typeof(string));
+
+            //dx.Columns.Add("workdate", typeof(DateTime));
+            string DailyLimit = "";
+            if ( DailyLimit=="0")
+            {
+                decimal StdOT = 0;
+                decimal ExtraOT; // All;
+            }
+            // var EmpData= Data.Where(k => k["empsystemid"].ToString() == "1223" && ).FirstOrDefault(); 
+
         }
+
+        public void DistinctFunction(ref string WorkDatesMaster, string Value,out string Param)
+        {
+            if (WorkDatesMaster.Contains(Value))
+            {
+                Param = "0";
+                return;
+            }
+            else
+            {
+                Param = "1";
+                WorkDatesMaster += ",'" + Value + "'";
+            }
+        }
+
+        static DataTable ToDataTable(List<Dictionary<string, object>> list)
+        {
+            DataTable result = new DataTable();
+            if (list.Count == 0)
+                return result;
+
+            result.Columns.AddRange(
+                list.First().Select(r => new DataColumn(r.Key)).ToArray()
+            );
+
+            list.ForEach(r => result.Rows.Add(r.Select(c => c.Value).Cast<object>().ToArray()));
+
+            return result;
+        }
+
         #endregion Operations
     }
-}
+} 

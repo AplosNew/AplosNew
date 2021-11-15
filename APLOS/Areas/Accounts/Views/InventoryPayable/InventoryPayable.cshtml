@@ -371,31 +371,7 @@
 
 
                 <div class="clearfix"></div>
-                @*<div class="table-responsive modal-table" ng-show="PurchaseOrderDiscountList.length">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>GRNNO</th>
-                                    <th>PO Id</th>
-                                    <th>Material Group</th>
-                                    <th>Discount Amount </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr ng-repeat="x in PurchaseOrderDiscountList">
-                                    <td>{{x.GRNNo}}</td>
-                                    <td>{{x.POId}}</td>
-                                    <td>{{x.MaterialGroup}}</td>
-                                    <td><input type="text" class="form-control text-right" id="Amount" ng-model="x.Amount " n-decimals="2" tabindex="11" ng-keyup="podiscountAmountCal(x)" autocomplete="off"></td>
-                                </tr>
-                                <tr>
-                                    <td colspan="3" class="text-right"><strong>Total : </strong></td>
-                                    <td class="text-right"><strong>{{PurchaseOrderDiscountList | sumByKey : 'Amount'| number| setDecimal:2 }}</strong></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>*@
-                @*</div>*@
+              
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
                 <div ng-form="tabForm2">
