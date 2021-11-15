@@ -14,6 +14,7 @@ using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Reflection;
 using System.Threading;
 
@@ -41,8 +42,14 @@ namespace Library.Accounting.FixedAssets
 							,GL.UserName GL
 							,A.UserName Activity
 							,IRD.InventoryReceiveId GRNNo,FORMAT(IR.GRNDate,'dd-MMM-yyyy') GRNDate
-							,V.VoucherNo,CU.Code Currency
-							,IRD.TotalMaterialBooksCurrencyAmount Amount,IRD.BaseQty,IRD.IssueQty 
+							,V.VoucherNo
+							,IRD.TransactionQty,TUOM.UserName TrnUOM
+							,IRD.MaterialTranRate TrnRate
+							,CU.Code Currency
+							,IRD.TotalMaterialTranAmount TrnAmount
+							,IRD.BaseQty,BUOM.UserName BaseUOM,IRD.TrnCurrencyBaseRate BaseRate
+							,IRD.TotalMaterialBooksCurrencyAmount BooksAmount
+							,IRD.IssueQty 
 							,V.Id VoucherId,GL.Id GlId,A.Id ActivityId
 from TRN.InventoryReceiveDetail IRD 
 LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
@@ -59,6 +66,8 @@ LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV
 LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
  left join [HKP].[MaterialStorage] MS on ms.id=IR.MaterialStorageId
  LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
+ LEFT JOIN SCS.UnitOfMeasurement TUOM ON TUOM.Id=IRD.TransactionUoMId
+ LEFT JOIN SCS.UnitOfMeasurement BUOM ON BUOM.Id=IRD.BaseUOMId
  LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=IRD.PostDrGLGeneralInfoId
  LEFT JOIN HKP.Activity A ON A.Id=IRD.PostDrActivityId
  LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
@@ -82,8 +91,14 @@ WHERE IR.VoucherId<>'' AND IRD.IsAsset=1 and (isnull(IRD.BaseQty,0)-isnull(IIH.I
 							,GL.UserName GL
 							,A.UserName Activity
 							,IRD.InventoryReceiveId GRNNo,FORMAT(IR.GRNDate,'dd-MMM-yyyy') GRNDate
-							,V.VoucherNo,CU.Code Currency
-							,IRD.TotalMaterialBooksCurrencyAmount Amount,IRD.BaseQty,IRD.IssueQty 
+							,V.VoucherNo
+							,IRD.TransactionQty,TUOM.UserName TrnUOM
+							,IRD.MaterialTranRate TrnRate
+							,CU.Code Currency
+							,IRD.TotalMaterialTranAmount TrnAmount
+							,IRD.BaseQty,BUOM.UserName BaseUOM,IRD.TrnCurrencyBaseRate BaseRate
+							,IRD.TotalMaterialBooksCurrencyAmount BooksAmount
+							,IRD.IssueQty 
 							,V.Id VoucherId,GL.Id GlId,A.Id ActivityId
 from TRN.InventoryReceiveDetail IRD 
 LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
@@ -100,13 +115,15 @@ LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV
 LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
  left join [HKP].[MaterialStorage] MS on ms.id=IR.MaterialStorageId
  LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
+ LEFT JOIN SCS.UnitOfMeasurement TUOM ON TUOM.Id=IRD.TransactionUoMId
+ LEFT JOIN SCS.UnitOfMeasurement BUOM ON BUOM.Id=IRD.BaseUOMId
  LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=IRD.PostDrGLGeneralInfoId
  LEFT JOIN HKP.Activity A ON A.Id=IRD.PostDrActivityId
  LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
  LEFT JOIN SCS.Currency CU ON CU.Id=IR.CurrencyId
  LEFT JOIN (SELECT InventoryReceiveDetailId,SUM(Qty) IssueQty FROM  TRN.InventoryIssueHistory group by InventoryReceiveDetailId) IIH ON IIH.InventoryReceiveDetailId=IRD.Id
 WHERE IR.VoucherId<>'' AND IRD.IsAsset=1 and (isnull(IRD.BaseQty,0)-isnull(IIH.IssueQty,0))>0
-AND ART.Id IN("+materialMasterArticleId+ @")
+AND ART.Id IN(" + materialMasterArticleId+ @")
 AND IR.VoucherId IN (" + voucherId + @")
 AND MM.Id IN (" + materialMasterId + @")
 AND IRD.InventoryReceiveId IN (" + grnNo + @")
@@ -118,12 +135,12 @@ AND IRD.PostDrActivityId IN( " + activityId + @")";
         }
 
 
-        public IWorkbook AssetWIPstatusList(string materialMasterId, string materialMasterArticleId, string voucherId, string grnNo, string glId, string activityId)
+        public string AssetWIPstatusList(string materialMasterId, string materialMasterArticleId, string voucherId, string grnNo, string glId, string activityId)
         {
 
             //Start EmployeeAdvanceDueList
 
-
+         
             ExcelEngine excelEngine = new ExcelEngine();
             //Instantiate the Excel application object
             IApplication application = excelEngine.Excel;
@@ -152,111 +169,153 @@ AND IRD.PostDrActivityId IN( " + activityId + @")";
             // worksheet[ROW, COL].CellStyle.Font.Bold = true;
             //  ROW++;
 
-            worksheet[ROW, COL].Text = "MaterialMasterName";
+            worksheet[ROW, COL].Text = "Material";
             int colMaterialMasterName = COL;
-            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].ColumnWidth = 30;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
             worksheet[ROW, COL].Text = "Article";
             int colArticleName = COL;
-            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].ColumnWidth = 30;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
 
             worksheet[ROW, COL].Text = "SKU1";
             int colFirstCharacteristicsValue = COL;
-            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].ColumnWidth = 10;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
             worksheet[ROW, COL].Text = "SKU2";
             int colSecondCharacteristicsValue = COL;
-            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].ColumnWidth = 10;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
             worksheet[ROW, COL].Text = "SKU3";
             int colThirdCharacteristicsValue = COL;
-            worksheet[ROW, COL].ColumnWidth = 16;
+            worksheet[ROW, COL].ColumnWidth = 10;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
             worksheet[ROW, COL].Text = "Storage Location";
             int colMaterialStorageLocation = COL;
-            worksheet[ROW, COL].ColumnWidth = 14;
+            worksheet[ROW, COL].ColumnWidth = 15;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
             worksheet[ROW, COL].Text = "GL";
             int colGL = COL;
-            worksheet[ROW, COL].ColumnWidth = 25;
+            worksheet[ROW, COL].ColumnWidth = 15;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
             worksheet[ROW, COL].Text = "Activity";
             int colActivity = COL;
-            worksheet[ROW, COL].ColumnWidth = 25;
+            worksheet[ROW, COL].ColumnWidth = 12;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
             worksheet[ROW, COL].Text = "GRN No";
             int colGRNNo = COL;
-            worksheet[ROW, COL].ColumnWidth = 25;
+            worksheet[ROW, COL].ColumnWidth = 12;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
             worksheet[ROW, COL].Text = "GRN Date";
             int colGRNDate = COL;
-            worksheet[ROW, COL].ColumnWidth = 40;
+            worksheet[ROW, COL].ColumnWidth = 12;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
             worksheet[ROW, COL].Text = "Voucher No";
             int colVoucherNo = COL;
-            worksheet[ROW, COL].ColumnWidth = 25;
+            worksheet[ROW, COL].ColumnWidth = 12;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
-            worksheet[ROW, COL].Text = "Currency";
-            int colCurrency = COL;
-            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].Text = "Transaction Qty";
+            int colTransactionQty = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Transaction UoM";
+            int colTrnUOM = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
-            worksheet[ROW, COL].Text = "Amount";
-            int colAmount = COL;
-            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].Text = "Transaction Rate";
+            int colTrnRate = COL;
+            worksheet[ROW, COL].ColumnWidth =12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Currency";
+            int colCurrency = COL;
+            worksheet[ROW, COL].ColumnWidth = 8;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Transaction Amount";
+            int colTrnAmount = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
             worksheet[ROW, COL].Text = "Base Qty";
             int colBaseQty = COL;
-            worksheet[ROW, COL].ColumnWidth = 8;
+            worksheet[ROW, COL].ColumnWidth = 12;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
-            worksheet[ROW, COL].Text = "Issue Qty";
-            int colIssueQty = COL;
-            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].Text = "Base UOM";
+            int colBaseUOM = COL;
+            worksheet[ROW, COL].ColumnWidth = 8;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
+            worksheet[ROW, COL].Text = "Base Rate";
+            int colBaseRate = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Books Amount";
+            int colBooksAmount = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Issue Qty";
+            int colIssueQty = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            //COL++;
+
 
             int endCol = COL;
+            worksheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+            worksheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
             worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
             worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-            worksheet.Range[ROW, startCol, ROW, COL].CellStyle.ColorIndex = ExcelKnownColors.Grey_40_percent;
             ROW++;
-
+            int StartRow = ROW;
             for (int i = 0; i < dtGatenntryRegisterList.Rows.Count; i++)
             {
                 // int i = 0; i < dtMasterOrderItem.Rows.Count; i++
@@ -272,14 +331,32 @@ AND IRD.PostDrActivityId IN( " + activityId + @")";
                 worksheet[ROW, colGL].Text = dtGatenntryRegisterList.Rows[i]["GL"].ToString();
                 worksheet[ROW, colActivity].Text = dtGatenntryRegisterList.Rows[i]["Activity"].ToString();
                 
-                worksheet[ROW, colGRNNo].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["GRNNo"].ToString());
-                worksheet[ROW, colGRNDate].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["GRNDate"].ToString());
-                //worksheet[ROW, colPurchasePrice].NumberFormat = clsStaticInfo.NumberFormat();
+                worksheet[ROW, colGRNNo].Text = dtGatenntryRegisterList.Rows[i]["GRNNo"].ToString();
+                worksheet[ROW, colGRNDate].Text = dtGatenntryRegisterList.Rows[i]["GRNDate"].ToString();
+                worksheet[ROW, colVoucherNo].Text =dtGatenntryRegisterList.Rows[i]["VoucherNo"].ToString();
 
-                worksheet[ROW, colVoucherNo].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["VoucherNo"].ToString());
+                worksheet[ROW, colTransactionQty].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["TransactionQty"].ToString());
+                worksheet[ROW, colTransactionQty].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                worksheet[ROW, colTrnUOM].Text = dtGatenntryRegisterList.Rows[i]["TrnUOM"].ToString();
+
+                worksheet[ROW, colTrnRate].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["TrnRate"].ToString());
+                worksheet[ROW, colTrnRate].NumberFormat = clsStaticInfo.NumberFormat(4);
+
                 worksheet[ROW, colCurrency].Text = dtGatenntryRegisterList.Rows[i]["Currency"].ToString();
-                worksheet[ROW, colAmount].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["Amount"].ToString());
+                worksheet[ROW, colTrnAmount].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["TrnAmount"].ToString());
+                worksheet[ROW, colTrnAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+
                 worksheet[ROW, colBaseQty].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["BaseQty"].ToString());
+                worksheet[ROW, colBaseQty].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                worksheet[ROW, colBaseUOM].Text = dtGatenntryRegisterList.Rows[i]["BaseUOM"].ToString();
+                worksheet[ROW, colBaseRate].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["BaseRate"].ToString());
+                worksheet[ROW, colBaseRate].NumberFormat = clsStaticInfo.NumberFormat(4);
+
+                worksheet[ROW, colBooksAmount].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["BooksAmount"].ToString());
+                worksheet[ROW, colBooksAmount].NumberFormat = clsStaticInfo.NumberFormat(4);
+
                 worksheet[ROW, colIssueQty].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["IssueQty"].ToString());
                 
                 worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -289,31 +366,58 @@ AND IRD.PostDrActivityId IN( " + activityId + @")";
 
             }
 
-            worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
-            worksheet.UsedRange.CellStyle.Font.Size = 8f;
+
+            //worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+            //worksheet.UsedRange.CellStyle.Font.Size = 8f;
+            //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            //ReportUtility reportUtility = new ReportUtility();
+            //reportUtility.PlantHeader(ref worksheet, endCol, "Asset WIP Status Report", identity.PlantId);
+            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            //worksheet.Range[1, 1, 4, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            //worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+            //worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+            //worksheet.IsGridLinesVisible = false;
+
+            //#region Freeze penes
+            ////worksheet.IsDisplayZeros = false;
+            //worksheet.UsedRange["A6"].FreezePanes();
+            //worksheet.FirstVisibleColumn = 1;
+            //worksheet.FirstVisibleRow = 6;
+            //#endregion
+
+            //workbook.Version = ExcelVersion.Excel97to2003;
+            //reportUtility.PageSetup(ref worksheet, 5, ExcelPageOrientation.Portrait);
 
 
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+           worksheet.UsedRange.WrapText = true;
+           worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+           worksheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+       
+           worksheet["A" + StartRow.ToString()].FreezePanes();
+
+
+
+             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ReportUtility reportUtility = new ReportUtility();
-
             reportUtility.PlantHeader(ref worksheet, endCol, "Asset WIP Status Report", identity.PlantId);
-            reportUtility.PageSetup(ref worksheet, 5, ExcelPageOrientation.Landscape);
+            reportUtility.PageSetup(ref worksheet, 6, ExcelPageOrientation.Landscape);
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-            // worksheet.Range[1, 1, 4, endCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            worksheet.Range[1, 1, 4, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            worksheet.Range[1, 1, 5, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            //worksheet.Range[6, 1, 7, endCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            worksheet.Range[6, 1, 7, endCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-            worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
-            worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-            worksheet.IsGridLinesVisible = false;
 
-            #region Freeze penes
-            worksheet.IsDisplayZeros = false;
-            worksheet.UsedRange["A6"].FreezePanes();
-            worksheet.FirstVisibleColumn = 1;
-            worksheet.FirstVisibleRow = 6;
-            #endregion
+            // return workbook;
 
-            return workbook;
+            var filePath = "";
+            var SheetName = "";
+            //return workbook;
+            workbook.Version = ExcelVersion.Excel97to2003;
+            filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
+            workbook.SaveAs(filePath);
+            workbook.Close();
+            excelEngine.Dispose();
+            return filePath;
         }
 
 

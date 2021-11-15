@@ -9456,7 +9456,7 @@ namespace Library.HumanResource.Payroll
                     int empDetailFirstXlsRow = 0;
 
                     int empPaySlipDetailXlsRow = 0;
-                    Dictionary<string, List<DataRow>> dicLeaveEmp = objRpt.GetEmpLeaveInfoPaySlipSaad(para);
+                    Dictionary<string, List<DataRow>> dicLeaveEmp = objRpt.GetEmpLeaveInfoPaySlipSaad(parameters, para);
                     xlsRow = startRow;
 
 
@@ -10309,7 +10309,7 @@ namespace Library.HumanResource.Payroll
                     int empDetailFirstXlsRow = 0;
 
                     int empPaySlipDetailXlsRow = 0;
-                    Dictionary<string, List<DataRow>> dicLeaveEmp = objRpt.GetEmpLeaveInfoPaySlipSaad(para);
+                    Dictionary<string, List<DataRow>> dicLeaveEmp = objRpt.GetEmpLeaveInfoPaySlipSaad(parameters, para);
                     xlsRow = startRow;
 
 
@@ -12400,7 +12400,7 @@ ELSE CONVERT(BIT,0) END  ---No
                                     ,e.EmployeeCodePreFix,e.EmployeeCodeNumeric
                                     ,ISNULL(jl.JobLocation, '') JobLocation
 									,ISNULL(SPLD.PaymentMode,'') PaymentMode
-									,ISNULL(bb.UserName,'') BankName
+									,ISNULL(bb.UserName,'') BankName,e.EmploymentType
 
                                      FROM EmployeeInformation e
                                 
@@ -12440,8 +12440,8 @@ ELSE CONVERT(BIT,0) END  ---No
 									left join [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=e.SystemId
 									left join [HKP].[Bank] bb on bb.Id = SPLD.BankSystemID
 									left join [HKP].[BankBranch] bbranch on bbranch.Id = SPLD.BankBranchId
-   
-                                     WHERE 1=1 " + strDOJ + @"
+                                    left join [dbo].[EmployeeCodeType] ect on ect.Id=e.EmployeeCodeTypeId
+                                     WHERE 1=1 " + strDOJ + @" and ect.IsOutSider =0
                                             " + wcPayrollGroup + @"                                
                                      ) DD " + wcEmpStatus + @" ORDER BY ISNULL(EmployeeCodePreFix,''),ISNULL(EmployeeCodeNumeric,0)";
                 return _sqlRepository.GetDataCollection(cmdText);
@@ -18242,11 +18242,11 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
         private void GetSalaryIntegrationWithThirdparty(string plantId, string Year, string Month, out DataTable dtData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"Select ISNULL(AccountsGroupId,'')AccountsGroupId,ISNULL(AccountGroup,'')AccountGroup,ISNULL(GL,'') GL,ISNULL(GLName,'') GLName,Sum(IsNull(DrAmt,0)) Debit, Sum(IsNull(CrAmt,0)) Credit--,SalHeadId SalaryHeadId,SalHeadName SalaryHead
+            string sql = @"Select AccountsGroupSequence,ISNULL(AccountsGroupId,'')AccountsGroupId,ISNULL(AccountGroup,'')AccountGroup,ISNULL(GL,'') GL,ISNULL(GLName,'') GLName,Sum(IsNull(DrAmt,0)) Debit, Sum(IsNull(CrAmt,0)) Credit--,SalHeadId SalaryHeadId,SalHeadName SalaryHead
                         from                                                 
                         (
                         Select C.UserName as Company,P.UserName Plant,ENT.ThirdPartyBusinessArea,ENT.ThirdPartyProfitCenter,ENT.UserName Entity,
-                        MB.AccountsGroupId,AGRP.UserName AccountGroup,POS.Code PostionCode,MB.Code BudgetCode,
+                        MB.AccountsGroupId,AGRP.Sequence AS AccountsGroupSequence,AGRP.UserName AccountGroup,POS.Code PostionCode,MB.Code BudgetCode,
                         E.SystemId EmpId,E.EmployeeCode EmpCode,E.EmployeeName EmpName,SH.SalaryHead SalHeadName,TransactionType,TransactionTypeNew
                         ,CC.UserName CostCenter
                         ,GL=CASE WHEN POS.DirectManpowerCost=1 and SH.TransactionTypeNew= 'Dr.' THEN SHGL.DrDirectOtherGLCode
@@ -18288,7 +18288,8 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                         ) SH on SPC.SalaryHeadID=SH.SalaryHeadID
                         Where SPM.MonthNo='" + Month + "' and SPM.YearNo='" + Year + @"'  AND SPC.PlantId IN (" + plantId + @" )
                         ) TempTbl
-                        group by AccountsGroupId,AccountGroup,GL,GLName--,SalHeadId,SalHeadName";
+                        group by AccountsGroupSequence,AccountsGroupId,AccountGroup,GL,GLName--,SalHeadId,SalHeadName
+                        order by AccountsGroupSequence";
             dtData = _sqlRepository.GetDataTable(sql);
         }
 

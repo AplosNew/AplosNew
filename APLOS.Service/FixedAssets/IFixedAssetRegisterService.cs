@@ -105,9 +105,10 @@ namespace Library.Service.FixedAssets
         IEnumerable<object> GetCapitalizeAssetItemValue(string fixedAssetMasterId, string assetGLId, string assetBudgetId, string assetActivityId, string companyId);
         //IWorkbook FixedAssetRegisterList(string companyGroupId, string companyId, string plantId, string PartyType, string PartyId, string MaterialMasterId, string FixedAssetsId, string FromDate, string ToDate);
         IWorkbook FixedAssetRegisterList(string companyGroupId, string companyId, string plantId, string MaterialMasterId, string MaterialMasterArticleId, string FixedAssetsId, string vendorId);
+        IWorkbook FixedAssetRegisterDisposedList(string companyGroupId, string companyId, string plantId, string MaterialMasterId, string MaterialMasterArticleId, string FixedAssetsId, string vendorId);
         // List<Dictionary<string, object>> GetFixedAssetRegisterPopUpList(string column, string value, string companyId);
         //GridModel GetFixedAssetAccDepGL(GridParameter parameters, string companyId);
-     
+
         string InsertFixedAssetLost(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegister> fixedAssetRegister);
         string InsertFixedAssetSales(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegister> fixedAssetRegister);
         string InsertFixedAssetScrap(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegister> fixedAssetRegister);

@@ -1117,6 +1117,10 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             return View("~/Areas/FixedAssets/Views/FixedAssetsRegisterReport.cshtml");
         }
+        public ActionResult FixedAssetsRegisterDisposedReport()
+        {
+            return View("~/Areas/FixedAssets/Views/FixedAssetsRegisterDisposedReport.cshtml");
+        }
 
         [Authorize]
         public ActionResult FixedAssetRegisterReportExcel(string MaterialMasterId, string MaterialMasterArticleId, string fixedAssetMasterId, string vendorId)
@@ -1130,6 +1134,28 @@ namespace Aplos.Areas.FixedAssets.Controllers
                 IWorkbook workbook = _fixedAssetRegisterService.FixedAssetRegisterList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, MaterialMasterId, MaterialMasterArticleId, fixedAssetMasterId, vendorId);
 
                 string strFileName = "Fixed Assets Register Report.xlsx";
+                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                workbook.Close();
+            }
+            catch (CustomException ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+
+            }
+            return null;
+        }
+        [Authorize]
+        public ActionResult FixedAssetRegisterDisposedReportExcel(string MaterialMasterId, string MaterialMasterArticleId, string fixedAssetMasterId, string vendorId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+
+                ExcelEngine excelEngine = new ExcelEngine();
+
+                IWorkbook workbook = _fixedAssetRegisterService.FixedAssetRegisterDisposedList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, MaterialMasterId, MaterialMasterArticleId, fixedAssetMasterId, vendorId);
+
+                string strFileName = "Fixed Assets Register Disposed Report.xlsx";
                 workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
                 workbook.Close();
             }
@@ -1239,6 +1265,13 @@ namespace Aplos.Areas.FixedAssets.Controllers
             FixedAssetQueryService fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(new { DATA = fixedAssetQueryService.GetFixedAssetRegisterElasticSearchDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, materialMasterId, materialMasterArticleId, fixedAssetMasterId, vendorId, isAsset, machine), Error = false }, JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost, Authorize]
+        public ActionResult GetFixedAssetRegisterDisposedElasticSearchDataList(string materialMasterId, string materialMasterArticleId, string fixedAssetMasterId, string vendorId, string isAsset, string machine)
+        {
+            FixedAssetQueryService fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(new { DATA = fixedAssetQueryService.GetFixedAssetRegisterDisposedElasticSearchDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, materialMasterId, materialMasterArticleId, fixedAssetMasterId, vendorId, isAsset, machine), Error = false }, JsonRequestBehavior.AllowGet);
         }
         #endregion Elastis Search
 
