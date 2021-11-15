@@ -507,5 +507,9 @@ function employeeConfig($routeProvider, $locationProvider, $windowProvider) {
             templateUrl: 'employees/ResignationApprovalMultipleNew/Aplos',
             controller: 'multipleResignationApprovalNewController'
         })
+        .when('/empcode-type', {
+            templateUrl: 'Employees/EmployeeCodeType/Aplos',
+            controller: 'EmployeeCodeTypeController'
+        })
         ;
 } 

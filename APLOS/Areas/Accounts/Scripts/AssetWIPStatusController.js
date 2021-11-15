@@ -4,7 +4,7 @@ function AssetWIPStatusController(commonMessage, $scope, $rootScope, $filter, $h
     $rootScope.title = "Asset WIP Status";
     $scope.path = 'FixedAssets/AssetWIPStatus/';
     $scope.Voucherpath = 'Accounts/VoucherReport/';
-    
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.partyType = 'Vendor';
     $controller('partyBaseController', { $scope: $scope, $http: $http });
@@ -271,15 +271,11 @@ function AssetWIPStatusController(commonMessage, $scope, $rootScope, $filter, $h
     }
 
     $scope.getAssetWIPstatusReportExcel = function () {
-        //$scope.FromDateValidation();
-        //$scope.ToDatevalidation()
-     //   if ($scope.form0.$valid && !$scope.invalidFromDate && !$scope.invalidDocDate && !$scope.validation()) {
-
-
             var filtered = $("#GridAssetWIPstatus").data("ejGrid").getFilteredRecords();
             if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
                 filtered = $scope.AssetWIPstatusList;
-            }
+        }
+        $scope.fileName = 'AssetWIPStatus.xls';
             //filtered = ej.DataManager(filtered).executeLocal(ej.Query().select(["AccountGroupName"]));
             var materialMasterId = getString(filtered, "MaterialMasterId");
             var materialMasterArticleId = getString(filtered, "ArticleId");
@@ -288,10 +284,27 @@ function AssetWIPStatusController(commonMessage, $scope, $rootScope, $filter, $h
             var glId = getString(filtered, "GlId");
             var activityId = getString(filtered, "ActivityId");
             try {
-                var file_src = $scope.Voucherpath + 'AssetWIPstatusReportExcel?materialMasterId=' + materialMasterId + '&materialMasterArticleId=' + materialMasterArticleId + '&voucherId=' + voucherId +
-                '&grnNo=' + grnNo + '&glId=' + glId + '&activityId=' + activityId;
-                //var file_src = $scope.path + 'FixedAssetRegisterReportExcel' 
-                $rootScope.report(file_src);
+               
+                $http({
+                    method: 'POST',
+                    url: 'Accounts/VoucherReport/AssetWIPstatusReportExcel',
+                    data: {
+                
+                        'MaterialMasterId': materialMasterId,
+                        'materialMasterArticleId': materialMasterArticleId,
+                        'VoucherId': voucherId,
+                        'GRNNo': grnNo,
+                        'GlId': glId,
+                        'ActivityId': activityId
+                    }
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
+                    }
+                });
 
             } catch (e) {
                 // ShowResult(e, 'failure');
@@ -300,110 +313,17 @@ function AssetWIPStatusController(commonMessage, $scope, $rootScope, $filter, $h
         
     }
 
+    $scope.onGRNNoDownloadExcel = function (data) {
+        var reportFormat = "Excel";
+        if (baseService.isUndefinedOrNull(data.GRNNo)) return ShowResult('No Id found', 'failure');
+        //$window.open($scope.path + 'PabyableJournal?inventoryReceiveId=' + data.GRNNo );
+        $window.open('Accounts/InventoryPayable/PabyableJournal?' + '&reportFormat=' + reportFormat + '&inventoryReceiveId=' + data.GRNNo + '&employeeId=' + null + '&isReversCharge=' + false + '&isFoc=' + false);
+    };
 
-
-    //$scope.getAssetWIPstatusReportExcel = function () {
-    //    //$scope.FromDateValidation();
-    //    //$scope.ToDatevalidation()
-    //    //   if ($scope.form0.$valid && !$scope.invalidFromDate && !$scope.invalidDocDate && !$scope.validation()) {
-
-
-    //    var filtered = $("#GridAssetWIPstatus").data("ejGrid").getFilteredRecords();
-    //    if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-    //        filtered = $scope.AssetWIPstatusList;
-    //    }
-    //    //filtered = ej.DataManager(filtered).executeLocal(ej.Query().select(["AccountGroupName"]));
-    //    var materialMasterId = getString(filtered, "MaterialMasterId");
-    //    var materialMasterArticleId = getString(filtered, "ArticleId");
-    //    var voucherId = getString(filtered, "VoucherId");
-    //    var grnNo = getString(filtered, "GRNNo");
-    //    var glId = getString(filtered, "GlId");
-    //    var activityId = getString(filtered, "ActivityId");
-    //    try {
-    //        var file_src = $scope.Voucherpath + 'AssetWIPstatusReportExcel?materialMasterId=' + materialMasterId + '&materialMasterArticleId=' + materialMasterArticleId + '&voucherId=' + voucherId +
-    ////            '&grnNo=' + grnNo + '&glId=' + glId + '&activityId=' + activityId;
-    ////            //var file_src = $scope.path + 'FixedAssetRegisterReportExcel' 
-    ////            $rootScope.report(file_src);
-    //        //if (parameters.length === 0) {
-    //        //    parameters.push({ "Key": "", "Value": "" });
-
-    //        //}
-
-    //        $http({
-    //            method: 'POST',
-    //            url: 'humanresource/FinalDeductionReport/GetEmployeeSalaryProcessedReport',
-    //            data: {
-    //                'month': $scope.month,
-    //                'year': $scope.year,
-    //                'salaryProcessId': $scope.salaryProcessId,
-    //                'payRollGroup': $scope.payGroupListSelected,
-    //                'parameters': parameters,
-    //                'isActive': $scope.isActive,
-    //                'isSeperated': $scope.isSeperated,
-    //                'isMaternity': $scope.isMaternity
-    //            }
-    //        }).then(function successCallback(response) {
-    //            if (response.data.Error === true) {
-    //                ShowResult(response.data.Message, 'failure');
-    //            }
-    //            else {
-    //                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-    //            }
-    //        });
-    //    } catch (e) {
-    //        ShowResult(e, 'failure');
-    //    }
-
-    //}
-
-
-
-    //$scope.GetEmployeeSalaryProcessedReport = function () {
-    //    try {
-    //        var parameters = [];
-    //        $scope.empGrid = false;
-    //        var gridObj = $("#empInfoGrid").ejGrid("instance");
-    //        var filteredRecords = gridObj.getFilteredRecords();
-    //        if ($scope.isManualFilter == true) {
-    //            if (filteredRecords.length == 0) {
-    //                filteredRecords = $scope.EmployeeListTemp;
-
-    //            }
-    //        }
-    //        if (angular.isUndefinedOrNull(filteredRecords) === false) {
-    //            if (filteredRecords.length > 0) {
-    //                parameters = [];
-    //                parameters.push({ "Key": "EmpSystemId", "Value": getString(filteredRecords, "EmpSystemId") });
-    //            }
-    //        }
-    //        if (parameters.length === 0) {
-    //            parameters.push({ "Key": "", "Value": "" });
-
-    //        }
-
-    //        $http({
-    //            method: 'POST',
-    //            url: 'humanresource/FinalDeductionReport/GetEmployeeSalaryProcessedReport',
-    //            data: {
-    //                'month': $scope.month,
-    //                'year': $scope.year,
-    //                'salaryProcessId': $scope.salaryProcessId,
-    //                'payRollGroup': $scope.payGroupListSelected,
-    //                'parameters': parameters,
-    //                'isActive': $scope.isActive,
-    //                'isSeperated': $scope.isSeperated,
-    //                'isMaternity': $scope.isMaternity
-    //            }
-    //        }).then(function successCallback(response) {
-    //            if (response.data.Error === true) {
-    //                ShowResult(response.data.Message, 'failure');
-    //            }
-    //            else {
-    //                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-    //            }
-    //        });
-    //    } catch (e) {
-    //        ShowResult(e, 'failure');
-    //    }
+    //$scope.onVoucherNoDownloadExcel = function (data) {
+    //    var reportFormat = "Excel";
+    //    if (baseService.isUndefinedOrNull(data.VoucherNo)) return ShowResult('No Id found', 'failure');
+    //    $window.open($scope.path + 'PabyableJournal?inventoryReceiveId=' + data.VoucherNo);
     //};
+
 }

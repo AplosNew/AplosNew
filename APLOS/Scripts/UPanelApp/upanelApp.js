@@ -540,6 +540,7 @@ var upanelApp = angular
     .controller('fixedAssetDisposeController', fixedAssetDisposeController)
     .controller('fixedAssetDisposePostController', fixedAssetDisposePostController)
     .controller('FixedAssetsRegisterReportController', FixedAssetsRegisterReportController)
+    .controller('FixedAssetsRegisterDisposedReportController', FixedAssetsRegisterDisposedReportController)
     .controller('goodsReceiveNoteController', goodsReceiveNoteController)
     .controller('gratuityReportController', gratuityReportController)
     .controller('gratuityPolicyController', gratuityPolicyController)

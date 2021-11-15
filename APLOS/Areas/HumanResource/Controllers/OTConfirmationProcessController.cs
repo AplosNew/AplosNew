@@ -18,6 +18,7 @@ using Syncfusion.XlsIO;
 using Library.Service.Helpers;
 using System.IO;
 using Library.HumanResource.NewAttendanceProcess;
+using Newtonsoft.Json;
 //using TBS;
 
 namespace Aplos.Areas.HumanResource.Controllers
@@ -69,25 +70,64 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost , Authorize]
-        public void ProcessData(string Data)
+        public void ProcessData(string Data,string OTWeek)
         {
-            int j = 1;
-
-            DataTable dx = new DataTable();
-            dx.Columns.Add("empcode", typeof(string));
-            dx.Columns.Add("workdate", typeof(DateTime));
-
-            string WorkDate = "";
-
+            List<Dictionary<string,object>> _objects = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(Data);
             var StringDates = new List<DateTime>();
-            StringDates.Add(Convert.ToDateTime(WorkDate));
 
-            DateTime MaxDate=StringDates.Max(date => date);
-            DateTime MinDate=StringDates.Min(date => date);                  
+            #region To Find Max & Min Date
 
+            string WorkDatesMaster = "''";
+
+            foreach (Dictionary<string, object> AllWorkDates in _objects)
+            {
+                if (AllWorkDates.ContainsKey("WorkDate"))
+                {
+
+                    string value = AllWorkDates["WorkDate"].ToString();
+                    string Param = "";
+                    DistinctFunction(ref WorkDatesMaster, value,out Param);
+                    if (Param == "1")
+                    {
+                        StringDates.Add(Convert.ToDateTime(value));
+                    }
+                }
+            }
+
+            DateTime MaxDate = StringDates.Max(date => date);
+            DateTime MinDate = StringDates.Min(date => date);
+
+            #endregion
+
+
+            //DataTable dx = new DataTable();
+            //dx.Columns.Add("empcode", typeof(string));
+
+            //dx.Columns.Add("workdate", typeof(DateTime));
+            string DailyLimit = "";
+            if ( DailyLimit=="0")
+            {
+                decimal StdOT = 0;
+                decimal ExtraOT; // All;
+            }
             // var EmpData= Data.Where(k => k["empsystemid"].ToString() == "1223" && ).FirstOrDefault(); 
 
         }
+
+        public void DistinctFunction(ref string WorkDatesMaster, string Value,out string Param)
+        {
+            if (WorkDatesMaster.Contains(Value))
+            {
+                Param = "0";
+                return;
+            }
+            else
+            {
+                Param = "1";
+                WorkDatesMaster += ",'" + Value + "'";
+            }
+        }
+
         #endregion Operations
     }
-}
+} 

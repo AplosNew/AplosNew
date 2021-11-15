@@ -127,6 +127,7 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
             else {
                 $scope.Data = [];
                 $scope.Data = resp.data;
+
             }
             
         })
@@ -137,9 +138,9 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
         for (var i = 0; i < $scope.Data.length; i++) {
             ProcArr.push({
                 'EmpSystemID': $scope.Data[i].EmpSystemID, 'WorkDate': $scope.Data[i].WorkDate, 'PlanOT': $scope.Data[i].PlanOT,
-                //'DayLimit': $scope.Data[i].DayLimit, 'StandardOT': $scope.Data[i].StandardOT, 'AppliedOTLimit': $scope.Data[i].AppliedOTLimit,
-                //'AllowedOTLimit': $scope.Data[i].AllowedOTLimit, 'AdditionalOT': $scope.Data[i].AdditionalOT, 'WeekLimit': $scope.Data[i].WeekLimit,
-                //'TargetOT': $scope.Data[i].TargetOT, 'ApplicableWM': $scope.Data[i].ApplicableWM, 'OTWeek': $scope.Data[i].OTWeek
+                'DayLimit': $scope.Data[i].DayLimit, 'StandardOT': $scope.Data[i].StandardOT, 'AppliedOTLimit': $scope.Data[i].AppliedOTLimit,
+                'AllowedOTLimit': $scope.Data[i].AllowedOTLimit, 'AdditionalOT': $scope.Data[i].AdditionalOT, 'WeekLimit': $scope.Data[i].WeekLimit,
+                'TargetOT': $scope.Data[i].TargetOT, 'ApplicableWM': $scope.Data[i].ApplicableWM
             });
         }
 
@@ -148,7 +149,7 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
         $http({
             method: 'POST',
             url: $scope.path + 'ProcessData',
-            data: {'Data' : Proc},
+            data: { 'Data': Proc, 'OTWeek': $scope.Week},
         }).then(function succ(resp) {
             if (resp.data.Error === true) {
                 ShowResult(resp.data.Message, 'failure');

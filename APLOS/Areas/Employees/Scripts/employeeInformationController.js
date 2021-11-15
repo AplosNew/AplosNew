@@ -64,7 +64,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
         LocalEmployeeName: null,
         EmpPicPath: null,
         EmpType: null,
-        EmploymentType: null,
+        EmployeeCodeTypeId: null,
         EmployeeGroupSystemID: null,
         JobLocationID: null,
         DOB: null,
@@ -166,7 +166,10 @@ function employeeInformationController(addressService, fileReader, cboService, c
         Ref1Name: null,
         ApprovalAuthorityId: null,
         TransportGroupId: null,
-        ResidenceGroupId: null
+        ResidenceGroupId: null,
+        ExcludeOT: false,
+        IsOutSider: false,
+        EmpCodeType: null
     };
     $scope.employeeNew = Object.assign({}, $scope.model);
     $scope.employeeInformation = Object.assign({}, $scope.model);
@@ -189,48 +192,88 @@ function employeeInformationController(addressService, fileReader, cboService, c
     }
     $scope.TransportGroupCbo();
 
+    $scope.EmployeeCodeTypeList = [];
+    $scope.EmployeeCodeTypeCbo = function () {
+        $http.get('employees/EmployeeCodeType/GetCbo')
+            .then(function (response) {
+                $scope.EmployeeCodeTypeList = response.data;
+            });
+    }
+    $scope.EmployeeCodeTypeCbo();
+
     $scope.AddNewEmpPopUp = function () {
         try {
-            if (!baseService.isUndefinedOrNull($scope.employeeNew.EmploymentType)) {
-                $scope.EmploymentType = $scope.employeeNew.EmploymentType;
+            if (!baseService.isUndefinedOrNull($scope.employeeNew.EmployeeCodeTypeId)) {
+                $scope.EmployeeCodeTypeId = $scope.employeeNew.EmployeeCodeTypeId;
                 $scope.Clean();
-                $scope.employeeNew.EmploymentType = $scope.EmploymentType;
-                angular.element(document.querySelector('#NewEmpEntryPopUp')).modal('show');
-                $scope.ShowVendorCtrl();
-                //$http({
-                //    method: 'GET',
-                //    url: 'Employees/EmployeeInformation/GetEmpCodeGenSetting?EmploymentType=' + $scope.employeeNew.EmploymentType
-                //}).then(function successCallback(response) {
-                //    if (baseService.arrayLength(response.data)==0) {
-                //        ShowResult("Employee Code Generation Setting is not defined.", 'failure');
-                //    } else {
-                //        $scope.IsEmployeeCodeOpenField = response.data[0].IsEmployeeCodeOpenField;
-                        
-                        
-                //    }
-                //})
+                $scope.employeeNew.EmployeeCodeTypeId = $scope.EmployeeCodeTypeId;
                 
-            } else {
-                throw "Select Employment Type.";
+                $scope.ShowVendorCtrl();
+                $http({
+                    method: 'GET',
+                    url: 'Employees/EmployeeInformation/GetEmpCodeGenSetting?employeeCodeTypeId=' + $scope.employeeNew.EmployeeCodeTypeId
+                }).then(function successCallback(response) {
+                    if (baseService.arrayLength(response.data) == 0) {
+                        ShowResult("Employee Code Generation Setting is not defined.", 'failure');
+                    } else {
+                        $scope.IsEmployeeCodeOpenField = response.data[0].IsEmployeeCodeOpenField;
+                        angular.element(document.querySelector('#NewEmpEntryPopUp')).modal('show');
+                    }
+                })
+
+            }
+            else {
+                throw "Select Employee Code Type.";
             }
         } catch (e) {
             ShowResult(e, 'failure');
         }
     }
 
+    $scope.ShowVendor = false;
+    $scope.ShowEVendor = false;
+    $scope.ShowVendorCtrl = function () {
+        angular.forEach($scope.EmployeeCodeTypeList, function (item) {
+   
+            if (item.Value == $scope.employeeNew.EmployeeCodeTypeId) {
+                $scope.employeeNew.EmpCodeType = item.Text;
+                if (item.IsOutSider == true) {
+                    $scope.employeeNew.IsOutSider = true;
+                    $scope.ShowVendor = true;
+                }
+                else {
+                    $scope.ShowVendor = false;
+                }
+            }
+            
+        });
+    }
+
+
+    function GetEmpCodeGenSetting() {
+        $http({
+            method: 'GET',
+            url: 'Employees/EmployeeInformation/GetEmpCodeGenSetting?employeeCodeTypeId=' + $scope.employeeNew.EmployeeCodeTypeId
+        }).then(function successCallback(response) {
+            if (baseService.arrayLength(response.data) == 0) {
+                ShowResult("Employee Code Generation Setting is not defined.", 'failure');
+            } else {
+                $scope.IsEmployeeCodeOpenField = response.data[0].IsEmployeeCodeOpenField;
+            }
+        })
+    }
+
     $scope.CloseNewEmpPopUp = function () {
-        $scope.EmploymentType = $scope.employeeNew.EmploymentType;
+        $scope.EmployeeCodeTypeId = $scope.employeeNew.EmployeeCodeTypeId;
         $scope.Clean();
-        $scope.employeeNew.EmploymentType = $scope.EmploymentType;
+        $scope.employeeNew.EmployeeCodeTypeId = $scope.EmployeeCodeTypeId;
         angular.element(document.querySelector('#NewEmpEntryPopUp')).modal('hide');
-        $scope.ShowVendor = false;
-        $scope.ShowEVendor = false;
+        //$scope.ShowVendor = false;
+        //$scope.ShowEVendor = false;
 
         //var eDialog = $("#NewEmpEntryPopUp").data("ejDialog");
         //eDialog.close();
     }
-
-   
 
     $scope.CheckDuplicateEmployeeCode = function () {
         $http({
@@ -430,7 +473,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
         $scope.employeeNew.SubSectionId = data.SubSectionId;
         $scope.employeeNew.SubdivisionID = data.SubdivisionID;
         $scope.employeeNew.LineId = data.LineId;
-       // $scope.employeeNew.EmploymentType = data.EmploymentType;
+        $scope.employeeNew.EmploymentType = data.EmploymentType;
         $scope.employeeNew.PositionID = data.PositionId;
         $scope.employeeNew.IsDirect = data.IsDirect;
 
@@ -452,6 +495,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
         $scope.employeeNew.SubSectionId = null;
         $scope.employeeNew.SubdivisionID = null;
         $scope.employeeNew.LineId = null;
+        $scope.employeeNew.EmployeeCodeTypeId = null;
         $scope.employeeNew.EmploymentType = null;
         $scope.employeeNew.PositionID = null;
         $scope.employeeNew.IsDirect = false;
@@ -570,10 +614,11 @@ function employeeInformationController(addressService, fileReader, cboService, c
             if ($scope.flg === 'new') {
                 $scope.employeeNew.GivenDesignationId = response.data[0].Value;
                 $scope.employeeNew.GivenDesignation = response.data[0].Text;
-                $scope.fillNonEligible();
+
             } else {
                 $scope.employeeInformation.GivenDesignationId = response.data[0].Value;
                 $scope.employeeInformation.GivenDesignation = response.data[0].Text;
+                $scope.GetIsOTEntitled();
             }
 
         })
@@ -1035,8 +1080,8 @@ function employeeInformationController(addressService, fileReader, cboService, c
 
     $scope.Get = function (obj) {
         $scope.approved = "";
-
         $scope.employeeInformation = obj.data;
+
         $scope.imageSrc = virtualPath.EmployeePic + $scope.employeeInformation.EmpPicPath;
         $scope.EmpSignature = virtualPath.CardHolderSignature + $scope.employeeInformation.EmpSignature;
         $rootScope.img = $scope.employeeInformation.EmpPicPath;
@@ -1056,12 +1101,13 @@ function employeeInformationController(addressService, fileReader, cboService, c
         $scope.employeeInformation.IssueDate = $filter('dateFiltering')($scope.employeeInformation.IssueDate, 'dd-M-yyyy');
         $scope.employeeInformation.MarriagedayCelebrationDate = $filter('dateFiltering')($scope.employeeInformation.MarriagedayCelebrationDate, 'dd-M-yyyy');
         $scope.employeeInformation.PaymentModeEffectiveDate = $filter('dateFiltering')($scope.employeeInformation.PaymentModeEffectiveDate, 'dd-M-yyyy');
-
+        $scope.employeeInformation.EmpCodeType = $scope.employeeInformation.EmployeeCodeType;
         $scope.approved = "";
         if ($scope.employeeInformation.IsApproved) {
             $scope.approved = "Employee Profile is Approved.";
             $scope.Color = 'green';
-        } else {
+        }
+        else {
             $scope.approved = "Employee Profile is not Approved.";
             $scope.Color = 'red';
         }
@@ -1077,6 +1123,13 @@ function employeeInformationController(addressService, fileReader, cboService, c
                 $scope.showdiv = false;
             }
         }
+
+        if ($scope.employeeInformation.IsOutSider) {
+            $scope.ShowEVendor = true;
+        } else {
+            $scope.ShowEVendor = false;
+        }
+
         if (baseService.arrayLength($scope.LegalDesignationList) > 0) {
             for (var i = 0; i < $scope.LegalDesignationList.length; i++) {
                 if ($scope.LegalDesignationList[i].Id !== $scope.employeeInformation.LegalDesignationId) {
@@ -1084,7 +1137,6 @@ function employeeInformationController(addressService, fileReader, cboService, c
                 }
             }
         }
-
 
         $scope.LoadReferenceData($scope.user);
         $scope.LoadQualificationData($scope.user);
@@ -1130,11 +1182,27 @@ function employeeInformationController(addressService, fileReader, cboService, c
         $scope.getEmployeeDependantInfo();
         $scope.getEmployeeLandLordInfo();
         $scope.getSavedOperationData($scope.employeeInformation.SystemId);
-        $scope.ShowVendorCtrl();
+        $scope.GetIsOTEntitled();
+
+
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
     };
+
+    $scope.IsOTEntitled = false;
+    $scope.OTEntitledmsg = null;
+    $scope.GetIsOTEntitled = function () {
+        $http.get('employees/EmployeeInformation/GetIsOTEntitled?PlantId=' + $scope.employeeInformation.PlantId + '&designationId=' + $scope.employeeInformation.GivenDesignationId)
+            .then(function (response) {
+                $scope.IsOTEntitled = response.data[0].IsOTEntitled;
+
+                if ($scope.IsOTEntitled)
+                    $scope.OTEntitledmsg = "(OT entitle as per designation)";
+                else
+                    $scope.OTEntitledmsg = null;
+            });
+    }
 
     $scope.employeeInformation.ApplyingAsFresher = false;
 
@@ -1623,7 +1691,6 @@ function employeeInformationController(addressService, fileReader, cboService, c
         CheckField($scope.employeeNew.JobLocationID, "Job Location");
         CheckField($scope.employeeNew.FixSystemID, "Shift(Fix)");
         CheckField($scope.employeeNew.DOJ, "Date Of Join");
-        CheckField($scope.employeeNew.EmploymentType, "Employment Type");
         CheckField($scope.employeeNew.DOC, "Date Of Confirmation");
 
 
@@ -1633,7 +1700,8 @@ function employeeInformationController(addressService, fileReader, cboService, c
         if (baseService.isUndefinedOrNull($scope.employeeNew.GivenDesignationId)) {
             throw "Given Designation is required.";
         }
-        if ($scope.employeeNew.EmploymentType === 'Contractual' && baseService.isUndefinedOrNull($scope.employeeNew.VendorId)) {
+
+        if ($scope.employeeNew.IsOutSider === true && baseService.isUndefinedOrNull($scope.employeeNew.VendorId)) {
             throw "Vendor is required.";
         }
 
@@ -1663,7 +1731,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
             $http({
                 method: 'POST',
                 url: $scope.saveNewUrl,
-                data: { 'entity': $scope.employeeNew, 'EmployeeCodeCheckLevel': $scope.EmployeeCodeCheckLevel, 'empRef': $scope.empReferenceInformation, 'OT': $scope.NonEligibleOTChild },
+                data: { 'entity': $scope.employeeNew, 'EmployeeCodeCheckLevel': $scope.EmployeeCodeCheckLevel, 'empRef': $scope.empReferenceInformation },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -1675,6 +1743,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
                     $scope.GetPlantWiseHRMSSetting();
                     $scope.getData();
                     ClearEmpFields();
+                    GetEmpCodeGenSetting();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -1688,12 +1757,12 @@ function employeeInformationController(addressService, fileReader, cboService, c
 
     function ClearEmpFields() {
         $scope.employeeInformation = {};
-        $scope.EmploymentType = $scope.employeeNew.EmploymentType;
+        $scope.EmployeeCodeTypeId = $scope.employeeNew.EmployeeCodeTypeId;
         $scope.employeeNew = {};
         $scope.Clean();
-        $scope.employeeNew.EmploymentType = $scope.EmploymentType;
-        $scope.ShowEVendor = false;
-        $scope.ShowVendor = false;
+        $scope.employeeNew.EmployeeCodeTypeId = $scope.EmployeeCodeTypeId;
+        //$scope.ShowEVendor = false;
+        //$scope.ShowVendor = false;
         $scope.EmployeeCodeCheckLevel = null;
         $scope.empReferenceInformation = {
             SystemID: null,
@@ -1927,7 +1996,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
 
     $scope.SaveEmployment = function () {
         try {
-            if ($scope.employeeInformation.EmploymentType === 'Contractual' && baseService.isUndefinedOrNull($scope.employeeInformation.VendorId)) {
+            if ($scope.employeeInformation.IsOutSider === true && baseService.isUndefinedOrNull($scope.employeeInformation.VendorId)) {
                 throw "Vendor is required.";
             }
             $scope.savedisable = true;
@@ -3563,6 +3632,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
     //# endregion
 
     $scope.Clean = function () {
+        $scope.OTEntitledmsg = null;
         $scope.approved = "";
         $scope.model = {
             SystemId: null,
@@ -3595,6 +3665,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
             LocalEmployeeName: null,
             EmpPicPath: null,
             EmpType: null,
+            EmployeeCodeTypeId: null,
             EmploymentType: null,
             EmployeeGroupSystemID: null,
             JobLocationID: null,
@@ -3690,13 +3761,14 @@ function employeeInformationController(addressService, fileReader, cboService, c
             BudgetedDesignation: null,
             EmployeeGroup: null,
             EmpCategoryName: null,
-            FixSystemID: null
+            FixSystemID: null,
+            ExcludeOT: false
         };
         $scope.employeeNew = Object.assign({}, $scope.model);
         $scope.employeeInformation = Object.assign({}, $scope.model);
         $scope.GetPlantWiseHRMSSetting();
-        $scope.ShowVendor = false;
-        $scope.ShowEVendor = false;
+        //$scope.ShowVendor = false;
+        //$scope.ShowEVendor = false;
         $scope.EmployeeOperationList = [];
         $scope.empAcademicQualificationInformations = [];
         $scope.empExperienceInformations = [];
@@ -3727,6 +3799,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
             Ref2Email: null,
             Ref2Address: null
         };
+        $scope.IsOTEntitled = false;
     };
 
     $scope.onBeginUpload = function (args) {
@@ -3774,20 +3847,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
 
     //#region Vendor
 
-    $scope.ShowVendor = false;
-    $scope.ShowEVendor = false;
-    $scope.ShowVendorCtrl = function () {
-        if ($scope.employeeNew.EmploymentType === 'Contractual') {
-            $scope.ShowVendor = true;
-        } else {
-            $scope.ShowVendor = false;
-        }
-        if ($scope.employeeInformation.EmploymentType === 'Contractual') {
-            $scope.ShowEVendor = true;
-        } else {
-            $scope.ShowEVendor = false;
-        }
-    }
+
 
     $scope.closePartyPopUp = function () {
         if ($scope.partyIndex !== -1) {
@@ -3916,8 +3976,8 @@ function employeeInformationController(addressService, fileReader, cboService, c
 
     /// The Additions of Week off and the Non Eligible OT
 
-    var x = document.getElementById("OTCheck");
-    x.disabled = true;
+    //var x = document.getElementById("OTCheck");
+    //x.disabled = true;
 
     //$scope.WeekOffChild = {
     //    Id: null,
@@ -3926,12 +3986,12 @@ function employeeInformationController(addressService, fileReader, cboService, c
     //    EffectiveDate: null,
     //}
 
-    $scope.NonEligibleOTChild = {
-        Id: null,
-        EmpSystemId: null,
-        EffectiveDate: null,
-        Exclude: false,
-    }
+    //$scope.NonEligibleOTChild = {
+    //    Id: null,
+    //    EmpSystemId: null,
+    //    EffectiveDate: null,
+    //    Exclude: false,
+    //}
 
     //$scope.weekOffList = [];
     //$scope.fillWeekOff = function () {
@@ -3944,21 +4004,21 @@ function employeeInformationController(addressService, fileReader, cboService, c
     //    })
     //}
 
-    $scope.fillNonEligible = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + 'getNonEligibleOT',
-            data: { 'DesgId': $scope.employeeNew.GivenDesignationId }
-        }).then(function succ(res) {
-            $scope.NonEligibleOTChild.Exclude = res.data[0].IsOTEntitled;
-            if ($scope.NonEligibleOTChild.Exclude == true) {
-                $scope.NonEligibleOTChild.Exclude = false;
-                x.disabled = false;
-            }
-            else {
-                x.disabled = true;
-            }
-        });
-    }
+    //$scope.fillNonEligible = function () {
+    //    $http({
+    //        method: 'POST',
+    //        url: $scope.path + 'getNonEligibleOT',
+    //        data: { 'DesgId': $scope.employeeNew.GivenDesignationId }
+    //    }).then(function succ(res) {
+    //        $scope.NonEligibleOTChild.Exclude = res.data[0].IsOTEntitled;
+    //        if ($scope.NonEligibleOTChild.Exclude == true) {
+    //            $scope.NonEligibleOTChild.Exclude = false;
+    //            x.disabled = false;
+    //        }
+    //        else {
+    //            x.disabled = true;
+    //        }
+    //    });
+    //}
 
 }
