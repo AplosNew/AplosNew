@@ -112,8 +112,8 @@ function fixedAssetConfig($routeProvider, $locationProvider) {
             templateUrl: "FixedAssets/FixedAssetRegister/FixedAssetsRegisterReport",
             controller: "FixedAssetsRegisterReportController"
         })
-        .when("/fixed-assets-Register-Disposed-report", {
-            templateUrl: "FixedAssets/FixedAssetRegister/FixedAssetsRegisterDisposedReport",
+        .when("/fixed-assets-Register-Dispose-report", {
+            templateUrl: "FixedAssets/FixedAssetRegister/FixedAssetsRegisterDisposeReport",
             controller: "FixedAssetsRegisterDisposedReportController"
         })
 
