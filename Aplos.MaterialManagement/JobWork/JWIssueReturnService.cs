@@ -14,12 +14,12 @@ using System.Reflection;
 namespace Library.MaterialManagement.JobWork
 {
 
-    public class JobWorkIssueReturn
+    public class JWIssueReturn
     {
         SqlRepository _sqlRepository;
         ConnectionManager.clsConnectionManager ConManager;
 
-        public JobWorkIssueReturn()
+        public JWIssueReturn()
         {
             _sqlRepository = new SqlRepository();
             ConManager = new ConnectionManager.clsConnectionManager();
@@ -2306,7 +2306,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 							left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
 							left join TRN.InventoryReceiveDetail IRD on IRD.Id=IIH.InventoryReceiveDetailId
         					left join TRN.InventoryReceive IR on IR.Id=IRD.InventoryReceiveId
-						WHERE II.PlantId= '" + plantId + @"' AND ISNULL(II.[Status],'') <>'Posting' AND IID.IsAsset= 0 and II.Types='InventoryOSIssue' and II.JWContractId='" + Id + @"'
+						WHERE II.PlantId= '" + plantId + @"' AND ISNULL(II.[Status],'') <>'Posting' AND IID.IsAsset= 0 and II.Types='InventoryJWIssue' and II.JWContractId='" + Id + @"'
 						GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
 						,II.IssueDate, MS.UserName
 						,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo  
@@ -2350,7 +2350,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 							left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
 							left join TRN.InventoryReceiveDetail IRD on IRD.Id=IIH.InventoryReceiveDetailId
         					left join TRN.InventoryReceive IR on IR.Id=IRD.InventoryReceiveId
-						WHERE II.PlantId= '" + plantId + @"' AND ISNULL(II.[Status],'')='Posting' AND IID.IsAsset= 0 and II.Types='InventoryOSIssue' and II.JWContractId='" + Id + @"'
+						WHERE II.PlantId= '" + plantId + @"' AND ISNULL(II.[Status],'')='Posting' AND IID.IsAsset= 0 and II.Types='InventoryJWIssue' and II.JWContractId='" + Id + @"'
 						GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
 						,II.IssueDate, MS.UserName
 						,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo  
@@ -2761,47 +2761,47 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 
     }
 }
-public class MaterialPlanning
-{
+//public class MaterialPlanning
+//{
 
-    #region Scalar Properties
+//    #region Scalar Properties
 
-    public string Id { get; set; }
-    public string JobWorkItem { get; set; }
-    public string MaterialType { get; set; }
-    public string ArticleCode { get; set; }
+//    public string Id { get; set; }
+//    public string JobWorkItem { get; set; }
+//    public string MaterialType { get; set; }
+//    public string ArticleCode { get; set; }
 
-    public string OutputUnit { get; set; }
-    public string Quantity { get; set; }
-    public string OrderSpecific { get; set; }
-    public string MaterialLocation { get; set; }
+//    public string OutputUnit { get; set; }
+//    public string Quantity { get; set; }
+//    public string OrderSpecific { get; set; }
+//    public string MaterialLocation { get; set; }
 
-    public string MaterialStorageIdInventory { get; set; } 
+//    public string MaterialStorageIdInventory { get; set; } 
     
 
-    #endregion Scalar Properties
-}
+//    #endregion Scalar Properties
+//}
 
-public class JobWorkTransformationIssueReturnChild
-{
+//public class JobWorkTransformationIssueReturnChild
+//{
 
-    #region Scalar Properties
+//    #region Scalar Properties
 
-    public string Id { get; set; }
-    public string CostCenterId { get; set; }
-    public string OSTransformationPOId { get; set; }
-    public string JWInputItem { get; set; }
-    public string JWInputItemId { get; set; }
-    public string TransactionUoM { get; set; }
+//    public string Id { get; set; }
+//    public string CostCenterId { get; set; }
+//    public string OSTransformationPOId { get; set; }
+//    public string JWInputItem { get; set; }
+//    public string JWInputItemId { get; set; }
+//    public string TransactionUoM { get; set; }
 
-    public string TransactionUoMId { get; set; }
+//    public string TransactionUoMId { get; set; }
 
-    public string BaseUoMId { get; set; }
-    public string TransactionQty { get; set; }
-    //public string Remarks { get; set; }
-    //public string Value { get; set; }
-    //public string LotNumber { get; set; }
+//    public string BaseUoMId { get; set; }
+//    public string TransactionQty { get; set; }
+//    //public string Remarks { get; set; }
+//    //public string Value { get; set; }
+//    //public string LotNumber { get; set; }
 
 
-    #endregion Scalar Properties
-}
+//    #endregion Scalar Properties
+//}

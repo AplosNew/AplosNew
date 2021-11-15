@@ -971,7 +971,8 @@ var upanelApp = angular
     .controller('SandwichProcessController', SandwichProcessController)
     .controller('JobWorkTransformationPOController', JobWorkTransformationPOController)
     .controller('AssetWIPStatusController', AssetWIPStatusController)
-    .controller('OTConfirmationProcessController' , OTConfirmationProcessController)
+    .controller('OTConfirmationProcessController', OTConfirmationProcessController)
+    .controller('JWIssueReturnController', JWIssueReturnController)
 
     .config(AccessControllerConfig)
     .config(accountConfig)
