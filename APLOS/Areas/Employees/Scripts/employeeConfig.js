@@ -503,5 +503,13 @@ function employeeConfig($routeProvider, $locationProvider, $windowProvider) {
             templateUrl: 'Employees/TransportGroup/Aplos',
             controller: 'TransportGroupController'
         })
+        .when('/multiple-resignation-approval-new', {
+            templateUrl: 'employees/ResignationApprovalMultipleNew/Aplos',
+            controller: 'multipleResignationApprovalNewController'
+        })
+        .when('/empcode-type', {
+            templateUrl: 'Employees/EmployeeCodeType/Aplos',
+            controller: 'EmployeeCodeTypeController'
+        })
         ;
 } 

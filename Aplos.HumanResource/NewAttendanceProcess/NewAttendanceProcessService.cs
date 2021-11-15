@@ -956,7 +956,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-               
+
                 var sql = @"select distinct e.SystemId as EmpId,dc.IsOTEntitled,
 				Format(p.WorkDate,'yyyy-MMM-dd')WorkDate
                 from AttdnProcessData p join
@@ -971,12 +971,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 and E.DOJ <= '" + Date + @"' 
 				AND (E.DOS >= '" + Date + @"' OR ISNULL(E.DOS,'') = '' 
 				OR E.DOS = '01/01/1901') and dc.IsOTEntitled=1 
-				and e.SystemId not in (select final.EmpSystemId from 
-				(select distinct o.empsystemId,
-				(select top 1 Exclude from NonEligibleOT m where 
-				m.EmpSystemId=o.EmpSystemId order by EffectiveDate desc)as x 
-				from NonEligibleOT o) final where final.x=1)";
-                
+				and e.ExcludeOT=0";   
+                                
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
@@ -1664,58 +1660,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         }
                         #endregion
 
-                        #region App Prev Attnd
-                        DataSet PrevDayApp;
-                        PrevAppData(PreviousDay, out PrevDayApp, PlantValue);
-                        if (PrevDayApp.Tables[0].Rows.Count > 0)
-                        {
-                            // Attendance From Mobile App
-                            var WkDate = PrevDayApp.Tables[0].Rows[0][@"WkDate"].ToString();
-                            string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
-
-                            ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                            var sqlx = @"select * from AttdnProcessData where WorkDate='" + WkDate + "' " +
-                                "and PlantID='" + PlantValue + "'";
-
-                            objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
-
-                            for (int i = 0; i < PrevDayApp.Tables[0].Rows.Count; i++)
-                            {
-                                string EmpId = clsWebLib.RetValidLen(PrevDayApp.Tables[0].Rows[i][@"EmpId"]).ToString();
-                                string In = clsWebLib.RetValidLen(PrevDayApp.Tables[0].Rows[i][@"ManualIn"]).ToString();
-                                string Out = clsWebLib.RetValidLen(PrevDayApp.Tables[0].Rows[i][@"ManualOut"]).ToString();
-
-                                PunchTimeVal(ref In, ref Out, WkDate);
-                                // App Attendance Taken as Manual Attendance
-                                dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
-                                if (dsRef.Tables[0].DefaultView.Count > 0)
-                                {
-                                    DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                                    dr.BeginEdit();
-
-                                    if (Out.ToString() != "")
-                                    {
-                                        dr["IsManualOutTime"] = 1;
-                                        dr["ManualOutTime"] = Convert.ToDateTime(Out);
-                                        dr["OriginalManualOutTime"] = Convert.ToDateTime(Out);
-                                    }
-                                    if (In.ToString() != "")
-                                    {
-                                        dr["ManualInTime"] = Convert.ToDateTime(In);
-                                        dr["IsManualInTime"] = 1;
-                                        dr["OriginalManualInTime"] = Convert.ToDateTime(In);
-                                    }
-
-                                    dr["UpdatedBy"] = "Schedule";
-                                    dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                    dr.EndEdit();
-
-                                }
-                            }
-                            SaveDataSets(dsRef);
-                        }
-                        #endregion
-
                         #region Getting Flagged OutPunch of the Interval
                         DataSet ConfirmOutFlag;
                         FlagDataOutCalculate(PreviousDay, out ConfirmOutFlag, PlantValue);
@@ -2059,60 +2003,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             #endregion
                         }
                         #endregion
-
-                        #region App Today Attnd
-                        DataSet TodayApp;
-                        TodayAppData(Date, out TodayApp, PlantValue);
-                        if (TodayApp.Tables[0].Rows.Count > 0)
-                        {
-                            // Attendance From Mobile App
-                            var WkDate = TodayApp.Tables[0].Rows[0][@"WkDate"].ToString();
-                            string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
-
-                            ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                            var sqlx = @"select * from AttdnProcessData where WorkDate='" + WkDate + "' " +
-                                "and PlantID='" + PlantValue + "'";
-
-                            objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
-
-                            for (int i = 0; i < TodayApp.Tables[0].Rows.Count; i++)
-                            {
-                                string EmpId = TodayApp.Tables[0].Rows[i][@"EmpId"].ToString();
-                                string In = clsWebLib.RetValidLen(TodayApp.Tables[0].Rows[i][@"ManualIn"]).ToString();
-                                string Out = clsWebLib.RetValidLen(TodayApp.Tables[0].Rows[i][@"ManualOut"]).ToString();
-
-                                PunchTimeVal(ref In, ref Out, WkDate);
-                                
-                                // App Attendance Taken as Manual Attendance
-                                dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
-                                if (dsRef.Tables[0].DefaultView.Count > 0)
-                                {
-                                    DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                                    dr.BeginEdit();
-
-                                    if (Out.ToString() != "")
-                                    {
-                                        dr["IsManualOutTime"] = 1;
-                                        dr["ManualOutTime"] = Convert.ToDateTime(Out);
-                                        dr["OriginalManualOutTime"] = Convert.ToDateTime(Out);
-                                    }
-                                    if (In.ToString() != "")
-                                    {
-                                        dr["ManualInTime"] = Convert.ToDateTime(In);
-                                        dr["OriginalManualInTime"] = Convert.ToDateTime(In);
-                                        dr["IsManualInTime"] = 1;
-                                    }
-
-                                    dr["UpdatedBy"] = "Schedule";
-                                    dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                    dr.EndEdit();
-
-                                }
-                            }
-                            SaveDataSets(dsRef);
-                        }
-                        #endregion
-
+                       
                         #region Final Day In/Out    
                         FinalInOut(Date, PlantValue); // Final In Out Stamping on the Basis of Manual & Punch
                         #endregion
@@ -2635,43 +2526,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
 
-        }
-        public void PrevAppData(string PreDay, out DataSet ds, string Plant)
-        {
-
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-                var sql = @"SELECT EmployeeId as EmpId,FORMAT(PDate,'yyyy-MMM-dd')WkDate,
-                InTime as ManualIn,
-                OutTime as ManualOut FROM 
-                AttdnRawDataFromApp where PDate='" + PreDay + @"'
-                and PlantId='" + Plant + "'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
-        public void TodayAppData(string Date, out DataSet ds, string Plant)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-                var sql = @"SELECT EmployeeId as EmpId,FORMAT(PDate,'yyyy-MMM-dd')WkDate,
-                InTime as ManualIn,
-                OutTime as ManualOut FROM 
-                AttdnRawDataFromApp where PDate='" + Date + @"'
-                and PlantId='" + Plant + "'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
         }
         public void FinalInOut(string Date, string Plant)
         {
@@ -6681,7 +6535,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             dt.Rows.Add(dr);
         }
 
-        #endregion
+        #endregion 
 
         #region GroupWise Calling Functions
         public void ShiftProcessGroupWise(string Date, string GroupId)

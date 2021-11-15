@@ -590,9 +590,14 @@ function payRegisterBDReportContractorController(commonMessage, $scope, $rootSco
 
     };
     $scope.contractorChange = function () {
-        $scope.EmployeeListTemp = $scope.EmployeeListDefault.filter(d => d.ContractorId == $scope.contractorId);
-        $scope.EmployeeList = $scope.EmployeeListDefault.filter(d => d.ContractorId == $scope.contractorId);
-
+        if (baseService.isUndefinedOrNull($scope.contractorId)) {
+            $scope.EmployeeListTemp = $scope.EmployeeListDefault;
+            $scope.EmployeeList = $scope.EmployeeListDefault;
+        }
+        else {
+            $scope.EmployeeListTemp = $scope.EmployeeListDefault.filter(d => d.ContractorId == $scope.contractorId);
+            $scope.EmployeeList = $scope.EmployeeListDefault.filter(d => d.ContractorId == $scope.contractorId);
+        }
         //$scope.EmployeeListDefault = response.data.filter(d => d.isSelect == true);
     }
 

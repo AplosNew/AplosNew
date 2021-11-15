@@ -192,7 +192,7 @@ namespace OTSBD
             }
         }//End Function  
 
-        public Dictionary<string, List<DataRow>> GetEmpLeaveInfoPaySlipSaad(ParamList leavePara)
+        public Dictionary<string, List<DataRow>> GetEmpLeaveInfoPaySlipSaad(Dictionary<string, string> parameters, ParamList leavePara)
         {
             Dictionary<string, List<DataRow>> dicBonus = new Dictionary<string, List<DataRow>>();
             var paraDate = Convert.ToDateTime(leavePara.FromDate);
@@ -217,7 +217,7 @@ namespace OTSBD
 						 left JOIN LeaveBalance AS lb ON lb.EmpSystemId=e.SystemId AND lb.LTSystemId=lt.Id
 						 LEFT join LeaveTransaction LTR  ON E.SystemId = LTR.EmpSystemID and LTR.LTSystemID=LT.Id  and LTR.IsApproved=1
 						 Left join LeaveTransactionDetails LTD on LTD.LvTrnsSystemID =LTR.SystemID AND LTd.WorkDate BETWEEN   '" + leavePara.FromDate + @"' AND  '" + leavePara.ToDate + @"'  AND  LTD.IsAvailed = 1
-						 where e.PlantId='" + leavePara.PlantId + @"' --e.SystemId='2010626'
+						 where e.SystemId IN (" + parameters["EmpSystemId"] + @")
 						group BY lb.Id, lb.Balance, E.SystemId,LT.Id,LT.Code,LT.LeaveType order by E.SystemId";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -16741,7 +16741,7 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"')
         }//End Function
 
 
-    
+
         public void GetSalaryInfoSlrProcIDWiseForTopSheet(PayRegisterParamList para, out DataSet dsRef)
         {
 

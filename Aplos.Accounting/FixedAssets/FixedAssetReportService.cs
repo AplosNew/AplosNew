@@ -671,7 +671,7 @@ namespace Library.Accounting.FixedAssets
 									
 									,FAD.DeliveryByAddress,VPL.UserName DeliveryParty
 									,FAD.Id FixedAssetNo, FAD.PartyPlantId,fad.DeliveryPartyPlantId
-									,FAD.AddedBy
+									,FAD.AddedBy,CAST(FAD.ToCurrencyRate AS decimal(18,4))ToCurrencyRate
 								
 									
 

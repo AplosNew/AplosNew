@@ -282,9 +282,9 @@ namespace Library.Service.Productions
             }
         }
 
-        public IEnumerable<ComboModel> GetCbo(string plantId, string ProcessId, string entityId)
+        public IEnumerable<ComboModel> GetCbo(string plantId, string ProcessId, string entityId, string CompanyId)
         {
-            var sql = @"SELECT Id,UserName FROM SCS.WorkCenterMaster WHERE ProcessId='" + ProcessId + @"' AND PlantId='" + plantId + "'  AND EntityId='" + entityId + "' Order by Sequence";
+            var sql = @"SELECT Id,UserName FROM SCS.WorkCenterMaster WHERE ProcessId='" + ProcessId + @"' AND PlantId='" + plantId + "'  AND EntityId='" + entityId + "' AND CompanyId='"+ CompanyId + "' Order by Sequence";
             return _sqlRepository.GetCombo(sql, "Id", "UserName");
         }
 

@@ -209,7 +209,7 @@ namespace Aplos.Areas.JobWork.Controllers
         {
             try
             {
-                if (Convert.ToBoolean(_inventoryServiceRepository.SqlQuery<int>(@"IF EXISTS(SELECT 1 FROM(SELECT * FROM OSTransformationPOService WHERE OSTransformationPOId='" + data["OSTransformationPOId"] + "' AND ServiceMasterId='" + data["ServiceMasterId"] + "') AS A) SELECT 1 ELSE SELECT 0 RETURN").First()))
+                if (Convert.ToBoolean(_inventoryServiceRepository.SqlQuery<int>(@"IF EXISTS(SELECT 1 FROM(SELECT * FROM JWTransformationPOService WHERE JWTransformationPOId='" + data["JWTransformationPOId"] + "' AND ServiceMasterId='" + data["ServiceMasterId"] + "') AS A) SELECT 1 ELSE SELECT 0 RETURN").First()))
                     throw new CustomException("This service already taken."); ;
 
                 JobWorkCommon = new Library.MaterialManagement.JobWork.JWCommon();
@@ -588,7 +588,7 @@ namespace Aplos.Areas.JobWork.Controllers
         {
             var PODocumentMap = new JavaScriptSerializer().Deserialize<PODocumentMap>(form["PODocumentMap"]);
 
-            var directory = ResourcesPathReader.GetJobWorkPurchaseOrderPath();
+            var directory = ResourcesPathReader.GetJWPurchaseOrderPath();
             var path = Path.Combine(directory);
 
             if (PODocumentMap.UserFilename.IsNotNull())

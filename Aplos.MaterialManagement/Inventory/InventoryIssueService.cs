@@ -2773,7 +2773,8 @@ namespace Library.MaterialManagement.Inventory
 							,isnull(IA1.UserName,'') AS CActivity
 							,isnull(B1.UserName,'') AS CBUdget
                             ,CC.UserName CostCenterName,EI.EmployeeName
-                            ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,PLC.LCRef as PurchaseLCNo
+                            ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName--,MLC.LCRef
+                            ,PLC.LCRef as PurchaseLCNo,pod.ReferenceNo
                         FROM trn.InventoryIssue II
                         LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId
                         LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
@@ -2811,8 +2812,9 @@ namespace Library.MaterialManagement.Inventory
                         left join dbo.OSTransformationPO ospo on ospo.Id=II.JWContractId
 						left join [dbo].[Contract] Ct on Ct.Id=ospo.ContractId
 						left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
-						LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
+					--	LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
 						left join dbo.PurchaseLC PLC on PLC.Id=ospo.PurchaseLCId
+                        left join dbo.OSTransformationPODetail pod on pod.OSTransformationPOId=ospo.Id and pod.Id=IID.OSTransformationPOId
                     where v.VoucherNo is not null ANd II.PlantId='" + identity.PlantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
                      and II.Types='InventoryJWIssue' ";
 
@@ -2892,7 +2894,8 @@ namespace Library.MaterialManagement.Inventory
 							,isnull(B1.UserName,'') AS CBUdget
                             ,CC.UserName CostCenterName
                             ,EI.EmployeeName
-                            ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,PLC.LCRef as PurchaseLCNo
+                            ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName--,MLC.LCRef
+                            ,PLC.LCRef as PurchaseLCNo,pod.ReferenceNo
                         FROM trn.InventoryIssue II
                         LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId
                         LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
@@ -2929,8 +2932,9 @@ namespace Library.MaterialManagement.Inventory
                         left join dbo.OSTransformationPO ospo on ospo.Id=II.JWContractId
 						left join [dbo].[Contract] Ct on Ct.Id=ospo.ContractId
 						left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
-						LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
+					--	LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
 						left join dbo.PurchaseLC PLC on PLC.Id=ospo.PurchaseLCId
+                        left join dbo.OSTransformationPODetail pod on pod.OSTransformationPOId=ospo.Id and pod.Id=IID.OSTransformationPOId
                     where v.VoucherNo is null ANd II.PlantId='" + identity.PlantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
                      and II.Types='InventoryJWIssue' ";
 
@@ -3221,7 +3225,7 @@ namespace Library.MaterialManagement.Inventory
 
 
                     sql = @"SELECT II.Id AS IssueId,IID.Id as IssueDetailId
-                            ,OSPOType=case when PO.POType='OSValueAddedPO' then 'ValueAdded' else 'Transformation' End
+                            ,OSPOType=case when ospo.POType='OSValueAddedPO' then 'ValueAdded' else 'Transformation' End
 	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate	 
 	                        ,MT.UserName MaterialType
 	                        ,MGM.UserName AS MaterialGroupMasterName
@@ -3267,7 +3271,8 @@ namespace Library.MaterialManagement.Inventory
 							,isnull(IA1.UserName,'') AS CActivity
 							,isnull(B1.UserName,'') AS CBUdget
                             ,CC.UserName CostCenterName
-                            ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,PLC.LCRef as PurchaseLCNo,ospo.Id as PONumber
+                            ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName--,MLC.LCRef
+                            ,PLC.LCRef as PurchaseLCNo,ospo.Id as PONumber,pod.ReferenceNo
                         FROM trn.InventoryIssue II
                         LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId	
                         LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
@@ -3309,11 +3314,12 @@ namespace Library.MaterialManagement.Inventory
                         left join dbo.OSTransformationPO ospo on ospo.Id=II.JWContractId
 						left join [dbo].[Contract] Ct on Ct.Id=ospo.ContractId
 						left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
-						LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
+					--	LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
 						left join dbo.PurchaseLC PLC on PLC.Id=ospo.PurchaseLCId
 						LEFT JOIN TRN.InventoryReceive IR ON IR.Id = IRD.InventoryReceiveId
 						LEFT JOIN SCS.Currency C ON C.Id = IR.CurrencyId
-						left join dbo.OSTransformationPO PO on PO.Id=II.JWContractId
+					--	left join dbo.OSTransformationPO PO on PO.Id=II.JWContractId
+                        left join dbo.OSTransformationPODetail pod on pod.OSTransformationPOId=ospo.Id and pod.Id=IID.OSTransformationPOId
 
                     where v.VoucherNo is not null ANd II.PlantId='" + identity.PlantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
                      and II.Types='InventoryJWIssue' ";
@@ -3408,7 +3414,7 @@ namespace Library.MaterialManagement.Inventory
                     //              and II.Types='InventoryJWIssue' ";
 
                     sql = @"SELECT II.Id AS IssueId,IID.Id as IssueDetailId
-                            ,OSPOType=case when PO.POType='OSValueAddedPO' then 'ValueAdded' else 'Transformation' End
+                            ,OSPOType=case when ospo.POType='OSValueAddedPO' then 'ValueAdded' else 'Transformation' End
 	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate	 
 	                        ,MT.UserName MaterialType
 	                        ,MGM.UserName AS MaterialGroupMasterName
@@ -3454,7 +3460,8 @@ namespace Library.MaterialManagement.Inventory
 							,isnull(IA1.UserName,'') AS CActivity
 							,isnull(B1.UserName,'') AS CBUdget
                             ,CC.UserName CostCenterName
-                            ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,PLC.LCRef as PurchaseLCNo,ospo.Id as PONumber
+                            ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName--,MLC.LCRef
+                            ,PLC.LCRef as PurchaseLCNo,ospo.Id as PONumber,pod.ReferenceNo
                         FROM trn.InventoryIssue II
                         LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId	
                         LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
@@ -3496,11 +3503,12 @@ namespace Library.MaterialManagement.Inventory
                         left join dbo.OSTransformationPO ospo on ospo.Id=II.JWContractId
 						left join [dbo].[Contract] Ct on Ct.Id=ospo.ContractId
 						left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
-						LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
+					--	LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
 						left join dbo.PurchaseLC PLC on PLC.Id=ospo.PurchaseLCId
 						LEFT JOIN TRN.InventoryReceive IR ON IR.Id = IRD.InventoryReceiveId
 						LEFT JOIN SCS.Currency C ON C.Id = IR.CurrencyId
-                        left join dbo.OSTransformationPO PO on PO.Id=II.JWContractId
+                      --  left join dbo.OSTransformationPO PO on PO.Id=II.JWContractId
+                        left join dbo.OSTransformationPODetail pod on pod.OSTransformationPOId=ospo.Id and pod.Id=IID.OSTransformationPOId
 
                     where v.VoucherNo is null ANd II.PlantId='" + identity.PlantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
                     and II.Types='InventoryJWIssue' ";
@@ -3715,7 +3723,8 @@ namespace Library.MaterialManagement.Inventory
 							,isnull(IA1.UserName,'') AS CActivity
 							,isnull(B1.UserName,'') AS CBUdget
                            ,CC.UserName CostCenterName,EI.EmployeeName
-                            ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,PLC.LCRef as PurchaseLCNo,ospo.Id as PONumber
+                            ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName--,MLC.LCRef
+                            ,PLC.LCRef as PurchaseLCNo,ospo.Id as PONumber,pod.ReferenceNo
                         FROM trn.InventoryIssue II
                         LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId
 					    LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
@@ -3752,8 +3761,9 @@ namespace Library.MaterialManagement.Inventory
                        left join dbo.OSTransformationPO ospo on ospo.Id=II.JWContractId
 						left join [dbo].[Contract] Ct on Ct.Id=ospo.ContractId
 						left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
-						LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
+					--	LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
 						left join dbo.PurchaseLC PLC on PLC.Id=ospo.PurchaseLCId
+                        left join dbo.OSTransformationPODetail pod on pod.OSTransformationPOId=ospo.Id and pod.Id=IID.OSTransformationPOId
                     where v.VoucherNo is not null ANd II.PlantId='" + plantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
 
             }
@@ -3834,7 +3844,8 @@ namespace Library.MaterialManagement.Inventory
 							,isnull(IA1.UserName,'') AS CActivity
 							,isnull(B1.UserName,'') AS CBUdget
                             ,CC.UserName CostCenterName,EI.EmployeeName
-                            ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,PLC.LCRef as PurchaseLCNo,ospo.Id as PONumber
+                            ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName--,MLC.LCRef
+                            ,PLC.LCRef as PurchaseLCNo,ospo.Id as PONumber,pod.ReferenceNo
                         FROM trn.InventoryIssue II
                         LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId
                         LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
@@ -3871,8 +3882,9 @@ namespace Library.MaterialManagement.Inventory
                         left join dbo.OSTransformationPO ospo on ospo.Id=II.JWContractId
 						left join [dbo].[Contract] Ct on Ct.Id=ospo.ContractId
 						left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
-						LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
+					--	LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
 						left join dbo.PurchaseLC PLC on PLC.Id=ospo.PurchaseLCId
+                        left join dbo.OSTransformationPODetail pod on pod.OSTransformationPOId=ospo.Id and pod.Id=IID.OSTransformationPOId
                     where v.VoucherNo is null ANd II.PlantId='" + plantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
             }
             var inventoryMaterialList = _sqlRepository.GetDataTable(cmdText);
@@ -4337,7 +4349,7 @@ namespace Library.MaterialManagement.Inventory
                 report.SetText(ref sheet1, _rowL, 3, inventoryMaterialList.Rows[n]["PONumber"].ToString());
                 report.SetText(ref sheet1, _rowL, 4, inventoryMaterialList.Rows[n]["ContractNo"].ToString());
                 report.SetText(ref sheet1, _rowL, 5, inventoryMaterialList.Rows[n]["CustomerName"].ToString());
-                report.SetText(ref sheet1, _rowL, 6, inventoryMaterialList.Rows[n]["LCRef"].ToString());
+                report.SetText(ref sheet1, _rowL, 6, inventoryMaterialList.Rows[n]["ReferenceNo"].ToString());
                 report.SetText(ref sheet1, _rowL, 7, inventoryMaterialList.Rows[n]["PurchaseLCNo"].ToString());
                 report.SetText(ref sheet1, _rowL, 8, inventoryMaterialList.Rows[n]["UDNo"].ToString());
 
@@ -5692,7 +5704,7 @@ namespace Library.MaterialManagement.Inventory
 
 
                 cmdText = @"SELECT II.Id AS IssueId,IID.Id as IssueDetailId
-                            ,OSPOType=case when PO.POType='OSValueAddedPO' then 'ValueAdded' else 'Transformation' End
+                            ,OSPOType=case when ospo.POType='OSValueAddedPO' then 'ValueAdded' else 'Transformation' End
 	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate	 
 	                        ,MT.UserName MaterialType
 	                        ,MGM.UserName AS MaterialGroupMasterName
@@ -5738,7 +5750,8 @@ namespace Library.MaterialManagement.Inventory
 							,isnull(IA1.UserName,'') AS CActivity
 							,isnull(B1.UserName,'') AS CBUdget
                             ,CC.UserName CostCenterName
-                            ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,PLC.LCRef as PurchaseLCNo,ospo.Id as PONumber
+                            ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName--,MLC.LCRef
+                            ,PLC.LCRef as PurchaseLCNo,ospo.Id as PONumber,pod.ReferenceNo
                         FROM trn.InventoryIssue II
                         LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId	
                         LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
@@ -5780,11 +5793,12 @@ namespace Library.MaterialManagement.Inventory
                         left join dbo.OSTransformationPO ospo on ospo.Id=II.JWContractId
 						left join [dbo].[Contract] Ct on Ct.Id=ospo.ContractId
 						left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
-						LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
+					--	LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
 						left join dbo.PurchaseLC PLC on PLC.Id=ospo.PurchaseLCId
 						LEFT JOIN TRN.InventoryReceive IR ON IR.Id = IRD.InventoryReceiveId
 						LEFT JOIN SCS.Currency C ON C.Id = IR.CurrencyId
-						left join dbo.OSTransformationPO PO on PO.Id=II.JWContractId
+					--	left join dbo.OSTransformationPO PO on PO.Id=II.JWContractId
+                        left join dbo.OSTransformationPODetail pod on pod.OSTransformationPOId=ospo.Id and pod.Id=IID.OSTransformationPOId
                     where v.VoucherNo is not null ANd II.PlantId='" + plantId + "'AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
             }
             else
@@ -5866,7 +5880,7 @@ namespace Library.MaterialManagement.Inventory
 
 
                 cmdText = @"SELECT II.Id AS IssueId,IID.Id as IssueDetailId
-                            ,OSPOType=case when PO.POType='OSValueAddedPO' then 'ValueAdded' else 'Transformation' End
+                            ,OSPOType=case when ospo.POType='OSValueAddedPO' then 'ValueAdded' else 'Transformation' End
 	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate	 
 	                        ,MT.UserName MaterialType
 	                        ,MGM.UserName AS MaterialGroupMasterName
@@ -5912,7 +5926,8 @@ namespace Library.MaterialManagement.Inventory
 							,isnull(IA1.UserName,'') AS CActivity
 							,isnull(B1.UserName,'') AS CBUdget
                             ,CC.UserName CostCenterName
-                            ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,PLC.LCRef as PurchaseLCNo,ospo.Id as PONumber
+                            ,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName--,MLC.LCRef
+                            ,PLC.LCRef as PurchaseLCNo,ospo.Id as PONumber,pod.ReferenceNo
                         FROM trn.InventoryIssue II
                         LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId	
                         LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
@@ -5954,11 +5969,12 @@ namespace Library.MaterialManagement.Inventory
                         left join dbo.OSTransformationPO ospo on ospo.Id=II.JWContractId
 						left join [dbo].[Contract] Ct on Ct.Id=ospo.ContractId
 						left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
-						LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
+					--	LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
 						left join dbo.PurchaseLC PLC on PLC.Id=ospo.PurchaseLCId
 						LEFT JOIN TRN.InventoryReceive IR ON IR.Id = IRD.InventoryReceiveId
 						LEFT JOIN SCS.Currency C ON C.Id = IR.CurrencyId
-						left join dbo.OSTransformationPO PO on PO.Id=II.JWContractId
+					--	left join dbo.OSTransformationPO PO on PO.Id=II.JWContractId
+                        left join dbo.OSTransformationPODetail pod on pod.OSTransformationPOId=ospo.Id and pod.Id=IID.OSTransformationPOId
                     where v.VoucherNo is null ANd II.PlantId='" + plantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
 
             }
@@ -6426,7 +6442,7 @@ namespace Library.MaterialManagement.Inventory
 
                 report.SetText(ref sheet1, _rowL, 6, inventoryMaterialList.Rows[n]["ContractNo"].ToString());
                 report.SetText(ref sheet1, _rowL, 7, inventoryMaterialList.Rows[n]["CustomerName"].ToString());
-                report.SetText(ref sheet1, _rowL, 8, inventoryMaterialList.Rows[n]["LCRef"].ToString());
+                report.SetText(ref sheet1, _rowL, 8, inventoryMaterialList.Rows[n]["ReferenceNo"].ToString());
                 report.SetText(ref sheet1, _rowL, 9, inventoryMaterialList.Rows[n]["PurchaseLCNo"].ToString());
                 report.SetText(ref sheet1, _rowL, 10, inventoryMaterialList.Rows[n]["UDNo"].ToString());
 

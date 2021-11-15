@@ -786,7 +786,7 @@ namespace Library.Accounting.FixedAssets
             , UPPER(V.Narration) AS Narration, CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
             , P.UserName AS Vendor, PP.UserName AS VendorPlant
 			, V.CurrencyId, C.Code AS CurrencyCode
-			,EI.EmployeeName,BJ.Status DisposedStatus,BJ.Id DisposedNo
+			,EI.EmployeeName,BJ.Status DisposedStatus,BJ.Id DisposedNo,I.Amount AS SalesAmount
             FROM [TRN].FixedAssetRegisterDisposed AS BJ
             LEFT JOIN [TRN].[Voucher] AS V ON V.Id=BJ.DisposedVoucherId
             LEFT JOIN [SCS].[VoucherType] AS VT ON VT.Id=V.VoucherTypeId
@@ -795,6 +795,7 @@ namespace Library.Accounting.FixedAssets
             LEFT JOIN SEC.[User] U ON U.UserId=V.AddedBy
 			LEFT JOIN HKP.Party P ON P.Id = BJ.PartyId
 			LEFT JOIN HKP.PartyPlant PP ON PP.Id = BJ.PartyPlantId
+            LEFT JOIN [TRN].[Invoice] AS I ON V.Id=I.VoucherId
             WHERE v.Archive=0 AND v.CompanyGroupId='" + companyGroupId + "' AND v.CompanyId='" + companyId + "' AND v.PlantId='" + plantId + "' AND BJ.DisposedVoucherId='" + disposedVoucherId + "' AND v.SourceType='" + sourceType + "'";
             return _sqlRepository.GetData(cmdText);
         }
@@ -872,6 +873,7 @@ namespace Library.Accounting.FixedAssets
             }
             reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Doc Ref");
             reportUtility.SetText(ref sheet, row, 5, header["DocRefNo"].ToString());
+           
             row++;
 
             if (header["DisposedStatus"].ToString() == "Sales")
@@ -879,12 +881,16 @@ namespace Library.Accounting.FixedAssets
                 reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Customer Plant");
                 reportUtility.SetText(ref sheet, row, 2, header["VendorPlant"].ToString());
             }
-
+            if (companyCurrencyId != transcationCurrency)
+            {
+                reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Sales Amount");
+                reportUtility.SetText(ref sheet, row, 5, Convert.ToDouble(header["SalesAmount"].ToString()) + " " + header["CurrencyCode"].ToString() );
+            }
             //reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Status");
             //reportUtility.SetText(ref sheet, row, 5, header["Status"].ToString());
-            //row++;
+            row++;
 
-            colLast = companyCurrencyId == transcationCurrency ? 5 : 7;
+            colLast = companyCurrencyId == transcationCurrency ? 5 : 5;
             sheet[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(colLast) + row].Merge();
             sheet[row, 2].ColumnWidth = 30;
 
@@ -969,19 +975,19 @@ namespace Library.Accounting.FixedAssets
 
                     sheet[reportUtility.GetColumnNameForXls(colGl) + row + ":" + reportUtility.GetColumnNameForXls(colGl + 2) + row].Merge();
 
-                    if (companyCurrencyId != transcationCurrency)
-                    {
-                        reportUtility.SetText(ref sheet, row, colinrDebit, Convert.ToDouble(dsLocal.Rows[i]["DrAmount"].ToString()));
-                        reportUtility.SetText(ref sheet, row, colinrCredit, Convert.ToDouble(dsLocal.Rows[i]["CrAmount"].ToString()));
-                        reportUtility.SetText(ref sheet, row, colusdDebit, Convert.ToDouble(dsLocal.Rows[i]["CompanyCurrencyDrAmount"].ToString()));
-                        reportUtility.SetText(ref sheet, row, colusdCradit, Convert.ToDouble(dsLocal.Rows[i]["CompanyCurrencyCrAmount"].ToString()));
-                        totalTranAmount += Convert.ToDouble(dsLocal.Rows[i]["DrAmount"].ToString());
-                    }
-                    else
-                    {
+                    //if (companyCurrencyId != transcationCurrency)
+                    //{
+                    //    reportUtility.SetText(ref sheet, row, colinrDebit, Convert.ToDouble(dsLocal.Rows[i]["DrAmount"].ToString()));
+                    //    reportUtility.SetText(ref sheet, row, colinrCredit, Convert.ToDouble(dsLocal.Rows[i]["CrAmount"].ToString()));
+                    //    reportUtility.SetText(ref sheet, row, colusdDebit, Convert.ToDouble(dsLocal.Rows[i]["CompanyCurrencyDrAmount"].ToString()));
+                    //    reportUtility.SetText(ref sheet, row, colusdCradit, Convert.ToDouble(dsLocal.Rows[i]["CompanyCurrencyCrAmount"].ToString()));
+                    //    totalTranAmount += Convert.ToDouble(dsLocal.Rows[i]["DrAmount"].ToString());
+                    //}
+                    //else
+                    //{
                         reportUtility.SetText(ref sheet, row, colinrDebit, Convert.ToDouble(dsLocal.Rows[i]["CompanyCurrencyDrAmount"].ToString()));
                         reportUtility.SetText(ref sheet, row, colinrCredit, Convert.ToDouble(dsLocal.Rows[i]["CompanyCurrencyCrAmount"].ToString()));
-                    }
+                    //}
                     totalBookCurrencyAmount += Convert.ToDouble(dsLocal.Rows[i]["CompanyCurrencyDrAmount"].ToString());
 
                     sheet.Range[row, 1, row, colLast].BorderInside(ExcelLineStyle.Hair);
@@ -1054,15 +1060,15 @@ namespace Library.Accounting.FixedAssets
                 row += 2;
                 reportUtility.SetText(ref sheet, row, 1, "In Word:", true);
 
-                if (companyCurrencyId != transcationCurrency && GetPlantIsShowFCInWord(plantId))
-                {
-                    sheet.Range[reportUtility.GetColumnNameForXls(2) + row].Text = reportUtility.InWord(totalTranAmount, transcationCurrency);
-                    sheet.Range[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(colLast) + row].Merge();
-                    sheet.Range[reportUtility.GetColumnNameForXls(2) + row].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    sheet.Range[reportUtility.GetColumnNameForXls(2) + row].VerticalAlignment = ExcelVAlign.VAlignTop;
-                    sheet.Range[reportUtility.GetColumnNameForXls(2) + row].CellStyle.Font.Bold = true;
-                    row++;
-                }
+                //if (companyCurrencyId != transcationCurrency && GetPlantIsShowFCInWord(plantId))
+                //{
+                //    sheet.Range[reportUtility.GetColumnNameForXls(2) + row].Text = reportUtility.InWord(totalTranAmount, transcationCurrency);
+                //    sheet.Range[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(colLast) + row].Merge();
+                //    sheet.Range[reportUtility.GetColumnNameForXls(2) + row].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                //    sheet.Range[reportUtility.GetColumnNameForXls(2) + row].VerticalAlignment = ExcelVAlign.VAlignTop;
+                //    sheet.Range[reportUtility.GetColumnNameForXls(2) + row].CellStyle.Font.Bold = true;
+                //    row++;
+                //}
 
                 sheet.Range[reportUtility.GetColumnNameForXls(2) + row].Text = reportUtility.InWord(totalBookCurrencyAmount, companyCurrencyId);
                 sheet.Range[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(colLast) + row].Merge();
@@ -1101,7 +1107,7 @@ namespace Library.Accounting.FixedAssets
             {
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.CellStyle.Font.Size = 8;
-                reportUtility.CompanyPlantHeader(ref sheet, 7, "Fixed Asset Dispose", companyId, plantName, null);
+                reportUtility.CompanyPlantHeader(ref sheet, 7, "Fixed Asset Dispose" + "(" + header["DisposedStatus"].ToString() + ")", companyId, plantName, null);
                 reportUtility.PageSetup(ref sheet, 7, ExcelPageOrientation.Portrait);
             }
 
