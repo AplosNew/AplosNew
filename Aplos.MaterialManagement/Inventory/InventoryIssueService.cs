@@ -3257,7 +3257,7 @@ namespace Library.MaterialManagement.Inventory
 							,isnull(IIH.Qty,0) CurrentIssueQty
 							,TUoM.UserName AS IssueUOM							
 	                        ,TotalIssued=(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0))						
-							,Balance=(Isnull(IRD.TransactionQty,0)-(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0)))
+							,Balance=(Isnull(IRD.BaseQty,0)-(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0)))
 	                        
 
                            ,ISNULL(IGL.UserName,'') AS GL
@@ -3444,7 +3444,7 @@ namespace Library.MaterialManagement.Inventory
 							,isnull(IIH.Qty,0) CurrentIssueQty
 							,TUoM.UserName AS IssueUOM							
 	                        ,TotalIssued=(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0))						
-							,Balance=(Isnull(IRD.TransactionQty,0)-(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0)))
+							,Balance=(Isnull(IRD.BaseQty,0)-(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0)))
 	                        
 
                            ,ISNULL(IGL.UserName,'') AS GL
