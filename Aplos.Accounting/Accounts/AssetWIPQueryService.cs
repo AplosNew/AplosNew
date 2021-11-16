@@ -438,7 +438,7 @@ AND IRD.PostDrActivityId IN( " + activityId + @")";
             left join TRN.InventoryReceiveDetail ird on ird.Id=iih.InventoryReceiveDetailId
             where ird.InventoryReceiveId='" + InventoryReceiveDetailId+@"'
             group by iid.InventoryIssueId ,ii.IssueDate,ii.VoucherId,v.VoucherNo ,uom.UserName";
-
+             
         }
     }
 }
