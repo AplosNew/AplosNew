@@ -38,8 +38,8 @@ namespace Library.Accounting.FixedAssets
 							, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue
 							, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
 							, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 
-							, MS.UserName MaterialStorageLocation	
-							,GL.UserName GL
+							, MS.UserName MaterialStorageLocation,FAM.UserName AssetMaster	
+							,GL.UserName GL,B.UserName Budget
 							,A.UserName Activity
 							,IRD.InventoryReceiveId GRNNo,FORMAT(IR.GRNDate,'dd-MMM-yyyy') GRNDate
 							,V.VoucherNo
@@ -69,7 +69,11 @@ LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.
  LEFT JOIN SCS.UnitOfMeasurement TUOM ON TUOM.Id=IRD.TransactionUoMId
  LEFT JOIN SCS.UnitOfMeasurement BUOM ON BUOM.Id=IRD.BaseUOMId
  LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=IRD.PostDrGLGeneralInfoId
+ LEFT JOIN MST.BudgetMaster BM ON BM.Id=IRD.PostDrBudgetMasterId
+ LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
  LEFT JOIN HKP.Activity A ON A.Id=IRD.PostDrActivityId
+ LEFT JOIN HKP.FixedAssetMasterBudgetTag FAMB ON FAMB.BudgetMasterId=MM.BudgetMasterId
+ LEFT JOIN MST.FixedAssetMaster FAM ON FAM.Id=FAMB.FixedAssetMasterId
  LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
  LEFT JOIN SCS.Currency CU ON CU.Id=IR.CurrencyId
  LEFT JOIN (SELECT InventoryReceiveDetailId,SUM(Qty) IssueQty FROM  TRN.InventoryIssueHistory group by InventoryReceiveDetailId) IIH ON IIH.InventoryReceiveDetailId=IRD.Id
@@ -87,8 +91,8 @@ WHERE IR.VoucherId<>'' AND IRD.IsAsset=1 and (isnull(IRD.BaseQty,0)-isnull(IIH.I
 							, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue
 							, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
 							, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 
-							, MS.UserName MaterialStorageLocation	
-							,GL.UserName GL
+							, MS.UserName MaterialStorageLocation,FAM.UserName AssetMaster	
+							,GL.UserName GL,B.UserName Budget
 							,A.UserName Activity
 							,IRD.InventoryReceiveId GRNNo,FORMAT(IR.GRNDate,'dd-MMM-yyyy') GRNDate
 							,V.VoucherNo
@@ -118,7 +122,11 @@ LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.
  LEFT JOIN SCS.UnitOfMeasurement TUOM ON TUOM.Id=IRD.TransactionUoMId
  LEFT JOIN SCS.UnitOfMeasurement BUOM ON BUOM.Id=IRD.BaseUOMId
  LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=IRD.PostDrGLGeneralInfoId
+ LEFT JOIN MST.BudgetMaster BM ON BM.Id=IRD.PostDrBudgetMasterId
+ LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
  LEFT JOIN HKP.Activity A ON A.Id=IRD.PostDrActivityId
+ LEFT JOIN HKP.FixedAssetMasterBudgetTag FAMB ON FAMB.BudgetMasterId=MM.BudgetMasterId
+ LEFT JOIN MST.FixedAssetMaster FAM ON FAM.Id=FAMB.FixedAssetMasterId
  LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
  LEFT JOIN SCS.Currency CU ON CU.Id=IR.CurrencyId
  LEFT JOIN (SELECT InventoryReceiveDetailId,SUM(Qty) IssueQty FROM  TRN.InventoryIssueHistory group by InventoryReceiveDetailId) IIH ON IIH.InventoryReceiveDetailId=IRD.Id
@@ -202,6 +210,12 @@ AND IRD.PostDrActivityId IN( " + activityId + @")";
 
             worksheet[ROW, COL].Text = "Storage Location";
             int colMaterialStorageLocation = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Asset Master";
+            int colAssetMaster = COL;
             worksheet[ROW, COL].ColumnWidth = 15;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
@@ -326,6 +340,7 @@ AND IRD.PostDrActivityId IN( " + activityId + @")";
                 worksheet[ROW, colSecondCharacteristicsValue].Text = dtGatenntryRegisterList.Rows[i]["SecondCharacteristicsValue"].ToString();
                 worksheet[ROW, colThirdCharacteristicsValue].Text = dtGatenntryRegisterList.Rows[i]["ThirdCharacteristicsValue"].ToString();
                 worksheet[ROW, colMaterialStorageLocation].Text = dtGatenntryRegisterList.Rows[i]["MaterialStorageLocation"].ToString();
+                worksheet[ROW, colAssetMaster].Text = dtGatenntryRegisterList.Rows[i]["AssetMaster"].ToString();
 
                 worksheet[ROW, colMaterialMasterName].Text = dtGatenntryRegisterList.Rows[i]["MaterialMasterName"].ToString();
                 worksheet[ROW, colGL].Text = dtGatenntryRegisterList.Rows[i]["GL"].ToString();
@@ -366,27 +381,6 @@ AND IRD.PostDrActivityId IN( " + activityId + @")";
 
             }
 
-
-            //worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
-            //worksheet.UsedRange.CellStyle.Font.Size = 8f;
-            //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            //ReportUtility reportUtility = new ReportUtility();
-            //reportUtility.PlantHeader(ref worksheet, endCol, "Asset WIP Status Report", identity.PlantId);
-            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-            //worksheet.Range[1, 1, 4, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-            //worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
-            //worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-            //worksheet.IsGridLinesVisible = false;
-
-            //#region Freeze penes
-            ////worksheet.IsDisplayZeros = false;
-            //worksheet.UsedRange["A6"].FreezePanes();
-            //worksheet.FirstVisibleColumn = 1;
-            //worksheet.FirstVisibleRow = 6;
-            //#endregion
-
-            //workbook.Version = ExcelVersion.Excel97to2003;
-            //reportUtility.PageSetup(ref worksheet, 5, ExcelPageOrientation.Portrait);
 
 
            worksheet.UsedRange.WrapText = true;
