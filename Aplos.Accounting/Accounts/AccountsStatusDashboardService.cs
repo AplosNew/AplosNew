@@ -7258,7 +7258,7 @@ x.ParticularName
 				,uom.Id BaseUOMId,Isnull (uom.UserName,'') BaseUOM
                  ,IsAsset =case when M.IsAsset =1 then 'Yes' else  'No'  end
 				 , Machine=case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end 
-                ,mma.RPM,mma.MachineAllowance
+                ,mma.RPM,mma.MachineAllowance,stc.UserName StitchCode
 				 ,ISNULL(FA.FACount,0) FACount
                 , ISNULL(FA.FABaseAmount,0)FABaseAmount
 				  , isnull(FA.SubAssetAmount,0)SubAssetAmount
@@ -7281,6 +7281,7 @@ x.ParticularName
                 LEFT JOIN HKP.MaterialGroup1 MG ON MG.Id=MGM.MaterialGroup1Id
                 LEFT JOIN SCS.UnitOfMeasurement uom ON uom.Id=M.BaseUOMId
 				left join mst.MaterialMasterArticle mma on mma.MaterialMasterId = m.Id
+                left join hkp.StitchCode stc on stc.Id=mma.StitchCodeId
 		        left join hkp.FixedAssetMasterBudgetTag FAMBT ON FAMBT.BudgetMasterId=M.BudgetMasterId
 				left join mst.FixedAssetMaster fam on fam.Id= FAMBT.FixedAssetMasterId
 				left JOIN [HKP].[Skill] S ON S.Id=M.SkillId
@@ -7325,7 +7326,7 @@ x.ParticularName
 				,uom.Id BaseUOMId,Isnull (uom.UserName,'') BaseUOM
                  ,IsAsset =case when M.IsAsset =1 then 'Yes' else  'No'  end
 				 , Machine=case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end 
-                ,mma.RPM,mma.MachineAllowance
+                ,mma.RPM,mma.MachineAllowance,stc.UserName StitchCode
 				 ,Count(ISNULL(FAR.Id,0)) FACount
 
                 , SUM(ISNULL(FAR.FABaseAmount,0))FABaseAmount
@@ -7353,6 +7354,7 @@ x.ParticularName
                 LEFT JOIN [HKP].[MaterialCategory] MC ON MC.Id=M.MaterialCategoryId
                 LEFT JOIN [HKP].[MaterialSubCategory] SC ON SC.Id=M.MaterialSubCategoryId
 				left join mst.MaterialMasterArticle mma on FAR.MaterialMasterArticleId = mma.Id
+                left join hkp.StitchCode stc on stc.Id=mma.StitchCodeId
                 LEFT JOIN HKP.MaterialGroup1 MG ON MG.Id=MGM.MaterialGroup1Id
                 LEFT JOIN SCS.UnitOfMeasurement uom ON uom.Id=M.BaseUOMId
 		        left join hkp.FixedAssetMasterBudgetTag FAMBT ON FAMBT.BudgetMasterId=M.BudgetMasterId
@@ -7378,7 +7380,7 @@ x.ParticularName
 				,uom.Id,uom.UserName
                  ,M.IsAsset
 				 ,MBP.BusinessProcessName ,S.UserName,M.BudgetMasterId,fam.UserName
-				   ,gl.UserName ,b.UserName , a.UserName,mma.RPM,mma.MachineAllowance ";
+				   ,gl.UserName ,b.UserName , a.UserName,mma.RPM,mma.MachineAllowance,stc.UserName ";
             return _sqlRepository.GetDataCollection(sql);
 
         }

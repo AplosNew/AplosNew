@@ -273,6 +273,7 @@ function operationVariationController(commonMessage, $scope, $rootScope, baseSer
             , TotalSAM: 0
             , Color:null
         };
+        getOperationUtilityData();
     }
 
     $scope.tab = 1;

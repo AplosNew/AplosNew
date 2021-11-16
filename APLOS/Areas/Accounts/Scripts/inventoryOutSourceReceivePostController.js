@@ -919,7 +919,7 @@ function inventoryOutSourceReceivePostController(cboService, commonMessage, $sco
         var data = gridObj.getSelectedRecords()[0];
         var reportFormat = "Excel";
         if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
-        $window.open($scope.path + 'GetOutSourcingVoucherReport?reportFormat=' + reportFormat + '&voucherId=' + data.VoucherId, '_blank');
+        $window.open($scope.path + 'GetOutSourcingVoucherReport?reportFormat=' + reportFormat + '&voucherId=' + data.VoucherId + '&sourceType=' + data.SourceType, '_blank');
 
         // $window.open($scope.path + 'PabyableJournal?reportFormat=' + reportFormat + '&inventoryReceiveId=' + data.VoucherId , '_blank');
 

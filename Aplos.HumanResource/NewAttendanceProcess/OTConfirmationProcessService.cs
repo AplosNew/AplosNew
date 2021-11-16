@@ -138,12 +138,13 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
-        public void ProcessData(string Data, string OTWeek)
+        public void ProcessData(string Data, string OTWeek,string SelectedOT)
         {
             try
             {
                 List<Dictionary<string, object>> _objects = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(Data);
                 var StringDates = new List<DateTime>();
+                StringCollection StrDistinctEmployee = new StringCollection();
 
                 #region To Find Max & Min Date
 
@@ -172,10 +173,14 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 #endregion
 
-                StringCollection StrDistinctEmployee = new StringCollection();
+                #region Monthly Confirmed OT
 
+                DataTable MonthData;
+                MonthlyConfirmedOT(out MonthData,OTWeek, StringDates.Min(date => date).ToString("dd-MMM-yyyy"));
 
-                for (int i = 0; i <= Table.Rows.Count; i++)
+                #endregion
+
+                for (int i = 0; i < Table.Rows.Count; i++)
                 {
 
                     #region Distinct Employees 
@@ -199,45 +204,110 @@ namespace Library.HumanResource.NewAttendanceProcess
                     {
                         string ApplicablePattern = clsWebLib.RetValidLen(Table.Rows[i]["ApplicableWM"]).ToString();
                         string FormatDate = MinDate.ToString("dd-MMM-yyyy");
+                        decimal WeekStandardOTMaster = 0;
 
                         if (ApplicablePattern == "W")
                         {
                             Table.DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' AND WorkDate <>#" + FormatDate + "# " +
                             "AND WorkDate >= #" + WeekMinDate + "# and WorkDate<= #" + WeekMaxDate + "# ";
 
-                            int StandardOTMaster = 0;
                             if (Table.DefaultView.Count > 0)
                             {
-                                for (int j = 0; j <= Table.DefaultView.Count; j++)
+                                for (int j = 0; j < Table.DefaultView.Count; j++)
                                 {
                                     string ApplicableWM = Table.DefaultView[j][@"ApplicableWM"].ToString();
                                     if (ApplicableWM == "W")
                                     {
-                                        int StandardOT = Convert.ToInt32(Table.DefaultView[j][@"StandardOT"].ToString());
-                                        StandardOTMaster += StandardOT;
+                                        // Sum Up the Week StandardOT
+                                        decimal StandardOT = Convert.ToDecimal(Table.DefaultView[j][@"StandardOT"].ToString());
+                                        WeekStandardOTMaster += StandardOT;
                                     }
                                 }
                             }
+                        }
 
-                            Table.DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' AND WorkDate =#" + FormatDate + "# ";
-                            if (Table.DefaultView.Count > 0)
-                            {
-                                int TargetOT = Convert.ToInt32(Table.DefaultView[0][@"TargetOT"].ToString());
-                                int DailyLimit = Convert.ToInt32(Table.DefaultView[0][@"DailyLimit"].ToString());
-                                if (DailyLimit == 0)
-                                {
-                                    DataRow dr = Table.DefaultView[0].Row;
+                           
+                        Table.DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' AND WorkDate =#" + FormatDate + "# ";
+                        if (Table.DefaultView.Count > 0)
+                        {
+                               
+                            DataRow dr = Table.DefaultView[0].Row;
+
+                            decimal TargetOT = Convert.ToDecimal(Table.DefaultView[0][@"TargetOT"].ToString());
+                            decimal DayLimit = Convert.ToDecimal(Table.DefaultView[0][@"DayLimit"].ToString());
+                            decimal WeekLimit = Convert.ToDecimal(Table.DefaultView[0][@"WeekLimit"].ToString());
+                            decimal PlanOT = Convert.ToDecimal(Table.DefaultView[0][@"PlanOT"].ToString());
+
+                            #region AllowedOT Limit  
+
+                                if (DayLimit == 0) // Say If DayType is W Or H 
+                                {     
+                                    // Entire Target OT In Additional OT && Standard OT ->0               
                                     dr.BeginEdit();
-
-                                    dr["StandardOT"] = 0;
-                                    dr["AdditionalOT"] = TargetOT;
-                                    dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                    dr["AllowedOTLimit"] = 0;
                                     dr.EndEdit();                                    
                                 }
 
-                            }
+                                string WkDateApplicableWM = Table.DefaultView[0][@"ApplicableWM"].ToString();
+                                if (WkDateApplicableWM == "W")
+                                {
+                                    // Min of Balance Limit of Week & DailyLimit
+                                    decimal BalanceWeekLimit = WeekLimit - WeekStandardOTMaster;
+                                     decimal SmallerValue= Math.Min(BalanceWeekLimit, DayLimit);
+                                    
+                                    dr.BeginEdit();
+                                    dr["AllowedOTLimit"] = SmallerValue;
+                                    dr.EndEdit();
+                                }
 
-                        }
+                            #endregion
+
+                            #region AppliedOTLimit Calculation
+
+                                if (PlanOT>0)
+                                {
+                                    dr.BeginEdit();
+                                    dr["AppliedOTLimit"] = PlanOT;
+                                    dr.EndEdit();
+                                }
+                                else
+                                {
+                                    decimal Allowed = Convert.ToDecimal(Table.DefaultView[0][@"AllowedOTLimit"].ToString());
+                                    dr.BeginEdit();
+                                    dr["AppliedOTLimit"] = Allowed;
+                                    dr.EndEdit();
+                                }
+
+                            #endregion
+
+                            #region Standard OT
+
+                            if (SelectedOT == "1")
+                            {
+                                decimal AppliedChecker = Convert.ToDecimal(Table.DefaultView[0][@"AppliedOTLimit"].ToString());
+                                decimal MinValue = Math.Min(AppliedChecker, TargetOT);
+                                dr["StandardOT"] = MinValue;
+                            }
+                            else if (SelectedOT=="2")
+                            {
+                                dr["StandardOT"] = TargetOT;
+                            }                           
+
+                            #endregion
+
+                            #region Extra OT
+
+                                decimal StdOT = Convert.ToDecimal(Table.DefaultView[0][@"StandardOT"].ToString());
+                                decimal ExtraOT = Convert.ToDecimal(TargetOT - StdOT);
+                                if (ExtraOT >= 0)
+                                {
+                                    dr.BeginEdit();
+                                    dr["AdditionalOT"] = ExtraOT;
+                                    dr.EndEdit();
+                                }
+                            #endregion
+                            
+                        }                       
 
                         MinDate = MinDate.AddDays(1);
                     }
@@ -301,6 +371,23 @@ namespace Library.HumanResource.NewAttendanceProcess
 
         }
 
+        public void MonthlyConfirmedOT(out DataTable ds, string OTWeek, string Date)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"select EmpSystemID,Isnull(Sum(StandardOT),'0')MonthlyConfirmedOT
+                from AttdnProcessData where OTMonth=Month('"+Date+@"') and OTYear=Year('"+Date+@"')
+                and OTWeek<>'" + OTWeek+@"' and ISNULL(daystatus,'')!='' AND IsOTComfirm=1
+                group by EmpSystemID";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataTableThroughAdapter(sql, out ds);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
 
     }
 }
