@@ -64,6 +64,8 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
     $scope.OTLimit = null;
     $scope.DSApp = null;
 
+    $scope.SelectedOT = null;
+
     //Day Status
 
     $scope.DayStatus
@@ -134,6 +136,12 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
     }
 
     $scope.ProcessAll = function () {
+
+        if (angular.isUndefinedOrNull($scope.SelectedOT)) {
+            ShowResult('Please Select OT Type!', 'failure');
+            throw ('Invalid Request');
+        }
+
         var ProcArr = [];
         for (var i = 0; i < $scope.Data.length; i++) {
             ProcArr.push({
@@ -149,7 +157,7 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
         $http({
             method: 'POST',
             url: $scope.path + 'ProcessData',
-            data: { 'Data': Proc, 'OTWeek': $scope.Week},
+            data: { 'Data': Proc, 'OTWeek': $scope.Week, 'SelectedOT' : $scope.SelectedOT},
         }).then(function succ(resp) {
             if (resp.data.Error === true) {
                 ShowResult(resp.data.Message, 'failure');
@@ -160,5 +168,6 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
 
         })
     }
-   
+
+   // 2 - TotalOTHours  || 1 - AllowedOT
 }
