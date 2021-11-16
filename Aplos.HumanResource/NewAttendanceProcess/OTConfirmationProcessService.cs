@@ -213,6 +213,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     string ApplicableWM = Table.DefaultView[j][@"ApplicableWM"].ToString();
                                     if (ApplicableWM == "W")
                                     {
+                                        // Sum Up the StandardOT
                                         int StandardOT = Convert.ToInt32(Table.DefaultView[j][@"StandardOT"].ToString());
                                         StandardOTMaster += StandardOT;
                                     }
@@ -224,16 +225,54 @@ namespace Library.HumanResource.NewAttendanceProcess
                             {
                                 int TargetOT = Convert.ToInt32(Table.DefaultView[0][@"TargetOT"].ToString());
                                 int DailyLimit = Convert.ToInt32(Table.DefaultView[0][@"DailyLimit"].ToString());
-                                if (DailyLimit == 0)
+                                int WeekLimit = Convert.ToInt32(Table.DefaultView[0][@"WeekLimit"].ToString());
+                                int PlanOT = Convert.ToInt32(Table.DefaultView[0][@"PlanOT"].ToString());
+
+                                #region AllowedOT Limit  
+
+                                if (DailyLimit == 0) // Say If DayType is W Or H 
+                                {     
+                                    // Entire Target OT In Additional OT && Standard OT ->0               
+                                    DataRow dr = Table.DefaultView[0].Row;
+                                    dr.BeginEdit();
+                                    dr["AllowedOTLimit"] = 0;
+                                    dr.EndEdit();                                    
+                                }
+
+                                string WkDateApplicableWM = Table.DefaultView[0][@"ApplicableWM"].ToString();
+                                if (WkDateApplicableWM == "W")
+                                {
+                                    // Min of Balance Limit of Week & DailyLimit
+                                    int BalanceWeekLimit = WeekLimit - StandardOTMaster;
+                                    int SmallerValue= Math.Min(BalanceWeekLimit, DailyLimit);
+                                    
+                                    DataRow dr = Table.DefaultView[0].Row;
+                                    dr.BeginEdit();
+                                    dr["AllowedOTLimit"] = SmallerValue;
+                                    dr.EndEdit();
+                                }
+
+                                #endregion
+
+                                #region AppliedOTLimit Calculation
+
+                                if (PlanOT>0)
                                 {
                                     DataRow dr = Table.DefaultView[0].Row;
                                     dr.BeginEdit();
-
-                                    dr["StandardOT"] = 0;
-                                    dr["AdditionalOT"] = TargetOT;
-                                    dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                    dr.EndEdit();                                    
+                                    dr["AppliedOTLimit"] = PlanOT;
+                                    dr.EndEdit();
                                 }
+                                else
+                                {
+                                    int Allowed = Convert.ToInt32(Table.DefaultView[0][@"AllowedOTLimit"].ToString());
+                                    DataRow dr = Table.DefaultView[0].Row;
+                                    dr.BeginEdit();
+                                    dr["AppliedOTLimit"] = Allowed;
+                                    dr.EndEdit();
+                                }
+
+                                #endregion
 
                             }
 
