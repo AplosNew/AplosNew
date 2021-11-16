@@ -57,7 +57,7 @@
     <div ng-form name="BulletinForm">
         <div class="col-xs-12 col-sm-4 col-md-4">
             <div class="form-group">
-                <label class="col-sm-4 control-label">Upload Picture</label>
+                <label class="col-sm-4 control-label">Picture</label>
                 <div class="col-sm-8">
                     <img id="uploadSigsrc" ng-src="{{PicFileName}}" style="border: 1px dashed; height: 150px; width: 140px;" />
                     <div id="UploadDefault" e-dialogtext-title="Product Picture" e-autoupload="true" e-begin="onBeginPBUpload" e-filesize="2097152" ej-uploadbox e-saveurl="uploadPBUrl" e-multiplefilesselection="false" e-success="getFileList" e-extensionsallow=".jpg,.bmp,.png,.jpeg" e-error="errorPBPicUpload"></div>
@@ -88,7 +88,19 @@
                     </div>
                 </div>
             </div>
-
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Tagged PrO</label>
+                <div class="col-sm-8">
+                    @*<a style="text-decoration:underline;color:blue; cursor:pointer;" ng-click="GetProdBulletinInfo();">{{bulletinTemplateNew.PBCount}}</a>*@
+                    <ul class="list-inline action-list">
+                        <li>
+                            <button ng-click="GetProdBulletinInfo()" style="text-decoration:underline; cursor:pointer;" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Tagged PrO">
+                                {{bulletinTemplateNew.PBCount}}
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
         <div class="col-xs-12 col-sm-4 col-md-4">
             <div class="form-group" show-errors>
@@ -269,7 +281,7 @@
                             <div e-column e-template="#Sequence" e-headertext="Sequence" e-width="50" style="height: 20px;"></div>
                             <div e-column e-field="OperationVariation" e-headertext="Operation Variation" e-width="110" style="height: 20px;"></div>
                             <div e-column e-headertext="Machine" e-width="40">
-                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;" class="btn"><i class="glyphicon glyphicon-search" ng-click="$parent.openMachinePopup($event);" style="margin: -6px;"></i></button>
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;" ng-disabled="data.MachineName==null" class="btn"><i class="glyphicon glyphicon-list" ng-click="$parent.openMachinePopup($event);" style="margin: -6px;"></i></button>
                             </div>
                             <div e-column e-field="MachineName" e-headertext="Machine Name" e-width="80" style="height: 20px;"></div>
                             <div e-column e-type="numeric" e-format="{0:0.00}" e-field="OperationSPT" e-headertext="Operation SPT" e-width="50" style="height: 20px;"></div>
@@ -659,11 +671,11 @@
             <div e-column e-field="BuyerItemRefNo" e-headertext="Buyer Style RefNo" e-width="50"></div>
             <div e-column e-field="OwnStyleRefNo" e-headertext="Own Style RefNo" e-width="50"></div>
             <div e-column e-field="Process" e-headertext="Process" e-width="80"></div>
+            <div e-column e-field="PBCount" e-headertext="Tagged PrO" e-width="30" e-textalign="center"></div>
+            <div e-column e-template="#PBCounts" e-headertext="Tagged PrO" e-width="30" e-textalign="center"></div>
             <div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="250"></div>
-
         </div>
         <script type="text/template" id="ShowActionButtonsBOM">
-
             <ul class="common-btn list-inline text-left">
                 <li>
                     <div ej-tooltip e-showshadow="true" e-content="Detail" ng-click="$parent.onClickExcelPrints(this);" e-width="width">
@@ -696,7 +708,18 @@
                     </ul>
                 </li>
             </ul>
-
+        </script>
+        <script type="text/template" id="PBCounts">
+            @*<div class="text-right" style="width:100%">
+            <a style="text-decoration:underline;color:blue; cursor:pointer;" ng-click="$parent.GetProductionBulletinInfo(data);">{{data.PBCount}}</a>
+        </div>*@
+            <ul class="list-inline action-list">
+                <li>
+                    <button ng-click="$parent.GetProductionBulletinInfo(data);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Tagged PrO">
+                        <i class="glyphicon glyphicon-list"></i>
+                    </button>
+                </li>
+            </ul>
         </script>
     </div>
 
@@ -1779,4 +1802,36 @@
     <div class="bounce3"></div>
 </div>
 
+<div class="modal site-modal in" id="POItemPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Production Order<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body text-center">
+                <div style="color:black;" id="POItemGrid" ej-grid e-datasource="SOItemList" e-allowscrolling="true" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                    e-allowResizing="true" e-allowselection="true" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-field="POId" e-headertext="Production OrderNo" e-width="80"></div>
+                        <div e-column e-field="BuyerOrder" e-headertext="Buyer Ord#" e-width="80"></div>
+                        <div e-column e-field="OwnOrder" e-headertext="Own Ord#" e-width="80"></div>
+                        <div e-column e-field="Description" e-headertext="Description" e-width="80" e-textalign="right"></div>
+                        <div e-column e-field="Qty" e-headertext="Qty" e-width="80"></div>
+                        <div e-column e-field="LSD" e-headertext="LSD" e-width="80"></div>
+                        <div e-column e-field="CommitmentDate" e-headertext="Commitment Date" e-width="80"></div>
+                        <div e-column e-field="ProductionStatus" e-headertext="Production Status" e-width="80"></div>
+                        <div e-column e-field="BuyerItem" e-headertext="Buyer Item#" e-width="80"></div>
+                        <div e-column e-field="OwnItem" e-headertext="Own Item#" e-width="80"></div>
+                        <div e-column e-field="SONo" e-headertext="SoNo" e-width="100"></div>
+                        <div e-column e-field="ProductCategory" e-headertext="Product Category" e-width="80"></div>
+                        <div e-column e-field="Product" e-headertext="Product" e-width="80"></div>
+                        <div e-column e-field="Customer" e-headertext="Customer" e-width="80"></div>
+                        <div e-column e-field="Buyer" e-headertext="Buyer" e-width="80"></div>
+                        <div e-column e-field="PONumber" e-headertext="PO Number" e-width="80"></div>
+                        <div e-column e-field="RequiredTimeUnit" e-headertext="Required Time Unit" e-width="80"></div>
 
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>

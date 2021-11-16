@@ -53,7 +53,8 @@ function bulletinTemplateController(cboService, commonMessage, $scope, $rootScop
         AlternativeName: null,
         ByWhom: null,
         ProductMasterId: null,
-        SizeGroupId: null
+        SizeGroupId: null,
+        PBCount: 0
     };
     $scope.bulletinTemplateNew = Object.assign({}, $scope.bulletinTemplate);
 
@@ -388,6 +389,7 @@ function bulletinTemplateController(cboService, commonMessage, $scope, $rootScop
         $scope.machineOperationList = [];
         $scope.BulletinTemplateMasterId = null;
         $scope.PicFileName = virtualPath.BulletinTemplateImage + '';
+        $scope.bulletinTemplateNew.PBCount= 0;
     }
 
     // #endregion bulletinTemplate
@@ -1380,7 +1382,7 @@ function bulletinTemplateController(cboService, commonMessage, $scope, $rootScop
             ob.ProductionEfficiencyPerDay = (ob.ProductionEfficiencyPerHour * $scope.PlannedHoursPerDay).toFixed(2);
             ob.LineTargetPerHour = (ob.ProductionEfficiencyPerHour * ob.OrganizationEfficiency).toFixed(2);
 
-           // ((totalMP * 60) / totalspt) * ((totalspt / totalMP) / ob.MaxAllottedTime)
+            // ((totalMP * 60) / totalspt) * ((totalspt / totalMP) / ob.MaxAllottedTime)
 
             $scope.PitchTime = pitchTime;
             $scope.MaxAllottedTime = avgat;
@@ -2550,4 +2552,37 @@ function bulletinTemplateController(cboService, commonMessage, $scope, $rootScop
     };
 
     //#endregion MultiOperationCode
+
+    $scope.SOItemList = [];
+    $scope.GetProductionBulletinInfo = function (obj) {
+        $scope.SOItemList = [];
+        $http.get('IE/BulletinTemplate/GetProductionBulletinInfo?Id=' + obj.Id)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.SOItemList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+        angular.element(document.querySelector('#POItemPopup')).modal('show');
+    };
+
+    $scope.GetProdBulletinInfo = function () {
+        $scope.SOItemList = [];
+        $http.get('IE/BulletinTemplate/GetProductionBulletinInfo?Id=' + $scope.bulletinTemplateNew.Id)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.SOItemList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+        angular.element(document.querySelector('#POItemPopup')).modal('show');
+    };
+
+
 }
