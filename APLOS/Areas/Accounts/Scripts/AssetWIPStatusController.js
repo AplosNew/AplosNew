@@ -324,4 +324,49 @@ function AssetWIPStatusController(commonMessage, $scope, $rootScope, $filter, $h
         $window.open('Accounts/InventoryPayable/PabyableJournal?' + '&reportFormat=' + reportFormat + '&inventoryReceiveId=' + data.GRNNo + '&employeeId=' + null + '&isReversCharge=' + false + '&isFoc=' + false);
     };
 
+
+    $scope.issueQtyList = [];
+    $scope.onIssueQtyPopUp = function (Data) {
+        $scope.SelectedLCRow = Data;
+
+        $http({
+            method: 'POST',
+            url: 'Accounts/VoucherReport/GetIssueQtyList',
+            data: { 'inventoryReceiveDetailId': Data.GRNNo  },
+            dataType: 'JSON'
+
+        })
+            .then(function successCallback(response) {
+                if (response.data.Error == false) {
+
+                    $scope.issueQtyList = response.data.Data;
+                }
+                else {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }),
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        $rootScope.openPopupAngular('IssueQtyPopup');
+    }
+        //$scope.summaryAC = [{
+        //    title: "Total :", summaryColumns: [
+        //        { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "AcceptanceValue", dataMember: "AcceptanceValue", format: "{0:N2}" }
+        //        , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "SetOffValue", dataMember: "SetOffValue", format: "{0:N2}" }],
+        //    showCaptionSummary: true
+
+        //}];
+
+    //$scope.PostedAUCList = [];
+    $scope.PostedAUCData = function (issueno) {
+        $window.open('Products/InventoryIssue/AssetIssueReport?grnId=' + issueno);
+    }
+    //$scope.PostedAUCData();
+
+    //$scope.PostedcommandPDF = [];
+    $scope.PostedcommandPDF = function (voucherNo) {
+        var reportFormat = "Pdf";
+        $window.open('FixedAssets/FixedAssetRegister/GetIssueFixedAssetCapitalizeJournalReport?reportFormat=' + reportFormat + '&voucherId=' + voucherNo, '_blank');
+    }
 }

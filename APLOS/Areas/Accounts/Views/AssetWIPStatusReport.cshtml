@@ -38,7 +38,7 @@
                 <div e-column e-type="text" e-field="BaseUOM" e-headertext="Base UOM" e-width="50" e-textalign="left" style="height: 20px;"></div>
                 <div e-column e-type="numeric" e-format="{0:0.0000}" e-field="BaseRate" e-headertext="Base Rate" e-width="100" e-textalign="right" style="height: 20px;"></div>
                 <div e-column e-type="numeric" e-format="{0:0.0000}" e-field="BooksAmount" e-headertext="Books Amount" e-width="100" e-textalign="right" style="height: 20px;"></div>
-                <div e-column e-type="numeric" e-format="{0:0.00}" e-field="IssueQty" e-headertext="Issue Qty" e-width="100" e-textalign="right" style="height: 20px;"></div>
+                <div e-column e-template="#templateIssueQty" e-type="numeric" e-format="{0:0.00}" e-field="IssueQty" e-headertext="Issue Qty" e-width="100" e-textalign="right" style="height: 20px;"></div>
 
             </div>
 
@@ -55,6 +55,12 @@
                 <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.onVoucherNoDownloadExcel(data);">{{data.VoucherNo}}</a>
             </div>
         </script>
+
+        <script type="text/template" id="templateIssueQty">
+            <div class="text-left" style="width:100%">
+                <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.onIssueQtyPopUp(data);">{{data.IssueQty | number:2 }}</a>
+            </div>
+        </script>
     </div>
 
 </div>
@@ -66,6 +72,48 @@
     </ul>
 </div>
 
-@Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")
-@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterPopUp.cshtml")
-@Html.Partial("~/Areas/FixedAssets/Views/_FixedAssetMasterPopUp.cshtml")
+
+
+<div class="modal fade site-modal in" id="IssueQtyPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">IssueQty<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="form-elements form-horizontal">
+                <div class="modal-body">
+                   
+                    <div class="row">
+                        <div style="color:black;" id="GridIssueQty" ej-grid e-datasource="issueQtyList"
+                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true" e-showsummary="true" @*e-summaryrows="summaryAC"*@
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-template="#templateIssueNo" e-type="string" e-field="IssueNo" e-headertext="Issue No." e-width="50"></div>
+                                <div e-column e-type="date" e-field="IssueDate" e-format="{0:dd-MMM-yyyy}" e-headertext="Issue Date" e-width="50"></div>
+                                <div e-column e-type="numeric" e-format="{0:0.0000}" e-field="Qty" e-headertext="Qty" e-width="100" e-textalign="right" style="height: 20px;"></div>
+                                <div e-column e-type="numeric" e-format="{0:0.0000}" e-field="Amount" e-headertext="Amount" e-width="100" e-textalign="right" style="height: 20px;"></div>
+                                <div e-column e-type="text" e-field="UOM" e-headertext="UoM" e-width="50" e-textalign="left" style="height: 20px;"></div>
+                                <div e-column e-template="#templateVoucherNo2" e-type="text" e-field="VoucherNo" e-headertext="Voucher No." e-width="100" e-textalign="right" style="height: 20px;"></div>onVoucherNoDownloadExcel
+                            </div>
+                        </div>
+                    </div>
+                    <script type="text/template" id="templateIssueNo">
+                        <div class="text-right" style="width:100%">
+                            <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.PostedAUCData(data.IssueNo);">
+                                {{data.IssueNo}}
+                                </a>
+                        </div>
+                    </script>
+
+                    <script type="text/template" id="templateVoucherNo2">
+                        <div class="text-right" style="width:100%">
+                            <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.PostedcommandPDF(data.VoucherId);">
+                                {{data.VoucherNo}}
+                            </a>
+                        </div>
+                    </script>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
