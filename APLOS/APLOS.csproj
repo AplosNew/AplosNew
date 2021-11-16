@@ -3846,7 +3846,6 @@
     <Content Include="Areas\Accounts\Views\AssetWIPStatusReport.cshtml" />
     <Content Include="Areas\HumanResource\Views\OTConfirmationProcess\Aplos.cshtml" />
     <Content Include="Areas\Employees\Views\EmployeeCodeType\Aplos.cshtml" />
-    <Content Include="Areas\FixedAssets\Views\_ViewStart.cshtml" />
     <Content Include="Areas\FixedAssets\Views\Shared\_Layout.cshtml" />
     <Content Include="Areas\FixedAssets\Views\FixedAssetsRegisterDisposeReport.cshtml" />
     <Content Include="Areas\Employees\Views\ResignationApprovalMultipleNew\Aplos.cshtml" />
