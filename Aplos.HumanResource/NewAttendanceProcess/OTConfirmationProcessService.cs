@@ -144,6 +144,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             {
                 List<Dictionary<string, object>> _objects = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(Data);
                 var StringDates = new List<DateTime>();
+                StringCollection StrDistinctEmployee = new StringCollection();
 
                 #region To Find Max & Min Date
 
@@ -172,8 +173,12 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 #endregion
 
-                StringCollection StrDistinctEmployee = new StringCollection();
+                #region Monthly Confirmed OT
 
+                DataTable MonthData;
+                MonthlyConfirmedOT(out MonthData,OTWeek, StringDates.Min(date => date).ToString("dd-MMM-yyyy"));
+
+                #endregion
 
                 for (int i = 0; i < Table.Rows.Count; i++)
                 {
@@ -248,7 +253,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 {
                                     // Min of Balance Limit of Week & DailyLimit
                                     decimal BalanceWeekLimit = WeekLimit - WeekStandardOTMaster;
-                                    decimal SmallerValue= Math.Min(BalanceWeekLimit, DayLimit);
+                                     decimal SmallerValue= Math.Min(BalanceWeekLimit, DayLimit);
                                     
                                     dr.BeginEdit();
                                     dr["AllowedOTLimit"] = SmallerValue;
@@ -294,11 +299,12 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                                 decimal StdOT = Convert.ToDecimal(Table.DefaultView[0][@"StandardOT"].ToString());
                                 decimal ExtraOT = Convert.ToDecimal(TargetOT - StdOT);
-
-                                dr.BeginEdit();
-                                dr["AdditionalOT"] = ExtraOT;
-                                dr.EndEdit();
-
+                                if (ExtraOT >= 0)
+                                {
+                                    dr.BeginEdit();
+                                    dr["AdditionalOT"] = ExtraOT;
+                                    dr.EndEdit();
+                                }
                             #endregion
                             
                         }                       
@@ -365,6 +371,23 @@ namespace Library.HumanResource.NewAttendanceProcess
 
         }
 
+        public void MonthlyConfirmedOT(out DataTable ds, string OTWeek, string Date)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"select EmpSystemID,Isnull(Sum(StandardOT),'0')MonthlyConfirmedOT
+                from AttdnProcessData where OTMonth=Month('"+Date+@"') and OTYear=Year('"+Date+@"')
+                and OTWeek<>'" + OTWeek+@"' and ISNULL(daystatus,'')!='' AND IsOTComfirm=1
+                group by EmpSystemID";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataTableThroughAdapter(sql, out ds);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
 
     }
 }
