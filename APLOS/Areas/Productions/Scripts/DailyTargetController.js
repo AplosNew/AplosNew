@@ -273,7 +273,7 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
         else {
             $scope.GetLineLayout(obj.data);
         }
-       
+
     };
     $scope.CopyTable = function (data) {
         try {
@@ -580,6 +580,15 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
     }
     $scope.ViewFixedAssetStatus = function (args) {
         try {
+
+            var exists = ej.DataManager($scope.nodes).executeLocal(ej.Query().where("id", "notEqual", $scope.selectednode.items[0].id));
+            for (var i = 0; i < exists.length; i++) {
+                if (exists[i].addInfo.FixedAssetRegisterId == args.data.Id) {
+                    ShowResult("Asset has already been tagged with another workstation", 'failure');
+                    return;
+                }
+            }
+
             $scope.selectednode.items[0].addInfo.FixedAssetRegisterId = args.data.Id;
             $scope.selectednode.items[0].addInfo.FixedAssetRegisterDesc = args.data.FixedAssetDesc;
 
@@ -650,7 +659,7 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
                 }
                 else {
                     if (_explicitSave)
-                    ShowResult(response.data.Message, 'success');
+                        ShowResult(response.data.Message, 'success');
 
                 }
             }), function errorCallBack(response) {
@@ -831,7 +840,7 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
 
     $scope.SaveProductionQuantity = function () {
         try {
-          
+
             $http({
                 method: "POST",
                 url: $scope.path + 'SaveProductionData',
