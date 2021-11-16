@@ -254,7 +254,94 @@ namespace OTSBD
                 objCon = null;
             }
         }//End Function  
+        public Dictionary<string, List<DataRow>> GetEmpLeaveInfoPaySlipNew(Dictionary<string, string> parameters, ParamList leavePara)
+        {
+            Dictionary<string, List<DataRow>> dicBonus = new Dictionary<string, List<DataRow>>();
+            var paraDate = Convert.ToDateTime(leavePara.FromDate);
 
+            DataSet dsRef = null;
+
+            var days = DateTime.DaysInMonth(paraDate.Year, paraDate.Month);//Number of Days in a month
+            string monthNameString = CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(paraDate.Month);//Month Name from Month No
+            var lastDate = days + "-" + monthNameString + "-" + paraDate.Year;
+            var firstDate = "1" + "-" + monthNameString + "-" + paraDate.Year;
+
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            clsStaticInfo obs = null;
+            try
+            {
+                obs = new clsStaticInfo();
+                //          strSql = @"select  (E.SystemId+''+LT.Code)EmpLTCode, E.SystemId EmpSystemID ,LT.Code,LT.LeaveType
+                // ,ISNULL(sum(LTD.LeaveDuration),0) AS AvailedLeave,lb.Balance AS BalanceLeave,lb.Id AS BalanceId
+                // from employeeInformation E
+                // left join LeaveType LT ON 1=1
+                // left JOIN LeaveBalance AS lb ON lb.EmpSystemId=e.SystemId AND lb.LTSystemId=lt.Id
+                // LEFT join LeaveTransaction LTR  ON E.SystemId = LTR.EmpSystemID and LTR.LTSystemID=LT.Id  and LTR.IsApproved=1
+                // Left join LeaveTransactionDetails LTD on LTD.LvTrnsSystemID =LTR.SystemID AND LTd.WorkDate BETWEEN   '" + leavePara.FromDate + @"' AND  '" + leavePara.ToDate + @"'  AND  LTD.IsAvailed = 1
+                // where e.SystemId IN (" + parameters["EmpSystemId"] + @")
+                //group BY lb.Id, lb.Balance, E.SystemId,LT.Id,LT.Code,LT.LeaveType order by E.SystemId";
+
+                strSql = @"
+                            SELECT  Ei.SystemID AS EmpSystemID, lt.Id AS LeaveTypeId,lt.Code, lt.Sequence,lt.LeaveType,
+                                CASE WHEN EncashWorkingDaysQty>0 THEN CONVERT(DECIMAL(18,4), EncashEarnLeaveQty)/CONVERT(DECIMAL(18,4),EncashWorkingDaysQty) ELSE 0 END * SUM(l.EarnValue) ActualEarnedLeave,
+                               SUM(L.AvailedValue) AS AvailedLeave,0 AS Balance,NULL AS BalanceId,
+                                'CUR' AS TransactionType
+						
+							 FROM 
+							 EmployeeInformation AS ei
+								LEFT JOIN LeaveType AS lt ON 1=1
+							    LEFT JOIN AttdnProcessData AS apd   ON lt.Id=apd.LTSystemID  AND apd.EmpSystemID=ei.SystemId
+								AND  apd.WorkDate BETWEEN   '" + leavePara.FromDate + @"' AND  '" + leavePara.ToDate + @"'
+
+                                LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
+                                LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
+                                LEFT JOIN mst.DesignationMaster AS dm ON dm.Id=dmc.DesignationMasterId
+                                LEFT JOIN DayStatusPlantChild PC ON pc.PlantId=apd.PlantId AND pc.EmpTypeId=dm.EmployeeCategoryId
+                                left JOIN DayTypeWithValues AS ds ON ds.DayType=lt.Code AND ds.HeaderId=pc.HeaderId
+                                LEFT JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id AND l.LeaveTypeId=lt.Id
+
+                                 LEFT JOIN LeavePolicyDetail AS lpd ON lpd.LPMSystemID=dmc.LeavePolicyMasterId AND lpd.LTSystemID=lt.Id
+                                 
+                                WHERE Ei.SystemID IN (" + parameters["EmpSystemId"] + @")
+                                 GROUP BY lt.LeaveType,Ei.SystemID, lt.Sequence,lt.Id,lt.Code,EncashWorkingDaysQty,EncashEarnLeaveQty
+                                ORDER BY Ei.SystemID,lt.Sequence";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+
+                List<DataRow> _data = new List<DataRow>();
+                string empId = "";
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    try
+                    {
+                        if (empId != dsRef.Tables[0].Rows[i]["EmpSystemID"].ToString())
+                        {
+                            _data = new List<DataRow>();
+                            dicBonus.Add(dsRef.Tables[0].Rows[i]["EmpSystemID"].ToString(), _data);
+                        }
+                        _data.Add(dsRef.Tables[0].Rows[i]);
+
+                        empId = dsRef.Tables[0].Rows[i]["EmpSystemID"].ToString();
+                    }
+                    catch (Exception ex)
+                    {
+                        throw ex;
+                    }
+                }
+                return dicBonus;
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function  
+   
         public void SelectedPlant(string sPlantID, out DataSet dsRef)
         {
             ConnectionManager.DAL.ConManager objCon;

@@ -10296,7 +10296,7 @@ namespace Library.HumanResource.Payroll
                     int empDetailFirstXlsRow = 0;
 
                     int empPaySlipDetailXlsRow = 0;
-                    Dictionary<string, List<DataRow>> dicLeaveEmp = objRpt.GetEmpLeaveInfoPaySlipSaad(parameters, para);
+                    Dictionary<string, List<DataRow>> dicLeaveEmp = objRpt.GetEmpLeaveInfoPaySlipNew(parameters, para);
                     xlsRow = startRow;
 
 
@@ -10645,22 +10645,22 @@ namespace Library.HumanResource.Payroll
                             _ld = dtEmpInfo.Rows[i]["TotalLv"].ToString();
 
 
-                            if (!String.IsNullOrEmpty(dtEmpInfo.Rows[i]["WorkingDaysInAMonth"].ToString().ToUpper()))
-                            {
-                                if (dtEmpInfo.Rows[i]["WorkingDaysInAMonth"].ToString().ToUpper() == WorkingDaysInAMonth.ExcludingWeekOffAndHoliday.ToString().ToUpper())
-                                {
-                                    PDay = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalProcDate"].ToString()) - clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalAbsent"].ToString()) - clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalHoliDay"].ToString()) - clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalWeekOff"].ToString());
-                                }
-                                if (dtEmpInfo.Rows[i]["WorkingDaysInAMonth"].ToString().ToUpper() == WorkingDaysInAMonth.ExcludingWeekOff.ToString().ToUpper())
-                                {
-                                    PDay = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalProcDate"].ToString()) - clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalAbsent"].ToString()) - clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalWeekOff"].ToString());
-                                }
-                            }
-                            else
-                            {
-                                PDay = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalProcDate"].ToString()) - clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalAbsent"].ToString());
-                            }
-
+                            //if (!String.IsNullOrEmpty(dtEmpInfo.Rows[i]["WorkingDaysInAMonth"].ToString().ToUpper()))
+                            //{
+                            //    if (dtEmpInfo.Rows[i]["WorkingDaysInAMonth"].ToString().ToUpper() == WorkingDaysInAMonth.ExcludingWeekOffAndHoliday.ToString().ToUpper())
+                            //    {
+                            //        PDay = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalProcDate"].ToString()) - clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalAbsent"].ToString()) - clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalHoliDay"].ToString()) - clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalWeekOff"].ToString());
+                            //    }
+                            //    if (dtEmpInfo.Rows[i]["WorkingDaysInAMonth"].ToString().ToUpper() == WorkingDaysInAMonth.ExcludingWeekOff.ToString().ToUpper())
+                            //    {
+                            //        PDay = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalProcDate"].ToString()) - clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalAbsent"].ToString()) - clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalWeekOff"].ToString());
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    PDay = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalProcDate"].ToString()) - clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalAbsent"].ToString());
+                            //}
+                            PDay = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalPayDay"].ToString());
 
                             sheet1.Range[xlsRow, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.WorkDaysDetail.ToString(), "Work Days Detail"); //"Attendance Info";
                             sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
@@ -10677,7 +10677,7 @@ namespace Library.HumanResource.Payroll
 
                             _x++;
                             sheet1.Range[xlsRow + _x, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.Absent.ToString(), "Absent"); // "Absent";
-                            sheet1.Range[xlsRow + _x, xlsCol + 1].Number = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalAbsent"].ToString()) - clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalLWP"].ToString());
+                            sheet1.Range[xlsRow + _x, xlsCol + 1].Number = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalAbsent"].ToString()); //- clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalLWP"].ToString());
                             //GetEarningDays(ref DeductingDays, _ad);
                             //GetEarningDays(ref EarningDays, _ad);
 
@@ -10696,8 +10696,8 @@ namespace Library.HumanResource.Payroll
 
                             //GetEarningDays(ref EarningDays, _wod);
                             _x++;
-                            sheet1.Range[xlsRow + _x, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.LeaveInformation.ToString(), "Leave");//"Leave";
-                            sheet1.Range[xlsRow + _x, xlsCol + 1].Number = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalLv"].ToString());
+                            sheet1.Range[xlsRow + _x, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.LeaveInformation.ToString(), "LeaveWithPay");//"Leave";
+                            sheet1.Range[xlsRow + _x, xlsCol + 1].Number = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalLVWithPay"].ToString());
 
 
                             sheet1.Range[xlsRow + _x, xlsCol + 1].CellStyle.Font.Size = 10;
@@ -14823,10 +14823,10 @@ INNER JOIN
                                     INNER JOIN
 		                                    (
 													SELECT EmpSystemID,MonthNo,YearNo, ISNULL(TotalProcDate,0) TotalProcDate,IsNULL(TotalPresent,0) TotalPresent,ISNULL(TotalLate,0) TotalLate,ISNULL(TotalAbsent,'') TotalAbsent
-										,ISNULL(TotalLv,0) TotalLv
+										,ISNULL(TotalLv,0) TotalLv,isnull(MMDSA.TotalPayDay,0) AS TotalPayDay
 										,ISNULL(TotalMLv,0) TotalMLv,ISNULL(TotalCompAssignLv,0) TotalCompAssignLv,ISNULL(TotalWeekOff,0) +  ISNULL(TotalWeekOffHoliDay,0) TotalWeekOff, ISNULL(TotalWeekOffHoliDay,0) TotalWeekOffHoliDay
 										,ISNULL(TotalOTHr,0) TotalOTHr,ISNULL(TotalNormalOTHr,0) TotalNormalOTHr,ISNULL(TotalExtraOTHr,0) TotalExtraOTHr,ISNULL(WeekOffOTHr,0) WeekOffOTHr
-										,ISNULL(HoliDayOTHr,0) HoliDayOTHr,ISNULL(TotalLWP,0) TotalLWP,ISNULL(IsOTEntitled,0) IsOTEntitled,ISNULL(OTRate,0) OTRate,ISNULL(TotalHoliDay,0) TotalHoliDay
+										,ISNULL(HoliDayOTHr,0) HoliDayOTHr,ISNULL(TotalLWP,0) TotalLWP,ISNULL(TotalLVWithPay,0) TotalLVWithPay,ISNULL(IsOTEntitled,0) IsOTEntitled,ISNULL(OTRate,0) OTRate,ISNULL(TotalHoliDay,0) TotalHoliDay
 										  FROM SalaryProceAttdnData MMDSA where MMDSA.MonthNo = MONTH('" + fromDate + @"') AND
 						                               MMDSA.YearNo = YEAR('" + fromDate + @"') 
 											) MMDSA ON EmpBasic.EmpSystemID = MMDSA.EmpSystemID 

@@ -145,7 +145,7 @@
             controller: 'paySlipsController'
         })
         .when('/pay-slip-new', {
-            templateUrl: 'payrolls/payslips/PaySlipNew',
+            templateUrl: 'payrolls/payslipsnew/PaySlipsNew',
             controller: 'paySlipsNewController'
         })
         .when('/attdn-slip', {
