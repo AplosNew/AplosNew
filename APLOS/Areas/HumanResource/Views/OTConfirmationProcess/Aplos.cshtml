@@ -173,12 +173,29 @@
         <input type="number" ng-model="data.PlanOT" style="color:black; text-align:center" />
     </script>
 </div>
-<div class="row">
-    <div class="common-btn" style="margin:10px;">
-        <ul class="common-btn list-inline text-right">
-            <li><button ng-click="ProcessAll()" class="btn "><i class="glyphicon glyphicon-arrow-down"></i> Process </button></li>
-        </ul>
+<div class="row" style="margin:10px;">
+    <div class="col-md-6 col-lg-6 col-sm-12">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Select OT Type</label>
+            <div class="col-sm-6 ">
+                <div class="select-style">
+                    <select id="OTWApp" class="form-control" ng-model="SelectedOT" name="SelectedOT" tabindex="1">
+                        <option value="">-Select-</option>
+                        <option Value="1">Allowed OT</option>
+                        <option Value="2">Target OT >=</option>
+                    </select>
+                </div>
+            </div>
+        </div>
     </div>
+    <div class="col-md-6 col-lg-12 col-sm-12">
+        <div class="common-btn" >
+            <ul class="common-btn list-inline text-right">
+                <li><button ng-click="ProcessAll()" class="btn " id="ChkBtn"><i class="glyphicon glyphicon-arrow-down"></i> Process </button></li>
+            </ul>
+        </div>
+    </div>
+    
 </div>
 
 @* The Modals for the page *@

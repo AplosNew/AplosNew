@@ -472,7 +472,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 //
 
                 clsStaticInfo _info = new clsStaticInfo();
-                //_info.SaveDataSets(dsMaster, dsMaster1);
+                _info.SaveDataSets(dsMaster, dsMaster1);
                 return Header;
             }
             catch (Exception e)

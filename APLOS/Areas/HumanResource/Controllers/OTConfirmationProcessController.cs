@@ -53,11 +53,11 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost , Authorize]
-        public ActionResult ProcessData(string Data,string OTWeek)
+        public ActionResult ProcessData(string Data,string OTWeek , string SelectedOT)
         {
             try
             {
-                ot.ProcessData(Data, OTWeek);             
+                ot.ProcessData(Data, OTWeek , SelectedOT);             
             }
             catch (Exception ex)
             {
