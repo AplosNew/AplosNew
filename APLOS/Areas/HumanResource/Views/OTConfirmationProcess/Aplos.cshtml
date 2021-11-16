@@ -174,11 +174,31 @@
     </script>
 </div>
 <div class="row">
-    <div class="common-btn" style="margin:10px;">
-        <ul class="common-btn list-inline text-right">
-            <li><button ng-click="ProcessAll()" class="btn "><i class="glyphicon glyphicon-arrow-down"></i> Process </button></li>
-        </ul>
+    <div class="col-md-6 col-lg-6 col-sm-12">
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Process Filter</label>
+            <div class="col-sm-6 ">
+                <div class="select-style">
+                    <select id="OTWApp" class="form-control" ng-model="Process" name="ProcessOT" tabindex="1">
+                        <option value="">-Select-</option>
+                        <option Value="ProcessedOT<=">Process OT <=</option>
+                        <option Value="ProcessedOT>=">Process OT >=</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-4 control-label">
+                <input type="text" onkeypress="return isNumber(event)" ng-model="ProcessValue" class="form-control" maxlength="100" tabindex="2">
+            </div>
+        </div>
     </div>
+    <div class="col-md-6 col-lg-12 col-sm-12">
+        <div class="common-btn" style="margin:10px;">
+            <ul class="common-btn list-inline text-right">
+                <li><button ng-click="ProcessAll()" class="btn "><i class="glyphicon glyphicon-arrow-down"></i> Process </button></li>
+            </ul>
+        </div>
+    </div>
+    
 </div>
 
 @* The Modals for the page *@
