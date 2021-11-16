@@ -160,5 +160,5 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
 
         })
     }
-   
+   // 2 - TotalOTHours  || 1 - AllowedOT
 }
