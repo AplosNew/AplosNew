@@ -1712,12 +1712,12 @@ function employeeInformationController(addressService, fileReader, cboService, c
             throw "Reference Employee cell is required.";
         }
 
-        //if ($scope.IsResidenceGroupMandatory === true && baseService.isUndefinedOrNull($scope.employeeNew.ResidenceGroupId)) {
-        //    throw "Residence Group is required.";
-        //}
-        //if ($scope.IsTransportGroupMandatory === true && baseService.isUndefinedOrNull($scope.employeeNew.TransportGroupId)) {
-        //    throw "Transport Group is required.";
-        //}
+        if ($scope.IsResidenceGroupMandatory === true && baseService.isUndefinedOrNull($scope.employeeNew.ResidenceGroupId)) {
+            throw "Residence Group is required.";
+        }
+        if ($scope.IsTransportGroupMandatory === true && baseService.isUndefinedOrNull($scope.employeeNew.TransportGroupId)) {
+            throw "Transport Group is required.";
+        }
     }
 
 
