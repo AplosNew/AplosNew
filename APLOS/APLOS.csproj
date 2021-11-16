@@ -500,6 +500,7 @@
     <Compile Include="Areas\Employees\Controllers\CompensatoryOffNewController.cs" />
     <Compile Include="Areas\Employees\Controllers\ResidenceGroupController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmployeeCodeTypeController.cs" />
+    <Compile Include="Areas\Employees\Controllers\ResignationApprovalMultipleNewController.cs" />
     <Compile Include="Areas\Employees\Controllers\TransportGroupController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmpActiveInActiveNewController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmployeeInFoReportController.cs" />
@@ -669,6 +670,7 @@
     <Compile Include="Areas\IssueTracker\IssueTrackerAreaRegistration.cs" />
     <Compile Include="Areas\JobWork\Controllers\JWValueAddedContractController.cs" />
     <Compile Include="Areas\JobWork\Controllers\JobWorkTransformationPOController.cs" />
+    <Compile Include="Areas\JobWork\Controllers\JWIssueReturnController.cs" />
     <Compile Include="Areas\JobWork\JobWorkRegistration.cs" />
     <Compile Include="Areas\Outsourcing\Controllers\OSIssueRegisterController.cs" />
     <Compile Include="Areas\Outsourcing\Controllers\JobWorkActivityController.cs" />
@@ -775,6 +777,7 @@
     <Compile Include="Areas\Payrolls\Controllers\NoticePeriodSettingController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\CompanyProvidentFundStatementReportController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\EmployeeAdvanceDeductionController.cs" />
+    <Compile Include="Areas\Payrolls\Controllers\PaySlipsNewController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\SalaryProcessNewController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\SalaryProcessOtherStatusNewController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\TaxOBController.cs" />
@@ -1778,6 +1781,7 @@
     <Content Include="Areas\Employees\Scripts\EmployeeCodeGenerationController.js" />
     <Content Include="Areas\Employees\Scripts\AccountsGroupController.js" />
     <Content Include="Areas\Employees\Scripts\CompensatoryOffNewController.js" />
+    <Content Include="Areas\Employees\Scripts\multipleResignationApprovalNewController.js" />
     <Content Include="Areas\Employees\Scripts\ResidenceGroupController.js" />
     <Content Include="Areas\Employees\Scripts\EmployeeCodeTypeController.js" />
     <Content Include="Areas\Employees\Scripts\TransportGroupController.js" />
@@ -1943,6 +1947,7 @@
     <Content Include="Areas\JobWork\Scripts\JobWorkConfig.js" />
     <Content Include="Areas\JobWork\Scripts\JWValueAddedContractController.js" />
     <Content Include="Areas\JobWork\Scripts\JobWorkTransformationPOController.js" />
+    <Content Include="Areas\JobWork\Scripts\JWIssueReturnController.js" />
     <Content Include="Areas\Outsourcing\Scripts\OSissueRegisterController.js" />
     <Content Include="Areas\Outsourcing\Scripts\jobWorkActivityController.js" />
     <Content Include="Areas\Outsourcing\Scripts\JobWorkIssueReturnConfirmationController.js" />
@@ -2031,6 +2036,7 @@
     <Content Include="Areas\Payrolls\Scripts\paySlipsContractorController.js" />
     <Content Include="Areas\Payrolls\Scripts\CompanyProvidentFundStatementReportController.js" />
     <Content Include="Areas\Payrolls\Scripts\EmployeeAdvanceDeductionController.js" />
+    <Content Include="Areas\Payrolls\Scripts\paySlipsNewController.js" />
     <Content Include="Areas\Payrolls\Scripts\SalaryProcessNewController.js" />
     <Content Include="Areas\Payrolls\Scripts\SalaryProcessOtherStatusNewController.js" />
     <Content Include="Areas\Payrolls\Scripts\TaxOBController.js" />
@@ -3842,9 +3848,10 @@
     <Content Include="Areas\Accounts\Views\AssetWIPStatusReport.cshtml" />
     <Content Include="Areas\HumanResource\Views\OTConfirmationProcess\Aplos.cshtml" />
     <Content Include="Areas\Employees\Views\EmployeeCodeType\Aplos.cshtml" />
-    <Content Include="Areas\FixedAssets\Views\_ViewStart.cshtml" />
     <Content Include="Areas\FixedAssets\Views\Shared\_Layout.cshtml" />
-    <Content Include="Areas\FixedAssets\Views\FixedAssetsRegisterDisposedReport.cshtml" />
+    <Content Include="Areas\FixedAssets\Views\FixedAssetsRegisterDisposeReport.cshtml" />
+    <Content Include="Areas\Employees\Views\ResignationApprovalMultipleNew\Aplos.cshtml" />
+    <Content Include="Areas\Payrolls\Views\PaySlips\PaySlipNew.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

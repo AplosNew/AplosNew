@@ -3716,10 +3716,22 @@ GROUP BY FAR.FABudgetMasterId
                                      --AND MM.IsAsset in ()  ";
             return _sqlRepository.GetDataTable(sql);
         }
-        private DataTable GetRegisterDisposedReportData(string companyGroupId, string companyId, string plantId, string MaterialMasterId, string MaterialMasterArticleId, string fixedAssetMasterId, string vendorId)
+        private DataTable GetRegisterDisposedReportData(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string nonPosted, string posted, string DisposeStatus)
         {
             var sql = "";
-
+            var Posted = 0;
+            if (nonPosted == "true")
+            {
+                Posted = 1;
+            }
+            if (posted == "true")
+            {
+                Posted = 0;
+            }
+            if (posted == "true" && nonPosted == "true")
+            {
+                Posted = 2;
+            }
             //if (PartyType == "All")
             //{
             sql = @"SELECT FR.SerialNo, FR.Id AssetNo,  e.UserName Entity, D.UserName Department, FR.Model
@@ -3746,6 +3758,8 @@ GROUP BY FAR.FABudgetMasterId
                 ,C.UserName OriginName
                 ,FR.YearOfInstallation,FR.Id,FR.Id AS FixedAssetRegisterId, FR.MaterialMasterArticleId, FR.MaterialMasterId
                 ,IR.Id GRNNo,IR.POId PONo , FADR.Description DepreciationRules
+                ,FR.Status,format( fard.DocDate,'dd-MMM-yyyy')DocDate,v.VoucherNo,fard.Id DisposalNo
+				,CASE WHEN fard.IsPark=0 THEN 'Posted' ELSE 'Non Posted' END PostingStatus
                 FROM [TRN].[FixedAssetRegister] FR
                 LEFT JOIN MST.MaterialMaster MM ON FR.MaterialMasterId=MM.Id
                 LEFT JOIN MST.MaterialMasterArticle MMA ON FR.MaterialMasterArticleId= MMA.Id
@@ -3763,7 +3777,9 @@ GROUP BY FAR.FABudgetMasterId
 				left join scs.Currency PC on PC.Id= FR.CurrencyId
 				left join scs.Currency BC on BC.Id= FR.FABaseCurrencyId
 				left join mst.FixedAssetDepreciationRule FADR ON FADR.Id = FR.DepreciationRuleId
-
+                LEFT JOIN TRN.FixedAssetRegisterDisposedDetail rdd ON rdd.FixedAssetRegisterId=FR.Id
+				LEFT JOIN TRN.FixedAssetRegisterDisposed fard ON rdd.FixedAssetRegisterDisposedId=fard.Id
+				LEFT JOIN TRN.Voucher V ON V.Id =fard.DisposedVoucherId
 	
                 LEFT JOIN(SELECT FixedAssetRegisterId,sum(isnull( Amount * CapitalizationRate,0)) SubAssetAmount 
 				FROM TRN.SubFixedAssetRegister 
@@ -3777,8 +3793,10 @@ GROUP BY FAR.FABudgetMasterId
                      WHERE FR.CompanyGroupId='" + companyGroupId + "'and FR.CompanyId='" + companyId + "' AND FR.PlantId='" + plantId + @"'
                                     and FR.Archive=0 and FR.IsAUC=0 AND FR.Status IS NOT NULL
                                     AND FR.Id NOT IN(' ')
-				                     and FR.MaterialMasterId in(" + MaterialMasterId + ") AND FR.MaterialMasterArticleId in (" + MaterialMasterArticleId + ") AND FR.FixedAssetMasterId in (" + fixedAssetMasterId + @")
-					                 and FR.VendorId in (" + vendorId + @") 
+                                    AND FR.Status in (" + DisposeStatus + @") 
+				                    AND fard.IsPark=case when  " + Posted + @"=2 then fard.IsPark else " + Posted + @" end
+				                    AND convert(Date,fard.DocDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' 
+				                     
                                      --AND MM.IsAsset in ()  ";
             return _sqlRepository.GetDataTable(sql);
         }
@@ -4143,7 +4161,7 @@ GROUP BY FAR.FABudgetMasterId
             return workbook;
         }
 
-        public IWorkbook FixedAssetRegisterDisposedList(string companyGroupId, string companyId, string plantId, string MaterialMasterId, string MaterialMasterArticleId, string fixedAssetMasterId, string vendorId)
+        public IWorkbook FixedAssetRegisterDisposedList(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string nonPosted, string posted, string DisposeStatus)
         {
 
             //Start EmployeeAdvanceDueList
@@ -4161,7 +4179,7 @@ GROUP BY FAR.FABudgetMasterId
 
             //Get the first worksheet in the workbook into IWorksheet
             IWorksheet worksheet = workbook.Worksheets[0];
-            DataTable dtGatenntryRegisterList = GetRegisterDisposedReportData(companyGroupId, companyId, plantId, MaterialMasterId, MaterialMasterArticleId, fixedAssetMasterId, vendorId);
+            DataTable dtGatenntryRegisterList = GetRegisterDisposedReportData(companyGroupId, companyId, plantId, fromDate, toDate, nonPosted, posted, DisposeStatus);
 
 
             if (dtGatenntryRegisterList.Rows.Count == 0)
@@ -4363,6 +4381,41 @@ GROUP BY FAR.FABudgetMasterId
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
+            worksheet[ROW, COL].Text = "Disposal type";
+            int colDisposaltype = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Disposal No";
+            int colDisposalNo = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Disposal Date";
+            int colDisposalDate = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Voucher No";
+            int colVoucherNo = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Posting Status";
+            int colPostingStatus = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
             worksheet[ROW, COL].Text = "Opening Balance";
             int colIsOpeningBalance = COL;
             worksheet[ROW, COL].ColumnWidth = 12;
@@ -4408,6 +4461,13 @@ GROUP BY FAR.FABudgetMasterId
                 worksheet[ROW, colLifeTime].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["LifeTime"].ToString());
                 worksheet[ROW, colOriginName].Text = dtGatenntryRegisterList.Rows[i]["OriginName"].ToString();
                 worksheet[ROW, colYearOfInstallation].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["YearOfInstallation"].ToString());
+
+                worksheet[ROW, colDisposaltype].Text = (dtGatenntryRegisterList.Rows[i]["Status"].ToString());
+                worksheet[ROW, colDisposalNo].Text = dtGatenntryRegisterList.Rows[i]["DisposalNo"].ToString();
+                worksheet[ROW, colDisposalDate].Text = dtGatenntryRegisterList.Rows[i]["DocDate"].ToString();
+                worksheet[ROW, colVoucherNo].Text = dtGatenntryRegisterList.Rows[i]["VoucherNo"].ToString();
+                worksheet[ROW, colPostingStatus].Text = dtGatenntryRegisterList.Rows[i]["PostingStatus"].ToString();
+
                 worksheet[ROW, colPurchasePrice].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["PurchasePrice"].ToString());
                 worksheet[ROW, colFABaseAmount].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["FABaseAmount"].ToString());
                 worksheet[ROW, colSubAssetAmount].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["SubAssetBaseAmount"].ToString());

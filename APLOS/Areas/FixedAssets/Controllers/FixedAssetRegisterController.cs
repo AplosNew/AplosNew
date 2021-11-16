@@ -1117,9 +1117,9 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             return View("~/Areas/FixedAssets/Views/FixedAssetsRegisterReport.cshtml");
         }
-        public ActionResult FixedAssetsRegisterDisposedReport()
+        public ActionResult FixedAssetsRegisterDisposeReport()
         {
-            return View("~/Areas/FixedAssets/Views/FixedAssetsRegisterDisposedReport.cshtml");
+            return View("~/Areas/FixedAssets/Views/FixedAssetsRegisterDisposeReport.cshtml");
         }
 
         [Authorize]
@@ -1145,15 +1145,15 @@ namespace Aplos.Areas.FixedAssets.Controllers
             return null;
         }
         [Authorize]
-        public ActionResult FixedAssetRegisterDisposedReportExcel(string MaterialMasterId, string MaterialMasterArticleId, string fixedAssetMasterId, string vendorId)
+        public ActionResult FixedAssetRegisterDisposedReportExcel(string fromDate, string toDate, string nonPosted, string posted, string disposeStatus)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
 
                 ExcelEngine excelEngine = new ExcelEngine();
-
-                IWorkbook workbook = _fixedAssetRegisterService.FixedAssetRegisterDisposedList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, MaterialMasterId, MaterialMasterArticleId, fixedAssetMasterId, vendorId);
+                string DisposeStatus = "'" + disposeStatus.Replace(",", "','") + "'";//replaced with ""
+                IWorkbook workbook = _fixedAssetRegisterService.FixedAssetRegisterDisposedList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId,  fromDate,  toDate,  nonPosted,  posted,  DisposeStatus);
 
                 string strFileName = "Fixed Assets Register Disposed Report.xlsx";
                 workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
@@ -1267,11 +1267,20 @@ namespace Aplos.Areas.FixedAssets.Controllers
             return Json(new { DATA = fixedAssetQueryService.GetFixedAssetRegisterElasticSearchDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, materialMasterId, materialMasterArticleId, fixedAssetMasterId, vendorId, isAsset, machine), Error = false }, JsonRequestBehavior.AllowGet);
         }
         [HttpPost, Authorize]
-        public ActionResult GetFixedAssetRegisterDisposedElasticSearchDataList(string materialMasterId, string materialMasterArticleId, string fixedAssetMasterId, string vendorId, string isAsset, string machine)
+        public ActionResult GetFixedAssetRegisterDisposedElasticSearchDataList(string fromDate, string toDate, string nonPosted, string posted, string disposeStatus)
         {
-            FixedAssetQueryService fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(new { DATA = fixedAssetQueryService.GetFixedAssetRegisterDisposedElasticSearchDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, materialMasterId, materialMasterArticleId, fixedAssetMasterId, vendorId, isAsset, machine), Error = false }, JsonRequestBehavior.AllowGet);
+            try
+            {
+                string DisposeStatus = "'" + disposeStatus.Replace(",", "','") + "'";//replaced with ""
+                FixedAssetQueryService fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                return Json(new { DATA = fixedAssetQueryService.GetFixedAssetRegisterDisposedElasticSearchDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate, nonPosted, posted, DisposeStatus), Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (CustomException ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+
+            }
         }
         #endregion Elastis Search
 

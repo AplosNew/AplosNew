@@ -13,21 +13,21 @@ using Library.MaterialManagement.JobWork;
 using Library.Model.Enums;
 using Syncfusion.XlsIO;
 
-namespace Aplos.Areas.Outsourcing.Controllers
+namespace Aplos.Areas.JobWork.Controllers
 {
-    public class OSIssueReturnController : BaseController
+    public class JWIssueReturnController : BaseController
     {
-        JobWorkIssueReturn JWTIR = new JobWorkIssueReturn();
+        JWIssueReturn JWTIR = new JWIssueReturn();
 
         string TableName = "dbo.JobWorkIssueReturn";
         string TableName1 = "dbo.JobWorkIssueReturnChild";
         string TableName2 = "JobWorkTransformationIssueReturn";
         #region Constructor
         private readonly SqlRepository _sqlRepository;
-        public OSIssueReturnController(SqlRepository Repository)
+        public JWIssueReturnController(SqlRepository Repository)
         {
             _sqlRepository = Repository;
-            JWTIR = new JobWorkIssueReturn();
+            JWTIR = new JWIssueReturn();
         }
         #endregion
         #region Pages
@@ -116,6 +116,14 @@ namespace Aplos.Areas.Outsourcing.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             if (Type == "Value Added")
             {
+                //sql = @"select vac.Id,TabType='Value Added', vac.EntityId,vac.PartyId,vac.Remarks,FORMAT(vac.PODate,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5)
+                //                           ,vac.[Time],108)[VACTime],FORMAT(vac.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate
+                //                           ,FORMAT(vac.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(vac.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate
+                //                           ,e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
+                //                           from dbo.OSTransformationPO vac left join ORG.Entity e on e.Id=vac.EntityId
+                //                           left join HKP.Party p on p.Id=vac.PartyId
+                //                           WHERE " + strkey + " and POType='OSValueAddedPO' order by ValueAddedDate desc ";
+
 
                 sql = @"select * from(
 							SELECT  ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id,TabType='Value Added'
@@ -157,7 +165,7 @@ namespace Aplos.Areas.Outsourcing.Controllers
 						,IR.EntityId,E.UserName as Entity,FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
                         FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
 						,IR.ContractStatus, IR.Remarks,IR.POType
-						FROM OSTransformationPO AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+						FROM JWTransformationPO AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
                         
@@ -183,10 +191,10 @@ namespace Aplos.Areas.Outsourcing.Controllers
                         left join dbo.PurchaseLC PLC on PLC.Id=IR.PurchaseLCId
 						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
 						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
-LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.OSTransformationPODetail AS A
-									JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.OSTransformationPOId) AS IRD ON IRD.OSTransformationPOId=IR.Id
-						LEFT JOIN (SELECT A.OSTransformationPOId, A.TransactionUoMId FROM dbo.OSTransformationPODetail AS A JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id
-									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.OSTransformationPOId, A.TransactionUoMId HAVING COUNT(A.OSTransformationPOId)> COUNT(A.TransactionUoMId)) AS TU ON TU.OSTransformationPOId=IR.Id
+LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JWTransformationPODetail AS A
+									JOIN JWTransformationPO AS B ON A.JWTransformationPOId=B.Id WHERE B.PlantId='"+ identity.PlantId + @"' GROUP BY A.JWTransformationPOId) AS IRD ON IRD.JWTransformationPOId=IR.Id
+						LEFT JOIN (SELECT A.JWTransformationPOId, A.TransactionUoMId FROM dbo.JWTransformationPODetail AS A JOIN JWTransformationPO AS B ON A.JWTransformationPOId=B.Id
+									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JWTransformationPOId, A.TransactionUoMId HAVING COUNT(A.JWTransformationPOId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JWTransformationPOId=IR.Id
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
@@ -201,7 +209,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						AND IR.CheckedByStatus='Pending' 
 						AND isnull(IR.IsClosed,0)=0 
 						--Order by IR.PODate DESC
-						and IR.POType='OSValueAddedPO'
+						and IR.POType='JWValueAddedPO'
 
 						UNION All
 
@@ -245,7 +253,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						,IR.EntityId,E.UserName as Entity,FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
                         FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
 						,IR.ContractStatus, IR.Remarks,IR.POType
-						FROM OSTransformationPO AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+						FROM JWTransformationPO AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
                         
@@ -270,10 +278,10 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                         left join dbo.PurchaseLC PLC on PLC.Id=IR.PurchaseLCId
 						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
 						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
-LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.OSTransformationPODetail AS A
-									JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.OSTransformationPOId) AS IRD ON IRD.OSTransformationPOId=IR.Id
-						LEFT JOIN (SELECT A.OSTransformationPOId, A.TransactionUoMId FROM dbo.OSTransformationPODetail AS A JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id
-									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.OSTransformationPOId, A.TransactionUoMId HAVING COUNT(A.OSTransformationPOId)> COUNT(A.TransactionUoMId)) AS TU ON TU.OSTransformationPOId=IR.Id
+LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JWTransformationPODetail AS A
+									JOIN JWTransformationPO AS B ON A.JWTransformationPOId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JWTransformationPOId) AS IRD ON IRD.JWTransformationPOId=IR.Id
+						LEFT JOIN (SELECT A.JWTransformationPOId, A.TransactionUoMId FROM dbo.JWTransformationPODetail AS A JOIN JWTransformationPO AS B ON A.JWTransformationPOId=B.Id
+									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JWTransformationPOId, A.TransactionUoMId HAVING COUNT(A.JWTransformationPOId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JWTransformationPOId=IR.Id
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
@@ -290,7 +298,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
                         AND isnull(IR.IsClosed,0)=0 
 						--Order by IR.PODate DESC
-						and IR.POType='OSValueAddedPO'
+						and IR.POType='JWValueAddedPO'
 
 						UNION All
 
@@ -334,7 +342,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						,IR.EntityId,E.UserName as Entity,FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
                         FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
 						,IR.ContractStatus, IR.Remarks,IR.POType
-						FROM OSTransformationPO AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+						FROM JWTransformationPO AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
                          --LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=IR.PurchaseLCId 
@@ -358,10 +366,10 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                         left join dbo.PurchaseLC PLC on PLC.Id=IR.PurchaseLCId
 						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
 						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
-						LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.OSTransformationPODetail AS A
-									JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.OSTransformationPOId) AS IRD ON IRD.OSTransformationPOId=IR.Id
-						LEFT JOIN (SELECT A.OSTransformationPOId, A.TransactionUoMId FROM dbo.OSTransformationPODetail AS A JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id
-									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.OSTransformationPOId, A.TransactionUoMId HAVING COUNT(A.OSTransformationPOId)> COUNT(A.TransactionUoMId)) AS TU ON TU.OSTransformationPOId=IR.Id
+						LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JWTransformationPODetail AS A
+									JOIN JWTransformationPO AS B ON A.JWTransformationPOId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JWTransformationPOId) AS IRD ON IRD.JWTransformationPOId=IR.Id
+						LEFT JOIN (SELECT A.JWTransformationPOId, A.TransactionUoMId FROM dbo.JWTransformationPODetail AS A JOIN JWTransformationPO AS B ON A.JWTransformationPOId=B.Id
+									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JWTransformationPOId, A.TransactionUoMId HAVING COUNT(A.JWTransformationPOId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JWTransformationPOId=IR.Id
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
@@ -375,10 +383,10 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						And IR.PlantId='" + identity.PlantId + @"' 
                         --AND IR.POType='OSTransformationPO'	--AND IR.AddedBy='Shashank'	
                         AND isnull(IR.IsClosed,0)=0 
-						and IR.POType='OSValueAddedPO'
+						and IR.POType='JWValueAddedPO'
 						) x
 						--Order by PODate DESC
-                        JOIN (SELECT SUBSTRING(Id,PATINDEX('%[0-9]%', Id), LEN(Id)) Col, Id from dbo.OSTransformationPO) BD ON BD.Id=x.Id 
+                        JOIN (SELECT SUBSTRING(Id,PATINDEX('%[0-9]%', Id), LEN(Id)) Col, Id from dbo.JWTransformationPO) BD ON BD.Id=x.Id 
 						ORDER BY CONVERT(int,Col) desc ";
             }
             if (Type == "Transformation")
@@ -432,7 +440,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						,IR.EntityId,E.UserName as Entity,FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
                         FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
 						,IR.ContractStatus, IR.Remarks,IR.POType
-						FROM OSTransformationPO AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+						FROM JWTransformationPO AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
                         
@@ -458,10 +466,10 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                         left join dbo.PurchaseLC PLC on PLC.Id=IR.PurchaseLCId
 						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
 						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
-LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.OSTransformationPODetail AS A
-									JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.OSTransformationPOId) AS IRD ON IRD.OSTransformationPOId=IR.Id
-						LEFT JOIN (SELECT A.OSTransformationPOId, A.TransactionUoMId FROM dbo.OSTransformationPODetail AS A JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id
-									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.OSTransformationPOId, A.TransactionUoMId HAVING COUNT(A.OSTransformationPOId)> COUNT(A.TransactionUoMId)) AS TU ON TU.OSTransformationPOId=IR.Id
+LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JWTransformationPODetail AS A
+									JOIN JWTransformationPO AS B ON A.JWTransformationPOId=B.Id WHERE B.PlantId='"+identity.PlantId + @"' GROUP BY A.JWTransformationPOId) AS IRD ON IRD.JWTransformationPOId=IR.Id
+						LEFT JOIN (SELECT A.JWTransformationPOId, A.TransactionUoMId FROM dbo.JWTransformationPODetail AS A JOIN JWTransformationPO AS B ON A.JWTransformationPOId=B.Id
+									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JWTransformationPOId, A.TransactionUoMId HAVING COUNT(A.JWTransformationPOId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JWTransformationPOId=IR.Id
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
@@ -471,12 +479,12 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						--where II.JWContractId='JWP98'
 						group by II.JWContractId) TT on TT.JWContractId=IR.Id
 						WHERE " + strkey + @" and  IR.PlantId='" + identity.PlantId + @"' 
-                        --AND IR.POType='OSTransformationPO'  --IR.AddedBy='Shashank' And
+                        --AND IR.POType='JWTransformationPO'  --IR.AddedBy='Shashank' And
                         --AND IR.CheckedBy IS NOT NULL 
 						AND IR.CheckedByStatus='Pending' 
 						AND isnull(IR.IsClosed,0)=0 
 						--Order by IR.PODate DESC
-						and IR.POType='OSTransformationPO'
+						and IR.POType='JWTransformationPO'
 
 						UNION All
 
@@ -520,7 +528,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						,IR.EntityId,E.UserName as Entity,FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
                         FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
 						,IR.ContractStatus, IR.Remarks,IR.POType
-						FROM OSTransformationPO AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+						FROM JWTransformationPO AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
                         
@@ -545,10 +553,10 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                         left join dbo.PurchaseLC PLC on PLC.Id=IR.PurchaseLCId
 						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
 						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
-LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.OSTransformationPODetail AS A
-									JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.OSTransformationPOId) AS IRD ON IRD.OSTransformationPOId=IR.Id
-						LEFT JOIN (SELECT A.OSTransformationPOId, A.TransactionUoMId FROM dbo.OSTransformationPODetail AS A JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id
-									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.OSTransformationPOId, A.TransactionUoMId HAVING COUNT(A.OSTransformationPOId)> COUNT(A.TransactionUoMId)) AS TU ON TU.OSTransformationPOId=IR.Id
+LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JWTransformationPODetail AS A
+									JOIN JWTransformationPO AS B ON A.JWTransformationPOId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JWTransformationPOId) AS IRD ON IRD.JWTransformationPOId=IR.Id
+						LEFT JOIN (SELECT A.JWTransformationPOId, A.TransactionUoMId FROM dbo.JWTransformationPODetail AS A JOIN JWTransformationPO AS B ON A.JWTransformationPOId=B.Id
+									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JWTransformationPOId, A.TransactionUoMId HAVING COUNT(A.JWTransformationPOId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JWTransformationPOId=IR.Id
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
@@ -561,11 +569,11 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						AND IR.CheckedByStatus IS NULL 
 						AND IR.AuthorizedByStatus IS NULL						
 						 And IR.PlantId='" + identity.PlantId + @"' 
-                       --AND IR.POType='OSTransformationPO'--AND IR.AddedBy='Shashank'
+                       --AND IR.POType='JWTransformationPO'--AND IR.AddedBy='Shashank'
 
                         AND isnull(IR.IsClosed,0)=0 
 						--Order by IR.PODate DESC
-						and IR.POType='OSTransformationPO'
+						and IR.POType='JWTransformationPO'
 
 						UNION All
 
@@ -609,7 +617,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						,IR.EntityId,E.UserName as Entity,FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
                         FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
 						,IR.ContractStatus, IR.Remarks,IR.POType
-						FROM OSTransformationPO AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+						FROM JWTransformationPO AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
                          --LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=IR.PurchaseLCId 
@@ -633,10 +641,10 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                         left join dbo.PurchaseLC PLC on PLC.Id=IR.PurchaseLCId
 						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
 						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
-						LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.OSTransformationPODetail AS A
-									JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.OSTransformationPOId) AS IRD ON IRD.OSTransformationPOId=IR.Id
-						LEFT JOIN (SELECT A.OSTransformationPOId, A.TransactionUoMId FROM dbo.OSTransformationPODetail AS A JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id
-									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.OSTransformationPOId, A.TransactionUoMId HAVING COUNT(A.OSTransformationPOId)> COUNT(A.TransactionUoMId)) AS TU ON TU.OSTransformationPOId=IR.Id
+						LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JWTransformationPODetail AS A
+									JOIN JWTransformationPO AS B ON A.JWTransformationPOId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JWTransformationPOId) AS IRD ON IRD.JWTransformationPOId=IR.Id
+						LEFT JOIN (SELECT A.JWTransformationPOId, A.TransactionUoMId FROM dbo.JWTransformationPODetail AS A JOIN JWTransformationPO AS B ON A.JWTransformationPOId=B.Id
+									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JWTransformationPOId, A.TransactionUoMId HAVING COUNT(A.JWTransformationPOId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JWTransformationPOId=IR.Id
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
@@ -648,12 +656,12 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						Where " + strkey + @" and IR.CheckedByStatus is null				
 						AND IR.AuthorizedByStatus='For Approval'						
 						And IR.PlantId='" + identity.PlantId + @"' 
-                        --AND IR.POType='OSTransformationPO'	--AND IR.AddedBy='Shashank'	
+                        --AND IR.POType='JWTransformationPO'	--AND IR.AddedBy='Shashank'	
                         AND isnull(IR.IsClosed,0)=0 
-						and IR.POType='OSTransformationPO'
+						and IR.POType='JWTransformationPO'
 						) x
 						--Order by PODate DESC
-                        JOIN (SELECT SUBSTRING(Id,PATINDEX('%[0-9]%', Id), LEN(Id)) Col, Id from dbo.OSTransformationPO) BD ON BD.Id=x.Id 
+                        JOIN (SELECT SUBSTRING(Id,PATINDEX('%[0-9]%', Id), LEN(Id)) Col, Id from dbo.JWTransformationPO) BD ON BD.Id=x.Id 
 						ORDER BY CONVERT(int,Col) desc";
             }
 
@@ -715,7 +723,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						,IR.EntityId,E.UserName as Entity,FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
                         FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
 						,IR.ContractStatus, IR.Remarks,IR.POType
-						FROM OSTransformationPO AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+						FROM JWTransformationPO AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
                         
@@ -740,15 +748,15 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						LEFT JOIN [HKP].[Party] AS Par ON Cn.CustomerId=Par.Id 
 						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
 						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
-LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.OSTransformationPODetail AS A
-									JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.OSTransformationPOId) AS IRD ON IRD.OSTransformationPOId=IR.Id
-						LEFT JOIN (SELECT A.OSTransformationPOId, A.TransactionUoMId FROM dbo.OSTransformationPODetail AS A JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id
-									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.OSTransformationPOId, A.TransactionUoMId HAVING COUNT(A.OSTransformationPOId)> COUNT(A.TransactionUoMId)) AS TU ON TU.OSTransformationPOId=IR.Id
+LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JWTransformationPODetail AS A
+									JOIN JWTransformationPO AS B ON A.JWTransformationPOId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JWTransformationPOId) AS IRD ON IRD.JWTransformationPOId=IR.Id
+						LEFT JOIN (SELECT A.JWTransformationPOId, A.TransactionUoMId FROM dbo.JWTransformationPODetail AS A JOIN JWTransformationPO AS B ON A.JWTransformationPOId=B.Id
+									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JWTransformationPOId, A.TransactionUoMId HAVING COUNT(A.JWTransformationPOId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JWTransformationPOId=IR.Id
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
 						WHERE IR.PlantId='" + identity.PlantId + @"' 
-                        --AND IR.POType='OSTransformationPO'  --IR.AddedBy='Shashank' And
+                        --AND IR.POType='JWTransformationPO'  --IR.AddedBy='Shashank' And
                         --AND IR.CheckedBy IS NOT NULL 
 						AND IR.CheckedByStatus='Pending' 
 						AND isnull(IR.IsClosed,0)=0 
@@ -797,7 +805,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						,IR.EntityId,E.UserName as Entity,FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
                         FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
 						,IR.ContractStatus, IR.Remarks,IR.POType
-						FROM OSTransformationPO AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+						FROM JWTransformationPO AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
                         
@@ -821,10 +829,10 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						LEFT JOIN [HKP].[Party] AS Par ON Cn.CustomerId=Par.Id 
 						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
 						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
-LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.OSTransformationPODetail AS A
-									JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.OSTransformationPOId) AS IRD ON IRD.OSTransformationPOId=IR.Id
-						LEFT JOIN (SELECT A.OSTransformationPOId, A.TransactionUoMId FROM dbo.OSTransformationPODetail AS A JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id
-									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.OSTransformationPOId, A.TransactionUoMId HAVING COUNT(A.OSTransformationPOId)> COUNT(A.TransactionUoMId)) AS TU ON TU.OSTransformationPOId=IR.Id
+LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JWTransformationPODetail AS A
+									JOIN JWTransformationPO AS B ON A.JWTransformationPOId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JWTransformationPOId) AS IRD ON IRD.JWTransformationPOId=IR.Id
+						LEFT JOIN (SELECT A.JWTransformationPOId, A.TransactionUoMId FROM dbo.JWTransformationPODetail AS A JOIN JWTransformationPO AS B ON A.JWTransformationPOId=B.Id
+									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JWTransformationPOId, A.TransactionUoMId HAVING COUNT(A.JWTransformationPOId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JWTransformationPOId=IR.Id
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
@@ -832,7 +840,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						AND IR.CheckedByStatus IS NULL 
 						AND IR.AuthorizedByStatus IS NULL						
 						 And IR.PlantId='" + identity.PlantId + @"' 
-                       --AND IR.POType='OSTransformationPO'--AND IR.AddedBy='Shashank'
+                       --AND IR.POType='JWTransformationPO'--AND IR.AddedBy='Shashank'
 
                         AND isnull(IR.IsClosed,0)=0 
 						--Order by IR.PODate DESC
@@ -880,7 +888,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						,IR.EntityId,E.UserName as Entity,FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
                         FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
 						,IR.ContractStatus, IR.Remarks,IR.POType
-						FROM OSTransformationPO AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+						FROM JWTransformationPO AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
                          --LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=IR.PurchaseLCId 
@@ -903,23 +911,23 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						LEFT JOIN [HKP].[Party] AS Par ON Cn.CustomerId=Par.Id 
 						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
 						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
-						LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.OSTransformationPODetail AS A
-									JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.OSTransformationPOId) AS IRD ON IRD.OSTransformationPOId=IR.Id
-						LEFT JOIN (SELECT A.OSTransformationPOId, A.TransactionUoMId FROM dbo.OSTransformationPODetail AS A JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id
-									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.OSTransformationPOId, A.TransactionUoMId HAVING COUNT(A.OSTransformationPOId)> COUNT(A.TransactionUoMId)) AS TU ON TU.OSTransformationPOId=IR.Id
+						LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JWTransformationPODetail AS A
+									JOIN JWTransformationPO AS B ON A.JWTransformationPOId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JWTransformationPOId) AS IRD ON IRD.JWTransformationPOId=IR.Id
+						LEFT JOIN (SELECT A.JWTransformationPOId, A.TransactionUoMId FROM dbo.JWTransformationPODetail AS A JOIN JWTransformationPO AS B ON A.JWTransformationPOId=B.Id
+									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JWTransformationPOId, A.TransactionUoMId HAVING COUNT(A.JWTransformationPOId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JWTransformationPOId=IR.Id
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
 						Where IR.CheckedByStatus is null				
 						AND IR.AuthorizedByStatus='For Approval'						
 						And IR.PlantId='" + identity.PlantId + @"' 
-                        --AND IR.POType='OSTransformationPO'	--AND IR.AddedBy='Shashank'	
+                        --AND IR.POType='JWTransformationPO'	--AND IR.AddedBy='Shashank'	
                         AND isnull(IR.IsClosed,0)=0 
-						and IR.POType='OSValueAddedPO'
+						and IR.POType='JWValueAddedPO'
                         And IR.Id='" + Id + @"'
 						) x
 						--Order by PODate DESC
-                        JOIN (SELECT SUBSTRING(Id,PATINDEX('%[0-9]%', Id), LEN(Id)) Col, Id from dbo.OSTransformationPO) BD ON BD.Id=x.Id 
+                        JOIN (SELECT SUBSTRING(Id,PATINDEX('%[0-9]%', Id), LEN(Id)) Col, Id from dbo.JWTransformationPO) BD ON BD.Id=x.Id 
 						ORDER BY CONVERT(int,Col) desc ";
 
             }
@@ -971,7 +979,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						,IR.EntityId,E.UserName as Entity,FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
                         FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
 						,IR.ContractStatus, IR.Remarks,IR.POType
-						FROM OSTransformationPO AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+						FROM JWTransformationPO AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
                         
@@ -996,20 +1004,20 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						LEFT JOIN [HKP].[Party] AS Par ON Cn.CustomerId=Par.Id 
 						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
 						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
-LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.OSTransformationPODetail AS A
-									JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.OSTransformationPOId) AS IRD ON IRD.OSTransformationPOId=IR.Id
-						LEFT JOIN (SELECT A.OSTransformationPOId, A.TransactionUoMId FROM dbo.OSTransformationPODetail AS A JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id
-									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.OSTransformationPOId, A.TransactionUoMId HAVING COUNT(A.OSTransformationPOId)> COUNT(A.TransactionUoMId)) AS TU ON TU.OSTransformationPOId=IR.Id
+LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JWTransformationPODetail AS A
+									JOIN JWTransformationPO AS B ON A.JWTransformationPOId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JWTransformationPOId) AS IRD ON IRD.JWTransformationPOId=IR.Id
+						LEFT JOIN (SELECT A.JWTransformationPOId, A.TransactionUoMId FROM dbo.JWTransformationPODetail AS A JOIN JWTransformationPO AS B ON A.JWTransformationPOId=B.Id
+									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JWTransformationPOId, A.TransactionUoMId HAVING COUNT(A.JWTransformationPOId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JWTransformationPOId=IR.Id
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
 						WHERE IR.PlantId='" + identity.PlantId + @"' 
-                        --AND IR.POType='OSTransformationPO'  --IR.AddedBy='Shashank' And
+                        --AND IR.POType='JWTransformationPO'  --IR.AddedBy='Shashank' And
                         --AND IR.CheckedBy IS NOT NULL 
 						AND IR.CheckedByStatus='Pending' 
 						AND isnull(IR.IsClosed,0)=0 
 						--Order by IR.PODate DESC
-						and IR.POType='OSTransformationPO'
+						and IR.POType='JWTransformationPO'
                         And IR.Id='" + Id + @"'
 
 						UNION All
@@ -1053,7 +1061,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						,IR.EntityId,E.UserName as Entity,FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
                         FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
 						,IR.ContractStatus, IR.Remarks,IR.POType
-						FROM OSTransformationPO AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+						FROM JWTransformationPO AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
                         
@@ -1077,10 +1085,10 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						LEFT JOIN [HKP].[Party] AS Par ON Cn.CustomerId=Par.Id 
 						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
 						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
-LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.OSTransformationPODetail AS A
-									JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.OSTransformationPOId) AS IRD ON IRD.OSTransformationPOId=IR.Id
-						LEFT JOIN (SELECT A.OSTransformationPOId, A.TransactionUoMId FROM dbo.OSTransformationPODetail AS A JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id
-									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.OSTransformationPOId, A.TransactionUoMId HAVING COUNT(A.OSTransformationPOId)> COUNT(A.TransactionUoMId)) AS TU ON TU.OSTransformationPOId=IR.Id
+LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JWTransformationPODetail AS A
+									JOIN JWTransformationPO AS B ON A.JWTransformationPOId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JWTransformationPOId) AS IRD ON IRD.JWTransformationPOId=IR.Id
+						LEFT JOIN (SELECT A.JWTransformationPOId, A.TransactionUoMId FROM dbo.JWTransformationPODetail AS A JOIN JWTransformationPO AS B ON A.JWTransformationPOId=B.Id
+									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JWTransformationPOId, A.TransactionUoMId HAVING COUNT(A.JWTransformationPOId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JWTransformationPOId=IR.Id
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
@@ -1088,11 +1096,11 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						AND IR.CheckedByStatus IS NULL 
 						AND IR.AuthorizedByStatus IS NULL						
 						 And IR.PlantId='" + identity.PlantId + @"' 
-                       --AND IR.POType='OSTransformationPO'--AND IR.AddedBy='Shashank'
+                       --AND IR.POType='JWTransformationPO'--AND IR.AddedBy='Shashank'
 
                         AND isnull(IR.IsClosed,0)=0 
 						--Order by IR.PODate DESC
-						and IR.POType='OSTransformationPO'
+						and IR.POType='JWTransformationPO'
                         And IR.Id='" + Id + @"'
 
 						UNION All
@@ -1136,7 +1144,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						,IR.EntityId,E.UserName as Entity,FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
                         FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
 						,IR.ContractStatus, IR.Remarks,IR.POType
-						FROM OSTransformationPO AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+						FROM JWTransformationPO AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
                          --LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=IR.PurchaseLCId 
@@ -1159,23 +1167,23 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						LEFT JOIN [HKP].[Party] AS Par ON Cn.CustomerId=Par.Id 
 						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
 						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
-						LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.OSTransformationPODetail AS A
-									JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.OSTransformationPOId) AS IRD ON IRD.OSTransformationPOId=IR.Id
-						LEFT JOIN (SELECT A.OSTransformationPOId, A.TransactionUoMId FROM dbo.OSTransformationPODetail AS A JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id
-									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.OSTransformationPOId, A.TransactionUoMId HAVING COUNT(A.OSTransformationPOId)> COUNT(A.TransactionUoMId)) AS TU ON TU.OSTransformationPOId=IR.Id
+						LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JWTransformationPODetail AS A
+									JOIN JWTransformationPO AS B ON A.JWTransformationPOId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JWTransformationPOId) AS IRD ON IRD.JWTransformationPOId=IR.Id
+						LEFT JOIN (SELECT A.JWTransformationPOId, A.TransactionUoMId FROM dbo.JWTransformationPODetail AS A JOIN JWTransformationPO AS B ON A.JWTransformationPOId=B.Id
+									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JWTransformationPOId, A.TransactionUoMId HAVING COUNT(A.JWTransformationPOId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JWTransformationPOId=IR.Id
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
 						Where IR.CheckedByStatus is null				
 						AND IR.AuthorizedByStatus='For Approval'						
 						And IR.PlantId='" + identity.PlantId + @"' 
-                        --AND IR.POType='OSTransformationPO'	--AND IR.AddedBy='Shashank'	
+                        --AND IR.POType='JWTransformationPO'	--AND IR.AddedBy='Shashank'	
                         AND isnull(IR.IsClosed,0)=0 
-						and IR.POType='OSTransformationPO'
+						and IR.POType='JWTransformationPO'
                         And IR.Id='" + Id + @"'
 						) x
 						--Order by PODate DESC
-                        JOIN (SELECT SUBSTRING(Id,PATINDEX('%[0-9]%', Id), LEN(Id)) Col, Id from dbo.OSTransformationPO) BD ON BD.Id=x.Id 
+                        JOIN (SELECT SUBSTRING(Id,PATINDEX('%[0-9]%', Id), LEN(Id)) Col, Id from dbo.JWTransformationPO) BD ON BD.Id=x.Id 
 						ORDER BY CONVERT(int,Col) desc";
             }
 
@@ -7099,26 +7107,26 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 
     }
 }
-public class JobWorkIssueReturnChild
-{
+//public class JobWorkIssueReturnChild
+//{
 
-    #region Scalar Properties
+//    #region Scalar Properties
 
-    public string Id { get; set; }
-    public string JobWorkIssueReturnMasterId { get; set; }
-    public string ContractLineItemId { get; set; }
-    public string OrderChildId { get; set; }
-    public string Quantity { get; set; }
-    public string Remarks { get; set; }
-    public string OWRId { get; set; }
-    public string OrderSpecific { get; set; }
-    public string IssueQuantity { get; set; }
-    public string BalToIssue { get; set; }
-    public string IssueActive { get; set; }
+//    public string Id { get; set; }
+//    public string JobWorkIssueReturnMasterId { get; set; }
+//    public string ContractLineItemId { get; set; }
+//    public string OrderChildId { get; set; }
+//    public string Quantity { get; set; }
+//    public string Remarks { get; set; }
+//    public string OWRId { get; set; }
+//    public string OrderSpecific { get; set; }
+//    public string IssueQuantity { get; set; }
+//    public string BalToIssue { get; set; }
+//    public string IssueActive { get; set; }
 
 
-    #endregion Scalar Properties
-}
+//    #endregion Scalar Properties
+//}
 
 //public class JobWorkTransformationIssueReturnChild
 //{

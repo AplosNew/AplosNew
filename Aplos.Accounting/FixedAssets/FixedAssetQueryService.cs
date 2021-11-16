@@ -1804,34 +1804,53 @@ namespace Library.Accounting.FixedAssets
 
         }
 
-		public List<Dictionary<string, object>> GetFixedAssetRegisterDisposedElasticSearchDataList(string companyGroupId, string companyId, string plantId, string materialMasterId, string materialMasterArticleId, string fixedAssetMasterId, string vendorId, string isAsset, string machine)
+		public List<Dictionary<string, object>> GetFixedAssetRegisterDisposedElasticSearchDataList(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string nonPosted, string posted, string DisposeStatus)
 		{
+			var Posted = 0;
+			if (nonPosted == "True")
+			{
+				Posted = 1;
+			}
+			if (posted == "True")
+			{
+				Posted = 0;
+			}
+			if (posted == "True" && nonPosted == "True")
+			{
+				Posted = 2;
+			}
 			var sql = @"select distinct MM.UserName MaterialMaster,MMA.StandardName Article,FA.UserName AssetMaster,P.UserName Party
                 , FAR.MaterialMasterId,FAR.MaterialMasterArticleId,FAR.VendorId,FAR.FixedAssetMasterId
 
                  ,IsAsset =case when MM.IsAsset =1 then 'Yes' else  'No'  end
 				 , Machine=case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end 
-				,FAR.Status
+				,FAR.Status,format( frd.DocDate,'dd-MMM-yyyy')DocDate,v.VoucherNo,frd.Id DisposalNo
+				,CASE WHEN frd.IsPark=0 THEN 'Posted' ELSE 'Non Posted' END PostingStatus
 				 , count(FAR.FixedAssetMasterId) FACount
-
-				-- ,sum( ISNULL(FAR.FABaseAmount,0))FABaseAmount
-				 --,sum( ISNULL(FAR.ADBaseAmount,0)) ADBaseAmount
-				-- ,sum( ISNULL(FAR.FABaseAmount,0)- ISNULL(FAR.ADBaseAmount,0)) NetFixedAssetsAmount
-				 -- ,sum( isnull(sar.SubAssetAmount,0))SubAssetAmount
-				 -- ,TotalAssetsBaseAmount= sum( ISNULL(FAR.FABaseAmount,0) + (isnull(sar.SubAssetAmount,0) )) 
 				 ,sum( ISNULL(FAR.FABaseAmount,0))FABaseAmount
 				  ,sum( isnull(sar.SubAssetAmount,0))SubAssetAmount
 				  ,sum(ISNULL(FAR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) ) TotalBaseAmount
 				 ,sum( ISNULL(FAR.ADBaseAmount,0)) ADBaseAmount
 				 ,sum( ISNULL(FAR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) - ISNULL(FAR.ADBaseAmount,0) ) NetFixedAssetsAmount
-				  --,TotalAssetsBaseAmount= sum( ISNULL(FAR.FABaseAmount,0) + (isnull(sar.SubAssetAmount,0) )) 
-
-
+				 ,Customer.UserName CustomerName,CU.Code Currency,CAST(frd.ToCurrencyRate AS decimal(18,4))ToCurrencyRate,sum(rdd.NegotiationValue)NegotiationValue
+				 ,sum(rdd.BaseNagotiationValue)BaseNagotiationValue
+				 ,abs((sum( ISNULL(FAR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) - ISNULL(FAR.ADBaseAmount,0) )-sum(rdd.BaseNagotiationValue)))LossOrGain
+				 ,GP.Id GatePassNo, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
+				 ,ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue
 		        from TRN.FixedAssetRegister FAR 
 				JOIN MST.MaterialMaster MM ON MM.Id=FAR.MaterialMasterId
 				JOIN MST.MaterialMasterArticle MMA ON MMA.Id=FAR.MaterialMasterArticleId
 				JOIN MST.FixedAssetMaster FA ON FA.Id=FAR.FixedAssetMasterId
 				LEFT JOIN HKP.Party P ON P.Id=FAR.VendorId
+				LEFT JOIN TRN.FixedAssetRegisterDisposedDetail rdd ON rdd.FixedAssetRegisterId=FAR.Id
+				LEFT JOIN TRN.FixedAssetRegisterDisposed frd ON rdd.FixedAssetRegisterDisposedId=frd.Id
+				LEFT JOIN TRN.Voucher V ON V.Id =frd.DisposedVoucherId
+				LEFT JOIN HKP.Party Customer ON Customer.Id = frd.PartyId
+                LEFT JOIN SCS.Currency CU ON CU.Id =frd.CurrencyId
+				LEFT JOIN [TRN].[InOutGatePassMaster] GP ON GP.FixedAssetRegisterDisposedId =frd.Id
+				LEFT JOIN HKP.CharacteristicsValue AS FCV ON MM.Id=FCV.MaterialMasterId
+				LEFT JOIN HKP.CharacteristicsValue AS SCV ON MM.Id=SCV.MaterialMasterId
+				LEFT JOIN HKP.CharacteristicsValue AS TCV ON MM.Id=TCV.MaterialMasterId
 
 			    LEFT JOIN (SELECT MBP.MaterialMasterId,BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
                 LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
@@ -1844,12 +1863,14 @@ namespace Library.Accounting.FixedAssets
 
 
 		        WHERE FAR.CompanyGroupId='" + companyGroupId + "' AND FAR.CompanyId='" + companyId + "' AND FAR.PlantId='" + plantId + @"'  AND FAR.Status is not null
-				  --and FAR.MaterialMasterId in (" + materialMasterId + ") AND FAR.MaterialMasterArticleId in (" + materialMasterArticleId + ") AND FAR.FixedAssetMasterId in (" + fixedAssetMasterId + @")
-					-- and FAR.VendorId in (" + vendorId + ") AND MM.IsAsset in (" + isAsset + ") AND MBP.BusinessProcessName in (" + machine + @")
+				AND FAR.Status in (" + DisposeStatus + @") 
+				AND  frd.IsPark=case when  " + Posted + @"=2 then frd.IsPark else " + Posted + @" end
+				AND convert(Date,frd.DocDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' 
 
-               GROUP BY FAR.MaterialMasterId ,MM.UserName ,MMA.StandardName ,FA.UserName,P.UserName 
+			   GROUP BY FAR.MaterialMasterId ,MM.UserName ,MMA.StandardName ,FA.UserName,P.UserName 
 			   ,MM.IsAsset,MBP.BusinessProcessName,FAR.FixedAssetMasterId
-			    ,FAR.MaterialMasterId,FAR.MaterialMasterArticleId,FAR.VendorId,FAR.FixedAssetMasterId,FAR.Status";
+			    ,FAR.MaterialMasterId,FAR.MaterialMasterArticleId,FAR.VendorId,FAR.FixedAssetMasterId,FAR.Status,frd.DocDate,v.VoucherNo,frd.Id,frd.IsPark
+				,Customer.UserName,CU.Code,frd.ToCurrencyRate,GP.Id,ISNULL(FCV.UserName,''),ISNULL(SCV.UserName,''),ISNULL(TCV.UserName,'')";
 			return _sqlRepository.GetDataCollection(sql);
 
 		}

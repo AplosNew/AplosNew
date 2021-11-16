@@ -10161,6 +10161,846 @@ namespace Library.HumanResource.Payroll
                 workbook = null;
             }
         }
+        public IWorkbook GetEmployeePaySlipNew(string companyGroupId, string companyId, string plantId, string userId, string month, string year, string salaryProcessId, Dictionary<string, string> parameters, string languageId, bool isActive, bool isSeperated, bool isMaternity, bool IsIncludingZeroHeads, bool singleEmployee)
+        {
+            #region Variable
+            ReportUtility ru = null;
+
+            clsReport objRpt = null;
+
+            DataSet dsSlrProc = null;
+            DataSet dsSlrStructure = null;
+            DataView dvSlrProc = null;
+            DataSet dsHeading = null;
+            DataSet dsCmp = null;
+            DataSet dsFactory = null;
+            DataSet dsLeaveInfo = null;
+            DataView dvLeaveEmp = null;
+
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet1 = null;
+
+            int xlsRow = 1, xlsCol = 1;
+            string FactoryName = "";
+            string CmpName = "";
+            int _x = 0;
+            double _basic = 0;
+            double _netPay = 0;
+
+
+            #endregion Variable
+
+            try
+            {
+                int EmployeePerPage = 3;
+                if (singleEmployee)
+                    EmployeePerPage = 1;
+
+                ru = new ReportUtility();
+                objRpt = new clsReport();
+
+                var labelList = ru.LocalLanguageLabelList(plantId, languageId);
+                var localLanguage = "";
+
+                var printFont = "";
+                bool isLocalLanguage = false;
+                localLanguage = ru.LocalLanguageListSql(plantId, languageId, out isLocalLanguage);
+                if (localLanguage == "Bengali")
+                {
+                    printFont = "SolaimanLipi";
+                }
+                if (localLanguage == "Hindi")
+                {
+                    printFont = "Aparajita";
+                }
+                else
+                {
+                    printFont = "Arial Narrow";
+
+                }
+
+
+                ParamList para = new ParamList();
+
+                para.PlantId = plantId;
+                //para.EmployeeId = lblEmpSystemID.Text;
+                para.FromDate = "01-" + bplib.clsWebLib.GetMonthName(month) + "-" + year;
+
+                var daysInMonth = DateTime.DaysInMonth(Convert.ToInt32(year), Convert.ToInt32(month));//Number of Days in a month
+
+                para.ToDate = daysInMonth + "-" + bplib.clsWebLib.GetMonthName(month) + "-" + year;
+
+                //para.DepartmentId = ddlDepartment.SelectedValue.ToString().Trim();
+                para.UnitId = "ALL";
+                para.SubSectionId = "ALL";
+                para.SectionId = "ALL";
+                para.DivisionId = "ALL";
+                //para.SystemAdmin = (string)Session["sa"].ToString().Trim();
+                //para.ControlAdmin = (string)Session["ca"].ToString().Trim();
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                sheet1 = workbook.Worksheets[0];
+                sheet1.IsGridLinesVisible = true;
+                #region DataSet
+                //GetSalaryInfoSlrProcIDWiseCombinedForPaySlip(plantId, para.FromDate, para.ToDate, salaryProcessId, "", parameters, languageId, isActive, isSeperated, isMaternity, out dsSlrProc);//Sql Query For Salary  Data
+                DataSet dsEmpLoyeeInfo = null;
+                DataTable dtSalaryHeadSheet = null;
+                GetEmployeeInfoDetailSalaryLogWise(companyGroupId, companyId, plantId, para.FromDate, para.ToDate, salaryProcessId, "", parameters, isActive, isSeperated, isMaternity, out dsEmpLoyeeInfo);//Sql Query For Salary  Data
+
+                Dictionary<string, List<DataRow>> dicEmpSalry = GetEmployeeSalaryInfoDetailPaySlipWithZeroHeads(companyGroupId, companyId, plantId, para.FromDate, para.ToDate, languageId, parameters, isActive, isSeperated, isMaternity, IsIncludingZeroHeads, out dtSalaryHeadSheet);
+
+                Dictionary<string, string> dicPF = GetEmployeePFESIC("PF");
+                Dictionary<string, string> dicESIC = GetEmployeePFESIC("ESIC");
+
+
+                // GetEmpSalaryInformationRpt(plantId, para.ToDate, "", parameters, out dsSlrStructure);
+
+                DataSet dsGrade = null;
+                objRpt.GetGrade(parameters, month, year, out dsGrade);//GetGrade
+                //objRpt.GetSalaryInfoSlrProcIDWise(ddlSlrProcID.Text.Trim(), ddlPlant.SelectedValue.Trim(), lblEmpSystemID.Text, ddlStatus.SelectedValue.Trim(), out dsSlrProc);
+                dvSlrProc = new DataView();
+                //dvSlrProc.Table = dsSlrProc.Tables[0];
+                DataTable dtEmpInfo = dsEmpLoyeeInfo.Tables[0];//dvSlrProc.ToTable(true, "EmpInfoSystemID", "LeaveDays", "TotalLWP", "EmployeeName", "PaymentMode", "EmployeeCode", "legalDesignation", "Grade", "DOJ", "EmployeeStatus", "DOS", "DOB", "UnitName", "Section", "SubSection", "Department", "BankAccNo", "BankName", "UANNo", "ESICNo", "EmpCategoryName", "PresentDays", "AbsentDays", "WeekOff", "Holiday", "NationalID");
+
+                objRpt.SelectedPlantWiseCompany(plantId, out dsCmp);
+
+                objRpt.SelectedPlant(plantId, out dsFactory);
+
+                DataSet dsExtraAbsent = null;
+                DataView dvExtraAbsent = null;
+                objRpt.GetExtraAbsent(plantId, parameters, Convert.ToInt32(month), Convert.ToInt32(year), out dsExtraAbsent);
+                dvExtraAbsent = new DataView(dsExtraAbsent.Tables[0]);
+                #endregion DataSet
+                if (dtEmpInfo.Rows.Count > 0)
+                {
+
+
+                    #region Variable For Data
+                    double EL = 0.00;
+                    double CL = 0.00;
+                    double SL = 0.00;
+                    double SLESIC = 0.00;
+                    double LWP = 0.00;
+
+                    int startRow = 1;
+                    int EmpCounter = 0; int SrNo = 0; int ColGrossHd = 0;
+                    string x = "";
+                    #endregion Variable For Data
+                    int _Info_Last_Row = 0;
+                    int headerEndxlsCol = 0;
+                    int headerStartXlsRow = 0;
+
+                    int empDetailFirstXlsRow = 0;
+
+                    int empPaySlipDetailXlsRow = 0;
+                    Dictionary<string, List<DataRow>> dicLeaveEmp = objRpt.GetEmpLeaveInfoPaySlipSaad(parameters, para);
+                    xlsRow = startRow;
+
+
+                    if (dsCmp.Tables[0].Rows.Count > 0)
+                    {
+                        CmpName = dsCmp.Tables[0].Rows[0]["CompanyName"].ToString();
+                    }
+                    else
+                    {
+                        CmpName = "";
+                    }
+                    if (dsCmp.Tables[0].Rows.Count > 0)
+                    {
+                        FactoryName = dsCmp.Tables[0].Rows[0]["PlantName"].ToString();
+                    }
+                    else
+                    {
+                        FactoryName = "";
+                    }
+                    for (int i = 0; i <= dtEmpInfo.Rows.Count - 1; i++)
+                    {
+                        #region ******************Report Header******************
+
+                        xlsCol = 1;
+                        try
+                        {
+
+
+                            Image companyLogo = null;
+                            string strPath = "";
+                            int additionalColumn = 1;
+
+                            strPath = Path.Combine(ResourcesPathReader.GetLogoOrImagePath(), dsCmp.Tables[0].Rows[0]["CompanyImage"].ToString());  // IDCardEng.xlsx
+                            companyLogo = Image.FromFile(strPath);
+                            additionalColumn = 3;
+
+                            if (companyLogo != null)
+                            {
+                                double totalWidth = sheet1.GetColumnWidth(1) + sheet1.GetColumnWidth(2);
+                                int totalWidthPixel = (int)(totalWidth * 5.0);
+                                int totalheight = (int)((sheet1.GetRowHeight(1) + sheet1.GetRowHeight(2)) * 1.5);
+
+                                companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
+                                IPictureShape pic = null;
+
+                                pic = sheet1.Pictures.AddPicture(xlsRow, 1, companyLogo);
+
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+                        xlsCol = xlsCol + 2;
+                        string FactoryAddress = string.Empty;
+                        headerEndxlsCol = xlsCol + 14;
+                        headerStartXlsRow = xlsRow;
+
+                        sheet1.Range[xlsRow, xlsCol].Text = CmpName + "::" + FactoryName + ".";
+                        sheet1.Range[xlsRow, xlsCol].WrapText = true;
+                        sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 11].Merge();
+                        sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 12;
+
+                        string strRptDateRange = "";
+                        strRptDateRange = "Pay Slip For " + Convert.ToDateTime(para.FromDate).ToString("MMM") + ", " + Convert.ToDateTime(para.FromDate).ToString("yyyy");
+                        sheet1.Range[xlsRow, xlsCol + 12].Text = strRptDateRange;
+                        sheet1.Range[xlsRow, xlsCol + 12, xlsRow, xlsCol + 14].Merge();
+                        sheet1.Range[headerStartXlsRow, xlsCol + 11, xlsRow, headerEndxlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                        sheet1.Range[headerStartXlsRow, 1, xlsRow, headerEndxlsCol].CellStyle.Font.Bold = true;
+                        sheet1.Range[headerStartXlsRow, 1, xlsRow, headerEndxlsCol].CellStyle.Font.FontName = "Arial Narrow";
+
+                        sheet1.Range[headerStartXlsRow, 1, xlsRow, headerEndxlsCol].RowHeight = 20;
+
+                        xlsRow += 1;
+                        xlsCol = 1;
+                        #endregion ******************Report Header******************
+                        if (dtEmpInfo.Rows[i]["EmpSystemId"].ToString() == "208376")
+                        {
+
+                        }
+
+                        para.EmployeeId = dtEmpInfo.Rows[i]["EmpSystemId"].ToString();
+                        List<DataRow> drLeaveEmp = null;
+                        EL = 0.00;
+                        CL = 0.00;
+                        SL = 0.00;
+                        SLESIC = 0.00;
+                        LWP = 0.00;
+                        //if (dicLeaveEmp.ContainsKey(dtEmpInfo.Rows[i]["EmpSystemID"].ToString()))
+                        //{
+                        //    drLeaveEmp = dicLeaveEmp[dtEmpInfo.Rows[i]["EmpSystemID"].ToString()];
+
+                        //    EL = GetLeaveEmp(drLeaveEmp, "PL");
+                        //    CL = GetLeaveEmp(drLeaveEmp, "CL");
+                        //    SL = GetLeaveEmp(drLeaveEmp, "SL");
+                        //    SLESIC = GetLeaveEmp(drLeaveEmp, "SL (ESIC)");
+                        //    LWP = GetLeaveEmp(drLeaveEmp, "LWP");
+                        //}
+
+
+                        int _maxRow = 0;
+                        empDetailFirstXlsRow = 0;
+                        if ((string.Compare(x.ToUpper(), dtEmpInfo.Rows[i]["EmpSystemId"].ToString().Trim().ToUpper())) != 0)
+                        {
+                            xlsCol = 1;
+                            empPaySlipDetailXlsRow = 0;
+
+                            xlsRow += 1;
+                            xlsCol = 1;
+
+                            empDetailFirstXlsRow = xlsRow;
+
+                            //_OTHours = 0.00;//clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalOTHr"].ToString());//
+                            #region------------------Header------------------
+
+                            sheet1.Range[xlsRow, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.EmployeeCode.ToString(), "Emp Code");
+                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
+                            sheet1.Range[xlsRow, xlsCol + 2].Text = ":   " + dtEmpInfo.Rows[i]["EmployeeCode"].ToString();
+                            sheet1.Range[xlsRow, xlsCol + 2, xlsRow, xlsCol + 4].Merge();
+
+                            sheet1.Range[xlsRow, xlsCol + 10].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.ModeOfPayment.ToString(), "Payment Mode");
+                            sheet1.Range[xlsRow, xlsCol + 10, xlsRow, xlsCol + 11].Merge();
+                            sheet1.Range[xlsRow, xlsCol + 12].Text = ":   " + dtEmpInfo.Rows[i]["PaymentMode"].ToString();//PaymentMode
+                            sheet1.Range[xlsRow, xlsCol + 12, xlsRow, xlsCol + 14].Merge();
+
+                            xlsRow += 1;
+                            sheet1.Range[xlsRow, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.Name.ToString(), "Name");
+                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
+                            sheet1.Range[xlsRow + 2, xlsCol + 1].ColumnWidth = 12;
+                            sheet1.Range[xlsRow, xlsCol + 2].Text = ":   " + dtEmpInfo.Rows[i]["EmployeeName"].ToString();//
+                            sheet1.Range[xlsRow, xlsCol + 2, xlsRow, xlsCol + 9].Merge();
+
+                            // To Remove Grade - Sayanto
+                            //sheet1.Range[xlsRow, xlsCol + 10].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.Grade.ToString(), "Grade");
+                            //sheet1.Range[xlsRow, xlsCol + 10, xlsRow, xlsCol + 11].Merge();
+                            //string _grade = string.Empty;
+                            //if (dsGrade.Tables[0].Rows.Count > 0)
+                            //{
+                            //    _grade = dsGrade.Tables[0].Rows[0]["Grade"].ToString();
+                            //}
+                            //sheet1.Range[xlsRow, xlsCol + 12].Text = ":   " + _grade;
+                            //sheet1.Range[xlsRow, xlsCol + 12, xlsRow, xlsCol + 14].Merge();
+
+                            xlsRow += 1;
+                            sheet1.Range[xlsRow, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.DOJ.ToString(), "DOJ");
+                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
+                            sheet1.Range[xlsRow, xlsCol + 2].Text = ":   " + dtEmpInfo.Rows[i]["DOJ"].ToString();
+                            sheet1.Range[xlsRow, xlsCol + 2, xlsRow, xlsCol + 4].Merge();
+                            sheet1.Range[xlsRow, xlsCol + 5].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.EmpStatus.ToString(), "Status");
+                            sheet1.Range[xlsRow, xlsCol + 5, xlsRow, xlsCol + 6].Merge();
+                            sheet1.Range[xlsRow, xlsCol + 7].Text = ":   " + dtEmpInfo.Rows[i]["EmployeeStatus"].ToString();
+                            sheet1.Range[xlsRow, xlsCol + 7, xlsRow, xlsCol + 9].Merge();
+
+                            sheet1.Range[xlsRow, xlsCol + 10].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.DOS.ToString(), "DOS");
+                            sheet1.Range[xlsRow, xlsCol + 10, xlsRow, xlsCol + 11].Merge();
+                            sheet1.Range[xlsRow, xlsCol + 12].Text = ":   " + dtEmpInfo.Rows[i]["DOS"].ToString();
+                            sheet1.Range[xlsRow, xlsCol + 12, xlsRow, xlsCol + 14].Merge();
+
+                            xlsRow += 1;
+                            sheet1.Range[xlsRow, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.DOB.ToString(), "DOB");
+                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
+                            sheet1.Range[xlsRow, xlsCol + 2].Text = ":   " + dtEmpInfo.Rows[i]["DOB"].ToString();
+                            sheet1.Range[xlsRow, xlsCol + 2, xlsRow, xlsCol + 4].Merge();
+
+                            sheet1.Range[xlsRow, xlsCol + 5].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.AdharCardNo.ToString(), "Adhar Card No.");
+                            sheet1.Range[xlsRow, xlsCol + 5, xlsRow, xlsCol + 6].Merge();
+                            sheet1.Range[xlsRow, xlsCol + 7].Text = ":   " + dtEmpInfo.Rows[i]["NationalID"].ToString();
+                            sheet1.Range[xlsRow, xlsCol + 7, xlsRow, xlsCol + 9].Merge();
+
+                            sheet1.Range[xlsRow, xlsCol + 10].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.Designation.ToString(), "Designation");
+                            sheet1.Range[xlsRow, xlsCol + 10, xlsRow, xlsCol + 11].Merge();
+                            sheet1.Range[xlsRow, xlsCol + 12].Text = ":   " + dtEmpInfo.Rows[i]["LegalDesignation"].ToString();
+                            sheet1.Range[xlsRow, xlsCol + 12, xlsRow, xlsCol + 14].Merge();
+
+                            xlsRow += 1;
+
+                            sheet1.Range[xlsRow, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.Unit.ToString(), "Unit");
+                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
+                            sheet1.Range[xlsRow, xlsCol + 2].Text = ":   " + dtEmpInfo.Rows[i]["UnitName"].ToString();
+                            sheet1.Range[xlsRow, xlsCol + 2, xlsRow, xlsCol + 4].Merge();
+
+                            sheet1.Range[xlsRow, xlsCol + 5].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.Section.ToString(), "Section");
+                            sheet1.Range[xlsRow, xlsCol + 5, xlsRow, xlsCol + 6].Merge();
+                            sheet1.Range[xlsRow, xlsCol + 7].Text = ":   " + dtEmpInfo.Rows[i]["SectionName"].ToString();
+                            sheet1.Range[xlsRow, xlsCol + 7, xlsRow, xlsCol + 9].Merge();
+
+                            sheet1.Range[xlsRow, xlsCol + 10].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.SubSection.ToString(), "Sub Section");
+                            sheet1.Range[xlsRow, xlsCol + 10, xlsRow, xlsCol + 11].Merge();
+                            sheet1.Range[xlsRow, xlsCol + 12].Text = ":   " + dtEmpInfo.Rows[i]["SubSectionName"].ToString();
+                            sheet1.Range[xlsRow, xlsCol + 12, xlsRow, xlsCol + 14].Merge();
+
+                            #region Dept
+                            xlsRow += 1;
+                            sheet1.Range[xlsRow, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.Department.ToString(), "Department");
+                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
+                            sheet1.Range[xlsRow, xlsCol + 2].Text = ":   " + dtEmpInfo.Rows[i]["DepartmentName"].ToString();
+                            sheet1.Range[xlsRow, xlsCol + 2, xlsRow, xlsCol + 4].Merge();
+
+                            sheet1.Range[xlsRow, xlsCol + 5].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.BankAccountNo.ToString(), "Bank A/c No");
+                            sheet1.Range[xlsRow, xlsCol + 5, xlsRow, xlsCol + 6].Merge();
+                            sheet1.Range[xlsRow, xlsCol + 7].Text = ":   " + dtEmpInfo.Rows[i]["BankAccNo"].ToString();
+                            sheet1.Range[xlsRow, xlsCol + 7, xlsRow, xlsCol + 9].Merge();
+
+                            sheet1.Range[xlsRow, xlsCol + 10].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.BankName.ToString(), "Bank Name");
+                            sheet1.Range[xlsRow, xlsCol + 10, xlsRow, xlsCol + 11].Merge();
+                            sheet1.Range[xlsRow, xlsCol + 12].Text = ":   " + dtEmpInfo.Rows[i]["BankName"].ToString();
+                            sheet1.Range[xlsRow, xlsCol + 12, xlsRow, xlsCol + 14].Merge();
+                            #endregion
+
+                            #region PF
+                            string pfESICNo = "";//dicPF[x];
+
+                            if (dicPF.ContainsKey(dtEmpInfo.Rows[i]["EmpSystemId"].ToString().Trim().ToUpper()))
+                            {
+                                pfESICNo = dicPF[dtEmpInfo.Rows[i]["EmpSystemId"].ToString().Trim().ToUpper()];
+                            }
+
+                            xlsRow += 1;
+                            sheet1.Range[xlsRow, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.PFUANNo.ToString(), "UAN No.");//"UAN No";
+                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
+                            sheet1.Range[xlsRow, xlsCol + 2].Text = ":   " + pfESICNo;
+                            sheet1.Range[xlsRow, xlsCol + 2, xlsRow, xlsCol + 4].Merge();
+                            pfESICNo = "";
+                            if (dicESIC.ContainsKey(dtEmpInfo.Rows[i]["EmpSystemId"].ToString().Trim().ToUpper()))
+                            {
+                                pfESICNo = dicESIC[dtEmpInfo.Rows[i]["EmpSystemId"].ToString().Trim().ToUpper()];
+                            }
+
+                            sheet1.Range[xlsRow, xlsCol + 5].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.ESICNo.ToString(), "ESICNo.");// "ESIC No";
+                            sheet1.Range[xlsRow, xlsCol + 5, xlsRow, xlsCol + 6].Merge();
+                            sheet1.Range[xlsRow, xlsCol + 7].Text = ":   " + pfESICNo;
+                            sheet1.Range[xlsRow, xlsCol + 7, xlsRow, xlsCol + 9].Merge();
+
+                            sheet1.Range[xlsRow, xlsCol + 10].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.EmployeeCategory.ToString(), "Emp Category");//"Emp Category";
+                            sheet1.Range[xlsRow, xlsCol + 10, xlsRow, xlsCol + 11].Merge();
+                            sheet1.Range[xlsRow, xlsCol + 12].Text = ":   " + dtEmpInfo.Rows[i]["EmpCategoryName"].ToString();
+                            sheet1.Range[xlsRow, xlsCol + 12, xlsRow, xlsCol + 14].Merge();
+                            #endregion
+
+                            sheet1.Range[empDetailFirstXlsRow, 1, xlsRow, xlsCol + 12].CellStyle.Font.Size = 9;
+
+                            ColGrossHd = xlsCol + 13;
+
+                            #endregion------------------Header------------------
+
+                            #region ------------------Body Part-01----------------------
+
+                            xlsRow += 1;
+                            empPaySlipDetailXlsRow = xlsRow;
+                            sheet1.Range[xlsRow, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.SrNo.ToString(), "SrNo");//"SL.";
+                            sheet1.Range[xlsRow, xlsCol].ColumnWidth = 4;
+
+                            sheet1.Range[xlsRow + 2, xlsCol].Text = (1 + SrNo).ToString();
+                            sheet1.Range[xlsRow, xlsCol, xlsRow + 2, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            //
+                            #region General Info     
+                            xlsCol += 1;
+
+
+                            sheet1.Range[xlsRow, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.LeaveInformation.ToString(), "Leave Info");//"Leave Info";
+                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
+
+                            sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+
+                            //string userIDFromDictionaryByKey = dicLeaveEmp["EmpLTCode"].ToString();
+                            if (dicLeaveEmp.ContainsKey(dtEmpInfo.Rows[i]["EmpSystemID"].ToString()))
+                            {
+                                //EL = GetLeaveEmp(drLeaveEmp, "PL");
+                                //CL = GetLeaveEmp(drLeaveEmp, "CL");
+                                //SL = GetLeaveEmp(drLeaveEmp, "SL");
+                                //SLESIC = GetLeaveEmp(drLeaveEmp, "SL (ESIC)");
+                                //LWP = GetLeaveEmp(drLeaveEmp, "LWP");
+
+
+                                int k = 1;
+                                drLeaveEmp = dicLeaveEmp[dtEmpInfo.Rows[i]["EmpSystemID"].ToString()];
+                                foreach (var item in drLeaveEmp)
+                                {
+
+
+                                    sheet1[1, xlsCol].ColumnWidth = 16;
+                                    sheet1[1, xlsCol + 1].ColumnWidth = 6;
+
+                                    sheet1.Range[xlsRow + k, xlsCol].Text = ru.GetLabelname(labelList, item["Code"].ToString(), item["Code"].ToString()); //"Casual Leave";
+                                    sheet1.Range[xlsRow + k, xlsCol + 1].Number = clsStaticInfo.dbl(item["AvailedLeave"].ToString());
+                                    k++;
+                                }
+                                k++;
+                                foreach (var item in drLeaveEmp)
+                                {
+
+                                    if (string.IsNullOrEmpty(item["BalanceId"].ToString()) == true)
+                                        continue;
+
+                                    sheet1[1, xlsCol].ColumnWidth = 16;
+                                    sheet1[1, xlsCol + 1].ColumnWidth = 6;
+
+                                    sheet1.Range[xlsRow + k, xlsCol].Text = ru.GetLabelname(labelList, item["Code"].ToString(), "B" + item["Code"].ToString()); //"Casual Leave";
+                                    sheet1.Range[xlsRow + k, xlsCol + 1].Number = clsStaticInfo.dbl(item["BalanceLeave"].ToString());
+                                    k++;
+                                }
+                            }
+                            //sheet1.Range[xlsRow + 2, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.CasualLeave.ToString(), "CL"); //"Casual Leave";
+                            //sheet1.Range[xlsRow + 2, xlsCol].ColumnWidth = 11;
+
+                            //sheet1.Range[xlsRow + 2, xlsCol + 1].Number = clsStaticInfo.dbl(CL);
+                            //sheet1.Range[xlsRow + 2, xlsCol + 1].ColumnWidth = 5;
+
+                            //sheet1.Range[xlsRow + 3, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.SickLeave.ToString(), "SL");//"Sick Leave";
+                            //sheet1.Range[xlsRow + 3, xlsCol + 1].Number = clsStaticInfo.dbl(SL);
+
+                            //sheet1.Range[xlsRow + 4, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.EarnLeave.ToString(), "EL");//"Earn Leave";
+
+                            //sheet1.Range[xlsRow + 4, xlsCol + 1].Number = clsStaticInfo.dbl(EL);
+
+                            //sheet1.Range[xlsRow + 5, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.LWP.ToString(), "LWP");//"Leave Without Pay";
+                            //sheet1.Range[xlsRow + 5, xlsCol + 1].Number = clsStaticInfo.dbl(LWP);
+
+                            //sheet1.Range[xlsRow + 6, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.SickLeaveESIC.ToString(), "SL Esic"); //"Sick Leave Esic";
+                            //sheet1.Range[xlsRow + 6, xlsCol + 1].Number = clsStaticInfo.dbl(SLESIC);
+
+                            //sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+
+                            _Info_Last_Row = xlsRow + 7;
+
+                            #endregion
+
+                            #region Attendance
+                            xlsCol += 2;
+                            double EarningDays = 0;
+                            double DeductingDays = 0;
+
+                            string _pd = "";
+                            string _ad = "";
+                            string _wod = "";
+                            string _hd = "";
+                            string _ld = "";
+                            double PDay = 0;
+
+                            _pd = dtEmpInfo.Rows[i]["TotalPresent"].ToString();
+                            _ad = (clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalAbsent"].ToString()) - clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalLWP"].ToString())).ToString();
+                            _wod = dtEmpInfo.Rows[i]["TotalWeekOff"].ToString();
+                            _hd = dtEmpInfo.Rows[i]["TotalHoliDay"].ToString();
+                            _ld = dtEmpInfo.Rows[i]["TotalLv"].ToString();
+
+
+                            if (!String.IsNullOrEmpty(dtEmpInfo.Rows[i]["WorkingDaysInAMonth"].ToString().ToUpper()))
+                            {
+                                if (dtEmpInfo.Rows[i]["WorkingDaysInAMonth"].ToString().ToUpper() == WorkingDaysInAMonth.ExcludingWeekOffAndHoliday.ToString().ToUpper())
+                                {
+                                    PDay = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalProcDate"].ToString()) - clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalAbsent"].ToString()) - clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalHoliDay"].ToString()) - clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalWeekOff"].ToString());
+                                }
+                                if (dtEmpInfo.Rows[i]["WorkingDaysInAMonth"].ToString().ToUpper() == WorkingDaysInAMonth.ExcludingWeekOff.ToString().ToUpper())
+                                {
+                                    PDay = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalProcDate"].ToString()) - clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalAbsent"].ToString()) - clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalWeekOff"].ToString());
+                                }
+                            }
+                            else
+                            {
+                                PDay = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalProcDate"].ToString()) - clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalAbsent"].ToString());
+                            }
+
+
+                            sheet1.Range[xlsRow, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.WorkDaysDetail.ToString(), "Work Days Detail"); //"Attendance Info";
+                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
+
+                            sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+
+                            _x = 1;
+                            sheet1[1, xlsCol].ColumnWidth = 14;
+                            sheet1[1, xlsCol + 1].ColumnWidth = 6;
+                            sheet1.Range[xlsRow + _x, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.Present.ToString(), "Present");//"Present";
+                            sheet1.Range[xlsRow + _x, xlsCol + 1].Number = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalPresent"].ToString()) + clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalLate"].ToString());
+                            sheet1.Range[xlsRow + _x, xlsCol + 1].CellStyle.Font.Size = 10;
+                            //GetEarningDays(ref EarningDays, _pd);
+
+                            _x++;
+                            sheet1.Range[xlsRow + _x, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.Absent.ToString(), "Absent"); // "Absent";
+                            sheet1.Range[xlsRow + _x, xlsCol + 1].Number = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalAbsent"].ToString()) - clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalLWP"].ToString());
+                            //GetEarningDays(ref DeductingDays, _ad);
+                            //GetEarningDays(ref EarningDays, _ad);
+
+                            _x++;
+                            sheet1.Range[xlsRow + _x, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.LWP.ToString(), "LWP"); //"LWP";
+                            sheet1.Range[xlsRow + _x, xlsCol + 1].Number = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalLWP"].ToString()) + clsStaticInfo.dbl(SLESIC);
+
+                            _x++;
+                            sheet1.Range[xlsRow + _x, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.WorkOff.ToString(), "W.Off"); //"W.Off";
+                            sheet1.Range[xlsRow + _x, xlsCol + 1].Number = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalWeekOff"].ToString());
+
+                            //GetEarningDays(ref EarningDays, _wod);
+                            _x++;
+                            sheet1.Range[xlsRow + _x, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.HoliDay.ToString(), "Holiday");//"Holiday";
+                            sheet1.Range[xlsRow + _x, xlsCol + 1].Number = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalHoliDay"].ToString());
+
+                            //GetEarningDays(ref EarningDays, _wod);
+                            _x++;
+                            sheet1.Range[xlsRow + _x, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.LeaveInformation.ToString(), "Leave");//"Leave";
+                            sheet1.Range[xlsRow + _x, xlsCol + 1].Number = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalLv"].ToString());
+
+
+                            sheet1.Range[xlsRow + _x, xlsCol + 1].CellStyle.Font.Size = 10;
+                            //GetEarningDays(ref EarningDays, _ld);
+
+                            _x++;
+                            sheet1.Range[xlsRow + _x, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.PayDays.ToString(), "Pay days");
+                            sheet1.Range[xlsRow + _x, xlsCol + 1].Number = PDay;
+
+                            _x++;
+                            //decimal totalOT = Convert.ToDecimal(dtEmpInfo.Rows[i]["TotalOTHr"].ToString()) / 60;
+
+                            sheet1.Range[xlsRow + _x, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.OTHours.ToString(), "Total OTHr");//"OTHr";
+                            if (dtEmpInfo.Rows[i]["TotalOTHr"].ToString() == "0.00")
+                            {
+                                sheet1.Range[xlsRow + _x, xlsCol + 1].Text = "";
+                                //sheet1[xlsRow + _x, xlsCol + 1].NumberFormat = clsStaticInfo.NumberFormat(2);
+                            }
+                            else
+                            {
+                                sheet1.Range[xlsRow + _x, xlsCol + 1].Number = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalOTHr"].ToString()) / 60;
+                                sheet1[xlsRow + _x, xlsCol + 1].NumberFormat = clsStaticInfo.NumberFormat(2);
+                            }
+                            _x++;
+
+                            if (_x > _maxRow)
+                                _maxRow = _x;
+                            #endregion
+
+                            xlsCol = 6;
+
+                            sheet1.Range[xlsRow, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.EarnedSalary.ToString(), "Earned Heads"); //"Earning Heads";
+                            sheet1.Range[xlsRow, xlsCol].ColumnWidth = 16;
+                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
+
+
+                            sheet1.Range[xlsRow, xlsCol + 2].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.Value.ToString(), "Value");// "Act Value";
+                            sheet1.Range[xlsRow, xlsCol + 3].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.PayValue.ToString(), "Pay Value");// "Pay Value";
+
+                            xlsCol = 10;
+
+                            sheet1.Range[xlsRow, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.Deduction.ToString(), "Deduction Heads"); //"Deduction Heads";
+                            sheet1.Range[xlsRow, xlsCol].ColumnWidth = 16;
+
+                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
+                            sheet1.Range[xlsRow, xlsCol + 2].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.Value.ToString(), "Value");//"Act Value";
+
+                            sheet1.Range[xlsRow, xlsCol + 3].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.PayValue.ToString(), "Pay Value");
+
+                            xlsCol = 14;
+                            sheet1.Range[xlsRow, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.TotalPay.ToString(), "Total Pay"); //"Total Pay";
+                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
+
+                            sheet1.Range[xlsRow, 1].RowHeight = sheet1.Range[xlsRow, 1].RowHeight * 2;
+                            sheet1.Range[xlsRow, 1, xlsRow, headerEndxlsCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+                            sheet1.Range[xlsRow, 1, xlsRow, headerEndxlsCol].CellStyle.Font.Bold = true;
+                            sheet1.Range[xlsRow, 1, xlsRow, headerEndxlsCol].Borders[ExcelBordersIndex.EdgeBottom].LineStyle = ExcelLineStyle.Hair;
+
+
+                            #endregion ------------------Body Part-01----------------------
+
+                            xlsRow += 1;
+
+                            EmpCounter += 1;
+                            SrNo++;
+                        }
+                        x = dtEmpInfo.Rows[i]["EmpSystemId"].ToString().Trim();
+
+
+
+                        int xlsColEarning = 6;
+                        double _Total_Earning = 0.00;
+                        double _Total_Deduction = 0.00;
+
+                        //  DataTable dtSalaryHead = dtSalaryHeadSheet;
+                        // DataView dvStruct = null;// new DataView(dsSlrStructure.Tables[0]);
+                        // DataView dvSheet = new DataView(dsSlrStructure.Tables[0]);//Processed Value
+                        List<DataRow> drSalaryHeadCollection = null;
+                        if (dicEmpSalry.ContainsKey(dtEmpInfo.Rows[i]["EmpSystemID"].ToString()))
+                        {
+                            drSalaryHeadCollection = dicEmpSalry[dtEmpInfo.Rows[i]["EmpSystemID"].ToString()];
+                        }
+                        if (drSalaryHeadCollection == null)
+                            continue;
+
+                        // dvStruct.RowFilter = "SystemID='" + x + "'";//SystemId = EmployeeSystemId
+                        //dvSheet.RowFilter = "EmpInfoSystemID='" + x + "'";//SystemId = EmployeeSystemId
+
+
+                        DataTable dtTemp = drSalaryHeadCollection[0].Table.Clone();
+
+                        for (int dt = 0; dt < drSalaryHeadCollection.Count; dt++)
+                        {
+                            dtTemp.ImportRow(drSalaryHeadCollection[dt]);
+                        }
+
+                        int _startRow = xlsRow;
+                        LoadSalaryHead_CurrLess(ref sheet1, dtTemp, xlsRow, xlsColEarning, out int _tempMaxRow, out _Total_Earning, "E", localLanguage, drSalaryHeadCollection);
+                        if (_tempMaxRow > _maxRow)
+                            _maxRow = _tempMaxRow;
+
+                        int xlsColDeduc = 10;
+                        int _maxRowDeduct = 0;
+                        LoadSalaryHead_CurrLess(ref sheet1, dtTemp, xlsRow, xlsColDeduc, out _maxRowDeduct, out _Total_Deduction, "D", localLanguage, drSalaryHeadCollection);
+
+
+
+                        var result = drSalaryHeadCollection.Where(row => row["HeadCategory"].Equals("Basic")).FirstOrDefault();
+
+                        if (result != null)
+                        {
+
+                            _basic = clsStaticInfo.dbl(result["DisbusmentAmount"].ToString());
+
+
+                        }
+                        //if (dvBasic.Count > 0)
+                        //{
+                        //    _basic = clsStaticInfo.dbl(dvBasic[0]["DisbusmentAmount"].ToString());
+                        //}
+
+                        if (_maxRowDeduct > _maxRow)
+                        {
+                            _maxRow = _maxRowDeduct;
+                        }
+                        else
+                        {
+
+                        }
+
+                        //DataView dvNetPay = new DataView(dtSalaryHead);
+                        //dvNetPay.RowFilter = "HeadCategory='Net Payable'";
+
+                        result = drSalaryHeadCollection.Where(row => row["HeadCategory"].Equals("Net Payable")).FirstOrDefault();
+                        if (result != null)
+                        {
+                            _netPay = clsStaticInfo.dbl(result["DisbusmentAmount"].ToString());
+                        }
+
+                        _maxRow++;
+                        _maxRow++;
+
+                        sheet1.Range[_maxRow + 1, xlsColDeduc + 4].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.NetPayable.ToString(), "Net Pay");//"Net Disb. :";
+
+                        sheet1.Range[_maxRow + 1, xlsColEarning + 1].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.TotalEarning.ToString(), "Total Earning");//"Total Earning";
+                        sheet1.Range[_maxRow + 1, xlsColEarning, _maxRow + 1, xlsColEarning + 1].Merge();
+
+
+                        var actualSalaryFormula = "=SUM(" + ru.GetColumnNameForXls(xlsColEarning + 2) + _startRow + ":" + ru.GetColumnNameForXls(xlsColEarning + 2) + _maxRow + ")";
+                        sheet1.Range[_maxRow + 1, xlsColEarning + 2].Formula = actualSalaryFormula;// + Convert.ToInt32(ColGrsSlrDif);
+                        sheet1.Range[_maxRow + 1, xlsColEarning + 2].NumberFormat = ru.NumberFormatIntLocal(localLanguage);
+
+                        var earnedSalaryFormula = "=SUM(" + ru.GetColumnNameForXls(xlsColEarning + 3) + _startRow + ":" + ru.GetColumnNameForXls(xlsColEarning + 3) + _maxRow + ")";
+                        sheet1.Range[_maxRow + 1, xlsColEarning + 3].Formula = earnedSalaryFormula;
+                        sheet1.Range[_maxRow + 1, xlsColEarning + 3].NumberFormat = ru.NumberFormatIntLocal(localLanguage);
+
+                        sheet1.Range[_maxRow + 1, xlsColDeduc].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.TotalDeduction.ToString(), "Total Deduction");//"Total Deduction";
+
+                        sheet1.Range[_maxRow + 1, xlsColDeduc, _maxRow + 1, xlsColDeduc + 1].Merge();
+
+
+                        var actualSalaryFormulaDeduction = "=SUM(" + ru.GetColumnNameForXls(xlsColDeduc + 2) + _startRow + ":" + ru.GetColumnNameForXls(xlsColDeduc + 2) + _maxRow + ")";
+                        sheet1.Range[_maxRow + 1, xlsColDeduc + 2].Formula = actualSalaryFormulaDeduction;
+                        sheet1.Range[_maxRow + 1, xlsColDeduc + 2].NumberFormat = ru.NumberFormatIntLocal(localLanguage);
+
+                        var earnedSalaryFormulaDeduction = "=SUM(" + ru.GetColumnNameForXls(xlsColDeduc + 3) + _startRow + ":" + ru.GetColumnNameForXls(xlsColDeduc + 3) + _maxRow + ")";
+                        sheet1.Range[_maxRow + 1, xlsColDeduc + 3].Formula = earnedSalaryFormulaDeduction;
+                        sheet1.Range[_maxRow + 1, xlsColDeduc + 3].NumberFormat = ru.NumberFormatIntLocal(localLanguage);
+                        int xlsColTot = 14;
+
+                        #region Total Earning
+                        sheet1.Range[xlsRow, xlsColTot].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.TotalEarning.ToString(), "Total Earning");
+                        //sheet1.Range[xlsRow, xlsColTot].Text = "Total Earning";
+                        var xlstColTotVal = xlsColTot + 1;
+                        sheet1.Range[xlsRow, xlstColTotVal].Number = (double)_Total_Earning;
+
+
+                        sheet1.Range[xlsRow, xlsColTot].ColumnWidth = 12.43;
+
+                        sheet1.Range[xlsRow, xlstColTotVal].CellStyle.Font.Size = 10;
+                        #endregion Total Earning
+
+                        #region Total Deduction
+                        sheet1.Range[xlsRow + 1, xlsColTot].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.Deduction.ToString(), "Total Deduction");  //"Total Deduction";
+                        double totDeduction = 0.00;
+                        if ((double)_Total_Deduction > 0)
+                        {
+                            totDeduction = (double)_Total_Deduction;
+                        }
+                        else
+                        {
+                            totDeduction = (double)_Total_Deduction * (-1);
+                        }
+                        sheet1.Range[xlsRow + 1, xlsColTot + 1].Number = totDeduction;
+                        sheet1.Range[xlsRow + 1, xlsColTot + 1].NumberFormat = ru.NumberFormatIntLocal(localLanguage);
+
+                        #endregion Total Deduction
+
+
+
+
+                        #region Net Exchange Gain
+
+                        #endregion Net Exchange Gain
+
+                        #region Net Disburseable
+
+                        sheet1.Range[_maxRow + 1, xlsColTot + 1].Number = (double)(_netPay);
+                        sheet1.Range[_maxRow + 1, xlsColTot + 1].NumberFormat = ru.NumberFormatIntLocal(localLanguage);
+
+                        #endregion Net Disburseable
+
+                        #region Line Setup
+                        //sr
+                        sheet1.Range[xlsRow, 1, _maxRow, 1].Merge();
+
+                        //info
+
+                        //ATTENDANCE
+
+
+                        sheet1.Range[xlsRow - 2, 1, _maxRow, xlsColTot + 1].WrapText = true;
+                        #endregion
+
+
+                        //_maxRow++;
+
+                        _maxRow += 3;
+                        startRow = _maxRow + 4;
+
+
+                        if ((EmpCounter % EmployeePerPage) == 0)
+                        {
+                            sheet1.HPageBreaks.Add(sheet1[(_maxRow + 4), xlsColTot + 1]);
+                        }
+                        //else
+                        //{
+                        //    startRow = _maxRow + 5;
+                        //}
+
+                        sheet1.Range[_maxRow + 2, 1].Text = "— — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — ";
+                        sheet1.Range[_maxRow + 2, 1, _maxRow + 2, xlsColTot + 1].Merge();
+
+                        sheet1.Range[empPaySlipDetailXlsRow, 1, _maxRow + 1, headerEndxlsCol].CellStyle.Font.Size = 10;
+                        sheet1.Range[_maxRow + 1, 6, _maxRow + 1, headerEndxlsCol].CellStyle.Font.Bold = true;
+                        sheet1.Range[_maxRow + 1, 6, _maxRow + 1, headerEndxlsCol].NumberFormat = ru.NumberFormatIntLocal(localLanguage);
+
+
+                        //ReportUtility 
+                        sheet1.Range[empPaySlipDetailXlsRow, 1, _maxRow + 1, headerEndxlsCol].BorderAround(ExcelLineStyle.Hair);
+                        sheet1.Range[empPaySlipDetailXlsRow, 1, _maxRow + 1, headerEndxlsCol].CellStyle.Font.FontName = printFont;
+
+                        sheet1.Range[empPaySlipDetailXlsRow, 1, _maxRow + 1, 15].Borders[ExcelBordersIndex.EdgeRight].LineStyle = ExcelLineStyle.Hair;
+                        sheet1.Range[_maxRow + 1, 1, _maxRow + 1, 15].Borders[ExcelBordersIndex.EdgeRight].LineStyle = ExcelLineStyle.Hair;
+                        xlsRow = startRow;
+                    }
+
+                }
+                #region Freeze Panes
+                #endregion
+
+                #region UsedRange Alignment
+                sheet1.UsedRange.WrapText = true;
+                sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                //sheet1.UsedRange.CellStyle.Font.FontName = printFont;
+
+                #endregion UsedRange Alignment
+
+                #region Page Setup
+                sheet1.PageSetup.TopMargin = 0.5;
+                sheet1.PageSetup.BottomMargin = 0.7;
+                //sheet1.PageSetup.PrintTitleRows = "$1:$5";
+                sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + userId + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
+                sheet1.PageSetup.LeftMargin = 0.5;
+                sheet1.PageSetup.RightMargin = 0.2;
+                sheet1.PageSetup.Orientation = ExcelPageOrientation.Portrait;
+                sheet1.PageSetup.FitToPagesTall = 0;
+                sheet1.PageSetup.FitToPagesWide = 1;
+                sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+
+                sheet1.Name = "EmpSalaryPaySlip";
+                #endregion
+
+
+                string strFileName = DateTime.Now.ToString("ddMMyy") + " SalaryPaySlip";
+
+                workbook.Version = ExcelVersion.Excel2016;
+                return workbook;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                objRpt = null;
+                excelEngine = null;
+                application = null;
+                workbook = null;
+            }
+        }
 
         // Sayanto - Addition Of CL and PL Balance to The Pay Slip
         public IWorkbook GetEmployeePaySlipWithBal(string companyGroupId, string companyId, string plantId, string userId, string month, string year, string salaryProcessId, Dictionary<string, string> parameters, string languageId, bool isActive, bool isSeperated, bool isMaternity)

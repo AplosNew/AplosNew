@@ -1,25 +1,8 @@
-﻿using Library.Model.Employees;
-using Library.Data;
-using Library.Service.Employees;
-
-using System;
+﻿using System;
 using System.Web.Mvc;
-using System.Linq;
 using Aplos.Controllers;
-using Aplos.Properties;
-using Library.Crosscutting.Security;
-using System.Threading;
-using Library.Data.Sql;
-using OTSBD;
-using System.Data;
 using System.Collections.Generic;
-using Library.Model.Enums;
-using Syncfusion.XlsIO;
-using Library.Service.Helpers;
-using System.IO;
 using Library.HumanResource.NewAttendanceProcess;
-using Newtonsoft.Json;
-//using TBS;
 
 namespace Aplos.Areas.HumanResource.Controllers
 {
@@ -70,63 +53,22 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost , Authorize]
-        public void ProcessData(string Data,string OTWeek)
+        public ActionResult ProcessData(string Data,string OTWeek , string SelectedOT)
         {
-            List<Dictionary<string,object>> _objects = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(Data);
-            var StringDates = new List<DateTime>();
-
-            #region To Find Max & Min Date
-
-            string WorkDatesMaster = "''";
-
-            foreach (Dictionary<string, object> AllWorkDates in _objects)
+            try
             {
-                if (AllWorkDates.ContainsKey("WorkDate"))
-                {
-
-                    string value = AllWorkDates["WorkDate"].ToString();
-                    string Param = "";
-                    DistinctFunction(ref WorkDatesMaster, value,out Param);
-                    if (Param == "1")
-                    {
-                        StringDates.Add(Convert.ToDateTime(value));
-                    }
-                }
+                ot.ProcessData(Data, OTWeek , SelectedOT);             
             }
-
-            DateTime MaxDate = StringDates.Max(date => date);
-            DateTime MinDate = StringDates.Min(date => date);
-
-            #endregion
-
-
-            //DataTable dx = new DataTable();
-            //dx.Columns.Add("empcode", typeof(string));
-
-            //dx.Columns.Add("workdate", typeof(DateTime));
-            string DailyLimit = "";
-            if ( DailyLimit=="0")
+            catch (Exception ex)
             {
-                decimal StdOT = 0;
-                decimal ExtraOT; // All;
+                ot.CommonLogFunction(ex);
+                return Json(new { Error = true, Message = "Error Occured..." }, JsonRequestBehavior.AllowGet);
+
             }
-            // var EmpData= Data.Where(k => k["empsystemid"].ToString() == "1223" && ).FirstOrDefault(); 
+            return Json(new { Error = false, Message = "OT Confirmation Process Ran Successfully..." }, JsonRequestBehavior.AllowGet);
 
         }
 
-        public void DistinctFunction(ref string WorkDatesMaster, string Value,out string Param)
-        {
-            if (WorkDatesMaster.Contains(Value))
-            {
-                Param = "0";
-                return;
-            }
-            else
-            {
-                Param = "1";
-                WorkDatesMaster += ",'" + Value + "'";
-            }
-        }
 
         #endregion Operations
     }

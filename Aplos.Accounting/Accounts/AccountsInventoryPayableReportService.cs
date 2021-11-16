@@ -1639,16 +1639,16 @@ namespace Library.Accounting.Accounts
 											else IR2.Id end
 								
 								,ContractNo=	STUFF((select distinct ','+C.ContractNo from
-														TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR.Id=XVD.InventoryReceiveId
+														TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR1.Id=XVD.InventoryReceiveId
 														LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=XVD.POId
-														LEFT JOIN dbo.PurchaseLC LC ON LC.Id=PO.PurchaseLCId
-														LEFT JOIN dbo.[Contract] C ON C.Id=LC.ContractId
+														--LEFT JOIN dbo.PurchaseLC LC ON LC.Id=PO.PurchaseLCId
+														LEFT JOIN dbo.[Contract] C ON C.Id=PO.ContractId
 														for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 								 ,CustomerName=	STUFF((select distinct ','+P.UserName from
-														TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR.Id=XVD.InventoryReceiveId
+														TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR1.Id=XVD.InventoryReceiveId
 														LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=XVD.POId
-														LEFT JOIN dbo.PurchaseLC LC ON LC.Id=PO.PurchaseLCId
-														LEFT JOIN dbo.[Contract] C ON C.Id=LC.ContractId
+														--LEFT JOIN dbo.PurchaseLC LC ON LC.Id=PO.PurchaseLCId
+														LEFT JOIN dbo.[Contract] C ON C.Id=PO.ContractId
 														LEFT JOIN HKP.Party P ON P.Id=C.CustomerId
 														for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
@@ -1663,7 +1663,7 @@ namespace Library.Accounting.Accounts
 								
 					  LEFT JOIN [EmployeeInformation] AS EI ON IR.EmployeeId=EI.SystemId
 
-                    WHERE V.Archive=0 AND V.CompanyGroupId='"+companyGroupId+"' AND V.CompanyId='"+companyId+"' AND V.PlantId='"+plantId+@"' 
+                    WHERE V.Archive=0 AND V.CompanyGroupId='" + companyGroupId+"' AND V.CompanyId='"+companyId+"' AND V.PlantId='"+plantId+@"' 
 						AND V.Id='"+voucherId+ @"' 
 					--AND V.SourceType='InventoryJWReceipt' 
                     and v.SourceType ='"+sourceType+@"'";

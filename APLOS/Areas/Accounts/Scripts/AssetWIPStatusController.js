@@ -228,6 +228,7 @@ function AssetWIPStatusController(commonMessage, $scope, $rootScope, $filter, $h
         angular.element(document.querySelector("#assetmastermodal")).modal("hide");
 
     };
+
     $scope.AssetWIPstatusList = [];
     $scope.GetAssetWIPstatusList = function () {
             $http({
@@ -314,16 +315,13 @@ function AssetWIPStatusController(commonMessage, $scope, $rootScope, $filter, $h
     }
 
     $scope.onGRNNoDownloadExcel = function (data) {
+        location.href = "GoodsReceiveNote/GRNReport?grnId=" + data.GRNNo;
+        };
+
+    $scope.onVoucherNoDownloadExcel = function (data) {
         var reportFormat = "Excel";
-        if (baseService.isUndefinedOrNull(data.GRNNo)) return ShowResult('No Id found', 'failure');
-        //$window.open($scope.path + 'PabyableJournal?inventoryReceiveId=' + data.GRNNo );
+        if (baseService.isUndefinedOrNull(data.VoucherNo)) return ShowResult('No Id found', 'failure');
         $window.open('Accounts/InventoryPayable/PabyableJournal?' + '&reportFormat=' + reportFormat + '&inventoryReceiveId=' + data.GRNNo + '&employeeId=' + null + '&isReversCharge=' + false + '&isFoc=' + false);
     };
-
-    //$scope.onVoucherNoDownloadExcel = function (data) {
-    //    var reportFormat = "Excel";
-    //    if (baseService.isUndefinedOrNull(data.VoucherNo)) return ShowResult('No Id found', 'failure');
-    //    $window.open($scope.path + 'PabyableJournal?inventoryReceiveId=' + data.VoucherNo);
-    //};
 
 }

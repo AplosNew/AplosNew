@@ -625,6 +625,7 @@ var upanelApp = angular
     .controller('payRegisterBDReportNewController', payRegisterBDReportNewController)
     .controller('payrollGroupMasterController', payrollGroupMasterController)
     .controller('paySlipsController', paySlipsController)
+    .controller('paySlipsNewController', paySlipsNewController)
     .controller('pFEmployeeAppliedController', PFEmployeeAppliedController)
     .controller('pFEmployeeVoluntaryValueController', PFEmployeeVoluntaryValueController)
     .controller('PFPolicyController', PFPolicyController)
@@ -973,6 +974,8 @@ var upanelApp = angular
     .controller('JobWorkTransformationPOController', JobWorkTransformationPOController)
     .controller('AssetWIPStatusController', AssetWIPStatusController)
     .controller('OTConfirmationProcessController' , OTConfirmationProcessController)
+    .controller("multipleResignationApprovalNewController", multipleResignationApprovalNewController)
+
 
     .config(AccessControllerConfig)
     .config(accountConfig)

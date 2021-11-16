@@ -1,0 +1,131 @@
+﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Fixed Assets Register Disposed Report</h3>
+<div class="form-elements form-horizontal" ng-form="form0">
+
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="col-xs-6 col-sm-6 col-md-6">
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border">Filter By Disposal Date and Type</legend>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Select Type<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label"></label>
+                                <div class="col-sm-1">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="report.NonPosted" value="1">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+
+                                        </label>
+                                    </div>
+                                </div>
+                                <label class="col-sm-4 control-label" style="margin-top:-7px;"> Non Posted</label>
+                            </div>
+                            <div class="clearfix"></div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label"></label>
+                                <div class="col-sm-1">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="report.Posted" value="0">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <label class="col-sm-4 control-label" style="margin-top:-7px;">Posted</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Disposal Type<sup>*</sup></label>
+                    <div class="col-sm-9">
+                        <div class="select-style">
+                            <input id="FixedAssetDisposeStatusList" ej-dropdownlist e-create="create" e-watermarktext="" e-multiselectmode="visualmode" e-datasource="fixedAssetDisposeStatusList" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-showcheckbox="true" />
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" show-errors id="div_FromDate">
+                    <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
+                    <div class="col-sm-9 show-message">
+                        <input type="text" name="Form Date" ng-model="report.FromDate" datepicker tabindex="2" class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-group" show-errors id="div_ToDate">
+                    <label class="col-sm-3 control-label">TO Date<sup>*</sup></label>
+                    <div class="col-sm-9  show-message">
+                        <input type="text" name="To Date" ng-model="report.ToDate" datepicker tabindex="3" class="form-control">
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="GetFixedAssetRegisterElasticSearchData();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> View</button></li>
+                        @*<li> <button id="go12" class="btn" ng-click="PrintPurchaseRegister();"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>*@
+                    </ul>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+    <div class="common-btn">
+        <ul class="list-inline text-left">
+            <li><button ng-click="FixedAssetRegisterDisposedReportExcel();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i>Export To Excel</button></li>
+        </ul>
+    </div>
+    <div class="clearfix"></div>
+    <div class="row">
+        @*<div class="clearfix"></div>*@
+        <div class="table-responsive modal-table aplos-grid-toggle">
+            <div class="content-container-fluid" style="color:black;overflow:scroll">
+                <div style="color:black;" id="GridFixedAssetRegisterReportElasticSearch" ej-grid e-datasource="FixedAssetRegisterElasticSearchList" e-recorddoubleclick="getdata" e-templaterefresh="refreshTemplateEntityandDepartment"
+                     e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true" e-summaryrows="TotalFARegisterSummaryAmount"
+                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowresizing="true" e-allowselection="false" e-allowsorting="true">
+                    <div e-columns>
+                        <div e-column e-field="MaterialMaster" e-headertext="Material Master" e-width="60"></div>
+                        <div e-column e-type="text" e-field="Article" e-headertext="Article" e-width="60" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="40" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="40" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="ThirdCharacteristicsValue" e-headertext="SKU3" e-width="40" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="AssetMaster" e-headertext="Asset Master" e-width="60" style="height: 20px;"></div>
+                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="NetFixedAssetsAmount" e-headertext="Net Base Amount" e-width="40" e-textalign="right" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="Status" e-headertext="Disposal type" e-width="20" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="DisposalNo" e-headertext="Disposal No" e-width="20" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="DocDate" e-headertext="Disposal Date" e-width="20" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="CustomerName" e-headertext="Customer Name" e-width="60" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="Currency" e-headertext="Currency" e-width="20" style="height: 20px;"></div>
+                        <div e-column e-type="numeric" e-format="{0:0.0000}" e-field="ToCurrencyRate" e-headertext="Currency Rate" e-width="30" e-textalign="right" style="height: 20px;"></div>
+                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="NegotiationValue" e-headertext="Disposed Amount" e-width="40" e-textalign="right" style="height: 20px;"></div>
+                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BaseNagotiationValue" e-headertext="Base Disposed Amount" e-width="40" e-textalign="right" style="height: 20px;"></div>
+                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="LossOrGain" e-headertext="Loss Or Gain" e-width="40" e-textalign="right" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="VoucherNo" e-headertext="Voucher No" e-width="20" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="PostingStatus" e-headertext="Posting Status" e-width="20" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="GatePassNo" e-headertext="Gate Pass No" e-width="20" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="Party" e-headertext="Party" e-width="40" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="IsAsset" e-headertext="Asset" e-width="20" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="Machine" e-headertext="Machine" e-width="20" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="FACount" e-headertext="FA Count" e-width="30" e-textalign="right" style="height: 20px;"></div>
+                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="FABaseAmount" e-headertext="FA Base Amount" e-width="40" e-textalign="right" style="height: 20px;"></div>
+                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="SubAssetAmount" e-headertext="Sub Asset Amount" e-width="40" e-textalign="right" style="height: 20px;"></div>
+                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TotalBaseAmount" e-headertext="Total Base Amount" e-width="40" e-textalign="right" style="height: 20px;"></div>
+                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="ADBaseAmount" e-headertext="AD Base Amount" e-width="40" e-textalign="right" style="height: 20px;"></div>
+
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+
+@Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")
+@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterPopUp.cshtml")
+@Html.Partial("~/Areas/FixedAssets/Views/_FixedAssetMasterPopUp.cshtml")
+

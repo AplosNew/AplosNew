@@ -4,6 +4,17 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
     $rootScope.title = 'OT Confirmation Process';
     $scope.path = "humanresource/OTConfirmationProcess/";
 
+    var but = document.getElementById('ChkBtn')
+    but.style.display = "none";
+
+    function ProcessChk() {
+        if ($scope.Data.length <= 0) {
+            but.style.display = "none";
+        }
+        else {
+            but.style.display = "block";
+        }
+    }
 
     $scope.parameters = [];
     $scope.filters = [];
@@ -63,6 +74,8 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
     $scope.ProcessValue = null;
     $scope.OTLimit = null;
     $scope.DSApp = null;
+
+    $scope.SelectedOT = null;
 
     //Day Status
 
@@ -127,13 +140,19 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
             else {
                 $scope.Data = [];
                 $scope.Data = resp.data;
-
+                ProcessChk();
             }
             
         })
     }
 
     $scope.ProcessAll = function () {
+
+        if (angular.isUndefinedOrNull($scope.SelectedOT)) {
+            ShowResult('Please Select OT Type!', 'failure');
+            throw ('Invalid Request');
+        }
+
         var ProcArr = [];
         for (var i = 0; i < $scope.Data.length; i++) {
             ProcArr.push({
@@ -149,7 +168,7 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
         $http({
             method: 'POST',
             url: $scope.path + 'ProcessData',
-            data: { 'Data': Proc, 'OTWeek': $scope.Week},
+            data: { 'Data': Proc, 'OTWeek': $scope.Week, 'SelectedOT' : $scope.SelectedOT},
         }).then(function succ(resp) {
             if (resp.data.Error === true) {
                 ShowResult(resp.data.Message, 'failure');
@@ -160,5 +179,6 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
 
         })
     }
-   
+
+   // 2 - TotalOTHours  || 1 - AllowedOT
 }
