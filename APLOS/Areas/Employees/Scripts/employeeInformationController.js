@@ -278,7 +278,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
     $scope.CheckDuplicateEmployeeCode = function () {
         $http({
             method: 'GET',
-            url: 'Employees/EmployeeInformation/CheckDuplicateEmployeeCode?systemId=' + $scope.employeeNew.SystemId + '&employeeCode=' + $scope.employeeNew.EmployeeCode + '&EmployeeCodeCheckLevel=' + $scope.EmployeeCodeCheckLevel
+            url: 'Employees/EmployeeInformation/CheckDuplicateEmployeeCode?systemId=' + $scope.employeeNew.SystemId + '&employeeCode=' + $scope.employeeNew.EmployeeCode + '&EmployeeCodeTypeId=' + $scope.employeeNew.EmployeeCodeTypeId
         }).then(function successCallback(response) {
             if (response.data == false) {
                 ShowResult("This EmployeeCode already exist.........EmployeeCode must be unique.", 'failure', 'NewEmpEntryPopUp');
@@ -1712,12 +1712,12 @@ function employeeInformationController(addressService, fileReader, cboService, c
             throw "Reference Employee cell is required.";
         }
 
-        if ($scope.IsResidenceGroupMandatory === true && baseService.isUndefinedOrNull($scope.employeeNew.ResidenceGroupId)) {
-            throw "Residence Group is required.";
-        }
-        if ($scope.IsTransportGroupMandatory === true && baseService.isUndefinedOrNull($scope.employeeNew.TransportGroupId)) {
-            throw "Transport Group is required.";
-        }
+        //if ($scope.IsResidenceGroupMandatory === true && baseService.isUndefinedOrNull($scope.employeeNew.ResidenceGroupId)) {
+        //    throw "Residence Group is required.";
+        //}
+        //if ($scope.IsTransportGroupMandatory === true && baseService.isUndefinedOrNull($scope.employeeNew.TransportGroupId)) {
+        //    throw "Transport Group is required.";
+        //}
     }
 
 
@@ -1725,7 +1725,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
         try {
 
             $scope.NewEmpAddValidate();
-
+            $scope.employeeNew.ExcludeOT = false;
             //$scope.$broadcast('show-errors-check-validity');
             //if ($scope.newEmpForm.$valid) { // 'WeekOff': $scope.WeekOffChild , 'OT' : $scope.NonEligibleOTChild
             $http({
