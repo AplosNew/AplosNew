@@ -1811,7 +1811,7 @@ namespace Library.MaterialManagement.Inventory
 				                LEFT JOIN (select POReqDetailsID, sum(qty) allowQty from TRN.GRNPORequisitionAllocation group BY POReqDetailsID) GA On GA.POReqDetailsID=POREQD.Id
 				             WHERE IRD.Id='" + InventoryReceiveDetailId + "'--IRD.PODetailsId = @inventoryReceiveId AND ";
 				return _sqlRepository.GetDataCollection(_sql);
-				//}
+				//} 
 
 
 
