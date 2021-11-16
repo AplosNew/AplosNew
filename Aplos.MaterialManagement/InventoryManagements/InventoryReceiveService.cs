@@ -999,7 +999,8 @@ namespace Library.MaterialManagement.InventoryManagements
 						--Left JOIN [MST].[MaterialMasterAlternativeUOM] AS MMAU ON MMAU.MaterialMasterId = MM.Id
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON TUoM.Id =mm.StockUOMId 	
 						LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
-						left join (select a.SalesOrderId, b.BOQDetailId,sum(a.BaseQty) TransactionQty ,UOM.UserName,UOM.Id StockTransactionUoMId,a.BaseUoMId
+						left join (select G.SalesOrderId, G.BOQDetailId,sum(ISNULL(G.TransactionQty,0)) TransactionQty ,G.UserName,G.StockTransactionUoMId,G.BaseUoMId 
+						from ( select a.SalesOrderId, b.BOQDetailId,sum(a.BaseQty) TransactionQty ,UOM.UserName,UOM.Id StockTransactionUoMId,a.BaseUoMId
 														 from trn.GRNPORequisitionAllocation a
 														left join trn.POBOQMap b ON b.Id=a.POBOQMapId
 														LEFT JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id=a.BaseUoMId
@@ -1013,7 +1014,8 @@ namespace Library.MaterialManagement.InventoryManagements
 														left join [dbo].OSPOBOQMAP OSPOBOQM ON OSPOBOQM.Id=a.OSPOBOQMAPId
 														LEFT JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id=a.BaseUoMId
 															--where a.SalesOrderId='212160101' --and b.BOQDetailId='21223-25'
-														group by OSPOBOQM.BOQDetailId,UOM.UserName,UOM.Id,a.SalesOrderId,a.BaseUoMId
+														group by OSPOBOQM.BOQDetailId,UOM.UserName,UOM.Id,a.SalesOrderId,a.BaseUoMId)
+														G 	group by G.SalesOrderId, G.BOQDetailId,G.UserName,G.StockTransactionUoMId,G.BaseUoMId 
 								) GRNALLO ON GRNALLO.BOQDetailId=BOQD.Id
 						LEFT JOIN [SCS].[UnitOfMeasurement] POUoMId ON POUoMId.Id=BOQD.POUoMId
 						LEFT JOIN [SCS].[UnitOfMeasurement] BaseUoMId ON BaseUoMId.Id=BOQD.BaseUoMId
