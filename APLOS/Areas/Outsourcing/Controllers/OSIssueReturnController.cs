@@ -116,14 +116,6 @@ namespace Aplos.Areas.Outsourcing.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             if (Type == "Value Added")
             {
-                //sql = @"select vac.Id,TabType='Value Added', vac.EntityId,vac.PartyId,vac.Remarks,FORMAT(vac.PODate,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5)
-                //                           ,vac.[Time],108)[VACTime],FORMAT(vac.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate
-                //                           ,FORMAT(vac.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(vac.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate
-                //                           ,e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
-                //                           from dbo.OSTransformationPO vac left join ORG.Entity e on e.Id=vac.EntityId
-                //                           left join HKP.Party p on p.Id=vac.PartyId
-                //                           WHERE " + strkey + " and POType='OSValueAddedPO' order by ValueAddedDate desc ";
-
 
                 sql = @"select * from(
 							SELECT  ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id,TabType='Value Added'

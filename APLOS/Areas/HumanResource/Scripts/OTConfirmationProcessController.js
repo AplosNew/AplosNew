@@ -4,6 +4,17 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
     $rootScope.title = 'OT Confirmation Process';
     $scope.path = "humanresource/OTConfirmationProcess/";
 
+    var but = document.getElementById('ChkBtn')
+    but.style.display = "none";
+
+    function ProcessChk() {
+        if ($scope.Data.length <= 0) {
+            but.style.display = "none";
+        }
+        else {
+            but.style.display = "block";
+        }
+    }
 
     $scope.parameters = [];
     $scope.filters = [];
@@ -129,7 +140,7 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
             else {
                 $scope.Data = [];
                 $scope.Data = resp.data;
-
+                ProcessChk();
             }
             
         })
