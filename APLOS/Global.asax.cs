@@ -24,23 +24,23 @@ namespace Aplos
             BundleConfig.RegisterBundles(BundleTable.Bundles);
             //GlobalConfiguration.Configuration.MessageHandlers.Add(new CorsHandler());
 
-            try
-            {
-                for (int i = 0; i < ValueProviderFactories.Factories.Count; i++)
-                {
-                    if (ValueProviderFactories.Factories[i].GetType() == typeof(System.Web.Mvc.JsonValueProviderFactory))
-                    {
-                        ValueProviderFactories.Factories.RemoveAt(i);
-                        break;
-                    }
-                }
+            //try
+            //{
+            //    for (int i = 0; i < ValueProviderFactories.Factories.Count; i++)
+            //    {
+            //        if (ValueProviderFactories.Factories[i].GetType() == typeof(System.Web.Mvc.JsonValueProviderFactory))
+            //        {
+            //            ValueProviderFactories.Factories.RemoveAt(i);
+            //            break;
+            //        }
+            //    }
 
-                ValueProviderFactories.Factories.Add(new AplosJsonValueProviderFactory());
-            }
-            catch (Exception ex)
-            {
+            //    ValueProviderFactories.Factories.Add(new AplosJsonValueProviderFactory());
+            //}
+            //catch (Exception ex)
+            //{
 
-            }
+            //}
           
         }
         protected void Application_AcquireRequestState(object sender, EventArgs e)
