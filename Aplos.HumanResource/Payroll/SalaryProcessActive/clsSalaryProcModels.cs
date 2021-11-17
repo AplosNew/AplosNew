@@ -97,6 +97,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
         public decimal TotalAbsent { get; set; } = 0;
         public decimal TotalLv { get; set; } = 0;
         public decimal TotalLWP { get; set; } = 0;
+        public decimal TotalLVWithPay { get; set; } = 0;
         public decimal TotalMLv { get; set; } = 0;
         public decimal TotalWeekOff { get; set; } = 0;
         public decimal TotalCompAssignLv { get; set; } = 0;

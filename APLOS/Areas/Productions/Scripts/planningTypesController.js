@@ -82,12 +82,16 @@ function planningTypesController(cboService, commonMessage, $scope, $rootScope, 
 
     $scope.Get = function (id, index) {
         $scope.index = index;
-        $scope.CompanyId = $scope.planningTypesNew.CompanyId;
-        
+        if (!baseService.isUndefinedOrNull($scope.planningTypesNew.CompanyId)) {
+            $scope.CompanyId = $scope.planningTypesNew.CompanyId;
+        }
+
         $scope.planningTypes = $scope.planningTypeses[$scope.index];
         $scope.planningTypesNew = Object.assign({}, $scope.planningTypes);
 
-        $scope.planningTypesNew.CompanyId = $scope.CompanyId;
+        if (!baseService.isUndefinedOrNull($scope.CompanyId)) {
+            $scope.planningTypesNew.CompanyId = $scope.CompanyId;
+        }
         $scope.getPlantCbo();
         if ($scope.planningTypes.PlanningType === 'PlanningType1') {
             $scope.planningTypes.Description = 'WC wise';

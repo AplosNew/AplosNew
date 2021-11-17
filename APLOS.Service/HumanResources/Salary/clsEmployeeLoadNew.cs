@@ -173,6 +173,43 @@ namespace OTSBD
             }
         }//End Function
 
+        public bool DuplicateEmployeeCodeWithInGroup(string strPlantID, string strSystemID, string strEmpCode, string EmployeeCodeTypeId)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            System.Data.DataSet dsRef = null;
+            bool blnStatus = false;
+
+            try
+            {
+                strSql = @"SELECT * FROM EmployeeInformation A 
+                                        WHERE EXISTS (SELECT * FROM EmployeeCodeGenGroupDetail B WHERE A.PlantId=B.PlantId AND A.EmployeeCodeTypeId=B.EmployeeCodeTypeId 
+                                        AND EmployeeCodeGenGroupId=(SELECT EmployeeCodeGenGroupId FROM EmployeeCodeGenGroupDetail WHERE PlantId='"+ strPlantID + @"' AND EmployeeCodeTypeId='"+ EmployeeCodeTypeId + @"'))
+                                        AND (SystemID <> '"+ strSystemID + @"') AND (EmployeeCode = '"+ strEmpCode + "')";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+
+                if (dsRef.Tables[0].Rows.Count == 0)
+                {
+                    blnStatus = true;
+                }
+                else
+                {
+                    blnStatus = false;
+                }
+                return blnStatus;
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
+
         public bool FountAttdnProc(string strSystemID)
         {
             ConnectionManager.DAL.ConManager objCon;

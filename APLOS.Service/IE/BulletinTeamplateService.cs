@@ -128,6 +128,7 @@ namespace Library.Service.IEnumerable
                                        [MST].[BulletinTemplateMaster] BTP 
 									   join HKP.Process P ON P.Id=BTP.ProcessId
                                         WHERE BT.Id=BTP.BulletinTemplateId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                        ,PBCount=(Select Count (Id) From [TRN].[ProductionBulletinTemplate] Where BulletinTemplateId=BT.Id)			
                          FROM [MST].[BulletinTemplate] BT
                          LEFT JOIN MST.ProductMaster PM ON PM.Id=BT.ProductMasterId
                          LEFT JOIN HKP.SizeGroup SG ON SG.Id=BT.SizeGroupId WHERE BT.CompanyGroupId='" + companyGroupId + "'";

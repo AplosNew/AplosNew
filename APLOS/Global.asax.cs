@@ -10,6 +10,7 @@ using System.Web.Optimization;
 using System.Web.Routing;
 using System.Web.Security;
 using Aplos.Helpers;
+using Library.Core;
 
 namespace Aplos
 {
@@ -22,6 +23,17 @@ namespace Aplos
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
             //GlobalConfiguration.Configuration.MessageHandlers.Add(new CorsHandler());
+
+            for (int i = 0; i < ValueProviderFactories.Factories.Count; i++)
+            {
+                if (ValueProviderFactories.Factories[i].GetType() == typeof(System.Web.Mvc.JsonValueProviderFactory))
+                {
+                    ValueProviderFactories.Factories.RemoveAt(i);
+                    break;
+                }
+            }
+
+            ValueProviderFactories.Factories.Add(new AplosJsonValueProviderFactory());
         }
         protected void Application_AcquireRequestState(object sender, EventArgs e)
 
