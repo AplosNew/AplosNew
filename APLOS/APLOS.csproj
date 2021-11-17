@@ -3850,6 +3850,7 @@
     <Content Include="Areas\FixedAssets\Views\Shared\_Layout.cshtml" />
     <Content Include="Areas\FixedAssets\Views\FixedAssetsRegisterDisposedReport.cshtml" />
     <Content Include="Areas\Employees\Views\ResignationApprovalMultipleNew\Aplos.cshtml" />
+    <Content Include="Areas\JobWork\Views\JWIssueReturn\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
