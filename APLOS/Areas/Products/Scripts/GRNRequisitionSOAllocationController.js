@@ -10,7 +10,7 @@ function GRNRequisitionSOAllocationController(accountService, addressService, $w
     $scope.tab = 1;
     $scope.setTabpou = function (newTab) {
         $scope.tab = newTab;
-        $scope.GetJWGRData();
+        $scope.GetOutSourceGRData();
 
     };
     $scope.isSetpou = function (tabNum) {

@@ -4274,6 +4274,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 
     // #endregion checkbox all
 
+
     $scope.BOQItemsDetailsDataList = [];
     $scope.GetBOQItemsDetailsData = function () {
         $scope.BOQItemsDetailsDataList = [];
