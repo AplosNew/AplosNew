@@ -230,8 +230,12 @@
 
             <div class="form-group">
                 <label class="col-sm-4 control-label" style="margin-top:10px">Customer<sup>*</sup></label>
-                <div class="col-sm-8 show-message" style="margin-top:10px">
+                <div class="col-sm-6 show-message" style="margin-top:10px">
                     <input type="text" name="Location" ng-model="customer" ng-click="selectCustomer()" class="form-control" maxlength="200" tabindex="5">
+
+                </div>
+                <div class="col-sm-1" style="margin-top:10px">
+                    <button ng-click="selectCustomer()" class="btn" ><i class="glyphicon glyphicon-search"></i></button>
                 </div>
             </div>
 
