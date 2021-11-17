@@ -4282,12 +4282,7 @@ GROUP BY FAR.FABudgetMasterId
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-            worksheet[ROW, COL].Text = "Net FABase Amount";
-            int colNetFixedAssetsBaseAmount = COL;
-            worksheet[ROW, COL].ColumnWidth = 15;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-            COL++;
+            
 
             worksheet[ROW, COL].Text = "Disposal type";
             int colDisposaltype = COL;
@@ -4316,19 +4311,13 @@ GROUP BY FAR.FABudgetMasterId
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-            worksheet[ROW, COL].Text = "Currency";
+            worksheet[ROW, COL].Text = "Exchange Currency";
             int colCurrency = COL;
             worksheet[ROW, COL].ColumnWidth = 15;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-            worksheet[ROW, COL].Text = "Currency Rate";
-            int colToCurrencyRate = COL;
-            worksheet[ROW, COL].ColumnWidth = 15;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-            COL++;
-
+           
             worksheet[ROW, COL].Text = "Disposed Amount";
             int colNegotiationValue = COL;
             worksheet[ROW, COL].ColumnWidth = 15;
@@ -4336,8 +4325,22 @@ GROUP BY FAR.FABudgetMasterId
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
+            worksheet[ROW, COL].Text = "Exchange Rate";
+            int colToCurrencyRate = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
             worksheet[ROW, COL].Text = "Base Disposed Amount";
             int colBaseNagotiationValue = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Net FABase Amount";
+            int colNetFixedAssetsBaseAmount = COL;
             worksheet[ROW, COL].ColumnWidth = 15;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -4400,7 +4403,7 @@ GROUP BY FAR.FABudgetMasterId
             // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
-            worksheet[ROW, COL].Text = "Purchase Price";
+            worksheet[ROW, COL].Text = "Purchase Rate";
             int colPurchasePrice = COL;
             worksheet[ROW, COL].ColumnWidth = 15;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;

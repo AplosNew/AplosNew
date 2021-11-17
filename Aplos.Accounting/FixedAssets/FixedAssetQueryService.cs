@@ -832,9 +832,9 @@ namespace Library.Accounting.FixedAssets
 							,ActivityId=  FGL.LossOnDisposalAssetActivityId     
 							,ActivityCode=  A.Code    
 							,ActivityName=  A.UserName    
-							, Dr=  SUM(FR.Price+isnull(SAR.subAssetAmount,0))- SUM(FR.ADBaseAmount)
+							, Dr=  SUM(FR.FABaseAmount+isnull(SAR.subAssetAmount,0))- SUM(FR.ADBaseAmount)
 							, Cr=0
-							, Amount= SUM(FR.Price+isnull(SAR.subAssetAmount,0))- SUM(FR.ADBaseAmount)
+							, Amount= SUM(FR.FABaseAmount+isnull(SAR.subAssetAmount,0))- SUM(FR.ADBaseAmount)
 						FROM  TRN.FixedAssetRegisterDisposedDetail FRDD
 						LEFT JOIN TRN.FixedAssetRegisterDisposed FRD ON FRD.Id=FRDD.FixedAssetRegisterDisposedId
 						LEFT JOIN TRN.FixedAssetRegister FR ON FR.Id=FRDD.FixedAssetRegisterId
@@ -861,8 +861,8 @@ namespace Library.Accounting.FixedAssets
 							,ActivityName =A.UserName
 							
 							, NULL Dr
-							, SUM(FR.Price+isnull(SAR.subAssetAmount,0)) AS Cr
-							, SUM(FR.Price+isnull(SAR.subAssetAmount,0)) AS Amount
+							, SUM(FR.FABaseAmount+isnull(SAR.subAssetAmount,0)) AS Cr
+							, SUM(FR.FABaseAmount+isnull(SAR.subAssetAmount,0)) AS Amount
 						FROM  TRN.FixedAssetRegisterDisposedDetail FRDD
 						LEFT JOIN TRN.FixedAssetRegisterDisposed FRD ON FRD.Id=FRDD.FixedAssetRegisterDisposedId
 						LEFT JOIN TRN.FixedAssetRegister FR ON FR.Id=FRDD.FixedAssetRegisterId
@@ -923,9 +923,9 @@ namespace Library.Accounting.FixedAssets
 							,ActivityId=  FGL.LossOnDisposalAssetActivityId     
 							,ActivityCode=  A.Code    
 							,ActivityName=  A.UserName    
-							, Dr=  SUM(FR.Price+isnull(SAR.subAssetAmount,0))- SUM(FR.ADBaseAmount)
+							, Dr=  SUM(FR.FABaseAmount+isnull(SAR.subAssetAmount,0))- SUM(FR.ADBaseAmount)
 							, Cr=0
-							, Amount= SUM(FR.Price+isnull(SAR.subAssetAmount,0))- SUM(FR.ADBaseAmount)
+							, Amount= SUM(FR.FABaseAmount+isnull(SAR.subAssetAmount,0))- SUM(FR.ADBaseAmount)
 						FROM  TRN.FixedAssetRegisterDisposedDetail FRDD
 						LEFT JOIN TRN.FixedAssetRegisterDisposed FRD ON FRD.Id=FRDD.FixedAssetRegisterDisposedId
 						LEFT JOIN TRN.FixedAssetRegister FR ON FR.Id=FRDD.FixedAssetRegisterId
@@ -952,8 +952,8 @@ namespace Library.Accounting.FixedAssets
 							,ActivityName =A.UserName
 							
 							, NULL Dr
-							, SUM(FR.Price+isnull(SAR.subAssetAmount,0)) AS Cr
-							, SUM(FR.Price+isnull(SAR.subAssetAmount,0)) AS Amount
+							, SUM(FR.FABaseAmount+isnull(SAR.subAssetAmount,0)) AS Cr
+							, SUM(FR.FABaseAmount+isnull(SAR.subAssetAmount,0)) AS Amount
 						FROM  TRN.FixedAssetRegisterDisposedDetail FRDD
 						LEFT JOIN TRN.FixedAssetRegisterDisposed FRD ON FRD.Id=FRDD.FixedAssetRegisterDisposedId
 						LEFT JOIN TRN.FixedAssetRegister FR ON FR.Id=FRDD.FixedAssetRegisterId
