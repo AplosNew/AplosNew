@@ -293,6 +293,8 @@ namespace OTSBD
 								LEFT JOIN LeaveType AS lt ON 1=1
 							    LEFT JOIN AttdnProcessData AS apd   ON lt.Id=apd.LTSystemID  AND apd.EmpSystemID=ei.SystemId
 								AND  apd.WorkDate BETWEEN   '" + leavePara.FromDate + @"' AND  '" + leavePara.ToDate + @"'
+								JOIN SalaryProcMaster AS spm ON spm.MonthNo=MONTH('" + leavePara.FromDate + @"') AND spm.YearNo=YEAR('" + leavePara.FromDate + @"')
+								JOIN SalaryProcessLogDetail AS spld ON spld.EmpSystemId=ei.SystemId AND spld.SalaryProcessId=spm.SystemID
 
                                 LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
                                 LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
