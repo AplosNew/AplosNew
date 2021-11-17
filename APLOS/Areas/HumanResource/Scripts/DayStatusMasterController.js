@@ -487,6 +487,7 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
         AttnBonusAbsent: 0,
         AttnBonusLate: 0,
         AttnBonusLeave: 0,
+        OTCategory: null,
     };
 
     //Getting the OTRate List
@@ -671,6 +672,7 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
             AttnBonusAbsent: 0,
             AttnBonusLate: 0,
             AttnBonusLeave: 0,
+            OTCategory: null,
         };
         $scope.DayChild.HeaderId = $scope.Header.Id;
         
@@ -710,7 +712,7 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
         $scope.DayChild.ApplicableWM = String(e.data.ApplicableWM);
         $scope.DayChild.OTConfirmation = String(e.data.OTConfirmation);
         $scope.DayChild.DisplayInOutTime = String(e.data.DisplayInOutTime);
-
+        $scope.DayChild.OTCategory = String(e.data.OTCategory);
     }
 
     //Delete Day Status
