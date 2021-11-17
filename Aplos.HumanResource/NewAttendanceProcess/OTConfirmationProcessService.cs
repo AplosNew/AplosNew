@@ -177,11 +177,9 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 #region Monthly Confirmed OT
 
-                //DataTable MonthData=new DataTable();
-                //MonthData.Columns.Add("EmpSystemId");
-                //MonthData.Columns.Add("MonthlyConfirmedOT");
-                //MonthlyOTData(out MonthData,StringDates.Min(date => date).ToString("dd-MMM-yyyy"));
-                
+                DataSet MonthData;
+                MonthlyOTData(out MonthData,StringDates.Min(date => date).ToString("dd-MMM-yyyy"));
+               
                 #endregion
 
                 for (int i = 0; i < Table.Rows.Count; i++)
@@ -209,10 +207,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                         string ApplicablePattern = clsWebLib.RetValidLen(Table.Rows[i]["ApplicableWM"]).ToString();
                         string FormatDate = MinDate.ToString("dd-MMM-yyyy");
                         decimal WeekStandardOTMaster = 0;
+                        decimal MonthStandardOTMaster = 0;
 
                         if (ApplicablePattern == "W")
                         {
-                            Table.DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' AND IsOTConfirm=1 AND WorkDate <>#" + FormatDate + "# " +
+                            Table.DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' AND IsOTComfirm=true AND WorkDate <>#" + FormatDate + "# " +
                             "AND WorkDate >= #" + WeekMinDate + "# and WorkDate<= #" + WeekMaxDate + "# ";
 
                             if (Table.DefaultView.Count > 0)
@@ -230,8 +229,15 @@ namespace Library.HumanResource.NewAttendanceProcess
                             }
                         }
 
+                        else if(ApplicablePattern=="M")
+                        {
+                            if (MonthData.Tables[0].Rows.Count > 0)
+                            {
+
+                            }
+                        }
                            
-                        Table.DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "'AND IsOTConfirm=0 AND WorkDate =#" + FormatDate + "# ";
+                        Table.DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "'AND IsOTComfirm=false AND WorkDate =#" + FormatDate + "# ";
                         if (Table.DefaultView.Count > 0)
                         {
                                
@@ -245,21 +251,22 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                             #region AllowedOT Limit  
 
-                                if (DayLimit == 0) // Say If DayType is W Or H 
-                                {     
-                                    // Entire Target OT In Additional OT && Standard OT ->0               
-                                    dr["AllowedOTLimit"] = 0;
-                                }
-
-                                string WkDateApplicableWM = Table.DefaultView[0][@"ApplicableWM"].ToString();
-                                if (WkDateApplicableWM == "W")
+                            string WkDateApplicableWM = Table.DefaultView[0][@"ApplicableWM"].ToString();
+                            if (DayLimit == 0) // Say If DayType is W Or H 
+                            {
+                                // Entire Target OT In Additional OT && Standard OT ->0               
+                                dr["AllowedOTLimit"] = 0;
+                            }
+                            else if (WkDateApplicableWM == "W")
+                            {
+                                // Min of Balance Limit of Week & DailyLimit
+                                decimal BalanceWeekLimit = WeekLimit - WeekStandardOTMaster;
+                                decimal SmallerValue = Math.Min(BalanceWeekLimit, DayLimit);
+                                if (SmallerValue >= 0)
                                 {
-                                    // Min of Balance Limit of Week & DailyLimit
-                                    decimal BalanceWeekLimit = WeekLimit - WeekStandardOTMaster;
-                                    decimal SmallerValue= Math.Min(BalanceWeekLimit, DayLimit);
-                                    
                                     dr["AllowedOTLimit"] = SmallerValue;
                                 }
+                            }
 
                             #endregion
 
@@ -305,8 +312,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                             #region OT Confirm
 
                             dr["IsOTComfirm"] = true;
-                            dr["OTComfirmBy"] = identity.Name;
-                            dr["DateOTComfirm"] = DateTime.Now;
                             dr.EndEdit();
 
                             #endregion
@@ -375,7 +380,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
         }
 
-        public void MonthlyOTData(out DataTable ds,string Date)
+        public void MonthlyOTData(out DataSet ds,string Date)
         {
             ConnectionManager.DAL.ConManager objCon;
             try
@@ -384,8 +389,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                 from AttdnProcessData where OTMonth=Month('"+Date+@"') and OTYear=Year('"+Date+@"')
                 and ISNULL(daystatus,'')!='' AND IsOTComfirm=1
                 group by EmpSystemID";
+
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataTableThroughAdapter(sql,out ds);
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
             catch (Exception ex)
             {

@@ -514,9 +514,11 @@ namespace Library.Service.EmployeeServices
                 }
 
                 string RefNo = "''";
+                string PckId = "";
                 foreach (ItemScanChildData item in DataToSave)
                 {
                     RefNo += ",'" + item.RefNo + "'";
+                    PckId = item.PackingId;
                 }
 
                 var items=DataToSave.ToList();
@@ -525,7 +527,7 @@ namespace Library.Service.EmployeeServices
                 con.OpenDataSetThroughAdapter(sqlx, out dsMaster, false, "1");
 
                 double BkQty = 0.0;
-                string PckId = "";
+                
                 foreach (ItemScanChildData item in DataToSave)
                 {
                     dsMaster.Tables[0].DefaultView.RowFilter = @"RefNo='" + item.RefNo + "' ";
@@ -562,13 +564,14 @@ namespace Library.Service.EmployeeServices
 
                 var sql = @"select * from trn.POLotReference where Id ='" + PckId + "'";
                 conn.OpenDataSetThroughAdapter(sql, out dsPo, false, "1");
-
-                double poBkQty = clsStaticInfo.dbl(dsPo.Tables[0].Rows[0]["BookQty"].ToString());
-                BkQty += poBkQty;
-                dsPo.Tables[0].Rows[0].BeginEdit();
-                dsPo.Tables[0].Rows[0]["BookQty"] = BkQty;
-                dsPo.Tables[0].Rows[0].EndEdit();
-
+                if (dsPo.Tables[0].Rows.Count > 0)
+                {
+                    double poBkQty = clsStaticInfo.dbl(dsPo.Tables[0].Rows[0]["BookQty"].ToString());
+                    BkQty += poBkQty;
+                    dsPo.Tables[0].Rows[0].BeginEdit();
+                    dsPo.Tables[0].Rows[0]["BookQty"] = BkQty;
+                    dsPo.Tables[0].Rows[0].EndEdit();
+                }
                 SaveDataSets(dsMaster);
                 SaveDataSets(dsPo);
                 if (InventoryListMaster!="")
