@@ -14519,7 +14519,8 @@ namespace Library.MaterialManagement.Inventory
                         inventoryIssue.ContractId = inventoryIssue.ContractId;
                         inventoryIssue.OrderRefNo = inventoryIssue.OrderRefNo;
 
-                        inventoryIssue.JWContractId = inventoryIssue.JWContractId;
+                  //      inventoryIssue.JWContractId = inventoryIssue.JWContractId;
+                        inventoryIssue.JobWorkContractId = inventoryIssue.JobWorkContractId;
                         inventoryIssue.ContractType = inventoryIssue.ContractType;
                         inventoryIssue.Types = inventoryIssue.Types;
 
@@ -15082,7 +15083,7 @@ namespace Library.MaterialManagement.Inventory
                                             Comments = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.Comments).FirstOrDefault(),
                                             // OSTransformationPOId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId).Select(t => t.OSTransformationPOId).FirstOrDefault(),
                                             OSTransformationPOId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId).Select(t => t.OSTransformationPODetailId).FirstOrDefault(),
-                                       //     JWTransformationPOId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId).Select(t => t.OSTransformationPODetailId).FirstOrDefault(),
+                                          //  JWTransformationPOId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId).Select(t => t.OSTransformationPODetailId).FirstOrDefault(),
                                             //JWTCInputId = entities.Where(r => r.MaterialMasterId != invMaterial.MaterialMasterId && r.ArticleId != invMaterial.ArticleId).Select(t => t.JWInputItemId).FirstOrDefault(),
                                             //  JWTCInputId = entities.Where(r => r.MaterialMasterId == null && r.ArticleId == null).Select(t => t.JWInputItemId).FirstOrDefault(),
                                             ModelState = ModelState.Added
@@ -15350,7 +15351,7 @@ namespace Library.MaterialManagement.Inventory
                         inventoryIssue.ContractId = inventoryIssue.ContractId;
                         inventoryIssue.OrderRefNo = inventoryIssue.OrderRefNo;
 
-                        inventoryIssue.JWContractId = inventoryIssue.JWContractId;
+                        inventoryIssue.JobWorkContractId = inventoryIssue.JobWorkContractId;
                         inventoryIssue.ContractType = inventoryIssue.ContractType;
                         inventoryIssue.Types = inventoryIssue.Types;
 
