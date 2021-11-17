@@ -122,7 +122,8 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
 	$scope.productNew = {
         Type: null,
         WithStock: true,
-        WithoutStock: false
+        WithoutStock: false,
+        Storage: false
 	};
 	$scope.changeSourceFrom = function (from) {
         debugger;
@@ -944,13 +945,6 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
                 $scope.productNew.Asset = true;
                 $scope.productNew.Country = true;
             }
-            if ($scope.productNew.Inventory === true && $scope.productNew.Asset === true && $scope.productNew.Country === true) {
-                $scope.productNew.Asset = 'Asset';
-                $scope.productNew.Inventory = 'Inventory';
-                $scope.productNew.Inventory = true;
-                $scope.productNew.Asset = true;
-                $scope.productNew.Country = true;
-            }
 
 
         }
@@ -961,7 +955,6 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
         $window.open('Materials/MaterialLedger/MaterialStockBalanceReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Asset=' + $scope.productNew.Asset + '&Inventory=' + $scope.productNew.Inventory + '&Country=' + $scope.productNew.Country, '_blank');
 
     };
-
     $scope.MaterialStockBalanceReportExcel = function (reportFormat) {
         $scope.productNew.Asset === false;
         $scope.productNew.Inventory === false;
@@ -1118,13 +1111,12 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
                 $scope.productNew.Country = true;
             }
 
-
         }
 
 
         try {
             var Excel;
-            var file_src ='Materials/MaterialLedger/MaterialStockBalanceReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Asset=' + $scope.productNew.Asset + '&Inventory=' + $scope.productNew.Inventory + '&Country=' + $scope.productNew.Country;
+            var file_src = 'Materials/MaterialLedger/MaterialStockBalanceReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Asset=' + $scope.productNew.Asset + '&Inventory=' + $scope.productNew.Inventory + '&Country=' + $scope.productNew.Country + '&materialStorage=' + $scope.productNew.Storage;
             $rootScope.report(file_src);
 
         } catch (e) {

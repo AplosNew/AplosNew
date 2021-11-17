@@ -43,11 +43,8 @@ namespace Aplos.Areas.Payrolls.Controllers
         #endregion Constructor
 
         #region -- Pages
-        public ActionResult Aplos()
-        {
-            return View();
-        }
-        public ActionResult PaySlipContractor()
+       
+        public ActionResult PaySlipsNew()
         {
             return View();
         }

@@ -3851,7 +3851,8 @@
     <Content Include="Areas\FixedAssets\Views\Shared\_Layout.cshtml" />
     <Content Include="Areas\FixedAssets\Views\FixedAssetsRegisterDisposeReport.cshtml" />
     <Content Include="Areas\Employees\Views\ResignationApprovalMultipleNew\Aplos.cshtml" />
-    <Content Include="Areas\Payrolls\Views\PaySlips\PaySlipNew.cshtml" />
+    <Content Include="Areas\Payrolls\Views\PaySlips\PaySlipsNew.cshtml" />
+    <Content Include="Areas\Payrolls\Views\PaySlipsNew\PaySlipsNew.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

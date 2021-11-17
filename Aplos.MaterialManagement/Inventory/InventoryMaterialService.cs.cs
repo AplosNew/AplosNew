@@ -1813,8 +1813,6 @@ namespace Library.MaterialManagement.Inventory
 				return _sqlRepository.GetDataCollection(_sql);
 				//}
 
-
-
 			}
 			catch (Exception ex)
 			{

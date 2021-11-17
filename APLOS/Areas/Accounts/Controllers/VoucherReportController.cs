@@ -427,7 +427,7 @@ namespace Aplos.Areas.Accounts.Controllers
         [HttpGet, Authorize]
         public ActionResult GetAssetWIPData()
         {
-            AssetWIPQueryService assetWIPQueryService = new AssetWIPQueryService(_sqlRepository);
+            AssetWIPQueryService assetWIPQueryService = new AssetWIPQueryService();
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(new { DATA = assetWIPQueryService.GetFixedAssetWIPstatusSQL(), Error = false }, JsonRequestBehavior.AllowGet);
         }
@@ -435,7 +435,7 @@ namespace Aplos.Areas.Accounts.Controllers
         [HttpPost, Authorize]
         public ActionResult AssetWIPstatusReportExcel(string materialMasterId, string materialMasterArticleId, string voucherId, string grnNo, string glId, string activityId)
         {
-            AssetWIPQueryService assetWIPQueryService = new AssetWIPQueryService(_sqlRepository);
+            AssetWIPQueryService assetWIPQueryService = new AssetWIPQueryService();
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
@@ -493,7 +493,21 @@ namespace Aplos.Areas.Accounts.Controllers
         //    return null;
         //}
 
+         [HttpPost, Authorize]
+        public ActionResult GetIssueQtyList(string inventoryReceiveDetailId)
+        {
+            try
+            {
+                AssetWIPQueryService assetWIPQueryService = new AssetWIPQueryService();
+                var data = assetWIPQueryService.GetIssueQtyList(inventoryReceiveDetailId);
+                return Json(new { Data = data, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+            }
 
+        }
        
     }
 

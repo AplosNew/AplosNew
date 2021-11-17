@@ -390,7 +390,7 @@ CASE WHEN ISNULL(dtd.EmployeeSystemId,'')='' THEN 'Unassigned' ELSE CONCAT('Assi
                 strkey = column + " like '%" + value + "%'";
 
             string sql = @"
-                      select top 100 * from (  
+                      select * from (  
                      SELECT far.Id,far.Model,mma.StandardName AS Article,mm.UserName AS Material, far.SerialNo, format(far.CapitalizationDate,'dd-MMM-yyyyy') CapitalizationDate,format(far.InvoiceDate,'dd-MMM-yyyyy') InvoiceDate,
                            far.YearOfManufacture, far.YearOfInstallation, far.[Description],CONCAT(far.Id,'/',far.[Description]) AS FixedAssetDesc,
                            far.AssetNo, far.[Status], far.Remarks,cm.UserName AS Vendor,B.UserName AS Brand,c.UserName AS CountryOfOrigin,FR.UserName FixedAssetMaster,
@@ -448,10 +448,17 @@ CASE WHEN ISNULL(dtd.EmployeeSystemId,'')='' THEN 'Unassigned' ELSE CONCAT('Assi
                         WHERE emp.SystemId='" + EmployeeId + @"'";
 
             List<Dictionary<string, object>> _tempData = _sqlRepository.GetDataCollection(sql);
-            sql = @"select ovx.UserName  AS SkillName,eox.Sequence,eox.CycleTime
+            sql = @"select * from (
+                                    SELECT  ovx.UserName  AS SkillName,0 Sequence,0 CycleTime
+                                                                            FROM employeeInformation AS eox
+				                                                            JOIN mst.OperationVariation AS ovx ON ovx.Id=eox.OperationVariationId                                             
+			                                                                where eox.SystemId='" + EmployeeId + @"'
+                                        UNION all			                            
+                                    
+                                        select ovx.UserName  AS SkillName,eox.Sequence,eox.CycleTime
                                         FROM EmployeeOperation AS eox
 				                        JOIN mst.OperationVariation AS ovx ON ovx.Id=eox.OperationVariationId                                             
-			                            where eox.EmpSystemId='" + EmployeeId + @"' ORDER BY eox.Sequence ";
+			                            where eox.EmpSystemId='" + EmployeeId + @"' ) AS K ORDER BY Sequence";
 
             if (_tempData.Count > 0)
                 _tempData[0]["SkillList"] = _sqlRepository.GetDataCollection(sql);

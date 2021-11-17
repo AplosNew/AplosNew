@@ -832,9 +832,9 @@ namespace Library.Accounting.FixedAssets
 							,ActivityId=  FGL.LossOnDisposalAssetActivityId     
 							,ActivityCode=  A.Code    
 							,ActivityName=  A.UserName    
-							, Dr=  SUM(FR.Price+isnull(SAR.subAssetAmount,0))- SUM(FR.ADBaseAmount)
+							, Dr=  SUM(FR.FABaseAmount+isnull(SAR.subAssetAmount,0))- SUM(FR.ADBaseAmount)
 							, Cr=0
-							, Amount= SUM(FR.Price+isnull(SAR.subAssetAmount,0))- SUM(FR.ADBaseAmount)
+							, Amount= SUM(FR.FABaseAmount+isnull(SAR.subAssetAmount,0))- SUM(FR.ADBaseAmount)
 						FROM  TRN.FixedAssetRegisterDisposedDetail FRDD
 						LEFT JOIN TRN.FixedAssetRegisterDisposed FRD ON FRD.Id=FRDD.FixedAssetRegisterDisposedId
 						LEFT JOIN TRN.FixedAssetRegister FR ON FR.Id=FRDD.FixedAssetRegisterId
@@ -861,8 +861,8 @@ namespace Library.Accounting.FixedAssets
 							,ActivityName =A.UserName
 							
 							, NULL Dr
-							, SUM(FR.Price+isnull(SAR.subAssetAmount,0)) AS Cr
-							, SUM(FR.Price+isnull(SAR.subAssetAmount,0)) AS Amount
+							, SUM(FR.FABaseAmount+isnull(SAR.subAssetAmount,0)) AS Cr
+							, SUM(FR.FABaseAmount+isnull(SAR.subAssetAmount,0)) AS Amount
 						FROM  TRN.FixedAssetRegisterDisposedDetail FRDD
 						LEFT JOIN TRN.FixedAssetRegisterDisposed FRD ON FRD.Id=FRDD.FixedAssetRegisterDisposedId
 						LEFT JOIN TRN.FixedAssetRegister FR ON FR.Id=FRDD.FixedAssetRegisterId
@@ -923,9 +923,9 @@ namespace Library.Accounting.FixedAssets
 							,ActivityId=  FGL.LossOnDisposalAssetActivityId     
 							,ActivityCode=  A.Code    
 							,ActivityName=  A.UserName    
-							, Dr=  SUM(FR.Price+isnull(SAR.subAssetAmount,0))- SUM(FR.ADBaseAmount)
+							, Dr=  SUM(FR.FABaseAmount+isnull(SAR.subAssetAmount,0))- SUM(FR.ADBaseAmount)
 							, Cr=0
-							, Amount= SUM(FR.Price+isnull(SAR.subAssetAmount,0))- SUM(FR.ADBaseAmount)
+							, Amount= SUM(FR.FABaseAmount+isnull(SAR.subAssetAmount,0))- SUM(FR.ADBaseAmount)
 						FROM  TRN.FixedAssetRegisterDisposedDetail FRDD
 						LEFT JOIN TRN.FixedAssetRegisterDisposed FRD ON FRD.Id=FRDD.FixedAssetRegisterDisposedId
 						LEFT JOIN TRN.FixedAssetRegister FR ON FR.Id=FRDD.FixedAssetRegisterId
@@ -952,8 +952,8 @@ namespace Library.Accounting.FixedAssets
 							,ActivityName =A.UserName
 							
 							, NULL Dr
-							, SUM(FR.Price+isnull(SAR.subAssetAmount,0)) AS Cr
-							, SUM(FR.Price+isnull(SAR.subAssetAmount,0)) AS Amount
+							, SUM(FR.FABaseAmount+isnull(SAR.subAssetAmount,0)) AS Cr
+							, SUM(FR.FABaseAmount+isnull(SAR.subAssetAmount,0)) AS Amount
 						FROM  TRN.FixedAssetRegisterDisposedDetail FRDD
 						LEFT JOIN TRN.FixedAssetRegisterDisposed FRD ON FRD.Id=FRDD.FixedAssetRegisterDisposedId
 						LEFT JOIN TRN.FixedAssetRegister FR ON FR.Id=FRDD.FixedAssetRegisterId
@@ -1819,7 +1819,7 @@ namespace Library.Accounting.FixedAssets
 			{
 				Posted = 2;
 			}
-			var sql = @"select distinct MM.UserName MaterialMaster,MMA.StandardName Article,FA.UserName AssetMaster,P.UserName Party
+			var sql = @"select distinct FAR.Id AssetNo,FAR.SerialNo,MM.UserName MaterialMaster,MMA.StandardName Article,FA.UserName AssetMaster,P.UserName Party
                 , FAR.MaterialMasterId,FAR.MaterialMasterArticleId,FAR.VendorId,FAR.FixedAssetMasterId
 
                  ,IsAsset =case when MM.IsAsset =1 then 'Yes' else  'No'  end
@@ -1834,9 +1834,10 @@ namespace Library.Accounting.FixedAssets
 				 ,sum( ISNULL(FAR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) - ISNULL(FAR.ADBaseAmount,0) ) NetFixedAssetsAmount
 				 ,Customer.UserName CustomerName,CU.Code Currency,CAST(frd.ToCurrencyRate AS decimal(18,4))ToCurrencyRate,sum(rdd.NegotiationValue)NegotiationValue
 				 ,sum(rdd.BaseNagotiationValue)BaseNagotiationValue
-				 ,abs((sum( ISNULL(FAR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) - ISNULL(FAR.ADBaseAmount,0) )-sum(rdd.BaseNagotiationValue)))LossOrGain
+				 ,( sum(rdd.BaseNagotiationValue)- sum( ISNULL(FAR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) - ISNULL(FAR.ADBaseAmount,0) ))LossOrGain
 				 ,GP.Id GatePassNo, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
 				 ,ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue
+				 ,PC.Code PurchaseCurrency,isnull( FAR.Price,0 )PurchasePrice
 		        from TRN.FixedAssetRegister FAR 
 				JOIN MST.MaterialMaster MM ON MM.Id=FAR.MaterialMasterId
 				JOIN MST.MaterialMasterArticle MMA ON MMA.Id=FAR.MaterialMasterArticleId
@@ -1851,6 +1852,7 @@ namespace Library.Accounting.FixedAssets
 				LEFT JOIN HKP.CharacteristicsValue AS FCV ON MM.Id=FCV.MaterialMasterId
 				LEFT JOIN HKP.CharacteristicsValue AS SCV ON MM.Id=SCV.MaterialMasterId
 				LEFT JOIN HKP.CharacteristicsValue AS TCV ON MM.Id=TCV.MaterialMasterId
+				left join scs.Currency PC on PC.Id= FAR.CurrencyId
 
 			    LEFT JOIN (SELECT MBP.MaterialMasterId,BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
                 LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
@@ -1870,7 +1872,8 @@ namespace Library.Accounting.FixedAssets
 			   GROUP BY FAR.MaterialMasterId ,MM.UserName ,MMA.StandardName ,FA.UserName,P.UserName 
 			   ,MM.IsAsset,MBP.BusinessProcessName,FAR.FixedAssetMasterId
 			    ,FAR.MaterialMasterId,FAR.MaterialMasterArticleId,FAR.VendorId,FAR.FixedAssetMasterId,FAR.Status,frd.DocDate,v.VoucherNo,frd.Id,frd.IsPark
-				,Customer.UserName,CU.Code,frd.ToCurrencyRate,GP.Id,ISNULL(FCV.UserName,''),ISNULL(SCV.UserName,''),ISNULL(TCV.UserName,'')";
+				,Customer.UserName,CU.Code,frd.ToCurrencyRate,GP.Id,ISNULL(FCV.UserName,''),ISNULL(SCV.UserName,''),ISNULL(TCV.UserName,'')
+				,FAR.Id,FAR.SerialNo,PC.Code,FAR.Price";
 			return _sqlRepository.GetDataCollection(sql);
 
 		}

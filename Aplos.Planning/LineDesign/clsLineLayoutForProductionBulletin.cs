@@ -265,15 +265,15 @@ namespace Library.Planning.LineDesign
                                             d.AllotedManpower,MM.Id MaterialMasterId,MM.UserName AS MaterialMasterDesc
 											,o.IsMachineRequired,M.StandardName AS ArticleDesc,M.ShortName AS ArticleShortName,o.Id as OperationId,o.UserName as OperationDesc
                                                 ,M.Id ArticleId    ,d.Sequence,NULL AS Designation,isnull(Ov.color,'#ffffff') AS Color,
-                                            mv.Id AS MachineId,mv.UserName AS MachineDesc,d.AllotedWorkstation,d.RequiredManPower,d.TotalSPT,
+                                            M.Id AS MachineId,M.StandardName AS MachineDesc,d.AllotedWorkstation,d.RequiredManPower,d.TotalSPT,
                                             '1800001.jpg' AS EmpPicPath,D.OperationTargetPerHr,CONVERT(INT,D.OperationTargetPerHr/CASE WHEN D.RequiredManPower>0 THEN D.RequiredManPower ELSE 1 END) AS WorkstationTargetPerHour
                                                
                                                 FROM trn.ProductionBulletinTemplateDetail D
                                             INNER JOIN mst.OperationVariation AS ov ON ov.Id=d.OperationVariationId
-                                            LEFT JOIN [MST].[MaterialMasterArticle] M ON M.Id = OV.ArticleId
+                                            LEFT JOIN [MST].[MaterialMasterArticle] M ON M.Id = D.MachineVarientId
                                             LEFT JOIN mst.MaterialMaster AS mm ON mm.Id=m.MaterialMasterId
                                             INNER JOIN mst.Operation AS o ON o.Id=ov.OperationId
-                                            LEFT OUTER JOIN hkp.MachineVariant AS mv ON mv.Id=d.MachineVarientId
+                                            --LEFT OUTER JOIN hkp.MachineVariant AS mv ON mv.Id=d.MachineVarientId
                                             
                                             WHERE d.ProductionBulletinTemplateMasterId='" + BulletinId + "' ORDER BY D.Sequence");
 
