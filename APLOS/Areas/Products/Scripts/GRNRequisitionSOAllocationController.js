@@ -237,7 +237,7 @@ function GRNRequisitionSOAllocationController(accountService, addressService, $w
     $scope.UpdateJWSOAllocationFromUI = function () {
         $scope.detailListNew = [];
         for (var i = 0; i < $scope.OutSourceGRNData.length; i++) {
-            if ($scope.OutSourceGRNData[i].SOIdCount == 2) {
+            if ($scope.OutSourceGRNData[i].SOIdCount == 1) {
                 $scope.detailListNew.push($scope.OutSourceGRNData[i]);
             }
         }

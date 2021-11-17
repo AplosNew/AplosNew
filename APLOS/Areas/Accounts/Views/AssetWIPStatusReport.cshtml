@@ -20,56 +20,50 @@
                 <div e-column e-type="text" e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="40" style="height: 20px;"></div>
                 <div e-column e-type="text" e-field="ThirdCharacteristicsValue" e-headertext="SKU3" e-width="40" style="height: 20px;"></div>
                 <div e-column e-type="text" e-field="MaterialStorageLocation" e-headertext="Storage Location" e-width="100" style="height: 20px;"></div>
-                <div e-column e-type="text" e-field="GL" e-headertext="GL" e-width="100" e-textalign="right" style="height: 20px;"></div>
+                <div e-column e-type="text" e-field="AssetMaster" e-headertext="Asset Master" e-width="100" style="height: 20px;"></div>
+                <div e-column e-type="text" e-field="GL" e-headertext="GL" e-width="100" e-textalign="left" style="height: 20px;"></div>
                 @* <div e-column e-type="text" e-field="Activity" e-headertext="Activity" e-width="50" e-textalign="right" style="height: 20px;"></div>*@
 
                 <div e-column e-template="#templateGRNNo" e-type="text" e-field="GRNNo" e-headertext="GRN No." e-width="100" e-textalign="right" style="height: 20px;"></div>
-
                 <div e-column e-type="text" e-field="GRNDate" e-headertext="GRN Date" e-width="100" e-textalign="right" style="height: 20px;"></div>
-                
-                <div e-column @*e-template="#templateVoucherNo"*@ e-type="text" e-field="VoucherNo" e-headertext="Voucher No." e-width="100" e-textalign="right" style="height: 20px;"></div>
-                
+                <div e-column e-template="#templateVoucherNo" e-type="text" e-field="VoucherNo" e-headertext="Voucher No." e-width="100" e-textalign="right" style="height: 20px;"></div>
+
                 <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TransactionQty" e-headertext="Transaction Qty" e-width="100" e-textalign="right" style="height: 20px;"></div>
                 <div e-column e-type="text" e-field="TrnUOM" e-headertext="Transaction UOM" e-width="50" e-textalign="right" style="height: 20px;"></div>
                 <div e-column e-type="numeric" e-format="{0:0.0000}" e-field="TrnRate" e-headertext="Transaction Rate" e-width="100" e-textalign="right" style="height: 20px;"></div>
-                <div e-column e-type="text" e-field="Currency" e-headertext="Currency" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                <div e-column e-type="text" e-field="Currency" e-headertext="Currency" e-width="60" e-textalign="left" style="height: 20px;"></div>
 
                 <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TrnAmount" e-headertext="Transaction Amount" e-width="100" e-textalign="right" style="height: 20px;"></div>
                 <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BaseQty" e-headertext="Base Qty" e-width="100" e-textalign="right" style="height: 20px;"></div>
-                <div e-column e-type="text" e-field="BaseUOM" e-headertext="Base UOM" e-width="50" e-textalign="right" style="height: 20px;"></div>
+                <div e-column e-type="text" e-field="BaseUOM" e-headertext="Base UOM" e-width="50" e-textalign="left" style="height: 20px;"></div>
                 <div e-column e-type="numeric" e-format="{0:0.0000}" e-field="BaseRate" e-headertext="Base Rate" e-width="100" e-textalign="right" style="height: 20px;"></div>
                 <div e-column e-type="numeric" e-format="{0:0.0000}" e-field="BooksAmount" e-headertext="Books Amount" e-width="100" e-textalign="right" style="height: 20px;"></div>
-                <div e-column e-type="numeric" e-format="{0:0.00}" e-field="IssueQty" e-headertext="Issue Qty" e-width="100" e-textalign="right" style="height: 20px;"></div>
+                <div e-column e-template="#templateIssueQty" e-type="numeric" e-format="{0:0.00}" e-field="IssueQty" e-headertext="Issue Qty" e-width="100" e-textalign="right" style="height: 20px;"></div>
 
             </div>
 
         </div>
+
+        <script type="text/template" id="templateGRNNo">
+            <div class="text-left" style="width:100%">
+                <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.onGRNNoDownloadExcel(data);">{{data.GRNNo}}</a>
+            </div>
+        </script>
+
+        <script type="text/template" id="templateVoucherNo">
+            <div class="text-left" style="width:100%">
+                <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.onVoucherNoDownloadExcel(data);">{{data.VoucherNo}}</a>
+            </div>
+        </script>
+
+        <script type="text/template" id="templateIssueQty">
+            <div class="text-left" style="width:100%">
+                <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.onIssueQtyPopUp(data);">{{data.IssueQty | number:2 }}</a>
+            </div>
+        </script>
     </div>
 
-    <script type="text/template" id="templateGRNNo">
-        <div class="text-right" style="width:100%">
-            <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.onGRNNoDownloadExcel(data);">{{data.GRNNo |number:0}}</a>
-        </div>
-    </script>
-
-    @*<script type="text/template" id="templateVoucherNo">
-        <div class="text-right" style="width:100%">
-            <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.onVoucherNoDownloadExcel(data);">{{data.VoucherNo |number:0}}</a>
-        </div>
-    </script>*@
 </div>
-
-
-
-    @*<div class="common-btn">
-            <ul class="list-inline text-left">
-                <li><button ng-click="InvoiceSummaryReport();" title="All active summary with corresponding values" class="btn"><i class="glyphicon glyphicon-file"></i> Summary</button></li>
-            </ul>
-        </div>*@
-
-    @*</div>*@
-
-@*</div>*@
 
 <div class="common-btn">
     <ul class="list-inline text-left">
@@ -78,6 +72,48 @@
     </ul>
 </div>
 
-@Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")
-@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterPopUp.cshtml")
-@Html.Partial("~/Areas/FixedAssets/Views/_FixedAssetMasterPopUp.cshtml")
+
+
+<div class="modal fade site-modal in" id="IssueQtyPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">IssueQty<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="form-elements form-horizontal">
+                <div class="modal-body">
+                   
+                    <div class="row">
+                        <div style="color:black;" id="GridIssueQty" ej-grid e-datasource="issueQtyList"
+                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true" e-showsummary="true" @*e-summaryrows="summaryAC"*@
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-template="#templateIssueNo" e-type="string" e-field="IssueNo" e-headertext="Issue No." e-width="50"></div>
+                                <div e-column e-type="date" e-field="IssueDate" e-format="{0:dd-MMM-yyyy}" e-headertext="Issue Date" e-width="50"></div>
+                                <div e-column e-type="numeric" e-format="{0:0.0000}" e-field="Qty" e-headertext="Qty" e-width="100" e-textalign="right" style="height: 20px;"></div>
+                                <div e-column e-type="numeric" e-format="{0:0.0000}" e-field="Amount" e-headertext="Amount" e-width="100" e-textalign="right" style="height: 20px;"></div>
+                                <div e-column e-type="text" e-field="UOM" e-headertext="UoM" e-width="50" e-textalign="left" style="height: 20px;"></div>
+                                <div e-column e-template="#templateVoucherNo2" e-type="text" e-field="VoucherNo" e-headertext="Voucher No." e-width="100" e-textalign="right" style="height: 20px;"></div>onVoucherNoDownloadExcel
+                            </div>
+                        </div>
+                    </div>
+                    <script type="text/template" id="templateIssueNo">
+                        <div class="text-right" style="width:100%">
+                            <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.PostedAUCData(data.IssueNo);">
+                                {{data.IssueNo}}
+                                </a>
+                        </div>
+                    </script>
+
+                    <script type="text/template" id="templateVoucherNo2">
+                        <div class="text-right" style="width:100%">
+                            <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.PostedcommandPDF(data.VoucherId);">
+                                {{data.VoucherNo}}
+                            </a>
+                        </div>
+                    </script>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>

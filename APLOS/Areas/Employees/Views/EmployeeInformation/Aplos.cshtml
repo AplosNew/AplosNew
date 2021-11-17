@@ -2491,7 +2491,7 @@
                                 <input type="text" name="Cell Phone No" ng-model="empReferenceInformation.Ref1CellPhnNo" class="form-control" maxlength="30">
                             </div>
                         </div>
-                        @*<div class="form-group">
+                        <div class="form-group">
                                 <label class="col-sm-4 control-label">Residence Group<sup ng-show="IsResidenceGroupMandatory===true">*</sup></label>
                                 <div class="col-sm-8">
                                     <div class="select-style">
@@ -2501,7 +2501,7 @@
                                         </select>
                                     </div>
                                 </div>
-                            </div>*@
+                            </div>
                     </div>
                     <div class="col-xs-12 col-sm-6 col-md-6">
                         <div class="form-group">
@@ -2654,7 +2654,7 @@
                         </div>
 
 
-                        @*<div class="form-group">
+                        <div class="form-group">
                                 <label class="col-sm-4 control-label">Transport Group<sup ng-show="IsTransportGroupMandatory===true">*</sup></label>
                                 <div class="col-sm-8">
                                     <div class="select-style">
@@ -2664,7 +2664,7 @@
                                         </select>
                                     </div>
                                 </div>
-                            </div>*@
+                            </div>
                     </div>
                 </div>
                 <div class="common-btn">
@@ -2738,18 +2738,18 @@
     <div style="color:black;" id="MainGrid" ej-grid e-datasource="employees" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
          e-recorddoubleclick="Get" e-allowselection="true" e-filtersettings-filterType="excel">
         <div e-columns>
-            <div e-column e-field="SystemId" e-headertext="SystemId" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
-            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="70"></div>
-            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
-            <div e-column e-field="DateOfJoin" e-headertext="DOJ" e-width="50" e-format="{0:dd-MMM-yyyy}" type="date"></div>
-            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
-            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
-            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
-            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
-            <div e-column e-field="Line" e-headertext="Line" e-width="50"></div>
-            <div e-column e-field="EmploymentType" e-headertext="Employment Type" e-width="50"></div>
-            <div e-column e-field="EmployeeCodeType" e-headertext="EmployeeCode Type" e-width="50"></div>
-            <div e-column e-field="TenureDay" e-headertext="Tenure Day" e-width="50"></div>
+            <div e-column e-type="string" e-field="SystemId" e-headertext="SystemId" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+            <div e-column e-type="string" e-field="EmployeeCode" e-headertext="Employee Code" e-width="70"></div>
+            <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+            <div e-column e-type="string" e-field="DateOfJoin" e-headertext="DOJ" e-width="50" e-format="{0:dd-MMM-yyyy}" type="date"></div>
+            <div e-column e-type="string" e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+            <div e-column e-type="string" e-field="Department" e-headertext="Department" e-width="80"></div>
+            <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="80"></div>
+            <div e-column e-type="string" e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+            <div e-column e-type="string" e-field="Line" e-headertext="Line" e-width="50"></div>
+            <div e-column e-type="string" e-field="EmploymentType" e-headertext="Employment Type" e-width="50"></div>
+            <div e-column e-type="string" e-field="EmployeeCodeType" e-headertext="EmployeeCode Type" e-width="50"></div>
+            <div e-column e-type="number" e-field="TenureDay" e-headertext="Tenure Day" e-width="50"></div>
         </div>
     </div>
     <i>**Showing top 100 records</i>

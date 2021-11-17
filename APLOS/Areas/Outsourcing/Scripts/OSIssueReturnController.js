@@ -639,7 +639,6 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
             }
 
         }
-
 	}
 
 	$scope.SelectedTConEntity = function () {

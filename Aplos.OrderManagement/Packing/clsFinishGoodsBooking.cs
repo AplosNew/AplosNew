@@ -1392,11 +1392,11 @@ INNER JOIN(
 Select Qty=SUM(CASE WHEN ISC.IsDespatch=0 THEN ISC.NetWeight ELSE 0 END),ISC.POId,ISC.ProductCode 
 	from dbo.ItemScanChild ISC 
 	LEFT JOIN dbo.ItemScan ISM ON ISM.Id=ISC.MasterId 
-	WHERE ISM.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(ISC.InventoryReceiveDetailId,'')='' AND ISC.POId IN (Select Id from TRN.ProductionOrder Where EntityId='"+entityId+@"')
+	WHERE ISM.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(ISC.InventoryReceiveDetailId,'')='' AND ISNULL(ISC.PackingId,'')='' AND ISC.POId IN (Select Id from TRN.ProductionOrder Where EntityId='" + entityId+@"')
 	GROUP BY ISC.PoId,ISC.ProductCode
 ) A ON A.POId= PD.ProductionOrderId AND PD.ProductCode=A.ProductCode
 
-WHERE ISN.WorkDate between '" + fromDate+@"' AND '"+toDate+@"' AND ISNULL(SC.InventoryReceiveDetailId,'')='' AND SC.POId IN (Select Id from TRN.ProductionOrder Where EntityId='"+entityId+ @"')
+WHERE ISN.WorkDate between '" + fromDate+@"' AND '"+toDate+ @"' AND ISNULL(SC.InventoryReceiveDetailId,'')='' AND ISNULL(SC.PackingId,'')='' AND SC.POId IN (Select Id from TRN.ProductionOrder Where EntityId='" + entityId+ @"')
 GROUP BY PD.ProductionOrderId,PD.ProductCode,PD.OrderCostingMasterTemplateId,PD.Rate,PD.MaterialMaster,PD.MaterialMasterId,PD.Article,PD.ArticleId,PD.IsAsset,PD.UOM,PD.MasterOrderItemId,A.Qty
 UNION ALL
 Select ProductionOrderId,ProductCode,''MasterOrderItemId,''SONo,''MaterialMasterId,''ArticleId,'' MaterialMaster,''Article,'' OrderCostingMasterTemplateId,Qty=CONVERT(decimal(18,2),Qty),Rate=CONVERT(decimal(18,4),0), Amount=CONVERT(decimal(18,2),0)
@@ -1405,7 +1405,7 @@ Select ProductionOrderId,ProductCode,''MasterOrderItemId,''SONo,''MaterialMaster
 	Select Qty=SUM(CASE WHEN ISC.IsDespatch=0 THEN ISC.NetWeight ELSE 0 END),ISC.POId ProductionOrderId,ISC.ProductCode 
 		from dbo.ItemScanChild ISC 
 		LEFT JOIN dbo.ItemScan ISM ON ISM.Id=ISC.MasterId 
-		WHERE ISM.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(ISC.InventoryReceiveDetailId,'')='' AND ISC.POId IN (Select Id from TRN.ProductionOrder Where EntityId='" + entityId + @"')
+		WHERE ISM.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(ISC.InventoryReceiveDetailId,'')='' AND ISNULL(ISC.PackingId,'')='' AND ISC.POId IN (Select Id from TRN.ProductionOrder Where EntityId='" + entityId + @"')
 		GROUP BY ISC.PoId,ISC.ProductCode
 ) A
 where not exists
@@ -1488,10 +1488,10 @@ where not exists
 					(Select Qty=ROUND(CAST(SUM(CASE WHEN ISC.IsDespatch=0 THEN ISC.NetWeight ELSE 0 END) AS DECIMAL(18,2)), 2),ISC.POId,ISC.ProductCode 
 					from dbo.ItemScanChild ISC 
 					LEFT JOIN dbo.ItemScan ISM ON ISM.Id=ISC.MasterId 
-					WHERE ISM.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(ISC.InventoryReceiveDetailId,'')='' AND ISC.POId IN (Select Id from TRN.ProductionOrder Where EntityId='" + EntityId + @"')
+					WHERE ISM.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(ISC.InventoryReceiveDetailId,'')='' AND ISNULL(ISC.PackingId,'')='' AND ISC.POId IN (Select Id from TRN.ProductionOrder Where EntityId='" + EntityId + @"')
 					GROUP BY ISC.PoId,ISC.ProductCode
 					) A ON A.POId= PD.ProductionOrderId AND PD.ProductCode=A.ProductCode
-						WHERE ISN.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(SC.InventoryReceiveDetailId,'')='' AND SC.POId IN (Select Id from TRN.ProductionOrder Where EntityId='" + EntityId + @"')
+						WHERE ISN.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(SC.InventoryReceiveDetailId,'')='' AND ISNULL(SC.PackingId,'')='' AND SC.POId IN (Select Id from TRN.ProductionOrder Where EntityId='" + EntityId + @"')
 						GROUP BY PD.ProductionOrderId,PD.ProductCode,PD.OrderCostingMasterTemplateId,PD.Rate,PD.MaterialMaster,PD.MaterialMasterId,PD.Article,PD.ArticleId,PD.IsAsset,PD.UOM,PD.MasterOrderItemId,A.Qty,ISN.WorkDate";
 
 				return _sqlRepository.GetDataCollection(sql, null);

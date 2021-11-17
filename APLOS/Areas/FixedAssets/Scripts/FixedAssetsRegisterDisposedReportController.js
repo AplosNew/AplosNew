@@ -3,6 +3,7 @@ FixedAssetsRegisterDisposedReportController.$inject = ["commonMessage", "$scope"
 function FixedAssetsRegisterDisposedReportController(commonMessage, $scope, $rootScope, $filter, $http,  $controller, $window, baseService) {
     $rootScope.title = "Fixed Assets Register Disposed Report";
     $scope.path = 'FixedAssets/FixedAssetRegister/';
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.partyType = 'Vendor'; 
     $controller('partyBaseController', { $scope: $scope, $http: $http });
@@ -26,7 +27,9 @@ function FixedAssetsRegisterDisposedReportController(commonMessage, $scope, $roo
         PartyName: null,
         MaterialMasterName: null,
         FixedAssetMasterName: null,
-        EntityId: null
+        EntityId: null,
+        NonPosted: null,
+        Posted: null
     };
 
    
@@ -149,31 +152,38 @@ function FixedAssetsRegisterDisposedReportController(commonMessage, $scope, $roo
 
         return string;
     }
-
+    $scope.fixedAssetDisposeStatusList = [];
+    $http({
+        method: 'GET',
+        url: 'Enum/GetFixedAssetDisposeStatusEnumCbo/'
+    }).then(function successCallback(response) {
+        $scope.fixedAssetDisposeStatusList = response.data;
+    });
     $scope.FixedAssetRegisterDisposedReportExcel = function () {
         $scope.FromDateValidation();
-        $scope.ToDatevalidation()
+        $scope.ToDatevalidation();
+        $scope.fileName = 'Fixed Assets Register Disposed Report.xls';
         if ($scope.form0.$valid && !$scope.invalidFromDate && !$scope.invalidDocDate && !$scope.validation() ) {
 
-
-            var filtered = $("#GridFixedAssetRegisterReportElasticSearch").data("ejGrid").getFilteredRecords();
-            if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-                filtered = $scope.FixedAssetRegisterElasticSearchList;
-            }
-            //filtered = ej.DataManager(filtered).executeLocal(ej.Query().select(["AccountGroupName"]));
-            var materialMasterId = getString(filtered, "MaterialMasterId");
-            var materialMasterArticleId = getString(filtered, "MaterialMasterArticleId");
-            var fixedAssetMasterId = getString(filtered, "FixedAssetMasterId");
-            var vendorId = getString(filtered, "VendorId");
-           // var isAsset = getString(filtered, "IsAsset");
-           // var machine = getString(filtered, "Machine");
-
-
             try {
-               
+                var DropDownListObj = $("#FixedAssetDisposeStatusList").data("ejDropDownList");
+                var disposeStatus = DropDownListObj.getSelectedValue();
+                if ($scope.report.NonPosted === null && $scope.report.Posted === null) {
+                    ShowResult("Please Select Type(Posted,Non Posted) ", "failure");
+                    return true;
+                }
+                if ($scope.report.NonPosted === false && $scope.report.Posted === false) {
+                    ShowResult("Please Select Type(Posted,Non Posted) ", "failure");
+                    return true;
+                }
+                if (disposeStatus === "") {
+                    ShowResult("Please Select Disposal Type ", "failure");
+                    return true;
+                }
+                
 
-                var file_src = $scope.path + 'FixedAssetRegisterDisposedReportExcel?materialMasterId=' + materialMasterId + '&materialMasterArticleId=' +materialMasterArticleId + '&fixedAssetMasterId=' + fixedAssetMasterId +
-                    '&vendorId=' + vendorId 
+                var file_src = $scope.path + 'FixedAssetRegisterDisposedReportExcel?fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&nonPosted=' + $scope.report.NonPosted +
+                    '&posted=' + $scope.report.Posted + '&disposeStatus=' + disposeStatus
                 $rootScope.report(file_src);
 
             } catch (e) {
@@ -271,28 +281,52 @@ function FixedAssetsRegisterDisposedReportController(commonMessage, $scope, $roo
     //for elastic search
     $scope.FixedAssetRegisterElasticSearchList = [];
     $scope.GetFixedAssetRegisterElasticSearchData = function () {
-        try {
-            $http({
-                method: 'POST',
-                url: $scope.path + "GetFixedAssetRegisterDisposedElasticSearchDataList",
-                data: { /*FromDate: $scope.reportParameters.FromDate, ToDate: $scope.reportParameters.ToDate*/
-
-                },
-                dataType: 'JSON'
-
-            }).then(function successCallback(response) {
-
-                $scope.FixedAssetRegisterElasticSearchList = response.data.DATA;
-            }),
-                function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
+        $scope.FromDateValidation();
+        $scope.ToDatevalidation();
+        if ($scope.form0.$valid && !$scope.invalidFromDate && !$scope.invalidDocDate && !$scope.validation()) {
+            try {
+                var DropDownListObj = $("#FixedAssetDisposeStatusList").data("ejDropDownList");
+                var disposeStatus = DropDownListObj.getSelectedValue();
+                if ($scope.report.NonPosted === null && $scope.report.Posted === null) {
+                    ShowResult("Please Select Type(Posted,Non Posted) ", "failure");
+                    return true;
                 }
-        }
-        catch (e) {
+                if ($scope.report.NonPosted === false && $scope.report.Posted === false) {
+                    ShowResult("Please Select Type(Posted,Non Posted) ", "failure");
+                    return true;
+                }
+                if (disposeStatus === "") {
+                    ShowResult("Please Select Disposal Type ", "failure");
+                    return true;
+                }
+                
+                $http({
+                    method: 'POST',
+                    url: $scope.path + "GetFixedAssetRegisterDisposedElasticSearchDataList",
+                    data: {
+                        fromDate: $scope.report.FromDate,
+                        toDate: $scope.report.ToDate,
+                        nonPosted: $scope.report.NonPosted,
+                        posted: $scope.report.Posted,
+                        disposeStatus: disposeStatus
 
+                    },
+                    dataType: 'JSON'
+
+                }).then(function successCallback(response) {
+
+                    $scope.FixedAssetRegisterElasticSearchList = response.data.DATA;
+                }),
+                    function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+            }
+            catch (e) {
+
+            }
         }
     }
-    $scope.GetFixedAssetRegisterElasticSearchData();
+    //$scope.GetFixedAssetRegisterElasticSearchData();
 
 
     $scope.TotalFARegisterSummaryAmount = [{
@@ -302,6 +336,8 @@ function FixedAssetsRegisterDisposedReportController(commonMessage, $scope, $roo
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalBaseAmount", dataMember: "TotalBaseAmount", format: "{0:N2}" },
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "ADBaseAmount", dataMember: "ADBaseAmount", format: "{0:N2}" },
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "NetFixedAssetsAmount", dataMember: "NetFixedAssetsAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BaseNagotiationValue", dataMember: "BaseNagotiationValue", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "LossOrGain", dataMember: "LossOrGain", format: "{0:N2}" },
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "FACount", dataMember: "FACount" }
 
         ],

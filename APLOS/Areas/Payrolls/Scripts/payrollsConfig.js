@@ -144,6 +144,10 @@
             templateUrl: 'payrolls/payslips/aplos',
             controller: 'paySlipsController'
         })
+        .when('/pay-slip-new', {
+            templateUrl: 'payrolls/payslipsnew/PaySlipsNew',
+            controller: 'paySlipsNewController'
+        })
         .when('/attdn-slip', {
             templateUrl: 'payrolls/AttendanceSlip/aplos',
             controller: 'attendanceSlipController'

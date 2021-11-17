@@ -1,4 +1,5 @@
-﻿using Library.Core;
+﻿using ConnectionManager.DAL;
+using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
@@ -22,24 +23,22 @@ namespace Library.Accounting.FixedAssets
 {
     public class AssetWIPQueryService
     {
-        private readonly ISqlRepository _sqlRepository;
-        public AssetWIPQueryService(ISqlRepository sqlRepository )
+        ISqlRepository _sqlRepository;
+        public AssetWIPQueryService()
         {
-            _sqlRepository = sqlRepository;
-           
+            _sqlRepository = new SqlRepository();
         }
-
-		public List<Dictionary<string, object>> GetFixedAssetWIPstatusSQL()
+        public List<Dictionary<string, object>> GetFixedAssetWIPstatusSQL()
 		{
-			var sql = @"select  isnull(MM.UserName,'') MaterialMasterName	
+			var sql = @"select  IRD.Id InventoryReceiveDetailId, isnull(MM.UserName,'') MaterialMasterName	
 							, MM.Id	MaterialMasterId	
 							, isnull( ART.StandardName,'') ArticleName	
 							, ART.Id ArticleId		
 							, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue
 							, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
 							, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 
-							, MS.UserName MaterialStorageLocation	
-							,GL.UserName GL
+							, MS.UserName MaterialStorageLocation,FAM.UserName AssetMaster	
+							,GL.UserName GL,B.UserName Budget
 							,A.UserName Activity
 							,IRD.InventoryReceiveId GRNNo,FORMAT(IR.GRNDate,'dd-MMM-yyyy') GRNDate
 							,V.VoucherNo
@@ -47,7 +46,7 @@ namespace Library.Accounting.FixedAssets
 							,IRD.MaterialTranRate TrnRate
 							,CU.Code Currency
 							,IRD.TotalMaterialTranAmount TrnAmount
-							,IRD.BaseQty,BUOM.UserName BaseUOM,IRD.TrnCurrencyBaseRate BaseRate
+							,IRD.BaseQty,BUOM.UserName BaseUOM,IRD.BooksCurrencyBaseRate BaseRate
 							,IRD.TotalMaterialBooksCurrencyAmount BooksAmount
 							,IRD.IssueQty 
 							,V.Id VoucherId,GL.Id GlId,A.Id ActivityId
@@ -69,7 +68,11 @@ LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.
  LEFT JOIN SCS.UnitOfMeasurement TUOM ON TUOM.Id=IRD.TransactionUoMId
  LEFT JOIN SCS.UnitOfMeasurement BUOM ON BUOM.Id=IRD.BaseUOMId
  LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=IRD.PostDrGLGeneralInfoId
+ LEFT JOIN MST.BudgetMaster BM ON BM.Id=IRD.PostDrBudgetMasterId
+ LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
  LEFT JOIN HKP.Activity A ON A.Id=IRD.PostDrActivityId
+ LEFT JOIN HKP.FixedAssetMasterBudgetTag FAMB ON FAMB.BudgetMasterId=MM.BudgetMasterId
+ LEFT JOIN MST.FixedAssetMaster FAM ON FAM.Id=FAMB.FixedAssetMasterId
  LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
  LEFT JOIN SCS.Currency CU ON CU.Id=IR.CurrencyId
  LEFT JOIN (SELECT InventoryReceiveDetailId,SUM(Qty) IssueQty FROM  TRN.InventoryIssueHistory group by InventoryReceiveDetailId) IIH ON IIH.InventoryReceiveDetailId=IRD.Id
@@ -87,8 +90,8 @@ WHERE IR.VoucherId<>'' AND IRD.IsAsset=1 and (isnull(IRD.BaseQty,0)-isnull(IIH.I
 							, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue
 							, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
 							, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 
-							, MS.UserName MaterialStorageLocation	
-							,GL.UserName GL
+							, MS.UserName MaterialStorageLocation,FAM.UserName AssetMaster	
+							,GL.UserName GL,B.UserName Budget
 							,A.UserName Activity
 							,IRD.InventoryReceiveId GRNNo,FORMAT(IR.GRNDate,'dd-MMM-yyyy') GRNDate
 							,V.VoucherNo
@@ -96,7 +99,7 @@ WHERE IR.VoucherId<>'' AND IRD.IsAsset=1 and (isnull(IRD.BaseQty,0)-isnull(IIH.I
 							,IRD.MaterialTranRate TrnRate
 							,CU.Code Currency
 							,IRD.TotalMaterialTranAmount TrnAmount
-							,IRD.BaseQty,BUOM.UserName BaseUOM,IRD.TrnCurrencyBaseRate BaseRate
+							,IRD.BaseQty,BUOM.UserName BaseUOM,IRD.BooksCurrencyBaseRate BaseRate
 							,IRD.TotalMaterialBooksCurrencyAmount BooksAmount
 							,IRD.IssueQty 
 							,V.Id VoucherId,GL.Id GlId,A.Id ActivityId
@@ -118,7 +121,11 @@ LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.
  LEFT JOIN SCS.UnitOfMeasurement TUOM ON TUOM.Id=IRD.TransactionUoMId
  LEFT JOIN SCS.UnitOfMeasurement BUOM ON BUOM.Id=IRD.BaseUOMId
  LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=IRD.PostDrGLGeneralInfoId
+ LEFT JOIN MST.BudgetMaster BM ON BM.Id=IRD.PostDrBudgetMasterId
+ LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
  LEFT JOIN HKP.Activity A ON A.Id=IRD.PostDrActivityId
+ LEFT JOIN HKP.FixedAssetMasterBudgetTag FAMB ON FAMB.BudgetMasterId=MM.BudgetMasterId
+ LEFT JOIN MST.FixedAssetMaster FAM ON FAM.Id=FAMB.FixedAssetMasterId
  LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
  LEFT JOIN SCS.Currency CU ON CU.Id=IR.CurrencyId
  LEFT JOIN (SELECT InventoryReceiveDetailId,SUM(Qty) IssueQty FROM  TRN.InventoryIssueHistory group by InventoryReceiveDetailId) IIH ON IIH.InventoryReceiveDetailId=IRD.Id
@@ -202,6 +209,12 @@ AND IRD.PostDrActivityId IN( " + activityId + @")";
 
             worksheet[ROW, COL].Text = "Storage Location";
             int colMaterialStorageLocation = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Asset Master";
+            int colAssetMaster = COL;
             worksheet[ROW, COL].ColumnWidth = 15;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
@@ -326,6 +339,7 @@ AND IRD.PostDrActivityId IN( " + activityId + @")";
                 worksheet[ROW, colSecondCharacteristicsValue].Text = dtGatenntryRegisterList.Rows[i]["SecondCharacteristicsValue"].ToString();
                 worksheet[ROW, colThirdCharacteristicsValue].Text = dtGatenntryRegisterList.Rows[i]["ThirdCharacteristicsValue"].ToString();
                 worksheet[ROW, colMaterialStorageLocation].Text = dtGatenntryRegisterList.Rows[i]["MaterialStorageLocation"].ToString();
+                worksheet[ROW, colAssetMaster].Text = dtGatenntryRegisterList.Rows[i]["AssetMaster"].ToString();
 
                 worksheet[ROW, colMaterialMasterName].Text = dtGatenntryRegisterList.Rows[i]["MaterialMasterName"].ToString();
                 worksheet[ROW, colGL].Text = dtGatenntryRegisterList.Rows[i]["GL"].ToString();
@@ -367,27 +381,6 @@ AND IRD.PostDrActivityId IN( " + activityId + @")";
             }
 
 
-            //worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
-            //worksheet.UsedRange.CellStyle.Font.Size = 8f;
-            //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            //ReportUtility reportUtility = new ReportUtility();
-            //reportUtility.PlantHeader(ref worksheet, endCol, "Asset WIP Status Report", identity.PlantId);
-            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-            //worksheet.Range[1, 1, 4, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-            //worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
-            //worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-            //worksheet.IsGridLinesVisible = false;
-
-            //#region Freeze penes
-            ////worksheet.IsDisplayZeros = false;
-            //worksheet.UsedRange["A6"].FreezePanes();
-            //worksheet.FirstVisibleColumn = 1;
-            //worksheet.FirstVisibleRow = 6;
-            //#endregion
-
-            //workbook.Version = ExcelVersion.Excel97to2003;
-            //reportUtility.PageSetup(ref worksheet, 5, ExcelPageOrientation.Portrait);
-
 
            worksheet.UsedRange.WrapText = true;
            worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
@@ -420,6 +413,32 @@ AND IRD.PostDrActivityId IN( " + activityId + @")";
             return filePath;
         }
 
-
+        public List<Dictionary<string, object>> GetIssueQtyList(string InventoryReceiveDetailId)
+        {
+            try
+            {
+                string sql = IssueQtySql(InventoryReceiveDetailId);
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        private string IssueQtySql(string InventoryReceiveDetailId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return @"select iid.InventoryIssueId IssueNo,FORMAT(ii.IssueDate,'dd-MMM-yyyy') IssueDate,SUM(isnull(iih.Qty,0)) Qty
+            ,SUM(isnull(iih.Qty,0)*iih.BooksCurrencyBaseRate) Amount,uom.UserName UOM,ii.VoucherId,v.VoucherNo 
+            from trn.InventoryIssueHistory iih 
+            left join TRN.InventoryIssueDetail iid on iid.Id=iih.InventoryIssueDetailId 
+            left join trn.InventoryIssue ii on ii.Id=iid.InventoryIssueId
+            left join TRN.Voucher v on v.Id=ii.VoucherId
+            left join SCS.UnitOfMeasurement uom on uom.Id=iid.BaseUOMId
+            left join TRN.InventoryReceiveDetail ird on ird.Id=iih.InventoryReceiveDetailId
+            where ird.InventoryReceiveId='" + InventoryReceiveDetailId+@"'
+            group by iid.InventoryIssueId ,ii.IssueDate,ii.VoucherId,v.VoucherNo ,uom.UserName";
+              
+        }
     }
 }

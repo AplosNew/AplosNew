@@ -522,14 +522,20 @@ namespace Aplos.Areas.Employees.Controllers
             return Json(employeeProfile.GetIsOTEntitled(identity.PlantId, designationId), JsonRequestBehavior.AllowGet);
         }
 
+        //[HttpGet, Authorize]
+        //public JsonResult CheckDuplicateEmployeeCode(string systemId, string employeeCode, string EmployeeCodeCheckLevel)
+        //{
+        //    clsEmployeeLoad clsEmployee = new clsEmployeeLoad();
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    return Json(clsEmployee.DuplicateEmployeeCode(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, systemId, employeeCode, EmployeeCodeCheckLevel), JsonRequestBehavior.AllowGet);
+        //}
         [HttpGet, Authorize]
-        public JsonResult CheckDuplicateEmployeeCode(string systemId, string employeeCode, string EmployeeCodeCheckLevel)
+        public JsonResult CheckDuplicateEmployeeCode(string systemId, string employeeCode, string EmployeeCodeTypeId)
         {
             clsEmployeeLoad clsEmployee = new clsEmployeeLoad();
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(clsEmployee.DuplicateEmployeeCode(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, systemId, employeeCode, EmployeeCodeCheckLevel), JsonRequestBehavior.AllowGet);
+            return Json(clsEmployee.DuplicateEmployeeCodeWithInGroup(identity.PlantId, systemId, employeeCode, EmployeeCodeTypeId), JsonRequestBehavior.AllowGet);
         }
-
 
 
         /// <summary>

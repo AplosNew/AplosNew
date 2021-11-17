@@ -819,7 +819,13 @@ namespace Aplos.HumanResource
 
 
 
-                    if (objEmpLoad.DuplicateEmployeeCode(para.CompanyGroupId, para.CompanyId, para.PlantId, data.SystemId, data.EmployeeCode, EmployeeCodeCheckLevel) == false)
+                    //if (objEmpLoad.DuplicateEmployeeCode(para.CompanyGroupId, para.CompanyId, para.PlantId, data.SystemId, data.EmployeeCode, EmployeeCodeCheckLevel) == false)
+                    //{
+                    //    Exception ex = new Exception("This EmployeeCode already exist.........EmployeeCode must be unique");
+                    //    throw ex;
+                    //}
+
+                    if (objEmpLoad.DuplicateEmployeeCodeWithInGroup(para.PlantId, data.SystemId, data.EmployeeCode, data.EmployeeCodeTypeId) == false)
                     {
                         Exception ex = new Exception("This EmployeeCode already exist.........EmployeeCode must be unique");
                         throw ex;
@@ -1314,6 +1320,7 @@ namespace Aplos.HumanResource
                 drLocal["ProfileShiftId"] = data.FixSystemID;
                 drLocal["ResidenceGroupId"] = data.ResidenceGroupId;
                 drLocal["TransportGroupId"] = data.TransportGroupId;
+                drLocal["ExcludeOT"] = false;
                 
                 if (!string.IsNullOrEmpty(data.RelativeSystemId))
                 {
