@@ -2309,7 +2309,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                                 ,ISNULL(FChar.UserName,'') FirstCharacteristics,ISNULL(FCharValue.UserName,'') FirstCharacteristicsValue
                                 ,ISNULL(SChar.UserName,'') SecondCharacteristics,ISNULL(SCharValue.UserName,'') SecondCharacteristicsValue
                                 ,ISNULL(TChar.UserName,'') ThirdCharacteristics,ISNULL(TCharValue.UserName,'') ThirdCharacteristicsValue
-                               from dbo.OSTransformationPODetail mp left join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
+                               from dbo.JWTransformationPODetail mp left join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
         					   left join SCS.UnitOfMeasurement uom on uom.Id=mp.OutputMaterialUOMId
                                left join SCS.UnitOfMeasurement mmuom on mmuom.Id=mp.BaseUOMId
         					   left join MST.MaterialMasterArticle mma on mma.Id=mp.ArticleId
@@ -2319,7 +2319,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
         					   left join dbo.EmployeeInformation emp on emp.SystemId=mp.ResponsiblePersonId
 							   --left join HKP.MaterialStorage MS on MS.Id=mp.MaterialLocationId
 					   	   	   left join HKP.JobWorkLocation JL on JL.Id=mp.MaterialLocationId
-							   left join dbo.OSTransformationPO tc on tc.Id=mp.OSTransformationPOId
+							   left join dbo.JWTransformationPO tc on tc.Id=mp.JWTransformationPOId
                                LEFT JOIN [HKP].[Characteristics]  FChar  ON FChar.Id = mp.FirstCharacteristicsId
                             LEFT JOIN [HKP].[CharacteristicsValue]   FCharValue  ON FCharValue.Id = mp.FirstCharacteristicsValueId
                             LEFT JOIN [HKP].[Characteristics]   SChar  ON SChar.Id = mp.SecondCharacteristicsId
