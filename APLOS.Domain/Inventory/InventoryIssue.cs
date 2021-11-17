@@ -52,8 +52,10 @@ namespace Library.Model.Inventory
 
         public string JWContractId { get; set; }
         public string ContractType { get; set; }
-        public string Orderspecific { get; set; } 
-        
+        public string Orderspecific { get; set; }
+
+        public string JobWorkContractId { get; set; }
+
 
         #endregion Scalar Properties
 

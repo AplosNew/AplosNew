@@ -54,18 +54,20 @@
              e-allowselection="true" e-filtersettings-filterType="excel">
             <div e-columns>
                 <div e-column e-headertext="" e-template="#empimageProduction" e-textalign="center" e-width="20"></div>
-
+                <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="30"></div>
+                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="50"></div>
+                <div e-column e-field="Designation" e-headertext="Designation" e-width="30"></div>
                 <div e-column e-field="OperationDesc" e-headertext="Operation" e-width="30"></div>
                 <div e-column e-field="OperationVariationDesc" e-headertext="Opn. Var" e-width="30"></div>
+                <div e-column e-headertext="Current Prod" e-template="#templateproductionEntry" e-textalign="center" e-width="30"></div>
+                <div e-column e-field="ProductionQuantity" e-headertext="Quantity" e-width="30"></div>
+                
                 <div e-column e-field="MachineOrHand" e-headertext="M/H" e-width="10"></div>
+                <div e-column e-field="ArticleShortName" e-headertext="MC Code" e-width="20"></div>
                 <div e-column e-field="ArticleDesc" e-headertext="Machine" e-width="30"></div>
                 <div e-column e-field="MaterialMasterDesc" e-headertext="Material" e-width="30"></div>
 
-                <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="30"></div>
-                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="50"></div>
-                <div e-column e-headertext="Current Prod" e-template="#templateproductionEntry" e-textalign="center" e-width="30"></div>
-                <div e-column e-field="ProductionQuantity" e-headertext="Quantity" e-width="30"></div>
-                <div e-column e-field="Designation" e-headertext="Designation" e-width="30"></div>
+
                 <div e-column e-field="DayStatus" e-headertext="DayStatus" e-width="30"></div>
 
             </div>
@@ -173,7 +175,7 @@
                     </div>
                 </div>
             </div>
-            <div id="SearchFixedAsset" ng-init="chkinit()" ej-grid e-datasource="FixedAssetList" e-gridlines="horizontal"
+            <div id="SearchFixedAsset" ng-init="chkinit()" ej-grid e-datasource="FixedAssetList" e-gridlines="both"
                  e-allowtextwrap="true" e-textwrapsettings.wrapmode="content"
                  e-recorddoubleclick="ViewFixedAssetStatus" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                  e-enabletouch="false" e-responsive="true"

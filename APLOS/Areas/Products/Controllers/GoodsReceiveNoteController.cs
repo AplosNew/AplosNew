@@ -4095,6 +4095,7 @@ UNION ALL
                     throw new Exception("Nothing to update..");
                 }
                 string Ids = "";
+                string InventoryReceiveDetailIds = "";
                 for (int i = 0; i < Data.Count; i++)
                 {
                     if (!string.IsNullOrEmpty(Data[i]["Id"].ToString()))
@@ -4104,6 +4105,13 @@ UNION ALL
                         else
                             Ids += ",'" + Data[i]["Id"] + "'";
                     }
+                    //if (!string.IsNullOrEmpty(Data[i]["InventoryReceiveDetailId"].ToString()))
+                    //{
+                    //    if (InventoryReceiveDetailIds == "")
+                    //        InventoryReceiveDetailIds = "'" + Data[i]["InventoryReceiveDetailId"] + "'";
+                    //    else
+                    //        InventoryReceiveDetailIds += ",'" + Data[i]["InventoryReceiveDetailId"] + "'";
+                    //}
                 }
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
                 if (Ids != "")
@@ -4125,6 +4133,12 @@ UNION ALL
                     dsRack.Tables[0].DefaultView.RowFilter = "Id='" + item["Id"] + "'";
                     if (dsRack.Tables[0].DefaultView.Count == 0)
                     {
+                        if (item["SalesOrderId"] == null && item["OSPOBOQMAPId"] == null)
+                        {
+                            GetSOIds(item["InventoryReceiveDetailId"].ToString(), out DataSet dsDetails);
+                            item["OSPOBOQMAPId"] = dsDetails.Tables[0].Rows[0]["OSPOBOQMAPId"];
+                            item["SalesOrderId"] = dsDetails.Tables[0].Rows[0]["SalesOrderId"];
+                        }
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID("trn.GRNPORequisitionAllocation", out _Id);
                         dr = dsRack.Tables[0].NewRow();
@@ -4153,29 +4167,29 @@ UNION ALL
 
                         dsRack.Tables[0].Rows.Add(dr);
                     }
-                    else
-                    {
-                        _Id = item["Id"].ToString();
-                        dr = dsRack.Tables[0].DefaultView[0].Row;
-                        dr.BeginEdit();
-                        dr["InventoryReceiveDetailId"] = item["InventoryReceiveDetailId"];
-                        dr["POBOQMapId"] = item["POBOQMapId"];
-                        dr["POReqDetailsID"] = item["POReqDetailsID"];
-                        dr["TransactionQty"] = item["TransactionQty"];
-                        dr["TransactionUoMId"] = item["TransactionUoMId"];
-                        dr["BaseQty"] = item["BaseQty"];
-                        dr["BaseUoMId"] = item["BaseUoMId"];
-                        dr["POBOQQty"] = item["POBOQQty"];
-                        dr["POUoMId"] = item["POUoMId"];
-                        dr["SalesOrderId"] = item["SalesOrderId"];
-                        dr["OSPOBOQMAPId "] = item["OSPOBOQMAPId "];
-                        dr["RejectQty"] = item["RejectQty"];
-                        dr["RejectBaseQty"] = item["RejectBaseQty"];
-                        dr["UpdatedBy"] = identity.Name;
-                        dr["UpdatedDate"] = DateTime.Now;
-                        dr["UpdatedFromIP"] = identity.IPAddress;
-                        dr.EndEdit();
-                    }
+                    //else
+                    //{
+                    //    _Id = item["Id"].ToString();
+                    //    dr = dsRack.Tables[0].DefaultView[0].Row;
+                    //    dr.BeginEdit();
+                    //    dr["InventoryReceiveDetailId"] = item["InventoryReceiveDetailId"];
+                    //    dr["POBOQMapId"] = item["POBOQMapId"];
+                    //    dr["POReqDetailsID"] = item["POReqDetailsID"];
+                    //    dr["TransactionQty"] = item["TransactionQty"];
+                    //    dr["TransactionUoMId"] = item["TransactionUoMId"];
+                    //    dr["BaseQty"] = item["BaseQty"];
+                    //    dr["BaseUoMId"] = item["BaseUoMId"];
+                    //    dr["POBOQQty"] = item["POBOQQty"];
+                    //    dr["POUoMId"] = item["POUoMId"];
+                    //    dr["SalesOrderId"] = item["SalesOrderId"];
+                    //    dr["OSPOBOQMAPId "] = item["OSPOBOQMAPId "];
+                    //    dr["RejectQty"] = item["RejectQty"];
+                    //    dr["RejectBaseQty"] = item["RejectBaseQty"];
+                    //    dr["UpdatedBy"] = identity.Name;
+                    //    dr["UpdatedDate"] = DateTime.Now;
+                    //    dr["UpdatedFromIP"] = identity.IPAddress;
+                    //    dr.EndEdit();
+                    //}
                     #endregion data update 
                 }
 
@@ -4192,7 +4206,31 @@ UNION ALL
 
             }
         }
+        public void GetSOIds(string DetailsId, out DataSet dsRef)
+        {
+            string strSQL = string.Empty;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                strSQL = @"select OSBOQMAP.Id OSPOBOQMAPId,Boq.SalesOrderId SalesOrderId
+                            from trn.InventoryReceive IR
+                            Left JOIN TRN.InventoryReceiveDetail IRD on IR.Id = IRD.InventoryReceiveId
+                            left join[dbo].OSPOBOQMAP OSBOQMAP ON OSBOQMAP.OSTransformationPODetailId = IRD.OSTransformationPODetailId
+                            left join BOQ Boq on Boq.Id = OSBOQMAP.BOQDetailId
+                            where IRD.Id = '" + DetailsId + @"'";
 
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

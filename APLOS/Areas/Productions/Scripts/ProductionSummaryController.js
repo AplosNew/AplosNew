@@ -902,9 +902,9 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
 
                 
             }
-            if (parseFloat($scope.RemainQty) < 0) {
-                throw "Sales Order Quantity dosen't available.";
-            }
+            //if (parseFloat($scope.RemainQty) < 0) {
+            //    throw "Order Quantity dosen't available.";
+            //}
 
             //if (parseFloat($scope.TotalSalesOrderQty) < parseFloat($scope.TotalProductionBookingQty) + parseFloat($scope.productionSummaryNew.Quantity)) {
             //    throw "Produced Quantity should less than Sales Order Quantity.";

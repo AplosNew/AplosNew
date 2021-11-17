@@ -7781,6 +7781,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                 drLocal["TotalLate"] = dicMMDSSI_Sub.TotalLate;
                 drLocal["TotalAbsent"] = dicMMDSSI_Sub.TotalAbsent;
                 drLocal["TotalLWP"] = dicMMDSSI_Sub.TotalLWP;
+                drLocal["TotalLVWithPay"] = dicMMDSSI_Sub.TotalLVWithPay;
 
                 drLocal["TotalLv"] = dicMMDSSI_Sub.TotalLv;
                 drLocal["TotalMLv"] = dicMMDSSI_Sub.TotalMLv;

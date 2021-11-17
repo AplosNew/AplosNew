@@ -30,7 +30,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 	$scope.StateData = [];
 	//#region notification setting
 	$scope.NotificationSettingStatus = function () {
-		//debugger;
+		
 		$http({
 			method: 'GET',
 			url: 'Products/PurchaseOrder/NotificationSetting',
@@ -57,7 +57,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 	};
 	$scope.NotificationSettingStatus();
 	$scope.GetCheckedByAndApprovedBy1 = function () {
-		//debugger;
+		
 
 		if (!baseService.isUndefinedOrNull($scope.CheckedByStatusForNoti) && !baseService.isUndefinedOrNull($scope.ApprovedByStatusForNoti)) {
 			$http({
@@ -199,7 +199,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 	}
 	$scope.POListDetails();
 	$scope.PODocumentMapDataAll = function () {
-		//debugger;
+		
 		$http({
 			method: 'GET',
 			//url: 'Products/Requisition/GetAllReqdataDetails?ReqDetailId=' + $scope.filteredData
@@ -343,7 +343,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 	};
 	$scope.OrderSpecific = $scope.productNew.OrderSpecific;
 	$scope.SelectedContract = function (obj) {
-		//debugger;
+		
 		//var data = obj.data.ContractId;
 		$scope.productNew.ContractId = obj.data.ContractId;
 		$scope.productNew.CustomerName = obj.data.CustomerName;
@@ -574,7 +574,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 	//#region Save Update Delete Function
 
 	$scope.Save = function () {
-		//debugger;
+		
 		try {
 			$scope.dbval = $scope.StateData;
 			$scope.UIval = $scope.productNew.InvoicingState;
@@ -724,7 +724,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 	};
 
 	$scope.Clear = function () {
-		debugger;
+		;
 		ClearFields();
 		$scope.NotificationSettingStatus();
 		if (!$rootScope.isCollapsed) $rootScope.toggle();
@@ -962,7 +962,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 		data.TaxAmount = Math.round($scope.detailModel.TransactionAmount * data.Percentage) / 100;
 	};
 	$scope.checkRowValidationMat = function (x) {
-		debugger;
+		;
 		for (var i = 0; i < $scope.taxCategoryList.length; i++) {
 			if (baseService.isUndefinedOrNull($scope.detailModel.TransactionAmount) || $scope.detailModel.TransactionAmount === 0) {
 				ShowResult("Taxable Amount can not null or zero", 'failure', 'detailPopUp');
@@ -981,7 +981,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 		data.TaxAmount = Math.round($scope.serviceModel.TransactionAmount * data.Percentage) / 100;
 	};
 	$scope.checkRowValidationService = function (x) {
-		debugger;
+		;
 		for (var i = 0; i < $scope.taxCategoryList.length; i++) {
 			//if (baseService.isUndefinedOrNull($scope.detailModel.TransactionAmount) || $scope.detailModel.TransactionAmount === 0) {
 			//	ShowResult("Taxable Amount can not null or zero", 'failure', 'detailPopUp');
@@ -1000,7 +1000,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 		data.TaxAmount = Math.round($scope.taxAbleAmnt * data.Percentage) / 100;
 	};
 	$scope.checkRowValidationServiceModify = function (x) {
-		debugger;
+		;
 		for (var i = 0; i < $scope.receiveTaxList.length; i++) {
 
 			if ($scope.receiveTaxList[i].Id === x.Id) {
@@ -1156,7 +1156,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 		$scope.getPartyList();
 	};
 	$scope.closePartyPopUp = function (x) {
-		//debugger;
+		
 		//if ($scope.partyIndex !== -1) {
 		var party = x.data;
 		// var party = $scope.partyList[$scope.partyIndex];
@@ -1404,7 +1404,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 		}
 	};
 	$scope.closeDetaiPopUp = function () {
-		//debugger;
+		
 		$scope.detailModel = {};
 		$scope.taxCategoryList = [];
 		removeValidationMsg();
@@ -1420,7 +1420,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 	$scope.materialType = ['Asset', 'Consumable', 'Spare', 'RawMaterial'];
 	//$scope.setMaterialMasterData
 	$scope.selectMaterialByType = function (ob) {
-		//debugger;
+		
 		$scope.detailModel.MaterialMasterId = ob.Id;
 		$scope.detailModel.MaterialMasterName = ob.UserName;
 		$scope.detailModel.BaseUOMId = ob.BaseUOMId;
@@ -1799,7 +1799,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 		}
 	};
 	$scope.getReceiveTaxList = function (data, flag, index, Id) {
-		debugger;
+		;
 		$scope.productNew.TaxOption = 'Yes';
 		$scope.LoadTaxButtonClick();
 		$scope.Currency = $("#currency option:selected").text();
@@ -1901,7 +1901,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 		};
 	}
 	$scope.closeServiceChargeTaxPopUp = function () { //hossain
-		////debugger;
+		//
 		$scope.detailModel = {};
 		$scope.detailModel.InventoryReceiveDetailId = $scope.ServiceId;
 		$scope.detailModel.InventoryReceiveDetailId = $scope.DetailId;
@@ -2320,7 +2320,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 	$scope.getalldataVendor();
 	$scope.getalldata();
 	$scope.recorddoubleclick = function ($event) {
-		//debugger;
+		
 		var x = $event;
 		var Id = x.data.Id;
 		$scope.Currency = $("#currency option:selected").text();
@@ -3013,7 +3013,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 	};
 
 	$scope.SaveFG = function () {
-		////debugger;
+		//
 		try {
 			$scope.dbval = $scope.StateData;
 			$scope.UIval = $scope.productNew.InvoicingState;
@@ -3362,7 +3362,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 	}];
 
 	$scope.onClickPOA = function (z) {
-		//debugger;
+		
 		var x = "#" + z;
 		var gridObj = $(x).data("ejGrid");
 		$scope.podata = gridObj.getSelectedRecords()[0];
@@ -3396,7 +3396,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 	};
 	$scope.PaymentModeList = [];
 	$scope.PaymentModeByPaymentTerm = function () {
-		//debugger;
+		
 		$http({
 			method: 'GET',
 			//url: 'Products/Requisition/GetAllReqdataDetails?ReqDetailId=' + $scope.filteredData
@@ -3459,7 +3459,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 
 	//#endregion
 	$scope.GetBOQItemList = function () {
-		//debugger;
+		
 		$scope.GetListForMasterOrder = [];
 		$scope.groupList = [];
 		$scope.GetListForMasterOrdernew = [];
@@ -3497,7 +3497,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 	}
 	$scope.GetListForMasterOrder = [];
 	$scope.getalldataListForBOQList = function () {
-		//debugger;
+		
 		var gridObj = $("#GridReq").data("ejGrid");
 		gridObj.clearFiltering();
 		//$("#GridReq").ejGrid("clearFiltering");
@@ -3688,7 +3688,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 
 	}
 	$scope.detailPOSaveForBOQ = function () {
-		debugger;
+		;
 		try {
 			$scope.check();
 			$scope.GetListForMasterOrdernew = [];
@@ -3890,7 +3890,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 		}
 	};
 	$scope.getTaxCategoryList1 = function ($event) {
-		//debugger
+		//
 		if ($event.isInteraction == false)
 			return;
 		var gridObj = $("#GridReq").ejGrid("instance");
@@ -3945,7 +3945,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 
 	//Update Process
 	$scope.PODetailsUpdatePOPUp = function (x) {
-		debugger;
+		;
 		//$scope.uom();
 		$scope.ActionPOBOQ = "Update";
 		getInventoryMaterialListForUpdate(x.InventoryReceiveDetailId, x.InventoryMaterialId, x.ArticleId, x.FirstCharacteristicsValueId, x.SecondCharacteristicsValueId, x.ThirdCharacteristicsValueId);
@@ -3967,7 +3967,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 	};
 
 	$scope.ClearList = function (data) {
-		debugger;
+		;
 		$scope.inventoryMaterialList = [];
 		$scope.OrderSpecific = data;
 
@@ -3979,7 +3979,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 		var gridObjUpdate = $("#PODetailUpdate").data("ejGrid");
 		//var x = $event;
 		//var res = x.data;
-		debugger;
+		;
 		$http({
 			method: 'POST',
 			url: $scope.path + 'ConverttedBOQUOMData',
@@ -4010,7 +4010,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 
 
 	$scope.checkRowValidation = function (x) {
-		debugger;
+		;
 		for (var i = 0; i < $scope.receiveTaxList.length; i++) {
 			//if (baseService.isUndefinedOrNull($scope.HSNCode)) {
 			//if ($scope.receiveTaxList[i].Percentage === 0) {
@@ -4025,21 +4025,21 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 
 
 	$scope.TaxOption = function (data) {
-		debugger;
+		;
 		$scope.productNew.TaxOption = data;
 	};
 	$scope.TaxOptionMat = function (data) {
-		debugger;
+		;
 		$scope.productNew.TaxOptionMat = data;
 
 	};
 	$scope.TaxOptionService = function (data) {
-		debugger;
+		;
 		$scope.productNew.TaxOptionService = data;
 
 	};
 	$scope.TaxOptionServiceModify = function (data) {
-		debugger;
+		;
 		$scope.productNew.TaxOptionServiceModify = data;
 
 	};
@@ -4061,7 +4061,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 	};
 
 	$scope.DocumentSave = function () {
-		debugger;
+		;
 		//$scope.$broadcast("show-errors-check-validity");
 
 		if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 2000000)
@@ -4274,4 +4274,22 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 
     // #endregion checkbox all
 
+
+    $scope.BOQItemsDetailsDataList = [];
+    $scope.GetBOQItemsDetailsData = function () {
+        $scope.BOQItemsDetailsDataList = [];
+        $http({
+            method: "GET",
+            dataType: 'JSON',
+            url: 'Products/PurchaseOrder/GetBOQItemsDetailsData'
+        }).then(function successCallback(response) {
+            $scope.BOQItemsDetailsDataList = response.data;
+            });
+        angular.element(document.querySelector('#ListMaterial')).modal('show');
+    };
+    $scope.BOQItemsDetailsDataListHide = function () {
+        angular.element(document.querySelector('#ListMaterial')).modal('hide');
+    };
+
 }//End Of main
+

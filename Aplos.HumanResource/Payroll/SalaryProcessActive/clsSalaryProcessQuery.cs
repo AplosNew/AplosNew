@@ -575,8 +575,9 @@ left join (select distinct EmpInfoSystemID from SalaryProcChild where SlrProcMst
                                 SUM(ISNULL(CAST(OTHr As decimal(18, 2)), '0.00')) TotalOTHr,
                                 0.00 TotalNormalOTHr,
                                 0.00 TotalExtraOTHr, 
-                                SUM(ISNULL(CAST(TotalLWP As decimal(18, 2)), '0.00')) TotalLWP  
-                                ,WeekoffDays =STUFF((select ','+CONCAT(DATEPART(DAY, apdX.WorkDate),'-',FORMAT(apdx.WorkDate,'ddd'))from 
+                                SUM(ISNULL(CAST(TotalLWP As decimal(18, 2)), '0.00')) TotalLWP,  
+                                SUM(ISNULL(CAST(TotalLVWithPay As decimal(18, 2)), '0.00')) TotalLVWithPay,  
+                                WeekoffDays =STUFF((select ','+CONCAT(DATEPART(DAY, apdX.WorkDate),'-',FORMAT(apdx.WorkDate,'ddd'))from 
 																			AttdnProcessData AS apdX                                              
 							                                where apdX.EmpSystemID=A.EmpSystemID  
 							                                AND apdx.WorkDate BETWEEN '" + Parameters.FromDate + @"' AND '" + Parameters.ToDate + @"'
@@ -587,7 +588,8 @@ left join (select distinct EmpInfoSystemID from SalaryProcChild where SlrProcMst
 			                            TotalLate = LateValue,
 			                            TotalAbsent = AbsentValue,
 			                            TotalLv = LvValue,
-                                        TotalLWP = LWPValue,
+                                        TotalLWP = CASE WHEN ISNULL(ds.PayDay,0)=0 THEN l.AvailedValue ELSE 0 END,
+                                        TotalLVWithPay = CASE WHEN ISNULL(ds.PayDay,0)>0 THEN l.AvailedValue ELSE 0 END,
 			                            TotalMLv = CASE WHEN ISNULL(lt.LeaveType,'')='' THEN 0 ELSE 1 END,
                                         TotalCompAssignLv = 0,
 			                            TotalWeekOff = WeekOffValue,
@@ -596,7 +598,15 @@ left join (select distinct EmpInfoSystemID from SalaryProcChild where SlrProcMst
                                 OTHr
                                 FROM dbo.AttdnProcessData APD
                                 left join daytype p on APD.DayStatus=p.DayType
-                                left join LeaveType LT ON LT.Id=APD.LTSystemID AND lt.LeaveType='Maternity'
+                                LEFT JOIN LeaveType AS lt ON lt.Id=apd.LTSystemID
+
+                                LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=apd.EmpSystemID
+                                LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
+                                LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
+                                LEFT JOIN mst.DesignationMaster AS dm ON dm.Id=dmc.DesignationMasterId
+                                LEFT JOIN DayStatusPlantChild PC ON pc.PlantId=apd.PlantId AND pc.EmpTypeId=dm.EmployeeCategoryId
+                                left JOIN DayTypeWithValues AS ds ON ds.DayType=apd.DayStatus AND ds.HeaderId=pc.HeaderId
+                                LEFT JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id AND l.LeaveTypeId=apd.LTSystemID
                                 WHERE " + wc + @") A
                                 GROUP BY EmpSystemID";
 
