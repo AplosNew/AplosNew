@@ -2,7 +2,8 @@
 MachineLayoutReportController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function MachineLayoutReportController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
     $rootScope.title = "Machine Layout Report";
-
+    $scope.downloadgriddataUrl = 'GridReports/Download';
+    $scope.path = 'Productions/MachineLayoutReport/';
     $scope.DailyProductionTarget = {
         Id: null,
         DailyProductionTargetID: null,
@@ -79,13 +80,30 @@ function MachineLayoutReportController(cboService, commonMessage, $scope, $rootS
         gridObj.refreshContent();
         //gridObj.refreshTemplate();
     }
-    $scope.Clear = function () {
-        ClearFields();
-        return true;
-    }
-    function ClearFields() {
-        $scope.DailyProductionTarget = {}
-        $scope.DailyTargetList = [];
-        $scope.SOItemList = [];
-    }
+
+    $scope.DownloadReport = function (data) {
+        try {            
+            $http({
+                method: 'POST',
+                url: 'Productions/MachineLayoutReport/Report',
+                data: {
+                    'EntityId': $scope.DailyProductionTargetNew.EntityId,
+                    'ProcessId': $scope.DailyProductionTargetNew.ProcessId,
+                    'ProductionDate': $scope.DailyProductionTargetNew.ProductionDate,
+                    'WorkCenterMasterId': data.WorkCenterMasterId,
+                    'Data': data
+                }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                }
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
 }
