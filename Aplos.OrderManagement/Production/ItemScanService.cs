@@ -4,6 +4,7 @@ using System.Linq;
 using System.Data;
 using Library.Data.Sql;
 using OTSBD;
+using bplib;
 
 namespace Library.Service.EmployeeServices
 {
@@ -505,6 +506,7 @@ namespace Library.Service.EmployeeServices
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
                 string ErrorList = "";
+                string InventoryListMaster = "";
 
                 if (DataToSave.Count() == 0)
                 {
@@ -529,19 +531,27 @@ namespace Library.Service.EmployeeServices
                     dsMaster.Tables[0].DefaultView.RowFilter = @"RefNo='" + item.RefNo + "' ";
                     if (dsMaster.Tables[0].DefaultView.Count > 0)
                     {
-                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
-                        dr.BeginEdit();
-                        dr["BookedDate"] = DateTime.Now;
-                        dr["UpdatedBy"] = item.UpdatedBy;
-                        dr["PackingId"] = item.PackingId;
-                        dr["Booked"] = true;
-                        dr.EndEdit();
-                        PckId = item.PackingId;
-                        BkQty += clsStaticInfo.dbl(dr["NetWeight"].ToString());
+                        string Inventory = clsWebLib.RetValidLen(dsMaster.Tables[0].DefaultView[0][@"InventoryReceiveDetailId"]).ToString();
+                        if (Inventory != "")
+                        {
+                            DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();
+                            dr["BookedDate"] = DateTime.Now;
+                            dr["UpdatedBy"] = item.UpdatedBy;
+                            dr["PackingId"] = item.PackingId;
+                            dr["Booked"] = true;
+                            dr.EndEdit();
+                            PckId = item.PackingId;
+                            BkQty += clsStaticInfo.dbl(dr["NetWeight"].ToString());
+                        }
+                        else
+                        {
+                            InventoryListMaster += item.RefNo + "...";
+                        }
                     }
                     else
                     {
-                        ErrorList += item.RefNo+"...";
+                        ErrorList += item.RefNo + "...";
                     }
 
 
@@ -549,8 +559,8 @@ namespace Library.Service.EmployeeServices
 
                 ConnectionManager.DAL.ConManager conn = new ConnectionManager.DAL.ConManager("1");
                 DataSet dsPo;
-                
-                var sql = @"select * from trn.POLotReference where Id ='"+PckId+"'";
+
+                var sql = @"select * from trn.POLotReference where Id ='" + PckId + "'";
                 conn.OpenDataSetThroughAdapter(sql, out dsPo, false, "1");
 
                 double poBkQty = clsStaticInfo.dbl(dsPo.Tables[0].Rows[0]["BookQty"].ToString());
@@ -561,7 +571,11 @@ namespace Library.Service.EmployeeServices
 
                 SaveDataSets(dsMaster);
                 SaveDataSets(dsPo);
-                if(ErrorList!="")
+                if (InventoryListMaster!="")
+                {
+                    return "Please complete the FG Inventory Booking of :- " + InventoryListMaster;
+                }
+                else if(ErrorList!="")
                 {
                     return "Their are issues with these Cartons:- " + ErrorList;
                 }

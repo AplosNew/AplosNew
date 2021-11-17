@@ -9447,7 +9447,20 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 		}
 		#endregion
 
-		
+		// Job Work Issue Save
+
+		[HttpPost]
+		public JsonResult JobWorkIssueCreate(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventoryIssue inventoryIssue, string IssueTypeStatus, IEnumerable<InventoryMaterialViewModel> entitiesAll, string TabType)
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			inventoryIssue.CompanyGroupId = identity.CompanyGroupId;
+			inventoryIssue.CompanyId = identity.CompanyId;
+			inventoryIssue.PlantId = identity.PlantId;
+			_inventoryIssueService.JobWorkIssueCreate(entities, specificStockList, inventoryIssue, IssueTypeStatus, entitiesAll, TabType);
+			return Json(new { inventoryIssue, Message = AplosMessage.Success + "Issue No=" + inventoryIssue.Id }, JsonRequestBehavior.AllowGet);
+		}
+
+
 		[Authorize, HttpPost]
 		public JsonResult ConverttedBOQUOMData(Dictionary<string, object> data)
 		{

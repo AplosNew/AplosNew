@@ -639,7 +639,6 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
             }
 
         }
-
 	}
 
 	$scope.SelectedTConEntity = function () {
@@ -860,11 +859,13 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 				$scope.MatInputListLocal = response.data;
 				if ($scope.MaterialInputList.length > 0) {
 					for (var a = 0; a < $scope.MaterialInputList.length; a++) {
-						var Id = $scope.MaterialInputList[a].OSTransformationPOId;
+					//	var Id = $scope.MaterialInputList[a].OSTransformationPOId;
+						var Id = $scope.MaterialInputList[a].OSTransformationPODetailId;
 						var ArticleId = $scope.MaterialInputList[a].ArticleId;
 
 						for (var b = 0; b < $scope.MatInputListLocal.length; b++) {
-							if ($scope.MatInputListLocal[b].OSTransformationPOId != Id) {
+						//	if ($scope.MatInputListLocal[b].OSTransformationPOId != Id) {
+							if ($scope.MatInputListLocal[b].OSTransformationPODetailId != Id) {
 								if ($scope.MatInputListLocal[b].ArticleId == ArticleId) {
 									ShowResult("Common Input Material is there");
 									return false;
@@ -896,11 +897,13 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 				$scope.MatInputListLocal = response.data;
 				if ($scope.MaterialInputList.length > 0) {
 					for (var a = 0; a < $scope.MaterialInputList.length; a++) {
-						var Id = $scope.MaterialInputList[a].OSTransformationPOId;
+					//	var Id = $scope.MaterialInputList[a].OSTransformationPOId;
+						var Id = $scope.MaterialInputList[a].OSTransformationPODetailId;
 						var ArticleId = $scope.MaterialInputList[a].ArticleId;
 
 						for (var b = 0; b < $scope.MatInputListLocal.length; b++) {
-							if ($scope.MatInputListLocal[b].OSTransformationPOId != Id) {
+						//	if ($scope.MatInputListLocal[b].OSTransformationPOId != Id) {
+							if ($scope.MatInputListLocal[b].OSTransformationPODetailId != Id) {
 								if ($scope.MatInputListLocal[b].ArticleId == ArticleId) {
 									ShowResult("Common Input Material is there");
 									return false;
@@ -2542,7 +2545,8 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 			angular.element(document.querySelector("#ShowLOcationWiseStock")).modal("show");
 
 			for (var i = 0; i < $scope.detailList.length > 0; i++) {
-				if ($scope.detailList[i].Id === RowData.Id) {
+		//		if ($scope.detailList[i].Id === RowData.Id) {
+				if ($scope.detailList[i].OSTransformationPODetailId === RowData.OSTransformationPODetailId && $scope.detailList[i].ArticleId === RowData.ArticleId) {
 					$scope.MatMstId = $scope.detailList[i].InputMaterialId;
 					// $scope.SelectedArticleId = $scope.detailList[i].MaterialMasterArticleId;
 					$scope.SelectedArticleId = $scope.detailList[i].ArticleId;
@@ -2563,7 +2567,8 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 			angular.element(document.querySelector("#ShowLOcationWiseStock")).modal("show");
 
 			for (var i = 0; i < $scope.IssueChildList.length > 0; i++) {
-				if ($scope.IssueChildList[i].OSTransformationPOId === RowData.OSTransformationPOId && $scope.IssueChildList[i].ArticleId === RowData.ArticleId) {
+			//	if ($scope.IssueChildList[i].OSTransformationPOId === RowData.OSTransformationPOId && $scope.IssueChildList[i].ArticleId === RowData.ArticleId) {
+				if ($scope.IssueChildList[i].OSTransformationPODetailId === RowData.OSTransformationPODetailId && $scope.IssueChildList[i].ArticleId === RowData.ArticleId) {
 					$scope.MatMstId = $scope.IssueChildList[i].MaterialMasterId;
 					// $scope.SelectedArticleId = $scope.IssueChildList[i].MaterialMasterArticleId;
 					$scope.SelectedArticleId = $scope.IssueChildList[i].ArticleId;
@@ -2649,7 +2654,8 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 					}
 				}
 				else {
-					if (($scope.IssueChildList[index].OSTransformationPOId === $scope.IssueChildList[i].OSTransformationPOId) && ($scope.IssueChildList[index].JWOutputItem === $scope.IssueChildList[i].JWOutputItem)) {
+			//		if (($scope.IssueChildList[index].OSTransformationPOId === $scope.IssueChildList[i].OSTransformationPOId) && ($scope.IssueChildList[index].JWOutputItem === $scope.IssueChildList[i].JWOutputItem)) {
+					if (($scope.IssueChildList[index].OSTransformationPODetailId === $scope.IssueChildList[i].OSTransformationPODetailId) && ($scope.IssueChildList[index].JWOutputItem === $scope.IssueChildList[i].JWOutputItem)) {
 
 						if ($scope.IssueChildList[i].TIRCTotalQty == null) {
 							$scope.IssueChildList[i].TIRCTotalQty = 0;
@@ -2743,7 +2749,8 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 		var BaltoIssue;
 		for (var i = 0; i < $scope.detailList.length; i++) {
 			if (baseService.isUndefinedOrNull($scope.detailList[index].MaterialMasterId) && baseService.isUndefinedOrNull($scope.detailList[index].ArticleId)) {
-				if (($scope.detailList[index].OSTransformationPOId === $scope.detailList[i].OSTransformationPOId) && ($scope.detailList[index].JWInputItem === $scope.detailList[i].JWInputItem)) {
+		//		if (($scope.detailList[index].OSTransformationPOId === $scope.detailList[i].OSTransformationPOId) && ($scope.detailList[index].JWInputItem === $scope.detailList[i].JWInputItem)) {
+				if (($scope.detailList[index].OSTransformationPODetailId === $scope.detailList[i].OSTransformationPODetailId) && ($scope.detailList[index].JWInputItem === $scope.detailList[i].JWInputItem)) {
 
 					if ($scope.detailList[i].TIRCTotalQty == null) {
 						$scope.detailList[i].TIRCTotalQty = 0;

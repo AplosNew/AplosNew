@@ -975,6 +975,7 @@ var upanelApp = angular
     .controller('AssetWIPStatusController', AssetWIPStatusController)
     .controller('OTConfirmationProcessController' , OTConfirmationProcessController)
     .controller("multipleResignationApprovalNewController", multipleResignationApprovalNewController)
+    .controller('JWIssueReturnController', JWIssueReturnController)
 
 
     .config(AccessControllerConfig)

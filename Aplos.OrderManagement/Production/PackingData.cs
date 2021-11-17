@@ -263,8 +263,14 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-                var str = @"Select username  , id 
-                            from hkp.Party";
+                var str = @"Select distinct p.UserName as username , p.Id as id
+                            from trn.MasterOrder mo
+                            left join trn.MasterOrderItem moi on moi.MasterOrderId = mo.Id
+                            left join trn.SalesOrder so on so.MasterOrderItemId = moi.Id
+                            left join hkp.Party p on p.Id = mo.PartyId
+                            left join dbo.ProductLibrary pl on pl.Id = moi.ProductLibraryId
+                            where mo.OrderStatusId not in ( 'Closed' , 'Cancelled' , 'Hold') and so.OrderStatusId not in ( 'Closed' , 'Cancelled' , 'Hold')
+				            and pl.Code !='null'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)
@@ -418,7 +424,7 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-                var str = @"Select LotNo , RefNo , cast(NetWeight as decimal(18,2)) as NetWeight , GWeight ,ProductCode , POId from dbo.ItemScanChild where LotNo = '" + LotNo + "' and ProductCode = '" + ProductCode + @"' and POId = '" + PO + @"' and Booked = 0 and IsDespatch = 0";
+                var str = @"Select LotNo , RefNo , cast(NetWeight as decimal(18,2)) as NetWeight , GWeight ,ProductCode , POId from dbo.ItemScanChild where LotNo = '" + LotNo + "' and ProductCode = '" + ProductCode + @"' and POId = '" + PO + @"' and Booked = 0 and IsDespatch = 0 and InventoryReceiveDetailId is not null";
                 DataTable dt = _sqlRepository.GetDataTable(str);
                 var str1 = @"Select LotNo , RefNo , cast(NetWeight as decimal(18,2)) as NetWeight , GWeight ,ProductCode , POId from dbo.ItemScanChild where LotNo = '" + LotNo + "' and ProductCode = '" + ProductCode + @"' and POId = '" + PO + @"' and Booked = 1 and IsDespatch = 0";
                 DataTable dt2 = _sqlRepository.GetDataTable(str1);
@@ -457,7 +463,7 @@ namespace Library.OrderManagement.Production
                         left join dbo.ItemScan isch on isch.Id = isc.MasterId
                         left join trn.POLotReference pol on pol.Id = isc.PackingId
                         where isch.WorkDate between '" + FromDate + @"' and '" + ToDate + @"'
-                        and isc.IsDespatch = 0 
+                        and isc.IsDespatch = 0 and isc.InventoryReceiveDetailId is not null
                          group by isc.ProductCode , POId , isc.LotNo
                         ) StockQty on StockQty.ProductCode = sc.ProductCode and StockQty.POId = sc.POId and StockQty.LotNo = sc.LotNo
                         left join(
@@ -481,7 +487,6 @@ namespace Library.OrderManagement.Production
                         ) as plann on plann.ProductCode=sc.ProductCode and plann.PONo = sc.POId and plann.LotNo=sc.LotNo
                         where sc.ProductCode = '" + productCode + @"'
                         group by sc.ProductCode , sc.POId, sc.LotNo ,StockQty.StockQty,desp.Despatch,bb.BookQty,plann.PlanQty
-
                         ";
 
                 DataTable dt = _sqlRepository.GetDataTable(str);
@@ -736,7 +741,7 @@ dbo.ItemScanChild isc
 left join dbo.ItemScan isch on isch.Id = isc.MasterId
 left join trn.POLotReference pol on pol.Id = isc.PackingId
 where isch.WorkDate between '" + FromDate + @"' and '" + ToDate + @"' 
-and isc.IsDespatch = 0 
+and isc.IsDespatch = 0  and isc.InventoryReceiveDetailId is not null
 group by isc.ProductCode , POId , isc.LotNo
 ) StockQty on StockQty.ProductCode = sc.ProductCode and StockQty.POId = sc.POId and StockQty.LotNo = sc.LotNo
 left join(
