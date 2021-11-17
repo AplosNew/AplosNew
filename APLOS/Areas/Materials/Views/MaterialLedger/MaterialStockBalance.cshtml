@@ -1,317 +1,331 @@
-﻿
-@*<style>
+﻿@*<style>
 
-	.loaderr {
-		width: 300px;
-		height: 200px;
-		background-color: #0780BA;
-		color: #fff;
-		padding: 100px;
-		font-size: 25px;
-	}
+        .loaderr {
+            width: 300px;
+            height: 200px;
+            background-color: #0780BA;
+            color: #fff;
+            padding: 100px;
+            font-size: 25px;
+        }
 
-	.e-grid .e-headercelldiv {
-		font-weight: bold;
-		font-size: 10px;
-		display: block;
-		border: 0 none;
-		height: 29px;
-		line-height: 29px;
-		margin: -7px;
-		padding: 0 .7em;
-		text-align: left;
-		white-space: nowrap;
-		text-overflow: ellipsis;
-		font-family: "Arial Narrow";
-	}
+        .e-grid .e-headercelldiv {
+            font-weight: bold;
+            font-size: 10px;
+            display: block;
+            border: 0 none;
+            height: 29px;
+            line-height: 29px;
+            margin: -7px;
+            padding: 0 .7em;
+            text-align: left;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            font-family: "Arial Narrow";
+        }
 
-	.e-grid .e-rowcell {
-		border-width: 1px 0 0 1px;
-		padding: .7em;
-		line-height: 10px;
-		white-space: nowrap;
-		width: auto;
-		vertical-align: middle;
-	}
+        .e-grid .e-rowcell {
+            border-width: 1px 0 0 1px;
+            padding: .7em;
+            line-height: 10px;
+            white-space: nowrap;
+            width: auto;
+            vertical-align: middle;
+        }
 
-	.e-grid.e-wrap .e-columnheader .e-headercelldiv {
-		margin-bottom: 2px;
-		margin-top: 0;
-		font-size: 9px;
-	}
-
+        .e-grid.e-wrap .e-columnheader .e-headercelldiv {
+            margin-bottom: 2px;
+            margin-top: 0;
+            font-size: 9px;
+        }
 
 
 
-	e-grid .e-columnheader .wrap .e-headercelldiv {
-		height: Auto;
-	}
 
-	.e-grid .e-excelfilter .e-btncontainer input {
-		padding: .2em .4em .3em;
-	}
+        e-grid .e-columnheader .wrap .e-headercelldiv {
+            height: Auto;
+        }
 
-	.e-grid.e-dlgcontainer .e-dlgBtns .e-clear {
-		padding: 3px;
-	}
+        .e-grid .e-excelfilter .e-btncontainer input {
+            padding: .2em .4em .3em;
+        }
 
-	.e-grid.e-dlgcontainer .e-dlgBtns .e-filter {
-		padding: 3px;
-	}
+        .e-grid.e-dlgcontainer .e-dlgBtns .e-clear {
+            padding: 3px;
+        }
 
-	::-ms-clear {
-		display: none;
-	}
+        .e-grid.e-dlgcontainer .e-dlgBtns .e-filter {
+            padding: 3px;
+        }
 
-	.e-grid.filtered .e-filteredicon {
-		color: red;
-	}
-</style>*@
+        ::-ms-clear {
+            display: none;
+        }
+
+        .e-grid.filtered .e-filteredicon {
+            color: red;
+        }
+    </style>*@
 
 <script>
 
 
 
-	function chkChange(Id, UserName) {
-		debugger;
-		$("#message").text(Id);
-		$("#PartyCode").text(Id);
-		$("#Vendor").val(UserName);
-		$('#partyPopUp').modal('hide');
-		//alert('Session==' + UserName);
-		PartyId = $("#PartyCode").text();
-		//$scope.getPartyPlantList(Id);
-	}
-	function getMasterId(Id) {
-		debugger;
-		$("#masterId").text(Id);
+    function chkChange(Id, UserName) {
+        debugger;
+        $("#message").text(Id);
+        $("#PartyCode").text(Id);
+        $("#Vendor").val(UserName);
+        $('#partyPopUp').modal('hide');
+        //alert('Session==' + UserName);
+        PartyId = $("#PartyCode").text();
+        //$scope.getPartyPlantList(Id);
+    }
+    function getMasterId(Id) {
+        debugger;
+        $("#masterId").text(Id);
 
-	}
+    }
 </script>
 <style>
-	.e-filterset:before {
-		/*content: "";*/
-		color: white;
-	}
+    .e-filterset:before {
+        /*content: "";*/
+        color: white;
+    }
 
-	.e-gridheader .e-headercell { /* grid header color and grid row select color*/
-		/*background: #a2f1ff;
-		color: #080076;
-		min-height: 100%;
-		border-bottom-color: #8B4513;*/
-		background-color: #1c1f32;
-		color: White;
-		min-height: 100%;
-		border-bottom-color: #8B4513;
-	}
+    .e-gridheader .e-headercell { /* grid header color and grid row select color*/
+        /*background: #a2f1ff;
+        color: #080076;
+        min-height: 100%;
+        border-bottom-color: #8B4513;*/
+        background-color: #1c1f32;
+        color: White;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+    }
 
-	element.style {
-		height: 20px;
-		width: 50px;
-	}
+    element.style {
+        height: 20px;
+        width: 50px;
+    }
 </style>
 <div id="Test">
-	
 
 
-		
-	
-
-<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Material Stock Balance</h3>
-<div class="form-elements form-horizontal" ng-form="from0">
-    <div class="col-xs-12 col-sm-6 col-md-6">
-
-        <fieldset class="scheduler-border">
-            <legend class="scheduler-border">Select Options</legend>
-            <div class="col-xs-12 col-sm-6 col-md-6">
-                <div class="form-group">
-                    <label class="col-sm-3 col-xs-3 control-label" title="Select Option" tooltip>Select Option<sup>*</sup></label>
-                    <div class="col-sm-9 show-message">
-                        <div class="radio">
-                            <label>
-                                <input ng-click="changeSourceFrom('AsOnDate')" type="radio" name="As On Date" ng-model="productNew.AsOnDate" value="AsOnDate" ng-checked="true">
-                                <span class="cr" tabindex="21"><i class="cr-icon"></i></span>As On Date
-                            </label>
-                            <label>
-                                <input ng-click="changeSourceFrom('ForThePeriod')" type="radio" name="For The Period" ng-model="productNew.AsOnDate" value="ForThePeriod">
-                                <span class="cr" tabindex="22"><i class="cr-icon"></i></span>For Period
-                            </label>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
 
 
-            <div class="clearfix"></div>
-            <div class="clearfix"></div>
-            <div class="col-xs-12 col-sm-6 col-md-6">
 
-                <fieldset class="scheduler-border">
-                    <legend class="scheduler-border">Select Asset / Inventory</legend>
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label"></label>
-                        <div class="col-sm-1">
-                            <div class="checkbox-site">
-                                <label>
-                                    <input type="checkbox" ng-model="productNew.Asset " value="Asset">
-                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                </label>
-                            </div>
-                        </div>
-                        <label class="col-sm-4 control-label" style="padding-top:1px;"> Asset</label>
-                    </div>
 
-                    <div class="clearfix"></div>
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label"></label>
-                        <div class="col-sm-1">
-                            <div class="checkbox-site">
-                                <label>
-                                    <input type="checkbox" ng-model="productNew.Inventory" value="Inventory">
-                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                </label>
-                            </div>
-                        </div>
-                        <label class="col-sm-4 control-label" style="padding-top:1px;">Inventory</label>
-                    </div>
-                    <div class="clearfix"></div>
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label"></label>
-                        <div class="col-sm-1">
-                            <div class="checkbox-site">
-                                <label>
-                                    <input type="checkbox" ng-model="productNew.Country" value="Inventory">
-                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                </label>
-                            </div>
-                        </div>
-                        <label class="col-sm-4 control-label" style="padding-top:1px;">Origin/Country</label>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label"></label>
-                        <div class="col-sm-1">
-                            <div class="checkbox-site">
-                                <label>
-                                    <input type="checkbox" ng-model="productNew.SKU" value="Inventory">
-                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                </label>
-                            </div>
-                        </div>
-                        <label class="col-sm-4 control-label" style="padding-top:1px;">SKU</label>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label"></label>
-                        <div class="col-sm-1">
-                            <div class="checkbox-site">
-                                <label>
-                                    <input type="checkbox" ng-model="productNew.Storage" value="Storage">
-                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                </label>
-                            </div>
-                        </div>
-                        <label class="col-sm-4 control-label" style="padding-top:1px;">Storage</label>
-                    </div>
-                </fieldset>
-            </div>
+    <h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Material Stock Balance</h3>
+    <div class="form-elements form-horizontal" ng-form="from0">
+        <div class="col-xs-12 col-sm-12 col-md-12">
 
             <fieldset class="scheduler-border">
-                <legend class="scheduler-border">Select Qty / Amount</legend>
-                <div class="form-group">
-                    <label class="col-sm-3 control-label"></label>
-                    <div class="col-sm-1">
-                        <div class="checkbox-site">
-                            <label>
-                                <input type="checkbox" ng-model="productNew.Qty" value="Qty">
-                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                            </label>
+                <legend class="scheduler-border">Select Options</legend>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="form-group">
+                        <label class="col-sm-3 col-xs-3 control-label" title="Select Option" tooltip>Select Option<sup>*</sup></label>
+                        <div class="col-sm-9 show-message">
+                            <div class="radio">
+                                <label>
+                                    <input ng-click="changeSourceFrom('AsOnDate')" type="radio" name="As On Date" ng-model="productNew.AsOnDate" value="AsOnDate" ng-checked="true">
+                                    <span class="cr" tabindex="21"><i class="cr-icon"></i></span>As On Date
+                                </label>
+                                <label>
+                                    <input ng-click="changeSourceFrom('ForThePeriod')" type="radio" name="For The Period" ng-model="productNew.AsOnDate" value="ForThePeriod">
+                                    <span class="cr" tabindex="22"><i class="cr-icon"></i></span>For Period
+                                </label>
+
+                            </div>
                         </div>
                     </div>
-                    <label class="col-sm-4 control-label" style="padding-top:1px;"> Qty</label>
                 </div>
+
+
                 <div class="clearfix"></div>
-                <div class="form-group">
-                    <label class="col-sm-3 control-label"></label>
-                    <div class="col-sm-1">
-                        <div class="checkbox-site">
-                            <label>
-                                <input type="checkbox" ng-model="productNew.Amount" value="Amount">
-                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                            </label>
-                        </div>
-                    </div>
-                    <label class="col-sm-4 control-label" style="padding-top:1px;">Amount</label>
-                </div>
                 <div class="clearfix"></div>
-                <div class="form-group">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+
+                    <fieldset class="scheduler-border">
+                        <legend class="scheduler-border">Select Asset / Inventory</legend>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label"></label>
+                            <div class="col-sm-1">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="productNew.Asset " value="Asset">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <label class="col-sm-4 control-label" style="padding-top:1px;"> Asset</label>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label"></label>
+                            <div class="col-sm-1">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="productNew.Inventory" value="Inventory">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <label class="col-sm-4 control-label" style="padding-top:1px;">Inventory</label>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label"></label>
+                            <div class="col-sm-1">
+                                <div class="checkbox-site">
+                                    <label>
+                                        &nbsp;
+                                    </label>
+                                </div>
+                            </div>
+                            <label class="col-sm-4 control-label" style="padding-top:1px;">&nbsp;</label>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <fieldset class="scheduler-border">
+                        <legend class="scheduler-border">Select Qty / Amount</legend>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label"></label>
+                            <div class="col-sm-1">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="productNew.Qty" value="Qty">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <label class="col-sm-4 control-label" style="padding-top:1px;"> Qty</label>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label"></label>
+                            <div class="col-sm-1">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="productNew.Amount" value="Amount">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <label class="col-sm-4 control-label" style="padding-top:1px;">Amount</label>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label"></label>
+                            <div class="col-sm-1">
+                                <div class="checkbox-site">
+                                    <label>
+                                        &nbsp;
+                                    </label>
+                                </div>
+                            </div>
+                            <label class="col-sm-4 control-label" style="padding-top:1px;">&nbsp;</label>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <fieldset class="scheduler-border">
+                        <legend class="scheduler-border">Others</legend>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label"></label>
+                            <div class="col-sm-1">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="productNew.Country" value="Inventory">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <label class="col-sm-4 control-label" style="padding-top:1px;">Origin/Country</label>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label"></label>
+                            <div class="col-sm-1">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="productNew.SKU" value="Inventory">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <label class="col-sm-4 control-label" style="padding-top:1px;">SKU</label>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label"></label>
+                            <div class="col-sm-1">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="productNew.Storage" value="Storage">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <label class="col-sm-4 control-label" style="padding-top:1px;">Storage</label>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div class="col-xs-12 col-sm-5 col-md-5">
+                    <div class="clearfix"></div>
+                    <div class="form-group" show-errors id="div_FromDate">
+                        <label class="col-sm-3 control-label" ng-hide="productNew.AsOnDate==='AsOnDate'">From Date<sup>*</sup></label>
+                        <div class="col-sm-9 show-message">
+                            <input type="text" name="Form Date" ng-model="report.FromDate" datepicker tabindex="2" class="form-control" ng-hide="productNew.AsOnDate==='AsOnDate'">  @*ng-disabled="productNew.AsOnDate==='AsOnDate'"*@
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors id="div_ToDate">
+                        <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
+                        <div class="col-sm-9  show-message">
+                            <input type="text" name="To Date" ng-model="report.ToDate" datepicker tabindex="3" class="form-control">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="clearfix"></div>
+                <div class="clearfix"></div>
+                <div class="form-group" ng-hide="true">
                     <label class="col-sm-3 control-label"></label>
                     <div class="col-sm-1">
                         <div class="checkbox-site">
                             <label>
-                                &nbsp;
+                                <input type="checkbox" ng-model="productNew.RcptIssue" ng-hide="productNew.AsOnDate==='AsOnDate'">
+                                <span class="cr" ng-hide="productNew.AsOnDate==='AsOnDate'"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                             </label>
                         </div>
                     </div>
-                    <label class="col-sm-4 control-label" style="padding-top:1px;">&nbsp;</label>
+                    <label class="col-sm-4 control-label" ng-hide="productNew.AsOnDate==='AsOnDate'"> With Receipts & Issue</label>
                 </div>
+
             </fieldset>
-            <div class="clearfix"></div>
-            <div class="form-group" show-errors id="div_FromDate">
-                <label class="col-sm-3 control-label" ng-hide="productNew.AsOnDate==='AsOnDate'">From Date<sup>*</sup></label>
-                <div class="col-sm-9 show-message">
-                    <input type="text" name="Form Date" ng-model="report.FromDate" datepicker tabindex="2" class="form-control" ng-hide="productNew.AsOnDate==='AsOnDate'">  @*ng-disabled="productNew.AsOnDate==='AsOnDate'"*@
-                </div>
-            </div>
-            <div class="form-group" show-errors id="div_ToDate">
-                <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
-                <div class="col-sm-9  show-message">
-                    <input type="text" name="To Date" ng-model="report.ToDate" datepicker tabindex="3" class="form-control">
-                </div>
-            </div>
-            <div class="clearfix"></div>
-            <div class="clearfix"></div>
-            <div class="form-group" ng-hide="true">
-                <label class="col-sm-3 control-label"></label>
-                <div class="col-sm-1">
-                    <div class="checkbox-site">
-                        <label>
-                            <input type="checkbox" ng-model="productNew.RcptIssue" ng-hide="productNew.AsOnDate==='AsOnDate'">
-                            <span class="cr" ng-hide="productNew.AsOnDate==='AsOnDate'"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                        </label>
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-left">
+
+                <li>
+                    <div ej-tooltip e-showshadow="true" e-content="All active orders with individual line items" ng-click="MaterialStockBalanceReportPdf('Pdf');" e-width="width">
+                        <button class="btn"><i class="glyphicon glyphicon-download"></i>Export To Pdf</button>
                     </div>
-                </div>
-                <label class="col-sm-4 control-label" ng-hide="productNew.AsOnDate==='AsOnDate'"> With Receipts & Issue</label>
-            </div>
+                </li>
 
-        </fieldset>
+                <li>
+                    <div ej-tooltip e-showshadow="true" e-content="All active orders with individual line items" ng-click="MaterialStockBalanceReportExcel('Excel');" e-width="width">
+                        <button class="btn"><i class="glyphicon glyphicon-download"></i>Export To Excel</button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="clearfix"></div>
+
     </div>
-    @*<div class="common-btn">
-        <ul class="list-inline text-left">
-
-            <li> <button id="" class="btn" ng-click="MaterialStockBalanceReportPdf();"><i class="glyphicon glyphicon-download"></i> Export To Pdf</button></li>
-            <li> <button id="" class="btn" ng-click="MaterialStockBalanceReportExcel();"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
-        </ul>
-    </div>*@
-
-
-    <div class="common-btn">
-        <ul class="list-inline text-left">
-
-            <li>
-                <div ej-tooltip e-showshadow="true" e-content="All active orders with individual line items" ng-click="MaterialStockBalanceReportPdf('Pdf');" e-width="width">
-                    <button class="btn"><i class="glyphicon glyphicon-download"></i>Export To Pdf</button>
-                </div>
-            </li>
-
-            <li>
-                <div ej-tooltip e-showshadow="true" e-content="All active orders with individual line items" ng-click="MaterialStockBalanceReportExcel('Excel');" e-width="width">
-                    <button class="btn"><i class="glyphicon glyphicon-download"></i>Export To Excel</button>
-                </div>
-            </li>
-        </ul>
-    </div>
-    <div class="clearfix"></div>
-
 </div>
-	</div>
 @Html.Partial("~/Areas/Accounts/Views/GLItem/_GLBudgetPopUp.cshtml")
