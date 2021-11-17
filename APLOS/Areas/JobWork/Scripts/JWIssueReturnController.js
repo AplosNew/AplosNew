@@ -109,7 +109,7 @@ function JWIssueReturnController($window, cboService, commonMessage, $scope, $ro
 		IsConfirmed: false,
 		EntityId: null,
 		IssueType: 'Revenue',
-		JWContractId: null,
+		JobWorkContractId: null,
 		ContractType: null,
 		MSIdInventory: null,
 		OrderRefNo: null,
@@ -145,7 +145,7 @@ function JWIssueReturnController($window, cboService, commonMessage, $scope, $ro
 			$scope.Transformation = Object.assign({}, args.data);
 			var PId = $scope.Transformation.Id;
 			var TabType = $scope.Transformation.TabType;
-			$scope.IssueTransformation.JWContractId = $scope.Transformation.Id;
+			$scope.IssueTransformation.JobWorkContractId = $scope.Transformation.Id;
 			$scope.IssueTransformation.ContractType = 'Transformation';
 			$scope.TabTypeNew = $scope.Transformation.TabType;
 			$http({
@@ -155,7 +155,7 @@ function JWIssueReturnController($window, cboService, commonMessage, $scope, $ro
 				dataType: 'JSON'
 			}).then(function successCallback(response) {
 				$scope.TransformationTypeList = response.data;
-				$scope.IssueTransformation.JWContractId = response.data[0].Id;
+				$scope.IssueTransformation.JobWorkContractId = response.data[0].Id;
 				if ($scope.TransformationTypeList.length > 0) {
 					$scope.GetTransformationChildData();
 					//$scope.ShowHomeList = false;
@@ -176,7 +176,7 @@ function JWIssueReturnController($window, cboService, commonMessage, $scope, $ro
 			$scope.ModelNew = Object.assign({}, args.data);
 			var PId = $scope.ModelNew.Id;
 			var TabType = $scope.ModelNew.TabType;
-			$scope.Issue.JWContractId = $scope.ModelNew.Id;
+			$scope.Issue.JobWorkContractId = $scope.ModelNew.Id;
 			$scope.Issue.ContractType = 'ValueAdded';
 			$scope.TabTypeNew = $scope.ModelNew.TabType;
 			//       $scope.ModelNew.Type = TabType;
@@ -313,7 +313,7 @@ function JWIssueReturnController($window, cboService, commonMessage, $scope, $ro
 			$http({
 				method: 'POST',
 				url: $scope.saveUrl,
-				data: { 'data': $scope.Issue, 'ContractId': $scope.Issue.JWContractId, 'ContractType': $scope.Issue.ContractType },
+				data: { 'data': $scope.Issue, 'ContractId': $scope.Issue.JobWorkContractId, 'ContractType': $scope.Issue.ContractType },
 				dataType: 'JSON'
 			}).then(function successCallback(response) {
 				if (response.data.Error === true) {
@@ -671,7 +671,7 @@ function JWIssueReturnController($window, cboService, commonMessage, $scope, $ro
 		IsConfirmed: false,
 		EntityId: null,
 		IssueType: 'Revenue',
-		JWContractId: null,
+		JobWorkContractId: null,
 		ContractType: null,
 		MaterialStorageIdInventory: null,
 		RefferenceNo: null,
@@ -860,11 +860,13 @@ function JWIssueReturnController($window, cboService, commonMessage, $scope, $ro
 				$scope.MatInputListLocal = response.data;
 				if ($scope.MaterialInputList.length > 0) {
 					for (var a = 0; a < $scope.MaterialInputList.length; a++) {
-						var Id = $scope.MaterialInputList[a].OSTransformationPOId;
+					//	var Id = $scope.MaterialInputList[a].OSTransformationPOId;
+						var Id = $scope.MaterialInputList[a].JWTransformationPODetailId;
 						var ArticleId = $scope.MaterialInputList[a].ArticleId;
 
 						for (var b = 0; b < $scope.MatInputListLocal.length; b++) {
-							if ($scope.MatInputListLocal[b].OSTransformationPOId != Id) {
+					//		if ($scope.MatInputListLocal[b].OSTransformationPOId != Id) {
+							if ($scope.MatInputListLocal[b].JWTransformationPODetailId != Id) {
 								if ($scope.MatInputListLocal[b].ArticleId == ArticleId) {
 									ShowResult("Common Input Material is there");
 									return false;
@@ -896,11 +898,13 @@ function JWIssueReturnController($window, cboService, commonMessage, $scope, $ro
 				$scope.MatInputListLocal = response.data;
 				if ($scope.MaterialInputList.length > 0) {
 					for (var a = 0; a < $scope.MaterialInputList.length; a++) {
-						var Id = $scope.MaterialInputList[a].OSTransformationPOId;
+				//		var Id = $scope.MaterialInputList[a].OSTransformationPOId;
+						var Id = $scope.MaterialInputList[a].JWTransformationPODetailId;
 						var ArticleId = $scope.MaterialInputList[a].ArticleId;
 
 						for (var b = 0; b < $scope.MatInputListLocal.length; b++) {
-							if ($scope.MatInputListLocal[b].OSTransformationPOId != Id) {
+					//		if ($scope.MatInputListLocal[b].OSTransformationPOId != Id) {
+							if ($scope.MatInputListLocal[b].JWTransformationPODetailId != Id) {
 								if ($scope.MatInputListLocal[b].ArticleId == ArticleId) {
 									ShowResult("Common Input Material is there");
 									return false;
@@ -2293,7 +2297,7 @@ function JWIssueReturnController($window, cboService, commonMessage, $scope, $ro
 					//		else {
 					$http({
 						method: 'POST'
-						, url: 'Products/InventoryIssue/JWIssueCreate'
+						, url: 'Products/InventoryIssue/JobWorkIssueCreate'
 						, data: {
 							//	entities: $scope.detailList
 							entities: SelectedMaterialInputdata
@@ -2325,7 +2329,7 @@ function JWIssueReturnController($window, cboService, commonMessage, $scope, $ro
 				if (SelectedOutputMaterialdata.length > 0) {
 					$http({
 						method: 'POST'
-						, url: 'Products/InventoryIssue/JWIssueCreate'
+						, url: 'Products/InventoryIssue/JobWorkIssueCreate'
 						, data: {
 							//	entities: $scope.detailList
 							entities: SelectedOutputMaterialdata
@@ -2387,7 +2391,7 @@ function JWIssueReturnController($window, cboService, commonMessage, $scope, $ro
 					//		else {
 					$http({
 						method: 'POST'
-						, url: 'Products/InventoryIssue/JWIssueCreate'
+						, url: 'Products/InventoryIssue/JobWorkIssueCreate'
 						, data: {
 							//	entities: $scope.detailList
 							entities: SelectedMaterialInputdata
@@ -2419,7 +2423,7 @@ function JWIssueReturnController($window, cboService, commonMessage, $scope, $ro
 				if (SelectedOutputMaterialdata.length > 0) {
 					$http({
 						method: 'POST'
-						, url: 'Products/InventoryIssue/JWIssueCreate'
+						, url: 'Products/InventoryIssue/JobWorkIssueCreate'
 						, data: {
 							//	entities: $scope.detailList
 							entities: SelectedOutputMaterialdata
@@ -2511,7 +2515,7 @@ function JWIssueReturnController($window, cboService, commonMessage, $scope, $ro
 				//var gridObj = $(x).data("ejGrid");
 				//var data = gridObj.getSelectedRecords()[0];
 
-				$scope.PrintTabId = data.JWContractId;
+				$scope.PrintTabId = data.JobWorkContractId;
 				$scope.IssueId = data.Id;
 				var reportFormat = "Excel";
 				window.open('JobWork/JWIssueReturn/GetTransformationPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
@@ -2519,7 +2523,7 @@ function JWIssueReturnController($window, cboService, commonMessage, $scope, $ro
 			}
 			else {
 
-				$scope.PrintTabId = data.JWContractId;
+				$scope.PrintTabId = data.JobWorkContractId;
 				$scope.IssueId = data.Id;
 				var reportFormat = "Excel";
 				window.open('JobWork/JWIssueReturn/GetValueAddedReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
@@ -2563,7 +2567,8 @@ function JWIssueReturnController($window, cboService, commonMessage, $scope, $ro
 			angular.element(document.querySelector("#ShowLOcationWiseStock")).modal("show");
 
 			for (var i = 0; i < $scope.IssueChildList.length > 0; i++) {
-				if ($scope.IssueChildList[i].OSTransformationPOId === RowData.OSTransformationPOId && $scope.IssueChildList[i].ArticleId === RowData.ArticleId) {
+		//		if ($scope.IssueChildList[i].OSTransformationPOId === RowData.OSTransformationPOId && $scope.IssueChildList[i].ArticleId === RowData.ArticleId) {
+				if ($scope.IssueChildList[i].JWTransformationPODetailId === RowData.JWTransformationPODetailId && $scope.IssueChildList[i].ArticleId === RowData.ArticleId) {
 					$scope.MatMstId = $scope.IssueChildList[i].MaterialMasterId;
 					// $scope.SelectedArticleId = $scope.IssueChildList[i].MaterialMasterArticleId;
 					$scope.SelectedArticleId = $scope.IssueChildList[i].ArticleId;
@@ -2649,7 +2654,8 @@ function JWIssueReturnController($window, cboService, commonMessage, $scope, $ro
 					}
 				}
 				else {
-					if (($scope.IssueChildList[index].OSTransformationPOId === $scope.IssueChildList[i].OSTransformationPOId) && ($scope.IssueChildList[index].JWOutputItem === $scope.IssueChildList[i].JWOutputItem)) {
+			//		if (($scope.IssueChildList[index].OSTransformationPOId === $scope.IssueChildList[i].OSTransformationPOId) && ($scope.IssueChildList[index].JWOutputItem === $scope.IssueChildList[i].JWOutputItem)) {
+					if (($scope.IssueChildList[index].JWTransformationPODetailId === $scope.IssueChildList[i].JWTransformationPODetailId) && ($scope.IssueChildList[index].JWOutputItem === $scope.IssueChildList[i].JWOutputItem)) {
 
 						if ($scope.IssueChildList[i].TIRCTotalQty == null) {
 							$scope.IssueChildList[i].TIRCTotalQty = 0;
@@ -2743,7 +2749,8 @@ function JWIssueReturnController($window, cboService, commonMessage, $scope, $ro
 		var BaltoIssue;
 		for (var i = 0; i < $scope.detailList.length; i++) {
 			if (baseService.isUndefinedOrNull($scope.detailList[index].MaterialMasterId) && baseService.isUndefinedOrNull($scope.detailList[index].ArticleId)) {
-				if (($scope.detailList[index].OSTransformationPOId === $scope.detailList[i].OSTransformationPOId) && ($scope.detailList[index].JWInputItem === $scope.detailList[i].JWInputItem)) {
+		//		if (($scope.detailList[index].OSTransformationPOId === $scope.detailList[i].OSTransformationPOId) && ($scope.detailList[index].JWInputItem === $scope.detailList[i].JWInputItem)) {
+				if (($scope.detailList[index].JWTransformationPODetailId === $scope.detailList[i].JWTransformationPODetailId) && ($scope.detailList[index].JWInputItem === $scope.detailList[i].JWInputItem)) {
 
 					if ($scope.detailList[i].TIRCTotalQty == null) {
 						$scope.detailList[i].TIRCTotalQty = 0;
@@ -2933,7 +2940,7 @@ function JWIssueReturnController($window, cboService, commonMessage, $scope, $ro
 			var x = $event;
 			var Id = x.data.Id;
 			$scope.TransIssueId = x.data.Id;
-			var JWContractId = x.data.JWContractId;
+			var JWContractId = x.data.JobWorkContractId;
 			var IssueDate = x.data.IssueDate;
 			var MaterialStorageId = x.data.MaterialStorageId;
 			$scope.Action = 'Update';
@@ -2952,7 +2959,7 @@ function JWIssueReturnController($window, cboService, commonMessage, $scope, $ro
 		else {
 			var x = $event;
 			var Id = x.data.Id;
-			var JWContractId = x.data.JWContractId;
+			var JWContractId = x.data.JobWorkContractId;
 			var IssueDate = x.data.IssueDate;
 			var MaterialStorageId = x.data.MaterialStorageId;
 			$scope.Action = 'Update';
