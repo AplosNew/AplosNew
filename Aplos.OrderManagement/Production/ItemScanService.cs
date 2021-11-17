@@ -506,7 +506,7 @@ namespace Library.Service.EmployeeServices
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
                 string ErrorList = "";
-                string InventoryListMaster = "";
+                //string InventoryListMaster = "";
 
                 if (DataToSave.Count() == 0)
                 {
@@ -533,9 +533,9 @@ namespace Library.Service.EmployeeServices
                     dsMaster.Tables[0].DefaultView.RowFilter = @"RefNo='" + item.RefNo + "' ";
                     if (dsMaster.Tables[0].DefaultView.Count > 0)
                     {
-                        string Inventory = clsWebLib.RetValidLen(dsMaster.Tables[0].DefaultView[0][@"InventoryReceiveDetailId"]).ToString();
-                        if (Inventory != "")
-                        {
+                        //string Inventory = clsWebLib.RetValidLen(dsMaster.Tables[0].DefaultView[0][@"InventoryReceiveDetailId"]).ToString();
+                        //if (Inventory != "")
+                        //{
                             DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
                             dr.BeginEdit();
                             dr["BookedDate"] = DateTime.Now;
@@ -545,11 +545,11 @@ namespace Library.Service.EmployeeServices
                             dr.EndEdit();
                             PckId = item.PackingId;
                             BkQty += clsStaticInfo.dbl(dr["NetWeight"].ToString());
-                        }
-                        else
-                        {
-                            InventoryListMaster += item.RefNo + "...";
-                        }
+                        //}
+                        //else
+                        //{
+                        //    InventoryListMaster += item.RefNo + "...";
+                        //}
                     }
                     else
                     {
@@ -574,11 +574,11 @@ namespace Library.Service.EmployeeServices
                 }
                 SaveDataSets(dsMaster);
                 SaveDataSets(dsPo);
-                if (InventoryListMaster!="")
-                {
-                    return "Please complete the FG Inventory Booking of :- " + InventoryListMaster;
-                }
-                else if(ErrorList!="")
+                //if (InventoryListMaster!="")
+                //{
+                //    return "Please complete the FG Inventory Booking of :- " + InventoryListMaster;
+                //}
+                if(ErrorList!="")
                 {
                     return "Their are issues with these Cartons:- " + ErrorList;
                 }

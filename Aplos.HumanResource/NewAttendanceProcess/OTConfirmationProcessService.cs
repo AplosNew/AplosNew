@@ -233,10 +233,25 @@ namespace Library.HumanResource.NewAttendanceProcess
                         {
                             if (MonthData.Tables[0].Rows.Count > 0)
                             {
+                                MonthData.Tables[0].DefaultView.RowFilter = @"EmpId='" + EmpId + "' ";
+                                if (MonthData.Tables[0].DefaultView.Count > 0)
+                                {
 
+                                }
                             }
+                            Table.DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' AND IsOTComfirm=true AND WorkDate <>#" + FormatDate + "# " +
+                            "AND WorkDate >= #" + WeekMinDate + "# and WorkDate<= #" + WeekMaxDate + "# ";
+                            if (Table.DefaultView.Count > 0)
+                            {
+                                for (int j = 0; j < Table.DefaultView.Count; j++)
+                                {
+                                        // Sum Up the Week StandardOT
+                                    decimal StandardOT = Convert.ToDecimal(Table.DefaultView[j][@"StandardOT"].ToString());
+                                }
+                            }
+
                         }
-                           
+
                         Table.DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "'AND IsOTComfirm=false AND WorkDate =#" + FormatDate + "# ";
                         if (Table.DefaultView.Count > 0)
                         {
@@ -385,8 +400,8 @@ namespace Library.HumanResource.NewAttendanceProcess
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                var sql = @"select EmpSystemID,Isnull(Sum(StandardOT),'0')MonthlyConfirmedOT
-                from AttdnProcessData where OTMonth=Month('"+Date+@"') and OTYear=Year('"+Date+@"')
+                var sql = @"select EmpSystemID as EmpId,Isnull(Sum(StandardOT),'0')MonthlyConfirmedOT
+                from AttdnProcessData where OTMonth=Month('" + Date+@"') and OTYear=Year('"+Date+@"')
                 and ISNULL(daystatus,'')!='' AND IsOTComfirm=1
                 group by EmpSystemID";
 
