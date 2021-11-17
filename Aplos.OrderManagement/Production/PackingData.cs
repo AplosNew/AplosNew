@@ -263,8 +263,14 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-                var str = @"Select username  , id 
-                            from hkp.Party";
+                var str = @"Select distinct p.UserName as username , p.Id as id
+                            from trn.MasterOrder mo
+                            left join trn.MasterOrderItem moi on moi.MasterOrderId = mo.Id
+                            left join trn.SalesOrder so on so.MasterOrderItemId = moi.Id
+                            left join hkp.Party p on p.Id = mo.PartyId
+                            left join dbo.ProductLibrary pl on pl.Id = moi.ProductLibraryId
+                            where mo.OrderStatusId not in ( 'Closed' , 'Cancelled' , 'Hold') and so.OrderStatusId not in ( 'Closed' , 'Cancelled' , 'Hold')
+				            and pl.Code !='null'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)
