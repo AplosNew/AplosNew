@@ -220,7 +220,7 @@ namespace Aplos.Areas.Materials.Controllers
 
 
         [Authorize, HttpGet]
-		public ActionResult MaterialStockBalanceReport(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue,string Asset,string Inventory, string Country) 
+		public ActionResult MaterialStockBalanceReport(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue,string Asset,string Inventory, string Country,string materialStorage) 
 	
             {
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -228,7 +228,7 @@ namespace Aplos.Areas.Materials.Controllers
 			var reportFileName = "Material Stock Balance" + fromDate + "To" + toDate + "";
           
             Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-            var workbook = obj.CreateMaterialStockBalanceSheet(identity.CompanyId, plantId, fromDate, toDate, Qty, Amount, RcptIssue, Asset, Inventory, Country);
+            var workbook = obj.CreateMaterialStockBalanceSheet(identity.CompanyId, plantId, fromDate, toDate, Qty, Amount, RcptIssue, Asset, Inventory, Country, materialStorage);
             
             //var workbook = _materialMasterService.CreateMaterialStockBalanceSheet(identity.CompanyId, plantId, fromDate, toDate, Qty, Amount, RcptIssue, Asset, Inventory,Country);
 			switch (reportFormat)
