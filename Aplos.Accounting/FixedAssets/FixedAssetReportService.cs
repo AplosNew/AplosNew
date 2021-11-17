@@ -1,28 +1,13 @@
-﻿using Library.Accounting.Accounts;
-using Library.Core;
-using Library.Crosscutting.Security;
+﻿using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
-using Library.Data.UnitOfWorks;
-using Library.Model.Employees;
-using Library.Model.Enums;
-using Library.Model.FixedAssets;
-using Library.Model.Vouchers;
-using Library.Service.Enums;
-using Library.Service.FixedAssets;
-using Library.Service.Properties;
 using Library.Service.Helpers;
-using Library.Service.Logs;
-using Library.ViewModel.Vouchers;
 using OTSBD;
 using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Reflection;
 using System.Threading;
-using Library.Model.Currencies;
 using System.IO;
 using Syncfusion.DocIO.DLS;
 using System.Collections.Specialized;
@@ -31,10 +16,7 @@ using Syncfusion.DocToPDFConverter;
 using Syncfusion.Pdf;
 
 using Syncfusion.DocIO;
-using Syncfusion.DocIO.DLS;
-using Syncfusion.DocToPDFConverter;
-using Syncfusion.Pdf;
-using Syncfusion.XlsIO;
+
 using System.Drawing;
 
 namespace Library.Accounting.FixedAssets
