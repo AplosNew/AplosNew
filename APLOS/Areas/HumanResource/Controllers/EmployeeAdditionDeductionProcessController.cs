@@ -204,7 +204,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                                     int value = rr.Next(1000);
                                     string text = value.ToString("000");
                                     dr = dtTrial.NewRow();
-                                    dr["Id"] = "TR"+_Id + dayNoId.ToString() + monthNo.ToString() + yearNo.ToString();
+                                    dr["Id"] = "TR"+ dayNoId.ToString() + monthNo.ToString()+ yearNo.ToString() +i.ToString()+j.ToString();
                                     dr["SystemId"] = dtActiveEmps.Rows[j]["SystemId"].ToString();
                                     dr["LegalDesignationId"] = dtActiveEmps.Rows[j]["LegalDesignationId"].ToString();
                                     dr["LegalDesignation"] = dtActiveEmps.Rows[j]["LegalDesignation"].ToString();

@@ -1835,7 +1835,7 @@ namespace Library.Accounting.FixedAssets
 				 ,Customer.UserName CustomerName,CU.Code Currency,CAST(frd.ToCurrencyRate AS decimal(18,4))ToCurrencyRate,sum(rdd.NegotiationValue)NegotiationValue
 				 ,sum(rdd.BaseNagotiationValue)BaseNagotiationValue
 				 ,( sum(rdd.BaseNagotiationValue)- sum( ISNULL(FAR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) - ISNULL(FAR.ADBaseAmount,0) ))LossOrGain
-				 ,GP.Id GatePassNo, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
+				 ,isnull(GP.Id,GPS.Id) GatePassNo, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
 				 ,ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue
 				 ,PC.Code PurchaseCurrency,isnull( FAR.Price,0 )PurchasePrice
 		        from TRN.FixedAssetRegister FAR 
@@ -1849,6 +1849,7 @@ namespace Library.Accounting.FixedAssets
 				LEFT JOIN HKP.Party Customer ON Customer.Id = frd.PartyId
                 LEFT JOIN SCS.Currency CU ON CU.Id =frd.CurrencyId
 				LEFT JOIN [TRN].[InOutGatePassMaster] GP ON GP.FixedAssetRegisterDisposedId =frd.Id
+				LEFT JOIN [TRN].[InOutGatePassMaster] GPS ON GPS.FixedAssetScrapId =frd.Id
 				LEFT JOIN HKP.CharacteristicsValue AS FCV ON MM.Id=FCV.MaterialMasterId
 				LEFT JOIN HKP.CharacteristicsValue AS SCV ON MM.Id=SCV.MaterialMasterId
 				LEFT JOIN HKP.CharacteristicsValue AS TCV ON MM.Id=TCV.MaterialMasterId
@@ -1873,7 +1874,7 @@ namespace Library.Accounting.FixedAssets
 			   ,MM.IsAsset,MBP.BusinessProcessName,FAR.FixedAssetMasterId
 			    ,FAR.MaterialMasterId,FAR.MaterialMasterArticleId,FAR.VendorId,FAR.FixedAssetMasterId,FAR.Status,frd.DocDate,v.VoucherNo,frd.Id,frd.IsPark
 				,Customer.UserName,CU.Code,frd.ToCurrencyRate,GP.Id,ISNULL(FCV.UserName,''),ISNULL(SCV.UserName,''),ISNULL(TCV.UserName,'')
-				,FAR.Id,FAR.SerialNo,PC.Code,FAR.Price";
+				,FAR.Id,FAR.SerialNo,PC.Code,FAR.Price,GPS.Id";
 			return _sqlRepository.GetDataCollection(sql);
 
 		}
