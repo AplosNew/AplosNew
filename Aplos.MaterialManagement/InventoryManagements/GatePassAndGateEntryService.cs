@@ -287,7 +287,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						FROM Trn.FixedAssetRegisterDisposed FARD
 						LEFT JOIN hkp.Party P On P.Id=FARD.PartyId
                         Where FARD.Status='Scrap' and 
-						FARD.Id not in (Select FixedAssetRegisterDisposedId from trn.InOutGatePassMaster where FixedAssetRegisterDisposedId is not null)
+						FARD.Id not in (Select FixedAssetScrapId from trn.InOutGatePassMaster where FixedAssetScrapId is not null)
 
 						
 
@@ -356,69 +356,60 @@ namespace Library.MaterialManagement.InventoryManagements
         #region FA register
         public List<Dictionary<string, object>> GetFixedAssetRegisterElasticSearchDataList(string companyGroupId, string companyId, string plantId, string fixedAssetRegisterDisposeId)
         {
-            var sql = @"SELECT top 100 FR.SerialNo, FR.Id, FR.AssetNo,  e.UserName Entity, D.UserName Department, FR.Model
-                , FR.InvoiceNo, MM.UserName MaterialMasterName, MMA.StandardName Article,FR.[Description]
-                , FAM.UserName FixedAssetMasterName, FAC.UserName FixedAssetCategory
-                --, FASC.UserName FixedAssetSubCategory, FAM.FixedAssetCategoryId
-                --, FAM.FixedAssetSubCategoryId, FAM.AssetType
-				,PC.Code PurchaseCurrency
-				,BC.Code BaseCurrency
-				,FR.Quantity
-                ,isnull( FR.Price,0 )PurchasePrice
-				,isnull( FR.FABaseAmount,0)FABaseAmount
-				,ISNULL(SAR.SubAssetAmount,0) SubAssetBaseAmount
+            var sql = @"select distinct FAR.Id AssetNo,FAR.SerialNo,MM.UserName MaterialMaster,MMA.StandardName Article,FA.UserName AssetMaster,P.UserName Party
+                , FAR.MaterialMasterId,FAR.MaterialMasterArticleId,FAR.VendorId,FAR.FixedAssetMasterId
 
-				,isnull (FR.FABaseAmount,0) + (ISNULL(SAR.SubAssetAmount,0)) TotalBaseAmount
-				,ISNULL(FR.ADBaseAmount,0) ADBaseAmount
-				,ISNULL(FR.FABaseAmount,0) + isnull(SAR.SubAssetAmount,0) - ISNULL(FR.ADBaseAmount,0) NetFixedAssetsBaseAmount
-                ,isnull(FR.NegotiationValue,0)NegotiationValue
-                ,OpeningBalance = case when fr.IsOpeningBalance = 1 then 'YES' else 'NO' end
-                ,format( fr.CapitalizationDate, 'dd-MMM-yyyy') CapitalizationDate
-                --, FR.IsFinanciali
-                ,P.UserName VendorName
-                ,FR.[LifeTime]
-                ,C.UserName OriginName
-                ,FR.YearOfInstallation,FR.Id,FR.Id AS FixedAssetRegisterId, FR.MaterialMasterArticleId, FR.MaterialMasterId
-                ,IR.Id GRNNo,IR.POId PONo , FADR.Description DepreciationRules
-			    ,fardd.FixedAssetRegisterDisposedId
-				,fardd.Id FixedAssetRegisterDisposedDetailId
-				,fardd.FixedAssetRegisterId
-                ,IsAsset= case when FR.IsOpeningBalance =1 then 'Yes' else 'No' end
-
-                FROM [TRN].[FixedAssetRegister] FR
-                LEFT JOIN MST.MaterialMaster MM ON FR.MaterialMasterId=MM.Id
-                LEFT JOIN MST.MaterialMasterArticle MMA ON FR.MaterialMasterArticleId= MMA.Id
-                LEFT JOIN MST.BudgetMaster BM ON MM.BudgetMasterId = BM.Id
-                LEFT JOIN HKP.FixedAssetMasterBudgetTag FAMT ON BM.Id=FAMT.BudgetMasterId AND MM.BudgetMasterId=FAMT.BudgetMasterId
-                LEFT JOIN [MST].[FixedAssetMaster] FAM ON FR.FixedAssetMasterId= FAM.Id
-                LEFT JOIN HKP.FixedAssetCategory FAC ON FAM.FixedAssetCategoryId=FAC.Id
-                LEFT JOIN HKP.FixedAssetSubCategory FASC ON FAM.FixedAssetSubCategoryId=FASC.Id
-                LEFT JOIN HKP.Party P ON P.Id=FR.VendorId
-                LEFT JOIN SCS.Country C ON C.Id=FR.CountryOfOriginId
-                LEFT JOIN TRN.FixedAssetRegisterDetail FRD ON FRD.CapitalizeRegisterNo=FR.CapitalizeRegisterNo
-                LEFT JOIN TRN.InventoryIssueHistory IIH ON IIH.Id=FRD.InventoryIssueHistoryId
-                LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
-                LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
-				left join scs.Currency PC on PC.Id= FR.CurrencyId
-				left join scs.Currency BC on BC.Id= FR.FABaseCurrencyId
-				left join mst.FixedAssetDepreciationRule FADR ON FADR.Id = FR.DepreciationRuleId
-		        left join [TRN].[FixedAssetRegisterDisposedDetail]  fardd on fardd.FixedAssetRegisterId = FR.Id
+                 ,IsAsset =case when MM.IsAsset =1 then 'Yes' else  'No'  end
+				 , Machine=case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end 
+				,FAR.Status,format( frd.DocDate,'dd-MMM-yyyy')DocDate,v.VoucherNo,frd.Id DisposalNo
+				,CASE WHEN frd.IsPark=0 THEN 'Posted' ELSE 'Non Posted' END PostingStatus
+				 , count(FAR.FixedAssetMasterId) FACount
+				 ,sum( ISNULL(FAR.FABaseAmount,0))FABaseAmount
+				  ,sum( isnull(sar.SubAssetAmount,0))SubAssetAmount
+				  ,sum(ISNULL(FAR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) ) TotalBaseAmount
+				 ,sum( ISNULL(FAR.ADBaseAmount,0)) ADBaseAmount
+				 ,sum( ISNULL(FAR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) - ISNULL(FAR.ADBaseAmount,0) ) NetFixedAssetsAmount
+				 ,Customer.UserName CustomerName,CU.Code Currency,CAST(frd.ToCurrencyRate AS decimal(18,4))ToCurrencyRate,sum(rdd.NegotiationValue)NegotiationValue
+				 ,sum(rdd.BaseNagotiationValue)BaseNagotiationValue
+				 ,( sum(rdd.BaseNagotiationValue)- sum( ISNULL(FAR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) - ISNULL(FAR.ADBaseAmount,0) ))LossOrGain
+				 ,GP.Id GatePassNo, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
+				 ,ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue
+				 ,PC.Code PurchaseCurrency,isnull( FAR.Price,0 )PurchasePrice
+		        from TRN.FixedAssetRegister FAR 
+				JOIN MST.MaterialMaster MM ON MM.Id=FAR.MaterialMasterId
+				JOIN MST.MaterialMasterArticle MMA ON MMA.Id=FAR.MaterialMasterArticleId
+				JOIN MST.FixedAssetMaster FA ON FA.Id=FAR.FixedAssetMasterId
+				LEFT JOIN HKP.Party P ON P.Id=FAR.VendorId
+				LEFT JOIN TRN.FixedAssetRegisterDisposedDetail rdd ON rdd.FixedAssetRegisterId=FAR.Id
+				LEFT JOIN TRN.FixedAssetRegisterDisposed frd ON rdd.FixedAssetRegisterDisposedId=frd.Id
+				LEFT JOIN TRN.Voucher V ON V.Id =frd.DisposedVoucherId
+				LEFT JOIN HKP.Party Customer ON Customer.Id = frd.PartyId
+                LEFT JOIN SCS.Currency CU ON CU.Id =frd.CurrencyId
+				LEFT JOIN [TRN].[InOutGatePassMaster] GP ON GP.FixedAssetRegisterDisposedId =frd.Id
+				LEFT JOIN HKP.CharacteristicsValue AS FCV ON MM.Id=FCV.MaterialMasterId
+				LEFT JOIN HKP.CharacteristicsValue AS SCV ON MM.Id=SCV.MaterialMasterId
+				LEFT JOIN HKP.CharacteristicsValue AS TCV ON MM.Id=TCV.MaterialMasterId
+				left join scs.Currency PC on PC.Id= FAR.CurrencyId
 	
-                LEFT JOIN(SELECT FixedAssetRegisterId,sum(isnull( Amount * CapitalizationRate,0)) SubAssetAmount 
-				FROM TRN.SubFixedAssetRegister 
-				group by FixedAssetRegisterId)SAR ON SAR.FixedAssetRegisterId =FR.Id
+               LEFT JOIN (SELECT MBP.MaterialMasterId,BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
+                LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
+                WHERE BP.BusinessProcessName ='MachineDefinition') AS MBP ON MBP.MaterialMasterId=MM.Id
 
-               left join ORG.Entity E on E.Id= FR.EntityId
-			   left join ORG.Department D on D.Id = FR.DepartmentId
+
+		        left join(select sum(Amount * CapitalizationRate) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
+				group by FixedAssetRegisterId
+				) sar on sar.FixedAssetRegisterId=FAR.Id
                 --WHERE FR.CompanyId='" + companyId + @"' and FR.Archive=0 and FR.IsAUC=0
                -- AND FR.Id NOT IN(' ')
 
-                     WHERE FR.CompanyGroupId='" + companyGroupId + "'and FR.CompanyId='" + companyId + "' AND FR.PlantId='" + plantId + @"'
-                                    and FR.Archive=0 and FR.IsAUC=0
-                                    AND fardd.FixedAssetRegisterDisposedId ='"+fixedAssetRegisterDisposeId+@"'
-				                     --and FR.MaterialMasterId in
-					               --  and FR.VendorId in  
-                                     --AND MM.IsAsset in ()";
+                     WHERE FAR.CompanyGroupId='" + companyGroupId + "'and FAR.CompanyId='" + companyId + "' AND FAR.PlantId='" + plantId + @"'
+                                    and FAR.Archive=0 and FAR.IsAUC=0
+                                    AND rdd.FixedAssetRegisterDisposedId ='" + fixedAssetRegisterDisposeId+ @"'
+				                    GROUP BY FAR.MaterialMasterId ,MM.UserName ,MMA.StandardName ,FA.UserName,P.UserName 
+			   ,MM.IsAsset,MBP.BusinessProcessName,FAR.FixedAssetMasterId
+			    ,FAR.MaterialMasterId,FAR.MaterialMasterArticleId,FAR.VendorId,FAR.FixedAssetMasterId,FAR.Status,frd.DocDate,v.VoucherNo,frd.Id,frd.IsPark
+				,Customer.UserName,CU.Code,frd.ToCurrencyRate,GP.Id,ISNULL(FCV.UserName,''),ISNULL(SCV.UserName,''),ISNULL(TCV.UserName,'')
+				,FAR.Id,FAR.SerialNo,PC.Code,FAR.Price";
             return _sqlRepository.GetDataCollection(sql);
 
         }
@@ -660,7 +651,7 @@ namespace Library.MaterialManagement.InventoryManagements
 								,GPM.[UpdatedBy]
 								,GPM.[UpdatedDate]
 								,GPM.[UpdatedFromIP]--,GPM.ChallanNo
-								,PurchaseReturnId,InventoryTransferId,InventorySalesId,InventoryScrapId,FixedAssetSalesId,FixedAssetScrapId
+								,PurchaseReturnId,InventoryTransferId,InventorySalesId,InventoryScrapId,FixedAssetScrapId
 							FROM [TRN].[InOutGatePassMaster] GPM
 								LEFT JOIN Employeeinformation EI on EI.SystemId= GPM.CheckedBy
 							LEFT JOIN Employeeinformation EI1 on EI1.SystemId= GPM.ApprovedBy  
@@ -701,7 +692,7 @@ namespace Library.MaterialManagement.InventoryManagements
 								,GPM.[UpdatedBy]
 								,GPM.[UpdatedDate]
 								,GPM.[UpdatedFromIP]--,GPM.ChallanNo
-								,PurchaseReturnId,InventoryTransferId,InventorySalesId,InventoryScrapId,FixedAssetSalesId,FixedAssetScrapId
+								,PurchaseReturnId,InventoryTransferId,InventorySalesId,InventoryScrapId,FixedAssetScrapId
 							FROM [TRN].[InOutGatePassMaster] GPM
 								LEFT JOIN Employeeinformation EI on EI.SystemId= GPM.CheckedBy
 							LEFT JOIN Employeeinformation EI1 on EI1.SystemId= GPM.ApprovedBy   

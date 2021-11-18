@@ -11,6 +11,7 @@ function bonusPolicyController($window, cboService, commonMessage, $scope, $root
     $scope.saveMUrl = $scope.path + 'SaveM';
     $scope.deleteUrl = $scope.path + 'DeleteDetails/';
 
+    $scope.HeadList = [];
     $scope.companyList = [];
     cboService.getCompanyGroupCompanyCbo(null, function (result) {
         $scope.companyList = result;
@@ -252,7 +253,7 @@ function bonusPolicyController($window, cboService, commonMessage, $scope, $root
             $http({
                 method: 'POST',
                 url: $scope.saveMUrl,
-                data: { 'Master': $scope.BonusPolicy },
+                data: { 'Master': $scope.BonusPolicy, 'SalaryHeadList': $scope.HeadList },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -260,10 +261,10 @@ function bonusPolicyController($window, cboService, commonMessage, $scope, $root
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    //$scope.BonusPolicyDetailModel.MID = response.data.MasterId;
                     $scope.BonusPolicy.MID = response.data.MasterId;
                     $scope.getData();
                     $scope.PlantCompanyList();
+                    $scope.getHeads($scope.BonusPolicy.MID);
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -279,6 +280,7 @@ function bonusPolicyController($window, cboService, commonMessage, $scope, $root
         var gridObj = $("#BonusPolicyMasterId").data("ejGrid");
         $scope.BonusPolicy = gridObj.getSelectedRecords()[0];
         $scope.BonusPolicyDetailModel.MID = $scope.BonusPolicy.MID;
+        $scope.getHeads($scope.BonusPolicy.MID);
         try {
             if (!$rootScope.isCollapsed) {
                 $rootScope.toggle();
@@ -287,7 +289,14 @@ function bonusPolicyController($window, cboService, commonMessage, $scope, $root
         }
         $scope.getDetails($scope.BonusPolicy.MID);
     };
-
+    $scope.getHeads = function (MasterID) {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetHeads?masterID=" + MasterID,
+        }).then(function successCallback(response) {
+            $scope.HeadList = response.data;
+        });
+    }
     $scope.recorddoubleclickDetails = function () {
         $scope.dataList = [];
         var gridObj = $("#BonusPolicyDetailsId").data("ejGrid");
@@ -405,6 +414,13 @@ function bonusPolicyController($window, cboService, commonMessage, $scope, $root
             IsProportionate: false,
         };
         $scope.DataList = [];
+        $scope.HeadList = [];
+        $scope.BonusPolicyHead = {
+            Id: null,
+            BonusPolicyMasterID: $scope.BonusPolicy.SystemID,
+            SalaryHeadID: null,
+            SalaryHeadName: null,
+        }
     }
 
     $scope.Clear = function () {
@@ -704,5 +720,53 @@ function bonusPolicyController($window, cboService, commonMessage, $scope, $root
         }
 
     };
-    
+    $scope.BonusPolicyHead = {
+        Id: null,
+        BonusPolicyMasterID: $scope.BonusPolicy.SystemID,
+        SalaryHeadID: null,
+        SalaryHeadName: null,
+    }
+    $scope.SubmitHeads = function () {
+        try {
+            for (var i = 0; i < $scope.HeadList.length; i++) {
+                if ($scope.HeadList[i].SalaryHeadID == $scope.BonusPolicyHead.SalaryHeadID) {
+                    throw "This Salary head already Exist";
+                }
+            }
+            for (var i = 0; i < $scope.SalaryHeadList.length; i++) {
+                if ($scope.SalaryHeadList[i].Id == $scope.BonusPolicyHead.SalaryHeadID) {
+                    $scope.BonusPolicyHead.SalaryHeadName = $scope.SalaryHeadList[i].UserName;
+                    break;
+                }
+            }
+            var newObj = Object.assign({}, $scope.BonusPolicyHead);
+            $scope.HeadList.push(newObj);
+        } catch (e) {
+            ShowResult(e, 'info');
+        }
+    };
+    $scope.message_confirmation = null;
+    $scope.RemoveHead = function (obj) {
+        $scope.BonusPolicyHead = Object.assign({}, obj.data);
+        if (!baseService.isUndefinedOrNull($scope.BonusPolicyHead.Id))
+            $scope.message_confirmation = 'Are you sure want to delete permanently ?';
+        angular.element(document.querySelector('#confirmPopUpHead')).modal('show');
+    }
+    $scope.DeleteHeadList = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'DeleteHeadMaster?ID=' + $scope.BonusPolicyHead.Id,
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult("Invalid Head ");
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getHeads($scope.BonusPolicy.MID);
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+    };
 }

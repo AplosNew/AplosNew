@@ -2381,7 +2381,7 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
                     $scope.mValid = false;
 
                 }
-                if (getRowParty[0].IsSKU === 2 && mdata.FirstCharacteristicsValueId === null || mdata.SecondCharacteristicsValueId === null) {
+                if (getRowParty[0].IsSKU === 2 && mdata.FirstCharacteristicsValueId === null || getRowParty[0].IsSKU === 2 && mdata.SecondCharacteristicsValueId === null) {
                     if (mdata.FirstCharacteristicsValueId === null) {
                         ShowResult(mdata.MaterialMasterName + " have no SKU1 Value", "failure", 'masterOrderItemPopUp');
                     } else {

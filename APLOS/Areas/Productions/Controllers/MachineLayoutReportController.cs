@@ -41,7 +41,7 @@ namespace Aplos.Areas.Productions.Controllers
 
         #region -- Operations
         [HttpPost, Authorize]
-        public ActionResult Report(string EntityId, string ProcessId, string ProductionDate, string WorkCenterMasterId,Dictionary<string,object> Data)
+        public ActionResult Report(string EntityId, string ProcessId, string ProductionDate, string WorkCenterMasterId, Dictionary<string, object> Data)
         {
             #region Variable
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -66,7 +66,7 @@ namespace Aplos.Areas.Productions.Controllers
             try
             {
                 #region DataSet
-               
+
                 SelectedPlantWiseCompany(identity.PlantId, out dsCmp);
                 SelectedPlant(identity.PlantId, out dsFactory);
                 #endregion DataSet
@@ -96,11 +96,10 @@ namespace Aplos.Areas.Productions.Controllers
                 int iLO = 0;
                 int iNOO = 0;
                 int iMO = 0;
-                string BuyerName = "";
                 #endregion Variables
 
                 #region ------------------Column Header------------------
-                //BuyerName = Data["BuyerName"].ToString().Trim();
+
                 xlsCol = 1;
                 xlsRow = 5;
                 sheet1.Range[xlsRow, xlsCol].Text = "Buyer";
@@ -173,7 +172,7 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 3].Merge();
                 xlsRow += 1;
-                xlsCol = 5;
+                xlsCol = 10;
                 xlsRow = 5;
 
                 sheet1.Range[xlsRow, xlsCol].Text = "M/C-SPT";
@@ -187,31 +186,31 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 3].Merge();
-                
+
                 #region ------------------Details Header-----------------
 
-                xlsRow = 12;
+                xlsRow = 11;
                 xlsCol = 1;
                 iSrNo = xlsCol;
-                sheet1.Range[xlsRow, iSrNo].Text = "Sl No.";
+                sheet1.Range[xlsRow, iSrNo].Text = "TGT";
                 sheet1.Range[xlsRow, iSrNo].ColumnWidth = 6;
                 sheet1.Range[xlsRow, iSrNo].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[xlsRow, iSrNo].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 xlsCol += 1;
                 iEmpCode = xlsCol;
-                sheet1.Range[xlsRow, iEmpCode].Text = "Employee Code";
+                sheet1.Range[xlsRow, iEmpCode].Text = "Operation Name";
                 sheet1.Range[xlsRow, iEmpCode].ColumnWidth = 10;
                 sheet1.Range[xlsRow, iEmpCode].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[xlsRow, iEmpCode].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 xlsCol += 1;
                 iEmpName = xlsCol;
-                sheet1.Range[xlsRow, iEmpName].Text = "Employee Name";
+                sheet1.Range[xlsRow, iEmpName].Text = "SMV";
                 sheet1.Range[xlsRow, iEmpName].ColumnWidth = 22;
                 sheet1.Range[xlsRow, iEmpName].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[xlsRow, iEmpName].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 xlsCol += 1;
                 iDOJ = xlsCol;
-                sheet1.Range[xlsRow, iDOJ].Text = "DOJ";
+                sheet1.Range[xlsRow, iDOJ].Text = "Type Of MC";
                 sheet1.Range[xlsRow, iDOJ].ColumnWidth = 9.20;
                 sheet1.Range[xlsRow, iDOJ].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[xlsRow, iDOJ].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -223,75 +222,30 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet1.Range[xlsRow, iUnit].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 xlsCol += 1;
                 iDepart = xlsCol;
-                sheet1.Range[xlsRow, iDepart].Text = "Department";
+                sheet1.Range[xlsRow, iDepart].Text = "Type Of MC";
                 sheet1.Range[xlsRow, iDepart].ColumnWidth = 15;
                 sheet1.Range[xlsRow, iDepart].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[xlsRow, iDepart].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 xlsCol += 1;
                 iSec = xlsCol;
-                sheet1.Range[xlsRow, iSec].Text = "Section";
+                sheet1.Range[xlsRow, iSec].Text = "SMV";
                 sheet1.Range[xlsRow, iSec].ColumnWidth = 15;
                 sheet1.Range[xlsRow, iSec].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[xlsRow, iSec].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                 xlsCol += 1;
                 iDesig = xlsCol;
-                sheet1.Range[xlsRow, iDesig].Text = "Designation";
+                sheet1.Range[xlsRow, iDesig].Text = "Operation Name";
                 sheet1.Range[xlsRow, iDesig].ColumnWidth = 15;
                 sheet1.Range[xlsRow, iDesig].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[xlsRow, iDesig].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                 xlsCol += 1;
                 iEmployeeCategory = xlsCol;
-                sheet1.Range[xlsRow, iEmployeeCategory].Text = "Employee Category";
+                sheet1.Range[xlsRow, iEmployeeCategory].Text = "TGT";
                 sheet1.Range[xlsRow, iEmployeeCategory].ColumnWidth = 15;
                 sheet1.Range[xlsRow, iEmployeeCategory].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[xlsRow, iEmployeeCategory].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                
-                xlsCol += 1;
-                iTotal = xlsCol;
-                sheet1.Range[xlsRow, iTotal].Text = "NO Punch";
-                sheet1.Range[xlsRow, iTotal].ColumnWidth = 15;
-                sheet1.Range[xlsRow, iTotal].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                sheet1.Range[xlsRow, iTotal].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet1.Range[xlsRow, iTotal].CellStyle.FillBackground = ExcelKnownColors.Yellow;
-
-                xlsCol += 1;
-                iValid = xlsCol;
-                sheet1.Range[xlsRow, iValid].Text = "Valid";
-                sheet1.Range[xlsRow, iValid].ColumnWidth = 15;
-                sheet1.Range[xlsRow, iValid].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                sheet1.Range[xlsRow, iValid].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet1.Range[xlsRow, iValid].CellStyle.FillBackground = ExcelKnownColors.Green;
-                sheet1.Range[xlsRow, iValid].CellStyle.Font.Color = ExcelKnownColors.White;
-
-                xlsCol += 1;
-                iLO = xlsCol;
-                sheet1.Range[xlsRow, iLO].Text = "Lunch Out";
-                sheet1.Range[xlsRow, iLO].ColumnWidth = 15;
-                sheet1.Range[xlsRow, iLO].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                sheet1.Range[xlsRow, iLO].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet1.Range[xlsRow, iLO].CellStyle.FillBackground = ExcelKnownColors.Red;
-                sheet1.Range[xlsRow, iLO].CellStyle.Font.Color = ExcelKnownColors.White;
-
-                xlsCol += 1;
-                iNOO = xlsCol;
-                sheet1.Range[xlsRow, iNOO].Text = "NO Out";
-                sheet1.Range[xlsRow, iNOO].ColumnWidth = 15;
-                sheet1.Range[xlsRow, iNOO].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                sheet1.Range[xlsRow, iNOO].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet1.Range[xlsRow, iNOO].CellStyle.FillBackground = ExcelKnownColors.Blue;
-                sheet1.Range[xlsRow, iNOO].CellStyle.Font.Color = ExcelKnownColors.White;
-
-                xlsCol += 1;
-                iMO = xlsCol;
-                sheet1.Range[xlsRow, iMO].Text = "Without In";
-                sheet1.Range[xlsRow, iMO].ColumnWidth = 15;
-                sheet1.Range[xlsRow, iMO].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                sheet1.Range[xlsRow, iMO].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet1.Range[xlsRow, iMO].CellStyle.FillBackground = ExcelKnownColors.Violet;
-                sheet1.Range[xlsRow, iMO].CellStyle.Font.Color = ExcelKnownColors.White;
 
                 #endregion ------------------Details Header-----------------
 
@@ -348,8 +302,8 @@ namespace Aplos.Areas.Productions.Controllers
                 //    sheet1.Range[xlsRow, iEmployeeCategory].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 //    sheet1.Range[xlsRow, iEmployeeCategory].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                    
-                    
+
+
 
                 //    #endregion ----------------------Data-----------------------
 
@@ -361,17 +315,7 @@ namespace Aplos.Areas.Productions.Controllers
 
                 //    #endregion Line Setup
                 //}
-
-                #region UsedRange Alignment
-
-                sheet1.UsedRange.WrapText = true;
-                sheet1.UsedRange.CellStyle.Font.Size = 8;
-                sheet1.Range["A1"].CellStyle.Font.Size = 14;
-                sheet1.Range["A2"].CellStyle.Font.Size = 10;
-                sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
-
-                #endregion UsedRange Alignment
-
+                int iLateBy = 9;
                 #region ******************Report Header******************
                 try
                 {
@@ -387,25 +331,16 @@ namespace Aplos.Areas.Productions.Controllers
                         IPictureShape pic = null;
 
                         pic = sheet1.Pictures.AddPicture(1, 1, companyLogo);
-
-
                     }
-
-
                 }
                 catch (Exception)
                 {
 
-
                 }
-
                 xlsRow = 1;
                 xlsCol = 1;
-
                 FactoryName = string.Empty;
-
                 string FactoryAddress = string.Empty;
-
                 if (dsCmp.Tables[0].Rows.Count > 0)
                 {
                     CmpName = dsCmp.Tables[0].Rows[0]["CompanyName"].ToString();
@@ -415,31 +350,31 @@ namespace Aplos.Areas.Productions.Controllers
                     CmpName = "";
                 }
                 sheet1.Range[xlsRow, 3].Text = CmpName;
-                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, 3, xlsRow, iLateBy].Merge();
                 sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
-                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 12;
-                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 30;
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 17;
+                sheet1.Range[xlsRow, 3, xlsRow, iLateBy].RowHeight = 20;
                 sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                sheet1.Range[xlsRow, 3, xlsRow, iLateBy].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
                 xlsRow += 1;
                 if (dsFactory.Tables[0].Rows.Count > 0)
                 {
                     FactoryName = dsFactory.Tables[0].Rows[0]["UserName"].ToString();
-                    //FactoryName = dsFactory.Tables[0].Rows[0]["PlantName"].ToString();
                 }
                 else
                 {
                     FactoryName = "";
                 }
                 sheet1.Range[xlsRow, 3].Text = FactoryName;
-                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
-                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 10;
-                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
+                //sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, 3, xlsRow, iLateBy].Merge();
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 14;
+                sheet1.Range[xlsRow, 3, xlsRow, iLateBy].RowHeight = 25;
                 sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                sheet1.Range[xlsRow, 3, xlsRow, iLateBy].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
                 xlsRow += 1;
                 if (dsFactory.Tables[0].Rows.Count > 0)
@@ -451,66 +386,62 @@ namespace Aplos.Areas.Productions.Controllers
                     FactoryAddress = "";
                 }
                 sheet1.Range[xlsRow, 3].Text = FactoryAddress;
-                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
-                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 10;
-                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 26;
+                sheet1.Range[xlsRow, 3, xlsRow, iLateBy].Merge();
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 12;
+                sheet1.Range[xlsRow, 3, xlsRow, iLateBy].RowHeight = 15;
                 sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                sheet1.Range[xlsRow, 3, xlsRow, iLateBy].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
                 xlsRow += 1;
-                sheet1.Range[xlsRow, 3].Text = "Machine Layout Report";
-                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, 3].Text = "Machine Layout Report: " + ProductionDate;
+                sheet1.Range[xlsRow, 3, xlsRow, iLateBy].Merge();
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 12;
+                sheet1.Range[xlsRow, 3, xlsRow, iLateBy].RowHeight = 20;
                 sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
-                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 11;
-                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
                 sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-
-
-
-                xlsRow += 1;
-                sheet1.Range[xlsRow, 3].Text = "Month:- " + MonthName;
-                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
-                sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
-                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 9;
-                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
-                sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                sheet1.Range[xlsRow, 3, xlsRow, iLateBy].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
                 #endregion ******************Report Header******************
 
                 #region Freeze Panes
 
                 sheet1.IsDisplayZeros = false;
-                sheet1.UsedRange["A8"].FreezePanes();
-                sheet1.FirstVisibleColumn = 1;
-                sheet1.FirstVisibleRow = 6;
+                sheet1.UsedRange["A12"].FreezePanes();
 
                 #endregion Freeze Panes
 
-                #region Page Setup
+                #region UsedRange Alignment
 
+                sheet1.UsedRange.WrapText = true;
+                sheet1.UsedRange.CellStyle.Font.Size = 8;
+                sheet1.Range["A1"].CellStyle.Font.Size = 14;
+                sheet1.Range["A2"].CellStyle.Font.Size = 10;
+                sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+
+                #endregion UsedRange Alignment
+
+                #region Page Setup
                 sheet1.PageSetup.TopMargin = 0.5;
                 sheet1.PageSetup.BottomMargin = 0.7;
-                sheet1.PageSetup.PrintTitleRows = "$1:$5";
+                sheet1.PageSetup.PrintTitleRows = "$1:$11";
                 sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
                 sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + identity.Name + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
                 sheet1.PageSetup.LeftMargin = 0.5;
                 sheet1.PageSetup.RightMargin = 0.2;
-                sheet1.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet1.PageSetup.Orientation = ExcelPageOrientation.Portrait;
                 sheet1.PageSetup.FitToPagesTall = 0;
                 sheet1.PageSetup.FitToPagesWide = 1;
                 sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet1.IsDisplayZeros = false;
 
-                sheet1.Name = "MachineLayoutReport";
+                sheet1.Name = "MachineLayout";
 
                 #endregion Page Setup
 
                 workbook.Version = ExcelVersion.Excel97to2003;
-                var strFileName = DateTime.Now.ToString("yyMMdd") + " " + "MonthlyLunchOut.xls";
+                var strFileName = "Machine Layout Report " + ProductionDate + " .xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
                 workbook.SaveAs(fullPath);
                 return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
