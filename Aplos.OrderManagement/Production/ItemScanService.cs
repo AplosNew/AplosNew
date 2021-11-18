@@ -506,7 +506,7 @@ namespace Library.Service.EmployeeServices
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
                 string ErrorList = "";
-                string InventoryListMaster = "";
+                //string InventoryListMaster = "";
 
                 if (DataToSave.Count() == 0)
                 {
@@ -514,9 +514,11 @@ namespace Library.Service.EmployeeServices
                 }
 
                 string RefNo = "''";
+                string PckId = "";
                 foreach (ItemScanChildData item in DataToSave)
                 {
                     RefNo += ",'" + item.RefNo + "'";
+                    PckId = item.PackingId;
                 }
 
                 var items=DataToSave.ToList();
@@ -525,15 +527,15 @@ namespace Library.Service.EmployeeServices
                 con.OpenDataSetThroughAdapter(sqlx, out dsMaster, false, "1");
 
                 double BkQty = 0.0;
-                string PckId = "";
+                
                 foreach (ItemScanChildData item in DataToSave)
                 {
                     dsMaster.Tables[0].DefaultView.RowFilter = @"RefNo='" + item.RefNo + "' ";
                     if (dsMaster.Tables[0].DefaultView.Count > 0)
                     {
-                        string Inventory = clsWebLib.RetValidLen(dsMaster.Tables[0].DefaultView[0][@"InventoryReceiveDetailId"]).ToString();
-                        if (Inventory != "")
-                        {
+                        //string Inventory = clsWebLib.RetValidLen(dsMaster.Tables[0].DefaultView[0][@"InventoryReceiveDetailId"]).ToString();
+                        //if (Inventory != "")
+                        //{
                             DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
                             dr.BeginEdit();
                             dr["BookedDate"] = DateTime.Now;
@@ -543,11 +545,11 @@ namespace Library.Service.EmployeeServices
                             dr.EndEdit();
                             PckId = item.PackingId;
                             BkQty += clsStaticInfo.dbl(dr["NetWeight"].ToString());
-                        }
-                        else
-                        {
-                            InventoryListMaster += item.RefNo + "...";
-                        }
+                        //}
+                        //else
+                        //{
+                        //    InventoryListMaster += item.RefNo + "...";
+                        //}
                     }
                     else
                     {
@@ -562,20 +564,21 @@ namespace Library.Service.EmployeeServices
 
                 var sql = @"select * from trn.POLotReference where Id ='" + PckId + "'";
                 conn.OpenDataSetThroughAdapter(sql, out dsPo, false, "1");
-
-                double poBkQty = clsStaticInfo.dbl(dsPo.Tables[0].Rows[0]["BookQty"].ToString());
-                BkQty += poBkQty;
-                dsPo.Tables[0].Rows[0].BeginEdit();
-                dsPo.Tables[0].Rows[0]["BookQty"] = BkQty;
-                dsPo.Tables[0].Rows[0].EndEdit();
-
+                if (dsPo.Tables[0].Rows.Count > 0)
+                {
+                    double poBkQty = clsStaticInfo.dbl(dsPo.Tables[0].Rows[0]["BookQty"].ToString());
+                    BkQty += poBkQty;
+                    dsPo.Tables[0].Rows[0].BeginEdit();
+                    dsPo.Tables[0].Rows[0]["BookQty"] = BkQty;
+                    dsPo.Tables[0].Rows[0].EndEdit();
+                }
                 SaveDataSets(dsMaster);
                 SaveDataSets(dsPo);
-                if (InventoryListMaster!="")
-                {
-                    return "Please complete the FG Inventory Booking of :- " + InventoryListMaster;
-                }
-                else if(ErrorList!="")
+                //if (InventoryListMaster!="")
+                //{
+                //    return "Please complete the FG Inventory Booking of :- " + InventoryListMaster;
+                //}
+                if(ErrorList!="")
                 {
                     return "Their are issues with these Cartons:- " + ErrorList;
                 }

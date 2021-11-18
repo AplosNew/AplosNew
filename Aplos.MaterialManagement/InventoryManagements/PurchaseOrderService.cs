@@ -422,6 +422,7 @@ namespace Library.MaterialManagement.InventoryManagements
 								) OtherPOData ON OtherPOData.BOQDetailId=b.Id
 						LEFT JOIN MST.MaterialMasterAlternativeUOM AUOM ON AUOM.MaterialMasterId=mm.Id 
 						LEFT OUTER JOIN scs.UnitOfMeasurement AS uom1 ON uom1.Id=AUOM.AlternativeUOMId
+                        WHERE (b.RequiredQtyPO-Isnull(POMAP.TransactionQty,0))>0
 						ORDER BY b.MaterialMasterId,b.SalesOrderId";
                     return _sqlRepository.GetDataCollection(sql);
                 }
