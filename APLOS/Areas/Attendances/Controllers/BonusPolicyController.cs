@@ -97,7 +97,16 @@ namespace Aplos.Areas.Attendances.Controllers
             var data = _sqlRepository.GetDataCollection(sql);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
-
+        [HttpGet, Authorize]
+        public ActionResult GetHeads(string masterID)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select p.*,s.SalaryHead SalaryHeadName from BonusPolicySalaryHead p
+                                left join SalaryHead s on s.SalaryHeadID=p.SalaryHeadID
+                            where BonusPolicyMasterId ='" + masterID + "' Order By Sequence";
+            var data = _sqlRepository.GetDataCollection(sql);
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
         [HttpGet, Authorize]
         public ActionResult GetDetailsList(string MasterId)
         {
@@ -113,12 +122,12 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
         [HttpPost]
-        public ActionResult SaveM(BonusPolicyMaster Master)
+        public ActionResult SaveM(BonusPolicyMaster Master, List<BonusPolicySalaryHead> SalaryHeadList)
         {
             try
             {
                 string MasterId = string.Empty;
-                MasterId = SaveMaster(Master);
+                MasterId = SaveMaster(Master, SalaryHeadList);
                 return Json(new { MasterId, Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception)
@@ -166,7 +175,7 @@ namespace Aplos.Areas.Attendances.Controllers
                     {
                         dr["PerctSalaryHeadID"] = Details[i]["PerctSalaryHeadID"].ToString();
                     }
-                    
+
                     dr["BonusPercentage"] = clsStaticInfo.dbl(Details[i]["BonusPercentage"]);
                     dr["DivisionFactor"] = clsStaticInfo.dbl(Details[i]["DivisionFactor"]);
                     dr["MinBonusAmt"] = clsStaticInfo.dbl(Details[i]["MinBonusAmt"]);
@@ -225,7 +234,7 @@ namespace Aplos.Areas.Attendances.Controllers
             }
         }
         [HttpPost, Authorize]
-        public string SaveMaster(BonusPolicyMaster Master)
+        public string SaveMaster(BonusPolicyMaster Master, List<BonusPolicySalaryHead> SalaryHeadList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
@@ -277,8 +286,24 @@ namespace Aplos.Areas.Attendances.Controllers
 
                     dr.EndEdit();
                 }
-                clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster);
+
+                #region Bonus Policy Salary Head Save Part
+                if (SalaryHeadList != null)
+                {
+                    DeleteHead(Id);
+                    GetHead(Id, out DataSet dsHead);
+                    _Head(ref dsHead, Id, SalaryHeadList);
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMaster, dsHead);
+                }
+
+                #endregion
+                else
+                {
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMaster);
+                }
                 return Id;
             }
 
@@ -287,7 +312,95 @@ namespace Aplos.Areas.Attendances.Controllers
                 throw ex;
             }
         }
+        void _Head(ref DataSet dsSaveBonusMonths, string MasterID, List<BonusPolicySalaryHead> HeadList)
+        {
 
+            DataView dvMSave = null;
+            DataTable dtMSave = null;
+            DataRow drMSave = null;
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                dtMSave = dsSaveBonusMonths.Tables[0];
+                int count = 0;
+                foreach (var item in HeadList)
+                {
+                    dvMSave = new DataView();
+                    dvMSave.Table = dtMSave;
+                    dvMSave.RowFilter = "BonusPolicyMasterId ='" + item.BonusPolicyMasterrId + "' and SalaryHeadID='" + item.SalaryHeadID + "'";
+                    if (dvMSave.Count == 0)
+                    {
+                        count++;
+                        drMSave = dtMSave.NewRow();
+                        drMSave["Id"] = MasterID + count;
+                        drMSave["BonusPolicyMasterId"] = MasterID;
+                        drMSave["SalaryHeadID"] = item.SalaryHeadID;
+                        drMSave["SalaryHeadID"] = item.SalaryHeadID;
+                        drMSave["Sequence"] = count;
+                        drMSave["AddedBy"] = identity.Name;
+                        drMSave["AddedDate"] = DateTime.Now;
+                        drMSave["AddedFromIP"] = identity.IPAddress;
+                        drMSave["UpdatedBy"] = identity.Name;
+                        drMSave["UpdatedDate"] = System.DateTime.Now.ToString();
+                        drMSave["UpdatedFromIP"] = identity.IPAddress;
+                        dtMSave.Rows.Add(drMSave);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public void DeleteHead(string sMstID)
+        {
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(@"DELETE FROM BonusPolicySalaryHead WHERE BonusPolicyMasterID = '" + sMstID + "'", true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                objCon.RollBack();
+                throw (ex);
+            }
+            finally
+            {
+                objCon.CloseConnection();
+                objCon = null;
+            }
+        }//End Function
+        public void GetHead(string sMstID, out DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                if (sMstID != "")
+                {
+                    strSQL = "SELECT * FROM BonusPolicySalaryHead WHERE BonusPolicyMasterID = '" + sMstID + "'";
+                }
+                else
+                {
+                    strSQL = "SELECT * FROM BonusPolicySalaryHead ";
+                }
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
         public void SaveBPlant(List<BonusPolicyPlantWise> BP)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -299,7 +412,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 DataView dvBp = null;
                 DataRow drBp = null;
                 string BPId = string.Empty;
-                string sql = "SELECT * FROM [dbo].[BonusPolicyPlantWise] where PlantId= '" + BP[0].PlantId+@"' ";
+                string sql = "SELECT * FROM [dbo].[BonusPolicyPlantWise] where PlantId= '" + BP[0].PlantId + @"' ";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dsBp, false, "1");
 
@@ -413,6 +526,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
                 con.executeQuery("delete from [dbo].[BonusPolicyDetail] where BPMSystemID='" + SystemID + "'");
+                con.executeQuery("delete from [dbo].[BonusPolicySalaryHead] where BonusPolicyMasterId='" + SystemID + "'");
                 con.executeQuery("delete from [dbo].[BonusPolicyMaster] where SystemID='" + SystemID + "'");
                 con.CommitTransaction();
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
@@ -441,6 +555,25 @@ namespace Aplos.Areas.Attendances.Controllers
                 throw (ex);
             }
 
+            return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost, Authorize]
+        public ActionResult DeleteHeadMaster(string ID)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(ID))
+                    throw new Exception("Select Id first");
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from BonusPolicySalaryHead where Id='" + ID + "'");
+                con.CommitTransaction();
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
             return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
         }
         public class BonusPolicyMaster : BaseModel
@@ -528,7 +661,28 @@ namespace Aplos.Areas.Attendances.Controllers
             #endregion Audit Properties
 
         }
+        public class BonusPolicySalaryHead
+        {
+            #region Scalar Properties            
+            public string Id { get; set; }
+            public string BonusPolicyMasterrId { get; set; }
+            public string SalaryHeadID { get; set; }
+            #endregion Scalar Properties
 
+            #region Audit Properties
+
+            public string AddedBy { get; set; }
+
+            public DateTime? AddedDate { get; set; }
+
+            public string AddedFromIP { get; set; }
+
+            public string UpdatedBy { get; set; }
+            public DateTime? UpdatedDate { get; set; }
+            public string UpdatedFromIP { get; set; }
+
+            #endregion Audit Properties
+        }
         #endregion
     }
 }
