@@ -105,7 +105,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             when a.OTWeek='2' then (select dt.Week2Limit)
                             when a.OTWeek='3' then (select dt.Week3Limit)
                             when a.OTWeek='4' then (select dt.Week4Limit) end,
-                            a.OTYear,a.OTMonth,a.OTWeek,
+                            a.OTYear,a.OTMonth,a.OTWeek,a.ManualOutTime,
                             d.UserName as Department,s.UserName as Section,ss.UserName AS SubSection,l.UserName as Designation 
                             from AttdnProcessData a left join employeeinformation e on a.EmpSystemID=e.SystemId
                             left join org.Plant p on p.Id=e.PlantId
@@ -365,7 +365,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 }
                                 DateTime ManualOutTime = Convert.ToDateTime(OutTime).AddMinutes(-Convert.ToDouble(ReducedMinutes));
 
-                                dr["OutTime="] = ManualOutTime;
+                                dr["OutTime"] = ManualOutTime;
                                 dr["ManualOutTime"] = ManualOutTime;
                                 
                             }

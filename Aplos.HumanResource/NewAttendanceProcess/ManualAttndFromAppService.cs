@@ -185,6 +185,12 @@ namespace Library.HumanResource.NewAttendanceProcess
                             shiftchange.Tables[0].Rows[0]["OTComfirmBy"] = DBNull.Value;
                             shiftchange.Tables[0].Rows[0]["DateOTComfirm"] = DBNull.Value;
                             shiftchange.Tables[0].Rows[0]["IsOTComfirm"] = false;
+                            shiftchange.Tables[0].Rows[0]["TargetOT"] = DBNull.Value;
+                            shiftchange.Tables[0].Rows[0]["PlanOT"] = DBNull.Value;
+                            shiftchange.Tables[0].Rows[0]["AppliedOTLimit"] = DBNull.Value;
+                            shiftchange.Tables[0].Rows[0]["AllowedOTLimit"] = DBNull.Value;
+                            shiftchange.Tables[0].Rows[0]["StandardOT"] = DBNull.Value;
+                            shiftchange.Tables[0].Rows[0]["AdditionalOt"] = DBNull.Value;
                             shiftchange.Tables[0].Rows[0].EndEdit();
                             ap.CheckerFunction(ref man, shiftchange.Tables[0].Rows[0]["RowId"].ToString());
                             kk = 1;
