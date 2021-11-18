@@ -449,8 +449,6 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
 
-
-
         #region material-Receipts- Reports
 
         [Authorize, HttpGet]

@@ -159,7 +159,7 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
                 'EmpSystemID': $scope.Data[i].EmpSystemID, 'WorkDate': $scope.Data[i].WorkDate, 'PlanOT': $scope.Data[i].PlanOT,
                 'DayLimit': $scope.Data[i].DayLimit, 'StandardOT': $scope.Data[i].StandardOT, 'AppliedOTLimit': $scope.Data[i].AppliedOTLimit,
                 'AllowedOTLimit': $scope.Data[i].AllowedOTLimit, 'AdditionalOT': $scope.Data[i].AdditionalOT, 'WeekLimit': $scope.Data[i].WeekLimit,
-                'TargetOT': $scope.Data[i].TargetOT, 'ApplicableWM': $scope.Data[i].ApplicableWM
+                'TargetOT': $scope.Data[i].TargetOT, 'ApplicableWM': $scope.Data[i].ApplicableWM, 'IsOTComfirm': $scope.Data[i].IsOTComfirm
             });
         }
 
@@ -180,5 +180,4 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
         })
     }
 
-   // 2 - TotalOTHours  || 1 - AllowedOT
 }

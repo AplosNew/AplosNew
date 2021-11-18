@@ -3944,9 +3944,28 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
 
 		}
 
-		//public JsonResult detailPOSaveForBOQ(IEnumerable<InventoryMaterialViewModel> entity, IEnumerable<InventoryMaterialViewModel> groupList, IEnumerable<PurchaseOrderTax> taxCategoryList, string PoId)
-		//[HttpPost, ChaildAction(ParentActionName = nameof(Create))]
-		[HttpPost, Authorize]
+        [Authorize, HttpGet]
+        public JsonResult GetBOQItemsDetailsData()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+
+                var jsondata = Json(obj.GetBOQItemsDetailsData(), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        //public JsonResult detailPOSaveForBOQ(IEnumerable<InventoryMaterialViewModel> entity, IEnumerable<InventoryMaterialViewModel> groupList, IEnumerable<PurchaseOrderTax> taxCategoryList, string PoId)
+        //[HttpPost, ChaildAction(ParentActionName = nameof(Create))]
+        [HttpPost, Authorize]
 		public JsonResult detailPOSaveForBOQ(string entity, string groupList, IEnumerable<PurchaseOrderTax> taxCategoryList, string PoId)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

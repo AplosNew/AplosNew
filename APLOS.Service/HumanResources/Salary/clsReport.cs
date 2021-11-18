@@ -293,15 +293,17 @@ namespace OTSBD
 								LEFT JOIN LeaveType AS lt ON 1=1
 							    LEFT JOIN AttdnProcessData AS apd   ON lt.Id=apd.LTSystemID  AND apd.EmpSystemID=ei.SystemId
 								AND  apd.WorkDate BETWEEN   '" + leavePara.FromDate + @"' AND  '" + leavePara.ToDate + @"'
+								JOIN SalaryProcMaster AS spm ON spm.MonthNo=MONTH('" + leavePara.FromDate + @"') AND spm.YearNo=YEAR('" + leavePara.FromDate + @"')
+								JOIN SalaryProcessLogDetail AS spld ON spld.EmpSystemId=ei.SystemId AND spld.SalaryProcessId=spm.SystemID
 
                                 LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
                                 LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
                                 LEFT JOIN mst.DesignationMaster AS dm ON dm.Id=dmc.DesignationMasterId
                                 LEFT JOIN DayStatusPlantChild PC ON pc.PlantId=apd.PlantId AND pc.EmpTypeId=dm.EmployeeCategoryId
-                                left JOIN DayTypeWithValues AS ds ON ds.DayType=lt.Code AND ds.HeaderId=pc.HeaderId
-                                LEFT JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id AND l.LeaveTypeId=lt.Id
+                                left JOIN DayTypeWithValues AS ds ON ds.DayType=apd.DayStatus AND ds.HeaderId=pc.HeaderId
+                                LEFT JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id AND l.LeaveTypeId=apd.LTSystemID
 
-                                 LEFT JOIN LeavePolicyDetail AS lpd ON lpd.LPMSystemID=dmc.LeavePolicyMasterId AND lpd.LTSystemID=lt.Id
+                                 LEFT JOIN LeavePolicyDetail AS lpd ON lpd.LPMSystemID=dmc.LeavePolicyMasterId AND lpd.LTSystemID=apd.LTSystemID
                                  
                                 WHERE Ei.SystemID IN (" + parameters["EmpSystemId"] + @")
                                  GROUP BY lt.LeaveType,Ei.SystemID, lt.Sequence,lt.Id,lt.Code,EncashWorkingDaysQty,EncashEarnLeaveQty

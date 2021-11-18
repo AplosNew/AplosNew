@@ -640,6 +640,20 @@
                                         </div>
 
                                         <div class="form-group">
+                                            <label class="col-sm-4 control-label">OT Category </label>
+                                            <div class="col-sm-8 ">
+                                                <div class="select-style">
+                                                    <select id="OTWApp" class="form-control" ng-model="DayChild.OTCategory" name="Working Day OT Applicable" tabindex="1">
+                                                        <option value="">-Select-</option>
+                                                        <option Value="W">Week Off</option>
+                                                        <option Value="NW">Nowmal Working</option>
+                                                        <option Value="H">Holiday</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
                                             <label class="col-sm-4 control-label">Attendance Bonus Absent</label>
                                             <div class="col-sm-8">
                                                 <input type="text" onkeypress="return isNumber(event)" ng-model="DayChild.AttnBonusAbsent" class="form-control" maxlength="100" tabindex="2">
@@ -652,7 +666,7 @@
                                                 <input type="text" onkeypress="return isNumber(event)" ng-model="DayChild.AttnBonusLeave" class="form-control" maxlength="100" tabindex="2">
                                             </div>
                                         </div>
-                                        
+
 
 
 

@@ -2285,7 +2285,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                             ,EI.EmployeeName as ResponsiblePerson,EI.EmployeeCode,II.EmployeeId,II.RefferenceNo
 							,SUM(IIH.qty) Qty
 							--,SUM(Round(IIH.qty*IIH.Rate,2)) Amount
-							,Amount=isnull(round( Sum((IRD.MaterialTranRate * IR.ToCurrencyRate) * isnull(IIH.Qty,'0')),2),'0')
+							,Amount=Sum(IIH.TotalMaterialBooksCurrencyAmount)
 							,II.Remarks--,II.Id AS IssueId
 							,II.OrderRefNo
 							--,C.Id CountryId,c.UserName CountryName

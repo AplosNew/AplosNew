@@ -10295,9 +10295,31 @@ namespace Library.HumanResource.Payroll
 
                     int empDetailFirstXlsRow = 0;
 
+
+
+
+
+
+
+
+
+
                     int empPaySlipDetailXlsRow = 0;
                     Dictionary<string, List<DataRow>> dicLeaveEmp = objRpt.GetEmpLeaveInfoPaySlipNew(parameters, para);
                     xlsRow = startRow;
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
                     if (dsCmp.Tables[0].Rows.Count > 0)
