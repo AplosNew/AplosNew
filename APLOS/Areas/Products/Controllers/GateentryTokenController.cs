@@ -4066,7 +4066,7 @@ where gpm.GatePassEntryDate between '"+ fromDate + @"' AND '" + toDate + @"'";
 		#endregion FA register
 
 
-		[Authorize, HttpPost]
+		[HttpPost]
 		public ActionResult createInOutGatePass(InOutGatePassMaster inOutGatePassMasterModel)
 		{
 			try
