@@ -99,7 +99,7 @@ namespace Aplos.Areas.Productions.Controllers
                 #endregion Variables
 
                 #region ------------------Column Header------------------
-                //BuyerName = Data["BuyerName"].ToString().Trim();
+
                 xlsCol = 1;
                 xlsRow = 5;
                 sheet1.Range[xlsRow, xlsCol].Text = "Buyer";
