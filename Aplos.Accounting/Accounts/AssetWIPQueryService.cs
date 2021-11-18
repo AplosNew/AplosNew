@@ -50,6 +50,7 @@ namespace Library.Accounting.FixedAssets
 							,IRD.TotalMaterialBooksCurrencyAmount BooksAmount
 							,IRD.IssueQty 
 							,V.Id VoucherId,GL.Id GlId,A.Id ActivityId
+							,case when IIH.IsCapitalize=1 then 'Yes' else 'No' end Capitalized
 from TRN.InventoryReceiveDetail IRD 
 LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
 LEFT JOIN TRN.InventoryMaterial AS IM ON IM.Id=IRD.InventoryMaterialId
@@ -75,7 +76,7 @@ LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.
  LEFT JOIN MST.FixedAssetMaster FAM ON FAM.Id=FAMB.FixedAssetMasterId
  LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
  LEFT JOIN SCS.Currency CU ON CU.Id=IR.CurrencyId
- LEFT JOIN (SELECT InventoryReceiveDetailId,SUM(Qty) IssueQty FROM  TRN.InventoryIssueHistory group by InventoryReceiveDetailId) IIH ON IIH.InventoryReceiveDetailId=IRD.Id
+ LEFT JOIN (SELECT InventoryReceiveDetailId,SUM(Qty) IssueQty,IsRegister,IsCapitalize FROM  TRN.InventoryIssueHistory group by InventoryReceiveDetailId,IsRegister,IsCapitalize) IIH ON IIH.InventoryReceiveDetailId=IRD.Id
 WHERE IR.VoucherId<>'' AND IRD.IsAsset=1 and (isnull(IRD.BaseQty,0)-isnull(IIH.IssueQty,0))>0";
 			return _sqlRepository.GetDataCollection(sql);
 
@@ -83,7 +84,7 @@ WHERE IR.VoucherId<>'' AND IRD.IsAsset=1 and (isnull(IRD.BaseQty,0)-isnull(IIH.I
 
        private DataTable GetFixedAssetWIPstatusReportSQL(string materialMasterId, string materialMasterArticleId, string voucherId, string grnNo, string glId, string activityId)
         {
-            var sql = @"select  isnull(MM.UserName,'') MaterialMasterName	
+            var sql = @"select  IRD.Id InventoryReceiveDetailId, isnull(MM.UserName,'') MaterialMasterName	
 							, MM.Id	MaterialMasterId	
 							, isnull( ART.StandardName,'') ArticleName	
 							, ART.Id ArticleId		
@@ -103,6 +104,7 @@ WHERE IR.VoucherId<>'' AND IRD.IsAsset=1 and (isnull(IRD.BaseQty,0)-isnull(IIH.I
 							,IRD.TotalMaterialBooksCurrencyAmount BooksAmount
 							,IRD.IssueQty 
 							,V.Id VoucherId,GL.Id GlId,A.Id ActivityId
+							,case when IIH.IsCapitalize=1 then 'Yes' else 'No' end Capitalized
 from TRN.InventoryReceiveDetail IRD 
 LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
 LEFT JOIN TRN.InventoryMaterial AS IM ON IM.Id=IRD.InventoryMaterialId
@@ -128,7 +130,7 @@ LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.
  LEFT JOIN MST.FixedAssetMaster FAM ON FAM.Id=FAMB.FixedAssetMasterId
  LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
  LEFT JOIN SCS.Currency CU ON CU.Id=IR.CurrencyId
- LEFT JOIN (SELECT InventoryReceiveDetailId,SUM(Qty) IssueQty FROM  TRN.InventoryIssueHistory group by InventoryReceiveDetailId) IIH ON IIH.InventoryReceiveDetailId=IRD.Id
+ LEFT JOIN (SELECT InventoryReceiveDetailId,SUM(Qty) IssueQty,IsRegister,IsCapitalize FROM  TRN.InventoryIssueHistory group by InventoryReceiveDetailId,IsRegister,IsCapitalize) IIH ON IIH.InventoryReceiveDetailId=IRD.Id
 WHERE IR.VoucherId<>'' AND IRD.IsAsset=1 and (isnull(IRD.BaseQty,0)-isnull(IIH.IssueQty,0))>0
 AND ART.Id IN(" + materialMasterArticleId+ @")
 AND IR.VoucherId IN (" + voucherId + @")
@@ -145,11 +147,7 @@ AND IRD.PostDrActivityId IN( " + activityId + @")";
         public string AssetWIPstatusList(string materialMasterId, string materialMasterArticleId, string voucherId, string grnNo, string glId, string activityId)
         {
 
-            //Start EmployeeAdvanceDueList
-
-         
             ExcelEngine excelEngine = new ExcelEngine();
-            //Instantiate the Excel application object
             IApplication application = excelEngine.Excel;
 
             //Set the default application version
@@ -428,16 +426,17 @@ AND IRD.PostDrActivityId IN( " + activityId + @")";
         private string IssueQtySql(string InventoryReceiveDetailId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return @"select iid.InventoryIssueId IssueNo,FORMAT(ii.IssueDate,'dd-MMM-yyyy') IssueDate,SUM(isnull(iih.Qty,0)) Qty
-            ,SUM(isnull(iih.Qty,0)*iih.BooksCurrencyBaseRate) Amount,uom.UserName UOM,ii.VoucherId,v.VoucherNo 
+            return @"select iid.InventoryIssueId IssueNo,FORMAT(ii.IssueDate,'dd-MMM-yyyy') IssueDate,SUM(isnull(iih.Qty,0)) Qty, CU.Code Currency
+            ,SUM(isnull(iih.TotalMaterialBooksCurrencyAmount,0)) Amount,uom.UserName UOM,ii.VoucherId,v.VoucherNo 
             from trn.InventoryIssueHistory iih 
             left join TRN.InventoryIssueDetail iid on iid.Id=iih.InventoryIssueDetailId 
             left join trn.InventoryIssue ii on ii.Id=iid.InventoryIssueId
             left join TRN.Voucher v on v.Id=ii.VoucherId
             left join SCS.UnitOfMeasurement uom on uom.Id=iid.BaseUOMId
             left join TRN.InventoryReceiveDetail ird on ird.Id=iih.InventoryReceiveDetailId
-            where ird.InventoryReceiveId='" + InventoryReceiveDetailId+@"'
-            group by iid.InventoryIssueId ,ii.IssueDate,ii.VoucherId,v.VoucherNo ,uom.UserName";
+			left join SCS.Currency CU on CU.Id=ii.CurrencyId  
+            where iih.InventoryReceiveDetailId='" + InventoryReceiveDetailId + @"'
+            group by iid.InventoryIssueId ,ii.IssueDate,ii.VoucherId,v.VoucherNo ,uom.UserName,CU.Code";
               
         }
     }

@@ -221,7 +221,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     string ApplicableWM = Table.DefaultView[j][@"ApplicableWM"].ToString();
                                     if (ApplicableWM == "W")
                                     {
-                                        // Sum Up the Week StandardOT
+                                        // Sum Up the Week Confirmed StandardOT
                                         decimal StandardOT = Convert.ToDecimal(Table.DefaultView[j][@"StandardOT"].ToString());
                                         WeekStandardOTMaster += StandardOT;
                                     }
@@ -236,17 +236,20 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 MonthData.Tables[0].DefaultView.RowFilter = @"EmpId='" + EmpId + "' ";
                                 if (MonthData.Tables[0].DefaultView.Count > 0)
                                 {
-
+                                    decimal MonthlyConfirmedOT = Convert.ToDecimal(Table.DefaultView[0][@"MonthlyConfirmedOT"].ToString());
+                                    MonthStandardOTMaster += MonthlyConfirmedOT;
                                 }
                             }
+
                             Table.DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' AND IsOTComfirm=true AND WorkDate <>#" + FormatDate + "# " +
                             "AND WorkDate >= #" + WeekMinDate + "# and WorkDate<= #" + WeekMaxDate + "# ";
                             if (Table.DefaultView.Count > 0)
                             {
                                 for (int j = 0; j < Table.DefaultView.Count; j++)
                                 {
-                                        // Sum Up the Week StandardOT
+                                   // Sum Up the Month Confirmed StandardOT
                                     decimal StandardOT = Convert.ToDecimal(Table.DefaultView[j][@"StandardOT"].ToString());
+                                    MonthStandardOTMaster += StandardOT;
                                 }
                             }
 
@@ -282,12 +285,22 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     dr["AllowedOTLimit"] = SmallerValue;
                                 }
                             }
+                            else if (WkDateApplicableWM == "M")
+                            {
+                                // Min of Balance Limit of Week & DailyLimit
+                                decimal BalanceMonthLimit = WeekLimit - WeekStandardOTMaster;
+                                //decimal SmallerValue = Math.Min(BalanceWeekLimit, DayLimit);
+                                //if (SmallerValue >= 0)
+                                //{
+                                //    dr["AllowedOTLimit"] = SmallerValue;
+                                //}
+                            }
 
                             #endregion
 
                             #region AppliedOTLimit Calculation
 
-                                if (PlanOT>0)
+                            if (PlanOT>0)
                                 {
                                     dr["AppliedOTLimit"] = PlanOT;
                                 }
