@@ -11,13 +11,13 @@
             <div class="form-elements form-horizontal" id="MainDivId">
                 <div class="col-xs-12 col-sm-6 col-md-6">
                     <div class="form-group">
-                        <label class="col-sm-4 control-label" style="padding-left: 110px;">Policy Name</label>
+                        <label class="col-sm-4 control-label" @*style="padding-left: 110px;"*@>Policy Name</label>
                         <div class="col-sm-8">
                             <input type="text" ng-model="BonusPolicy.PolicyName" class="form-control" maxlength="100" tabindex="2">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-4 control-label" style="padding-left: 110px;">Entitle From<sup>*</sup></label>
+                        <label class="col-sm-4 control-label" @*style="padding-left: 110px;"*@>Entitle From<sup>*</sup></label>
                         <div class="col-sm-8">
                             <div class="select-style">
                                 <select id="EntitleFromId" class="form-control" ng-model="BonusPolicy.EntitleFrm" name="EntitleFromId" required tabindex="1">
@@ -28,16 +28,45 @@
                             </div>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Salary Head For Report</label>
+                        <div class="col-sm-4">
+                            <div class="select-style">
+                                <select id="SalaryHeadId" class="form-control" ng-model="BonusPolicyHead.SalaryHeadID" name="SalaryHead" required tabindex="1">
+                                    <option value=""> </option>
+                                    <option ng-repeat="option in SalaryHeadList" value="{{option.Id}}">{{option.UserName}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    <li><button ng-click="SubmitHeads();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Submit</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12" @*style="padding-left: 150px; margin-left: -65px;"*@>
+                        <div id="Grid2" ej-grid e-datasource="HeadList" e-allowsorting="true" e-allowscrolling="true"
+                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowResizing="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="false" e-pageSettings-pageSize="2">
+                            <div e-columns>
+                                <div e-column e-field="BonusPolicyMasterID" e-headertext="ID" e-width="3" e-isprimarykey="true" e-visible="false"></div>
+                                <div e-column e-field="SalaryHeadName" e-headertext="Salary Head" e-width="3"></div>
+                                <div e-column e-headertext="Delete" e-width="3"><button data-toggle="modal" class="btn" ng-click="$parent.RemoveHead(this);" tabindex="10"><i class="glyphicon glyphicon-trash"></i></button></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="col-xs-12 col-sm-6 col-md-6">
                     <div class="form-group">
-                        <label class="col-sm-4 control-label" >Description</label>
+                        <label class="col-sm-4 control-label">Description</label>
                         <div class="col-sm-8">
                             <input type="text" ng-model="BonusPolicy.BonusDescription" class="form-control" maxlength="100" tabindex="2">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-4 control-label" >Service Length Type</label>
+                        <label class="col-sm-4 control-label">Service Length Type</label>
                         <div class="col-sm-8 ">
                             <div class="radio">
                                 <label>
@@ -51,6 +80,7 @@
                             </div>
                         </div>
                     </div>
+                    
                 </div>
                 <div class="common-btn">
                     <ul class="list-inline text-right">
@@ -202,7 +232,7 @@
     </div>
 </div>
 <confirm-modal></confirm-modal>
-
+<confirm-archive-generic modalid="confirmPopUpHead" title="Confirmation" message="{{message_confirmation}}" data-ng-click-right-button="DeleteHeadList();"></confirm-archive-generic>
 
 <ej-dialog id="PpolicyID"
            title="Plant Tag With Policy"
