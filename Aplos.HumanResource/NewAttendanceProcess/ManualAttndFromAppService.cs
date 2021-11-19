@@ -575,6 +575,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                 clsStaticInfo _infos = new clsStaticInfo();
                 _infos.SaveDataSets(dsRem);
 
+
+
                 ap.ManualScheduler(identity.PlantId, man);
             }
             catch (Exception ex)
