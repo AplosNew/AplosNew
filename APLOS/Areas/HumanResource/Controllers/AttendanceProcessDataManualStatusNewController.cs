@@ -277,6 +277,17 @@ namespace Aplos.Areas.HumanResource.Controllers
                             dr["OTComfirmBy"] = DBNull.Value;
                             dr["DateOTComfirm"] = DBNull.Value;
                             dr["IsOTComfirm"] = false;
+                            
+                            #region OT Columns Nullified
+                            
+                            dr["TargetOT"]= DBNull.Value; 
+                            dr["PlanOT"] = DBNull.Value;
+                            dr["AppliedOTLimit"] = DBNull.Value;
+                            dr["AllowedOTLimit"] = DBNull.Value;
+                            dr["StandardOT"] = DBNull.Value;
+                            dr["AdditionalOt"] = DBNull.Value;
+                            
+                            #endregion
                             dr.EndEdit();
                             ap.CheckerFunction(ref man, dsManualAttendance.Tables[0].Rows[0]["RowId"].ToString());
                             kk = 1;
@@ -292,7 +303,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                     if(kk == 1)
                     {
                         DataRow dr = dsRem.Tables[0].NewRow();
-                        bplib.clsGenID genid = new bplib.clsGenID();
+                        clsGenID genid = new clsGenID();
                         genid.GenID("dbo.ManualEntryRemarks", out _Id);
                         dr["Id"] = _Id;
                         dr["RowId"] = dsManualAttendance.Tables[0].Rows[0]["RowId"].ToString();

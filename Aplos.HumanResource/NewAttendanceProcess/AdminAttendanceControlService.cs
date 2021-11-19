@@ -322,6 +322,16 @@ namespace Library.HumanResource.NewAttendanceProcess
                             shiftchange.Tables[0].Rows[0]["OTComfirmBy"] = DBNull.Value;
                             shiftchange.Tables[0].Rows[0]["DateOTComfirm"] = DBNull.Value;
                             shiftchange.Tables[0].Rows[0]["IsOTComfirm"] = false;
+
+                            #region OT Nullified Columns
+                            shiftchange.Tables[0].Rows[0]["TargetOT"] = DBNull.Value;
+                            shiftchange.Tables[0].Rows[0]["PlanOT"] = DBNull.Value;
+                            shiftchange.Tables[0].Rows[0]["AppliedOTLimit"] = DBNull.Value;
+                            shiftchange.Tables[0].Rows[0]["AllowedOTLimit"] = DBNull.Value;
+                            shiftchange.Tables[0].Rows[0]["StandardOT"] = DBNull.Value;
+                            shiftchange.Tables[0].Rows[0]["AdditionalOt"] = DBNull.Value;
+                            #endregion
+
                             shiftchange.Tables[0].Rows[0].EndEdit();
                             //New
                             kk++;
@@ -360,6 +370,17 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 dr["OTComfirmBy"] = DBNull.Value;
                                 dr["DateOTComfirm"] = DBNull.Value;
                                 dr["IsOTComfirm"] = false;
+
+                                #region OT Columns Nullified
+
+                                dr["TargetOT"] = DBNull.Value;
+                                dr["PlanOT"] = DBNull.Value;
+                                dr["AppliedOTLimit"] = DBNull.Value;
+                                dr["AllowedOTLimit"] = DBNull.Value;
+                                dr["StandardOT"] = DBNull.Value;
+                                dr["AdditionalOt"] = DBNull.Value;
+
+                                #endregion
                             }
 
                             dr.EndEdit();
@@ -427,6 +448,17 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 dr["OTComfirmBy"] = DBNull.Value;
                                 dr["DateOTComfirm"] = DBNull.Value;
                                 dr["IsOTComfirm"] = false;
+
+                                #region OT Columns Nullified
+
+                                dr["TargetOT"] = DBNull.Value;
+                                dr["PlanOT"] = DBNull.Value;
+                                dr["AppliedOTLimit"] = DBNull.Value;
+                                dr["AllowedOTLimit"] = DBNull.Value;
+                                dr["StandardOT"] = DBNull.Value;
+                                dr["AdditionalOt"] = DBNull.Value;
+
+                                #endregion
 
                                 dr.EndEdit();
                                 //New
