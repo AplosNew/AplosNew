@@ -326,6 +326,16 @@ namespace Aplos.Areas.HumanResource.Controllers
                             shiftchange.Tables[0].Rows[0]["ManualByWhom"] = identity.Name;
                             shiftchange.Tables[0].Rows[0]["ManualEntryTime"] = DateTime.Now;
                             shiftchange.Tables[0].Rows[0]["ManualFlag"] = true;
+
+                            #region OT Columns Nullified
+                            shiftchange.Tables[0].Rows[0]["TargetOT"] = DBNull.Value;
+                            shiftchange.Tables[0].Rows[0]["PlanOT"] = DBNull.Value;
+                            shiftchange.Tables[0].Rows[0]["AppliedOTLimit"] = DBNull.Value;
+                            shiftchange.Tables[0].Rows[0]["AllowedOTLimit"] = DBNull.Value;
+                            shiftchange.Tables[0].Rows[0]["StandardOT"] = DBNull.Value;
+                            shiftchange.Tables[0].Rows[0]["AdditionalOt"] = DBNull.Value;
+                            #endregion
+                            
                             shiftchange.Tables[0].Rows[0].EndEdit();
                             ap.CheckerFunction(ref man, shiftchange.Tables[0].Rows[0]["RowId"].ToString());
                             kk++;
@@ -389,6 +399,18 @@ namespace Aplos.Areas.HumanResource.Controllers
                                 dr["OTComfirmBy"] = DBNull.Value;
                                 dr["DateOTComfirm"] = DBNull.Value;
                                 dr["IsOTComfirm"] = false;
+
+                                #region OT Columns Nullified
+
+                                dr["TargetOT"] = DBNull.Value;
+                                dr["PlanOT"] = DBNull.Value;
+                                dr["AppliedOTLimit"] = DBNull.Value;
+                                dr["AllowedOTLimit"] = DBNull.Value;
+                                dr["StandardOT"] = DBNull.Value;
+                                dr["AdditionalOt"] = DBNull.Value;
+
+                                #endregion
+
                                 dr.EndEdit();
                                 ap.CheckerFunction(ref man, shiftchange.Tables[0].Rows[0]["RowId"].ToString());
                                 kk++;

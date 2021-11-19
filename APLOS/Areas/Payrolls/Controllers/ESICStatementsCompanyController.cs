@@ -567,7 +567,8 @@ namespace Aplos.Areas.Payrolls.Controllers
                                                                 LEFT JOIN CurrencyRuleMaster crm on crm.SystemID = sRM.CurrencyRuleSystemID
                                                                 LEFT JOIN CurrencyRuleChild crc on crc.MstSystemID = CRM.SystemID and crc.SalaryHeadID=spc.SalaryHeadID			
                                                         left join org.plant p on p.id = eei.plantId
-														WHERE  p.companyId = '" + plantId + @"' order by EmpInfoSystemID";
+                                                        left join [dbo].[EmployeeCodeType] ect on ect.Id=eei.EmployeeCodeTypeId
+														WHERE  p.companyId = '" + plantId + @"' and ect.IsOutSider =0 order by EmpInfoSystemID";
 
                 DataTable dt = _sqlRepository.GetDataTable(strSQL);
                 List<DataRow> _data = new List<DataRow>();
@@ -654,10 +655,11 @@ namespace Aplos.Areas.Payrolls.Controllers
 												WHERE                                                   
                                              E.SystemId IN (
 											 Select EmpSystemId from 
-											      [EmployeeEligibleForSalaryHeadEnum] EESHE                                                 
+											      [EmployeeEligibleForSalaryHeadEnum] EESHE      
+                                                left join [dbo].[EmployeeCodeType] ect on ect.Id=e.EmployeeCodeTypeId
                                             where EESHE.SalaryStructureId = spc.SalaryId AND
                                                 EESHE.EmpSystemId = e.SystemId 
-												AND EESHE.SalaryHeadEnum IN('ESIC')   AND IsEligible = 1
+												AND EESHE.SalaryHeadEnum IN('ESIC')   AND IsEligible = 1 and ect.IsOutSider =0
 											 )          
                                                 and
                               E.CompanyId ='" + plantId + @"'
@@ -730,7 +732,8 @@ namespace Aplos.Areas.Payrolls.Controllers
 														LEFT JOIN SalaryRuleMaster SRM ON SRM.SystemID = EEI.SalaryRuleMasterSystemID
                                                                 LEFT JOIN CurrencyRuleMaster crm on crm.SystemID = sRM.CurrencyRuleSystemID
                                                                 LEFT JOIN CurrencyRuleChild crc on crc.MstSystemID = CRM.SystemID and crc.SalaryHeadID=spc.SalaryHeadID			
-														WHERE  EEI.CompanyId = '" + plantId + @"' order by EmpInfoSystemID";
+                                                                left join [dbo].[EmployeeCodeType] ect on ect.Id=eei.EmployeeCodeTypeId
+														WHERE  EEI.CompanyId = '" + plantId + @"' and ect.IsOutSider =0 order by EmpInfoSystemID";
 
                 DataTable dt = _sqlRepository.GetDataTable(strSQL);
                 List<DataRow> _data = new List<DataRow>();
