@@ -175,35 +175,92 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
 
 
-                var str = @"Select c.Id , c.UserName, cg.Id  as ComapnyGroupId , cg.UserName as GroupName ,Sum(case when BudgetId is not null then 1 else 0 end) as BB , Count( distinct EmpSystemID) as OnRoll,
+       //         var str = @"Select c.Id , c.UserName, cg.Id  as ComapnyGroupId , cg.UserName as GroupName ,Sum(case when BudgetId is not null then 1 else 0 end) as BB , Count( distinct EmpSystemID) as OnRoll,
+       //                      Sum(Case When InStatus = 'IN' or InStatus = 'EI' or InStatus='LI' then 1 else 0 end) as OTIN,
+       //                     Sum(Case When InStatus = 'IN' then 1 else 0 end) as InStat,
+       //                     Sum(Case When InStatus ='EI' then 1 else 0 end) as EarlyIn,
+       //                     Sum(Case When InStatus ='LI'then 1 else 0 end) as LateIn,
+       //                     Sum(Case When InStatus ='IM'  then 1 else 0 end) as InMissing,
+       //                     Sum(Case When IsOD=1 then 1 else 0 end) as OD,
+       //                     Sum(Case when DayStatus='W' or DayStatus='H' or DayStatus='AH' or DayStatus='CW' then 1 else 0 end) as DayStatus,
+       //                     Sum(Case when LeaveStatus is not null then 1 else 0 end) as Leave,
+       //                     Sum(Case When InStatus ='O' then 1 else 0 end) as Other
+       //                     ,Sum(Case when ManualInTime is null and PunchInTime is not null then 1 else 0 end) as INVM
+							//,Sum(Case when ManualOutTime is null and PunchOutTime is not null then 1 else 0 end) as OVM
+       //                     from dbo.AttdnProcessData apd
+       //                     left join org.Plant p on p.Id = apd.PlantID
+       //                     left join org.Company c on c.Id = p.CompanyId
+       //                     left join mst.ManpowerBudget mb on mb.Id = apd.BudgetId
+       //                     left join org.Position pos on pos.Id = mb.PositionId
+       //                     left join org.Division div on div.Id = pos.DivisionId
+       //                     left join org.SubDivision sdiv on sdiv.id = pos.SubDivisionId
+       //                     left join dbo.EmployeeInformation ei on ei.SystemId = apd.EmpSystemID
+       //                     left join org.Unit u on u.Id = ei.UnitId
+       //                     left join org.CompanyGroup cg on cg.Id = c.CompanyGroupId
+       //                     left join mst.DesignationMaster dm on dm.DesignationId = pos.DesignationId
+       //                     left join dbo.ShiftDefination shift on shift.SystemID = mb.ShiftDefinationId
+       //                     where c.CompanyGroupId = '" + companyGroupId+@"' and apd.WorkDate = '"+date+ @"'  " + empStat + @" " + empCat+@" "+statP+@"
+       //                     group by c.Id , c.UserName , cg.id , cg.userName
+       //                     order by c.UserName asc
+       //                     ";
+
+                var sql = @"Select 
+                            c.Id , c.UserName, cg.Id  as ComapnyGroupId , cg.UserName as GroupName ,Sum(apd.BB) as BB , Sum(apd.OnRole) as OnRoll,
+                                                        Sum(apd.OTIN) as OTIN,
+                                                        Sum(apd.InStat) as InStat,
+                                                        Sum(apd.EarlyIn) as EarlyIn,
+                                                        Sum(apd.LateIn) as LateIn,
+                                                        Sum(apd.InMissing) as InMissing,
+                                                        Sum(apd.OD) as OD,
+                                                        Sum(apd.DayStatus) as DayStatus,
+                                                        Sum(apd.Leave) as Leave,
+                                                        Sum(apd.Other) as Other,
+                                                        Sum(apd.INVM) as INVM,
+							                            Sum(apd.OVM) as OVM 
+                            from (
+                            Select ap.* , isnull(bud.TotalNumber,0) as BB from
+                            (Select mb.Id as BudgetId,Count(distinct ei.SystemId) as OnRole,
                              Sum(Case When InStatus = 'IN' or InStatus = 'EI' or InStatus='LI' then 1 else 0 end) as OTIN,
-                            Sum(Case When InStatus = 'IN' then 1 else 0 end) as InStat,
-                            Sum(Case When InStatus ='EI' then 1 else 0 end) as EarlyIn,
-                            Sum(Case When InStatus ='LI'then 1 else 0 end) as LateIn,
-                            Sum(Case When InStatus ='IM'  then 1 else 0 end) as InMissing,
-                            Sum(Case When IsOD=1 then 1 else 0 end) as OD,
-                            Sum(Case when DayStatus='W' or DayStatus='H' or DayStatus='AH' or DayStatus='CW' then 1 else 0 end) as DayStatus,
-                            Sum(Case when LeaveStatus is not null then 1 else 0 end) as Leave,
-                            Sum(Case When InStatus ='O' then 1 else 0 end) as Other
-                            ,Sum(Case when ManualInTime is null and PunchInTime is not null then 1 else 0 end) as INVM
-							,Sum(Case when ManualOutTime is null and PunchOutTime is not null then 1 else 0 end) as OVM
-                            from dbo.AttdnProcessData apd
-                            left join org.Plant p on p.Id = apd.PlantID
-                            left join org.Company c on c.Id = p.CompanyId
+                                                        Sum(Case When InStatus = 'IN' then 1 else 0 end) as InStat,
+                                                        Sum(Case When InStatus ='EI' then 1 else 0 end) as EarlyIn,
+                                                        Sum(Case When InStatus ='LI'then 1 else 0 end) as LateIn,
+                                                        Sum(Case When InStatus ='IM'  then 1 else 0 end) as InMissing,
+                                                        Sum(Case When IsOD=1 then 1 else 0 end) as OD,
+                                                        Sum(Case when DayStatus='W' or DayStatus='H' or DayStatus='AH' or DayStatus='CW' then 1 else 0 end) as DayStatus,
+                                                        Sum(Case when LeaveStatus is not null then 1 else 0 end) as Leave,
+                                                        Sum(Case When InStatus ='O' then 1 else 0 end) as Other
+                                                        ,Sum(Case when ManualInTime is null and PunchInTime is not null then 1 else 0 end) as INVM
+							                            ,Sum(Case when ManualOutTime is null and PunchOutTime is not null then 1 else 0 end) as OVM
+                            from AttdnProcessData ap
+                            left join EmployeeInformation ei on ei.SystemId = ap.EmpSystemID
+                            left join mst.ManpowerBudget mb on mb.Id=ei.BudgetCode
+                            where ap.WorkDate =  '" + date + @"'  " + empStat + @" 
+
+                            group by mb.Id 
+                            ) as ap
+                            left join  (
+			                            Select * from (
+							                            Select rank() over (partition by ManpowerBudgetId order by  EffectiveDate DESC,Id) RNK, TotalNumber, ManpowerBudgetId, EffectiveDate
+                                                        from [MST].[ManpowerBudgetDetail]
+                                                        WHERE CONVERT(DATE,(EffectiveDate) )<= CONVERT(DATE, '" + date + @"')
+			                            ) as Bud where RNK = 1
+                            ) as Bud on Bud.ManpowerBudgetId = ap.BudgetId
+                            ) as apd
                             left join mst.ManpowerBudget mb on mb.Id = apd.BudgetId
                             left join org.Position pos on pos.Id = mb.PositionId
+                            left join org.Entity e on e.Id = mb.EntityId
+                            left join org.Plant p on p.Id = e.PlantId
+                            left join org.Company c on c.Id = p.CompanyId
                             left join org.Division div on div.Id = pos.DivisionId
                             left join org.SubDivision sdiv on sdiv.id = pos.SubDivisionId
-                            left join dbo.EmployeeInformation ei on ei.SystemId = apd.EmpSystemID
-                            left join org.Unit u on u.Id = ei.UnitId
                             left join org.CompanyGroup cg on cg.Id = c.CompanyGroupId
                             left join mst.DesignationMaster dm on dm.DesignationId = pos.DesignationId
                             left join dbo.ShiftDefination shift on shift.SystemID = mb.ShiftDefinationId
-                            where c.CompanyGroupId = '" + companyGroupId+@"' and apd.WorkDate = '"+date+ @"'  " + empStat + @" " + empCat+@" "+statP+@"
+                            where  c.CompanyGroupId = '" + companyGroupId + @"'  " + empCat + @" " + statP + @"
                             group by c.Id , c.UserName , cg.id , cg.userName
                             order by c.UserName asc
                             ";
-                var jj = _sqlRepository.GetDataCollection(str);
+                var jj = _sqlRepository.GetDataCollection(sql);
                 return jj;
             }
             catch(Exception e)
@@ -287,40 +344,103 @@ namespace Library.HumanResource.NewAttendanceProcess
                     empStat = " and  ei.EmployeeCurrentStatus ='LONG ABSENTEEISM'";
                 }
 
-                var str = @"Select "+selSt+ @"Sum(case when BudgetId is not null then 1 else 0 end) as BB , Count( distinct EmpSystemID) as OnRoll,
-                           Sum(Case When InStatus = 'IN' or InStatus = 'EI' or InStatus='LI' then 1 else 0 end) as OTIN,
-                            Sum(Case When InStatus = 'IN' then 1 else 0 end) as InStat,
-                            Sum(Case When InStatus ='EI' then 1 else 0 end) as EarlyIn,
-                            Sum(Case When InStatus='LI' then 1 else 0 end) as LateIn,
-                            Sum(Case When InStatus ='IM'  then 1 else 0 end) as InMissing,
-                            Sum(Case When IsOD=1 then 1 else 0 end) as OD,
-                            Sum(Case when DayStatus='W' or DayStatus='H' or DayStatus='AH' or DayStatus='CW' then 1 else 0 end) as DayStatus,
-                            Sum(Case when LeaveStatus is not null then 1 else 0 end) as Leave,
-                            Sum(Case When InStatus ='O' then 1 else 0 end) as Other
-                            ,Sum(Case when ManualInTime is null and PunchInTime is not null then 1 else 0 end) as INVM
-							,Sum(Case when ManualOutTime is null and PunchOutTime is not null then 1 else 0 end) as OVM
-                            from dbo.AttdnProcessData apd
-                            left join org.Plant plant on plant.Id = apd.PlantID
-                            left join org.Company company on company.Id = plant.CompanyId
-                            left join mst.ManpowerBudget mb on mb.Id = apd.BudgetId
+       //         var str = @"Select "+selSt+ @"Sum(case when BudgetId is not null then 1 else 0 end) as BB , Count( distinct EmpSystemID) as OnRoll,
+       //                    Sum(Case When InStatus = 'IN' or InStatus = 'EI' or InStatus='LI' then 1 else 0 end) as OTIN,
+       //                     Sum(Case When InStatus = 'IN' then 1 else 0 end) as InStat,
+       //                     Sum(Case When InStatus ='EI' then 1 else 0 end) as EarlyIn,
+       //                     Sum(Case When InStatus='LI' then 1 else 0 end) as LateIn,
+       //                     Sum(Case When InStatus ='IM'  then 1 else 0 end) as InMissing,
+       //                     Sum(Case When IsOD=1 then 1 else 0 end) as OD,
+       //                     Sum(Case when DayStatus='W' or DayStatus='H' or DayStatus='AH' or DayStatus='CW' then 1 else 0 end) as DayStatus,
+       //                     Sum(Case when LeaveStatus is not null then 1 else 0 end) as Leave,
+       //                     Sum(Case When InStatus ='O' then 1 else 0 end) as Other
+       //                     ,Sum(Case when ManualInTime is null and PunchInTime is not null then 1 else 0 end) as INVM
+							//,Sum(Case when ManualOutTime is null and PunchOutTime is not null then 1 else 0 end) as OVM
+       //                     from dbo.AttdnProcessData apd
+       //                     left join org.Plant plant on plant.Id = apd.PlantID
+       //                     left join org.Company company on company.Id = plant.CompanyId
+       //                     left join mst.ManpowerBudget mb on mb.Id = apd.BudgetId
+       //                     left join org.Position pos on pos.Id = mb.PositionId
+       //                     left join org.Division division on division.Id = pos.DivisionId
+       //                     left join org.SubDivision subdivision on subdivision.id = pos.SubDivisionId
+       //                     left join dbo.EmployeeInformation ei on ei.SystemId = apd.EmpSystemID
+       //                     left join org.Unit unit on unit.Id = ei.UnitId
+       //                     left join org.CompanyGroup cg on cg.Id = company.CompanyGroupId
+       //                     left join org.Department department on department.Id = pos.DepartmentId
+       //                     left join org.Section section on section.Id = pos.SectionId
+       //                     left join org.SubSection subsection on subsection.id = pos.SubSectionId
+       //                     left join dbo.ShiftDefination shift on shift.SystemID = mb.ShiftDefinationId
+       //                     left join mst.DesignationMaster dm on dm.DesignationId = pos.DesignationId
+       //                     left join hkp.Designation desg on desg.Id = dm.DesignationId
+       //                     where company.CompanyGroupId = '" + companyGroupId+@"' and apd.WorkDate = '"+date+ @"'  " + empStat + @" " + whereSt+ @"  " + empCat + @" " + statP + @"
+       //                     " + groupSt+@"
+       //                     ";
+
+                var sql = @"Select " + selSt + @"Sum(apd.BB) as BB , Sum(apd.OnRole) as OnRoll,
+                            Sum(apd.OTIN) as OTIN,
+                            Sum(apd.InStat) as InStat,
+                            Sum(apd.EarlyIn) as EarlyIn,
+                            Sum(apd.LateIn) as LateIn,
+                            Sum(apd.InMissing) as InMissing,
+                            Sum(apd.OD) as OD,
+                            Sum(apd.DayStatus) as DayStatus,
+                            Sum(apd.Leave) as Leave,
+                            Sum(apd.Other) as Other,
+                            Sum(apd.INVM) as INVM,
+							Sum(apd.OVM) as OVM 
+                            from (
+                            Select ap.* , isnull(bud.TotalNumber,0) as BB from
+                                        (Select mb.Id as BudgetId,Count(distinct ei.SystemId) as OnRole,
+                                         Sum(Case When InStatus = 'IN' or InStatus = 'EI' or InStatus='LI' then 1 else 0 end) as OTIN,
+                                                                    Sum(Case When InStatus = 'IN' then 1 else 0 end) as InStat,
+                                                                    Sum(Case When InStatus ='EI' then 1 else 0 end) as EarlyIn,
+                                                                    Sum(Case When InStatus ='LI'then 1 else 0 end) as LateIn,
+                                                                    Sum(Case When InStatus ='IM'  then 1 else 0 end) as InMissing,
+                                                                    Sum(Case When IsOD=1 then 1 else 0 end) as OD,
+                                                                    Sum(Case when DayStatus='W' or DayStatus='H' or DayStatus='AH' or DayStatus='CW' then 1 else 0 end) as DayStatus,
+                                                                    Sum(Case when LeaveStatus is not null then 1 else 0 end) as Leave,
+                                                                    Sum(Case When InStatus ='O' then 1 else 0 end) as Other
+                                                                    ,Sum(Case when ManualInTime is null and PunchInTime is not null then 1 else 0 end) as INVM
+							                                        ,Sum(Case when ManualOutTime is null and PunchOutTime is not null then 1 else 0 end) as OVM
+                                        from AttdnProcessData ap
+                                        left join EmployeeInformation ei on ei.SystemId = ap.EmpSystemID
+                                        left join mst.ManpowerBudget mb on mb.Id=ei.BudgetCode
+                                        where ap.WorkDate = '" + date + @"'    " + empStat + @"
+
+                                        group by mb.Id 
+                                        ) as ap
+                                        left join  (
+			                                        Select * from (
+							                                        Select rank() over (partition by ManpowerBudgetId order by  EffectiveDate DESC,Id) RNK, TotalNumber, ManpowerBudgetId, EffectiveDate
+                                                                    from [MST].[ManpowerBudgetDetail]
+                                                                    WHERE CONVERT(DATE,(EffectiveDate) )<= CONVERT(DATE,'" + date + @"')
+			                                        ) as Bud where RNK = 1
+                                        ) as Bud on Bud.ManpowerBudgetId = ap.BudgetId
+                            ) as apd
+                                                        left join mst.ManpowerBudget mb on mb.Id = apd.BudgetId
                             left join org.Position pos on pos.Id = mb.PositionId
+                            left join org.Entity e on e.Id = mb.EntityId
+							
+                            left join org.Plant plant on plant.Id = e.PlantId
+                            left join org.Company company on company.Id = plant.CompanyId
                             left join org.Division division on division.Id = pos.DivisionId
                             left join org.SubDivision subdivision on subdivision.id = pos.SubDivisionId
-                            left join dbo.EmployeeInformation ei on ei.SystemId = apd.EmpSystemID
-                            left join org.Unit unit on unit.Id = ei.UnitId
-                            left join org.CompanyGroup cg on cg.Id = company.CompanyGroupId
-                            left join org.Department department on department.Id = pos.DepartmentId
+                            left join org.Unit unit on unit.Id = e.UnitId
                             left join org.Section section on section.Id = pos.SectionId
-                            left join org.SubSection subsection on subsection.id = pos.SubSectionId
-                            left join dbo.ShiftDefination shift on shift.SystemID = mb.ShiftDefinationId
+							left join org.SubSection subsection on subsection.Id = pos.SubSectionId
+
+                            left join org.CompanyGroup companygroup on companygroup.Id = company.CompanyGroupId
+                            left join org.Department department on department.Id = pos.DepartmentId
                             left join mst.DesignationMaster dm on dm.DesignationId = pos.DesignationId
-                            left join hkp.Designation desg on desg.Id = dm.DesignationId
-                            where company.CompanyGroupId = '" + companyGroupId+@"' and apd.WorkDate = '"+date+ @"'  " + empStat + @" " + whereSt+ @"  " + empCat + @" " + statP + @"
-                            " + groupSt+@"
+                            left join dbo.ShiftDefination shift on shift.SystemID = mb.ShiftDefinationId
+                             where company.CompanyGroupId = '" + companyGroupId + @"'   " + whereSt + @"  " + empCat + @" " + statP + @"
+                                                        " + groupSt + @"
+                            
                             ";
-                
-                
-                return _sqlRepository.GetDataCollection(str);
+
+                //string jj = str;
+                string kk = sql;
+                return _sqlRepository.GetDataCollection(sql);
             }            
             catch (Exception ex)
             {
@@ -386,13 +506,14 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
 
                 #region settingTheColumnStat
+                int secSql = 0;
                 if (Column == "OnRoll")
                 {
                     whereCol = "";
                 }
                 if (Column == "BB")
                 {
-                    whereCol = " and apd.BudgetId is not null";
+                    secSql = 1;
                 }
                 if (Column == "InStat")
                 {
@@ -454,7 +575,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                     empStat = " and  ei.EmployeeCurrentStatus ='LONG ABSENTEEISM'";
                 }
 
-                var str = @"Select ei.EmployeeCode , ei.EmployeeName , apd.DayStatus , apd.InStatus , 
+                var str = "";
+                if(secSql == 0)
+                {
+                     str = @"Select ei.EmployeeCode , ei.EmployeeName , apd.DayStatus , apd.InStatus , 
                             FORMAT(CAST(apd.InTime AS DATETIME),'hh:mm tt') as InTime , FORMAT(CAST(apd.OutTime AS DATETIME),'hh:mm tt') as OutTime
                             ,desg.UserName as Designation ,ei.EmployeeCurrentStatus, plant.username as Plant , mb.Code as BudgetCode, shift.Username as Shift,
                             subsection.Username as SubSection , section.UserName as Section , department.Username as Department, e.UserName as Entity
@@ -468,7 +592,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             left join org.SubDivision subdivision on subdivision.id = pos.SubDivisionId
                             left join dbo.EmployeeInformation ei on ei.SystemId = apd.EmpSystemID
                             left join org.Unit unit on unit.Id = ei.UnitId
-							left join org.Entity e on e.UnitId = ei.UnitId and e.CompanyId = ei.CompanyId and e.PlantId = ei.PlantId and ei.DivisionId = e.DivisionId
+							left join org.Entity e on e.Id = mb.EntityId
                             left join org.CompanyGroup cg on cg.Id = company.CompanyGroupId
                             left join org.Department department on department.Id = pos.DepartmentId
                             left join org.Section section on section.Id = pos.SectionId
@@ -477,9 +601,53 @@ namespace Library.HumanResource.NewAttendanceProcess
                             left join hkp.Designation desg on desg.Id = dm.DesignationId
                             left join org.Department dept on dept.id = pos.DepartmentId
                             left join dbo.ShiftDefination shift on shift.SystemID = mb.ShiftDefinationId
-                            where company.CompanyGroupId = '" + companyGroupId+@"' and apd.WorkDate='"+date+@"' "+empStat+@" "+whereSt+ @"  " + empCat + @" " + statP + @"
-                            " + whereCol+@"
+                            where company.CompanyGroupId = '" + companyGroupId + @"' and apd.WorkDate='" + date + @"' " + empStat + @" " + whereSt + @"  " + empCat + @" " + statP + @"
+                            " + whereCol + @"
                             ";
+                }
+                else
+                {
+                    str = @"Select Budget.ManpowerBudgetId as BudgetId, mb.Code as BudgetCode , isnull(Budget.TotalNumber,0) as Proposed , isnull(OnRole.OnRole,0) as OnRole , 
+                            (Case when  isnull(Budget.TotalNumber,0) >  isnull(OnRole.OnRole,0) then isnull(Budget.TotalNumber,0)-isnull(OnRole.OnRole,0) else 0 end ) as Short, 
+                            (Case when  isnull(Budget.TotalNumber,0) <  isnull(OnRole.OnRole,0) then isnull(OnRole.OnRole,0)-isnull(Budget.TotalNumber,0) else 0 end ) as Excess,
+                            company.UserName as Company,plant.UserName as PLant , Division.UserName as Division  , UNit.UserName as Unit, e.UserName as Entity , section.UserName as Section ,
+                            subsection.UserName as subSection , department.UserName as Department
+                            from
+                            (
+                            Select * from (
+							                            Select rank() over (partition by ManpowerBudgetId order by  EffectiveDate DESC,Id) RNK, TotalNumber, ManpowerBudgetId, EffectiveDate
+                                                        from [MST].[ManpowerBudgetDetail]
+                                                        WHERE CONVERT(DATE,(EffectiveDate) )<= CONVERT(DATE,'" + date + @"' )
+			                            ) as Bud where RNK = 1
+                            ) as Budget
+                            left join mst.ManpowerBudget mb on mb.Id = Budget.ManpowerBudgetId
+                            left join (
+                            Select mb.Id as BudgetId,Count(distinct ei.SystemId) as OnRole
+                            from AttdnProcessData ap
+                            left join EmployeeInformation ei on ei.SystemId = ap.EmpSystemID
+                            left join mst.ManpowerBudget mb on mb.Id=ei.BudgetCode
+                            where ap.WorkDate = '" + date + @"'   " + empStat + @"
+                            group by mb.Id 
+
+                            ) OnRole on OnRole.BudgetId = mb.Id
+                             left join org.Position pos on pos.Id = mb.PositionId
+                            left join org.Entity e on e.Id = mb.EntityId
+                            left join org.Plant plant on plant.Id = e.PlantId
+                            left join org.Company company on company.Id = plant.CompanyId
+                            left join org.Division division on division.Id = pos.DivisionId
+                            left join org.SubDivision subdivision on subdivision.id = pos.SubDivisionId
+                            left join org.Unit unit on unit.Id = e.UnitId
+                            left join org.Section section on section.Id = pos.SectionId
+                            left join org.SubSection subsection on subsection.Id = pos.SubSectionId
+                            left join org.CompanyGroup companygroup on companygroup.Id = company.CompanyGroupId
+                            left join org.Department department on department.Id = pos.DepartmentId
+                            left join mst.DesignationMaster dm on dm.DesignationId = pos.DesignationId
+                            left join dbo.ShiftDefination shift on shift.SystemID = mb.ShiftDefinationId
+                            where company.CompanyGroupId = '" + companyGroupId + @"'  " + whereSt + @"  " + empCat + @" " + statP + @"
+
+                            ";
+                }
+                
 
 
                 return _sqlRepository.GetDataCollection(str);
