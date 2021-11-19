@@ -2950,15 +2950,26 @@ namespace Library.HumanResource.NewAttendanceProcess {
    
         #endregion            
 
-        #region OT DayLimit Process SourceData
-        public void OTDayLimitRowCreation(string Date, out DataSet ds, string PlantId)
+        #region OT Confirmation Process SourceData
+        public void AutoConfirmedDataSet(string Date, out DataSet ds, string PlantId)
         {
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-
-                var sql = @"select RowId,EmpSystemID,WorkDate,PlantID,GroupID from AttdnProcessData where IsOTEntitled='1' 
-                and WorkDate='" + Date + "' and PlantID='" + PlantId + "'";
+                var sql = @"select distinct p.RowId from AttdnProcessData p
+                        join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
+                                  left join mst.DesignationMasterLegalDesignation ddm on 
+                        ddm.LegalDesignationId = ei.LegalDesignationId
+                                            left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
+									        left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
+											and dc.PlantId=ei.PlantId
+						                    left join DayStatusHeader dh on dh.Id=dc.headerId
+									        left join DayStatus ds on ds.headerId=dh.Id
+											left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId
+									        where WorkDate='" + Date+@"' and	dt.DayType=p.DayStatus 
+											and IsOTEntitled=1 and isOTConfirmationAuto=1
+											and DayTypeOtApplicable=0
+									        and ei.PlantId='"+PlantId+"'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
@@ -2968,51 +2979,25 @@ namespace Library.HumanResource.NewAttendanceProcess {
             }
 
         }
-        public void DayTypeforOTProcess(string Date, out DataSet ds, string Plant)
+        public void AutoConfirmedManualTriggerData(out DataSet ds, string PlantId)
         {
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                var sql = @"select dd.* from (select RowId,PlantID,'"+Date+@"' as WorkDate,
-                DayType=ISNULL(HolidayStatus,WeeklyStatus)
-                from AttdnProcessData where WorkDate='"+Date+@"' and IsOTEntitled='1'
-                and PlantID='"+Plant+"' and isnull(daystatus,'')!='') as dd where isnull(dd.DayType,'')!=''";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
-        public void PreallocatedOTSource(string Date, out DataSet ds, string PlantId)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-                var sql = @"select EmpSystemID,WorkDate,isnull(PreallocatedOTHr*60,'0') as 
-                PreAllocatedOTMinutes,PlantID
-                from [dbo].[PreallocatedOT] where WorkDate='" + Date + @"'
-                and PlantID='" + PlantId + "' and ISNULL(ExtendTheDayLimit,'')! =''";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-
-        }
-        public void FixedOTSettingSource(string Date, out DataSet ds, string PlantId)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-                var sql = @"Select EmpSystemId,'" + Date + @"' AS WorkDate,PlantId,
-                isnull(MaximumOTLimitPerWeekend*60,'0') as WeekOffOT,isnull(MaximumOTLimitPerHoliDay*60,'0') AS HolidayOT,
-                isnull(MaximumOTLimitPerWeekDay*60,'0') AS NormalDayOT
-                from EmployeeWiseFixedOTSetting 
-                WHERE PlantId='" + PlantId + "'";
+                var sql = @"select distinct p.RowId from AttdnProcessData p
+                        join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
+                                  left join mst.DesignationMasterLegalDesignation ddm on 
+                        ddm.LegalDesignationId = ei.LegalDesignationId
+                                            left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
+									        left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
+											and dc.PlantId=ei.PlantId
+						                    left join DayStatusHeader dh on dh.Id=dc.headerId
+									        left join DayStatus ds on ds.headerId=dh.Id
+											left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId
+									        where p.ManualFlag=1 and dt.DayType=p.DayStatus 
+											and IsOTEntitled=1 and isOTConfirmationAuto=1
+											and DayTypeOtApplicable=0
+									        and ei.PlantId='" + PlantId+@"' order by WorkDate asc";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
@@ -3022,87 +3007,29 @@ namespace Library.HumanResource.NewAttendanceProcess {
             }
 
         }
-        public void SlabOTSource(string Date, out DataSet ds, string PlantId)
+        public void ConfirmOTFlag(string MainRowId)
         {
-            ConnectionManager.DAL.ConManager objCon;
             try
             {
-                var sql = @"select O.RowId,o.PlantID,o.EmpSystemID,
-                Format(o.WorkDate,'yyyy-MMM-dd')WorkDate,isnull(s.firstSlab*60,'0') as firstSlab
-                from OTProcessDayLimit o 
-                left join org.Plant p on o.PlantID=p.Id left join
-                OTSlabDefineGeneral s on s.PlantID=p.Id and s.DayType=o.DayType
-                where p.Id='" + PlantId+"' and o.WorkDate='"+Date+"'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+                var sql = @"update AttdnProcessData set IsOTComfirm=1,
+                OTComfirmBy='AutoConfirmation',DateOTComfirm=GETDATE() where rowid in("+MainRowId+@")";
+
+                ConnectionManager.DAL.ConManager objCone = null;
+                objCone = new ConnectionManager.DAL.ConManager("1");
+                objCone.OpenConnection("1");
+                objCone.BeginTransaction();
+
+                objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                objCone.CommitTransaction();
             }
             catch (Exception ex)
             {
                 throw (ex);
             }
-
         }
-        public void WeekLimitOTSource(string Date, out DataSet ds, string PlantId)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-                var sql = @"DECLARE @MyDate DATETIME = '" + Date + @"';
-                declare @WeekNo varchar(10) = '';
-                Set @WeekNo = (SELECT DATEDIFF(WEEK, DATEADD(MONTH, DATEDIFF(MONTH, 0, @MyDate), 0), @MyDate) + 1); 
 
-               
-                IF @WeekNo='1'
-                begin
-                select o.RowId,o.PlantID,'"+Date+ @"' as WorkDate,isnull(MaxHolidayOTLimitParDay,'0') as HolidayOT,
-                isnull(MaxWeekOffOTLimitParDay,'0') as WeekOffOT,isnull(MaxOTLimitParDay,'0') as NormalDayOT from OTProcessDayLimit O 
-                left join org.Plant p 
-                on p.Id=o.PlantID left join 
-                OTLimitSetting ol on ol.PlantID=p.Id
-                where o.PlantID='" + PlantId+ @"' AND ol.UserName='OT Time Setting (W-1)'
-                end
-
-                Else IF @WeekNo='2'
-                begin
-                select o.RowId,o.PlantID,'" + Date + @"' as WorkDate,isnull(MaxHolidayOTLimitParDay,'0') as HolidayOT,
-                isnull(MaxWeekOffOTLimitParDay,'0') as WeekOffOT,isnull(MaxOTLimitParDay,'0') as NormalDayOT from OTProcessDayLimit O 
-                left join org.Plant p 
-                on p.Id=o.PlantID left join 
-                OTLimitSetting ol on ol.PlantID=p.Id
-                where o.PlantID='" + PlantId + @"' AND ol.UserName='OT Time Setting (W-2)'
-                end
-
-                Else IF @WeekNo='3'
-                begin
-                select o.RowId,o.PlantID,'" + Date + @"' as WorkDate,isnull(MaxHolidayOTLimitParDay,'0') as HolidayOT,
-                isnull(MaxWeekOffOTLimitParDay,'0') as WeekOffOT,isnull(MaxOTLimitParDay,'0') as NormalDayOT from OTProcessDayLimit O 
-                left join org.Plant p 
-                on p.Id=o.PlantID left join 
-                OTLimitSetting ol on ol.PlantID=p.Id
-                where o.PlantID='" + PlantId + @"' AND ol.UserName='OT Time Setting (W-3)'
-                end
-
-                else
-                begin
-                select o.RowId,o.PlantID,'" + Date + @"' as WorkDate,isnull(MaxHolidayOTLimitParDay,'0') as HolidayOT,
-                isnull(MaxWeekOffOTLimitParDay,'0') as WeekOffOT,isnull(MaxOTLimitParDay,'0') as NormalDayOT from OTProcessDayLimit O 
-                left join org.Plant p 
-                on p.Id=o.PlantID left join 
-                OTLimitSetting ol on ol.PlantID=p.Id
-                where o.PlantID='" + PlantId + @"' AND ol.UserName='OT Time Setting (W-4)'
-                end";
-
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-
-        }
         #endregion
-       
+
         #region CreditLimit Process SourceData
         public void DailyCreditDataSource(string Date, out DataSet ds, string PlantId)
         {
@@ -3971,39 +3898,54 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     #endregion
 
                     #region OTConfirmationProcess 
-                  
+
+                    #region OTEntitled But OT Not Applicable Employees
+                    DataSet OTNotApplicable;
+                    AutoConfirmedDataSet(PreviousDay, out OTNotApplicable, PlantValue);
+                    if (OTNotApplicable.Tables[0].Rows.Count > 0)
+                    {
+                        string RowMaster = "''";
+                        for (int i = 0; i < OTNotApplicable.Tables[0].Rows.Count; i++)
+                        {
+                            string RowId = clsWebLib.RetValidLen(OTNotApplicable.Tables[0].Rows[i][@"RowId"]).ToString();
+                            RowMaster += ",'" + RowId + "'";
+                        }
+                        ConfirmOTFlag(RowMaster);
+                    }
+
+                    #endregion
 
                     #endregion
 
                     #region Credit Limit Process
 
-                    DataSet CreditLimitData;
-                    DailyCreditDataSource(PreviousDay, out CreditLimitData, PlantValue);
-                    if (CreditLimitData.Tables[0].Rows.Count > 0)
-                    {
-                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                        objCon.OpenDataSetThroughAdapter("select * from EmployeeCreditLimit where MonthNo = month('"+PreviousDay+"')", out DataSet dsRef, false, false, "", "1");
+                    //DataSet CreditLimitData;
+                    //DailyCreditDataSource(PreviousDay, out CreditLimitData, PlantValue);
+                    //if (CreditLimitData.Tables[0].Rows.Count > 0)
+                    //{
+                    //    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                    //    objCon.OpenDataSetThroughAdapter("select * from EmployeeCreditLimit where MonthNo = month('"+PreviousDay+"')", out DataSet dsRef, false, false, "", "1");
 
-                        for (int i = 0; i < CreditLimitData.Tables[0].Rows.Count; i++)
-                        {
-                            var EmpId = CreditLimitData.Tables[0].Rows[i][@"EmpSystemID"].ToString();
-                            dsRef.Tables[0].DefaultView.RowFilter = @"EmpSystemId='" + EmpId + "' ";
+                    //    for (int i = 0; i < CreditLimitData.Tables[0].Rows.Count; i++)
+                    //    {
+                    //        var EmpId = CreditLimitData.Tables[0].Rows[i][@"EmpSystemID"].ToString();
+                    //        dsRef.Tables[0].DefaultView.RowFilter = @"EmpSystemId='" + EmpId + "' ";
 
-                            if (dsRef.Tables[0].DefaultView.Count > 0)
-                            {
-                                //DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                                //dr.BeginEdit();
-                                //dr["DayType"] = DayType;
-                                //dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                //dr["UpdatedBy"] = "Schedule";
-                                //dr.EndEdit();
-                            }
+                    //        if (dsRef.Tables[0].DefaultView.Count > 0)
+                    //        {
+                    //            //DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                    //            //dr.BeginEdit();
+                    //            //dr["DayType"] = DayType;
+                    //            //dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                    //            //dr["UpdatedBy"] = "Schedule";
+                    //            //dr.EndEdit();
+                    //        }
 
                             
-                        }
+                    //    }
 
 
-                    }
+                    //}
                         
                     #endregion
 
@@ -5312,6 +5254,22 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     SaveDataSets(dsRef);
 
                 }
+                #endregion
+
+                #region OTEntitled But OT Not Applicable Employees
+                DataSet ManualOTNotApplicable;
+                AutoConfirmedManualTriggerData(out ManualOTNotApplicable, PlantValue);
+                if (ManualOTNotApplicable.Tables[0].Rows.Count > 0)
+                {
+                    string RowMaster = "''";
+                    for (int i = 0; i < ManualOTNotApplicable.Tables[0].Rows.Count; i++)
+                    {
+                        string RowId = clsWebLib.RetValidLen(ManualOTNotApplicable.Tables[0].Rows[i][@"RowId"]).ToString();
+                        RowMaster += ",'" + RowId + "'";
+                    }
+                    ConfirmOTFlag(RowMaster);
+                }
+
                 #endregion
 
                 #region Set Manual Flag ->0              
