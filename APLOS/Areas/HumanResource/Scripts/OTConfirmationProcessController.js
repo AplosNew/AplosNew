@@ -4,6 +4,19 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
     $rootScope.title = 'OT Confirmation Process';
     $scope.path = "humanresource/OTConfirmationProcess/";
 
+
+    // The Tab Switching Code
+
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
+
+
     var but = document.getElementById('ChkBtn')
     but.style.display = "none";
 
@@ -32,6 +45,14 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
             $("#WeekList").children('.e-pager.e-js.e-pager').hide();
             $("#WeekList").children('.e-gridcontent.e-droppable.e-js').hide();
             $("#WeekList").children('.e-gridcontent').hide();
+
+
+            var gridObj = $("#WeekListO").data("ejGrid");
+            gridObj.refreshContent(true);
+            gridObj.refreshTemplate();
+            $("#WeekListO").children('.e-pager.e-js.e-pager').hide();
+            $("#WeekListO").children('.e-gridcontent.e-droppable.e-js').hide();
+            $("#WeekListO").children('.e-gridcontent').hide();
         });
     }
     $scope.loadfilters();
@@ -181,4 +202,7 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
         })
     }
 
+    $scope.Report = function () {
+        console.log("Running!!");
+    }
 }
