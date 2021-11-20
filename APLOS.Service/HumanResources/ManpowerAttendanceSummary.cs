@@ -408,7 +408,7 @@ namespace Library.Service.HumanResources
 
                 #endregion Variable
                 //Create dataset
-                DataTable dtManPBSummary = GetDailyAttendanceSummarySql(workDate, withLine, companyGroupId, companyId, PlantId);
+                DataTable dtManPBSummary = GetDailyAttendanceSummarySqlNew(workDate, withLine, companyGroupId, companyId, PlantId);
 
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
@@ -425,15 +425,17 @@ namespace Library.Service.HumanResources
                 xlsRow = 5;
 
                 #region ColumnHeaderVariables              
-                int cUnit = 0; int cSubSection = 0; int cAttendancGroup = 0; int cOnRollManpower; int cBudgetedManPower; int cFdPresent = 0; int cfdAbsent = 0;
+                int cUnit = 0; int cSubSection, cSection, cEmpCategory = 0; int cAttendancGroup = 0; int cOnRollManpower; int cBudgetedManPower; int cFdPresent = 0; int cfdAbsent = 0;
                 int cfdLeave = 0; int cfdLate = 0; int cfdOthers = 0; var cfdRemarks = 0; int cDivision = 0;
                 #endregion
                 #region ColumnHeaders
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Division", ExcelHAlign.HAlignCenter); cDivision = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Unit", ExcelHAlign.HAlignCenter); cUnit = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Section", ExcelHAlign.HAlignCenter); cSection = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sub Section", ExcelHAlign.HAlignCenter); cSubSection = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation", ExcelHAlign.HAlignCenter); cAttendancGroup = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Budgeted", 8, ExcelHAlign.HAlignCenter); cBudgetedManPower = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Category", 8, ExcelHAlign.HAlignCenter); cEmpCategory = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OnRoll", 8, ExcelHAlign.HAlignCenter); cOnRollManpower = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Present", 8, ExcelHAlign.HAlignCenter); cFdPresent = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Absent", 8, ExcelHAlign.HAlignCenter); cfdAbsent = xlsCol; xlsCol++;
@@ -450,6 +452,7 @@ namespace Library.Service.HumanResources
                 {
                     string _grp1 = string.Empty;
                     string _grp2 = string.Empty;
+                    string _sgrp3 = string.Empty;
                     string _grp3 = string.Empty;
                     string _grp4 = string.Empty;
 
@@ -457,8 +460,9 @@ namespace Library.Service.HumanResources
                     #endregion
                     var catFRow = xlsRow;
                     var catGrp2FRow = xlsRow;
-                    var catGrp3FRow = xlsRow;
-                    var catGrp4FRow = xlsRow;
+                    var catGrp3FRow = xlsRow; 
+                    var catsGrp3FRow = xlsRow; 
+                     var catGrp4FRow = xlsRow;
 
                     ArrayList rowList = new ArrayList();
                     var lastMPGroup = string.Empty;
@@ -516,9 +520,15 @@ namespace Library.Service.HumanResources
 
                             if (catFRow < xlsRow)
                             {
+                                //catFRow = xlsRow;
+                                //catGrp2FRow = xlsRow;
+                                //catGrp3FRow = xlsRow;
+
                                 catFRow = xlsRow;
                                 catGrp2FRow = xlsRow;
+                                catsGrp3FRow = xlsRow;
                                 catGrp3FRow = xlsRow;
+                                catGrp4FRow = xlsRow;
 
                             }
                         }
@@ -540,6 +550,27 @@ namespace Library.Service.HumanResources
                                 catGrp2FRow = xlsRow;
                                 catGrp3FRow = xlsRow;
 
+                            }
+                        }
+                        else if (_sgrp3 != dtManPBSummary.Rows[i]["SectionName"].ToString())
+                        {
+                            _sgrp3 = dtManPBSummary.Rows[i]["SectionName"].ToString();
+                            //SetCellText(sheet1, xlsRow, cSubSection, _grp2);
+                            sheet1.Range[xlsRow, cSection].Text = _sgrp3;
+                            sheet1.Range[xlsRow, cSection, xlsRow, cSection].BorderAround(ExcelLineStyle.Hair);
+                            sheet1.Range[xlsRow, cSection].HorizontalAlignment = ExcelHAlign.HAlignJustify;
+                            sheet1.Range[xlsRow, cSection].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                            _grp3 = dtManPBSummary.Rows[i]["SubSectionName"].ToString();
+                            SetCellText(sheet1, xlsRow, cSubSection, _grp3);
+                            _grp4 = dtManPBSummary.Rows[i]["DesignationName"].ToString();
+                            SetCellText(sheet1, xlsRow, cAttendancGroup, _grp4);
+
+                            if (catsGrp3FRow < xlsRow)
+                            {
+                                catsGrp3FRow = xlsRow;
+                                catGrp3FRow = xlsRow;
+                                catGrp4FRow = xlsRow;
                             }
                         }
                         else if (_grp3 != dtManPBSummary.Rows[i]["SubSectionName"].ToString())
@@ -572,13 +603,15 @@ namespace Library.Service.HumanResources
                             sheet1.Range[catGrp3FRow, cSubSection, xlsRow, cSubSection].BorderAround(ExcelLineStyle.Hair);
 
                         }
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cOnRollManpower, Convert.ToInt32(dtManPBSummary.Rows[i]["TotalManpower"].ToString()));
+
                         oRU.SetTextBorder(ref sheet1, xlsRow, cBudgetedManPower, Convert.ToInt32(dtManPBSummary.Rows[i]["ProposedManpowerBudget"].ToString()));
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cFdPresent, Convert.ToInt32(dtManPBSummary.Rows[i]["SUM_PRESENT"].ToString()));//LegalDesignation
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdAbsent, Convert.ToInt32(dtManPBSummary.Rows[i]["SUM_Absent"].ToString()));//
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdLate, Convert.ToInt32(dtManPBSummary.Rows[i]["SUM_Late"].ToString()));//
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdLeave, Convert.ToInt32(dtManPBSummary.Rows[i]["SUM_Leave"].ToString()));//
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdOthers, Convert.ToInt32(dtManPBSummary.Rows[i]["SUM_Others"].ToString()));//
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cEmpCategory, dtManPBSummary.Rows[i]["EmpCategory"].ToString());
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cOnRollManpower, Convert.ToInt32(dtManPBSummary.Rows[i]["TotalManpower"].ToString()));
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cFdPresent, Convert.ToDouble(dtManPBSummary.Rows[i]["SUM_PRESENT"].ToString()));//LegalDesignation
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdAbsent, Convert.ToDouble(dtManPBSummary.Rows[i]["SUM_Absent"].ToString()));//
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdLate, Convert.ToDouble(dtManPBSummary.Rows[i]["SUM_Late"].ToString()));//
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdLeave, Convert.ToDouble(dtManPBSummary.Rows[i]["SUM_Leave"].ToString()));//
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdOthers, Convert.ToDouble(dtManPBSummary.Rows[i]["SUM_Others"].ToString()));//
                         oRU.SetTextBorder(ref sheet1, xlsRow, cfdRemarks, "");//
                         xlsRow++;
                     }
@@ -764,7 +797,7 @@ namespace Library.Service.HumanResources
 
                 #endregion Variable
                 //Create dataset
-                DataTable dtManPBSummary = GetDailyAttendanceSummarySql(workDate, withLine, companyGroupId, companyId, PlantId);
+                DataTable dtManPBSummary = GetDailyAttendanceSummarySqlNew(workDate, withLine, companyGroupId, companyId, PlantId);
 
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
@@ -781,16 +814,18 @@ namespace Library.Service.HumanResources
                 xlsRow = 5;
 
                 #region ColumnHeaderVariables              
-                int cUnit = 0; int cSubSection = 0; int cLine = 0; int cAttendancGroup = 0; int cOnRollManpower; int cBudgetedManPower; int cFdPresent = 0; int cfdAbsent = 0;
+                int cUnit = 0; int cSubSection, cSection, cEmpCategory = 0; int cLine = 0; int cAttendancGroup = 0; int cOnRollManpower; int cBudgetedManPower; int cFdPresent = 0; int cfdAbsent = 0;
                 int cfdLeave = 0; int cfdLate = 0; int cfdOthers = 0; var cfdRemarks = 0; int cDivision = 0;
                 #endregion
                 #region ColumnHeaders
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Division", ExcelHAlign.HAlignCenter); cDivision = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Unit", ExcelHAlign.HAlignCenter); cUnit = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Section", ExcelHAlign.HAlignCenter); cSection = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sub Section", ExcelHAlign.HAlignCenter); cSubSection = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Line", ExcelHAlign.HAlignCenter); cLine = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation", ExcelHAlign.HAlignCenter); cAttendancGroup = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Budgeted", 8, ExcelHAlign.HAlignCenter); cBudgetedManPower = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Category", 8, ExcelHAlign.HAlignCenter); cEmpCategory = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OnRoll", 8, ExcelHAlign.HAlignCenter); cOnRollManpower = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Present", 8, ExcelHAlign.HAlignCenter); cFdPresent = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Absent", 8, ExcelHAlign.HAlignCenter); cfdAbsent = xlsCol; xlsCol++;
@@ -807,6 +842,7 @@ namespace Library.Service.HumanResources
                 {
                     string _grp1 = string.Empty;
                     string _grp2 = string.Empty;
+                    string _sgrp3 = string.Empty;
                     string _grp3 = string.Empty;
                     string _grp4 = string.Empty;
                     string _grp5 = string.Empty;
@@ -815,6 +851,7 @@ namespace Library.Service.HumanResources
                     #endregion
                     var catFRow = xlsRow;
                     var catGrp2FRow = xlsRow;
+                    var catsGrp3FRow = xlsRow;
                     var catGrp3FRow = xlsRow;
                     var catGrp4FRow = xlsRow;
                     var catGrp5FRow = xlsRow;
@@ -868,6 +905,8 @@ namespace Library.Service.HumanResources
 
                             _grp2 = dtManPBSummary.Rows[i]["UnitName"].ToString();
                             SetCellText(sheet1, xlsRow, cUnit, _grp2);
+                            _sgrp3 = dtManPBSummary.Rows[i]["SectionName"].ToString();
+                            SetCellText(sheet1, xlsRow, cSubSection, _sgrp3);
                             _grp3 = dtManPBSummary.Rows[i]["SubSectionName"].ToString();
                             SetCellText(sheet1, xlsRow, cSubSection, _grp3);
                             _grp4 = dtManPBSummary.Rows[i]["LineName"].ToString();
@@ -902,10 +941,34 @@ namespace Library.Service.HumanResources
                             if (catGrp2FRow < xlsRow)
                             {
                                 catGrp2FRow = xlsRow;
+                                catsGrp3FRow = xlsRow;
                                 catGrp3FRow = xlsRow;
                                 catGrp4FRow = xlsRow;
 
 
+                            }
+                        }
+                        else if (_sgrp3 != dtManPBSummary.Rows[i]["SectionName"].ToString())
+                        {
+                            _sgrp3 = dtManPBSummary.Rows[i]["SectionName"].ToString();
+                            //SetCellText(sheet1, xlsRow, cSubSection, _grp2);
+                            sheet1.Range[xlsRow, cSection].Text = _sgrp3;
+                            sheet1.Range[xlsRow, cSection, xlsRow, cSection].BorderAround(ExcelLineStyle.Hair);
+                            sheet1.Range[xlsRow, cSection].HorizontalAlignment = ExcelHAlign.HAlignJustify;
+                            sheet1.Range[xlsRow, cSection].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                            _grp3 = dtManPBSummary.Rows[i]["SubSectionName"].ToString();
+                            SetCellText(sheet1, xlsRow, cSubSection, _grp3);
+                            _grp4 = dtManPBSummary.Rows[i]["LineName"].ToString();
+                            SetCellText(sheet1, xlsRow, cLine, _grp4);
+                            _grp5 = dtManPBSummary.Rows[i]["DesignationName"].ToString();
+                            SetCellText(sheet1, xlsRow, cAttendancGroup, _grp5);
+
+                            if (catsGrp3FRow < xlsRow)
+                            {
+                                catsGrp3FRow = xlsRow;
+                                catGrp3FRow = xlsRow;
+                                catGrp4FRow = xlsRow;
                             }
                         }
                         else if (_grp3 != dtManPBSummary.Rows[i]["SubSectionName"].ToString())
@@ -967,13 +1030,842 @@ namespace Library.Service.HumanResources
 
 
                         }
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cOnRollManpower, Convert.ToInt32(dtManPBSummary.Rows[i]["TotalManpower"].ToString()));
                         oRU.SetTextBorder(ref sheet1, xlsRow, cBudgetedManPower, Convert.ToInt32(dtManPBSummary.Rows[i]["ProposedManpowerBudget"].ToString()));
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cFdPresent, Convert.ToInt32(dtManPBSummary.Rows[i]["SUM_PRESENT"].ToString()));//LegalDesignation
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdAbsent, Convert.ToInt32(dtManPBSummary.Rows[i]["SUM_Absent"].ToString()));//
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdLate, Convert.ToInt32(dtManPBSummary.Rows[i]["SUM_Late"].ToString()));//
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdLeave, Convert.ToInt32(dtManPBSummary.Rows[i]["SUM_Leave"].ToString()));//
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdOthers, Convert.ToInt32(dtManPBSummary.Rows[i]["SUM_Others"].ToString()));//
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cEmpCategory, dtManPBSummary.Rows[i]["EmpCategory"].ToString());
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cOnRollManpower, Convert.ToInt32(dtManPBSummary.Rows[i]["TotalManpower"].ToString()));
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cFdPresent, Convert.ToDouble(dtManPBSummary.Rows[i]["SUM_PRESENT"].ToString()));//LegalDesignation
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdAbsent, Convert.ToDouble(dtManPBSummary.Rows[i]["SUM_Absent"].ToString()));//
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdLate, Convert.ToDouble(dtManPBSummary.Rows[i]["SUM_Late"].ToString()));//
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdLeave, Convert.ToDouble(dtManPBSummary.Rows[i]["SUM_Leave"].ToString()));//
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdOthers, Convert.ToDouble(dtManPBSummary.Rows[i]["SUM_Others"].ToString()));//
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdRemarks, "");//
+                        xlsRow++;
+                    }
+                    xlsRow += 1;
+
+                    rowList.Add(xlsRow);
+                    SetHeadText(sheet1, xlsRow, 1, " Subtotal:");
+
+                    sheet1.Range[xlsRow, 1, xlsRow, (cBudgetedManPower - 1)].Merge();
+                    sheet1.Range[xlsRow, 1, xlsRow, (cBudgetedManPower - 1)].BorderAround(ExcelLineStyle.Hair);
+
+                    sheet1.Range[xlsRow, cOnRollManpower].Formula = "=SUM(" + oRU.GetColumnNameForXls(cOnRollManpower) + catFRow + ":" + oRU.GetColumnNameForXls(cOnRollManpower) + (xlsRow - 1) + ")";
+                    sheet1.Range[xlsRow, cOnRollManpower].BorderAround(ExcelLineStyle.Hair);
+
+                    sheet1.Range[xlsRow, cBudgetedManPower].Formula = "=SUM(" + oRU.GetColumnNameForXls(cBudgetedManPower) + catFRow + ":" + oRU.GetColumnNameForXls(cBudgetedManPower) + (xlsRow - 1) + ")";
+                    sheet1.Range[xlsRow, cBudgetedManPower].BorderAround(ExcelLineStyle.Hair);
+
+                    sheet1.Range[xlsRow, cFdPresent].Formula = "=SUM(" + oRU.GetColumnNameForXls(cFdPresent) + catFRow + ":" + oRU.GetColumnNameForXls(cFdPresent) + (xlsRow - 1) + ")";
+                    sheet1.Range[xlsRow, cFdPresent].BorderAround(ExcelLineStyle.Hair);
+
+                    sheet1.Range[xlsRow, cfdAbsent].Formula = "=SUM(" + oRU.GetColumnNameForXls(cfdAbsent) + catFRow + ":" + oRU.GetColumnNameForXls(cfdAbsent) + (xlsRow - 1) + ")";
+                    sheet1.Range[xlsRow, cfdAbsent].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow, cfdLate].Formula = "=SUM(" + oRU.GetColumnNameForXls(cfdLate) + catFRow + ":" + oRU.GetColumnNameForXls(cfdLate) + (xlsRow - 1) + ")";
+                    sheet1.Range[xlsRow, cfdLate].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow, cfdLeave].Formula = "=SUM(" + oRU.GetColumnNameForXls(cfdLeave) + catFRow + ":" + oRU.GetColumnNameForXls(cfdLeave) + (xlsRow - 1) + ")";
+                    sheet1.Range[xlsRow, cfdLeave].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow, cfdOthers].Formula = "=SUM(" + oRU.GetColumnNameForXls(cfdOthers) + catFRow + ":" + oRU.GetColumnNameForXls(cfdOthers) + (xlsRow - 1) + ")";
+                    sheet1.Range[xlsRow, cfdOthers].BorderAround(ExcelLineStyle.Hair);
+
+                    sheet1.Range[xlsRow, cBudgetedManPower, xlsRow, cfdOthers].CellStyle.Font.Bold = true;
+                    xlsRow++;
+
+                    SetHeadText(sheet1, xlsRow, 1, "Grand Total:");
+                    sheet1.Range[xlsRow, 1, xlsRow, (cBudgetedManPower - 1)].Merge();
+                    sheet1.Range[xlsRow, cOnRollManpower].Formula = GetFormulaGrandTotal(rowList, cOnRollManpower);
+                    sheet1.Range[xlsRow, cFdPresent].Formula = GetFormulaGrandTotal(rowList, cFdPresent);
+
+                    sheet1.Range[xlsRow, cBudgetedManPower].Formula = GetFormulaGrandTotal(rowList, cBudgetedManPower);
+
+                    sheet1.Range[xlsRow, cFdPresent].Formula = GetFormulaGrandTotal(rowList, cFdPresent);
+                    sheet1.Range[xlsRow, cfdAbsent].Formula = GetFormulaGrandTotal(rowList, cfdAbsent);
+                    sheet1.Range[xlsRow, cfdLate].Formula = GetFormulaGrandTotal(rowList, cfdLate);
+                    sheet1.Range[xlsRow, cfdLeave].Formula = GetFormulaGrandTotal(rowList, cfdLeave);
+                    sheet1.Range[xlsRow, cfdOthers].Formula = GetFormulaGrandTotal(rowList, cfdOthers);
+
+
+                    sheet1.Range[xlsRow, 1, xlsRow, (cBudgetedManPower - 1)].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow, cOnRollManpower].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow, cBudgetedManPower].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow, cFdPresent].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow, cfdAbsent].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow, cfdLate].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow, cfdLeave].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow, cfdOthers].BorderAround(ExcelLineStyle.Hair);
+
+
+
+                    sheet1.Range[xlsRow, cBudgetedManPower, xlsRow, cfdOthers].CellStyle.Font.Bold = true;
+
+                    #region UsedRange Alignment
+                    sheet1.UsedRange.WrapText = true;
+                    sheet1.UsedRange.CellStyle.Font.Size = 8;
+                    sheet1.Range["A1"].CellStyle.Font.Size = 14;
+                    sheet1.Range["A2"].CellStyle.Font.Size = 10;
+                    sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                    #endregion UsedRange Alignment
+
+
+                    #region Freeze Panes
+                    sheet1.IsDisplayZeros = false;
+                    //sheet1.UsedRange["A8"].FreezePanes();
+                    sheet1.FirstVisibleColumn = 1;
+                    sheet1.FirstVisibleRow = 6;
+
+                    #endregion
+
+
+                    objRpt.SelectedPlantWiseCompany(PlantId, "", out dsCmp);
+                    xlsRow = 1;
+                    xlsCol = 1;
+
+                    FactoryName = string.Empty;
+
+                    var FactoryAddress = string.Empty;
+
+                    if (dsCmp.Tables[0].Rows.Count > 0)
+                    {
+                        CmpName = dsCmp.Tables[0].Rows[0]["CompanyName"].ToString();
+                    }
+                    else
+                    {
+                        CmpName = "";
+                    }
+                    if (dsCmp.Tables[0].Rows.Count > 0)
+                    {
+                        FactoryName = dsCmp.Tables[0].Rows[0]["PlantName"].ToString();
+                    }
+                    else
+                    {
+                        FactoryName = "";
+                    }
+                    sheet1.Range[xlsRow, 1].Text = FactoryName;
+                    sheet1.Range[xlsRow, 1].CellStyle.Font.Size = 20;
+                    sheet1.Range[xlsRow, 1].CellStyle.Font.Bold = true;
+                    sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                    sheet1.Range[xlsRow, 1, xlsRow, Convert.ToInt32(endXlsCol)].Merge();
+                    sheet1.Range[xlsRow, 1].RowHeight = 30;
+
+                    #region Plant Address
+
+
+                    if (dsCmp.Tables[0].Rows.Count > 0)
+                    {
+                        FactoryAddress = dsCmp.Tables[0].Rows[0]["CompanyAddress"].ToString();
+                    }
+                    else
+                    {
+                        FactoryAddress = "";
+                    }
+                    //sheet1.Range[xlsRow, Convert.ToInt32(endXlsCol / 2) + 1].Text = FactoryAddress;
+                    //sheet1.Range[xlsRow, Convert.ToInt32(endXlsCol / 2) + 1, xlsRow, endXlsCol].Merge();
+                    //sheet1.Range[xlsRow, 1].CellStyle.Font.Size = 18;
+
+                    //sheet1.Range[xlsRow, Convert.ToInt32(endXlsCol / 2) + 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    //sheet1.Range[xlsRow, Convert.ToInt32(endXlsCol / 2) + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    //sheet1.Range[xlsRow, Convert.ToInt32(endXlsCol / 2) + 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                    //sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 20;
+                    #endregion
+                    xlsRow += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Manpower Attendance Summary on " + Convert.ToDateTime(workDate).ToString("dd-MMM-yyyy");
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 15;
+                    sheet1.Range[xlsRow, 1].CellStyle.Font.Bold = true;
+                    sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 24;
+
+
+                    //#endregion *****************Report Header*****************
+                    #region Freeze Panes
+                    sheet1.UsedRange["A6"].FreezePanes();
+                    sheet1.FirstVisibleColumn = 1;
+                    sheet1.FirstVisibleRow = 5;
+                    #endregion
+
+                    #region UsedRange Alignment
+                    sheet1.UsedRange.WrapText = true;
+                    sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                    #endregion UsedRange Alignment
+
+                    oRU.PageSetup(ref sheet1, 5, ExcelPageOrientation.Portrait);
+                }
+
+
+
+                return workbook;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        public IWorkbook GetSummaryManpowerAttendanceExcelNew(string companyGroupId, string companyId, string PlantId, string workDate, bool withLine)
+        {
+            try
+            {
+                #region Variable
+                ReportUtility oRU = new ReportUtility();
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                IWorksheet sheet1 = null;
+                DataView dvDaily = null;
+                DataSet dsCmp = null;
+                //clsReport objRpt = null;
+                var objRpt = new clsReport();
+
+                int xlsRow = 1, xlsCol = 1; int endXlsCol = 1;
+
+                #endregion Variable
+                //Create dataset
+                DataTable dtManPBSummary = GetDailyAttendanceSummarySqlNew(workDate, withLine, companyGroupId, companyId, PlantId);
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+
+                workbook = application.Workbooks.Create(1);
+                sheet1 = workbook.Worksheets[0];
+                sheet1.IsGridLinesVisible = true;
+
+
+                string CmpName;
+                string FactoryName;
+
+
+                xlsRow = 5;
+
+                #region ColumnHeaderVariables              
+                int cUnit, cSubSection, cSection, cEmpCategory, cAttendancGroup, cOnRollManpower, cBudgetedManPower, cFdPresent, cfdAbsent, cfdLeave, cfdLate, cfdOthers = 0; var cfdRemarks = 0; int cDivision = 0;
+                #endregion
+                #region ColumnHeaders
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Division", ExcelHAlign.HAlignCenter); cDivision = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Unit", ExcelHAlign.HAlignCenter); cUnit = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Section", ExcelHAlign.HAlignCenter); cSection = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sub Section", ExcelHAlign.HAlignCenter); cSubSection = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation", ExcelHAlign.HAlignCenter); cAttendancGroup = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Budgeted", 8, ExcelHAlign.HAlignCenter); cBudgetedManPower = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Category", 8, ExcelHAlign.HAlignCenter); cEmpCategory = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OnRoll", 8, ExcelHAlign.HAlignCenter); cOnRollManpower = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Present", 8, ExcelHAlign.HAlignCenter); cFdPresent = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Absent", 8, ExcelHAlign.HAlignCenter); cfdAbsent = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Late", 8, ExcelHAlign.HAlignCenter); cfdLate = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Leave", 8, ExcelHAlign.HAlignCenter); cfdLeave = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Others", 8, ExcelHAlign.HAlignCenter); cfdOthers = xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remarkes", 10, ExcelHAlign.HAlignCenter); cfdRemarks = xlsCol;
+
+                var orgCollist = xlsCol;
+                xlsRow++;
+                endXlsCol = xlsCol;
+
+                if (dtManPBSummary.Rows.Count > 0)
+                {
+                    string _grp1 = string.Empty;
+                    string _grp2 = string.Empty;
+                    string _sgrp3 = string.Empty;
+                    string _grp3 = string.Empty;
+                    string _grp4 = string.Empty;
+
+
+                    #endregion
+                    var catFRow = xlsRow;
+                    var catGrp2FRow = xlsRow;
+                    var catGrp3FRow = xlsRow;
+                    var catsGrp3FRow = xlsRow;
+                    var catGrp4FRow = xlsRow;
+
+                    ArrayList rowList = new ArrayList();
+                    var lastMPGroup = string.Empty;
+                    for (int i = 0; i < dtManPBSummary.Rows.Count; i++)
+                    {
+                        var catLRow = xlsRow;
+                        if (_grp1 != dtManPBSummary.Rows[i]["DivisionName"].ToString() && string.IsNullOrEmpty(dtManPBSummary.Rows[i]["DivisionName"].ToString()) == false)
+                        {
+                            _grp1 = dtManPBSummary.Rows[i]["DivisionName"].ToString();
+
+                            #region Subtotal
+                            if (catFRow < xlsRow)
+                            {
+                                lastMPGroup = _grp1;
+                                rowList.Add(xlsRow);
+                                SetHeadText(sheet1, xlsRow, 1, " Subtotal:");
+                                sheet1.Range[xlsRow, 1, xlsRow, (cBudgetedManPower - 1)].Merge();
+                                sheet1.Range[xlsRow, cOnRollManpower].Formula = "=SUM(" + oRU.GetColumnNameForXls(cOnRollManpower) + catFRow + ":" + oRU.GetColumnNameForXls(cOnRollManpower) + (xlsRow - 1) + ")";
+                                sheet1.Range[xlsRow, cBudgetedManPower].Formula = "=SUM(" + oRU.GetColumnNameForXls(cBudgetedManPower) + catFRow + ":" + oRU.GetColumnNameForXls(cBudgetedManPower) + (xlsRow - 1) + ")";
+                                sheet1.Range[xlsRow, cFdPresent].Formula = "=SUM(" + oRU.GetColumnNameForXls(cFdPresent) + catFRow + ":" + oRU.GetColumnNameForXls(cFdPresent) + (xlsRow - 1) + ")";
+                                sheet1.Range[xlsRow, cfdAbsent].Formula = "=SUM(" + oRU.GetColumnNameForXls(cfdAbsent) + catFRow + ":" + oRU.GetColumnNameForXls(cfdAbsent) + (xlsRow - 1) + ")";
+                                sheet1.Range[xlsRow, cfdLate].Formula = "=SUM(" + oRU.GetColumnNameForXls(cfdLate) + catFRow + ":" + oRU.GetColumnNameForXls(cfdLate) + (xlsRow - 1) + ")";
+                                sheet1.Range[xlsRow, cfdLeave].Formula = "=SUM(" + oRU.GetColumnNameForXls(cfdLeave) + catFRow + ":" + oRU.GetColumnNameForXls(cfdLeave) + (xlsRow - 1) + ")";
+                                sheet1.Range[xlsRow, cfdOthers].Formula = "=SUM(" + oRU.GetColumnNameForXls(cfdOthers) + catFRow + ":" + oRU.GetColumnNameForXls(cfdOthers) + (xlsRow - 1) + ")";
+
+                                sheet1.Range[xlsRow, cBudgetedManPower, xlsRow, cfdOthers].CellStyle.Font.Bold = true;
+
+                                sheet1.Range[xlsRow, 1, xlsRow, (cOnRollManpower - 1)].BorderAround(ExcelLineStyle.Hair);
+                                sheet1.Range[xlsRow, cOnRollManpower].BorderAround(ExcelLineStyle.Hair);
+                                sheet1.Range[xlsRow, cBudgetedManPower].BorderAround(ExcelLineStyle.Hair);
+                                sheet1.Range[xlsRow, cFdPresent].BorderAround(ExcelLineStyle.Hair);
+                                sheet1.Range[xlsRow, cfdAbsent].BorderAround(ExcelLineStyle.Hair);
+                                sheet1.Range[xlsRow, cfdLate].BorderAround(ExcelLineStyle.Hair);
+                                sheet1.Range[xlsRow, cfdLeave].BorderAround(ExcelLineStyle.Hair);
+                                sheet1.Range[xlsRow, cfdOthers].BorderAround(ExcelLineStyle.Hair);
+                                //sheet1.Range[xlsRow, cfdRemarks].BorderAround(ExcelLineStyle.Hair);
+
+
+                                xlsRow++;
+                            }
+                            #endregion
+
+                            sheet1.Range[xlsRow, cDivision].Text = _grp1;
+                            sheet1.Range[xlsRow, cDivision, xlsRow, cDivision].BorderAround(ExcelLineStyle.Hair);
+                            sheet1.Range[xlsRow, cDivision].HorizontalAlignment = ExcelHAlign.HAlignJustify;
+                            sheet1.Range[xlsRow, cDivision].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+
+                            _grp2 = dtManPBSummary.Rows[i]["UnitName"].ToString();
+                            SetCellText(sheet1, xlsRow, cUnit, _grp2);
+                            _sgrp3 = dtManPBSummary.Rows[i]["SectionName"].ToString();
+                            SetCellText(sheet1, xlsRow, cSection, _sgrp3);
+                            _grp3 = dtManPBSummary.Rows[i]["SubSectionName"].ToString();
+                            SetCellText(sheet1, xlsRow, cSubSection, _grp3);
+                            _grp4 = dtManPBSummary.Rows[i]["DesignationName"].ToString();
+                            SetCellText(sheet1, xlsRow, cAttendancGroup, _grp4);
+
+                            if (catFRow < xlsRow)
+                            {
+                                //catFRow = xlsRow;
+                                //catGrp2FRow = xlsRow;
+                                //catGrp3FRow = xlsRow;
+
+                                catFRow = xlsRow;
+                                catGrp2FRow = xlsRow;
+                                catsGrp3FRow = xlsRow;
+                                catGrp3FRow = xlsRow;
+                                catGrp4FRow = xlsRow;
+
+                            }
+                        }
+                        else if (_grp2 != dtManPBSummary.Rows[i]["UnitName"].ToString())
+                        {
+                            _grp2 = dtManPBSummary.Rows[i]["UnitName"].ToString();
+                            //SetCellText(sheet1, xlsRow, cSubSection, _grp2);
+                            sheet1.Range[xlsRow, cUnit].Text = _grp2;
+                            sheet1.Range[xlsRow, cUnit, xlsRow, cUnit].BorderAround(ExcelLineStyle.Hair);
+                            sheet1.Range[xlsRow, cUnit].HorizontalAlignment = ExcelHAlign.HAlignJustify;
+                            sheet1.Range[xlsRow, cUnit].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                            _grp3 = dtManPBSummary.Rows[i]["SubSectionName"].ToString();
+                            SetCellText(sheet1, xlsRow, cSubSection, _grp3);
+                            _grp4 = dtManPBSummary.Rows[i]["DesignationName"].ToString();
+                            SetCellText(sheet1, xlsRow, cAttendancGroup, _grp4);
+                            if (catGrp2FRow < xlsRow)
+                            {
+                                //catGrp2FRow = xlsRow;
+                                //catGrp3FRow = xlsRow;
+
+                                catGrp2FRow = xlsRow;
+                                catsGrp3FRow = xlsRow;
+                                catGrp3FRow = xlsRow;
+                                catGrp4FRow = xlsRow;
+
+                            }
+                        }
+                       
+                        else if (_sgrp3 != dtManPBSummary.Rows[i]["SectionName"].ToString())
+                        {
+                            _sgrp3 = dtManPBSummary.Rows[i]["SectionName"].ToString();
+                            //SetCellText(sheet1, xlsRow, cSubSection, _grp2);
+                            sheet1.Range[xlsRow, cSection].Text = _sgrp3;
+                            sheet1.Range[xlsRow, cSection, xlsRow, cSection].BorderAround(ExcelLineStyle.Hair);
+                            sheet1.Range[xlsRow, cSection].HorizontalAlignment = ExcelHAlign.HAlignJustify;
+                            sheet1.Range[xlsRow, cSection].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                            _grp3 = dtManPBSummary.Rows[i]["SubSectionName"].ToString();
+                            SetCellText(sheet1, xlsRow, cSubSection, _grp3);
+                            _grp4 = dtManPBSummary.Rows[i]["DesignationName"].ToString();
+                            SetCellText(sheet1, xlsRow, cAttendancGroup, _grp4);
+
+                            if (catsGrp3FRow < xlsRow)
+                            {
+                                catsGrp3FRow = xlsRow;
+                                catGrp3FRow = xlsRow;
+                                catGrp4FRow = xlsRow;
+                            }
+                        }
+                        else if (_grp3 != dtManPBSummary.Rows[i]["SubSectionName"].ToString())
+                        {
+                            _grp3 = dtManPBSummary.Rows[i]["SubSectionName"].ToString();
+                            //SetCellText(sheet1, xlsRow, cSubSection, _grp2);
+                            sheet1.Range[xlsRow, cSubSection].Text = _grp3;
+                            sheet1.Range[xlsRow, cSubSection, xlsRow, cSubSection].BorderAround(ExcelLineStyle.Hair);
+                            sheet1.Range[xlsRow, cSubSection].HorizontalAlignment = ExcelHAlign.HAlignJustify;
+                            sheet1.Range[xlsRow, cSubSection].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                            _grp4 = dtManPBSummary.Rows[i]["DesignationName"].ToString();
+                            SetCellText(sheet1, xlsRow, cAttendancGroup, _grp4);
+                            if (catGrp3FRow < xlsRow)
+                            {
+                                catGrp3FRow = xlsRow;
+                            }
+                        }
+                        else if (_grp4 != dtManPBSummary.Rows[i]["DesignationName"].ToString())
+                        {
+
+                            _grp4 = dtManPBSummary.Rows[i]["DesignationName"].ToString();
+                            SetCellText(sheet1, xlsRow, cAttendancGroup, _grp4);
+
+                            sheet1.Range[catFRow, cDivision, xlsRow, cDivision].Merge();
+                            sheet1.Range[catFRow, cDivision, xlsRow, cDivision].BorderAround(ExcelLineStyle.Hair);
+                            sheet1.Range[catGrp2FRow, cUnit, xlsRow, cUnit].Merge();
+                            sheet1.Range[catGrp2FRow, cUnit, xlsRow, cUnit].BorderAround(ExcelLineStyle.Hair);
+                            sheet1.Range[catGrp3FRow, cSubSection, xlsRow, cSubSection].Merge();
+                            sheet1.Range[catGrp3FRow, cSubSection, xlsRow, cSubSection].BorderAround(ExcelLineStyle.Hair);
+
+                        }
+                       
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cBudgetedManPower, Convert.ToInt32(dtManPBSummary.Rows[i]["ProposedManpowerBudget"].ToString()));
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cEmpCategory, dtManPBSummary.Rows[i]["EmpCategory"].ToString());
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cOnRollManpower, Convert.ToInt32(dtManPBSummary.Rows[i]["TotalManpower"].ToString()));
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cFdPresent, Convert.ToDouble(dtManPBSummary.Rows[i]["SUM_PRESENT"].ToString()));//LegalDesignation
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdAbsent, Convert.ToDouble(dtManPBSummary.Rows[i]["SUM_Absent"].ToString()));//
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdLate, Convert.ToDouble(dtManPBSummary.Rows[i]["SUM_Late"].ToString()));//
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdLeave, Convert.ToDouble(dtManPBSummary.Rows[i]["SUM_Leave"].ToString()));//
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdOthers, Convert.ToDouble(dtManPBSummary.Rows[i]["SUM_Others"].ToString()));//
+
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdRemarks, "");//
+                        xlsRow++;
+                    }
+                    xlsRow += 1;
+
+                    rowList.Add(xlsRow);
+                    SetHeadText(sheet1, xlsRow, 1, " Subtotal:");
+
+                    sheet1.Range[xlsRow, 1, xlsRow, (cBudgetedManPower - 1)].Merge();
+                    sheet1.Range[xlsRow, 1, xlsRow, (cBudgetedManPower - 1)].BorderAround(ExcelLineStyle.Hair);
+
+                    sheet1.Range[xlsRow, cOnRollManpower].Formula = "=SUM(" + oRU.GetColumnNameForXls(cOnRollManpower) + catFRow + ":" + oRU.GetColumnNameForXls(cOnRollManpower) + (xlsRow - 1) + ")";
+                    sheet1.Range[xlsRow, cOnRollManpower].BorderAround(ExcelLineStyle.Hair);
+
+                    sheet1.Range[xlsRow, cBudgetedManPower].Formula = "=SUM(" + oRU.GetColumnNameForXls(cBudgetedManPower) + catFRow + ":" + oRU.GetColumnNameForXls(cBudgetedManPower) + (xlsRow - 1) + ")";
+                    sheet1.Range[xlsRow, cBudgetedManPower].BorderAround(ExcelLineStyle.Hair);
+
+                    sheet1.Range[xlsRow, cFdPresent].Formula = "=SUM(" + oRU.GetColumnNameForXls(cFdPresent) + catFRow + ":" + oRU.GetColumnNameForXls(cFdPresent) + (xlsRow - 1) + ")";
+                    sheet1.Range[xlsRow, cFdPresent].BorderAround(ExcelLineStyle.Hair);
+
+                    sheet1.Range[xlsRow, cfdAbsent].Formula = "=SUM(" + oRU.GetColumnNameForXls(cfdAbsent) + catFRow + ":" + oRU.GetColumnNameForXls(cfdAbsent) + (xlsRow - 1) + ")";
+                    sheet1.Range[xlsRow, cfdAbsent].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow, cfdLate].Formula = "=SUM(" + oRU.GetColumnNameForXls(cfdLate) + catFRow + ":" + oRU.GetColumnNameForXls(cfdLate) + (xlsRow - 1) + ")";
+                    sheet1.Range[xlsRow, cfdLate].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow, cfdLeave].Formula = "=SUM(" + oRU.GetColumnNameForXls(cfdLeave) + catFRow + ":" + oRU.GetColumnNameForXls(cfdLeave) + (xlsRow - 1) + ")";
+                    sheet1.Range[xlsRow, cfdLeave].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow, cfdOthers].Formula = "=SUM(" + oRU.GetColumnNameForXls(cfdOthers) + catFRow + ":" + oRU.GetColumnNameForXls(cfdOthers) + (xlsRow - 1) + ")";
+                    sheet1.Range[xlsRow, cfdOthers].BorderAround(ExcelLineStyle.Hair);
+
+                    sheet1.Range[xlsRow, cBudgetedManPower, xlsRow, cfdOthers].CellStyle.Font.Bold = true;
+                    xlsRow++;
+
+                    SetHeadText(sheet1, xlsRow, 1, "Grand Total:");
+                    sheet1.Range[xlsRow, 1, xlsRow, (cBudgetedManPower - 1)].Merge();
+                    sheet1.Range[xlsRow, cOnRollManpower].Formula = GetFormulaGrandTotal(rowList, cOnRollManpower);
+                    sheet1.Range[xlsRow, cFdPresent].Formula = GetFormulaGrandTotal(rowList, cFdPresent);
+
+                    sheet1.Range[xlsRow, cBudgetedManPower].Formula = GetFormulaGrandTotal(rowList, cBudgetedManPower);
+
+                    sheet1.Range[xlsRow, cFdPresent].Formula = GetFormulaGrandTotal(rowList, cFdPresent);
+                    sheet1.Range[xlsRow, cfdAbsent].Formula = GetFormulaGrandTotal(rowList, cfdAbsent);
+                    sheet1.Range[xlsRow, cfdLate].Formula = GetFormulaGrandTotal(rowList, cfdLate);
+                    sheet1.Range[xlsRow, cfdLeave].Formula = GetFormulaGrandTotal(rowList, cfdLeave);
+                    sheet1.Range[xlsRow, cfdOthers].Formula = GetFormulaGrandTotal(rowList, cfdOthers);
+
+
+                    sheet1.Range[xlsRow, 1, xlsRow, (cBudgetedManPower - 1)].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow, cOnRollManpower].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow, cBudgetedManPower].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow, cFdPresent].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow, cfdAbsent].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow, cfdLate].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow, cfdLeave].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow, cfdOthers].BorderAround(ExcelLineStyle.Hair);
+
+
+
+                    sheet1.Range[xlsRow, cBudgetedManPower, xlsRow, cfdOthers].CellStyle.Font.Bold = true;
+
+                    #region UsedRange Alignment
+                    sheet1.UsedRange.WrapText = true;
+                    sheet1.UsedRange.CellStyle.Font.Size = 8;
+                    sheet1.Range["A1"].CellStyle.Font.Size = 14;
+                    sheet1.Range["A2"].CellStyle.Font.Size = 10;
+                    sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                    #endregion UsedRange Alignment
+
+
+                    #region Freeze Panes
+                    sheet1.IsDisplayZeros = false;
+                    //sheet1.UsedRange["A8"].FreezePanes();
+                    sheet1.FirstVisibleColumn = 1;
+                    sheet1.FirstVisibleRow = 6;
+
+                    #endregion
+
+
+                    objRpt.SelectedPlantWiseCompany(PlantId, "", out dsCmp);
+                    xlsRow = 1;
+                    xlsCol = 1;
+
+                    FactoryName = string.Empty;
+
+                    var FactoryAddress = string.Empty;
+
+                    if (dsCmp.Tables[0].Rows.Count > 0)
+                    {
+                        CmpName = dsCmp.Tables[0].Rows[0]["CompanyName"].ToString();
+                    }
+                    else
+                    {
+                        CmpName = "";
+                    }
+                    if (dsCmp.Tables[0].Rows.Count > 0)
+                    {
+                        FactoryName = dsCmp.Tables[0].Rows[0]["PlantName"].ToString();
+                    }
+                    else
+                    {
+                        FactoryName = "";
+                    }
+                    sheet1.Range[xlsRow, 1].Text = FactoryName;
+                    sheet1.Range[xlsRow, 1].CellStyle.Font.Size = 20;
+                    sheet1.Range[xlsRow, 1].CellStyle.Font.Bold = true;
+                    sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                    sheet1.Range[xlsRow, 1, xlsRow, Convert.ToInt32(endXlsCol)].Merge();
+                    sheet1.Range[xlsRow, 1].RowHeight = 30;
+
+                    #region Plant Address
+
+
+                    if (dsCmp.Tables[0].Rows.Count > 0)
+                    {
+                        FactoryAddress = dsCmp.Tables[0].Rows[0]["CompanyAddress"].ToString();
+                    }
+                    else
+                    {
+                        FactoryAddress = "";
+                    }
+                    //sheet1.Range[xlsRow, Convert.ToInt32(endXlsCol / 2) + 1].Text = FactoryAddress;
+                    //sheet1.Range[xlsRow, Convert.ToInt32(endXlsCol / 2) + 1, xlsRow, endXlsCol].Merge();
+                    //sheet1.Range[xlsRow, 1].CellStyle.Font.Size = 18;
+
+                    //sheet1.Range[xlsRow, Convert.ToInt32(endXlsCol / 2) + 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    //sheet1.Range[xlsRow, Convert.ToInt32(endXlsCol / 2) + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    //sheet1.Range[xlsRow, Convert.ToInt32(endXlsCol / 2) + 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                    //sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 20;
+                    #endregion
+                    xlsRow += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Manpower Attendance Summary on " + Convert.ToDateTime(workDate).ToString("dd-MMM-yyyy");
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 15;
+                    sheet1.Range[xlsRow, 1].CellStyle.Font.Bold = true;
+                    sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 24;
+
+
+                    //#endregion *****************Report Header*****************
+                    #region Freeze Panes
+                    sheet1.UsedRange["A6"].FreezePanes();
+                    sheet1.FirstVisibleColumn = 1;
+                    sheet1.FirstVisibleRow = 5;
+                    #endregion
+
+                    #region UsedRange Alignment
+                    sheet1.UsedRange.WrapText = true;
+                    sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                    #endregion UsedRange Alignment
+
+                    oRU.PageSetup(ref sheet1, 5, ExcelPageOrientation.Portrait);
+                }
+
+
+
+                return workbook;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+        public IWorkbook GetSummaryManpowerAttendanceExcelWithLineNew(string companyGroupId, string companyId, string PlantId, string workDate, bool withLine)
+        {
+            try
+            {
+                #region Variable
+                ReportUtility oRU = new ReportUtility();
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                IWorksheet sheet1 = null;
+                DataView dvDaily = null;
+                DataSet dsCmp = null;
+                //clsReport objRpt = null;
+                var objRpt = new clsReport();
+
+                int xlsRow = 1, xlsCol = 1; int endXlsCol = 1;
+
+                #endregion Variable
+                //Create dataset
+                //DataTable dtManPBSummary = GetDailyAttendanceSummarySql(workDate, withLine, companyGroupId, companyId, PlantId);
+                DataTable dtManPBSummary = GetDailyAttendanceSummarySqlNew(workDate, withLine, companyGroupId, companyId, PlantId);
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+
+                workbook = application.Workbooks.Create(1);
+                sheet1 = workbook.Worksheets[0];
+                sheet1.IsGridLinesVisible = true;
+
+
+                string CmpName;
+                string FactoryName;
+
+
+                xlsRow = 5;
+
+                #region ColumnHeaderVariables              
+                int cUnit = 0; int cSubSection, cSection, cEmpCategory = 0; int cLine = 0; int cAttendancGroup = 0; int cOnRollManpower; int cBudgetedManPower; int cFdPresent = 0; int cfdAbsent = 0;
+                int cfdLeave = 0; int cfdLate = 0; int cfdOthers = 0; var cfdRemarks = 0; int cDivision = 0;
+                #endregion
+                #region ColumnHeaders
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Division", ExcelHAlign.HAlignCenter); cDivision = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Unit", ExcelHAlign.HAlignCenter); cUnit = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Section", ExcelHAlign.HAlignCenter); cSection = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sub Section", ExcelHAlign.HAlignCenter); cSubSection = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Line", ExcelHAlign.HAlignCenter); cLine = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation", ExcelHAlign.HAlignCenter); cAttendancGroup = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Budgeted", 8, ExcelHAlign.HAlignCenter); cBudgetedManPower = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Category", 8, ExcelHAlign.HAlignCenter); cEmpCategory = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OnRoll", 8, ExcelHAlign.HAlignCenter); cOnRollManpower = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Present", 8, ExcelHAlign.HAlignCenter); cFdPresent = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Absent", 8, ExcelHAlign.HAlignCenter); cfdAbsent = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Late", 8, ExcelHAlign.HAlignCenter); cfdLate = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Leave", 8, ExcelHAlign.HAlignCenter); cfdLeave = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Others", 8, ExcelHAlign.HAlignCenter); cfdOthers = xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remarkes", 10, ExcelHAlign.HAlignCenter); cfdRemarks = xlsCol;
+
+                var orgCollist = xlsCol;
+                xlsRow++;
+                endXlsCol = xlsCol;
+
+                if (dtManPBSummary.Rows.Count > 0)
+                {
+                    string _grp1 = string.Empty;
+                    string _grp2 = string.Empty;
+                    string _grp3 = string.Empty;
+                    string _sgrp3 = string.Empty;
+                    string _grp4 = string.Empty;
+                    string _grp5 = string.Empty;
+
+
+                    #endregion
+                    var catFRow = xlsRow;
+                    var catGrp2FRow = xlsRow;
+                    var catsGrp3FRow = xlsRow;
+                    var catGrp3FRow = xlsRow;
+                    var catGrp4FRow = xlsRow;
+                    var catGrp5FRow = xlsRow;
+
+                    ArrayList rowList = new ArrayList();
+                    var lastMPGroup = string.Empty;
+                    for (int i = 0; i < dtManPBSummary.Rows.Count; i++)
+                    {
+                        var catLRow = xlsRow;
+                        if (_grp1 != dtManPBSummary.Rows[i]["DivisionName"].ToString() && string.IsNullOrEmpty(dtManPBSummary.Rows[i]["DivisionName"].ToString()) == false)
+                        {
+                            _grp1 = dtManPBSummary.Rows[i]["DivisionName"].ToString();
+
+                            #region Subtotal
+                            if (catFRow < xlsRow)
+                            {
+                                lastMPGroup = _grp1;
+                                rowList.Add(xlsRow);
+                                SetHeadText(sheet1, xlsRow, 1, " Subtotal:");
+                                sheet1.Range[xlsRow, 1, xlsRow, (cBudgetedManPower - 1)].Merge();
+                                sheet1.Range[xlsRow, cOnRollManpower].Formula = "=SUM(" + oRU.GetColumnNameForXls(cOnRollManpower) + catFRow + ":" + oRU.GetColumnNameForXls(cOnRollManpower) + (xlsRow - 1) + ")";
+                                sheet1.Range[xlsRow, cBudgetedManPower].Formula = "=SUM(" + oRU.GetColumnNameForXls(cBudgetedManPower) + catFRow + ":" + oRU.GetColumnNameForXls(cBudgetedManPower) + (xlsRow - 1) + ")";
+                                sheet1.Range[xlsRow, cFdPresent].Formula = "=SUM(" + oRU.GetColumnNameForXls(cFdPresent) + catFRow + ":" + oRU.GetColumnNameForXls(cFdPresent) + (xlsRow - 1) + ")";
+                                sheet1.Range[xlsRow, cfdAbsent].Formula = "=SUM(" + oRU.GetColumnNameForXls(cfdAbsent) + catFRow + ":" + oRU.GetColumnNameForXls(cfdAbsent) + (xlsRow - 1) + ")";
+                                sheet1.Range[xlsRow, cfdLate].Formula = "=SUM(" + oRU.GetColumnNameForXls(cfdLate) + catFRow + ":" + oRU.GetColumnNameForXls(cfdLate) + (xlsRow - 1) + ")";
+                                sheet1.Range[xlsRow, cfdLeave].Formula = "=SUM(" + oRU.GetColumnNameForXls(cfdLeave) + catFRow + ":" + oRU.GetColumnNameForXls(cfdLeave) + (xlsRow - 1) + ")";
+                                sheet1.Range[xlsRow, cfdOthers].Formula = "=SUM(" + oRU.GetColumnNameForXls(cfdOthers) + catFRow + ":" + oRU.GetColumnNameForXls(cfdOthers) + (xlsRow - 1) + ")";
+
+                                sheet1.Range[xlsRow, cBudgetedManPower, xlsRow, cfdOthers].CellStyle.Font.Bold = true;
+
+                                sheet1.Range[xlsRow, 1, xlsRow, (cOnRollManpower - 1)].BorderAround(ExcelLineStyle.Hair);
+                                sheet1.Range[xlsRow, cOnRollManpower].BorderAround(ExcelLineStyle.Hair);
+                                sheet1.Range[xlsRow, cBudgetedManPower].BorderAround(ExcelLineStyle.Hair);
+                                sheet1.Range[xlsRow, cFdPresent].BorderAround(ExcelLineStyle.Hair);
+                                sheet1.Range[xlsRow, cfdAbsent].BorderAround(ExcelLineStyle.Hair);
+                                sheet1.Range[xlsRow, cfdLate].BorderAround(ExcelLineStyle.Hair);
+                                sheet1.Range[xlsRow, cfdLeave].BorderAround(ExcelLineStyle.Hair);
+                                sheet1.Range[xlsRow, cfdOthers].BorderAround(ExcelLineStyle.Hair);
+                                //sheet1.Range[xlsRow, cfdRemarks].BorderAround(ExcelLineStyle.Hair);
+
+
+                                xlsRow++;
+                            }
+                            #endregion
+
+                            sheet1.Range[xlsRow, cDivision].Text = _grp1;
+                            sheet1.Range[xlsRow, cDivision, xlsRow, cDivision].BorderAround(ExcelLineStyle.Hair);
+                            sheet1.Range[xlsRow, cDivision].HorizontalAlignment = ExcelHAlign.HAlignJustify;
+                            sheet1.Range[xlsRow, cDivision].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+
+                            _grp2 = dtManPBSummary.Rows[i]["UnitName"].ToString();
+                            SetCellText(sheet1, xlsRow, cUnit, _grp2);
+                            _grp3 = dtManPBSummary.Rows[i]["SubSectionName"].ToString();
+                            SetCellText(sheet1, xlsRow, cSubSection, _grp3);
+                            _sgrp3 = dtManPBSummary.Rows[i]["SectionName"].ToString();
+                            SetCellText(sheet1, xlsRow, cSubSection, _sgrp3);
+                            _grp4 = dtManPBSummary.Rows[i]["LineName"].ToString();
+                            SetCellText(sheet1, xlsRow, cLine, _grp4);
+                            _grp5 = dtManPBSummary.Rows[i]["DesignationName"].ToString();
+                            SetCellText(sheet1, xlsRow, cAttendancGroup, _grp5);
+                            if (catFRow < xlsRow)
+                            {
+                                catFRow = xlsRow;
+                                catGrp2FRow = xlsRow;
+                                catsGrp3FRow = xlsRow;
+                                catGrp3FRow = xlsRow;
+                                catGrp4FRow = xlsRow;
+
+
+                            }
+                        }
+                        else if (_grp2 != dtManPBSummary.Rows[i]["UnitName"].ToString())
+                        {
+                            _grp2 = dtManPBSummary.Rows[i]["UnitName"].ToString();
+                            //SetCellText(sheet1, xlsRow, cSubSection, _grp2);
+                            sheet1.Range[xlsRow, cUnit].Text = _grp2;
+                            sheet1.Range[xlsRow, cUnit, xlsRow, cUnit].BorderAround(ExcelLineStyle.Hair);
+                            sheet1.Range[xlsRow, cUnit].HorizontalAlignment = ExcelHAlign.HAlignJustify;
+                            sheet1.Range[xlsRow, cUnit].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                            _sgrp3 = dtManPBSummary.Rows[i]["SectionName"].ToString();
+                            SetCellText(sheet1, xlsRow, cSubSection, _sgrp3);
+                            _grp3 = dtManPBSummary.Rows[i]["SubSectionName"].ToString();
+                            SetCellText(sheet1, xlsRow, cSubSection, _grp3);
+                            _grp4 = dtManPBSummary.Rows[i]["LineName"].ToString();
+                            SetCellText(sheet1, xlsRow, cLine, _grp4);
+                            _grp5 = dtManPBSummary.Rows[i]["DesignationName"].ToString();
+                            SetCellText(sheet1, xlsRow, cAttendancGroup, _grp5);
+                            if (catGrp2FRow < xlsRow)
+                            {
+                                catGrp2FRow = xlsRow;
+                                catsGrp3FRow = xlsRow;
+                                catGrp3FRow = xlsRow;
+                                catGrp4FRow = xlsRow;
+
+
+                            }
+                        }
+                        else if (_sgrp3 != dtManPBSummary.Rows[i]["SectionName"].ToString())
+                        {
+                            _sgrp3 = dtManPBSummary.Rows[i]["SectionName"].ToString();
+                            //SetCellText(sheet1, xlsRow, cSubSection, _grp2);
+                            sheet1.Range[xlsRow, cSection].Text = _sgrp3;
+                            sheet1.Range[xlsRow, cSection, xlsRow, cSection].BorderAround(ExcelLineStyle.Hair);
+                            sheet1.Range[xlsRow, cSection].HorizontalAlignment = ExcelHAlign.HAlignJustify;
+                            sheet1.Range[xlsRow, cSection].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                            _grp3 = dtManPBSummary.Rows[i]["SubSectionName"].ToString();
+                            SetCellText(sheet1, xlsRow, cSubSection, _grp3);
+                            _grp4 = dtManPBSummary.Rows[i]["LineName"].ToString();
+                            SetCellText(sheet1, xlsRow, cLine, _grp4);
+                            _grp5 = dtManPBSummary.Rows[i]["DesignationName"].ToString();
+                            SetCellText(sheet1, xlsRow, cAttendancGroup, _grp5);
+
+                            if (catsGrp3FRow < xlsRow)
+                            {
+                                catsGrp3FRow = xlsRow;
+                                catGrp3FRow = xlsRow;
+                                catGrp4FRow = xlsRow;
+                            }
+                        }
+                        else if (_grp3 != dtManPBSummary.Rows[i]["SubSectionName"].ToString())
+                        {
+                            _grp3 = dtManPBSummary.Rows[i]["SubSectionName"].ToString();
+                            //SetCellText(sheet1, xlsRow, cSubSection, _grp2);
+                            sheet1.Range[xlsRow, cSubSection].Text = _grp3;
+                            sheet1.Range[xlsRow, cSubSection, xlsRow, cSubSection].BorderAround(ExcelLineStyle.Hair);
+                            sheet1.Range[xlsRow, cSubSection].HorizontalAlignment = ExcelHAlign.HAlignJustify;
+                            sheet1.Range[xlsRow, cSubSection].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                            _grp4 = dtManPBSummary.Rows[i]["LineName"].ToString();
+                            SetCellText(sheet1, xlsRow, cLine, _grp4);
+                            _grp5 = dtManPBSummary.Rows[i]["DesignationName"].ToString();
+                            SetCellText(sheet1, xlsRow, cAttendancGroup, _grp5);
+                            if (catGrp3FRow < xlsRow)
+                            {
+                                catGrp3FRow = xlsRow;
+                                catGrp4FRow = xlsRow;
+                            }
+                        }
+                        else if (_grp4 != dtManPBSummary.Rows[i]["LineName"].ToString())
+                        {
+
+                            _grp4 = dtManPBSummary.Rows[i]["LineName"].ToString();
+
+                            sheet1.Range[xlsRow, cLine].Text = _grp4;
+                            sheet1.Range[xlsRow, cLine, xlsRow, cLine].BorderAround(ExcelLineStyle.Hair);
+                            sheet1.Range[xlsRow, cLine].HorizontalAlignment = ExcelHAlign.HAlignJustify;
+                            sheet1.Range[xlsRow, cLine].VerticalAlignment = ExcelVAlign.VAlignTop;
+                            //sheet1.Range[catFRow, cDivision, xlsRow, cDivision].Merge();
+                            //sheet1.Range[catFRow, cDivision, xlsRow, cDivision].BorderAround(ExcelLineStyle.Hair);
+                            //sheet1.Range[catGrp2FRow, cUnit, xlsRow, cUnit].Merge();
+                            //sheet1.Range[catGrp2FRow, cUnit, xlsRow, cUnit].BorderAround(ExcelLineStyle.Hair);
+                            //sheet1.Range[catGrp3FRow, cSubSection, xlsRow, cSubSection].Merge();
+                            //sheet1.Range[catGrp3FRow, cSubSection, xlsRow, cSubSection].BorderAround(ExcelLineStyle.Hair);
+                            _grp5 = dtManPBSummary.Rows[i]["DesignationName"].ToString();
+                            SetCellText(sheet1, xlsRow, cAttendancGroup, _grp5);
+                            if (catGrp4FRow < xlsRow)
+                            {
+                                catGrp4FRow = xlsRow;
+                            }
+
+                        }
+                        else if (_grp5 != dtManPBSummary.Rows[i]["DesignationName"].ToString())
+                        {
+
+                            _grp5 = dtManPBSummary.Rows[i]["DesignationName"].ToString();
+                            SetCellText(sheet1, xlsRow, cAttendancGroup, _grp5);
+
+                            sheet1.Range[catFRow, cDivision, xlsRow, cDivision].Merge();
+                            sheet1.Range[catFRow, cDivision, xlsRow, cDivision].BorderAround(ExcelLineStyle.Hair);
+                            sheet1.Range[catGrp2FRow, cUnit, xlsRow, cUnit].Merge();
+                            sheet1.Range[catGrp2FRow, cUnit, xlsRow, cUnit].BorderAround(ExcelLineStyle.Hair);
+                            sheet1.Range[catGrp3FRow, cSubSection, xlsRow, cSubSection].Merge();
+                            sheet1.Range[catGrp3FRow, cSubSection, xlsRow, cSubSection].BorderAround(ExcelLineStyle.Hair);
+                            sheet1.Range[catGrp4FRow, cLine, xlsRow, cLine].Merge();
+                            sheet1.Range[catGrp4FRow, cLine, xlsRow, cLine].BorderAround(ExcelLineStyle.Hair);
+
+
+                        }
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cBudgetedManPower, Convert.ToInt32(dtManPBSummary.Rows[i]["ProposedManpowerBudget"].ToString()));
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cEmpCategory, dtManPBSummary.Rows[i]["EmpCategory"].ToString());
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cOnRollManpower, Convert.ToInt32(dtManPBSummary.Rows[i]["TotalManpower"].ToString()));
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cFdPresent, Convert.ToDouble(dtManPBSummary.Rows[i]["SUM_PRESENT"].ToString()));//LegalDesignation
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdAbsent, Convert.ToDouble(dtManPBSummary.Rows[i]["SUM_Absent"].ToString()));//
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdLate, Convert.ToDouble(dtManPBSummary.Rows[i]["SUM_Late"].ToString()));//
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdLeave, Convert.ToDouble(dtManPBSummary.Rows[i]["SUM_Leave"].ToString()));//
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdOthers, Convert.ToDouble(dtManPBSummary.Rows[i]["SUM_Others"].ToString()));//
                         oRU.SetTextBorder(ref sheet1, xlsRow, cfdRemarks, "");//
                         xlsRow++;
                     }
@@ -1737,6 +2629,70 @@ LEFT JOIN [HKP].[Designation] ON Designation.Id = POS.DesignationId
             }
 
         }//End Function
+
+        public DataTable GetDailyAttendanceSummarySqlNew(string WorkDate, bool withLine, string companyGroupId, string companyId, string plantId)
+        {
+            string strSql = string.Empty;
+            string selectLine = "";
+            try
+            {
+                if (withLine == true)
+                {
+                    selectLine = ",A.LineName";
+                }
+                strSql = @"SELECT SUM(A.TotalManpower)TotalManpower,SUM(A.TotalNumber)ProposedManpowerBudget,A.ManpowerBudgetId,A.DivisionName,A.SectionName,A.SubSectionName
+                                ,A.DesignationName,A.UnitName " + selectLine + @" ,A.EmpCategory,A.SUM_PRESENT,A.SUM_Late,A.SUM_Absent,A.SUM_Leave,A.SUM_Others
+                                FROM
+                                (SELECT ISNULL(ATT.TotalManpower,0)TotalManpower,ISNULL(MBD.TotalNumber,0) TotalNumber,MBD.ManpowerBudgetId
+                                ,Division.UserName DivisionName,Section.UserName SectionName, SubSection.UserName SubSectionName,Designation.UserName DesignationName,Unit.UserName UnitName,Line.UserName LineName
+                                ,ISNULL(ATT.PresentValue,0)SUM_PRESENT,ISNULL(ATT.LateValue,0)SUM_Late,ISNULL(ATT.AbsentValue,0)SUM_Absent,ISNULL(ATT.LeaveValue,0)SUM_Leave,ISNULL(ATT.HoliDayWeekOff,0)SUM_Others,ATT.EmpCategory
+                                FROM
+                                (SELECT TOP 1 WITH TIES TotalNumber,ManpowerBudgetId,EffectiveDate
+                                FROM [MST].[ManpowerBudgetDetail]
+                                WHERE CONVERT(DATE,EffectiveDate) <= CONVERT(DATE,'" + WorkDate + @"')
+                                ORDER BY ROW_NUMBER() OVER(PARTITION BY ManpowerBudgetId ORDER BY EffectiveDate DESC)
+                                ) MBD
+                                LEFT JOIN [MST].[ManpowerBudget] AS MB  on  Mb.Id = MBD.ManpowerBudgetId
+                                LEFT JOIN (
+		                                SELECT COUNT(e.SystemId) TotalManpower,E.BudgetCode
+		                                ,SUM(apd.PresentValue) PresentValue,SUM(apd.LateValue)LateValue,SUM(apd.AbsentValue)AbsentValue,SUM(ISNULL(l.AvailedValue,0)) LeaveValue
+		                                ,SUM(ISNULL(WeekOffValue,0)+ISNULL(HoliDayValue,0))HoliDayWeekOff,EmpC.UserName EmpCategory
+		                                FROM EmployeeInformation E 
+		                                LEFT JOIN AttdnProcessData apd on e.SystemId=apd.EmpSystemID  and APD.WorkDate='" + WorkDate + @"'
+		                                LEFT JOIN SalaryProceAttdnData AS PAA on e.SystemId=PAA.EmpSystemID
+		                                LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=E.LegalDesignationId
+		                                LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=E.PlantId
+		                                LEFT JOIN mst.DesignationMaster AS dm ON dm.Id=dmc.DesignationMasterId
+		                                LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = dm.EmployeeCategoryId
+		                                LEFT JOIN DayStatusPlantChild PC ON pc.PlantId=E.PlantId AND pc.EmpTypeId=dm.EmployeeCategoryId
+		                                LEFT JOIN DayTypeWithValues AS ds ON ds.DayType=apd.DayStatus AND ds.HeaderId=pc.HeaderId
+		                                LEFT JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id AND l.LeaveTypeId=apd.LTSystemID
+		                                WHERE  (E.DOJ<='" + WorkDate + @"' AND (E.DOS is null or E.DOS >= '" + WorkDate + @"'))
+		                                GROUP BY E.BudgetCode,EmpC.UserName
+                                       ) AS ATT  ON ATT.BudgetCode=MBD.ManpowerBudgetId
+                                LEFT JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = MB.CompanyGroupId
+                                LEFT JOIN [ORG].[Company] AS C ON C.CompanyGroupId = Cg.Id and mb.CompanyId= c.Id
+                                LEFT JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
+                                LEFT JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
+                                LEFT JOIN [ORG].[Plant] ON Plant.Id = E.PlantId
+                                LEFT JOIN [ORG].[Division] Division on Division.Id=E.DivisionId
+                                LEFT JOIN [ORG].[Section] Section on Section.Id=PO.SectionId
+                                LEFT JOIN [ORG].[SubSection] SubSection on SubSection.Id=PO.SubSectionId
+                                LEFT JOIN [HKP].[Designation] Designation on Designation.Id=PO.DesignationId
+                                LEFT JOIN [ORG].[Unit] ON Unit.Id = E.UnitId
+                                LEFT JOIN [ORG].[Line] ON Line.Id = MB.LineId
+                                WHERE Cg.Id = '" + companyGroupId + @"' AND C.Id = '" + companyId + @"' AND Plant.Id = '" + plantId + @"' and MB.Active = 1 AND MBD.TotalNumber > 0) A 
+                                GROUP BY A.ManpowerBudgetId,A.DesignationName,A.DivisionName,A.SectionName,A.SubSectionName,A.UnitName " + selectLine + @" ,A.EmpCategory
+                                ,A.SUM_PRESENT,A.SUM_Late,A.SUM_Absent,A.SUM_Leave,A.SUM_Others";
+                return _sqlRepository.GetDataTable(strSql);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
 
         public DataTable GetDailyCustomizedGroupWiseSummarySql(string WorkDate, string companyGroupId, string companyId, string plantId, bool isDesignation)
         {
@@ -3273,7 +4229,7 @@ LEFT JOIN [HKP].[Designation] ON Designation.Id = POS.DesignationId
                 string ddlSbSec = sSubSecID;
                 string ddll = sLineID;
 
-                GetDailyDayStatusS(TextFromDate, PrevWorkDate, PlantId, ddlDept, ddlSec, ddlSbSec, ddll, dayStatus, employeeCategory, shift, entity, designationList,"", out dslocal);
+                GetDailyDayStatusS(TextFromDate, PrevWorkDate, PlantId, ddlDept, ddlSec, ddlSbSec, ddll, dayStatus, employeeCategory, shift, entity, designationList, "", out dslocal);
 
                 objDlySts.SelectedPlantWiseCompany(PlantId, out dsCmp);
                 objDlySts.SelectedPlant(PlantId, out dsFactory);
@@ -3306,7 +4262,7 @@ LEFT JOIN [HKP].[Designation] ON Designation.Id = POS.DesignationId
                 //dvSSEmp.RowFilter = "SubSectionId='" + SSid + "' ";
                 DataTable dtdvSSEmp = dvSSEmp.ToTable();
                 var _SubSection = "Day Status";
-                
+
                 sheet1 = workbook.Worksheets[0];
                 CreateSheetS(ref sheet1, dtdvSSEmp, dsCmp, dsFactory, oru, _SubSection, _SubSection, "SUBS", TextFromDate, sDepID, sSecID, sSubSecID, "", Dep, Sec, employeeCategory, shift, entity);
                 //}
@@ -4052,12 +5008,12 @@ where  ap.WorkDate='" + WorkDate + @"' and e.SystemId in (" + strSql + ")  " + S
 
                     sheet1.Range[xlsRow, cEmpYstdyOt].BorderAround(ExcelLineStyle.Thin);
                     sheet1.Range[xlsRow, cEmpYstdyOt].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                    sheet1.Range[xlsRow, cEmpYstdyOt].VerticalAlignment = ExcelVAlign.VAlignTop;                    
+                    sheet1.Range[xlsRow, cEmpYstdyOt].VerticalAlignment = ExcelVAlign.VAlignTop;
                 }
 
-                sheet1.Range[startDataRow, 1, xlsRow , endXlsCol].BorderInside(ExcelLineStyle.Hair);
-                sheet1.Range[startDataRow, 1, xlsRow , endXlsCol].BorderAround(ExcelLineStyle.Hair);
-                sheet1.Range[startDataRow, 1, xlsRow , endXlsCol].CellStyle.Font.Size = 15f;
+                sheet1.Range[startDataRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
+                sheet1.Range[startDataRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
+                sheet1.Range[startDataRow, 1, xlsRow, endXlsCol].CellStyle.Font.Size = 15f;
 
                 sheet1.Range[8, 1, xlsRow, cInchargeSignature].RowHeight = 65;
 
@@ -4328,7 +5284,7 @@ where  ap.WorkDate='" + WorkDate + @"' and e.SystemId in (" + strSql + ")  " + S
                 oru.SetHeaderTextWB(ref sheet1, xlsRow, xlsCol, "Designation", 21);
                 sheet1.Range[xlsRow, xlsCol, xlsRow + 1, xlsCol].Merge();
                 cEmpDeg = xlsCol; xlsCol++;
-                
+
                 oru.SetHeaderTextWB(ref sheet1, xlsRow, xlsCol, "Shift", 25);
                 sheet1.Range[xlsRow, xlsCol, xlsRow + 1, xlsCol].Merge();
                 cshift = xlsCol; xlsCol++;
@@ -4352,7 +5308,7 @@ where  ap.WorkDate='" + WorkDate + @"' and e.SystemId in (" + strSql + ")  " + S
                 oru.SetHeaderTextWB(ref sheet1, xlsRow, xlsCol, "Status", 20);
                 sheet1.Range[xlsRow, xlsCol, xlsRow + 1, xlsCol].Merge();
                 cEmpPre = xlsCol; xlsCol++;
-                
+
                 oru.SetHeaderTextWB(ref sheet1, xlsRow, xlsCol, "Late By", 18);
                 sheet1.Range[xlsRow, xlsCol, xlsRow + 1, xlsCol].Merge();
                 cLateBy = xlsCol; xlsCol++;
@@ -4366,7 +5322,7 @@ where  ap.WorkDate='" + WorkDate + @"' and e.SystemId in (" + strSql + ")  " + S
 
                 oru.SetHeaderTextWB(ref sheet1, xlsRow + 1, xlsCol, "OT", 6);
                 cEmpYstdyOt = xlsCol; xlsCol++;
-                                
+
                 oru.SetHeaderTextWB(ref sheet1, xlsRow, xlsCol, "Employee Signature", 30);
                 sheet1.Range[xlsRow, xlsCol, xlsRow + 1, xlsCol].Merge();
                 cEmployeeSignature = xlsCol; xlsCol++;
@@ -4430,35 +5386,35 @@ where  ap.WorkDate='" + WorkDate + @"' and e.SystemId in (" + strSql + ")  " + S
                     oru.SetText(ref sheet1, xlsRow, cInTime, dtlocal.Rows[i]["InTime"].ToString());
                     oru.SetText(ref sheet1, xlsRow, cOutTime, dtlocal.Rows[i]["OutTime"].ToString());
                     oru.SetText(ref sheet1, xlsRow, cshift, dtlocal.Rows[i]["ShiftName"].ToString());
-                    
+
                     //oru.SetText(ref sheet1, xlsRow, cEntity, dtlocal.Rows[i]["Entity"].ToString());
 
                     if (dtlocal.Rows[i]["TodayStatus"].ToString() == "L")
                     {
                         #region Late by min
 
-                         sOfficeInTime = "00:00:00";
-                         sInTime = "00:00:00";
-                         strLateBy = "00:00:00";
+                        sOfficeInTime = "00:00:00";
+                        sInTime = "00:00:00";
+                        strLateBy = "00:00:00";
 
                         if (dtlocal.Rows[i]["iintime"].ToString().Trim() != "")
                         {
                             sInTime = dtlocal.Rows[i]["iintime"].ToString().Trim() + ":00";
-                        }                        
+                        }
                         strLateBy = "00:00";
                         if (dtlocal.Rows[i]["iShiftIn"].ToString().Trim() != "" && sInTime != "00:00:00")
                         {
-                            sOfficeInTime = dtlocal.Rows[i]["iShiftIn"].ToString().Trim() + ":00";                            
-                            strLateBy = (Convert.ToDateTime(sInTime) - Convert.ToDateTime(sOfficeInTime)).ToString();                            
+                            sOfficeInTime = dtlocal.Rows[i]["iShiftIn"].ToString().Trim() + ":00";
+                            strLateBy = (Convert.ToDateTime(sInTime) - Convert.ToDateTime(sOfficeInTime)).ToString();
                         }
 
                         oru.SetText(ref sheet1, xlsRow, cLateBy, strLateBy);
 
                         #endregion Late by min
                     }
-                    
+
                     oru.SetText(ref sheet1, xlsRow, cEmpPre, dtlocal.Rows[i]["TodayStatus"].ToString());
-                    
+
                     oru.SetText(ref sheet1, xlsRow, cEmpYstdysts, dtlocal.Rows[i]["PrvDayStatus"].ToString());
 
                     string yot = string.Empty;//OTConsiderOn
@@ -4476,14 +5432,14 @@ where  ap.WorkDate='" + WorkDate + @"' and e.SystemId in (" + strSql + ")  " + S
                             }
 
                         }
-                    else
-                    {
-                        if (bplib.clsWebLib.GetBoolData(dtlocal.Rows[i]["YesterDayReConfirm"].ToString()) == true)
+                        else
                         {
-                            sheet1.Range[xlsRow, cEmpYstdyOt].CellStyle.Interior.ColorIndex = ExcelKnownColors.Orange;
+                            if (bplib.clsWebLib.GetBoolData(dtlocal.Rows[i]["YesterDayReConfirm"].ToString()) == true)
+                            {
+                                sheet1.Range[xlsRow, cEmpYstdyOt].CellStyle.Interior.ColorIndex = ExcelKnownColors.Orange;
+                            }
                         }
-                    }
-                    if (!string.IsNullOrEmpty(dtlocal.Rows[i]["YesterDayDayCategory"].ToString()))
+                        if (!string.IsNullOrEmpty(dtlocal.Rows[i]["YesterDayDayCategory"].ToString()))
                         {
                             if (dtlocal.Rows[i]["YesterDayDayCategory"].ToString() == "Present" || dtlocal.Rows[i]["YesterDayDayCategory"].ToString() == "Late")
                             {
@@ -4491,10 +5447,10 @@ where  ap.WorkDate='" + WorkDate + @"' and e.SystemId in (" + strSql + ")  " + S
                             }
                         }
 
-                }
+                    }
 
 
-                sheet1.Range[xlsRow, cEmpYstdyOt].Text = yot;
+                    sheet1.Range[xlsRow, cEmpYstdyOt].Text = yot;
 
                     sheet1.Range[xlsRow, cEmpYstdyOt].BorderAround(ExcelLineStyle.Thin);
                     sheet1.Range[xlsRow, cEmpYstdyOt].HorizontalAlignment = ExcelHAlign.HAlignRight;
