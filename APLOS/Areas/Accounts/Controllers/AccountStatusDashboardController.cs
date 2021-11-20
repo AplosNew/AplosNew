@@ -18,6 +18,7 @@ using System.IO;
 using System.Web.Hosting;
 using Library.Service.Helpers;
 using Library.Security.Core;
+using Library.Accounting.FixedAssets;
 
 namespace Aplos.Areas.Accounts.Controllers
 {
@@ -1693,8 +1694,64 @@ namespace Aplos.Areas.Accounts.Controllers
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
+
         #endregion Grn with out invoice
 
-        
+        //public ActionResult NonRegisterAssetReport()
+        //{
+        //    return View("~/Areas/Accounts/Views/FinancialStatusDashboard/NonRegisterAssetReport.cshtml");
+        //}
+
+        [HttpGet, Authorize]
+        public ActionResult GetNonRegisterAssetData()
+        {
+            AssetWIPQueryService assetWIPQueryService = new AssetWIPQueryService();
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(new { DATA = assetWIPQueryService.GetNonRegisterAssetSQL(), Error = false }, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult NonRegisterAssetReportExcel(string materialMasterId, string materialMasterArticleId, string voucherId, string grnNo, string glId, string activityId)
+        {
+            AssetWIPQueryService assetWIPQueryService = new AssetWIPQueryService();
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+
+                ExcelEngine excelEngine = new ExcelEngine();
+
+                //IWorkbook workbook = assetWIPQueryService.AssetWIPstatusList( materialMasterId, materialMasterArticleId, voucherId, grnNo, glId, activityId);
+
+                //string strFileName = "Fixed Assets Register Report.xlsx";
+                //workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                //workbook.Close();
+
+                string fileName = "";
+
+                fileName = assetWIPQueryService.NonRegisterAssetList(materialMasterId, materialMasterArticleId, voucherId, grnNo, glId, activityId);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+
+            }
+
+        }
+
+        public ActionResult GetIssueQtyList2(string inventoryReceiveDetailId)
+        {
+            try
+            {
+                AssetWIPQueryService assetWIPQueryService = new AssetWIPQueryService();
+                var data = assetWIPQueryService.GetIssueQtyList2(inventoryReceiveDetailId);
+                return Json(new { Data = data, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
     }
 }

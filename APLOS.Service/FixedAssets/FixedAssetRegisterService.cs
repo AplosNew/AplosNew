@@ -2468,7 +2468,14 @@ GROUP BY FAR.FABudgetMasterId
 
             var header = GetFixedAssetCapitalizeJournalHeader(companyGroupId, companyId, plantId, voucherId, SourceType.FixedAssetCapitalizeJournal);
 
-            reportFileName = Convert.ToDateTime(header["PostingDate"]).ToString("yyMMdd") + " " + header["VoucherNo"];
+            if (header.Count>0)
+            {
+                reportFileName = Convert.ToDateTime(header["PostingDate"]).ToString("yyMMdd") + " " + header["VoucherNo"];
+            }
+            else
+            {
+                reportFileName = "";
+            }
 
             var dsLocal = _voucherService.GetAdvanceJournalData(companyGroupId, companyId, plantId, voucherId);
 
@@ -3763,7 +3770,7 @@ GROUP BY FAR.FABudgetMasterId
 				,Customer.UserName CustomerName,CU.Code Currency,CAST(fard.ToCurrencyRate AS decimal(18,4))ToCurrencyRate,rdd.NegotiationValue
 				 ,rdd.BaseNagotiationValue
 				 ,(rdd.BaseNagotiationValue-( ISNULL(FR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) - ISNULL(FR.ADBaseAmount,0)) )LossOrGain
-				 ,GP.Id GatePassNo, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
+				 ,isnull(GP.Id,GPS.Id) GatePassNo, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
 				 ,ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue
                 FROM [TRN].[FixedAssetRegister] FR
                 LEFT JOIN MST.MaterialMaster MM ON FR.MaterialMasterId=MM.Id
@@ -3788,6 +3795,7 @@ GROUP BY FAR.FABudgetMasterId
 				LEFT JOIN HKP.Party Customer ON Customer.Id = fard.PartyId
                 LEFT JOIN SCS.Currency CU ON CU.Id =fard.CurrencyId
 				LEFT JOIN [TRN].[InOutGatePassMaster] GP ON GP.FixedAssetRegisterDisposedId =fard.Id
+                LEFT JOIN [TRN].[InOutGatePassMaster] GPS ON GPS.FixedAssetScrapId =fard.Id
 				LEFT JOIN HKP.CharacteristicsValue AS FCV ON MM.Id=FCV.MaterialMasterId
 				LEFT JOIN HKP.CharacteristicsValue AS SCV ON MM.Id=SCV.MaterialMasterId
 				LEFT JOIN HKP.CharacteristicsValue AS TCV ON MM.Id=TCV.MaterialMasterId

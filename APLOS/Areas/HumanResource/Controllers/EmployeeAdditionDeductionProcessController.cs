@@ -53,7 +53,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             try
             {
-
+                Random rr = new Random();
                 DataTable dtTrial = new DataTable();
                 dtTrial.Columns.Add("Id", typeof(string));
                 dtTrial.Columns.Add("SystemId", typeof(string));
@@ -72,6 +72,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 dtTrial.Columns.Add("AdditionDeductionHead", typeof(string));
 
                 //Getting Today's Day and Year
+                var dayNoId = int.Parse(DateTime.Now.ToString("dd"));
                 var dayNo = int.Parse(DateTime.Now.ToString("dd"));
                 var monthNo = int.Parse(DateTime.Now.ToString("MM"));
                 var yearNo = int.Parse(DateTime.Now.ToString("yyyy"));
@@ -200,9 +201,10 @@ namespace Aplos.Areas.HumanResource.Controllers
                                 else
                                 {
                                     
-                                    
+                                    int value = rr.Next(1000);
+                                    string text = value.ToString("000");
                                     dr = dtTrial.NewRow();
-                                    dr["Id"] = "TR"+_Id + i + j;
+                                    dr["Id"] = "TR"+ dayNoId.ToString() + monthNo.ToString()+ yearNo.ToString() +i.ToString()+j.ToString();
                                     dr["SystemId"] = dtActiveEmps.Rows[j]["SystemId"].ToString();
                                     dr["LegalDesignationId"] = dtActiveEmps.Rows[j]["LegalDesignationId"].ToString();
                                     dr["LegalDesignation"] = dtActiveEmps.Rows[j]["LegalDesignation"].ToString();

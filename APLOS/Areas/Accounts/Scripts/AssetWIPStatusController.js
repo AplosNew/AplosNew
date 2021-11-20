@@ -332,7 +332,7 @@ function AssetWIPStatusController(commonMessage, $scope, $rootScope, $filter, $h
         $http({
             method: 'POST',
             url: 'Accounts/VoucherReport/GetIssueQtyList',
-            data: { 'inventoryReceiveDetailId': Data.GRNNo  },
+            data: { 'inventoryReceiveDetailId': Data.InventoryReceiveDetailId},
             dataType: 'JSON'
 
         })
@@ -369,4 +369,50 @@ function AssetWIPStatusController(commonMessage, $scope, $rootScope, $filter, $h
         var reportFormat = "Pdf";
         $window.open('FixedAssets/FixedAssetRegister/GetIssueFixedAssetCapitalizeJournalReport?reportFormat=' + reportFormat + '&voucherId=' + voucherNo, '_blank');
     }
+
+
+    $scope.getAssetWIPstatusReportExcel = function () {
+        var filtered = $("#GridAssetWIPstatus").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            filtered = $scope.AssetWIPstatusList;
+        }
+        $scope.fileName = 'AssetWIPStatus.xls';
+        //filtered = ej.DataManager(filtered).executeLocal(ej.Query().select(["AccountGroupName"]));
+        var materialMasterId = getString(filtered, "MaterialMasterId");
+        var materialMasterArticleId = getString(filtered, "ArticleId");
+        var voucherId = getString(filtered, "VoucherId");
+        var grnNo = getString(filtered, "GRNNo");
+        var glId = getString(filtered, "GlId");
+        var activityId = getString(filtered, "ActivityId");
+        try {
+
+            $http({
+                method: 'POST',
+                url: 'Accounts/VoucherReport/AssetWIPstatusReportExcel',
+                data: {
+
+                    'MaterialMasterId': materialMasterId,
+                    'materialMasterArticleId': materialMasterArticleId,
+                    'VoucherId': voucherId,
+                    'GRNNo': grnNo,
+                    'GlId': glId,
+                    'ActivityId': activityId
+                }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
+                }
+            });
+
+        } catch (e) {
+            // ShowResult(e, 'failure');
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }
+
+    }
+
+
 }

@@ -204,6 +204,10 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/FinishGoodsBooking/FinishGoodsInventoryRegister',
             controller: 'finishGoodsInventoryRegisterController'
         })
+        .when('/machine-layout-report', {
+            templateUrl: 'Productions/MachineLayoutReport/Aplos',
+            controller: 'MachineLayoutReportController'
+        })
 
         ;
 }

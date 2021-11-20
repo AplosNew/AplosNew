@@ -204,6 +204,16 @@ namespace Library.HumanResource.NewAttendanceProcess
                         shiftchange.Tables[0].Rows[0]["OTComfirmBy"] = DBNull.Value;
                         shiftchange.Tables[0].Rows[0]["DateOTComfirm"] = DBNull.Value;
                         shiftchange.Tables[0].Rows[0]["IsOTComfirm"] = false;
+                        
+                        #region OT Nullified Columns
+                        shiftchange.Tables[0].Rows[0]["TargetOT"] = DBNull.Value;
+                        shiftchange.Tables[0].Rows[0]["PlanOT"] = DBNull.Value;
+                        shiftchange.Tables[0].Rows[0]["AppliedOTLimit"] = DBNull.Value;
+                        shiftchange.Tables[0].Rows[0]["AllowedOTLimit"] = DBNull.Value;
+                        shiftchange.Tables[0].Rows[0]["StandardOT"] = DBNull.Value;
+                        shiftchange.Tables[0].Rows[0]["AdditionalOt"] = DBNull.Value;
+                        #endregion
+                        
                         shiftchange.Tables[0].Rows[0].EndEdit();
                         i = 1;
                     

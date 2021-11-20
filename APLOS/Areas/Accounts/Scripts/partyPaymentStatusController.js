@@ -4442,6 +4442,241 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         }
     }
 
+    $scope.AssetWIPstatusList = [];
+    $scope.GetAssetWIPstatusList = function () {
+        $http({
+            method: "GET",
+            dataType: 'JSON',
+            url: 'Accounts/VoucherReport/GetAssetWIPData',
+
+        }).then(function successCallback(response) {
+            $scope.AssetWIPstatusList = response.data.DATA
+        });
+    }
+    $scope.GetAssetWIPstatusList();
+
+
+    $scope.TotalAssetWIPstatus = [{
+        title: "Total", summaryColumns: [
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TransactionQty", dataMember: "TransactionQty", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TrnAmount", dataMember: "TrnAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BaseQty", dataMember: "BaseQty", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksAmount", dataMember: "BooksAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "IssueQty", dataMember: "IssueQty", format: "{0:N2}" },
+            //{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "ADBaseAmount", dataMember: "ADBaseAmount", format: "{0:N2}" },
+            //{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "NetFixedAssetsAmount", dataMember: "NetFixedAssetsAmount", format: "{0:N2}" },
+            //{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "FACount", dataMember: "FACount" }
+
+        ],
+        showCaptionSummary: true
+    }];
+
+
+    $scope.onGRNNoDownloadExcel = function (data) {
+        location.href = "GoodsReceiveNote/GRNReport?grnId=" + data.GRNNo;
+    };
+
+    $scope.onVoucherNoDownloadExcel = function (data) {
+        var reportFormat = "Excel";
+        if (baseService.isUndefinedOrNull(data.VoucherNo)) return ShowResult('No Id found', 'failure');
+        $window.open('Accounts/InventoryPayable/PabyableJournal?' + '&reportFormat=' + reportFormat + '&inventoryReceiveId=' + data.GRNNo + '&employeeId=' + null + '&isReversCharge=' + false + '&isFoc=' + false);
+    };
+
+
+    $scope.issueQtyList = [];
+    $scope.onIssueQtyPopUp = function (Data) {
+        $scope.SelectedLCRow = Data;
+
+        $http({
+            method: 'POST',
+            url: 'Accounts/VoucherReport/GetIssueQtyList',
+            data: { 'inventoryReceiveDetailId': Data.InventoryReceiveDetailId },
+            dataType: 'JSON'
+
+        })
+            .then(function successCallback(response) {
+                if (response.data.Error == false) {
+
+                    $scope.issueQtyList = response.data.Data;
+                }
+                else {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }),
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        $rootScope.openPopupAngular('IssueQtyPopup');
+    }
+
+
+    $scope.getAssetWIPstatusReportExcel = function () {
+        var filtered = $("#GridAssetWIPstatus").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            filtered = $scope.AssetWIPstatusList;
+        }
+        $scope.fileName = 'AssetWIPStatus.xls';
+        //filtered = ej.DataManager(filtered).executeLocal(ej.Query().select(["AccountGroupName"]));
+        var materialMasterId = getString(filtered, "MaterialMasterId");
+        var materialMasterArticleId = getString(filtered, "ArticleId");
+        var voucherId = getString(filtered, "VoucherId");
+        var grnNo = getString(filtered, "GRNNo");
+        var glId = getString(filtered, "GlId");
+        var activityId = getString(filtered, "ActivityId");
+        try {
+
+            $http({
+                method: 'POST',
+                url: 'Accounts/VoucherReport/AssetWIPstatusReportExcel',
+                data: {
+
+                    'MaterialMasterId': materialMasterId,
+                    'materialMasterArticleId': materialMasterArticleId,
+                    'VoucherId': voucherId,
+                    'GRNNo': grnNo,
+                    'GlId': glId,
+                    'ActivityId': activityId
+                }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
+                }
+            });
+
+        } catch (e) {
+            // ShowResult(e, 'failure');
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }
+
+    }
+
+
+    $scope.PostedAUCData = function (issueno) {
+        $window.open('Products/InventoryIssue/AssetIssueReport?grnId=' + issueno);
+    }
+
+    $scope.PostedcommandPDF = function (voucherNo) {
+        var reportFormat = "Pdf";
+        $window.open('FixedAssets/FixedAssetRegister/GetIssueFixedAssetCapitalizeJournalReport?reportFormat=' + reportFormat + '&voucherId=' + voucherNo, '_blank');
+    }
+
+    //**********************#endregion Asset WIP Status **************************
+
+    $scope.InvoiceWithOutGRNList = [];
+    $scope.GetNonRegisterAssetData = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetInvoiceWithOutGRNDataList",
+                data: { /*FromDate: $scope.reportParameters.FromDate,*/ ToDate: $scope.report.ToDate },
+                dataType: 'JSON'
+
+            }).then(function successCallback(response) {
+                $scope.InvoiceWithOutGRNList = response.data.DATA;
+
+            }),
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+        }
+
+        catch (e) {
+
+        }
+    }
+
+
+    $scope.NonRegisterAssetList = [];
+    $scope.GetAssetWIPstatusList = function () {
+        $http({
+            method: "GET",
+            dataType: 'JSON',
+            url: $scope.path + 'GetNonRegisterAssetData',
+
+        }).then(function successCallback(response) {
+            $scope.NonRegisterAssetList = response.data.DATA
+        });
+    }
+    $scope.GetAssetWIPstatusList();
+
+
+    $scope.TotalNonRegisterAsset = [{
+        title: "Total", summaryColumns: [
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TransactionQty", dataMember: "TransactionQty", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TrnAmount", dataMember: "TrnAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BaseQty", dataMember: "BaseQty", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksAmount", dataMember: "BooksAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "IssueQty", dataMember: "IssueQty", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "IssueAmount", dataMember: "IssueAmount", format: "{0:N2}" },
+            //{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "NetFixedAssetsAmount", dataMember: "NetFixedAssetsAmount", format: "{0:N2}" },
+            //{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "FACount", dataMember: "FACount" }
+
+        ],
+        showCaptionSummary: true
+    }];
+
+    $scope.onIssueNoDownloadExcel = function (data) {
+        //location.href = "GoodsReceiveNote/GRNReport?grnId=" + data.IssueNo;
+        location.href = "Products/InventoryIssue/AssetIssueReport?grnId=" + data.IssueNo;
+        
+    };
+
+    //$scope.onVoucherNoDownloadExcel = function (data) {
+    //    var reportFormat = "Excel";
+    //    if (baseService.isUndefinedOrNull(data.VoucherNo)) return ShowResult('No Id found', 'failure');
+    //    $window.open('Accounts/InventoryPayable/PabyableJournal?' + '&reportFormat=' + reportFormat + '&inventoryReceiveId=' + data.GRNNo + '&employeeId=' + null + '&isReversCharge=' + false + '&isFoc=' + false);
+    //};
+    $scope.onVoucherNoDownloadPDF = function (data) {
+        var reportFormat = "Pdf";
+        $window.open('FixedAssets/FixedAssetRegister/GetIssueFixedAssetCapitalizeJournalReport?reportFormat=' + reportFormat + '&voucherId=' + data.IssueVoucherId, '_blank');
+    }
+
+    $scope.getNonRegisterAssetReportExcel = function () {
+        var filtered = $("#GridNonRegisterAsset").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            filtered = $scope.NonRegisterAssetList;
+        }
+        $scope.fileName = 'NonRegisterAsset.xls';
+        //filtered = ej.DataManager(filtered).executeLocal(ej.Query().select(["AccountGroupName"]));
+        var materialMasterId = getString(filtered, "MaterialMasterId");
+        var materialMasterArticleId = getString(filtered, "ArticleId");
+        var voucherId = getString(filtered, "VoucherId");
+        var grnNo = getString(filtered, "GRNNo");
+        var glId = getString(filtered, "GlId");
+        var activityId = getString(filtered, "ActivityId");
+        try {
+
+            $http({
+                method: 'POST',
+                url: $scope.path +'NonRegisterAssetReportExcel',
+                data: {
+
+                    'MaterialMasterId': materialMasterId,
+                    'materialMasterArticleId': materialMasterArticleId,
+                    'VoucherId': voucherId,
+                    'GRNNo': grnNo,
+                    'GlId': glId,
+                    'ActivityId': activityId
+                }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
+                }
+            });
+
+        } catch (e) {
+            // ShowResult(e, 'failure');
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }
+
+    }
+
      //**********************#endregion Invoice GRN With out **************************
 
 

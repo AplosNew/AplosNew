@@ -2461,41 +2461,14 @@ namespace Library.MaterialManagement.Inventory
                 {
                     sql = @"SELECT II.Id AS IssueId
 	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate
-	                        --,II.CompanyGroupId
-	                        --,II.CompanyId
-	                        --,II.PlantId
-	                        -- ,II.EntityId  ---userName as Entityname 
 	                        ,En.UserName AS Entityname
-	                        --,II.AddedBy
-	                        --,II.AddedDate
-	                        --,II.AddedFromIP
-	                        --,II.UpdatedBy
-	                        --,II.UpdatedDate
-	                        --,II.UpdatedFromIP
-	                        -- ,II.MaterialStorageId
 	                        ,MS.UserName AS MaterialStorageName
 	                        ,II.STATUS
-	                        -- ,II.VoucherId 
-	                        --,VoucherNo=CASE WHEN II.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
-	                        ,v.VoucherNo
-	                        --,Posted=CASE WHEN II.Status <>'' then 'Yes' else 'No' END						
-	                        --,PostingDate= CASE WHEN II.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
-	                        --,PostedBy=CASE WHEN II.EmployeeId <> '' Then ep.AddedBy else I.AddedBy END,II.EmployeeId
-	                        ,IID.Id IssueDetailId
-	                        ,IID.InventoryIssueId
-	                        --,IID.InventoryMaterialId
-	                        ,MT.UserName MaterialType
-	                        ,MGM.UserName AS MaterialGroupMasterName
-	                        ,IM.MaterialMasterId
-	                        ,MM.UserName MaterialMasterName
-	                        -- , IM.ArticleId
+	                        ,v.VoucherNo ,IID.Id IssueDetailId ,IID.InventoryIssueId
+	                        ,MT.UserName MaterialType,II.IssueType ,MGM.UserName AS MaterialGroupMasterName
+	                        ,IM.MaterialMasterId ,MM.UserName MaterialMasterName
 	                        ,ART.StandardName ArticleName
-	                        ,IsAsset = CASE 
-		                        WHEN MM.IsAsset = 0
-			                        THEN 'No'
-		                        ELSE 'Yes'
-		                        END
-	                        --, IM.FirstCharacteristicsId
+	                        ,IsAsset = CASE  WHEN MM.IsAsset = 0 THEN 'No' ELSE 'Yes' END
 	                        ,FC.UserName AS FirstCharacteristics
 	                        ,IM.FirstCharacteristicsValueId
 	                        ,ISNULL(FCV.UserName, '') AS FirstCharacteristicsValue
@@ -2508,19 +2481,12 @@ namespace Library.MaterialManagement.Inventory
 	                        ,IM.ThirdCharacteristicsValueId
 	                        ,ISNULL(TCV.UserName, '') AS ThirdCharacteristicsValue
 	                        ,IID.TransactionQty
-	                        --,IID.BaseUOMId
 	                        ,TUoM.UserName AS UOM
 	                        ,Round(IID.AvgRate,2) AvgRate
 	                        ,Round(IID.AvgAmount,2) AvgAmount
 	                        ,Round(IID.PolicyRate,2) PolicyRate
 	                        ,Round(IID.PolicyAmount,2) PolicyAmount
 	                        ,IID.Policy
-	                        --,IID.AddedBy
-	                        --,IID.AddedDate
-	                        --,IID.AddedFromIP
-	                        --,IID.UpdatedBy
-	                        --,IID.UpdatedDate
-	                        --,IID.UpdatedFromIP
 	                        ,IID.BaseQty
 	                        ,IID.InventoryReceiveId
 	                        ,IID.InventoryReceiveDetailId
@@ -2548,18 +2514,11 @@ namespace Library.MaterialManagement.Inventory
                         LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
                         LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId = TUoM.Id
-                         --left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
-                       -- LEFT JOIN trn.Invoice AS I ON I.InventoryReceiveId = II.Id
                         LEFT JOIN trn.Voucher V ON V.Id = II.VoucherId
-                        --left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=II.Id					
-                        --left join trn.Voucher V1 on V1.Id=ep.VoucherId 
-
 						LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
 						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.PostDrBudgetMasterId
 						LEFT JOIN HKP.Activity IA ON IA.Id=IID.PostDrActivityId
 						Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
-
-
 						LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IID.PostCrGLGeneralInfoId 
 						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
 						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
@@ -2572,41 +2531,14 @@ namespace Library.MaterialManagement.Inventory
                 {
                     sql = @"SELECT II.Id AS IssueId
 	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate
-	                        --,II.CompanyGroupId
-	                        --,II.CompanyId
-	                        --,II.PlantId
-	                        -- ,II.EntityId  ---userName as Entityname 
-	                        ,En.UserName AS Entityname
-	                        --,II.AddedBy
-	                        --,II.AddedDate
-	                        --,II.AddedFromIP
-	                        --,II.UpdatedBy
-	                        --,II.UpdatedDate
-	                        --,II.UpdatedFromIP
-	                        -- ,II.MaterialStorageId
-	                        ,MS.UserName AS MaterialStorageName
-	                        ,II.STATUS
-	                        -- ,II.VoucherId 
-	                        --,VoucherNo=CASE WHEN II.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
-	                        ,v.VoucherNo
-	                        --,Posted=CASE WHEN II.Status <>'' then 'Yes' else 'No' END						
-	                        --,PostingDate= CASE WHEN II.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
-	                        --,PostedBy=CASE WHEN II.EmployeeId <> '' Then ep.AddedBy else I.AddedBy END,II.EmployeeId
-	                        ,IID.Id IssueDetailId
-	                        ,IID.InventoryIssueId
-	                        --,IID.InventoryMaterialId
-	                        ,MT.UserName MaterialType
+	                        ,En.UserName AS Entityname ,MS.UserName AS MaterialStorageName
+	                        ,II.STATUS ,v.VoucherNo
+	                        ,IID.Id IssueDetailId ,IID.InventoryIssueId ,MT.UserName MaterialType ,II.IssueType
 	                        ,MGM.UserName AS MaterialGroupMasterName
 	                        ,IM.MaterialMasterId
 	                        ,MM.UserName MaterialMasterName
-	                        -- , IM.ArticleId
 	                        ,ART.StandardName ArticleName
-	                        ,IsAsset = CASE 
-		                        WHEN MM.IsAsset = 0
-			                        THEN 'No'
-		                        ELSE 'Yes'
-		                        END
-	                        --, IM.FirstCharacteristicsId
+	                        ,IsAsset = CASE  WHEN MM.IsAsset = 0 THEN 'No' ELSE 'Yes' END
 	                        ,FC.UserName AS FirstCharacteristics
 	                        ,IM.FirstCharacteristicsValueId
 	                        ,ISNULL(FCV.UserName, '') AS FirstCharacteristicsValue
@@ -2626,23 +2558,10 @@ namespace Library.MaterialManagement.Inventory
 	                        ,Round(IID.PolicyRate,2) PolicyRate
 	                        ,Round(IID.PolicyAmount,2) PolicyAmount
 	                        ,IID.Policy
-	                        --,IID.AddedBy
-	                        --,IID.AddedDate
-	                        --,IID.AddedFromIP
-	                        --,IID.UpdatedBy
-	                        --,IID.UpdatedDate
-	                        --,IID.UpdatedFromIP
-	                        ,IID.BaseQty
-	                        ,IID.InventoryReceiveId
-	                        ,IID.InventoryReceiveDetailId
-                            ,ISNULL(IGL.UserName,'') AS GL
-							,ISNULL(IA.UserName,'') Activity
-							,isnull(B.UserName,'') AS Budget
-							,isnull(IGL1.UserName,'') AS CGL
-							,isnull(IA1.UserName,'') AS CActivity
-							,isnull(B1.UserName,'') AS CBUdget
-                            ,CC.UserName CostCenterName
-                            ,EI.EmployeeName
+	                        ,IID.BaseQty ,IID.InventoryReceiveId ,IID.InventoryReceiveDetailId
+                            ,ISNULL(IGL.UserName,'') AS GL,ISNULL(IA.UserName,'') Activity ,isnull(B.UserName,'') AS Budget
+							,isnull(IGL1.UserName,'') AS CGL ,isnull(IA1.UserName,'') AS CActivity ,isnull(B1.UserName,'') AS CBUdget
+                            ,CC.UserName CostCenterName ,EI.EmployeeName
                         FROM trn.InventoryIssue II
                         LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId
                         LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
@@ -2660,17 +2579,11 @@ namespace Library.MaterialManagement.Inventory
                         LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
                         LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId = TUoM.Id
-                        --left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
-                        --LEFT JOIN trn.Invoice AS I ON I.InventoryReceiveId = II.Id
                         LEFT JOIN trn.Voucher V ON V.Id = II.VoucherId
-                        --left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=II.Id					
-                        --left join trn.Voucher V1 on V1.Id=ep.VoucherId 
 						LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
 						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.PostDrBudgetMasterId
 						LEFT JOIN HKP.Activity IA ON IA.Id=IID.PostDrActivityId
 						Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
-
-
 						LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IID.PostCrGLGeneralInfoId 
 						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
 						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
@@ -2703,41 +2616,18 @@ namespace Library.MaterialManagement.Inventory
                 {
                     sql = @"SELECT II.Id AS IssueId,ospo.Id as PONumber
 	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate
-	                        --,II.CompanyGroupId
-	                        --,II.CompanyId
-	                        --,II.PlantId
-	                        -- ,II.EntityId  ---userName as Entityname 
 	                        ,En.UserName AS Entityname
-	                        --,II.AddedBy
-	                        --,II.AddedDate
-	                        --,II.AddedFromIP
-	                        --,II.UpdatedBy
-	                        --,II.UpdatedDate
-	                        --,II.UpdatedFromIP
-	                        -- ,II.MaterialStorageId
 	                        ,MS.UserName AS MaterialStorageName
 	                        ,II.STATUS
-	                        -- ,II.VoucherId 
-	                        --,VoucherNo=CASE WHEN II.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
 	                        ,v.VoucherNo
-	                        --,Posted=CASE WHEN II.Status <>'' then 'Yes' else 'No' END						
-	                        --,PostingDate= CASE WHEN II.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
-	                        --,PostedBy=CASE WHEN II.EmployeeId <> '' Then ep.AddedBy else I.AddedBy END,II.EmployeeId
 	                        ,IID.Id IssueDetailId
 	                        ,IID.InventoryIssueId
-	                        --,IID.InventoryMaterialId
-	                        ,MT.UserName MaterialType
+	                        ,MT.UserName MaterialType,II.IssueType
 	                        ,MGM.UserName AS MaterialGroupMasterName
 	                        ,IM.MaterialMasterId
 	                        ,MM.UserName MaterialMasterName
-	                        -- , IM.ArticleId
 	                        ,ART.StandardName ArticleName
-	                        ,IsAsset = CASE 
-		                        WHEN MM.IsAsset = 0
-			                        THEN 'No'
-		                        ELSE 'Yes'
-		                        END
-	                        --, IM.FirstCharacteristicsId
+	                        ,IsAsset = CASE  WHEN MM.IsAsset = 0 THEN 'No' ELSE 'Yes' END
 	                        ,FC.UserName AS FirstCharacteristics
 	                        ,IM.FirstCharacteristicsValueId
 	                        ,ISNULL(FCV.UserName, '') AS FirstCharacteristicsValue
@@ -2750,19 +2640,12 @@ namespace Library.MaterialManagement.Inventory
 	                        ,IM.ThirdCharacteristicsValueId
 	                        ,ISNULL(TCV.UserName, '') AS ThirdCharacteristicsValue
 	                        ,IID.TransactionQty
-	                        --,IID.BaseUOMId
 	                        ,TUoM.UserName AS UOM
 	                        ,Round(IID.AvgRate,2) AvgRate
 	                        ,Round(IID.AvgAmount,2) AvgAmount
 	                        ,Round(IID.PolicyRate,2) PolicyRate
 	                        ,Round(IID.PolicyAmount,2) PolicyAmount
 	                        ,IID.Policy
-	                        --,IID.AddedBy
-	                        --,IID.AddedDate
-	                        --,IID.AddedFromIP
-	                        --,IID.UpdatedBy
-	                        --,IID.UpdatedDate
-	                        --,IID.UpdatedFromIP
 	                        ,IID.BaseQty
 	                        ,IID.InventoryReceiveId
 	                        ,IID.InventoryReceiveDetailId
@@ -2792,18 +2675,11 @@ namespace Library.MaterialManagement.Inventory
                         LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
                         LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId = TUoM.Id
-                         --left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
-                       -- LEFT JOIN trn.Invoice AS I ON I.InventoryReceiveId = II.Id
                         LEFT JOIN trn.Voucher V ON V.Id = II.VoucherId
-                        --left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=II.Id					
-                        --left join trn.Voucher V1 on V1.Id=ep.VoucherId 
-
 						LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
 						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.PostDrBudgetMasterId
 						LEFT JOIN HKP.Activity IA ON IA.Id=IID.PostDrActivityId
 						Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
-
-
 						LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IID.PostCrGLGeneralInfoId 
 						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
 						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
@@ -2812,7 +2688,6 @@ namespace Library.MaterialManagement.Inventory
                         left join dbo.OSTransformationPO ospo on ospo.Id=II.JWContractId
 						left join [dbo].[Contract] Ct on Ct.Id=ospo.ContractId
 						left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
-					--	LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
 						left join dbo.PurchaseLC PLC on PLC.Id=ospo.PurchaseLCId
                         left join dbo.OSTransformationPODetail pod on pod.OSTransformationPOId=ospo.Id and pod.Id=IID.OSTransformationPOId
                     where v.VoucherNo is not null ANd II.PlantId='" + identity.PlantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
@@ -2823,41 +2698,18 @@ namespace Library.MaterialManagement.Inventory
                 {
                     sql = @"SELECT II.Id AS IssueId,ospo.Id as PONumber
 	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate
-	                        --,II.CompanyGroupId
-	                        --,II.CompanyId
-	                        --,II.PlantId
-	                        -- ,II.EntityId  ---userName as Entityname 
 	                        ,En.UserName AS Entityname
-	                        --,II.AddedBy
-	                        --,II.AddedDate
-	                        --,II.AddedFromIP
-	                        --,II.UpdatedBy
-	                        --,II.UpdatedDate
-	                        --,II.UpdatedFromIP
-	                        -- ,II.MaterialStorageId
 	                        ,MS.UserName AS MaterialStorageName
 	                        ,II.STATUS
-	                        -- ,II.VoucherId 
-	                        --,VoucherNo=CASE WHEN II.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
 	                        ,v.VoucherNo
-	                        --,Posted=CASE WHEN II.Status <>'' then 'Yes' else 'No' END						
-	                        --,PostingDate= CASE WHEN II.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
-	                        --,PostedBy=CASE WHEN II.EmployeeId <> '' Then ep.AddedBy else I.AddedBy END,II.EmployeeId
 	                        ,IID.Id IssueDetailId
 	                        ,IID.InventoryIssueId
-	                        --,IID.InventoryMaterialId
-	                        ,MT.UserName MaterialType
+	                        ,MT.UserName MaterialType,II.IssueType
 	                        ,MGM.UserName AS MaterialGroupMasterName
 	                        ,IM.MaterialMasterId
 	                        ,MM.UserName MaterialMasterName
-	                        -- , IM.ArticleId
 	                        ,ART.StandardName ArticleName
-	                        ,IsAsset = CASE 
-		                        WHEN MM.IsAsset = 0
-			                        THEN 'No'
-		                        ELSE 'Yes'
-		                        END
-	                        --, IM.FirstCharacteristicsId
+	                        ,IsAsset = CASE   WHEN MM.IsAsset = 0 THEN 'No' ELSE 'Yes' END
 	                        ,FC.UserName AS FirstCharacteristics
 	                        ,IM.FirstCharacteristicsValueId
 	                        ,ISNULL(FCV.UserName, '') AS FirstCharacteristicsValue
@@ -2870,19 +2722,12 @@ namespace Library.MaterialManagement.Inventory
 	                        ,IM.ThirdCharacteristicsValueId
 	                        ,ISNULL(TCV.UserName, '') AS ThirdCharacteristicsValue
 	                        ,IID.TransactionQty
-	                        --,IID.BaseUOMId
 	                        ,TUoM.UserName AS UOM
 	                        ,Round(IID.AvgRate,2) AvgRate
 	                        ,Round(IID.AvgAmount,2) AvgAmount
 	                        ,Round(IID.PolicyRate,2) PolicyRate
 	                        ,Round(IID.PolicyAmount,2) PolicyAmount
 	                        ,IID.Policy
-	                        --,IID.AddedBy
-	                        --,IID.AddedDate
-	                        --,IID.AddedFromIP
-	                        --,IID.UpdatedBy
-	                        --,IID.UpdatedDate
-	                        --,IID.UpdatedFromIP
 	                        ,IID.BaseQty
 	                        ,IID.InventoryReceiveId
 	                        ,IID.InventoryReceiveDetailId
@@ -2913,17 +2758,11 @@ namespace Library.MaterialManagement.Inventory
                         LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
                         LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId = TUoM.Id
-                        --left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
-                        --LEFT JOIN trn.Invoice AS I ON I.InventoryReceiveId = II.Id
                         LEFT JOIN trn.Voucher V ON V.Id = II.VoucherId
-                        --left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=II.Id					
-                        --left join trn.Voucher V1 on V1.Id=ep.VoucherId 
 						LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
 						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.PostDrBudgetMasterId
 						LEFT JOIN HKP.Activity IA ON IA.Id=IID.PostDrActivityId
 						Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
-
-
 						LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IID.PostCrGLGeneralInfoId 
 						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
 						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
@@ -2932,7 +2771,6 @@ namespace Library.MaterialManagement.Inventory
                         left join dbo.OSTransformationPO ospo on ospo.Id=II.JWContractId
 						left join [dbo].[Contract] Ct on Ct.Id=ospo.ContractId
 						left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
-					--	LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
 						left join dbo.PurchaseLC PLC on PLC.Id=ospo.PurchaseLCId
                         left join dbo.OSTransformationPODetail pod on pod.OSTransformationPOId=ospo.Id and pod.Id=IID.OSTransformationPOId
                     where v.VoucherNo is null ANd II.PlantId='" + identity.PlantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
@@ -2960,7 +2798,7 @@ namespace Library.MaterialManagement.Inventory
                 {
                     sql = @"SELECT II.Id AS IssueId
 	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate	 
-	                        ,MT.UserName MaterialType
+	                        ,MT.UserName MaterialType,II.IssueType
 	                        ,MGM.UserName AS MaterialGroupMasterName
 	                        ,IM.MaterialMasterId
 	                        ,MM.UserName MaterialMasterName	                      
@@ -3040,7 +2878,7 @@ namespace Library.MaterialManagement.Inventory
                 {
                     sql = @"SELECT II.Id AS IssueId
 	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate	 
-	                        ,MT.UserName MaterialType
+	                        ,MT.UserName MaterialType,II.IssueType
 	                        ,MGM.UserName AS MaterialGroupMasterName
 	                        ,IM.MaterialMasterId
 	                        ,MM.UserName MaterialMasterName	                      
