@@ -3856,6 +3856,7 @@
     <Content Include="Areas\Payrolls\Views\PaySlips\PaySlipsNew.cshtml" />
     <Content Include="Areas\Payrolls\Views\PaySlipsNew\PaySlipsNew.cshtml" />
     <Content Include="Areas\Productions\Views\MachineLayoutReport\Aplos.cshtml" />
+    <Content Include="Areas\JobWork\Views\JWIssueReturn\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -3941,6 +3942,11 @@
     <Content Include="POPResources\Templates\JWValAddedPurchaseOrder20202.docx" />
     <Content Include="POPResources\Templates\InventoryPreSalesReport202026.docx" />
     <Content Include="POPResources\Templates\FixedAssetDisposedScrap20171.docx" />
+    <Content Include="POPResources\Templates\JobWorkValAddedIssue20202.docx" />
+    <Content Include="POPResources\Templates\JobWorkIssue20202.docx" />
+    <Content Include="POPResources\Templates\JobWorkPurchaseOrder20202.docx" />
+    <Content Include="POPResources\Templates\JobWorkValAddedPurchaseOrder20202.docx" />
+    <Content Include="POPResources\Templates\InOutGatePassSales20171.docx" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />

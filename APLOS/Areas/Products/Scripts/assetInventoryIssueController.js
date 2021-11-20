@@ -137,7 +137,8 @@ function assetInventoryIssueController($window,cboService, commonMessage, $scope
                         ShowResult(response.data.Message, 'failure');
                     else {
                         ShowResult(response.data.Message, 'success');
-                        $scope.Clear();
+                        //$scope.Clear();
+                        $scope.productNew.Id = response.data.inventoryIssue.Id;
                         $scope.getData();
                     }
                 }), function (response) {
