@@ -530,7 +530,7 @@ namespace Aplos.Areas.Products.Controllers
 			inventoryIssue.CompanyId = identity.CompanyId;
 			inventoryIssue.PlantId = identity.PlantId;
 			_inventoryIssueService.InsertAssetInventoryIssue(entities, specificStockList, inventoryIssue);
-			return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+			return Json(new { inventoryIssue, Message = AplosMessage.Success + "Issue No=" + inventoryIssue.Id }, JsonRequestBehavior.AllowGet);
 		}
 
 		#endregion
