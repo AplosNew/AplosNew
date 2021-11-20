@@ -462,6 +462,13 @@ namespace Library.HumanResource.NewAttendanceProcess
                             shiftchange.Tables[0].Rows[0]["ManualByWhom"] = identity.Name;
                             shiftchange.Tables[0].Rows[0]["ManualEntryTime"] = DateTime.Now;
                             shiftchange.Tables[0].Rows[0]["ManualFlag"] = true;
+                            shiftchange.Tables[0].Rows[0]["TargetOT"] = DBNull.Value;
+                            shiftchange.Tables[0].Rows[0]["PlanOT"] = DBNull.Value;
+                            shiftchange.Tables[0].Rows[0]["AppliedOTLimit"] = DBNull.Value;
+                            shiftchange.Tables[0].Rows[0]["AllowedOTLimit"] = DBNull.Value;
+                            shiftchange.Tables[0].Rows[0]["StandardOT"] = DBNull.Value;
+                            shiftchange.Tables[0].Rows[0]["AdditionalOt"] = DBNull.Value;
+
                             shiftchange.Tables[0].Rows[0].EndEdit();
 
                             ap.CheckerFunction(ref man, shiftchange.Tables[0].Rows[0]["RowId"].ToString());
@@ -525,6 +532,17 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 dr["DateOTComfirm"] = DBNull.Value;
                                 dr["IsOTComfirm"] = false;
 
+                                #region OT Columns Nullified
+
+                                dr["TargetOT"] = DBNull.Value;
+                                dr["PlanOT"] = DBNull.Value;
+                                dr["AppliedOTLimit"] = DBNull.Value;
+                                dr["AllowedOTLimit"] = DBNull.Value;
+                                dr["StandardOT"] = DBNull.Value;
+                                dr["AdditionalOt"] = DBNull.Value;
+
+                                #endregion
+
                                 dr.EndEdit();
 
                                 ap.CheckerFunction(ref man, shiftchange.Tables[0].Rows[0]["RowId"].ToString());
@@ -556,6 +574,8 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 clsStaticInfo _infos = new clsStaticInfo();
                 _infos.SaveDataSets(dsRem);
+
+
 
                 ap.ManualScheduler(identity.PlantId, man);
             }
