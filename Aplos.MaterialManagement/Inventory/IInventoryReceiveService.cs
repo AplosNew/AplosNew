@@ -108,10 +108,17 @@ namespace Library.MaterialManagement.Inventory
         void PurchaseReturnReport(string CompanyId, string CompanyGroupID, string plantId, string UserId, string grnId);
         void InventoryIssueReport(string CompanyId, string CompanyGroupID, string plantId, string UserId, string grnId);
         
-        // Job Work Transformation Issue
+        // Outsource Transformation Issue
         void JWIssueReport(string CompanyId, string CompanyGroupID, string plantId, string UserId, string grnId);
 
         void JWValAddedIssueReport(string CompanyId, string CompanyGroupID, string plantId, string UserId, string grnId);
+
+        // JobWork Transformation Template
+
+        void JobWorkTransformationIssueReport(string CompanyId, string CompanyGroupID, string plantId, string UserId, string grnId);
+
+        // Jobwork Value added template
+        void JobWorkValAddedIssueReport(string CompanyId, string CompanyGroupID, string plantId, string UserId, string grnId);
 
         void InventorySalesReportPrint(string CompanyId, string CompanyGroupID, string plantId, string UserId, string grnId);
         void InventoryPreSalesReportPrint(string CompanyId, string CompanyGroupID, string plantId, string UserId, string grnId);

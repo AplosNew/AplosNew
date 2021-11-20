@@ -23,20 +23,19 @@
                                     @*<div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="20"></div>*@
                                     <div e-column e-field="IssueNo" e-headertext="Issue No" e-width="60"></div>
                                     <div e-column e-field="IssueDate" e-headertext="IssueDate" e-width="60"></div>
-                                    <div e-column e-field="GRNNo" e-headertext="GRNNo" e-width="60"></div>
-                                    <div e-column e-field="GRNDate" e-headertext="GRN Date" e-width="60"></div>
-                                    <div e-column e-field="GateEntryNo" e-headertext="GateEntry No" e-width="60"></div>
-                                    <div e-column e-field="POId" e-headertext="PO No" e-width="60"></div>
-                                    <div e-column e-field="GRNCurrency" e-headertext="GRN Currency" e-width="60"></div>
-                                    <div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="80"></div>
-                                    <div e-column e-field="GRNAmount" e-headertext="Amount (TRN)" textAlign='Right' e-width="80"></div>
-                                    <div e-column e-field="CurrencyCode" e-headertext="Books Currency" e-width="60"></div>
-                                    <div e-column e-field="Amount" e-headertext="Amount (Books)" textAlign='Right' e-width="80"></div>
                                     <div e-column e-field="MaterialGroupMasterName" e-headertext="MaterialGroup" e-width="120"></div>
                                     <div e-column e-field="UserName" e-headertext="Material" e-width="140"></div>
                                     <div e-column e-field="StandardName" e-headertext="Article" e-width="160"></div>
                                     <div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="100"></div>
                                     <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="100"></div>
+                                    <div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="80"></div>
+                                    <div e-column e-field="GRNAmount" e-headertext="Amount (TRN)" textAlign='Right' e-width="80"></div>
+                                    <div e-column e-field="CurrencyCode" e-headertext="Books Currency" e-width="60"></div>
+                                    <div e-column e-field="Amount" e-headertext="Amount (Books)" textAlign='Right' e-width="80"></div>
+                                    <div e-column e-field="GRNNo" e-headertext="GRNNo" e-width="60"></div>
+                                    <div e-column e-field="GRNDate" e-headertext="GRN Date" e-width="60"></div>
+                                    <div e-column e-field="GateEntryNo" e-headertext="GateEntry No" e-width="60"></div>
+                                    <div e-column e-field="POId" e-headertext="PO No" e-width="60"></div>
                                     <div e-column e-field="PartyName" e-headertext="Vendor" e-width="100"></div>
                                     <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="100"></div>
                                     <div e-column e-field="UnitOfMeasurement" e-headertext="UOM" e-width="30"></div>
@@ -141,20 +140,21 @@
                                     <tr>
                                         <th>Issue No</th>
                                         <th>Issue Date</th>
-                                        <th>PO No</th>
-                                        <th>Qty</th>
-                                        <th>Currency</th>
-                                        <th>Amount (TRN)</th>
                                         <th>MaterialGroup</th>
                                         <th>Material</th>
                                         <th>Article</th>
                                         <th>SKU1</th>
                                         <th>SKU2</th>
                                         <th style="width: 200px;">Asset Master</th>
+                                        <th>Qty</th>
+                                        <th>Currency</th>
+                                        <th>Amount (TRN)</th>
+
                                         <th style="width: 200px;">Budget</th>
                                         <th style="width: 150px;">Activity</th>
                                         <th>AUC Budget</th>
                                         <th>AUC Activity</th>
+                                        <th>PO No</th>
                                         <th>Vendor</th>
                                         <th>Employee Name</th>
                                         <th>UoM</th>
@@ -167,16 +167,15 @@
                                     <tr ng-repeat="x in selectFixedAssetDataList">
                                         <td>{{x.IssueNo}}</td>
                                         <td>{{x.IssueDate}}</td>
-                                        <td>{{x.POId}}</td>
-                                        <td>{{x.TransactionQty}}</td>
-                                        <td>{{x.GRNCurrency}}</td>
-                                        <td>{{x.Amount}}</td>
                                         <td>{{x.MaterialGroupMasterName}}</td>
                                         <td>{{x.UserName}}</td>
                                         <td>{{x.StandardName}}</td>
                                         <td>{{x.FirstCharacteristicsValue}}</td>
                                         <td>{{x.SecondCharacteristicsValue}}</td>
                                         <td>{{x.AssetMasterName}}</td>
+                                        <td>{{x.TransactionQty}}</td>
+                                        <td>{{x.GRNCurrency}}</td>
+                                        <td>{{x.Amount}}</td>
                                         <td>
                                             <div class="input-group" style="margin-top: -7px;margin-bottom: -7px;">
                                                 <input type="text" ng-model="x.DrBudgetName" class="form-control" readonly style="width: 100px;">
@@ -202,6 +201,7 @@
                                         </td>
                                         <td>{{x.CrBudgetName}}</td>
                                         <td>{{x.CrActivityCode}}</td>
+                                        <td>{{x.POId}}</td>
                                         <td>{{x.PartyName}}</td>
                                         <td>{{x.EmployeeName}}</td>
                                         <td>{{x.UnitOfMeasurement}}</td>

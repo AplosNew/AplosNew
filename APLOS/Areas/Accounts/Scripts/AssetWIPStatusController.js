@@ -372,7 +372,7 @@ function AssetWIPStatusController(commonMessage, $scope, $rootScope, $filter, $h
 
 
     $scope.getAssetWIPstatusReportExcel = function () {
-        var filtered = $("#GridAssetWIPstatus2").data("ejGrid").getFilteredRecords();
+        var filtered = $("#GridAssetWIPstatus").data("ejGrid").getFilteredRecords();
         if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
             filtered = $scope.AssetWIPstatusList;
         }

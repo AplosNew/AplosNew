@@ -12,7 +12,7 @@ namespace Library.HumanResource.Payroll.Setting
 {
     public class clsBonusPolicyMonthlyRetain
     {
-        public void Save(BnsPlcMthRetain master, List<BnsPlcMthRetainMthNo> months)
+        public void Save(BnsPlcMthRetain master, List<BnsPlcMthRetainMthNo> months, List<BonusPolicyMonthlyRetainMasterSalaryHead> HeadList)
         {
 
             try
@@ -28,14 +28,121 @@ namespace Library.HumanResource.Payroll.Setting
                 GetBonusPolicyMonthlyRetainMonthNo(master.ID, out dsMonth);
                 _BonusMonth(ref dsMonth, master.ID, months);
 
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster, dsMonth);
+                #region Bonus Policy Salary Head Save Part
+                if (HeadList != null)
+                {
+                    DeleteHead(master.ID);
+                    GetHead(master.ID, out DataSet dsHead);
+                    _Head(ref dsHead, master.ID, HeadList);
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMaster, dsMonth, dsHead);
+                }
+
+                #endregion
+                else
+                {
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMaster, dsMonth);
+                }
+
+                //clsStaticInfo _info = new clsStaticInfo();
+                //_info.SaveDataSets(dsMaster, dsMonth);
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
+        void _Head(ref DataSet dsSaveBonusMonths, string MasterID, List<BonusPolicyMonthlyRetainMasterSalaryHead> HeadList)
+        {
+
+            DataView dvMSave = null;
+            DataTable dtMSave = null;
+            DataRow drMSave = null;
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                dtMSave = dsSaveBonusMonths.Tables[0];
+                int count = 0;
+                foreach (var item in HeadList)
+                {
+                    dvMSave = new DataView();
+                    dvMSave.Table = dtMSave;
+                    dvMSave.RowFilter = "BonusPolicyMonthlyRetainMasterId ='" + item.BonusPolicyMonthlyRetainMasterId + "' and SalaryHeadID='" + item.SalaryHeadID + "'";
+                    if (dvMSave.Count == 0)
+                    {
+                        count++;
+                        drMSave = dtMSave.NewRow();
+                        drMSave["Id"] = MasterID + count;
+                        drMSave["BonusPolicyMonthlyRetainMasterId"] = MasterID;
+                        drMSave["SalaryHeadID"] = item.SalaryHeadID;
+                        drMSave["SalaryHeadID"] = item.SalaryHeadID;
+                        drMSave["Sequence"] = count;
+                        drMSave["AddedBy"] = identity.Name;
+                        drMSave["AddedDate"] = DateTime.Now;
+                        drMSave["AddedFromIP"] = identity.IPAddress;
+                        drMSave["UpdatedBy"] = identity.Name;
+                        drMSave["UpdatedDate"] = System.DateTime.Now.ToString();
+                        drMSave["UpdatedFromIP"] = identity.IPAddress;
+                        dtMSave.Rows.Add(drMSave);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public void DeleteHead(string sMstID)
+        {
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(@"DELETE FROM BonusPolicyMonthlyRetainMasterSalaryHead WHERE BonusPolicyMonthlyRetainMasterId = '" + sMstID + "'", true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                objCon.RollBack();
+                throw (ex);
+            }
+            finally
+            {
+                objCon.CloseConnection();
+                objCon = null;
+            }
+        }//End Function
+        public void GetHead(string sMstID, out DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                if (sMstID != "")
+                {
+                    strSQL = "SELECT * FROM BonusPolicyMonthlyRetainMasterSalaryHead WHERE BonusPolicyMonthlyRetainMasterId = '" + sMstID + "'";
+                }
+                else
+                {
+                    strSQL = "SELECT * FROM BonusPolicyMonthlyRetainMasterSalaryHead ";
+                }
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
 
         public void SaveDetails(BnsPlcMthRetainDetail details)
         {
@@ -375,7 +482,7 @@ namespace Library.HumanResource.Payroll.Setting
                     dr["FstSalaryHeadID"] = distribution.FstSalaryHeadID;
                     if (string.IsNullOrEmpty(distribution.SndValue))
                     {
-                        
+
                         dr["SndValue"] = "0";
                     }
                     else
@@ -581,10 +688,10 @@ namespace Library.HumanResource.Payroll.Setting
                     throw new Exception("Select Id first");
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
+                con.executeQuery("delete from [dbo].[BonusPolicySalaryHead] where BonusPolicyMasterId='" + ID + "'");
                 con.executeQuery("delete from BonusPolicyMonthlyRetainMaster where ID='" + ID + "'");
-
                 con.CommitTransaction();
-                
+
             }
             catch (Exception ex)
             {
@@ -600,7 +707,7 @@ namespace Library.HumanResource.Payroll.Setting
                     throw new Exception("Select Id first");
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
-                con.executeQuery("delete from BonusPolicyMonthlyRetainMonthNo where BnsPlcMthRetainMstID='" + ID + "' and MonthNo= '"+monthno+"'");
+                con.executeQuery("delete from BonusPolicyMonthlyRetainMonthNo where BnsPlcMthRetainMstID='" + ID + "' and MonthNo= '" + monthno + "'");
 
                 con.CommitTransaction();
 
@@ -618,7 +725,7 @@ namespace Library.HumanResource.Payroll.Setting
                 if (string.IsNullOrEmpty(ID))
                 {
                     throw new Exception("Select Id first");
-                }                    
+                }
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
                 con.executeQuery("delete from BonusPolicyMonthlyRetainDetails where ID='" + ID + "'");
@@ -639,7 +746,7 @@ namespace Library.HumanResource.Payroll.Setting
                 if (string.IsNullOrEmpty(ID))
                 {
                     throw new Exception("Select Id first");
-                }                    
+                }
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
                 con.executeQuery("delete from BonusPolicyMonthlyRetainDistribution where ID='" + ID + "'");
@@ -715,4 +822,26 @@ public class BnsPlcMthRetainDistribution
     public string FstSalaryHeadID { get; set; }
     public string SndValue { get; set; }
     public string SndSalaryHeadID { get; set; }
+}
+public class BonusPolicyMonthlyRetainMasterSalaryHead
+{
+    #region Scalar Properties            
+    public string Id { get; set; }
+    public string BonusPolicyMonthlyRetainMasterId { get; set; }
+    public string SalaryHeadID { get; set; }
+    #endregion Scalar Properties
+
+    #region Audit Properties
+
+    public string AddedBy { get; set; }
+
+    public DateTime? AddedDate { get; set; }
+
+    public string AddedFromIP { get; set; }
+
+    public string UpdatedBy { get; set; }
+    public DateTime? UpdatedDate { get; set; }
+    public string UpdatedFromIP { get; set; }
+
+    #endregion Audit Properties
 }

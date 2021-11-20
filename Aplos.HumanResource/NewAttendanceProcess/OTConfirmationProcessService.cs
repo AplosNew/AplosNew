@@ -363,10 +363,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 {
                                     ReducedMinutes = Convert.ToDecimal(ProcessOT - StdOT);
                                 }
-                                DateTime ManualOutTime = Convert.ToDateTime(OutTime).AddMinutes(-Convert.ToDouble(ReducedMinutes));
+                                DateTime NewOutTime = Convert.ToDateTime(OutTime).AddMinutes(Convert.ToDouble(ReducedMinutes)*-1);
+                                string NewOut=NewOutTime.ToString("dd-MMM-yyyy hh:mm:ss tt");
 
-                                dr["OutTime"] = ManualOutTime;
-                                dr["ManualOutTime"] = ManualOutTime;
+                                dr["OutTime"] = NewOut;
+                                dr["ManualOutTime"] = NewOut;
                                 
                             }
 
