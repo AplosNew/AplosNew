@@ -255,3 +255,54 @@
 
     </div>
 </div>
+
+<div class="modal " id="TableDetailModalBB">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close" data-dismiss="modal">&times;</button>
+                <h1 class="modal-title" style="font-size:20px; text-align:center; margin:-10px;">Details Table</h1>
+            </div>
+            <div class="modal-body" style="min-height:300px; min-width:100%;">
+                <div class="row" style="margin: 20px; font-style:italic"> </div>
+                <p style="margin:10px;">
+                    The Detail Table
+                <p>
+                    @*<div class="common-btn" style="margin-top:20px;">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="printReport();" class="btn">Export To Excel</button></li>
+                        </ul>
+                    </div>*@
+
+                    <div id="getClickDetail" ej-grid e-datasource="ClickDetail"
+                         e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                         e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
+                        <div e-columns>
+                            @*<div e-column e-field="BudgetId" e-headertext="BudgetId" e-type="string" e-width="80"></div>*@
+                            <div e-column e-field="BudgetCode" e-headertext="Budget Code" e-type="string" e-width="120"></div>
+                            <div e-column e-field="Proposed" e-headertext="Proposed" e-type="string" e-width="120"></div>
+                            <div e-column e-field="OnRole" e-headertext="OnRole" e-type="time" e-width="120"></div>
+                            <div e-column e-field="Short" e-headertext="Short" e-type="time" e-width="120"></div>
+                            <div e-column e-field="Excess" e-headertext="Excess" e-type="string" e-width="120"></div>
+                            <div e-column e-field="Company" e-headertext="Company" e-type="string" e-width="120"></div>
+                            <div e-column e-field="PLant" e-headertext="Plant" e-type="string" e-width="120"></div>
+                            <div e-column e-field="Division" e-headertext="Division" e-type="string" e-width="120"></div>
+                            <div e-column e-field="Unit" e-headertext="Unit" e-type="string" e-width="120"></div>
+                            <div e-column e-field="Entity" e-headertext="Entity" e-type="string" e-width="120"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-type="string" e-width="120"></div>
+                            <div e-column e-field="subSection" e-headertext="Sub Section" e-type="string" e-width="120"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-type="string" e-width="120"></div>
+
+                        </div>
+                    </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>

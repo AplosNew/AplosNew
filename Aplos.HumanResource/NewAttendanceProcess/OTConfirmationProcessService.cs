@@ -99,13 +99,13 @@ namespace Library.HumanResource.NewAttendanceProcess
                             a.InTime,a.OutTime,a.ProcessedOT,isnull((a.ProcessedOT*dt.OTMultiplingFactor),'0') as TargetOT,
                             isnull(PreallocatedOTHr*60,'0') as PlanOT,isnull(dt.DayLimit,'0')DayLimit,a.IsOTComfirm,
                             isnull(a.StandardOT,'0')StandardOT,isnull(a.AppliedOTLimit,'0')AppliedOTLimit,
-                            isnull(a.AllowedOTLimit,'0')AllowedOTLimit,isnull(a.AdditionalOT,'0')AdditionalOT,dt.ApplicableWM,
+                            isnull(a.AllowedOTLimit,'0')AllowedOTLimit,isnull(a.AdditionalOT,'0')AdditionalOT,dt.ApplicableWM,isnull(dt.MonthlyLimit,'0')MonthlyLimit,
                             --- Week Data
                             WeekLimit= case when a.OTWeek='1' then (select dt.Week1Limit)
                             when a.OTWeek='2' then (select dt.Week2Limit)
                             when a.OTWeek='3' then (select dt.Week3Limit)
                             when a.OTWeek='4' then (select dt.Week4Limit) end,
-                            a.OTYear,a.OTMonth,a.OTWeek,
+                            a.OTYear,a.OTMonth,a.OTWeek,a.ManualOutTime,
                             d.UserName as Department,s.UserName as Section,ss.UserName AS SubSection,l.UserName as Designation 
                             from AttdnProcessData a left join employeeinformation e on a.EmpSystemID=e.SystemId
                             left join org.Plant p on p.Id=e.PlantId
@@ -209,6 +209,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                         decimal WeekStandardOTMaster = 0;
                         decimal MonthStandardOTMaster = 0;
 
+                        #region Confirmed OT Find Out
+
                         if (ApplicablePattern == "W")
                         {
                             Table.DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' AND IsOTComfirm=true AND WorkDate <>#" + FormatDate + "# " +
@@ -255,6 +257,8 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                         }
 
+                        #endregion
+
                         Table.DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "'AND IsOTComfirm=false AND WorkDate =#" + FormatDate + "# ";
                         if (Table.DefaultView.Count > 0)
                         {
@@ -262,10 +266,16 @@ namespace Library.HumanResource.NewAttendanceProcess
                             DataRow dr = Table.DefaultView[0].Row;
                             dr.BeginEdit();
 
+                            #region Variables 
+
                             decimal TargetOT = Convert.ToDecimal(Table.DefaultView[0][@"TargetOT"].ToString());
                             decimal DayLimit = Convert.ToDecimal(Table.DefaultView[0][@"DayLimit"].ToString());
                             decimal WeekLimit = Convert.ToDecimal(Table.DefaultView[0][@"WeekLimit"].ToString());
                             decimal PlanOT = Convert.ToDecimal(Table.DefaultView[0][@"PlanOT"].ToString());
+                            decimal MonthlyLimit = Convert.ToDecimal(Table.DefaultView[0][@"MonthlyLimit"].ToString());
+                            string OutTime = clsWebLib.RetValidLen(Table.DefaultView[0][@"OutTime"]).ToString();
+
+                            #endregion
 
                             #region AllowedOT Limit  
 
@@ -286,14 +296,14 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 }
                             }
                             else if (WkDateApplicableWM == "M")
-                            {
-                                // Min of Balance Limit of Week & DailyLimit
-                                decimal BalanceMonthLimit = WeekLimit - WeekStandardOTMaster;
-                                //decimal SmallerValue = Math.Min(BalanceWeekLimit, DayLimit);
-                                //if (SmallerValue >= 0)
-                                //{
-                                //    dr["AllowedOTLimit"] = SmallerValue;
-                                //}
+                            {                                
+                                // Min of Balance Limit of Month & DailyLimit
+                                decimal BalanceMonthLimit = MonthlyLimit - MonthStandardOTMaster;
+                                decimal SmallerValue = Math.Min(BalanceMonthLimit, DayLimit);
+                                if (SmallerValue >= 0)
+                                {
+                                    dr["AllowedOTLimit"] = SmallerValue;
+                                }
                             }
 
                             #endregion
@@ -340,9 +350,30 @@ namespace Library.HumanResource.NewAttendanceProcess
                             #region OT Confirm
 
                             dr["IsOTComfirm"] = true;
-                            dr.EndEdit();
 
                             #endregion
+
+                            #region Outime Adjust
+
+                            if (OutTime != "")
+                            {
+                                decimal ProcessOT = Convert.ToDecimal(Table.DefaultView[0][@"ProcessedOT"].ToString());
+                                decimal ReducedMinutes = 0;
+                                if (ProcessOT > 0)
+                                {
+                                    ReducedMinutes = Convert.ToDecimal(ProcessOT - StdOT);
+                                }
+                                DateTime NewOutTime = Convert.ToDateTime(OutTime).AddMinutes(Convert.ToDouble(ReducedMinutes)*-1);
+                                string NewOut=NewOutTime.ToString("dd-MMM-yyyy hh:mm:ss tt");
+
+                                dr["OutTime"] = NewOut;
+                                dr["ManualOutTime"] = NewOut;
+                                
+                            }
+
+                            #endregion
+
+                            dr.EndEdit();
 
                         }
 

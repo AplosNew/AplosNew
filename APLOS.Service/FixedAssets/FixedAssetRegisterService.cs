@@ -2468,7 +2468,14 @@ GROUP BY FAR.FABudgetMasterId
 
             var header = GetFixedAssetCapitalizeJournalHeader(companyGroupId, companyId, plantId, voucherId, SourceType.FixedAssetCapitalizeJournal);
 
-            reportFileName = Convert.ToDateTime(header["PostingDate"]).ToString("yyMMdd") + " " + header["VoucherNo"];
+            if (header.Count>0)
+            {
+                reportFileName = Convert.ToDateTime(header["PostingDate"]).ToString("yyMMdd") + " " + header["VoucherNo"];
+            }
+            else
+            {
+                reportFileName = "";
+            }
 
             var dsLocal = _voucherService.GetAdvanceJournalData(companyGroupId, companyId, plantId, voucherId);
 

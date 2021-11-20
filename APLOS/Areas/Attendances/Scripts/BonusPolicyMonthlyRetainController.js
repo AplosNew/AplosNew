@@ -13,6 +13,7 @@ function BonusPolicyMonthlyRetainController($window, cboService, commonMessage, 
     $scope.deleteUrl = $scope.path + 'DeleteDetails/';
     $scope.EOperatorList = [{ Text: "*", Value: "*" }, { Text: "/", Value: "/" }, { Text: "+", Value: "+" }, { Text: "-", Value: "-" }];
     $scope.OperatorList = [{ Text: "*", Value: "*" }, { Text: "/", Value: "/" }, { Text: "+", Value: "+" }, { Text: "-", Value: "-" }];
+    $scope.HeadList = [];
     $scope.companyList = [];
 
     cboService.getCompanyGroupCompanyCbo(null, function (result) {
@@ -557,6 +558,7 @@ function BonusPolicyMonthlyRetainController($window, cboService, commonMessage, 
             //$scope.getDistributions($scope.BnsPlcMthRetainDetail.ID);
         });
         $scope.getMonths($scope.BnsPlcMthRetain.ID);
+        $scope.getHeads($scope.BnsPlcMthRetain.ID);
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
@@ -585,6 +587,11 @@ function BonusPolicyMonthlyRetainController($window, cboService, commonMessage, 
     $scope.MonthList = [];
     $scope.SubmitMonths = function () {
         try {
+            for (var i = 0; i < $scope.MonthList.length; i++) {
+                if ($scope.MonthList[i].MonthName == $scope.BnsPlcMthRetainMthNo.MonthName) {
+                    throw "This Month already exist";
+                }
+            }
             if (baseService.isUndefinedOrNull($scope.BnsPlcMthRetainMthNo.MonthName)) {
                 throw "Select Month First"
             }
@@ -596,14 +603,14 @@ function BonusPolicyMonthlyRetainController($window, cboService, commonMessage, 
     };
 
 
-    // Save Function for Master and Months
+    // Save Function for Master and Months and Report Head
     $scope.Save = function () {
         try {
             ValidationMaster();
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-                data: { 'master': $scope.BnsPlcMthRetain, 'months': $scope.MonthList },
+                data: { 'master': $scope.BnsPlcMthRetain, 'months': $scope.MonthList, 'HeadList': $scope.HeadList },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -881,12 +888,18 @@ function BonusPolicyMonthlyRetainController($window, cboService, commonMessage, 
         };
         $scope.DetailsList = [];
         $scope.MonthList = [];
+        $scope.HeadList = [];
         //$scope.ModelList.response.data[0].MonthName = [];
         $scope.FormulaArray = [];
         $scope.FormulaIdArray = [];
         $scope.FormulaArray = [];
         $scope.FormulaIdArray = [];
-
+        $scope.BonusPolicyMonthlyRetainHead = {
+            Id: null,
+            BonusPolicyMonthlyRetainMasterID: $scope.BnsPlcMthRetain.ID,
+            SalaryHeadID: null,
+            SalaryHeadName: null,
+        }
     };
 
 
@@ -1068,5 +1081,67 @@ function BonusPolicyMonthlyRetainController($window, cboService, commonMessage, 
             ShowResult(e, "failure");
         }
     };
+
+    //#region Report Part
+
+    $scope.BonusPolicyMonthlyRetainHead = {
+        Id: null,
+        BonusPolicyMonthlyRetainMasterID: $scope.BnsPlcMthRetain.ID,
+        SalaryHeadID: null,
+        SalaryHeadName: null,
+    }
+    $scope.SubmitHeads = function () {
+        try {
+            for (var i = 0; i < $scope.HeadList.length; i++) {
+                if ($scope.HeadList[i].SalaryHeadID == $scope.BonusPolicyMonthlyRetainHead.SalaryHeadID) {
+                    throw "This Salary head already Exist";
+                }
+            }
+            for (var i = 0; i < $scope.salaryHeadList.length; i++) {
+                if ($scope.salaryHeadList[i].Value == $scope.BonusPolicyMonthlyRetainHead.SalaryHeadID) {
+                    $scope.BonusPolicyMonthlyRetainHead.SalaryHeadName = $scope.salaryHeadList[i].Text;
+                    break;
+                }
+            }
+            var newObj = Object.assign({}, $scope.BonusPolicyMonthlyRetainHead);
+            $scope.HeadList.push(newObj);
+        } catch (e) {
+            ShowResult(e, 'info');
+        }
+    };
+    $scope.message_confirmation = null;
+    $scope.RemoveHead = function (obj) {
+        $scope.BonusPolicyMonthlyRetainHead = Object.assign({}, obj.data);
+        if (!baseService.isUndefinedOrNull($scope.BonusPolicyMonthlyRetainHead.Id))
+            $scope.message_confirmation = 'Are you sure want to delete permanently ?';
+        angular.element(document.querySelector('#confirmPopUpHead')).modal('show');
+    }
+    $scope.DeleteHeadList = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'DeleteHeadMaster?ID=' + $scope.BonusPolicyMonthlyRetainHead.Id,
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult("Invalid Head ");
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getHeads($scope.BnsPlcMthRetain.ID);
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+    };
+    $scope.getHeads = function (MasterID) {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetHeads?masterID=" + MasterID,
+        }).then(function successCallback(response) {
+            $scope.HeadList = response.data;
+        });
+    }
+    //#endregion
+
 
 }

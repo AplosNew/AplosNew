@@ -340,7 +340,9 @@ namespace Library.Accounting.Accounts
                         ,BG.UserName BudgetGroup,BCT.UserName BudgetCategory,BSCT.UserName BudgetSubCategory
                         ,V.AddedBy
                         , Replace(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') EntryDate
-                        ,v.Narration,ir.NoteForAccounts,ei.EmployeeName
+                        ,v.Narration
+                        ,NoteForAccounts= case when isnull(ir.NoteForAccounts,null) is not null then isnull(ir.NoteForAccounts,null) when isnull(ii.Remarks,null) is not null then isnull(ii.Remarks,null) else null end
+                        ,ei.EmployeeName
                         ,ACT.Id AS [Type],C1.UserName Level1,C2.UserName Level2,C3.UserName Level3,C4.UserName Level4, CCE.UserName CostCenterName
                         FROM TRN.VoucherDetail AS VD
                         LEFT JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
@@ -365,6 +367,7 @@ namespace Library.Accounting.Accounts
 
                         left join trn.Invoice I on I.VoucherId=V.Id
                         left join trn.InventoryReceive ir on ir.Id=i.InventoryReceiveId
+                        left join trn.InventoryIssue ii on ii.VoucherId=v.Id
                         left join dbo.EmployeeInformation ei on ei.SystemId=VD.EmployeeId
                         LEFT JOIN SCS.Currency CB ON CB.Id=CO.BaseCurrencyId
 

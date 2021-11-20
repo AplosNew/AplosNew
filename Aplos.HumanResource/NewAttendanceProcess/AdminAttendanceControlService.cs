@@ -322,6 +322,16 @@ namespace Library.HumanResource.NewAttendanceProcess
                             shiftchange.Tables[0].Rows[0]["OTComfirmBy"] = DBNull.Value;
                             shiftchange.Tables[0].Rows[0]["DateOTComfirm"] = DBNull.Value;
                             shiftchange.Tables[0].Rows[0]["IsOTComfirm"] = false;
+
+                            #region OT Nullified Columns
+                            shiftchange.Tables[0].Rows[0]["TargetOT"] = DBNull.Value;
+                            shiftchange.Tables[0].Rows[0]["PlanOT"] = DBNull.Value;
+                            shiftchange.Tables[0].Rows[0]["AppliedOTLimit"] = DBNull.Value;
+                            shiftchange.Tables[0].Rows[0]["AllowedOTLimit"] = DBNull.Value;
+                            shiftchange.Tables[0].Rows[0]["StandardOT"] = DBNull.Value;
+                            shiftchange.Tables[0].Rows[0]["AdditionalOt"] = DBNull.Value;
+                            #endregion
+
                             shiftchange.Tables[0].Rows[0].EndEdit();
                             //New
                             kk++;
@@ -360,6 +370,17 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 dr["OTComfirmBy"] = DBNull.Value;
                                 dr["DateOTComfirm"] = DBNull.Value;
                                 dr["IsOTComfirm"] = false;
+
+                                #region OT Columns Nullified
+
+                                dr["TargetOT"] = DBNull.Value;
+                                dr["PlanOT"] = DBNull.Value;
+                                dr["AppliedOTLimit"] = DBNull.Value;
+                                dr["AllowedOTLimit"] = DBNull.Value;
+                                dr["StandardOT"] = DBNull.Value;
+                                dr["AdditionalOt"] = DBNull.Value;
+
+                                #endregion
                             }
 
                             dr.EndEdit();
@@ -427,6 +448,17 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 dr["OTComfirmBy"] = DBNull.Value;
                                 dr["DateOTComfirm"] = DBNull.Value;
                                 dr["IsOTComfirm"] = false;
+
+                                #region OT Columns Nullified
+
+                                dr["TargetOT"] = DBNull.Value;
+                                dr["PlanOT"] = DBNull.Value;
+                                dr["AppliedOTLimit"] = DBNull.Value;
+                                dr["AllowedOTLimit"] = DBNull.Value;
+                                dr["StandardOT"] = DBNull.Value;
+                                dr["AdditionalOt"] = DBNull.Value;
+
+                                #endregion
 
                                 dr.EndEdit();
                                 //New
@@ -606,7 +638,8 @@ namespace Library.HumanResource.NewAttendanceProcess
             try
             {
 
-                
+                #region PlantLock Check
+
                 DataSet PlantLock;
                 PlantLockCheck(FD , TD , out PlantLock, PlId);
                 string pl = "";
@@ -619,6 +652,8 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                     throw new Exception("The Plant is Locked for - " + pl);
                 }
+
+                #endregion
 
                 string EmpSel = "";
                 if(Emps == "''")
@@ -716,6 +751,15 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 dsMaster.Tables[0].DefaultView[0]["OTComfirmBy"] = DBNull.Value;
                                 dsMaster.Tables[0].DefaultView[0]["DateOTComfirm"] = DBNull.Value;
                                 dsMaster.Tables[0].DefaultView[0]["IsOTComfirm"] = false;
+                               
+                                #region OT Nullified Columns
+                                dsMaster.Tables[0].DefaultView[0]["StandardOT"] = DBNull.Value;
+                                dsMaster.Tables[0].DefaultView[0]["AdditionalOt"] = DBNull.Value;
+                                dsMaster.Tables[0].DefaultView[0]["AllowedOTLimit"] = DBNull.Value;
+                                dsMaster.Tables[0].DefaultView[0]["AppliedOTLimit"] = DBNull.Value;
+                                dsMaster.Tables[0].DefaultView[0]["PlanOT"] = DBNull.Value;
+                                dsMaster.Tables[0].DefaultView[0]["TargetOT"] = DBNull.Value;
+                                #endregion
 
                             }
                             else
@@ -764,6 +808,15 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 dsMaster.Tables[0].DefaultView[0]["DateOTComfirm"] = DBNull.Value;
                                 dsMaster.Tables[0].DefaultView[0]["IsOTComfirm"] = false;
 
+                                #region OT Nullified Columns
+                                dsMaster.Tables[0].DefaultView[0]["StandardOT"] = DBNull.Value;
+                                dsMaster.Tables[0].DefaultView[0]["AdditionalOt"] = DBNull.Value;
+                                dsMaster.Tables[0].DefaultView[0]["AllowedOTLimit"] = DBNull.Value;
+                                dsMaster.Tables[0].DefaultView[0]["AppliedOTLimit"] = DBNull.Value;
+                                dsMaster.Tables[0].DefaultView[0]["PlanOT"] = DBNull.Value;
+                                dsMaster.Tables[0].DefaultView[0]["TargetOT"] = DBNull.Value;
+                                #endregion
+
 
                             }
                             else
@@ -788,6 +841,16 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     dsMaster.Tables[0].DefaultView[0]["OTComfirmBy"] = DBNull.Value;
                                     dsMaster.Tables[0].DefaultView[0]["DateOTComfirm"] = DBNull.Value;
                                     dsMaster.Tables[0].DefaultView[0]["IsOTComfirm"] = false;
+
+
+                                    #region OT Nullified Columns
+                                    dsMaster.Tables[0].DefaultView[0]["StandardOT"] = DBNull.Value;
+                                    dsMaster.Tables[0].DefaultView[0]["AdditionalOt"] = DBNull.Value;
+                                    dsMaster.Tables[0].DefaultView[0]["AllowedOTLimit"] = DBNull.Value;
+                                    dsMaster.Tables[0].DefaultView[0]["AppliedOTLimit"] = DBNull.Value;
+                                    dsMaster.Tables[0].DefaultView[0]["PlanOT"] = DBNull.Value;
+                                    dsMaster.Tables[0].DefaultView[0]["TargetOT"] = DBNull.Value;
+                                    #endregion
 
                                     dsMaster.Tables[0].DefaultView[0]["ShiftSystemID"] = data[i]["ShiftSystemID"].ToString();
 
@@ -828,6 +891,16 @@ namespace Library.HumanResource.NewAttendanceProcess
                                         dsMaster.Tables[0].DefaultView[0]["OTComfirmBy"] = DBNull.Value;
                                         dsMaster.Tables[0].DefaultView[0]["DateOTComfirm"] = DBNull.Value;
                                         dsMaster.Tables[0].DefaultView[0]["IsOTComfirm"] = false;
+
+                                        #region OT Nullified Columns
+                                        dsMaster.Tables[0].DefaultView[0]["StandardOT"] = DBNull.Value;
+                                        dsMaster.Tables[0].DefaultView[0]["AdditionalOt"] = DBNull.Value;
+                                        dsMaster.Tables[0].DefaultView[0]["AllowedOTLimit"] = DBNull.Value;
+                                        dsMaster.Tables[0].DefaultView[0]["AppliedOTLimit"] = DBNull.Value;
+                                        dsMaster.Tables[0].DefaultView[0]["PlanOT"] = DBNull.Value;
+                                        dsMaster.Tables[0].DefaultView[0]["TargetOT"] = DBNull.Value;
+                                        #endregion
+
                                     }
                                     else
                                     {

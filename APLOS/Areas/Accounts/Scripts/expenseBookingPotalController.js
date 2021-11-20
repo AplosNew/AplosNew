@@ -65,6 +65,7 @@ function expenseBookingPotalController(cboService, commonMessage, $scope, $rootS
         $scope.budgetList = result;
     });
 
+
     $scope.activityList = [];
     $scope.getCboEmployeeBudgetActivityList = function (budgetId, level, employeeId) {
         cboService.GetBudgetMasterActivityLevelPotalCbo(budgetId, level, employeeId, function (result) {
@@ -262,6 +263,17 @@ function expenseBookingPotalController(cboService, commonMessage, $scope, $rootS
         });
     };
     $scope.GetEmployeeTransactionNo();
+    $scope.entityList = [];
+    $scope.entityLoad = function () {
+        baseService.getCompanyConfiguration(function (result) {
+            $scope.companyConfig = result;
+            cboService.getCboEntityByPlant(null, null, "", function (result) {
+                $scope.entityList = result;
+                $scope.companyConfigLoad();
+            });
+        });
+    }
+    $scope.entityLoad();
 
     $scope.costCenterCboList = [];
     $scope.GetCboCostCenterIdByEntity = function (entityId) {
@@ -273,8 +285,9 @@ function expenseBookingPotalController(cboService, commonMessage, $scope, $rootS
 
         });
     };
-    baseService.getCompanyConfiguration(function (result) {
-        $scope.companyConfig = result;
+    $scope.companyConfigLoad = function () {
+        baseService.getCompanyConfiguration(function (result) {
+            $scope.companyConfig = result;
             cboService.getCboWithEmployee(null, null, function (result) {
                 $scope.entityEmployeeList = result;
                 if ($scope.entityEmployeeList.length > 0) {
@@ -282,7 +295,9 @@ function expenseBookingPotalController(cboService, commonMessage, $scope, $rootS
                     $scope.GetCboCostCenterIdByEntity($scope.budgetTransactionMaster.EntityId);
                 }
             });
-    });
+        });
+    }
+    
 
 
     // #region Activity
@@ -644,6 +659,7 @@ function expenseBookingPotalController(cboService, commonMessage, $scope, $rootS
         $scope.getBeneficiaryType();
         $scope.GetCboParallelCurrency();
         $scope.GetEmployeeTransactionNo();
+        $scope.entityLoad();
     }
 
     $scope.report = function (voucherId) {

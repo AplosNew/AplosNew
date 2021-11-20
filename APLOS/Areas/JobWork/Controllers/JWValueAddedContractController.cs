@@ -2460,7 +2460,20 @@ namespace Aplos.Areas.JobWork.Controllers
 
             report.SetHeaderText(ref sheet, ROW, COL, "Remarks", 10, ExcelHAlign.HAlignLeft);
             int ColVCCRemarks = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Base UoM", 10, ExcelHAlign.HAlignLeft);
+            int ColIssueBaseUoM = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Issue Qty", 8, ExcelHAlign.HAlignLeft);
+            int ColIssuedQty = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Amount BC", 10, ExcelHAlign.HAlignLeft);
+            int ColAmtBDT = COL;
             ROW++;
+
             endCol = COL;
             #endregion Headers
 
@@ -2553,6 +2566,10 @@ namespace Aplos.Areas.JobWork.Controllers
                 sheet[ROW, ColEmployeeName].Text = data.Rows[i]["EmployeeName"].ToString();
                 sheet[ROW, ColVCCRemarks].Text = data.Rows[i]["TCCRemarks"].ToString();
                 sheet[ROW, ColOutputMaterialType].Text = data.Rows[i]["OutputMaterialType"].ToString();
+
+                sheet[ROW, ColIssueBaseUoM].Text = data.Rows[i]["IssueBaseUoM"].ToString();
+                sheet[ROW, ColIssuedQty].Number = Math.Round(clsStaticInfo.dbl(data.Rows[i]["IssuedQty"].ToString()), 2);
+                sheet[ROW, ColAmtBDT].Number = Math.Round(clsStaticInfo.dbl(data.Rows[i]["AmtBDT"].ToString()), 2);
 
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -2674,29 +2691,13 @@ namespace Aplos.Areas.JobWork.Controllers
             sheet.UsedRange.NumberFormat = "#,##0.000";
             sheet.UsedRange.WrapText = true;
             sheet.UsedRange.CellStyle.Font.Size = 8;
-            report.CompanyPlantHeader(ref sheet, endCol, "Outsource PO (Value Added)", identity.CompanyId, identity.PlantName, null);
+            report.CompanyPlantHeader(ref sheet, endCol, "Job Work PO (Value Added)", identity.CompanyId, identity.PlantName, null);
             report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
             return workbook;
         }
 
         private DataTable GetContractReportDataById(string PrintTabId)
         {
-            //   var sql = @"select vac.*,TabType='Value Added',FORMAT(vac.PODate,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),vac.[Time],108)[VACTime],FORMAT(vac.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
-            //                           FORMAT(vac.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(vac.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
-            //                           e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName,jwi.UserName as JobWorkItem, vcc.MaterialSpecification, vcc.MaterialReference
-            //,uom.UserName as UOM, vcc.Quantity,mm.UserName as Material, mma.StandardName as Article, vcc.OrderSpecific as MOutOrderSpecific,isnull(vcc.RequiredCapacity,'0') as ReqCapacity, vcc.RateApplyId as RateApplicable, c.Code as Currency
-            //,vcc.RatePerUnit, ISNULL(vcc.Rejection,'0') as VccRejection,vcc.ValueLoss,emp.EmployeeName,emp.EmployeeCode,vcc.Remarks as VCCRemarks,jl.UserName as MaterialLocation,vcc.MaterialType,vcc.FinalOutputCategory
-            //                           from dbo.OSTransformationPO vac left join ORG.Entity e on e.Id=vac.EntityId
-            //left join HKP.Party p on p.Id=vac.PartyId
-            //left join dbo.OSTransformationPODetail vcc on vcc.OSTransformationPOId=vac.Id
-            //left join HKP.JobWorkItem jwi on jwi.Id=vcc.JobWorkItemMasterId
-            //left join SCS.UnitOfMeasurement uom on uom.Id=vcc.OutputMaterialUOMId
-            //left join MST.MaterialMasterArticle mma on mma.Id=vcc.ArticleId
-            //left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
-            //left join SCS.Currency c on c.Id=vcc.CurrencyId
-            //left join dbo.EmployeeInformation emp on emp.SystemId=vcc.ResponsiblePersonId
-            //left join HKP.MaterialStorage jl on jl.Id=vcc.MaterialLocationId
-            //                           where vac.Id = '" + PrintTabId + "' ";
 
             var sql = @"select tc.*,tcc.Id as LineItemId, TabType='Value Added',OutputMaterialType='Service',FORMAT(tc.PODate,'dd-MMM-yyyy') as TransformationDate,FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as TCProcessStartDate,
                                     FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as TCProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as TCContractClosingDate,
@@ -2709,10 +2710,11 @@ namespace Aplos.Areas.JobWork.Controllers
 								--	, mi.TotalGrossConsumptionPerUnit, TotalGrossInputQuantity=(mi.TotalGrossConsumptionPerUnit * tcc.Quantity)
 									--, Amount= case when tcc.RateApplyId='Output' then (tcc.Quantity * tcc.RatePerUnit) else ((mi.TotalGrossConsumptionPerUnit * tcc.Quantity) * tcc.RatePerUnit) End
                                     , Amount= round((tcc.Quantity * tcc.RatePerUnit),2)
-                                    from dbo.OSTransformationPO tc left join ORG.Entity e on e.Id=tc.EntityId
+                                    ,round(ISNULL(BA.IssuedQty,'0'),2) IssuedQty, round(ISNULL(BA.AmountBDT,'0'),2) AmtBDT, BA.BaseUoM as IssueBaseUoM
+                                    from dbo.JWTransformationPO tc left join ORG.Entity e on e.Id=tc.EntityId
 									left join ORG.Plant Pnt on Pnt.Id=tc.PlantId
 									left join HKP.Party p on p.Id=tc.PartyId
-									left join dbo.OSTransformationPODetail tcc on tcc.OSTransformationPOId=tc.Id
+									left join dbo.JWTransformationPODetail tcc on tcc.JWTransformationPOId=tc.Id
 									left join HKP.JobWorkItem jwi on jwi.Id=tcc.JobWorkItemMasterId
 									left join SCS.UnitOfMeasurement uom on uom.Id=tcc.OutputMaterialUOMId
 									left join MST.MaterialMasterArticle mma on mma.Id=tcc.ArticleId
@@ -2721,7 +2723,15 @@ namespace Aplos.Areas.JobWork.Controllers
 									left join SCS.Currency c on c.Id=tcc.CurrencyId
                                     left join SCS.Currency cc on cc.Id=tc.CurrencyId
 									left join dbo.EmployeeInformation emp on emp.SystemId=tcc.ResponsiblePersonId
-									left join HKP.MaterialStorage MS on MS.Id=tcc.MaterialLocationId	
+									left join HKP.MaterialStorage MS on MS.Id=tcc.MaterialLocationId
+                                    left join (select SUM(IIH.Qty) as IssuedQty, Sum(IIH.TotalMaterialBooksCurrencyAmount) AmountBDT, IM.ArticleId, IID.InventoryMaterialId
+													,BUom.UserName as BaseUoM
+													from TRN.InventoryIssueDetail IID left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
+													left join TRN.InventoryMaterial IM on IM.Id=IID.InventoryMaterialId
+													left join SCS.UnitOfMeasurement BUom on BUom.Id=IID.BaseUOMId
+                                                    left join TRN.InventoryIssue II on II.Id=IID.InventoryIssueId
+													where II.JobWorkContractId='" + PrintTabId + @"'
+													group by IM.ArticleId,IID.InventoryMaterialId,BUom.UserName) BA on BA.ArticleId=tcc.ArticleId
                                     where tc.Id = '" + PrintTabId + @"' ";
 
             return _sqlRepository.GetDataTable(sql);
@@ -2730,13 +2740,13 @@ namespace Aplos.Areas.JobWork.Controllers
         private DataTable GetMaterialPlanningChildReportDataById(string PrintTabId)
         {
             var sql = @"select owr.*,P.UserName as Customer,mo.MasterOrderNo,mm.UserName as MaterialOrderItem, uom.UserName as UOM 
-                                                    from dbo.OSTransformationPOMasterOrderItem owr left join HKP.Party P on P.Id=owr.CustomerId
+                                                    from dbo.JWTransformationPOMasterOrderItem owr left join HKP.Party P on P.Id=owr.CustomerId
                                                     left join TRN.MasterOrder mo on mo.Id=owr.MasterOrderNoId												
 													left join TRN.MasterOrderItem moi on moi.Id=owr.MasterOrderItemId
 													left join MST.MaterialMaster mm on mm.Id=moi.MaterialMasterId
 													left join SCS.UnitOfMeasurement uom on uom.Id=owr.OutputMaterialUOMId
-													left join dbo.OSTransformationPODetail mp on mp.Id=owr.OSTransformationPODetailId
-													left join dbo.OSTransformationPO vac on vac.Id=mp.OSTransformationPOId
+													left join dbo.JWTransformationPODetail mp on mp.Id=owr.JWTransformationPODetailId
+													left join dbo.JWTransformationPO vac on vac.Id=mp.JWTransformationPOId
 													where vac.Id='" + PrintTabId + "' ";
 
             return _sqlRepository.GetDataTable(sql);
@@ -3285,7 +3295,20 @@ namespace Aplos.Areas.JobWork.Controllers
 
             report.SetHeaderText(ref sheet, MIChildROW, MIChildCOL, "Remarks", 12, ExcelHAlign.HAlignLeft);
             int ColMIRemarks = MIChildCOL;
+            MIChildCOL++;
+
+            report.SetHeaderText(ref sheet, MIChildROW, MIChildCOL, "Base UoM", 12, ExcelHAlign.HAlignLeft);
+            int ColIssueBaseUoM = MIChildCOL;
+            MIChildCOL++;
+
+            report.SetHeaderText(ref sheet, MIChildROW, MIChildCOL, "Issue Qty", 15, ExcelHAlign.HAlignLeft);
+            int ColIssuedQty = MIChildCOL;
+            MIChildCOL++;
+
+            report.SetHeaderText(ref sheet, MIChildROW, MIChildCOL, "Amount BC", 12, ExcelHAlign.HAlignLeft);
+            int ColAmtBDT = MIChildCOL;
             MIChildROW++;
+
             MIChildendCol = MIChildCOL;
             #endregion Headers
 
@@ -3310,7 +3333,7 @@ namespace Aplos.Areas.JobWork.Controllers
                     MIRowIndexNo = MIChildROW;
                 }
 
-                sheet[MIChildROW, ColJobWorkTransformationContractChildMasterId].Text = MaterialInputChilddata.Rows[i]["OSTransformationPODetailId"].ToString();
+                sheet[MIChildROW, ColJobWorkTransformationContractChildMasterId].Text = MaterialInputChilddata.Rows[i]["JWTransformationPODetailId"].ToString();
                 //sheet[MIChildROW, ColId].Text = MaterialInputChilddata.Rows[i]["Id"].ToString();
                 sheet[MIChildROW, ColMaterial].Text = MaterialInputChilddata.Rows[i]["JWInputItem"].ToString();
                 sheet[MIChildROW, ColJWInputMaterial].Text = MaterialInputChilddata.Rows[i]["JWInputMaterial"].ToString();
@@ -3327,6 +3350,10 @@ namespace Aplos.Areas.JobWork.Controllers
                 sheet[MIChildROW, ColMIEmployeeCode].Text = MaterialInputChilddata.Rows[i]["EmployeeCode"].ToString();
                 sheet[MIChildROW, ColResponsiblePerson].Text = MaterialInputChilddata.Rows[i]["ResponsiblePerson"].ToString();
                 sheet[MIChildROW, ColMIRemarks].Text = MaterialInputChilddata.Rows[i]["Remarks"].ToString();
+
+                sheet[MIChildROW, ColIssueBaseUoM].Text = MaterialInputChilddata.Rows[i]["IssueBaseUoM"].ToString();
+                sheet[MIChildROW, ColIssuedQty].Number = clsStaticInfo.dbl(MaterialInputChilddata.Rows[i]["IssuedQty"].ToString());
+                sheet[MIChildROW, ColAmtBDT].Number = clsStaticInfo.dbl(MaterialInputChilddata.Rows[i]["AmtBDT"].ToString());
 
                 sheet.Range[MIChildROW, 1, MIChildROW, MIChildendCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[MIChildROW, 1, MIChildROW, MIChildendCol].BorderAround(ExcelLineStyle.Hair);
@@ -3468,7 +3495,7 @@ namespace Aplos.Areas.JobWork.Controllers
             sheet.UsedRange.NumberFormat = "#,##0.000";
             sheet.UsedRange.WrapText = true;
             sheet.UsedRange.CellStyle.Font.Size = 8;
-            report.CompanyPlantHeader(ref sheet, endCol, "Outsource PO (Transformation)", identity.CompanyId, identity.PlantName, null);
+            report.CompanyPlantHeader(ref sheet, endCol, "Job Work PO (Transformation)", identity.CompanyId, identity.PlantName, null);
             report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
             return workbook;
         }
@@ -3501,26 +3528,6 @@ namespace Aplos.Areas.JobWork.Controllers
 
         private DataTable GetTransformationContractDataById(string PrintTabId)
         {
-            //   var sql = @"select tc.*,tcc.Id as LineItemId, TabType='Transformation',FORMAT(tc.PODate,'dd-MMM-yyyy') as TransformationDate,CONVERT(varchar(5),tc.[Time],108)[TCTime],FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as TCProcessStartDate,
-            //                           FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as TCProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as TCContractClosingDate,
-            //                           Pnt.UserName as Plant,e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName,jwi.UserName as JobWorkItem, tcc.MaterialSpecification, tcc.MaterialReference
-            //,uom.UserName as UOM, tcc.Quantity, mma.StandardName as ArticleCode, tcc.OrderSpecific as OutputOrderSpecific, tcc.RequiredCapacity,tcc.ByProductApplicable ,tcc.RateApplyId, c.Code as Currency
-            //,tcc.RatePerUnit, tcc.Rejection,tcc.ValueLoss,emp.EmployeeName,emp.EmployeeCode,tcc.Remarks as TCCRemarks,MS.UserName as MaterialLocation,tcc.MaterialType,tcc.FinalOutputCategory
-            //, mi.TotalGrossConsumptionPerUnit, TotalGrossInputQuantity=(mi.TotalGrossConsumptionPerUnit * tcc.Quantity)
-            //, Amount= case when tcc.RateApplyId='Output' then (tcc.Quantity * tcc.RatePerUnit) else ((mi.TotalGrossConsumptionPerUnit * tcc.Quantity) * tcc.RatePerUnit) End
-            //                           from dbo.OSTransformationPO tc left join ORG.Entity e on e.Id=tc.EntityId
-            //left join ORG.Plant Pnt on Pnt.Id=tc.PlantId
-            //left join HKP.Party p on p.Id=tc.PartyId
-            //left join dbo.OSTransformationPODetail tcc on tcc.OSTransformationPOId=tc.Id
-            //left join HKP.JobWorkItem jwi on jwi.Id=tcc.JobWorkItemMasterId
-            //left join SCS.UnitOfMeasurement uom on uom.Id=tcc.OutputMaterialUOMId
-            //left join MST.MaterialMasterArticle mma on mma.Id=tcc.ArticleId
-            //left join SCS.Currency c on c.Id=tcc.CurrencyId
-            //left join dbo.EmployeeInformation emp on emp.SystemId=tcc.ResponsiblePersonId
-            //left join HKP.MaterialStorage MS on MS.Id=tcc.MaterialLocationId
-            //left join (select Sum(GrossConsumption) as TotalGrossConsumptionPerUnit, OSTransformationPODetailId from dbo.OSTransformationPOInputMaterial group by OSTransformationPODetailId)
-            //mi on mi.OSTransformationPODetailId=tcc.Id		
-            //                           where tc.Id = '" + PrintTabId + @"' ";
 
             var sql = @"select tc.*,tcc.Id as LineItemId, TabType='Transformation',OutputMaterialType='Service',FORMAT(tc.PODate,'dd-MMM-yyyy') as TransformationDate,FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as TCProcessStartDate,
     FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as TCProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as TCContractClosingDate,
@@ -3530,10 +3537,10 @@ namespace Aplos.Areas.JobWork.Controllers
 	,RatePerUnit=ROUND((tcc.RatePerUnit),4), tcc.Rejection,tcc.ValueLoss,emp.EmployeeName,emp.EmployeeCode,tcc.Remarks as TCCRemarks,MS.UserName as MaterialLocation,tcc.MaterialType,tcc.FinalOutputCategory
 	, mi.TotalGrossConsumptionPerUnit, TotalGrossInputQuantity=(mi.TotalGrossConsumptionPerUnit * tcc.Quantity)
     , Amount= round((tcc.Quantity * tcc.RatePerUnit),2)
-from dbo.OSTransformationPO tc left join ORG.Entity e on e.Id=tc.EntityId
+    from dbo.JWTransformationPO tc left join ORG.Entity e on e.Id=tc.EntityId
 	left join ORG.Plant Pnt on Pnt.Id=tc.PlantId
 	left join HKP.Party p on p.Id=tc.PartyId
-	left join dbo.OSTransformationPODetail tcc on tcc.OSTransformationPOId=tc.Id
+	left join dbo.JWTransformationPODetail tcc on tcc.JWTransformationPOId=tc.Id
 	left join HKP.JobWorkItem jwi on jwi.Id=tcc.JobWorkItemMasterId
 	left join SCS.UnitOfMeasurement uom on uom.Id=tcc.OutputMaterialUOMId
 	left join MST.MaterialMasterArticle mma on mma.Id=tcc.ArticleId
@@ -3544,12 +3551,12 @@ from dbo.OSTransformationPO tc left join ORG.Entity e on e.Id=tc.EntityId
 	left join HKP.MaterialStorage MS on MS.Id=tcc.MaterialLocationId
 	left join (
 	select
-	Sum(x.GrossConsumption) as TotalGrossConsumptionPerUnit,x.OSTransformationPODetailId
+	Sum(x.GrossConsumption) as TotalGrossConsumptionPerUnit,x.JWTransformationPODetailId
 	from (
-	Select GrossConsumption, OSTransformationPODetailId from dbo.OSTransformationPOInputMaterial 
-	group by ArticleId,OSTransformationPODetailId,GrossConsumption
-	) x group by x.OSTransformationPODetailId
-	)mi on mi.OSTransformationPODetailId=tcc.Id			
+	Select GrossConsumption, JWTransformationPODetailId from dbo.JWTransformationPOInputMaterial 
+	group by ArticleId,JWTransformationPODetailId,GrossConsumption
+	) x group by x.JWTransformationPODetailId
+	)mi on mi.JWTransformationPODetailId=tcc.Id				
                                     where tc.Id = '" + PrintTabId + @"' ";
 
             return _sqlRepository.GetDataTable(sql);
@@ -3558,15 +3565,6 @@ from dbo.OSTransformationPO tc left join ORG.Entity e on e.Id=tc.EntityId
 
         private DataTable GetMatPlanningChildDataById(string PrintTabId)
         {
-            //var sql = @"select owr.*,P.UserName as Customer,mo.MasterOrderNo,mm.UserName as MaterialOrderItem, uom.UserName as UOM 
-            //                                        from dbo.OSTransformationPOMasterOrderItem owr left join HKP.Party P on P.Id=owr.CustomerId
-            //                                        left join TRN.MasterOrder mo on mo.Id=owr.MasterOrderNoId												
-            //	left join TRN.MasterOrderItem moi on moi.Id=owr.MasterOrderItemId
-            //	left join MST.MaterialMaster mm on mm.Id=moi.MaterialMasterId
-            //	left join SCS.UnitOfMeasurement uom on uom.Id=owr.OutputMaterialUOMId
-            //	left join dbo.OSTransformationPODetail mp on mp.Id=owr.OSTransformationPODetailId
-            //	left join dbo.OSTransformationPO tc on tc.Id=mp.OSTransformationPOId
-            //          where tc.Id='" + PrintTabId + "' ";
 
             var sql = @"SELECT ROW_NUMBER() OVER (ORDER BY SO.MasterOrderItemId) AS RN,POD.ProductionOrderId
 	                            , MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,moi.BuyerReferenceNo,moi.OwnReferenceNo,mo.BuyerReferenceNo BuyerOrderNo,mo.OwnReferenceNo AS OwnOrderNo
@@ -3581,7 +3579,7 @@ from dbo.OSTransformationPO tc left join ORG.Entity e on e.Id=tc.EntityId
 	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription
 								,CN.ContractNo,MLC.LCRef MasterLCNo, Uom.UserName as MasterOrderUoM
 								,owr.OrderType, owr.ParticularSpecification,owr.PlanQuantity as OWPlanQuantity, owr.Remarks as OWRemarks, owr.Id
-                       FROM dbo.OSTransformationPOMasterOrderItem owr left join [TRN].[SalesOrder] AS SO on owr.SalesOrderId=SO.Id 
+                       FROM dbo.JWTransformationPOMasterOrderItem owr left join [TRN].[SalesOrder] AS SO on owr.SalesOrderId=SO.Id 
                         left outer join [TRN].[ProductionOrderDetail] POD on POD.SalesOrderId=SO.Id 
                        JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
                        JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
@@ -3599,54 +3597,48 @@ from dbo.OSTransformationPO tc left join ORG.Entity e on e.Id=tc.EntityId
                        LEFT JOIN dbo.[Contract] AS CN ON CN.Id=MOI.ContractId
                        LEFT JOIN dbo.MasterLC AS MLC ON MLC.Id=CN.MasterLCId
 					   left join SCS.UnitOfMeasurement Uom on Uom.Id=MO.TotalQtyUOMId
-					   left join dbo.OSTransformationPODetail mp on mp.Id=owr.OSTransformationPODetailId
-					  left join dbo.OSTransformationPO tc on tc.Id=mp.OSTransformationPOId
-				        where tc.Id='"+ PrintTabId + @"' ";
+					   left join dbo.JWTransformationPODetail mp on mp.Id=owr.JWTransformationPODetailId
+					  left join dbo.JWTransformationPO tc on tc.Id=mp.JWTransformationPOId
+				        where tc.Id='" + PrintTabId + @"' ";
 
             return _sqlRepository.GetDataTable(sql);
         }
 
         private DataTable GetMaterialInputChildDataById(string PrintTabId)
         {
-            //var sql = @"select mi.*,jwi.UserName as JWInputItem,juom.UserName as JWIUnit,mm.UserName as JWInputMaterial, uom.UserName as BaseUOM, emp.EmployeeCode, emp.EmployeeStatus
-            //                                        , emp.EmployeeName as ResponsiblePerson     
-            //	,Unit=case when jwi.MaterialMasterId is not null then uom.UserName else juom.UserName END
-            //                                        ,TotalNetConsumption= (mi.NetConsumption * mp.Quantity)
-            //	,tmi.GrossConsumptionPerUnit, TotalGrossConsumption=(tmi.GrossConsumptionPerUnit * mp.Quantity)
-            //                                        from dbo.OSTransformationPOInputMaterial mi
-            //	left join HKP.JobWorkItem jwi on jwi.Id=mi.JobWorkItemId
-            //	left join MST.MaterialMaster mm on mm.Id=jwi.MaterialMasterId
-            //	left join SCS.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
-            //	left join scs.UnitOfMeasurement juom on juom.Id=jwi.UOMId
-            //	left join dbo.EmployeeInformation emp on emp.SystemId=mi.ResponsiblePersonId
-            //	left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
-            //	left join dbo.OSTransformationPO tc on tc.Id=mp.OSTransformationPOId
-            //	left join (select SUM(GrossConsumption) as GrossConsumptionPerUnit, OSTransformationPODetailId from dbo.OSTransformationPOInputMaterial group by OSTransformationPODetailId)
-            //	tmi on tmi.OSTransformationPODetailId=mp.Id
-            //          where tc.Id='" + PrintTabId + "' ";
 
-            var sql = @"select mi.OSTransformationPODetailId,mi.JobWorkItemId,mi.ItemSpecification,mi.NetConsumption,mi.Rejection,mi.ValueLoss,mi.GrossConsumption,mi.ResponsiblePersonId
+            var sql = @"select mi.JWTransformationPODetailId,mi.JobWorkItemId,mi.ItemSpecification,mi.NetConsumption,mi.Rejection,mi.ValueLoss,mi.GrossConsumption,mi.ResponsiblePersonId
                                                     ,mi.ArticleId,jwi.UserName as JWInputItem,juom.UserName as JWIUnit,mm.UserName as JWInputMaterial,mma.StandardName as JWInputArticle
 													, uom.UserName as BaseUOM, emp.EmployeeCode, emp.EmployeeStatus, emp.EmployeeName as ResponsiblePerson     
 													,Unit=case when mi.ArticleId is not null then uom.UserName else juom.UserName END
                                                     ,TotalNetConsumption= (mi.NetConsumption * mp.Quantity)
 													,TotalGrossConsumption=(mi.GrossConsumption * mp.Quantity),mi.Remarks
-                                                    from dbo.OSTransformationPOInputMaterial mi
+                                                    ,round(ISNULL(BA.IssuedQty,'0'),2) IssuedQty, round(ISNULL(BA.AmountBDT,'0'),2) AmtBDT, BA.BaseUoM as IssueBaseUoM
+                                                    from dbo.JWTransformationPOInputMaterial mi
 													left join HKP.JobWorkItem jwi on jwi.Id=mi.JobWorkItemId
 													left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
 													left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
 													left join SCS.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
 													left join scs.UnitOfMeasurement juom on juom.Id=jwi.UOMId
 													left join dbo.EmployeeInformation emp on emp.SystemId=mi.ResponsiblePersonId
-													left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
-													left join dbo.OSTransformationPO tc on tc.Id=mp.OSTransformationPOId
-													left join (select SUM(GrossConsumption) as GrossConsumptionPerUnit, OSTransformationPODetailId 
-													from dbo.OSTransformationPOInputMaterial group by OSTransformationPODetailId,ArticleId)
-													tmi on tmi.OSTransformationPODetailId=mp.Id
+													left join dbo.JWTransformationPODetail mp on mp.Id=mi.JWTransformationPODetailId
+													left join dbo.JWTransformationPO tc on tc.Id=mp.JWTransformationPOId
+													left join (select SUM(GrossConsumption) as GrossConsumptionPerUnit, JWTransformationPODetailId 
+													from dbo.JWTransformationPOInputMaterial group by JWTransformationPODetailId,ArticleId)
+													tmi on tmi.JWTransformationPODetailId=mp.Id
+                                                    left join (select SUM(IIH.Qty) as IssuedQty, Sum(IIH.TotalMaterialBooksCurrencyAmount) AmountBDT, IM.ArticleId, IID.InventoryMaterialId
+													,BUom.UserName as BaseUoM
+													from TRN.InventoryIssueDetail IID left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
+													left join TRN.InventoryMaterial IM on IM.Id=IID.InventoryMaterialId
+													left join SCS.UnitOfMeasurement BUom on BUom.Id=IID.BaseUOMId
+                                                    left join TRN.InventoryIssue II on II.Id=IID.InventoryIssueId
+													where II.JobWorkContractId='" + PrintTabId + @"'
+													group by IM.ArticleId,IID.InventoryMaterialId,BUom.UserName) BA on BA.ArticleId=mi.ArticleId
 										            where tc.Id='" + PrintTabId + @"'
-                                                    group by mi.OSTransformationPODetailId,mi.JobWorkItemId,mi.ItemSpecification,mi.NetConsumption,mi.Rejection
+                                                    group by mi.JWTransformationPODetailId,mi.JobWorkItemId,mi.ItemSpecification,mi.NetConsumption,mi.Rejection
 													,mi.ValueLoss,mi.GrossConsumption,mi.ResponsiblePersonId,mi.ArticleId,jwi.UserName,juom.UserName,mm.UserName
-													,mma.StandardName, uom.UserName, emp.EmployeeCode, emp.EmployeeStatus, emp.EmployeeName,mp.Quantity,mi.Remarks ";
+													,mma.StandardName, uom.UserName, emp.EmployeeCode, emp.EmployeeStatus, emp.EmployeeName,mp.Quantity,mi.Remarks
+                                                    ,BA.IssuedQty,BA.AmountBDT,BA.BaseUoM ";
 
             return _sqlRepository.GetDataTable(sql);
         }
@@ -3657,14 +3649,14 @@ from dbo.OSTransformationPO tc left join ORG.Entity e on e.Id=tc.EntityId
                                                     ,emp.EmployeeStatus as EMPStatus, emp.EmployeeName
 													,ByProductQuantity= ((bp.PercentageOfInput * mi.NetConsumption * mp.Quantity)/100)
 													,ByProductAmount=((bp.PercentageOfInput * mi.NetConsumption * mp.Quantity)/100) * bp.StandardRate
-                                                    from dbo.OSTransformationPOByProduct bp
+                                                    from dbo.JWTransformationPOByProduct bp
 													left join HKP.JobWorkItem jwi on jwi.Id=bp.JobWorkItemId
 													left join dbo.EmployeeInformation emp on emp.SystemId=bp.ResponsiblePersonId
 													left join SCS.Currency c on c.Id=bp.CurrencyId
-										            left join dbo.OSTransformationPOInputMaterial mi on mi.Id=bp.OSTransformationPOInputMaterialId
+										            left join dbo.JWTransformationPOInputMaterial mi on mi.Id=bp.JWTransformationPOInputMaterialId
 													left join HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
-													left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
-													left join dbo.OSTransformationPO tc on tc.Id=mp.OSTransformationPOId
+													left join dbo.JWTransformationPODetail mp on mp.Id=mi.JWTransformationPODetailId
+													left join dbo.JWTransformationPO tc on tc.Id=mp.JWTransformationPOId
 										            where tc.Id='" + PrintTabId + "' ";
 
             return _sqlRepository.GetDataTable(sql);
