@@ -226,5 +226,10 @@ function SetupConfig($routeProvider, $locationProvider) {
             templateUrl: 'setups/LabelList/aplos',
             controller: 'LabelListController'
         })
+        .when('/terms-and-conditions', {
+            templateUrl: 'setups/TermsAndConditions/Aplos',
+            controller: 'TermsAndConditionsController'
+        })
+    
         ;
 }
