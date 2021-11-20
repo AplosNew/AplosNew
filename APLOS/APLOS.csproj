@@ -3941,6 +3941,10 @@
     <Content Include="POPResources\Templates\JWValAddedPurchaseOrder20202.docx" />
     <Content Include="POPResources\Templates\InventoryPreSalesReport202026.docx" />
     <Content Include="POPResources\Templates\FixedAssetDisposedScrap20171.docx" />
+    <Content Include="POPResources\Templates\JobWorkValAddedIssue20202.docx" />
+    <Content Include="POPResources\Templates\JobWorkIssue20202.docx" />
+    <Content Include="POPResources\Templates\JobWorkPurchaseOrder20202.docx" />
+    <Content Include="POPResources\Templates\JobWorkValAddedPurchaseOrder20202.docx" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />

@@ -5566,13 +5566,13 @@ LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
             var fileName = "";
             var strPath = "";
             var File = "";
-            if (POType == "OSTransformationPO")
+            if (POType == "JWTransformationPO")
             {
-                fileName = "JWPurchaseOrder" + plantId + ".docx";
+                fileName = "JobWorkPurchaseOrder" + plantId + ".docx";
             }
             else
             {
-                fileName = "JWValAddedPurchaseOrder" + plantId + ".docx";
+                fileName = "JobWorkValAddedPurchaseOrder" + plantId + ".docx";
             }
           
             strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), /*"IDCardBengali.xlsx"*/fileName);  // IDCardEng.xlsx
@@ -5696,7 +5696,7 @@ LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 	                ,REPLACE(Convert(VARCHAR(11), PLC.LCDate, 106), ' ', '-') AS LCODate
                     ,REPLACE(Convert(VARCHAR(11), PO.PODate, 106), ' ', '-') AS PODate
                    -- ,POType=CASE WHEN PO.POType='PO' then 'PO Without Requisition' ELSE 'PO With Requisition' END
-                    ,POType=CASE WHEN PO.POType='OSTransformationPO' then 'Transformation PO' ELSE 'Value Added PO' END
+                    ,POType=CASE WHEN PO.POType='JWTransformationPO' then 'Transformation PO' ELSE 'Value Added PO' END
                     ,REPLACE(Convert(VARCHAR(11), PO.BaseOnDueDate, 106), ' ', '-') AS BaseOnDueDate
                     ,REPLACE(Convert(VARCHAR(11), PO.MatureDate, 106), ' ', '-') AS MatureDate
                     ,PO.InvoicingPartyPlantId
@@ -5766,7 +5766,7 @@ LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                     SELECT SUM(TotalTaxAmount)
                     FROM [TRN].[POService]
                    -- WHERE InventoryReceiveId = POD.InventoryReceiveId
-				   WHERE InventoryReceiveId = POD.OSTransformationPOId
+				   WHERE InventoryReceiveId = POD.JWTransformationPOId
                     )
                     --,POD.Description
 					,Description=case when POD.Description is not null then POD.Description else POD.MaterialSpecification End
@@ -5792,7 +5792,7 @@ LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                     when PO.AuthorizedByStatus='Approved' Then 'Approved'
                     else ''
                     END
-                    FROM dbo.OSTransformationPO PO --TRN.PurchaseOrder PO
+                    FROM dbo.JWTransformationPO PO --TRN.PurchaseOrder PO
                     LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = PO.CompanyGroupId
                  --   LEFT JOIN ORG.Company Cmp ON Cmp.Id = PO.CompanyId
                     LEFT JOIN ORG.Plant Plant ON Plant.Id = PO.PlantId
@@ -5802,7 +5802,7 @@ LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                     LEFT JOIN HKP.PartyPlant INVPARTYPL ON INVPARTYPL.Id = PO.InvoicingPartyPlantId
                     LEFT JOIN HKP.PartyPlant DPARTYPL ON DPARTYPL.Id = PO.DeliveryPartyPlantId
                 --    LEFT JOIN TRN.PurchaseOrderDetail POD ON PO.Id = POD.InventoryReceiveId
-				   LEFT JOIN dbo.OSTransformationPODetail POD ON PO.Id = POD.OSTransformationPOId
+				   LEFT JOIN dbo.JWTransformationPODetail POD ON PO.Id = POD.JWTransformationPOId
 					LEFT JOIN [dbo].[Contract] CNO ON CNO.Id = PO.ContractId
 					LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id = PO.PurchaseLCId
 	               -- LEFT JOIN [HKP].[Bank] B ON B.Id = PLC.BenificiaryBankId
@@ -5850,9 +5850,9 @@ LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                 strSQL = @"SELECT POS.Id ServiceId,SM.UserName  Service , POS.Description--, POS.Amount
                              ,POS.TransactionAmount as Amount
                             ,POS.TotalTaxAmount,Pos.AddedBy,pos.AddedDate,pos.UpdatedBy,pos.UpdatedDate 
-                            FROM dbo.OSTransformationPO PO --TRN.PurchaseOrder PO
+                            FROM dbo.JWTransformationPO PO --TRN.PurchaseOrder PO
                             --INNER join TRN.POService POS ON POS.InventoryReceiveId = PO.Id
-							left join dbo.OSTransformationPOService POS ON POS.OSTransformationPOId = PO.Id
+							left join dbo.JWTransformationPOService POS ON POS.JWTransformationPOId = PO.Id
                             left JOIN HKP.ServiceMaster SM ON POS.ServiceMasterId = SM.Id 
                             where PO.Id = '" + purchaseOrderId + @"'";
 
@@ -5877,15 +5877,13 @@ LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
             {
                 strSQL = @"select   PODT.ServiceMasterId InventoryServiceId,
                             PO.Id PurchaseOrderId,POD.Id PurchaseOrderDetailId,tg.Code AS TaxCode,PODT.Percentage, PODT.TaxAmount 
-                            from dbo.OSTransformationPO PO --TRN.PurchaseOrder PO
-                            --INNER JOIN TRN.PurchaseOrderDetail POD ON POD.InventoryReceiveId = PO.Id
-							left JOIN dbo.OSTransformationPODetail POD ON POD.OSTransformationPOId = PO.Id
-                            --Inner join TRN.PurchaseOrderTax PODT ON PODT.InventoryReceiveId = PO.Id and PODT.InventoryReceiveDetailId = POD.Id
-							LEFT join dbo.OSTransformationPOTax PODT ON PODT.OSTransformationPOId = PO.Id and PODT.OSTransformationPODetailId = POD.Id
+                            from dbo.JWTransformationPO PO
+							left JOIN dbo.JWTransformationPODetail POD ON POD.JWTransformationPOId = PO.Id
+							LEFT join dbo.JWTransformationPOTax PODT ON PODT.JWTransformationPOId = PO.Id and PODT.JWTransformationPODetailId = POD.Id
                             LEFT OUTER JOIN [MST].[TaxCategory] TG ON tg.Id=PODT.TaxCategoryId
                             WHERE PO.Id='" + purchaseOrderId + @"' 
 							--and InventoryReceiveDetailId  is not null and  InventoryServiceId is null AND PODT.Percentage > 0 
-							and PODT.OSTransformationPODetailId  is not null and PODT.ServiceMasterId is null 
+							and PODT.JWTransformationPODetailId  is not null and PODT.ServiceMasterId is null 
 							AND PODT.Percentage > 0 
 							ORDER BY tg.[Sequence] ";
                 return _sqlRepository.GetDataTable(strSQL);
@@ -6545,28 +6543,19 @@ LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
             try
             {
-                //        strSQL = @"SELECT InventoryServiceId,PO.Id PurchaseOrderId,tg.Code AS TaxCode,PODT.Percentage, PODT.TaxAmount from TRN.PurchaseOrder PO
-                //                    INNER JOIN TRN.POService POS ON POS.InventoryReceiveId = PO.Id
-                //                    INNER JOIN TRN.PurchaseOrderTax PODT ON PODT.InventoryReceiveId = PO.Id and PODT.InventoryServiceId = POS.Id
-                //                      LEFT OUTER JOIN [MST].[TaxCategory] TG ON tg.Id=PODT.TaxCategoryId
-                //                        WHERE PO.Id='" + purchaseOrderId + @"' 
-                //AND InventoryServiceId   IS NOT NULL AND  InventoryReceiveDetailId IS NULL 
-                // ORDER BY tg.[Sequence] ";
 
                 strSQL = @"SELECT PODT.ServiceMasterId InventoryServiceId,
                             PO.Id PurchaseOrderId,tg.Code AS TaxCode,PODT.Percentage, PODT.TaxAmount 
-                            from dbo.OSTransformationPO PO --TRN.PurchaseOrder PO
-                            --INNER JOIN TRN.POService POS ON POS.InventoryReceiveId = PO.Id
-							left JOIN dbo.OSTransformationPOService POS ON POS.OSTransformationPOId = PO.Id
-                            --INNER JOIN TRN.PurchaseOrderTax PODT ON PODT.InventoryReceiveId = PO.Id and PODT.InventoryServiceId = POS.Id
-							left JOIN dbo.OSTransformationPODetail POD ON POD.OSTransformationPOId = PO.Id
-							 LEFT JOIN dbo.OSTransformationPOTax PODT ON PODT.OSTransformationPOId = PO.Id and PODT.OSTransformationPODetailId = POD.Id
+                            from dbo.JWTransformationPO PO
+							left JOIN dbo.JWTransformationPOService POS ON POS.JWTransformationPOId = PO.Id
+							left JOIN dbo.JWTransformationPODetail POD ON POD.JWTransformationPOId = PO.Id
+							 LEFT JOIN dbo.JWTransformationPOTax PODT ON PODT.JWTransformationPOId = PO.Id and PODT.JWTransformationPODetailId = POD.Id
                               LEFT OUTER JOIN [MST].[TaxCategory] TG ON tg.Id=PODT.TaxCategoryId
                                 WHERE PO.Id='" + purchaseOrderId + @"' 
 								--AND InventoryServiceId   IS NOT NULL 
 								-- and InventoryReceiveDetailId is null
 								AND PODT.ServiceMasterId   IS NOT NULL 
-								AND  PODT.OSTransformationPODetailId IS NULL 
+								AND  PODT.JWTransformationPODetailId IS NULL 
 								 ORDER BY tg.[Sequence] ";
 
 

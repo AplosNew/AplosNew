@@ -105,6 +105,10 @@ namespace Aplos.Areas.Employees.Controllers
             DataSet dsSeparationTypeFixedDayAmountList = null;
             try
             {
+                if (SeparationTypeDetailsData == null )
+                {
+                    throw new Exception("Year No & Days no cannot be null..");
+                }
 
                 //SELECT * FROM [dbo].[ExceptionEmployee] WHERE PlantId='' AND EmpSystemId=''
                 string sql = @"SELECT * FROM [HKP].[SeparationType] WHERE PlantID = '" + identity.PlantId + "'";
