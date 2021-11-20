@@ -1265,12 +1265,12 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-                var sql = @"SELECT CEILING(SUM(ISNULL(PO.PlannedQty,0))) PlannedQty
+                var sql = @"SELECT ISNULL(PQ.Qty,CEILING(SUM(ISNULL(PO.PlannedQty,0)))) PlannedQty
                         ,ISNULL(CEILING(SUM(PO.PlannedQty) - ISNULL(CEILING(PRS.TotalProductionQty),0)),0) RemainingQty, ISNULL(CEILING(PRS.TotalProductionQty),0)TotalProductionQty
                          FROM trn.ProductionOrder AS PO
-                         LEFT JOIN (SELECT SUM(PS.Quantity) TotalProductionQty,PS.ProductionOrderId
+						 LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID=PO.Id
 	                     FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + processId + @"' GROUP BY PS.ProductionOrderId
-	                     ) AS PRS ON PRS.ProductionOrderId = PO.Id WHERE PO.Id ='" + productionOrderId + @"' GROUP BY TotalProductionQty";
+	                     ) AS PRS ON PRS.ProductionOrderId = PO.Id WHERE PO.Id ='" + productionOrderId + @"' GROUP BY TotalProductionQty,PQ.Qty";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
