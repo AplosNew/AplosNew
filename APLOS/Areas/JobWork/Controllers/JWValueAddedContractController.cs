@@ -2691,7 +2691,7 @@ namespace Aplos.Areas.JobWork.Controllers
             sheet.UsedRange.NumberFormat = "#,##0.000";
             sheet.UsedRange.WrapText = true;
             sheet.UsedRange.CellStyle.Font.Size = 8;
-            report.CompanyPlantHeader(ref sheet, endCol, "Outsource PO (Value Added)", identity.CompanyId, identity.PlantName, null);
+            report.CompanyPlantHeader(ref sheet, endCol, "Job Work PO (Value Added)", identity.CompanyId, identity.PlantName, null);
             report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
             return workbook;
         }
@@ -3295,7 +3295,20 @@ namespace Aplos.Areas.JobWork.Controllers
 
             report.SetHeaderText(ref sheet, MIChildROW, MIChildCOL, "Remarks", 12, ExcelHAlign.HAlignLeft);
             int ColMIRemarks = MIChildCOL;
+            MIChildCOL++;
+
+            report.SetHeaderText(ref sheet, MIChildROW, MIChildCOL, "Base UoM", 12, ExcelHAlign.HAlignLeft);
+            int ColIssueBaseUoM = MIChildCOL;
+            MIChildCOL++;
+
+            report.SetHeaderText(ref sheet, MIChildROW, MIChildCOL, "Issue Qty", 15, ExcelHAlign.HAlignLeft);
+            int ColIssuedQty = MIChildCOL;
+            MIChildCOL++;
+
+            report.SetHeaderText(ref sheet, MIChildROW, MIChildCOL, "Amount BC", 12, ExcelHAlign.HAlignLeft);
+            int ColAmtBDT = MIChildCOL;
             MIChildROW++;
+
             MIChildendCol = MIChildCOL;
             #endregion Headers
 
@@ -3320,7 +3333,7 @@ namespace Aplos.Areas.JobWork.Controllers
                     MIRowIndexNo = MIChildROW;
                 }
 
-                sheet[MIChildROW, ColJobWorkTransformationContractChildMasterId].Text = MaterialInputChilddata.Rows[i]["OSTransformationPODetailId"].ToString();
+                sheet[MIChildROW, ColJobWorkTransformationContractChildMasterId].Text = MaterialInputChilddata.Rows[i]["JWTransformationPODetailId"].ToString();
                 //sheet[MIChildROW, ColId].Text = MaterialInputChilddata.Rows[i]["Id"].ToString();
                 sheet[MIChildROW, ColMaterial].Text = MaterialInputChilddata.Rows[i]["JWInputItem"].ToString();
                 sheet[MIChildROW, ColJWInputMaterial].Text = MaterialInputChilddata.Rows[i]["JWInputMaterial"].ToString();
@@ -3337,6 +3350,10 @@ namespace Aplos.Areas.JobWork.Controllers
                 sheet[MIChildROW, ColMIEmployeeCode].Text = MaterialInputChilddata.Rows[i]["EmployeeCode"].ToString();
                 sheet[MIChildROW, ColResponsiblePerson].Text = MaterialInputChilddata.Rows[i]["ResponsiblePerson"].ToString();
                 sheet[MIChildROW, ColMIRemarks].Text = MaterialInputChilddata.Rows[i]["Remarks"].ToString();
+
+                sheet[MIChildROW, ColIssueBaseUoM].Text = MaterialInputChilddata.Rows[i]["IssueBaseUoM"].ToString();
+                sheet[MIChildROW, ColIssuedQty].Number = clsStaticInfo.dbl(MaterialInputChilddata.Rows[i]["IssuedQty"].ToString());
+                sheet[MIChildROW, ColAmtBDT].Number = clsStaticInfo.dbl(MaterialInputChilddata.Rows[i]["AmtBDT"].ToString());
 
                 sheet.Range[MIChildROW, 1, MIChildROW, MIChildendCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[MIChildROW, 1, MIChildROW, MIChildendCol].BorderAround(ExcelLineStyle.Hair);
@@ -3478,7 +3495,7 @@ namespace Aplos.Areas.JobWork.Controllers
             sheet.UsedRange.NumberFormat = "#,##0.000";
             sheet.UsedRange.WrapText = true;
             sheet.UsedRange.CellStyle.Font.Size = 8;
-            report.CompanyPlantHeader(ref sheet, endCol, "Outsource PO (Transformation)", identity.CompanyId, identity.PlantName, null);
+            report.CompanyPlantHeader(ref sheet, endCol, "Job Work PO (Transformation)", identity.CompanyId, identity.PlantName, null);
             report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
             return workbook;
         }
@@ -3596,6 +3613,7 @@ namespace Aplos.Areas.JobWork.Controllers
 													,Unit=case when mi.ArticleId is not null then uom.UserName else juom.UserName END
                                                     ,TotalNetConsumption= (mi.NetConsumption * mp.Quantity)
 													,TotalGrossConsumption=(mi.GrossConsumption * mp.Quantity),mi.Remarks
+                                                    ,round(ISNULL(BA.IssuedQty,'0'),2) IssuedQty, round(ISNULL(BA.AmountBDT,'0'),2) AmtBDT, BA.BaseUoM as IssueBaseUoM
                                                     from dbo.JWTransformationPOInputMaterial mi
 													left join HKP.JobWorkItem jwi on jwi.Id=mi.JobWorkItemId
 													left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
@@ -3608,10 +3626,19 @@ namespace Aplos.Areas.JobWork.Controllers
 													left join (select SUM(GrossConsumption) as GrossConsumptionPerUnit, JWTransformationPODetailId 
 													from dbo.JWTransformationPOInputMaterial group by JWTransformationPODetailId,ArticleId)
 													tmi on tmi.JWTransformationPODetailId=mp.Id
+                                                    left join (select SUM(IIH.Qty) as IssuedQty, Sum(IIH.TotalMaterialBooksCurrencyAmount) AmountBDT, IM.ArticleId, IID.InventoryMaterialId
+													,BUom.UserName as BaseUoM
+													from TRN.InventoryIssueDetail IID left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
+													left join TRN.InventoryMaterial IM on IM.Id=IID.InventoryMaterialId
+													left join SCS.UnitOfMeasurement BUom on BUom.Id=IID.BaseUOMId
+                                                    left join TRN.InventoryIssue II on II.Id=IID.InventoryIssueId
+													where II.JobWorkContractId='" + PrintTabId + @"'
+													group by IM.ArticleId,IID.InventoryMaterialId,BUom.UserName) BA on BA.ArticleId=mi.ArticleId
 										            where tc.Id='" + PrintTabId + @"'
                                                     group by mi.JWTransformationPODetailId,mi.JobWorkItemId,mi.ItemSpecification,mi.NetConsumption,mi.Rejection
 													,mi.ValueLoss,mi.GrossConsumption,mi.ResponsiblePersonId,mi.ArticleId,jwi.UserName,juom.UserName,mm.UserName
-													,mma.StandardName, uom.UserName, emp.EmployeeCode, emp.EmployeeStatus, emp.EmployeeName,mp.Quantity,mi.Remarks  ";
+													,mma.StandardName, uom.UserName, emp.EmployeeCode, emp.EmployeeStatus, emp.EmployeeName,mp.Quantity,mi.Remarks
+                                                    ,BA.IssuedQty,BA.AmountBDT,BA.BaseUoM ";
 
             return _sqlRepository.GetDataTable(sql);
         }
