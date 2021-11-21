@@ -48,7 +48,7 @@ namespace Library.Accounting.FixedAssets
 							,IRD.TotalMaterialTranAmount TrnAmount
 							,IRD.BaseQty,BUOM.UserName BaseUOM,IRD.BooksCurrencyBaseRate BaseRate
 							,IRD.TotalMaterialBooksCurrencyAmount BooksAmount
-							,ISNULL(IIH.IssueQty,0) AS IssueQty
+							,isnull(IIH.IssueQty,0) as IssueQty
 							,V.Id VoucherId,GL.Id GlId,A.Id ActivityId,(isnull(IRD.BaseQty,0)-isnull(IIH.IssueQty,0)) BalanceQty
 from TRN.InventoryReceiveDetail IRD 
 LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
@@ -73,10 +73,13 @@ LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.
  LEFT JOIN HKP.Activity A ON A.Id=IRD.PostDrActivityId
  LEFT JOIN HKP.FixedAssetMasterBudgetTag FAMB ON FAMB.BudgetMasterId=MM.BudgetMasterId
  LEFT JOIN MST.FixedAssetMaster FAM ON FAM.Id=FAMB.FixedAssetMasterId
- LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
+ LEFT JOIN TRN.EmployeePayable EP ON EP.InventoryReceiveId=IRD.InventoryReceiveId
+ LEFT JOIN TRN.Voucher V ON V.Id=CASE WHEN IR.EmployeeId<>'' THEN EP.VoucherId ELSE IR.VoucherId  END
  LEFT JOIN SCS.Currency CU ON CU.Id=IR.CurrencyId
  LEFT JOIN (SELECT InventoryReceiveDetailId,SUM(Qty) IssueQty FROM  TRN.InventoryIssueHistory group by InventoryReceiveDetailId) IIH ON IIH.InventoryReceiveDetailId=IRD.Id
-WHERE IR.VoucherId<>'' AND IRD.IsAsset=1 and (isnull(IRD.BaseQty,0)-isnull(IIH.IssueQty,0))>0";
+WHERE 
+IR.[Status]='Posting' and IRD.IsAsset=1  
+and (isnull(IRD.BaseQty,0)-isnull(IIH.IssueQty,0))>0";
 			return _sqlRepository.GetDataCollection(sql);
 
 		}
@@ -101,7 +104,7 @@ WHERE IR.VoucherId<>'' AND IRD.IsAsset=1 and (isnull(IRD.BaseQty,0)-isnull(IIH.I
 							,IRD.TotalMaterialTranAmount TrnAmount
 							,IRD.BaseQty,BUOM.UserName BaseUOM,IRD.BooksCurrencyBaseRate BaseRate
 							,IRD.TotalMaterialBooksCurrencyAmount BooksAmount
-							,ISNULL(IIH.IssueQty,0) AS IssueQty
+							,isnull(IIH.IssueQty,0) as IssueQty
 							,V.Id VoucherId,GL.Id GlId,A.Id ActivityId,(isnull(IRD.BaseQty,0)-isnull(IIH.IssueQty,0)) BalanceQty
 from TRN.InventoryReceiveDetail IRD 
 LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
@@ -126,10 +129,13 @@ LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.
  LEFT JOIN HKP.Activity A ON A.Id=IRD.PostDrActivityId
  LEFT JOIN HKP.FixedAssetMasterBudgetTag FAMB ON FAMB.BudgetMasterId=MM.BudgetMasterId
  LEFT JOIN MST.FixedAssetMaster FAM ON FAM.Id=FAMB.FixedAssetMasterId
- LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
+ LEFT JOIN TRN.EmployeePayable EP ON EP.InventoryReceiveId=IRD.InventoryReceiveId
+ LEFT JOIN TRN.Voucher V ON V.Id=CASE WHEN IR.EmployeeId<>'' THEN EP.VoucherId ELSE IR.VoucherId  END
  LEFT JOIN SCS.Currency CU ON CU.Id=IR.CurrencyId
  LEFT JOIN (SELECT InventoryReceiveDetailId,SUM(Qty) IssueQty FROM  TRN.InventoryIssueHistory group by InventoryReceiveDetailId) IIH ON IIH.InventoryReceiveDetailId=IRD.Id
-WHERE IR.VoucherId<>'' AND IRD.IsAsset=1 and (isnull(IRD.BaseQty,0)-isnull(IIH.IssueQty,0))>0";
+WHERE 
+IR.[Status]='Posting' and IRD.IsAsset=1  
+and (isnull(IRD.BaseQty,0)-isnull(IIH.IssueQty,0))>0";
 
             return _sqlRepository.GetDataTable(sql);
 
@@ -440,7 +446,7 @@ WHERE IR.VoucherId<>'' AND IRD.IsAsset=1 and (isnull(IRD.BaseQty,0)-isnull(IIH.I
 
         public List<Dictionary<string, object>> GetNonRegisterAssetSQL()
         {
-            var sql = @"select  IIHD.IssueNo,IIHD.IssueDate,IIHD.IssueQty,IIHD.IssueCurrency,IIHD.IssueAmount,IIHD.VoucherId IssueVoucherId,IIHD.IssueVoucherNo,IRD.Id InventoryReceiveDetailId, isnull(MM.UserName,'') MaterialMasterName	
+            var sql = @"select  IIHD.IssueNo,IIHD.IssueDate,isnull(IIHD.IssueQty,0) as IssueQty,IIHD.IssueCurrency,IIHD.IssueAmount,IIHD.VoucherId IssueVoucherId,IIHD.IssueVoucherNo,IRD.Id InventoryReceiveDetailId, isnull(MM.UserName,'') MaterialMasterName	
 							, MM.Id	MaterialMasterId	
 							, isnull( ART.StandardName,'') ArticleName	
 							, ART.Id ArticleId		
@@ -483,11 +489,9 @@ LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.
  LEFT JOIN HKP.Activity A ON A.Id=IRD.PostDrActivityId
  LEFT JOIN HKP.FixedAssetMasterBudgetTag FAMB ON FAMB.BudgetMasterId=MM.BudgetMasterId
  LEFT JOIN MST.FixedAssetMaster FAM ON FAM.Id=FAMB.FixedAssetMasterId
- LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
+ LEFT JOIN TRN.EmployeePayable EP ON EP.InventoryReceiveId=IRD.InventoryReceiveId
+ LEFT JOIN TRN.Voucher V ON V.Id=CASE WHEN IR.EmployeeId<>'' THEN EP.VoucherId ELSE IR.VoucherId  END
  LEFT JOIN SCS.Currency CU ON CU.Id=IR.CurrencyId
--- LEFT JOIN trn.InventoryIssueHistory iih on IRD.Id=iih.InventoryIssueDetailId 
---left join TRN.InventoryIssueDetail iid on iid.Id=iih.InventoryIssueDetailId 
---left join trn.InventoryIssue ii on ii.Id=iid.InventoryIssueId
 inner JOIN (select iih.InventoryReceiveDetailId,iid.InventoryIssueId IssueNo,FORMAT(ii.IssueDate,'dd-MMM-yyyy') IssueDate,SUM(isnull(iih.Qty,0)) IssueQty, CU.Code IssueCurrency
             ,SUM(isnull(iih.TotalMaterialBooksCurrencyAmount,0)) IssueAmount,uom.UserName UOM,ii.VoucherId,v.VoucherNo IssueVoucherNo,IIH.IsRegister,IIH.IsCapitalize,ird.IsAsset
             from trn.InventoryIssueHistory iih 
@@ -499,8 +503,7 @@ inner JOIN (select iih.InventoryReceiveDetailId,iid.InventoryIssueId IssueNo,FOR
 			left join SCS.Currency CU on CU.Id=ii.CurrencyId  
 			where ird.IsAsset=1 and ii.IssueType='Capital'
             group by iih.InventoryReceiveDetailId,iid.InventoryIssueId ,ii.IssueDate,ii.VoucherId,v.VoucherNo ,uom.UserName,CU.Code,IIH.IsRegister,IIH.IsCapitalize,ird.IsAsset) IIHD ON IIHD.InventoryReceiveDetailId=IRD.Id
- --LEFT JOIN (SELECT InventoryReceiveDetailId,SUM(Qty) IssueQty,IsRegister,IsCapitalize FROM  TRN.InventoryIssueHistory group by InventoryReceiveDetailId,IsRegister,IsCapitalize) IIH ON IIH.InventoryReceiveDetailId=IRD.Id
-WHERE IR.VoucherId<>'' AND IIHD.IsAsset=1 AND ird.IsAsset=1 and isnull(IIHD.IssueQty,0)>0 and IIHD.IsRegister=0";
+WHERE IR.[Status]='Posting' AND IIHD.IsAsset=1 AND ird.IsAsset=1 and isnull(IIHD.IssueQty,0)>0 and IIHD.IsRegister=0";
             return _sqlRepository.GetDataCollection(sql);
 
         }
@@ -508,7 +511,7 @@ WHERE IR.VoucherId<>'' AND IIHD.IsAsset=1 AND ird.IsAsset=1 and isnull(IIHD.Issu
 
         private DataTable GetNonRegisterAssetReportSQL(string materialMasterId, string materialMasterArticleId, string voucherId, string grnNo, string glId, string activityId)
         {
-            var sql = @"select  IIHD.IssueNo,IIHD.IssueDate,IIHD.IssueQty,IIHD.IssueCurrency,IIHD.IssueAmount,IIHD.VoucherId IssueVoucherId,IIHD.IssueVoucherNo,IRD.Id InventoryReceiveDetailId, isnull(MM.UserName,'') MaterialMasterName	
+            var sql = @"select  IIHD.IssueNo,IIHD.IssueDate,isnull(IIHD.IssueQty,0) as IssueQty,IIHD.IssueCurrency,IIHD.IssueAmount,IIHD.VoucherId IssueVoucherId,IIHD.IssueVoucherNo,IRD.Id InventoryReceiveDetailId, isnull(MM.UserName,'') MaterialMasterName	
 							, MM.Id	MaterialMasterId	
 							, isnull( ART.StandardName,'') ArticleName	
 							, ART.Id ArticleId		
@@ -551,11 +554,9 @@ LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.
  LEFT JOIN HKP.Activity A ON A.Id=IRD.PostDrActivityId
  LEFT JOIN HKP.FixedAssetMasterBudgetTag FAMB ON FAMB.BudgetMasterId=MM.BudgetMasterId
  LEFT JOIN MST.FixedAssetMaster FAM ON FAM.Id=FAMB.FixedAssetMasterId
- LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
+ LEFT JOIN TRN.EmployeePayable EP ON EP.InventoryReceiveId=IRD.InventoryReceiveId
+ LEFT JOIN TRN.Voucher V ON V.Id=CASE WHEN IR.EmployeeId<>'' THEN EP.VoucherId ELSE IR.VoucherId  END
  LEFT JOIN SCS.Currency CU ON CU.Id=IR.CurrencyId
--- LEFT JOIN trn.InventoryIssueHistory iih on IRD.Id=iih.InventoryIssueDetailId 
---left join TRN.InventoryIssueDetail iid on iid.Id=iih.InventoryIssueDetailId 
---left join trn.InventoryIssue ii on ii.Id=iid.InventoryIssueId
 inner JOIN (select iih.InventoryReceiveDetailId,iid.InventoryIssueId IssueNo,FORMAT(ii.IssueDate,'dd-MMM-yyyy') IssueDate,SUM(isnull(iih.Qty,0)) IssueQty, CU.Code IssueCurrency
             ,SUM(isnull(iih.TotalMaterialBooksCurrencyAmount,0)) IssueAmount,uom.UserName UOM,ii.VoucherId,v.VoucherNo IssueVoucherNo,IIH.IsRegister,IIH.IsCapitalize,ird.IsAsset
             from trn.InventoryIssueHistory iih 
@@ -567,8 +568,7 @@ inner JOIN (select iih.InventoryReceiveDetailId,iid.InventoryIssueId IssueNo,FOR
 			left join SCS.Currency CU on CU.Id=ii.CurrencyId  
 			where ird.IsAsset=1 and ii.IssueType='Capital'
             group by iih.InventoryReceiveDetailId,iid.InventoryIssueId ,ii.IssueDate,ii.VoucherId,v.VoucherNo ,uom.UserName,CU.Code,IIH.IsRegister,IIH.IsCapitalize,ird.IsAsset) IIHD ON IIHD.InventoryReceiveDetailId=IRD.Id
- --LEFT JOIN (SELECT InventoryReceiveDetailId,SUM(Qty) IssueQty,IsRegister,IsCapitalize FROM  TRN.InventoryIssueHistory group by InventoryReceiveDetailId,IsRegister,IsCapitalize) IIH ON IIH.InventoryReceiveDetailId=IRD.Id
-WHERE IR.VoucherId<>'' AND IIHD.IsAsset=1 AND ird.IsAsset=1 and isnull(IIHD.IssueQty,0)>0 and IIHD.IsRegister=0";
+WHERE IR.[Status]='Posting' AND IIHD.IsAsset=1 AND ird.IsAsset=1 and isnull(IIHD.IssueQty,0)>0 and IIHD.IsRegister=0";
 
             return _sqlRepository.GetDataTable(sql);
 
@@ -707,11 +707,11 @@ WHERE IR.VoucherId<>'' AND IIHD.IsAsset=1 AND ird.IsAsset=1 and isnull(IIHD.Issu
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-            worksheet[ROW, COL].Text = "Activity";
-            int colActivity = COL;
-            worksheet[ROW, COL].ColumnWidth = 12;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            COL++;
+            //worksheet[ROW, COL].Text = "Activity";
+            //int colActivity = COL;
+            //worksheet[ROW, COL].ColumnWidth = 12;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //COL++;
 
             worksheet[ROW, COL].Text = "GRN No";
             int colGRNNo = COL;
@@ -809,7 +809,7 @@ WHERE IR.VoucherId<>'' AND IIHD.IsAsset=1 AND ird.IsAsset=1 and isnull(IIHD.Issu
                 worksheet[ROW, colIssueCurrency].Text = dtGatenntryRegisterList.Rows[i]["IssueCurrency"].ToString();
                 worksheet[ROW, colIssueAmount].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["IssueAmount"].ToString());
                 worksheet[ROW, colExchangeRate].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["ExchangeRate"].ToString());
-                worksheet[ROW, colIssueVoucherNo].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["IssueVoucherNo"].ToString()); 
+                worksheet[ROW, colIssueVoucherNo].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["IssueVoucherId"].ToString()); 
 
                  // int i = 0; i < dtMasterOrderItem.Rows.Count; i++
                  worksheet[ROW, colMaterialMasterName].Text = dtGatenntryRegisterList.Rows[i]["MaterialMasterName"].ToString();
@@ -823,7 +823,7 @@ WHERE IR.VoucherId<>'' AND IIHD.IsAsset=1 AND ird.IsAsset=1 and isnull(IIHD.Issu
 
                 worksheet[ROW, colMaterialMasterName].Text = dtGatenntryRegisterList.Rows[i]["MaterialMasterName"].ToString();
                 worksheet[ROW, colGL].Text = dtGatenntryRegisterList.Rows[i]["GL"].ToString();
-                worksheet[ROW, colActivity].Text = dtGatenntryRegisterList.Rows[i]["Activity"].ToString();
+                //worksheet[ROW, colActivity].Text = dtGatenntryRegisterList.Rows[i]["Activity"].ToString();
 
                 worksheet[ROW, colGRNNo].Text = dtGatenntryRegisterList.Rows[i]["GRNNo"].ToString();
                 worksheet[ROW, colGRNDate].Text = dtGatenntryRegisterList.Rows[i]["GRNDate"].ToString();

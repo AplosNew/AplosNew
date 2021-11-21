@@ -2590,10 +2590,10 @@ namespace Library.HumanResource.Report.Payroll
                     var timeSpan = DateTime.Now - Convert.ToDateTime(dtEmpInfo.Rows[dti]["DOJ"].ToString()); ;
                     int yearSpan = new DateTime(timeSpan.Ticks).Year - 1;
 
-                    if (dtEmpInfo.Rows[dti]["EmployeeCode"].ToString() == "10005866")
-                    {
+                    //if (dtEmpInfo.Rows[dti]["EmployeeCode"].ToString() == "10005866")
+                    //{
 
-                    }
+                    //}
                     sheet1.Range[xlsRow, colEmpCode].Text = dtEmpInfo.Rows[dti]["EmployeeCode"].ToString();
                     sheet1.Range[xlsRow, colEmpCode].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
@@ -2638,53 +2638,56 @@ namespace Library.HumanResource.Report.Payroll
                         earningBonusAmount = 0.00;
                         for (int BNS = 0; BNS < BonusList.Count; BNS++)
                         {
-                            if (BonusList[BNS]["HeadCategory"].ToString().ToUpper() == "BASIC")
-                            {
+                            //if (BonusList[BNS]["HeadCategory"].ToString().ToUpper() == "BASIC")
+                            //{
                                 totalSalaryAmount += Service.Extension.clsStaticInfo.dbl(BonusList[BNS]["DisbusmentAmount"].ToString());
-                                sheet1.Range[xlsRow, colTotalYearlyBasicSalary].Number = Service.Extension.clsStaticInfo.dbl(BonusList[BNS]["DisbusmentAmount"].ToString());
-                                sheet1.Range[xlsRow, colTotalYearlyBasicSalary].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                                sheet1.Range[xlsRow, colTotalYearlyBasicSalary].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            }
-                            else
-                            {
-                                totalSalaryAmount += Service.Extension.clsStaticInfo.dbl(BonusList[BNS]["EntryAmount"].ToString());
-                            }
-                            if (BonusList[BNS]["HeadCategory"].ToString().ToUpper() == "OTHER BONUS")
-                            {
-                                earningBonusAmount = clsStaticInfo.dbl(BonusList[BNS]["DisbusmentAmount"].ToString());
-                                totalEarningBonusAmountYearly += Convert.ToDouble(earningBonusAmount);
-                            }
+                                
+                            //}
+                            //else
+                            //{
+                            //    totalSalaryAmount += Service.Extension.clsStaticInfo.dbl(BonusList[BNS]["EntryAmount"].ToString());
+                            //}
+                            //if (BonusList[BNS]["HeadCategory"].ToString().ToUpper() == "OTHER BONUS")
+                            //{
+                            //    earningBonusAmount = clsStaticInfo.dbl(BonusList[BNS]["DisbusmentAmount"].ToString());
+                            //    totalEarningBonusAmountYearly += Convert.ToDouble(earningBonusAmount);
+                            //}
 
-                            if (BonusList[BNS]["HeadCategory"].ToString().ToUpper() == "RetainedBonus".ToUpper())
-                            {
-                                earningBonusAmount += clsStaticInfo.dbl(BonusList[BNS]["DisbusmentAmount"].ToString());
-                                totalEarningBonusAmountYearly += Convert.ToDouble(earningBonusAmount);
-                            }
-                            if (BonusList[BNS]["HeadCategory"].ToString().ToUpper() == "Monthly Bonus Retain".ToUpper())
-                            {
-                                earningBonusAmount += clsStaticInfo.dbl(BonusList[BNS]["DisbusmentAmount"].ToString());
-                                totalEarningBonusAmountYearly += Convert.ToDouble(earningBonusAmount);
-                            }
+                            //if (BonusList[BNS]["HeadCategory"].ToString().ToUpper() == "RetainedBonus".ToUpper())
+                            //{
+                            //    earningBonusAmount += clsStaticInfo.dbl(BonusList[BNS]["DisbusmentAmount"].ToString());
+                            //    totalEarningBonusAmountYearly += Convert.ToDouble(earningBonusAmount);
+                            //}
+                            //if (BonusList[BNS]["HeadCategory"].ToString().ToUpper() == "Monthly Bonus Retain".ToUpper())
+                            //{
+                            //    earningBonusAmount += clsStaticInfo.dbl(BonusList[BNS]["DisbusmentAmount"].ToString());
+                            //    totalEarningBonusAmountYearly += Convert.ToDouble(earningBonusAmount);
+                            //}
                             isDecimal = bplib.clsWebLib.GetBoolData(BonusList[BNS]["IntegerInDisb"].ToString());
                             decimalNo = clsStaticInfo.dbl(BonusList[BNS]["DecimalNo"].ToString());
-                            if (earningBonusAmount == 0)
-                            {
-                                sheet1.Range[xlsRow, colBonusAmount].Text = "-";// + Environment.NewLine + totalPayDay;                              
-                                sheet1.Range[xlsRow, colBonusAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                                sheet1.Range[xlsRow, colBonusAmount].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            }
-                            else
-                            {
-                                sheet1.Range[xlsRow, colBonusAmount].Number = Convert.ToDouble(earningBonusAmount);// + Environment.NewLine + totalPayDay;
-                                sheet1.Range[xlsRow, colBonusAmount].NumberFormat = GetDecimalFormat(isDecimal, Convert.ToInt32(decimalNo));
-                                sheet1.Range[xlsRow, colBonusAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                                sheet1.Range[xlsRow, colBonusAmount].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            
+                        }
+                        sheet1.Range[xlsRow, colTotalYearlyBasicSalary].Number = Service.Extension.clsStaticInfo.dbl(totalSalaryAmount);
+                        sheet1.Range[xlsRow, colTotalYearlyBasicSalary].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow, colTotalYearlyBasicSalary].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 
-                                sheet1.Range[xlsRow, colTotalAmount].Number = Convert.ToDouble(earningBonusAmount);// + Environment.NewLine + totalPayDay;
-                                sheet1.Range[xlsRow, colTotalAmount].NumberFormat = GetDecimalFormat(isDecimal, Convert.ToInt32(decimalNo));
-                                sheet1.Range[xlsRow, colTotalAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                                sheet1.Range[xlsRow, colTotalAmount].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            }
+                        if (totalSalaryAmount == 0)
+                        {
+                            sheet1.Range[xlsRow, colBonusAmount].Text = "-";// + Environment.NewLine + totalPayDay;                              
+                            sheet1.Range[xlsRow, colBonusAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            sheet1.Range[xlsRow, colBonusAmount].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        }
+                        else
+                        {
+                            sheet1.Range[xlsRow, colBonusAmount].Number = Convert.ToDouble(totalSalaryAmount);// + Environment.NewLine + totalPayDay;
+                            sheet1.Range[xlsRow, colBonusAmount].NumberFormat = GetDecimalFormat(isDecimal, Convert.ToInt32(decimalNo));
+                            sheet1.Range[xlsRow, colBonusAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            sheet1.Range[xlsRow, colBonusAmount].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
+                            sheet1.Range[xlsRow, colTotalAmount].Number = Convert.ToDouble(totalSalaryAmount);// + Environment.NewLine + totalPayDay;
+                            sheet1.Range[xlsRow, colTotalAmount].NumberFormat = GetDecimalFormat(isDecimal, Convert.ToInt32(decimalNo));
+                            sheet1.Range[xlsRow, colTotalAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            sheet1.Range[xlsRow, colTotalAmount].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                         }
                     }
                     catch (Exception ex)
@@ -4079,12 +4082,15 @@ namespace Library.HumanResource.Report.Payroll
 											 FROM SalaryProcChild SPC
 												INNER JOIN SalaryProcMaster SPM ON SPC.SlrProcMstSystemID = SPM.SystemID
 																							AND SPM.SystemID IN(" + salaryProcessId + @")
+												inner join EmployeeInformation einfo on einfo.SystemId=spc.EmpInfoSystemID
+												left join BonusPolicyMonthlyRetainMaster bn on bn.PlantID = einfo.PlantId
+												join BonusPolicyMonthlyRetainMasterSalaryHead bns on bns.BonusPolicyMonthlyRetainMasterId = bn.ID
 												INNER JOIN SalaryHead SH ON SH.SalaryHeadID=SPC.SalaryHeadID 
                                                 LEFT JOIN SalaryLock sl on sl.YearNo=spm.YearNo and sl.MonthNo=spm.MonthNo and sl.EmpSystemId=spc.EmpInfoSystemID
                                             LEFT JOIN SalaryRuleMaster SRM ON SRM.SystemID = SPC.SlrProcMstSystemID
 																	LEFT JOIN CurrencyRuleMaster CRM ON CRM.SystemID = SRM.CurrencyRuleSystemID                                                                    
 										LEFT JOIN CurrencyRuleChild CRC ON CRC.MstSystemID = srm.CurrencyRuleSystemID AND CRC.SalaryHeadID = SH.SalaryHeadID
-															WHERE HeadCategory IN ( 'Basic','Other Bonus','RetainedBonus','Monthly Bonus Retain') 	
+															WHERE sh.SalaryHeadID IN ( bns.SalaryHeadID)	
 											) EmpSlr ON EmpBasic.SystemID = EmpSlr.EmpInfoSystemID --AND EmpBasic.PlantID = EmpSlr.PlantID
                                     LEFT JOIN
 		                                    (
