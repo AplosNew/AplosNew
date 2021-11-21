@@ -235,8 +235,10 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
     $scope.tempModel = {};
     $scope.toCopyPopup = function (args) {
 
+        var selectedCostingStage = $scope.tempModel.CostingStage;
         $scope.tempModel = args.data;
         $scope.tempModel.CostingMasterTemplateId = $scope.tempModel.Id;
+        $scope.tempModel['CostingStage'] = selectedCostingStage;
 
 
         $scope.tempModel.InquiryItemId = null;
@@ -247,7 +249,6 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
             $scope.tempModel.MasterOrderItemId = $scope.SelectedMasterOrder.Id;
 
 
-        $scope.tempModel.CostingStage = 'QuickCosting';
         $scope.tempModel.Id = null;
         $scope.message_confirmation = "Are you sure ?";
 
