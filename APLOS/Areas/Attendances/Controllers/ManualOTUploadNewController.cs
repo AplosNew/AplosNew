@@ -415,6 +415,13 @@ namespace Aplos.Areas.Attendances.Controllers
                             dr["DateOTComfirm"] = DBNull.Value;
                             dr["IsOTComfirm"] = false;
 
+                            dr["PlanOT"] = DBNull.Value;
+                            dr["AllowedOTLimit"] = DBNull.Value;
+                            dr["AppliedOTLimit"] = DBNull.Value;
+                            dr["StandardOT"] = DBNull.Value;
+                            dr["AdditionalOT"] = DBNull.Value;
+                            dr["TargetOT"] = DBNull.Value;
+
                             dr["UpdatedBy"] = identity.Name;
                             dr["DateUpdated"] = System.DateTime.Now.ToString();
 

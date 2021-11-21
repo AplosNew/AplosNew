@@ -100,7 +100,7 @@ function JWIssueReturnController($window, cboService, commonMessage, $scope, $ro
 		Id: null,
 		IssueDate: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
 		EmployeeId: null,
-		Types: 'InventoryOSIssue',
+		Types: 'InventoryJWIssue',
 		MaterialStorageId: null,
 		Remarks: null,
 		EmployeeStatus: null,
@@ -2497,11 +2497,11 @@ function JWIssueReturnController($window, cboService, commonMessage, $scope, $ro
 			//var x = "#" + z;
 			//var gridObj = $(x).data("ejGrid");
 			//var data = gridObj.getSelectedRecords()[0];
-			location.href = "Products/InventoryIssue/JobWorkIssueReport?grnId=" + data.Id;
+			location.href = "Products/InventoryIssue/JobWorkTransformationIssueReport?grnId=" + data.Id;
 		}
 		else {
 
-			location.href = "Products/InventoryIssue/JWValAddedIssueReport?grnId=" + data.Id;
+			location.href = "Products/InventoryIssue/JobWorkValAddedIssueReport?grnId=" + data.Id;
         }
 		$scope.getdataInventoryIssue();
 	
@@ -2599,7 +2599,7 @@ function JWIssueReturnController($window, cboService, commonMessage, $scope, $ro
 		//var gridObj = $(x).data("ejGrid");
 		//var data = gridObj.getSelectedRecords()[0];
 
-		location.href = "Outsourcing/OSTransformationPO/GePurchaseOrderReport?purchaseOrderId=" + data.Id;
+		location.href = "JobWork/JobWorkTransformationPO/GePurchaseOrderReport?purchaseOrderId=" + data.Id + '&POType=' + data.POType;
 		$scope.getalldata();
 	};
 
@@ -2614,12 +2614,12 @@ function JWIssueReturnController($window, cboService, commonMessage, $scope, $ro
 			$scope.PrintTabId = data.Id;
 
 			var reportFormat = "Excel";
-			if (data.POType == "OSTransformationPO") {
-				window.open('Outsourcing/JobWorkValueAddedContract/GetTransformationContractReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId, '_blank');
+			if (data.POType == "JWTransformationPO") {
+				window.open('JobWork/JWValueAddedContract/GetTransformationContractReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId, '_blank');
 			}
 
-			if (data.POType == "OSValueAddedPO") {
-				window.open('Outsourcing/JobWorkValueAddedContract/GetValueAddedPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId, '_blank');
+			if (data.POType == "JWValueAddedPO") {
+				window.open('JobWork/JWValueAddedContract/GetValueAddedPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId, '_blank');
 			}
 
 		} catch (e) {
@@ -2678,7 +2678,7 @@ function JWIssueReturnController($window, cboService, commonMessage, $scope, $ro
 
 			}
 			if (!baseService.isUndefinedOrNull($scope.IssueChildList[index].MaterialMasterId) && !baseService.isUndefinedOrNull($scope.IssueChildList[index].ArticleId)) {
-				if (($scope.IssueChildList[index].MaterialMasterId === $scope.IssueChildList[i].MaterialMasterId) && $scope.IssueChildList[index].ArticleId === $scope.IssueChildList[i].ArticleId) {
+				if (($scope.IssueChildList[index].MaterialMasterId === $scope.IssueChildList[i].MaterialMasterId) && $scope.IssueChildList[index].ArticleId === $scope.IssueChildList[i].ArticleId && $scope.IssueChildList[index].JWTransformationPODetailId === $scope.IssueChildList[i].JWTransformationPODetailId) {
 
 					//if ((Math.round(($scope.IssueChildList[index].TransactionQty + $scope.IssueChildList[i].TIRCTotalQty) * 100 + Number.EPSILON) / 100) > Math.round(($scope.IssueChildList[i].PostingQty) * 100 + Number.EPSILON) / 100) {
 					//	ShowResult("Issue qty must be less than or equal Ready for Issue Qty");

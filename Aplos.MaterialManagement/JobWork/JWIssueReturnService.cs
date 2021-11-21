@@ -1455,7 +1455,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 							,II.OrderRefNo
 							--,C.Id CountryId,c.UserName CountryName
 							,II.ContractId,II.ProductionOrderId,Con.ContractNo
-                            ,II.Types, II.JWContractId,Tuom.UserName as TransactionUoM
+                            ,II.Types, II.JobWorkContractId,Tuom.UserName as TransactionUoM
 							FROM[TRN].[InventoryIssue] AS II
 							left JOIN TRN.InventoryIssueDetail AS IID ON IID.InventoryIssueId= II.Id AND IID.IsAsset= 0
 							left JOIN[HKP].[MaterialStorage] AS MS ON II.MaterialStorageId= MS.Id
@@ -1471,13 +1471,13 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 							left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
 							left join TRN.InventoryReceiveDetail IRD on IRD.Id=IIH.InventoryReceiveDetailId
         					left join TRN.InventoryReceive IR on IR.Id=IRD.InventoryReceiveId
-						WHERE II.PlantId= '" + plantId + @"' AND ISNULL(II.[Status],'') <>'Posting' AND IID.IsAsset= 0 and II.Types='InventoryJWIssue' and II.JWContractId='" + Id + @"'
+						WHERE II.PlantId= '" + plantId + @"' AND ISNULL(II.[Status],'') <>'Posting' AND IID.IsAsset= 0 and II.Types='InventoryJWIssue' and II.JobWorkContractId='" + Id + @"'
 						GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
 						,II.IssueDate, MS.UserName
 						,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo  
 						--,C.Id ,c.UserName 
                         ,II.ContractId 
-                        ,II.ProductionOrderId,Con.ContractNo,II.Types, II.JWContractId,Tuom.UserName
+                        ,II.ProductionOrderId,Con.ContractNo,II.Types, II.JobWorkContractId,Tuom.UserName
                         ,II.EmployeeId,II.RefferenceNo
 						Order BY II.IssueDate DESC";
                 }
@@ -1499,7 +1499,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 							,II.OrderRefNo
 							--,C.Id CountryId,c.UserName CountryName
 							,II.ContractId,II.ProductionOrderId,Con.ContractNo
-                            ,II.Types, II.JWContractId,Tuom.UserName as TransactionUoM
+                            ,II.Types, II.JobWorkContractId,Tuom.UserName as TransactionUoM
 							FROM[TRN].[InventoryIssue] AS II
 							left JOIN TRN.InventoryIssueDetail AS IID ON IID.InventoryIssueId= II.Id AND IID.IsAsset= 0
 							left JOIN[HKP].[MaterialStorage] AS MS ON II.MaterialStorageId= MS.Id
@@ -1515,12 +1515,12 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 							left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
 							left join TRN.InventoryReceiveDetail IRD on IRD.Id=IIH.InventoryReceiveDetailId
         					left join TRN.InventoryReceive IR on IR.Id=IRD.InventoryReceiveId
-						WHERE II.PlantId= '" + plantId + @"' AND ISNULL(II.[Status],'')='Posting' AND IID.IsAsset= 0 and II.Types='InventoryJWIssue' and II.JWContractId='" + Id + @"'
+						WHERE II.PlantId= '" + plantId + @"' AND ISNULL(II.[Status],'')='Posting' AND IID.IsAsset= 0 and II.Types='InventoryJWIssue' and II.JobWorkContractId='" + Id + @"'
 						GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
 						,II.IssueDate, MS.UserName
 						,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo  
 						--,C.Id ,c.UserName 
-                        ,II.ContractId ,II.ProductionOrderId,Con.ContractNo,II.Types, II.JWContractId,Tuom.UserName
+                        ,II.ContractId ,II.ProductionOrderId,Con.ContractNo,II.Types, II.JobWorkContractId,Tuom.UserName
 						Order BY II.IssueDate DESC";
                 }
 

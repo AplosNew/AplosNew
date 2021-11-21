@@ -394,8 +394,8 @@ namespace Aplos.Areas.Products.Controllers
 			return null;
 		}
 
-        // Job Work Transformation Issue
-        [Authorize, HttpGet]
+		// Outsource Transformation Issue
+		[Authorize, HttpGet]
         public ActionResult JobWorkIssueReport(string grnId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -403,12 +403,30 @@ namespace Aplos.Areas.Products.Controllers
             return null;
         }
 
-		// Job Work Transformation Issue
+		// Outsource Value Added Issue
 		[Authorize, HttpGet]
 		public ActionResult JWValAddedIssueReport(string grnId)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			_inventoryReveiveService.JWValAddedIssueReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, grnId);
+			return null;
+		}
+
+		// JobWork Transformation Issue
+		[Authorize, HttpGet]
+		public ActionResult JobWorkTransformationIssueReport(string grnId)
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			_inventoryReveiveService.JobWorkTransformationIssueReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, grnId);
+			return null;
+		}
+
+		// JobWork Value Added Issue
+		[Authorize, HttpGet]
+		public ActionResult JobWorkValAddedIssueReport(string grnId)
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			_inventoryReveiveService.JobWorkValAddedIssueReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, grnId);
 			return null;
 		}
 
@@ -530,7 +548,7 @@ namespace Aplos.Areas.Products.Controllers
 			inventoryIssue.CompanyId = identity.CompanyId;
 			inventoryIssue.PlantId = identity.PlantId;
 			_inventoryIssueService.InsertAssetInventoryIssue(entities, specificStockList, inventoryIssue);
-			return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+			return Json(new { inventoryIssue, Message = AplosMessage.Success + "Issue No=" + inventoryIssue.Id }, JsonRequestBehavior.AllowGet);
 		}
 
 		#endregion

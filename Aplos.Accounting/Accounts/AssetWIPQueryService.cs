@@ -48,7 +48,7 @@ namespace Library.Accounting.FixedAssets
 							,IRD.TotalMaterialTranAmount TrnAmount
 							,IRD.BaseQty,BUOM.UserName BaseUOM,IRD.BooksCurrencyBaseRate BaseRate
 							,IRD.TotalMaterialBooksCurrencyAmount BooksAmount
-							,ISNULL(IIH.IssueQty,0) AS IssueQty
+							,isnull(IIH.IssueQty,0) as IssueQty
 							,V.Id VoucherId,GL.Id GlId,A.Id ActivityId,(isnull(IRD.BaseQty,0)-isnull(IIH.IssueQty,0)) BalanceQty
 from TRN.InventoryReceiveDetail IRD 
 LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
@@ -73,10 +73,13 @@ LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.
  LEFT JOIN HKP.Activity A ON A.Id=IRD.PostDrActivityId
  LEFT JOIN HKP.FixedAssetMasterBudgetTag FAMB ON FAMB.BudgetMasterId=MM.BudgetMasterId
  LEFT JOIN MST.FixedAssetMaster FAM ON FAM.Id=FAMB.FixedAssetMasterId
- LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
+ LEFT JOIN TRN.EmployeePayable EP ON EP.InventoryReceiveId=IRD.InventoryReceiveId
+ LEFT JOIN TRN.Voucher V ON V.Id=CASE WHEN IR.EmployeeId<>'' THEN EP.VoucherId ELSE IR.VoucherId  END
  LEFT JOIN SCS.Currency CU ON CU.Id=IR.CurrencyId
  LEFT JOIN (SELECT InventoryReceiveDetailId,SUM(Qty) IssueQty FROM  TRN.InventoryIssueHistory group by InventoryReceiveDetailId) IIH ON IIH.InventoryReceiveDetailId=IRD.Id
-WHERE IR.VoucherId<>'' AND IRD.IsAsset=1 and (isnull(IRD.BaseQty,0)-isnull(IIH.IssueQty,0))>0";
+WHERE 
+IR.[Status]='Posting' and IRD.IsAsset=1  
+and (isnull(IRD.BaseQty,0)-isnull(IIH.IssueQty,0))>0";
 			return _sqlRepository.GetDataCollection(sql);
 
 		}
@@ -101,7 +104,7 @@ WHERE IR.VoucherId<>'' AND IRD.IsAsset=1 and (isnull(IRD.BaseQty,0)-isnull(IIH.I
 							,IRD.TotalMaterialTranAmount TrnAmount
 							,IRD.BaseQty,BUOM.UserName BaseUOM,IRD.BooksCurrencyBaseRate BaseRate
 							,IRD.TotalMaterialBooksCurrencyAmount BooksAmount
-							,ISNULL(IIH.IssueQty,0) AS IssueQty
+							,isnull(IIH.IssueQty,0) as IssueQty
 							,V.Id VoucherId,GL.Id GlId,A.Id ActivityId,(isnull(IRD.BaseQty,0)-isnull(IIH.IssueQty,0)) BalanceQty
 from TRN.InventoryReceiveDetail IRD 
 LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
@@ -126,10 +129,13 @@ LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.
  LEFT JOIN HKP.Activity A ON A.Id=IRD.PostDrActivityId
  LEFT JOIN HKP.FixedAssetMasterBudgetTag FAMB ON FAMB.BudgetMasterId=MM.BudgetMasterId
  LEFT JOIN MST.FixedAssetMaster FAM ON FAM.Id=FAMB.FixedAssetMasterId
- LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
+ LEFT JOIN TRN.EmployeePayable EP ON EP.InventoryReceiveId=IRD.InventoryReceiveId
+ LEFT JOIN TRN.Voucher V ON V.Id=CASE WHEN IR.EmployeeId<>'' THEN EP.VoucherId ELSE IR.VoucherId  END
  LEFT JOIN SCS.Currency CU ON CU.Id=IR.CurrencyId
  LEFT JOIN (SELECT InventoryReceiveDetailId,SUM(Qty) IssueQty FROM  TRN.InventoryIssueHistory group by InventoryReceiveDetailId) IIH ON IIH.InventoryReceiveDetailId=IRD.Id
-WHERE IR.VoucherId<>'' AND IRD.IsAsset=1 and (isnull(IRD.BaseQty,0)-isnull(IIH.IssueQty,0))>0";
+WHERE 
+IR.[Status]='Posting' and IRD.IsAsset=1  
+and (isnull(IRD.BaseQty,0)-isnull(IIH.IssueQty,0))>0";
 
             return _sqlRepository.GetDataTable(sql);
 
@@ -366,7 +372,7 @@ WHERE IR.VoucherId<>'' AND IRD.IsAsset=1 and (isnull(IRD.BaseQty,0)-isnull(IIH.I
                 worksheet[ROW, colBooksAmount].NumberFormat = clsStaticInfo.NumberFormat(4);
 
                 worksheet[ROW, colIssueQty].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["IssueQty"].ToString());
-                worksheet[ROW, colBalanceQty].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["colBalanceQty"].ToString());
+                worksheet[ROW, colBalanceQty].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["BalanceQty"].ToString());
 
                 worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                 worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -440,7 +446,7 @@ WHERE IR.VoucherId<>'' AND IRD.IsAsset=1 and (isnull(IRD.BaseQty,0)-isnull(IIH.I
 
         public List<Dictionary<string, object>> GetNonRegisterAssetSQL()
         {
-            var sql = @"select  IIHD.IssueNo,IIHD.IssueDate,IIHD.IssueQty,IIHD.IssueCurrency,IIHD.IssueAmount,IIHD.VoucherId IssueVoucherId,IIHD.IssueVoucherNo,IRD.Id InventoryReceiveDetailId, isnull(MM.UserName,'') MaterialMasterName	
+            var sql = @"select  IIHD.IssueNo,IIHD.IssueDate,isnull(IIHD.IssueQty,0) as IssueQty,IIHD.IssueCurrency,IIHD.IssueAmount,IIHD.VoucherId IssueVoucherId,IIHD.IssueVoucherNo,IRD.Id InventoryReceiveDetailId, isnull(MM.UserName,'') MaterialMasterName	
 							, MM.Id	MaterialMasterId	
 							, isnull( ART.StandardName,'') ArticleName	
 							, ART.Id ArticleId		
@@ -454,11 +460,10 @@ WHERE IR.VoucherId<>'' AND IRD.IsAsset=1 and (isnull(IRD.BaseQty,0)-isnull(IIH.I
 							,V.VoucherNo
 							,IRD.TransactionQty,TUOM.UserName TrnUOM
 							,IRD.MaterialTranRate TrnRate
-							,CU.Code Currency
+							,CU.Code Currency,IR.ToCurrencyRate  ExchangeRate
 							,IRD.TotalMaterialTranAmount TrnAmount
 							,IRD.BaseQty,BUOM.UserName BaseUOM,IRD.BooksCurrencyBaseRate BaseRate
 							,IRD.TotalMaterialBooksCurrencyAmount BooksAmount
-							,IIHD.IssueQty 
 							,V.Id VoucherId,GL.Id GlId,A.Id ActivityId
 							,case when IIHD.IsCapitalize=1 then 'Yes' else 'No' end Capitalized,(isnull(IRD.BaseQty,0)-isnull(IIHD.IssueQty,0)) BalanceQty
 from TRN.InventoryReceiveDetail IRD 
@@ -484,23 +489,21 @@ LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.
  LEFT JOIN HKP.Activity A ON A.Id=IRD.PostDrActivityId
  LEFT JOIN HKP.FixedAssetMasterBudgetTag FAMB ON FAMB.BudgetMasterId=MM.BudgetMasterId
  LEFT JOIN MST.FixedAssetMaster FAM ON FAM.Id=FAMB.FixedAssetMasterId
- LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
+ LEFT JOIN TRN.EmployeePayable EP ON EP.InventoryReceiveId=IRD.InventoryReceiveId
+ LEFT JOIN TRN.Voucher V ON V.Id=CASE WHEN IR.EmployeeId<>'' THEN EP.VoucherId ELSE IR.VoucherId  END
  LEFT JOIN SCS.Currency CU ON CU.Id=IR.CurrencyId
--- LEFT JOIN trn.InventoryIssueHistory iih on IRD.Id=iih.InventoryIssueDetailId 
---left join TRN.InventoryIssueDetail iid on iid.Id=iih.InventoryIssueDetailId 
---left join trn.InventoryIssue ii on ii.Id=iid.InventoryIssueId
-LEFT JOIN (select iih.InventoryReceiveDetailId,iid.InventoryIssueId IssueNo,FORMAT(ii.IssueDate,'dd-MMM-yyyy') IssueDate,SUM(isnull(iih.Qty,0)) IssueQty, CU.Code IssueCurrency
-            ,SUM(isnull(iih.TotalMaterialBooksCurrencyAmount,0)) IssueAmount,uom.UserName UOM,ii.VoucherId,v.VoucherNo IssueVoucherNo,IIH.IsRegister,IIH.IsCapitalize
+inner JOIN (select iih.InventoryReceiveDetailId,iid.InventoryIssueId IssueNo,FORMAT(ii.IssueDate,'dd-MMM-yyyy') IssueDate,SUM(isnull(iih.Qty,0)) IssueQty, CU.Code IssueCurrency
+            ,SUM(isnull(iih.TotalMaterialBooksCurrencyAmount,0)) IssueAmount,uom.UserName UOM,ii.VoucherId,v.VoucherNo IssueVoucherNo,IIH.IsRegister,IIH.IsCapitalize,ird.IsAsset
             from trn.InventoryIssueHistory iih 
             left join TRN.InventoryIssueDetail iid on iid.Id=iih.InventoryIssueDetailId 
             left join trn.InventoryIssue ii on ii.Id=iid.InventoryIssueId
-            left join TRN.Voucher v on v.Id=ii.VoucherId
+            left join TRN.Voucher v on v.Id=ii.CapitalizeVoucherId
             left join SCS.UnitOfMeasurement uom on uom.Id=iid.BaseUOMId
             left join TRN.InventoryReceiveDetail ird on ird.Id=iih.InventoryReceiveDetailId
 			left join SCS.Currency CU on CU.Id=ii.CurrencyId  
-            group by iih.InventoryReceiveDetailId,iid.InventoryIssueId ,ii.IssueDate,ii.VoucherId,v.VoucherNo ,uom.UserName,CU.Code,IIH.IsRegister,IIH.IsCapitalize) IIHD ON IIHD.InventoryReceiveDetailId=IRD.Id
- --LEFT JOIN (SELECT InventoryReceiveDetailId,SUM(Qty) IssueQty,IsRegister,IsCapitalize FROM  TRN.InventoryIssueHistory group by InventoryReceiveDetailId,IsRegister,IsCapitalize) IIH ON IIH.InventoryReceiveDetailId=IRD.Id
-WHERE IR.VoucherId<>'' AND IRD.IsAsset=1 and isnull(IIHD.IssueQty,0)>0 and IIHD.IsRegister=0";
+			where ird.IsAsset=1 and ii.IssueType='Capital'
+            group by iih.InventoryReceiveDetailId,iid.InventoryIssueId ,ii.IssueDate,ii.VoucherId,v.VoucherNo ,uom.UserName,CU.Code,IIH.IsRegister,IIH.IsCapitalize,ird.IsAsset) IIHD ON IIHD.InventoryReceiveDetailId=IRD.Id
+WHERE IR.[Status]='Posting' AND IIHD.IsAsset=1 AND ird.IsAsset=1 and isnull(IIHD.IssueQty,0)>0 and IIHD.IsRegister=0";
             return _sqlRepository.GetDataCollection(sql);
 
         }
@@ -508,7 +511,7 @@ WHERE IR.VoucherId<>'' AND IRD.IsAsset=1 and isnull(IIHD.IssueQty,0)>0 and IIHD.
 
         private DataTable GetNonRegisterAssetReportSQL(string materialMasterId, string materialMasterArticleId, string voucherId, string grnNo, string glId, string activityId)
         {
-            var sql = @"select  IIHD.IssueNo,IIHD.IssueDate,IIHD.IssueQty,IIHD.IssueCurrency,IIHD.IssueAmount,IIHD.VoucherId IssueVoucherId,IIHD.IssueVoucherNo,IRD.Id InventoryReceiveDetailId, isnull(MM.UserName,'') MaterialMasterName	
+            var sql = @"select  IIHD.IssueNo,IIHD.IssueDate,isnull(IIHD.IssueQty,0) as IssueQty,IIHD.IssueCurrency,IIHD.IssueAmount,IIHD.VoucherId IssueVoucherId,IIHD.IssueVoucherNo,IRD.Id InventoryReceiveDetailId, isnull(MM.UserName,'') MaterialMasterName	
 							, MM.Id	MaterialMasterId	
 							, isnull( ART.StandardName,'') ArticleName	
 							, ART.Id ArticleId		
@@ -522,11 +525,10 @@ WHERE IR.VoucherId<>'' AND IRD.IsAsset=1 and isnull(IIHD.IssueQty,0)>0 and IIHD.
 							,V.VoucherNo
 							,IRD.TransactionQty,TUOM.UserName TrnUOM
 							,IRD.MaterialTranRate TrnRate
-							,CU.Code Currency
+							,CU.Code Currency,IR.ToCurrencyRate  ExchangeRate
 							,IRD.TotalMaterialTranAmount TrnAmount
 							,IRD.BaseQty,BUOM.UserName BaseUOM,IRD.BooksCurrencyBaseRate BaseRate
 							,IRD.TotalMaterialBooksCurrencyAmount BooksAmount
-							,IIHD.IssueQty 
 							,V.Id VoucherId,GL.Id GlId,A.Id ActivityId
 							,case when IIHD.IsCapitalize=1 then 'Yes' else 'No' end Capitalized,(isnull(IRD.BaseQty,0)-isnull(IIHD.IssueQty,0)) BalanceQty
 from TRN.InventoryReceiveDetail IRD 
@@ -552,23 +554,21 @@ LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.
  LEFT JOIN HKP.Activity A ON A.Id=IRD.PostDrActivityId
  LEFT JOIN HKP.FixedAssetMasterBudgetTag FAMB ON FAMB.BudgetMasterId=MM.BudgetMasterId
  LEFT JOIN MST.FixedAssetMaster FAM ON FAM.Id=FAMB.FixedAssetMasterId
- LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
+ LEFT JOIN TRN.EmployeePayable EP ON EP.InventoryReceiveId=IRD.InventoryReceiveId
+ LEFT JOIN TRN.Voucher V ON V.Id=CASE WHEN IR.EmployeeId<>'' THEN EP.VoucherId ELSE IR.VoucherId  END
  LEFT JOIN SCS.Currency CU ON CU.Id=IR.CurrencyId
--- LEFT JOIN trn.InventoryIssueHistory iih on IRD.Id=iih.InventoryIssueDetailId 
---left join TRN.InventoryIssueDetail iid on iid.Id=iih.InventoryIssueDetailId 
---left join trn.InventoryIssue ii on ii.Id=iid.InventoryIssueId
-LEFT JOIN (select iih.InventoryReceiveDetailId,iid.InventoryIssueId IssueNo,FORMAT(ii.IssueDate,'dd-MMM-yyyy') IssueDate,SUM(isnull(iih.Qty,0)) IssueQty, CU.Code IssueCurrency
-            ,SUM(isnull(iih.TotalMaterialBooksCurrencyAmount,0)) IssueAmount,uom.UserName UOM,ii.VoucherId,v.VoucherNo IssueVoucherNo,IIH.IsRegister,IIH.IsCapitalize
+inner JOIN (select iih.InventoryReceiveDetailId,iid.InventoryIssueId IssueNo,FORMAT(ii.IssueDate,'dd-MMM-yyyy') IssueDate,SUM(isnull(iih.Qty,0)) IssueQty, CU.Code IssueCurrency
+            ,SUM(isnull(iih.TotalMaterialBooksCurrencyAmount,0)) IssueAmount,uom.UserName UOM,ii.VoucherId,v.VoucherNo IssueVoucherNo,IIH.IsRegister,IIH.IsCapitalize,ird.IsAsset
             from trn.InventoryIssueHistory iih 
             left join TRN.InventoryIssueDetail iid on iid.Id=iih.InventoryIssueDetailId 
             left join trn.InventoryIssue ii on ii.Id=iid.InventoryIssueId
-            left join TRN.Voucher v on v.Id=ii.VoucherId
+            left join TRN.Voucher v on v.Id=ii.CapitalizeVoucherId
             left join SCS.UnitOfMeasurement uom on uom.Id=iid.BaseUOMId
             left join TRN.InventoryReceiveDetail ird on ird.Id=iih.InventoryReceiveDetailId
 			left join SCS.Currency CU on CU.Id=ii.CurrencyId  
-            group by iih.InventoryReceiveDetailId,iid.InventoryIssueId ,ii.IssueDate,ii.VoucherId,v.VoucherNo ,uom.UserName,CU.Code,IIH.IsRegister,IIH.IsCapitalize) IIHD ON IIHD.InventoryReceiveDetailId=IRD.Id
- --LEFT JOIN (SELECT InventoryReceiveDetailId,SUM(Qty) IssueQty,IsRegister,IsCapitalize FROM  TRN.InventoryIssueHistory group by InventoryReceiveDetailId,IsRegister,IsCapitalize) IIH ON IIH.InventoryReceiveDetailId=IRD.Id
-WHERE IR.VoucherId<>'' AND IRD.IsAsset=1 and isnull(IIHD.IssueQty,0)>0 and IIHD.IsRegister=0";
+			where ird.IsAsset=1 and ii.IssueType='Capital'
+            group by iih.InventoryReceiveDetailId,iid.InventoryIssueId ,ii.IssueDate,ii.VoucherId,v.VoucherNo ,uom.UserName,CU.Code,IIH.IsRegister,IIH.IsCapitalize,ird.IsAsset) IIHD ON IIHD.InventoryReceiveDetailId=IRD.Id
+WHERE IR.[Status]='Posting' AND IIHD.IsAsset=1 AND ird.IsAsset=1 and isnull(IIHD.IssueQty,0)>0 and IIHD.IsRegister=0";
 
             return _sqlRepository.GetDataTable(sql);
 
@@ -616,32 +616,6 @@ WHERE IR.VoucherId<>'' AND IRD.IsAsset=1 and isnull(IIHD.IssueQty,0)>0 and IIHD.
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-            worksheet[ROW, COL].Text = "Issue Qty";
-            int colIssueQty = COL;
-            worksheet[ROW, COL].ColumnWidth = 12;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-            COL++;
-
-            worksheet[ROW, COL].Text = "Issue Currency";
-            int colIssueCurrency = COL;
-            worksheet[ROW, COL].ColumnWidth = 30;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            COL++;
-
-            worksheet[ROW, COL].Text = "Issue Amount";
-            int colIssueAmount = COL;
-            worksheet[ROW, COL].ColumnWidth = 12;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-            COL++;
-
-            worksheet[ROW, COL].Text = "Issue VoucherNo";
-            int colIssueVoucherNo = COL;
-            worksheet[ROW, COL].ColumnWidth = 30;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            COL++;
-
             worksheet[ROW, COL].Text = "Material";
             int colMaterialMasterName = COL;
             worksheet[ROW, COL].ColumnWidth = 30;
@@ -672,6 +646,52 @@ WHERE IR.VoucherId<>'' AND IRD.IsAsset=1 and isnull(IIHD.IssueQty,0)>0 and IIHD.
             worksheet[ROW, COL].ColumnWidth = 10;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
+            
+            worksheet[ROW, COL].Text = "Asset Master";
+            int colAssetMaster = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Issue Qty";
+            int colIssueQty = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Transaction UoM";
+            int colTrnUOM = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Exchange Rate";
+            int colExchangeRate = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Issue VoucherNo";
+            int colIssueVoucherNo = COL;
+            worksheet[ROW, COL].ColumnWidth = 30;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Issue Currency";
+            int colIssueCurrency = COL;
+            worksheet[ROW, COL].ColumnWidth = 30;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Issue Amount";
+            int colIssueAmount = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
 
             worksheet[ROW, COL].Text = "Storage Location";
             int colMaterialStorageLocation = COL;
@@ -679,11 +699,7 @@ WHERE IR.VoucherId<>'' AND IRD.IsAsset=1 and isnull(IIHD.IssueQty,0)>0 and IIHD.
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-            worksheet[ROW, COL].Text = "Asset Master";
-            int colAssetMaster = COL;
-            worksheet[ROW, COL].ColumnWidth = 15;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            COL++;
+            
 
             worksheet[ROW, COL].Text = "GL";
             int colGL = COL;
@@ -691,11 +707,11 @@ WHERE IR.VoucherId<>'' AND IRD.IsAsset=1 and isnull(IIHD.IssueQty,0)>0 and IIHD.
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-            worksheet[ROW, COL].Text = "Activity";
-            int colActivity = COL;
-            worksheet[ROW, COL].ColumnWidth = 12;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            COL++;
+            //worksheet[ROW, COL].Text = "Activity";
+            //int colActivity = COL;
+            //worksheet[ROW, COL].ColumnWidth = 12;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //COL++;
 
             worksheet[ROW, COL].Text = "GRN No";
             int colGRNNo = COL;
@@ -718,19 +734,14 @@ WHERE IR.VoucherId<>'' AND IRD.IsAsset=1 and isnull(IIHD.IssueQty,0)>0 and IIHD.
             // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
-            worksheet[ROW, COL].Text = "Transaction Qty";
-            int colTransactionQty = COL;
-            worksheet[ROW, COL].ColumnWidth = 12;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-            COL++;
-
-            worksheet[ROW, COL].Text = "Transaction UoM";
-            int colTrnUOM = COL;
-            worksheet[ROW, COL].ColumnWidth = 12;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //worksheet[ROW, COL].Text = "Transaction Qty";
+            //int colTransactionQty = COL;
+            //worksheet[ROW, COL].ColumnWidth = 12;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
             //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-            COL++;
+            //COL++;
+
+            
 
             worksheet[ROW, COL].Text = "Transaction Rate";
             int colTrnRate = COL;
@@ -753,11 +764,11 @@ WHERE IR.VoucherId<>'' AND IRD.IsAsset=1 and isnull(IIHD.IssueQty,0)>0 and IIHD.
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
-            worksheet[ROW, COL].Text = "Base Qty";
-            int colBaseQty = COL;
-            worksheet[ROW, COL].ColumnWidth = 12;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            COL++;
+            //worksheet[ROW, COL].Text = "Base Qty";
+            //int colBaseQty = COL;
+            //worksheet[ROW, COL].ColumnWidth = 12;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //COL++;
 
             worksheet[ROW, COL].Text = "Base UOM";
             int colBaseUOM = COL;
@@ -766,12 +777,12 @@ WHERE IR.VoucherId<>'' AND IRD.IsAsset=1 and isnull(IIHD.IssueQty,0)>0 and IIHD.
             //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
-            worksheet[ROW, COL].Text = "Base Rate";
-            int colBaseRate = COL;
-            worksheet[ROW, COL].ColumnWidth = 12;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-            COL++;
+            //worksheet[ROW, COL].Text = "Base Rate";
+            //int colBaseRate = COL;
+            //worksheet[ROW, COL].ColumnWidth = 12;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            //COL++;
 
             worksheet[ROW, COL].Text = "Books Amount";
             int colBooksAmount = COL;
@@ -796,11 +807,12 @@ WHERE IR.VoucherId<>'' AND IRD.IsAsset=1 and isnull(IIHD.IssueQty,0)>0 and IIHD.
                 worksheet[ROW, colIssueDate].Text = dtGatenntryRegisterList.Rows[i]["IssueDate"].ToString();
                 worksheet[ROW, colIssueQty].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["IssueQty"].ToString());
                 worksheet[ROW, colIssueCurrency].Text = dtGatenntryRegisterList.Rows[i]["IssueCurrency"].ToString();
-                worksheet[ROW, colIssueCurrency].Text = dtGatenntryRegisterList.Rows[i]["IssueCurrency"].ToString();
-                worksheet[ROW, colIssueVoucherNo].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["IssueVoucherNo"].ToString());
+                worksheet[ROW, colIssueAmount].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["IssueAmount"].ToString());
+                worksheet[ROW, colExchangeRate].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["ExchangeRate"].ToString());
+                worksheet[ROW, colIssueVoucherNo].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["IssueVoucherId"].ToString()); 
 
-                // int i = 0; i < dtMasterOrderItem.Rows.Count; i++
-                worksheet[ROW, colMaterialMasterName].Text = dtGatenntryRegisterList.Rows[i]["MaterialMasterName"].ToString();
+                 // int i = 0; i < dtMasterOrderItem.Rows.Count; i++
+                 worksheet[ROW, colMaterialMasterName].Text = dtGatenntryRegisterList.Rows[i]["MaterialMasterName"].ToString();
                 // worksheet[ROW, colIsOpeningBalance].Number =clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["OpeningBalance"].ToString());
                 worksheet[ROW, colArticleName].Text = (dtGatenntryRegisterList.Rows[i]["ArticleName"].ToString());
                 worksheet[ROW, colFirstCharacteristicsValue].Text = dtGatenntryRegisterList.Rows[i]["FirstCharacteristicsValue"].ToString();
@@ -811,14 +823,14 @@ WHERE IR.VoucherId<>'' AND IRD.IsAsset=1 and isnull(IIHD.IssueQty,0)>0 and IIHD.
 
                 worksheet[ROW, colMaterialMasterName].Text = dtGatenntryRegisterList.Rows[i]["MaterialMasterName"].ToString();
                 worksheet[ROW, colGL].Text = dtGatenntryRegisterList.Rows[i]["GL"].ToString();
-                worksheet[ROW, colActivity].Text = dtGatenntryRegisterList.Rows[i]["Activity"].ToString();
+                //worksheet[ROW, colActivity].Text = dtGatenntryRegisterList.Rows[i]["Activity"].ToString();
 
                 worksheet[ROW, colGRNNo].Text = dtGatenntryRegisterList.Rows[i]["GRNNo"].ToString();
                 worksheet[ROW, colGRNDate].Text = dtGatenntryRegisterList.Rows[i]["GRNDate"].ToString();
                 worksheet[ROW, colVoucherNo].Text = dtGatenntryRegisterList.Rows[i]["VoucherNo"].ToString();
 
-                worksheet[ROW, colTransactionQty].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["TransactionQty"].ToString());
-                worksheet[ROW, colTransactionQty].NumberFormat = clsStaticInfo.NumberFormat(2);
+                //worksheet[ROW, colTransactionQty].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["TransactionQty"].ToString());
+                //worksheet[ROW, colTransactionQty].NumberFormat = clsStaticInfo.NumberFormat(2);
 
                 worksheet[ROW, colTrnUOM].Text = dtGatenntryRegisterList.Rows[i]["TrnUOM"].ToString();
 
@@ -829,12 +841,12 @@ WHERE IR.VoucherId<>'' AND IRD.IsAsset=1 and isnull(IIHD.IssueQty,0)>0 and IIHD.
                 worksheet[ROW, colTrnAmount].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["TrnAmount"].ToString());
                 worksheet[ROW, colTrnAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
 
-                worksheet[ROW, colBaseQty].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["BaseQty"].ToString());
-                worksheet[ROW, colBaseQty].NumberFormat = clsStaticInfo.NumberFormat(2);
+                //worksheet[ROW, colBaseQty].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["BaseQty"].ToString());
+                //worksheet[ROW, colBaseQty].NumberFormat = clsStaticInfo.NumberFormat(2);
 
                 worksheet[ROW, colBaseUOM].Text = dtGatenntryRegisterList.Rows[i]["BaseUOM"].ToString();
-                worksheet[ROW, colBaseRate].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["BaseRate"].ToString());
-                worksheet[ROW, colBaseRate].NumberFormat = clsStaticInfo.NumberFormat(4);
+                //worksheet[ROW, colBaseRate].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["BaseRate"].ToString());
+                //worksheet[ROW, colBaseRate].NumberFormat = clsStaticInfo.NumberFormat(4);
 
                 worksheet[ROW, colBooksAmount].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["BooksAmount"].ToString());
                 worksheet[ROW, colBooksAmount].NumberFormat = clsStaticInfo.NumberFormat(4);

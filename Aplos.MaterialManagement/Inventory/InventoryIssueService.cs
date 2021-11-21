@@ -14920,8 +14920,8 @@ namespace Library.MaterialManagement.Inventory
                                             CostCenterId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.CostCenterId).FirstOrDefault(),
                                             Comments = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.Comments).FirstOrDefault(),
                                             // OSTransformationPOId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId).Select(t => t.OSTransformationPOId).FirstOrDefault(),
-                                            OSTransformationPOId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId).Select(t => t.OSTransformationPODetailId).FirstOrDefault(),
-                                          //  JWTransformationPOId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId).Select(t => t.OSTransformationPODetailId).FirstOrDefault(),
+                                         //   OSTransformationPOId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId).Select(t => t.OSTransformationPODetailId).FirstOrDefault(),
+                                            JWTransformationPOId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId).Select(t => t.JWTransformationPODetailId).FirstOrDefault(),
                                             //JWTCInputId = entities.Where(r => r.MaterialMasterId != invMaterial.MaterialMasterId && r.ArticleId != invMaterial.ArticleId).Select(t => t.JWInputItemId).FirstOrDefault(),
                                             //  JWTCInputId = entities.Where(r => r.MaterialMasterId == null && r.ArticleId == null).Select(t => t.JWInputItemId).FirstOrDefault(),
                                             ModelState = ModelState.Added
@@ -15755,7 +15755,8 @@ namespace Library.MaterialManagement.Inventory
                                             CostCenterId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.CostCenterId).FirstOrDefault(),
                                             Comments = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.Comments).FirstOrDefault(),
                                             // OSTransformationPOId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId).Select(t => t.OSTransformationPOId).FirstOrDefault(),
-                                            OSTransformationPOId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId).Select(t => t.OSTransformationPODetailId).FirstOrDefault(),
+                                       //     OSTransformationPOId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId).Select(t => t.OSTransformationPODetailId).FirstOrDefault(),
+                                            JWTransformationPOId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId).Select(t => t.JWTransformationPODetailId).FirstOrDefault(),
                                             //JWTCInputId = entities.Where(r => r.MaterialMasterId != invMaterial.MaterialMasterId && r.ArticleId != invMaterial.ArticleId).Select(t => t.JWInputItemId).FirstOrDefault(),
                                             //  JWTCInputId = entities.Where(r => r.MaterialMasterId == null && r.ArticleId == null).Select(t => t.JWInputItemId).FirstOrDefault(),
                                             ModelState = ModelState.Added
@@ -16055,19 +16056,19 @@ namespace Library.MaterialManagement.Inventory
                     {
                         JWItemId += ",'" + empitem.JWInputItemId + "' ";
                         //        OtMatId += ",'" + empitem.OSTransformationPOId + "' ";
-                        OtMatId += ",'" + empitem.OSTransformationPODetailId + "' ";
+                        OtMatId += ",'" + empitem.JWTransformationPODetailId + "' ";
                     }
 
 
                 }
-                con.OpenDataSetThroughAdapter("select * from TRN.InventoryIssueDetail where OSTransformationPOId IN ( " + OtMatId + ") and JWTCInputId IN (" + JWItemId + ") and InventoryIssueId='" + MasterId + "'  ", out ExistOrNot, false, "1");
+                con.OpenDataSetThroughAdapter("select * from TRN.InventoryIssueDetail where JWTransformationPOId IN ( " + OtMatId + ") and JobWorkTCInputId IN (" + JWItemId + ") and InventoryIssueId='" + MasterId + "'  ", out ExistOrNot, false, "1");
 
                 foreach (var item in entities)
                 {
                     if (item.ArticleId.IsNull())
                     {
 
-                        ExistOrNot.Tables[0].DefaultView.RowFilter = "OSTransformationPOId='" + item.OSTransformationPODetailId + "' and JWTCInputId='" + item.JWInputItemId + "' ";
+                        ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTransformationPOId='" + item.JWTransformationPODetailId + "' and JobWorkTCInputId='" + item.JWInputItemId + "' ";
 
                         if (ExistOrNot.Tables[0].DefaultView.Count == 0)
                         {
@@ -16079,8 +16080,8 @@ namespace Library.MaterialManagement.Inventory
                             dr["TransactionUoMId"] = item.TransactionUoMId;
                             dr["BaseUOMId"] = item.BaseUOMId;
                             dr["CostCenterId"] = item.CostCenterId;
-                            dr["OSTransformationPOId"] = item.OSTransformationPODetailId;
-                            dr["JWTCInputId"] = item.JWInputItemId;
+                            dr["JWTransformationPOId"] = item.JWTransformationPODetailId;
+                            dr["JobWorkTCInputId"] = item.JWInputItemId;
 
                             dr["AddedBy"] = identity.Name;
                             dr["AddedDate"] = System.DateTime.Now.ToString();
@@ -16094,7 +16095,7 @@ namespace Library.MaterialManagement.Inventory
                         }
                         else
                         {
-                            ExistOrNot.Tables[0].DefaultView.RowFilter = "OSTransformationPOId='" + item.OSTransformationPODetailId + "' and JWTCInputId='" + item.JWInputItemId + "' ";
+                            ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTransformationPOId='" + item.JWTransformationPODetailId + "' and JobWorkTCInputId='" + item.JWInputItemId + "' ";
 
                             if (ExistOrNot.Tables[0].DefaultView.Count == 0)
                             {
@@ -16106,8 +16107,8 @@ namespace Library.MaterialManagement.Inventory
                                 dr["TransactionUoMId"] = item.TransactionUoMId;
                                 dr["BaseUOMId"] = item.BaseUOMId;
                                 dr["CostCenterId"] = item.CostCenterId;
-                                dr["OSTransformationPOId"] = item.OSTransformationPODetailId;
-                                dr["JWTCInputId"] = item.JWInputItemId;
+                                dr["JWTransformationPOId"] = item.JWTransformationPODetailId;
+                                dr["JobWorkTCInputId"] = item.JWInputItemId;
 
                                 dr["AddedBy"] = identity.Name;
                                 dr["AddedDate"] = System.DateTime.Now.ToString();
@@ -16128,8 +16129,8 @@ namespace Library.MaterialManagement.Inventory
                                 dr["TransactionUoMId"] = item.TransactionUoMId;
                                 dr["BaseUOMId"] = item.BaseUOMId;
                                 dr["CostCenterId"] = item.CostCenterId;
-                                dr["OSTransformationPOId"] = item.OSTransformationPODetailId;
-                                dr["JWTCInputId"] = item.JWInputItemId;
+                                dr["JWTransformationPOId"] = item.JWTransformationPODetailId;
+                                dr["JobWorkTCInputId"] = item.JWInputItemId;
 
                                 dr["UpdatedBy"] = identity.Name;
                                 dr["UpdatedDate"] = System.DateTime.Now.ToString();
@@ -16174,11 +16175,11 @@ namespace Library.MaterialManagement.Inventory
                         {
                             JWOrderWiseId += ",'" + empitem.JWOrderWiseId + "' ";
                             //       OtMatId += ",'" + empitem.OSTransformationPOId + "' ";
-                            OtMatId += ",'" + empitem.OSTransformationPODetailId + "' ";
+                            OtMatId += ",'" + empitem.JWTransformationPODetailId + "' ";
                         }
                         else
                         {
-                            OtMatId += ",'" + empitem.OSTransformationPODetailId + "' ";
+                            OtMatId += ",'" + empitem.JWTransformationPODetailId + "' ";
                         }
 
                     }
@@ -16186,11 +16187,11 @@ namespace Library.MaterialManagement.Inventory
 
                 if (JWOrderWiseId.IsNotNull())
                 {
-                    con.OpenDataSetThroughAdapter("select * from TRN.InventoryIssueDetail where OSTransformationPOId IN ( " + OtMatId + ") and JWOrderWiseId IN (" + JWOrderWiseId + ") and InventoryIssueId='" + MasterId + "'  ", out ExistOrNot, false, "1");
+                    con.OpenDataSetThroughAdapter("select * from TRN.InventoryIssueDetail where JWTransformationPOId IN ( " + OtMatId + ") and JobWorkOrderWiseId IN (" + JWOrderWiseId + ") and InventoryIssueId='" + MasterId + "'  ", out ExistOrNot, false, "1");
                 }
                 else
                 {
-                    con.OpenDataSetThroughAdapter("select * from TRN.InventoryIssueDetail where OSTransformationPOId IN ( " + OtMatId + ") and InventoryIssueId='" + MasterId + "'  ", out ExistOrNot, false, "1");
+                    con.OpenDataSetThroughAdapter("select * from TRN.InventoryIssueDetail where JWTransformationPOId IN ( " + OtMatId + ") and InventoryIssueId='" + MasterId + "'  ", out ExistOrNot, false, "1");
                 }
 
 
@@ -16200,11 +16201,11 @@ namespace Library.MaterialManagement.Inventory
                     {
                         if (item.JWOrderWiseId.IsNotNull())
                         {
-                            ExistOrNot.Tables[0].DefaultView.RowFilter = "OSTransformationPOId='" + item.OSTransformationPODetailId + "' and JWOrderWiseId='" + item.JWOrderWiseId + "' ";
+                            ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTransformationPOId='" + item.JWTransformationPODetailId + "' and JobWorkOrderWiseId='" + item.JWOrderWiseId + "' ";
                         }
                         else
                         {
-                            ExistOrNot.Tables[0].DefaultView.RowFilter = "OSTransformationPOId='" + item.OSTransformationPODetailId + "' ";
+                            ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTransformationPOId='" + item.JWTransformationPODetailId + "' ";
                         }
 
 
@@ -16219,8 +16220,8 @@ namespace Library.MaterialManagement.Inventory
                             dr["TransactionUoMId"] = item.TransactionUoMId;
                             dr["BaseUOMId"] = item.BaseUOMId;
                             dr["CostCenterId"] = item.CostCenterId;
-                            dr["OSTransformationPOId"] = item.OSTransformationPODetailId;
-                            dr["JWOrderWiseId"] = item.JWOrderWiseId;
+                            dr["JWTransformationPOId"] = item.JWTransformationPODetailId;
+                            dr["JobWorkOrderWiseId"] = item.JWOrderWiseId;
 
                             dr["AddedBy"] = identity.Name;
                             dr["AddedDate"] = System.DateTime.Now.ToString();
@@ -16236,11 +16237,11 @@ namespace Library.MaterialManagement.Inventory
                         {
                             if (item.JWOrderWiseId.IsNotNull())
                             {
-                                ExistOrNot.Tables[0].DefaultView.RowFilter = "OSTransformationPOId='" + item.OSTransformationPODetailId + "' and JWOrderWiseId='" + item.JWOrderWiseId + "' ";
+                                ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTransformationPOId='" + item.JWTransformationPODetailId + "' and JobWorkOrderWiseId='" + item.JWOrderWiseId + "' ";
                             }
                             else
                             {
-                                ExistOrNot.Tables[0].DefaultView.RowFilter = "OSTransformationPOId='" + item.OSTransformationPODetailId + "' ";
+                                ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTransformationPOId='" + item.JWTransformationPODetailId + "' ";
                             }
 
                             if (ExistOrNot.Tables[0].DefaultView.Count == 0)
@@ -16253,8 +16254,8 @@ namespace Library.MaterialManagement.Inventory
                                 dr["TransactionUoMId"] = item.TransactionUoMId;
                                 dr["BaseUOMId"] = item.BaseUOMId;
                                 dr["CostCenterId"] = item.CostCenterId;
-                                dr["OSTransformationPOId"] = item.OSTransformationPODetailId;
-                                dr["JWOrderWiseId"] = item.JWOrderWiseId;
+                                dr["JWTransformationPOId"] = item.JWTransformationPODetailId;
+                                dr["JobWorkOrderWiseId"] = item.JWOrderWiseId;
 
                                 dr["AddedBy"] = identity.Name;
                                 dr["AddedDate"] = System.DateTime.Now.ToString();
@@ -16275,8 +16276,8 @@ namespace Library.MaterialManagement.Inventory
                                 dr["TransactionUoMId"] = item.TransactionUoMId;
                                 dr["BaseUOMId"] = item.BaseUOMId;
                                 dr["CostCenterId"] = item.CostCenterId;
-                                dr["OSTransformationPOId"] = item.OSTransformationPODetailId;
-                                dr["JWOrderWiseId"] = item.JWOrderWiseId;
+                                dr["JWTransformationPOId"] = item.JWTransformationPODetailId;
+                                dr["JobWorkOrderWiseId"] = item.JWOrderWiseId;
 
                                 dr["UpdatedBy"] = identity.Name;
                                 dr["UpdatedDate"] = System.DateTime.Now.ToString();

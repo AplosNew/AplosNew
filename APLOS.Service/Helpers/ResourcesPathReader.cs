@@ -732,7 +732,31 @@ namespace Library.Service.Helpers
 			}
 		}
 
+		public static string GetConfirmationJWTransformationPath()
+		{
+			try
+			{
+				return ResolveFilePath(GetVirtualDirectory() + "\\Templates\\");
+			}
+			catch
+			{
+				throw new CustomException(ServiceResources.FilePathNotFound);
+			}
+		}
+
 		public static string GetValAddedConfirmationLetterPath()
+		{
+			try
+			{
+				return ResolveFilePath(GetVirtualDirectory() + "\\Templates\\");
+			}
+			catch
+			{
+				throw new CustomException(ServiceResources.FilePathNotFound);
+			}
+		}
+
+		public static string GetValAddedTemplatePath()
 		{
 			try
 			{

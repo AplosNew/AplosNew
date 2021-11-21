@@ -4214,11 +4214,7 @@ GROUP BY FAR.FABudgetMasterId
             // worksheet[ROW, COL].CellStyle.Font.Bold = true;
             //  ROW++;
 
-            worksheet[ROW, COL].Text = "SerialNo";
-            int colSerialNo = COL;
-            worksheet[ROW, COL].ColumnWidth = 12;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            COL++;
+            
 
             worksheet[ROW, COL].Text = "AssetNo";
             int colAssetNo = COL;
@@ -4227,23 +4223,9 @@ GROUP BY FAR.FABudgetMasterId
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
-
-
-            worksheet[ROW, COL].Text = "Entity";
-            int colEntity = COL;
+            worksheet[ROW, COL].Text = "SerialNo";
+            int colSerialNo = COL;
             worksheet[ROW, COL].ColumnWidth = 12;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            COL++;
-
-            worksheet[ROW, COL].Text = "Department";
-            int colDepartment = COL;
-            worksheet[ROW, COL].ColumnWidth = 12;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            COL++;
-
-            worksheet[ROW, COL].Text = "Model";
-            int colModel = COL;
-            worksheet[ROW, COL].ColumnWidth = 16;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
@@ -4260,12 +4242,7 @@ GROUP BY FAR.FABudgetMasterId
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-            worksheet[ROW, COL].Text = "Description";
-            int colDescription = COL;
-            worksheet[ROW, COL].ColumnWidth = 40;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            COL++;
-
+            
             worksheet[ROW, COL].Text = "SKU1";
             int colSKU1 = COL;
             worksheet[ROW, COL].ColumnWidth = 20;
@@ -4290,7 +4267,7 @@ GROUP BY FAR.FABudgetMasterId
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-            
+           
 
             worksheet[ROW, COL].Text = "Disposal type";
             int colDisposaltype = COL;
@@ -4382,7 +4359,29 @@ GROUP BY FAR.FABudgetMasterId
             //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
+            worksheet[ROW, COL].Text = "Description";
+            int colDescription = COL;
+            worksheet[ROW, COL].ColumnWidth = 40;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
 
+            worksheet[ROW, COL].Text = "Model";
+            int colModel = COL;
+            worksheet[ROW, COL].ColumnWidth = 16;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Entity";
+            int colEntity = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Department";
+            int colDepartment = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
 
             worksheet[ROW, COL].Text = "Depreciation Rules";
             int colDepreciationRules = COL;

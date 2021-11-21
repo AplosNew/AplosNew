@@ -1,0 +1,510 @@
+﻿<togglable name="Terms and Conditions "></togglable>
+<div class="form-horizontal" ng-form name="BonusPolicyForm" id="MainDivId">
+ 
+    <div class="form-elements ">
+        <div class="row">
+            <div class="col-xs-12 col-sm-5 col-md-5">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Type</label>
+                    <div class="col-sm-9">
+                        <div class="select-style">
+                            <select name="SO Type" class="form-control" ng-model="TermsAndConditionModel.Type" tabindex="102">
+                                <option value="">--Select--</option>
+                                <option value="PO No.">PO No.</option>
+                                <option value="PO">PO.</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label" style="padding-left: 43px;">Description</label>
+                    <div class="col-sm-9">
+                        <textarea class="form-control" rows="3" ng-model="TermsAndConditionModel.Description" tabindex="7" maxlength="250"></textarea>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-xs-12 col-sm-1 col-md-1">
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li><button @*ng-click=""*@ @*ng-disabled="ESICPolicyMaster.ID==null"*@ class="btn"><i class="glyphicon glyphicon-plus"></i></button></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="form-group col-md-5" >
+                <label class="col-sm-3 control-label">Title</label>
+                <input type="hidden" ng-model="TermsAndConditionModel.Id">
+                <div class="col-sm-9">
+                    <input type="text" ng-model="TermsAndConditionModel.MasterDescription" class="form-control" maxlength="100" tabindex="2">
+                </div>
+            </div>
+            <div class="col-sm-7">
+                <div id="Grid2" ej-grid e-datasource="GridList" e-allowsorting="true" e-allowscrolling="true"
+                     e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowResizing="true"
+                     e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="false">
+                    <div e-columns>
+                        <div e-column e-template="#templateHeader" e-headertext="Header" e-width="10"></div>
+                        <div e-column e-template="#templateDescription" e-headertext="Description" e-width="15"></div>
+                        <div e-column e-headertext=" Action " e-template="#ActionBTN" e-width="6"></div>
+                        @*<div e-column e-field="Header" e-headertext="Header" e-width="3"></div>*@
+                        @*<div e-column e-field="Description" e-headertext="Description" e-width="3"></div>*@
+                        @*<div e-column e-headertext="Delete" e-width="3"><button data-toggle="modal" class="btn" ng-click="$parent.RemoveHead(this);" tabindex="10"><i class="glyphicon glyphicon-trash"></i></button></div>*@
+                    </div>
+                    <script id="ActionBTN" type="text/template">
+                        <div class="common-btn">
+                            <ul class="common-btn list-inline text-center">
+                                <li>
+                                    <button ng-click="$parent.loadGrid(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Show">
+                                        <i class="glyphicon glyphicon-plus" style="color: greenyellow;"></i>
+                                    </button>
+                                </li>
+                                <li>
+                                    <button ng-click="$parent.Remove($index);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Show">
+                                        <i class="glyphicon glyphicon-minus" style="color:orangered;"></i>
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </script>
+                </div>
+                <script type="text/template" id="templateHeader">
+                    <input type="text" class="form-control" @*ej-numerictextbox e-decimalplaces="2" e-minValue="0"*@ e-enablertl="false" e-value="data.Header" e-width="100%" />
+                </script>
+                <script type="text/template" id="templateDescription">
+                    <input type="text" class="form-control" @*ej-numerictextbox e-decimalplaces="2" e-minValue="0"*@ e-enablertl="false" e-value="data.DetailDescription" e-width="100%" />
+                </script>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="table-responsive aplos-grid-toggle">
+        <div class="col-xs-12 col-sm-12 col-sm-12" style="padding-left: 0px; padding-right: 0px;">
+            <div id="GridEdit" ej-grid e-datasource="Model" e-recorddoubleclick="getDetails" e-load="loadGridEdit"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                <div e-columns>
+                    <div e-column e-field="Id" e-headertext="ID" e-width="60"></div>
+                    <div e-column e-field="Description" e-headertext="Description" e-width="60"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<confirm-archive-generic modalid="confirmPopUpHead" title="Confirmation" message="{{message_confirmation}}" data-ng-click-right-button="DeleteHeadList();"></confirm-archive-generic>
+
+<ej-dialog id="BPMRDetails"
+           title="ESIC Policy"
+           e-enablemodal="true"
+           e-position-y="0"
+           e-showoninit="false"
+           e-target="#MainDivId"
+           e-close="onDialogClose"
+           e-width="1020"
+           e-minheight="470"
+           e-open="enableBtn">
+    <fieldset class="scheduler-border">
+        <legend class="scheduler-border" style="color:red">Earning Value Calculation:-</legend>
+        <div class="col-sm-12 form-elements" style="margin-left:-29px">
+            <fieldset class="scheduler-border">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Salary Head</label>
+                        <div class="col-sm-6">
+                            <div class="select-style">
+                                <select ng-model="ESICPolicyDetails.SalaryHeadIDEarning" id="SalaryHeadFormula" class="form-control" name="Salary Head" ng-options="item.Value as item.Text for item in salaryHeadList" tabindex="5">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li> <button ng-click="SetEarningFormula('EarningSHead');" class="btn" tabindex="9"><i class="glyphicon glyphicon-forward"></i></button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Operator</label>
+                        <div class="col-sm-6">
+                            <div class="select-style">
+                                <select ng-model="ESICPolicyDetails.EOperator" id="Operator" class="form-control" name="Operator" ng-options="item.Value as item.Text for item in OperatorList" tabindex="5">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li> <button ng-click="SetEarningFormula('EarningOperator');" class="btn" tabindex="9"><i class="glyphicon glyphicon-forward"></i></button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Precedence</label>
+                        <div class="col-sm-6">
+                            <div class="select-style">
+                                <select ng-model="ESICPolicyDetails.Precedence" class="form-control" name="Precedence" tabindex="5">
+                                    <option value=""></option>
+                                    <option value="(">(</option>
+                                    <option value=")">)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li> <button ng-click="SetEarningFormula('EarningPrecedence');" class="btn" tabindex="9"><i class="glyphicon glyphicon-forward"></i></button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Value</label>
+                        <div class="col-sm-6">
+                            <input type="text" name="Value" ng-model="ESICPolicyDetails.EValue" class="form-control" required tabindex="2" maxlength="50">
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li> <button ng-click="SetEarningFormula('EarningValue');" class="btn" tabindex="9"><i class="glyphicon glyphicon-forward"></i></button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li> <button ng-click="RemoveEarningFormula();" class="btn" tabindex="9"><i class="glyphicon glyphicon-backward"></i></button></li>
+                        </ul>
+                    </div>
+                    <div class="form-group">
+                        {{ESICPolicyDetails.FormulaDesEarning}}
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-6 form-elements">
+            <div class="form-group">
+                <label class="col-sm-5 control-label">Earning Value Range From</label>
+                <div class="col-sm-7">
+                    <input type="text" ng-model="ESICPolicyDetails.EarningValueRangeFrom" class="form-control" maxlength="100" tabindex="2">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Mandatory</label>
+                <div class="col-sm-8" style=" padding-top: 10px;">
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" name="IsDefault" ng-model="ESICPolicyDetails.IsMandatory" tabindex="8">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6 form-elements">
+            <div class="form-group">
+                <label class="col-sm-4 control-label" style="padding-left: 60px;">To</label>
+                <div class="col-sm-8">
+                    <input type="text" ng-model="ESICPolicyDetails.EarningValueRangeTo" class="form-control" maxlength="100" tabindex="2">
+                </div>
+            </div>
+        </div>
+    </fieldset>
+
+    <fieldset class="scheduler-border">
+        <legend class="scheduler-border" style="color:red">Employee Contribution Value Calculation</legend>
+        <div class="col-xs-12 col-sm-6 col-md-6 form-elements">
+            <label class="col-sm-4 control-label"></label>
+            <div class="col-sm-4 radio">
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" ng-model="ESICPolicyDetails.IsFixedEmp" ng-change="setRadioFixedValue();">
+                        <span class="cr"><i class="cr-icon "></i></span>
+                    </label>
+                    <label class="control-label">Fixed Value</label>
+                </div>
+            </div>
+            <div class="col-sm-4 radio">
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" ng-model="ESICPolicyDetails.IsFormulaEmp" ng-change="setRadioFormulaValue();">
+                        <span class="cr"><i class="cr-icon"></i></span>
+                    </label>
+                    <label class="control-label">Formula</label>
+                </div>
+            </div>
+            <div class="form-group" ng-show="radioFormulaValue">
+                <label class="col-sm-4 control-label" style="padding-left: 31px;">Based On Netpay</label>
+                <div class="col-sm-8">
+                    <div class="checkbox-site" style="margin-top: 11px; padding-left: 6px;">
+                        <label>
+                            <input type="checkbox" ng-model="ESICPolicyDetails.IsContributionSlrHDdependOnEarningEmp" tabindex="8">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 form-elements" ng-show="radioFixedValue" style="margin-left:-29px">
+            <fieldset class="scheduler-border">
+                <div class=" col-sm-5" style="margin-top: 30px; padding-left: 55px;">
+                    <label class="col-sm-4 control-label"></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="number" ng-model="ESICPolicyDetails.FixedValueEmp" name="Policy ID" class="form-control" maxlength="15" required tabindex="3">
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <div class="col-sm-12 form-elements" ng-show="radioFormulaValue">
+            <fieldset class="scheduler-border">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Salary Head</label>
+                        <div class="col-sm-6">
+                            <div class="select-style">
+                                <select ng-model="ESICPolicyDetails.SalaryHeadIdFormula" id="SalaryHeadFormula1" class="form-control" name="Salary Head" ng-options="item.Value as item.Text for item in salaryHeadList" tabindex="5">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li> <button ng-click="SetFormula('SHead');" class="btn" tabindex="9"><i class="glyphicon glyphicon-forward"></i></button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Operator</label>
+                        <div class="col-sm-6">
+                            <div class="select-style">
+                                <select ng-model="ESICPolicyDetails.Operator" id="Operator" class="form-control" name="Operator" ng-options="item.Value as item.Text for item in OperatorList" tabindex="5">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li> <button ng-click="SetFormula('Operator');" class="btn" tabindex="9"><i class="glyphicon glyphicon-forward"></i></button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Precedence</label>
+                        <div class="col-sm-6">
+                            <div class="select-style">
+                                <select ng-model="ESICPolicyDetails.Precedence" class="form-control" name="Precedence" tabindex="5">
+                                    <option value=""></option>
+                                    <option value="(">(</option>
+                                    <option value=")">)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li> <button ng-click="SetFormula('Precedence');" class="btn" tabindex="9"><i class="glyphicon glyphicon-forward"></i></button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Value</label>
+                        <div class="col-sm-6">
+                            <input type="text" name="Value" ng-model="ESICPolicyDetails.Value" class="form-control" required tabindex="2" maxlength="50">
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li> <button ng-click="SetFormula('Value');" class="btn" tabindex="9"><i class="glyphicon glyphicon-forward"></i></button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li> <button ng-click="RemoveFormula();" class="btn" tabindex="9"><i class="glyphicon glyphicon-backward"></i></button></li>
+                        </ul>
+                    </div>
+                    <div class="form-group">
+                        {{ESICPolicyDetails.FormulaDescription}}
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </fieldset>
+
+    <fieldset class="scheduler-border">
+        <legend class="scheduler-border" style="color:red">Employer Contribution Value Calculation</legend>
+        <div class="col-xs-12 col-sm-6 col-md-6 form-elements">
+            <label class="col-sm-4 control-label"></label>
+            <div class="col-sm-4 radio">
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" ng-model="ESICPolicyDetails.IsFixedEmployer" ng-change="setRadioFixedValueE();">
+                        <span class="cr"><i class="cr-icon "></i></span>
+                    </label>
+                    <label class="control-label">Fixed Value</label>
+                </div>
+            </div>
+            <div class="col-sm-4 radio">
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" ng-model="ESICPolicyDetails.IsFormulaEmployer" ng-change="setRadioFormulaValueE();">
+                        <span class="cr"><i class="cr-icon"></i></span>
+                    </label>
+                    <label class="control-label">Formula</label>
+                </div>
+            </div>
+            <div class="form-group" ng-show="radioFormulaValueE">
+                <label class="col-sm-4 control-label" style="padding-left: 31px;">Based On Netpay</label>
+                <div class="col-sm-8">
+                    <div class="checkbox-site" style="margin-top: 11px; padding-left: 6px;">
+                        <label>
+                            <input type="checkbox" ng-model="ESICPolicyDetails.IsContributionSlrHDdependOnEarningEmployer" tabindex="8">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 form-elements" ng-show="radioFixedValueE" style="margin-left:-29px">
+            <fieldset class="scheduler-border">
+                <div class=" col-sm-5" style="margin-top: 30px; padding-left: 55px;">
+                    <label class="col-sm-4 control-label"></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="number" ng-model="ESICPolicyDetails.FixedValueEmployer" name="Policy ID" class="form-control" maxlength="15" required tabindex="3">
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <div class="col-sm-12 form-elements" ng-show="radioFormulaValueE">
+            <fieldset class="scheduler-border">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Salary Head</label>
+                        <div class="col-sm-6">
+                            <div class="select-style">
+                                <select ng-model="ESICPolicyDetails.SalaryHeadIDEmployer" id="SalaryHeadFormula2" class="form-control" name="Salary Head" ng-options="item.Value as item.Text for item in salaryHeadList" tabindex="5">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li> <button ng-click="SetEEarningFormula('EEarningSHead');" class="btn" tabindex="9"><i class="glyphicon glyphicon-forward"></i></button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Operator</label>
+                        <div class="col-sm-6">
+                            <div class="select-style">
+                                <select ng-model="ESICPolicyDetails.EEOperator" id="Operator" class="form-control" name="Operator" ng-options="item.Value as item.Text for item in OperatorList" tabindex="5">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li> <button ng-click="SetEEarningFormula('EEarningOperator');" class="btn" tabindex="9"><i class="glyphicon glyphicon-forward"></i></button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Precedence</label>
+                        <div class="col-sm-6">
+                            <div class="select-style">
+                                <select ng-model="ESICPolicyDetails.Precedence" class="form-control" name="Precedence" tabindex="5">
+                                    <option value=""></option>
+                                    <option value="(">(</option>
+                                    <option value=")">)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li> <button ng-click="SetEEarningFormula('EEarningPrecedence');" class="btn" tabindex="9"><i class="glyphicon glyphicon-forward"></i></button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Value</label>
+                        <div class="col-sm-6">
+                            <input type="text" name="Value" ng-model="ESICPolicyDetails.EEValue" class="form-control" required tabindex="2" maxlength="50">
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li> <button ng-click="SetEEarningFormula('EEarningValue');" class="btn" tabindex="9"><i class="glyphicon glyphicon-forward"></i></button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li> <button ng-click="RemoveEEarningFormula();" class="btn" tabindex="9"><i class="glyphicon glyphicon-backward"></i></button></li>
+                        </ul>
+                    </div>
+                    <div class="form-group">
+                        {{ESICPolicyDetails.FormulaDesEmployer}}
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </fieldset>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="SaveD();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+            @*<li><button ng-disabled="DisableActionButtons" ng-click="Confirm();" class="btn"><i class="glyphicon glyphicon-floppy-remove" tabindex="9"></i> Delete</button></li>*@
+            <li> <button ng-click="ClearD();" class="btn" tabindex="13"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+
+        </ul>
+    </div>
+</ej-dialog>
+
+
+<ej-dialog id="dialogAPI" title="Confirm Delete?" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#BPMRDistribution" e-close="onDialogClose" e-minwidth="240" e-minheight="165" e-open="enableBtn">
+    <p>
+        Are you sure to delete ?
+    </p>
+    <p class="text-right">
+        <ul class="list-inline text-right">
+            <li><button ng-click="DeleteDistribution();ConfirmClose()" class="btn"><i class="glyphicon glyphicon-floppy-remove"></i> Yes</button></li>
+            <li><button ng-click="ConfirmClose();" class="btn"><i class="glyphicon glyphicon-step-backward"></i> No</button></li>
+        </ul>
+    </p>
+</ej-dialog>
+<confirm-modal></confirm-modal>
+<confirm-archive-generic modalid="confirmPopUpMaster" title="Confirmation" message="Are you sure to delete ?" data-ng-click-right-button="DeleteMaster();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmPopUpMonth" title="Confirmation" message="{{message_confirmation}}" data-ng-click-right-button="DeleteMonth();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmPopUpDetails" title="Confirmation" message="{{message_confirmation}}" data-ng-click-right-button="DeleteDetails();"></confirm-archive-generic>
+<div class="loader" data-loader>
+    Please wait
+    <div class="bounce1"></div>
+    <div class="bounce2"></div>
+    <div class="bounce3"></div>
+</div>
