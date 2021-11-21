@@ -4,6 +4,19 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
     $rootScope.title = 'OT Confirmation Process';
     $scope.path = "humanresource/OTConfirmationProcess/";
 
+
+    // The Tab Switching Code
+
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
+
+
     var but = document.getElementById('ChkBtn')
     but.style.display = "none";
 
@@ -32,6 +45,14 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
             $("#WeekList").children('.e-pager.e-js.e-pager').hide();
             $("#WeekList").children('.e-gridcontent.e-droppable.e-js').hide();
             $("#WeekList").children('.e-gridcontent').hide();
+
+
+            var gridObj = $("#WeekListO").data("ejGrid");
+            gridObj.refreshContent(true);
+            gridObj.refreshTemplate();
+            $("#WeekListO").children('.e-pager.e-js.e-pager').hide();
+            $("#WeekListO").children('.e-gridcontent.e-droppable.e-js').hide();
+            $("#WeekListO").children('.e-gridcontent').hide();
         });
     }
     $scope.loadfilters();
@@ -159,7 +180,8 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
                 'EmpSystemID': $scope.Data[i].EmpSystemID, 'WorkDate': $scope.Data[i].WorkDate, 'PlanOT': $scope.Data[i].PlanOT,
                 'DayLimit': $scope.Data[i].DayLimit, 'StandardOT': $scope.Data[i].StandardOT, 'AppliedOTLimit': $scope.Data[i].AppliedOTLimit,
                 'AllowedOTLimit': $scope.Data[i].AllowedOTLimit, 'AdditionalOT': $scope.Data[i].AdditionalOT, 'WeekLimit': $scope.Data[i].WeekLimit,
-                'TargetOT': $scope.Data[i].TargetOT, 'ApplicableWM': $scope.Data[i].ApplicableWM, 'IsOTConfirm': $scope.Data[i].IsOTConfirm
+                'TargetOT': $scope.Data[i].TargetOT, 'ApplicableWM': $scope.Data[i].ApplicableWM, 'IsOTComfirm': $scope.Data[i].IsOTComfirm,
+                'MonthlyLimit': $scope.Data[i].MonthlyLimit, 'OutTime': $scope.Data[i].OutTime, 'ManualOutTime': $scope.Data[i].ManualOutTime
             });
         }
 
@@ -180,4 +202,7 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
         })
     }
 
+    $scope.Report = function () {
+        console.log("Running!!");
+    }
 }

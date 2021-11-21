@@ -25,6 +25,8 @@ namespace Library.Model.Inventory
         public bool IsAsset { get; set; }
         public string JWTCInputId { get; set; }
 
+        public string JWTransformationPOId { get; set; }
+
         #endregion Scalar Properties
 
         #region Audit Properties

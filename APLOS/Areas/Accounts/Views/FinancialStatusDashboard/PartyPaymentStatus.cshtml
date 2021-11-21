@@ -116,6 +116,9 @@
                     <li role="presentation" ng-class="{ active: isSet(16) }"><a ng-click="setTab(16);GetAcceptanceLiabilityMaturityData();" href="" data-toggle="tab">Acceptance Liability Maturity</a></li>
                     <li role="presentation" ng-class="{ active: isSet(17) }"><a ng-click="setTab(17);GetGRNWithOutInvoiceData();" href="" data-toggle="tab">GRN With Out Invoice</a></li>
                     <li role="presentation" ng-class="{ active: isSet(18) }"><a ng-click="setTab(18);GetAcceptanceLiabilityMaturityData();" href="" data-toggle="tab">Invoice With Out GRN</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(19) }"><a ng-click="setTab(19);GetInvoiceWithOutGRNData();" href="" data-toggle="tab">Asset WIP Status</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(20) }"><a ng-click="setTab(20);GetNonRegisterAssetData();" href="" data-toggle="tab">Non Register Asset</a></li>
+
                 </ul>
             </div>
 
@@ -1890,21 +1893,21 @@
                                     </div>
                                 </div>
 
-         
+
                             </div>
                         </div>
 
                         @*<div class="form-group">
-                            <div class="col-xs-12 col-sm-12 col-md-12">
-                                <ul class="common-btn list-inline text-right">
-                                    <li>
-                                        <div ej-tooltip e-showshadow="true" e-content="All Acceptance values" ng-click="GetAcceptanceLiabilityMaturityReport();" e-width="width">
-                                            <button class="btn"><i class="glyphicon glyphicon-file"></i>Downloard</button>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>*@
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <ul class="common-btn list-inline text-right">
+                            <li>
+                                <div ej-tooltip e-showshadow="true" e-content="All Acceptance values" ng-click="GetAcceptanceLiabilityMaturityReport();" e-width="width">
+                                    <button class="btn"><i class="glyphicon glyphicon-file"></i>Downloard</button>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>*@
 
                     </div>
 
@@ -1930,6 +1933,14 @@
                                 </div>
                             </div>
 
+                            <div class="col-xs-12 col-sm-2 col-md-2">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li><button ng-click="GetNonRegisterAssetData();" title="As On Date Range Wise values Change" class="btn"><i class="glyphicon glyphicon-refresh"></i>Go</button></li>
+                                    </ul>
+                                </div>
+                            </div>
+
                         </fieldset>
 
                         <div class="table-responsive modal-table aplos-grid-toggle">
@@ -1945,7 +1956,6 @@
                                      e-enabletouch="false"
                                      e-allowresizing="true"
                                      e-allowselection="false"
-                           
                                      e-allowsorting="true">
 
                                     <div e-columns>
@@ -1967,7 +1977,7 @@
                                         <div e-column e-type="string" e-field="PINo" e-headertext="PI No" e-width="90"></div>
                                         <div e-column e-type="date" e-field="LCOpeningDate" e-headertext="LC Opening Date" e-format="{0:dd-MMM-yyyy}" e-width="100"></div>
                                         <div e-column e-type="date" e-field="ExpiryDate" e-headertext="Expiry Date" e-format="{0:dd-MMM-yyyy}" e-width="100"></div>
-                                        
+
                                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="PLCAmount" e-headertext="PLC Amount" e-textalign="right" e-width="100"></div>
                                         <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No" e-width="70"></div>
                                         <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="120"></div>
@@ -1979,68 +1989,240 @@
 
 
 
-
-                                        @*<div e-column e-type="string" e-field="MaterialTranRate" e-headertext="MaterialTranRate" e-width="100"></div>
-        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="MaterialTranAmount" e-headertext="MaterialTranAmount" e-textalign="right" e-width="100"></div>
-        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TotalTaxAmount" e-headertext="TotalTaxAmount" e-textalign="right" e-width="100"></div>
-
-        <div e-column e-template="#LoanAmountTemp" e-field="TotalMaterialTranAmount" textAlign='right' e-headertext="TotalMaterialTranAmount" e-width="100"></div>
-
-        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="ChargesTranAmount" e-headertext="ChargesTranAmount" e-textalign="right" e-width="100"></div>
-        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="ChargesTaxTranAmount" e-headertext="ChargesTaxTranAmount" e-textalign="right" e-width="100"></div>
-
-
-        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="IssueQty" e-headertext="Issue Qty" e-textalign="right" e-width="100"></div>
-        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BaseIssueQty" e-headertext="BaseIssueQty" e-textalign="right" e-width="100"></div>
-
-        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="GRNQty" e-headertext="GRNQty" e-textalign="right" e-width="100"></div>
-        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="GRNTotalAmount" e-headertext="GRNTotalAmount" e-textalign="right" e-width="100"></div>
-        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="DiscountAmount" e-headertext="DiscountAmount" e-textalign="right" e-width="100"></div>
-        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="GrossAmount" e-headertext="GrossAmount" e-textalign="right" e-width="100"></div>
-
-
-        <div e-column e-type="string" e-field="OrderSpecific" e-headertext="Order Specific" e-width="50"></div>
-
-        <div e-column e-type="string" e-field="LCANo" e-headertext="LCANo" e-width="90"></div>
-        <div e-column e-type="date" e-field="LCDate" e-headertext="LC Date" e-format="{0:dd-MMM-yyyy}" e-width="100"></div>
-
-        <div e-column e-type="string" e-field="LCRef" e-headertext="LCRef" e-width="90"></div>*@
-
-
-
-
-
-
                                     </div>
                                 </div>
 
-         
+
                             </div>
                         </div>
 
-                        @*<div class="form-group">
-                            <div class="col-xs-12 col-sm-12 col-md-12">
-                                <ul class="common-btn list-inline text-right">
-                                    <li>
-                                        <div ej-tooltip e-showshadow="true" e-content="All Acceptance values" ng-click="GetAcceptanceLiabilityMaturityReport();" e-width="width">
-                                            <button class="btn"><i class="glyphicon glyphicon-file"></i>Downloard</button>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>*@
+
 
                     </div>
 
 
                 </div>
 
+
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(19), active: isSet(19) }">
+                    <div class="row">
+                        <div class="clearfix"></div>
+
+                        <div class="col-md-12">
+                            <div style="color:black;" id="GridAssetWIPstatus" ej-grid e-datasource="AssetWIPstatusList"
+                                 e-summaryrows="TotalAssetWIPstatus" e-recorddoubleclick="getdata" @*e-templaterefresh="refreshTemplateEntityandDepartment"*@
+                                 e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
+                                 e-allowscrolling="true" e-filtersettings-filterType="excel" e-enabletouch="false"
+                                 e-allowresizing="true" e-allowselection="false" e-allowsorting="true">
+
+                                <div e-columns>
+                                    
+                                    <div e-column e-field="MaterialMasterName" e-headertext="Material" e-width="120"></div>
+                                    <div e-column e-type="text" e-field="ArticleName" e-headertext="Article" e-width="120" style="height: 20px;"></div>
+
+                                    <div e-column e-type="text" e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="40" style="height: 20px;"></div>
+                                    <div e-column e-type="text" e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="40" style="height: 20px;"></div>
+                                    <div e-column e-type="text" e-field="ThirdCharacteristicsValue" e-headertext="SKU3" e-width="40" style="height: 20px;"></div>
+                                    <div e-column e-type="text" e-field="MaterialStorageLocation" e-headertext="Storage Location" e-width="100" style="height: 20px;"></div>
+                                    <div e-column e-type="text" e-field="AssetMaster" e-headertext="Asset Master" e-width="100" style="height: 20px;"></div>
+                                    <div e-column e-type="text" e-field="GL" e-headertext="GL" e-width="100" e-textalign="left" style="height: 20px;"></div>
+                                    @* <div e-column e-type="text" e-field="Activity" e-headertext="Activity" e-width="50" e-textalign="right" style="height: 20px;"></div>*@
+
+                                    <div e-column e-template="#templateGRNNo" e-type="text" e-field="GRNNo" e-headertext="GRN No." e-width="100" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="text" e-field="GRNDate" e-headertext="GRN Date" e-width="100" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-template="#templateVoucherNo" e-type="text" e-field="VoucherNo" e-headertext="Voucher No." e-width="100" e-textalign="right" style="height: 20px;"></div>
+
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TransactionQty" e-headertext="Transaction Qty" e-width="100" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="text" e-field="TrnUOM" e-headertext="Transaction UOM" e-width="50" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.0000}" e-field="TrnRate" e-headertext="Transaction Rate" e-width="100" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="text" e-field="Currency" e-headertext="Currency" e-width="60" e-textalign="left" style="height: 20px;"></div>
+
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TrnAmount" e-headertext="Transaction Amount" e-width="100" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BaseQty" e-headertext="Base Qty" e-width="100" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="text" e-field="BaseUOM" e-headertext="Base UOM" e-width="50" e-textalign="left" style="height: 20px;"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.0000}" e-field="BaseRate" e-headertext="Base Rate" e-width="100" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.0000}" e-field="BooksAmount" e-headertext="Books Amount" e-width="100" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-template="#templateIssueQty" e-type="numeric" e-format="{0:0.00}" e-field="IssueQty" e-headertext="Issue Qty" e-width="100" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BaseQty" e-headertext="Balance" e-width="100" e-textalign="right" style="height: 20px;"></div>
+
+
+                                </div>
+
+                            </div>
+
+                            <script type="text/template" id="templateGRNNo">
+                                <div class="text-left" style="width:100%">
+                                    <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.onGRNNoDownloadExcel(data);">{{data.GRNNo}}</a>
+                                </div>
+                            </script>
+
+                            <script type="text/template" id="templateVoucherNo">
+                                <div class="text-left" style="width:100%">
+                                    <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.onVoucherNoDownloadExcel(data);">{{data.VoucherNo}}</a>
+                                </div>
+                            </script>
+
+                            <script type="text/template" id="templateIssueQty">
+                                <div class="text-left" style="width:100%">
+                                    <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.onIssueQtyPopUp(data);">{{data.IssueQty | number:2 }}</a>
+                                </div>
+                            </script>
+                        </div>
+
+                    </div>
+
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            @*<li><button ng-click="getReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>*@
+                            <li><button ng-click="getAssetWIPstatusReportExcel();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+                        </ul>
+                    </div>
+
+
+
+                    <div class="modal fade site-modal in" id="IssueQtyPopup" role="dialog" data-backdrop="static">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">IssueQty<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+                                <div class="form-elements form-horizontal">
+                                    <div class="modal-body">
+
+                                        <div class="row">
+                                            <div style="color:black;" id="GridIssueQty" ej-grid e-datasource="issueQtyList"
+                                                 e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true" e-showsummary="true" @*e-summaryrows="summaryAC"*@
+                                                 e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                                                <div e-columns>
+                                                    <div e-column e-template="#templateIssueNo" e-type="string" e-field="IssueNo" e-headertext="Issue No." e-width="50"></div>
+                                                    <div e-column e-type="date" e-field="IssueDate" e-format="{0:dd-MMM-yyyy}" e-headertext="Issue Date" e-width="50"></div>
+                                                    <div e-column e-type="text" e-field="Currency" e-headertext="Currency" e-width="50" e-textalign="left" style="height: 20px;"></div>
+                                                    <div e-column e-type="numeric" e-format="{0:0.0000}" e-field="Qty" e-headertext="Qty" e-width="100" e-textalign="right" style="height: 20px;"></div>
+                                                    <div e-column e-type="numeric" e-format="{0:0.0000}" e-field="Amount" e-headertext="Amount" e-width="100" e-textalign="right" style="height: 20px;"></div>
+                                                    <div e-column e-type="text" e-field="UOM" e-headertext="UoM" e-width="50" e-textalign="left" style="height: 20px;"></div>
+                                                    <div e-column e-template="#templateVoucherNo2" e-type="text" e-field="VoucherNo" e-headertext="Voucher No." e-width="100" e-textalign="right" style="height: 20px;"></div>onVoucherNoDownloadExcel
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <script type="text/template" id="templateIssueNo">
+                                            <div class="text-right" style="width:100%">
+                                                <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.PostedAUCData(data.IssueNo);">
+                                                    {{data.IssueNo}}
+                                                </a>
+                                            </div>
+                                        </script>
+
+                                        <script type="text/template" id="templateVoucherNo2">
+                                            <div class="text-right" style="width:100%">
+                                                <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.PostedcommandPDF(data.VoucherId);">
+                                                    {{data.VoucherNo}}
+                                                </a>
+                                            </div>
+                                        </script>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(20), active: isSet(20) }">
+                    <div class="row">
+                        <div class="clearfix"></div>
+
+                        <div class="col-md-12">
+                            <div style="color:black;" id="GridNonRegisterAsset" ej-grid e-datasource="NonRegisterAssetList"
+                                 e-summaryrows="TotalNonRegisterAsset" e-recorddoubleclick="getdata" @*e-templaterefresh="refreshTemplateEntityandDepartment"*@
+                                 e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
+                                 e-allowscrolling="true" e-filtersettings-filterType="excel" e-enabletouch="false"
+                                 e-allowresizing="true" e-allowselection="false" e-allowsorting="true">
+
+                                <div e-columns>
+                                    <div e-column e-template="#templateIssueNo" e-field="IssueNo" e-headertext="Issue No" e-width="120"></div>
+                                    <div e-column e-field="IssueDate" e-headertext="Issue Date" e-width="120"></div>
+                                    <div e-column e-field="MaterialMasterName" e-headertext="Material" e-width="120"></div>
+                                    <div e-column e-type="text" e-field="ArticleName" e-headertext="Article" e-width="120" style="height: 20px;"></div>
+                                    <div e-column e-type="text" e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="40" style="height: 20px;"></div>
+                                    <div e-column e-type="text" e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="40" style="height: 20px;"></div>
+                                    <div e-column e-type="text" e-field="ThirdCharacteristicsValue" e-headertext="SKU3" e-width="40" style="height: 20px;"></div>
+                                    <div e-column e-type="text" e-field="AssetMaster" e-headertext="Asset Master" e-width="100" style="height: 20px;"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="IssueQty" e-headertext="Issue Qty" e-width="100" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="text" e-field="TrnUOM" e-headertext="Transaction UOM" e-width="50" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="ExchangeRate" e-headertext="Exchange Rate" e-width="100" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-template="#templateIssueVoucherNo" e-type="text" e-field="IssueVoucherNo" e-headertext="Issue Voucher No." e-width="80" style="height: 20px;"></div>
+                                    <div e-column e-type="text" e-field="IssueCurrency" e-headertext="Issue Currency" e-width="40" style="height: 20px;"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="IssueAmount" e-headertext="Issue Amount" e-width="100" e-textalign="right" style="height: 20px;"></div>
+
+                                    <div e-column e-type="text" e-field="MaterialStorageLocation" e-headertext="Storage Location" e-width="100" style="height: 20px;"></div>
+
+                                    <div e-column e-type="text" e-field="GL" e-headertext="GL" e-width="100" e-textalign="left" style="height: 20px;"></div>
+                                    @* <div e-column e-type="text" e-field="Activity" e-headertext="Activity" e-width="50" e-textalign="right" style="height: 20px;"></div>*@
+
+                                    <div e-column e-template="#templateGRNNo" e-type="text" e-field="c" e-headertext="GRN No." e-width="100" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="text" e-field="GRNDate" e-headertext="GRN Date" e-width="100" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-template="#templateVoucherNo" e-type="text" e-field="VoucherNo" e-headertext="Voucher No." e-width="100" e-textalign="right" style="height: 20px;"></div>
+
+                                    @*<div e-column e-type="numeric" e-format="{0:0.00}" e-field="TransactionQty" e-headertext="Transaction Qty" e-width="100" e-textalign="right" style="height: 20px;"></div>*@
+
+                                    <div e-column e-type="numeric" e-format="{0:0.0000}" e-field="TrnRate" e-headertext="Transaction Rate" e-width="100" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="text" e-field="Currency" e-headertext="Currency" e-width="60" e-textalign="left" style="height: 20px;"></div>
+
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TrnAmount" e-headertext="Transaction Amount" e-width="100" e-textalign="right" style="height: 20px;"></div>
+                                    @*<div e-column e-type="numeric" e-format="{0:0.00}" e-field="BaseQty" e-headertext="Base Qty" e-width="100" e-textalign="right" style="height: 20px;"></div>*@
+                                    <div e-column e-type="text" e-field="BaseUOM" e-headertext="Base UOM" e-width="50" e-textalign="left" style="height: 20px;"></div>
+                                    @*<div e-column e-type="numeric" e-format="{0:0.0000}" e-field="BaseRate" e-headertext="Base Rate" e-width="100" e-textalign="right" style="height: 20px;"></div>*@
+                                    <div e-column e-type="numeric" e-format="{0:0.0000}" e-field="BooksAmount" e-headertext="Books Amount" e-width="100" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="text" e-field="Capitalized" e-headertext="Capitalized" e-width="50" e-textalign="left" style="height: 20px;"></div>
+
+                                </div>
+
+                            </div>
+
+                            <script type="text/template" id="templateIssueNo">
+                                <div class="text-left" style="width:100%">
+                                    <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.onIssueNoDownloadExcel(data);">{{data.IssueNo}}</a>
+                                </div>
+                            </script>
+
+                            <script type="text/template" id="templateIssueVoucherNo">
+                                <div class="text-left" style="width:100%">
+                                    <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.onVoucherNoDownloadPDF(data);">{{data.IssueVoucherNo}}</a>
+                                </div>
+                            </script>
+
+                            <script type="text/template" id="templateGRNNo">
+                                <div class="text-left" style="width:100%">
+                                    <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.onGRNNoDownloadExcel(data);">{{data.GRNNo}}</a>
+                                </div>
+                            </script>
+
+                            <script type="text/template" id="templateVoucherNo">
+                                <div class="text-left" style="width:100%">
+                                    <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.onVoucherNoDownloadExcel(data);">{{data.VoucherNo}}</a>
+                                </div>
+                            </script>
+                        </div>
+
+                    </div>
+
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            @*<li><button ng-click="getReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>*@
+                            <li><button ng-click="getNonRegisterAssetReportExcel();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+                        </ul>
+                    </div>
+
+
+                </div>
+            </div>
+
             </div>
         </div>
 
     </div>
 
-</div>
+
 <div class="form-horizontal form-elements" id="materialDIV">
     <div class="row">
         <div class="col-md-12">

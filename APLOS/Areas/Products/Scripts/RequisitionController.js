@@ -35,45 +35,6 @@ function RequisitionController(accountService, addressService, $window, cboServi
 	$scope.checkedByList = [];
 	$scope.startDate = '';
 	$scope.endDate = '';
-
-	//#region Model
-	//#endregion
-
-	//#region All Dropdownlist Load Function
-	//#endregion
-
-	//#region Index Grid Data Display Load Function
-	//#endregion
-
-	//#region Save Update Delete Function
-	//#endregion
-
-	//#region Clear Function
-	//#endregion
-
-	//#region Print Function
-	//#endregion
-
-	//#region Tab Function
-	//#endregion
-
-	//#region Scroll Function
-	//#endregion
-
-
-
-	//$scope.GetSupervisorCboList = function () {
-	//   //debugger
-	//    $http({
-	//        method: 'GET',
-	//        url: 'Products/Requisition/GetSupervisorCbo'
-	//    }).then(function successCallback(response) {
-	//        $scope.checkedByList = response.data;
-	//    });
-	//}
-	//$scope.GetSupervisorCboList();
-
-
 	$scope.GetSupervisorCboList = function () {
 		//debugger
 		$http({
@@ -95,11 +56,7 @@ function RequisitionController(accountService, addressService, $window, cboServi
 			$scope.checkedByList1 = response.data;
 		});
 	}
-	//$scope.GetSupervisorCboList1();
-
-
-	//#region notification setting
-
+	
 	$scope.NotificationSettingStatus = function () {
 		//debugger;
 		$http({
@@ -120,16 +77,11 @@ function RequisitionController(accountService, addressService, $window, cboServi
 			else if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === true) {
 				$scope.productNew.labelCheckAndApproved = 'To be checked by';
 			}
-			//else {
-			//    $scope.productNew.labelCheckAndApproved = 'To be checked/approved by';
-			//}
 
 		});
 	}
 	$scope.NotificationSettingStatus();
 	$scope.GetCheckedByAndApprovedBy1 = function () {
-		//debugger;
-
 		if (!baseService.isUndefinedOrNull($scope.CheckedByStatusForNoti) && !baseService.isUndefinedOrNull($scope.ApprovedByStatusForNoti)) {
 			$http({
 				method: 'GET',
@@ -146,25 +98,6 @@ function RequisitionController(accountService, addressService, $window, cboServi
 
 	}
 
-
-
-
-	//#endregion
-
-
-
-
-
-
-
-
-	//$scope.detailModel.LocalImported
-
-	//var data = $.grep($scope.voucherTypeList, function (item) {
-	//	return item.Value === voucherTypeId;
-	//})[0];
-
-	//#region  Employee CAll
 	$scope.closeEmployeePopUp = function () {
 		if ($scope.employeeIndex !== -1) {
 			var employee = $scope.employeeList[$scope.employeeIndex];
@@ -191,21 +124,13 @@ function RequisitionController(accountService, addressService, $window, cboServi
 		angular.element(document.querySelector("#responsiblePersonPopUp")).modal("hide");
 	};
 
-
-	//#endregion
-
-
-	//#region  Req Detail
 	$scope.lst = [];
 	$scope.ReqListDetails = function () {
-		//debugger
 		$http({
 			method: 'GET',
-			//url: 'Products/Requisition/GetAllReqdataDetails?ReqDetailId=' + $scope.filteredData
 			url: 'Products/Requisition/GetAllReqdataDetails'
 		}).then(function successCallback(response) {
 			$scope.lst = response.data;
-			//$scope.detailgrid($scope.lst);
 			window.lst = response.data;
 
 		});
@@ -215,16 +140,11 @@ function RequisitionController(accountService, addressService, $window, cboServi
 	
 	$scope.data1 = $scope.lst;
 	$scope.detailTemp = "#tabGridContents";
-	//$scope.detailgrid = "detailGridData(e)";
 	$scope.detailgrid = function detailGridData(e) {
-		//debugger
-
 		var filteredData = e.data["Id"];
 		var data = ej.DataManager(window.lst).executeLocal(ej.Query().where("MaterialReqqusitionMasterId", "equal", parseInt(filteredData), true).take(1000));
 		e.detailsElement.find("#detailGrid").ejGrid({
 			dataSource: data,
-			//columns: ["MaterialGroupName", "MaterialName", "ArticleName", "SKU1", "SKU2", "SKU3","MaterialDetail", "TransactionQty", "TransactionUoM", "EstimatedRate", "CurrencyName", "TotalAmount" ]
-			//
 			columns: [{ field: "BudgetType", headerText: "BudgetType", width: 50 },
 			{ field: "ActivityName", headerText: "ActivityName", width: 150 },
 			{ field: "MaterialGroupName", headerText: "MaterialGroupName", width: 100 },
@@ -241,10 +161,6 @@ function RequisitionController(accountService, addressService, $window, cboServi
 		});
 		e.detailsElement.find(".tabcontrol").ejTab();
 	}
-	
-	
-	//#endregion
-
 
 	$scope.clearNeedSpecialApproval = function () {
 		$scope.productNew.EmployeeName = null;
@@ -270,7 +186,6 @@ function RequisitionController(accountService, addressService, $window, cboServi
 		};
 		$scope.getData();
 	};
-	//$scope.getDataList();
 
 	$scope.storageList = [];
 	$http({
@@ -344,22 +259,6 @@ function RequisitionController(accountService, addressService, $window, cboServi
 
 
 
-
-
-
-	//$http({
-	//    method: 'GET',
-	//    url: 'currencies/CompanyParallelCurrency/CboParallelCurrency'
-	//}).then(function successCallback(response) {
-	//    $scope.baseCurrencyId = response.data[0].Value;
-	//    $scope.productNew.BaseCurrencyId = response.data[0].Value;
-	//    factoryService.getCurrencyPrecision($scope.baseCurrencyId);
-	//});
-
-	//cboService.getCboTransactionCurrencyByCompany('', function (result) {
-	//    $scope.currencyList = result;
-	//});
-
 	function loadCurrency() {
 		//debugger
 		cboService.getCompanyGroupCurrencyCbo(null, function (result) {
@@ -377,16 +276,6 @@ function RequisitionController(accountService, addressService, $window, cboServi
 		});
 	}
 
-
-	//$http.get('accounts/OpeningBalance/GetACCCutOffDate')
-	//    .then(function (response) {
-	//        if (response.data !== null && !baseService.isUndefinedOrNull(response.data.CutOffDate)) {
-	//            $scope.productNew.CutOffDate = response.data.CutOffDate;
-	//            $('#cutOffDate').datepicker('setStartDate', new Date($scope.productNew.CutOffDate));
-	//        }
-	//        else
-	//            ShowResult('Cut Off date not found!', 'failure');
-	//    });
 
 	$scope.searchByList = [
 		{
@@ -636,10 +525,6 @@ function RequisitionController(accountService, addressService, $window, cboServi
 		$scope.Action = "Save";
 		$scope.product = {};
 		$scope.IsBaseOnDueDateEnable = false;
-		//$scope.detailModel.NeedSpecialAppId = $scope.productNew.NeedSpecialAppId;
-		//$scope.detailModel.QualityApprovalResponsiblePersonId = $scope.productNew.QualityApprovalResponsiblePersonId;
-		//$scope.detailModel.NeedSpecialAppId = $scope.productNew.NeedSpecialAppId;
-		//$scope.detailModel.QualityApprovalResponsiblePersonId = $scope.productNew.QualityApprovalResponsiblePersonId;
 		$scope.inventoryMaterialList = [];
 		$scope.chargesList = [];
 		$scope.grossTotal = 0;
@@ -792,11 +677,6 @@ function RequisitionController(accountService, addressService, $window, cboServi
 		}
 	};
 	$scope.getToCurrencyRate = function () {
-		//debugger
-		//if (baseService.isUndefinedOrNull($scope.productNew.DocDate)) {
-		//    $scope.productNew.ToCurrencyRate = 1;
-		//    return;
-		//}
 		$http.get($scope.path + 'GetToCurrencyRate?currencyId=' + $scope.detailModel.CurrencyId)
 			.then(function (response) {
 				if (parseFloat(response.data) === 0) {
@@ -818,25 +698,6 @@ function RequisitionController(accountService, addressService, $window, cboServi
 		angular.element(document.querySelector('#invoicingPartyPopUp')).modal('show');
 	};
 	$scope.closeInvoicingPartyPopUp = function () {
-		//debugger
-		//$scope.dbval = $scope.StateData;
-		//$scope.UIval = $scope.productNew.InvoicingState;      
-
-		//if ($scope.inventoryMaterialList.length == 0) {
-		//    angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
-		//}
-		//else if ($scope.dbval.length == 0)
-		//{
-		//    angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
-		//}
-		//else if ($scope.dbval == $scope.UIval ) {            
-		//    angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
-		//}
-		//else {
-		//    ShowResult('You can not change Invoicing party.Line is available', 'failure', 'invoicingPartyPopUp');
-
-		//}
-
 		if ($scope.inventoryMaterialList.length || $scope.chargesList.length) {
 			if (!baseService.isUndefinedOrNull($scope.productNew.ChangeInvoicingStateId)) {
 				if ($scope.productNew.PlantStateId === $scope.productNew.InvoicingStateId == $scope.productNew.ChangeInvoicingStateId)
@@ -860,51 +721,10 @@ function RequisitionController(accountService, addressService, $window, cboServi
 
 
 	};
-	//command by 30-5-19
-	//$scope.billShippAddress = function (id, flag) {
-	//    if (!baseService.isUndefinedOrNull(id)) {
-	//        var address = $.grep($scope.partyPlantList, function (item) { return item.Value === id; })[0].Address1;
-	//        var state = $.grep($scope.partyPlantList, function (item) { return item.Value === id; })[0].StateName;
-	//        var stateId = $.grep($scope.partyPlantList, function (item) { return item.Value === id; })[0].StateId;
-	//        if (flag === 'billTo') {
-	//            $scope.salesVM.InvoicingState = state;
-	//            $scope.salesVM.ChangeInvoicingStateId = stateId;
-	//            $scope.salesVM.InvoicingGSTIN = $.grep($scope.partyPlantList, function (item) { return item.Value === id; })[0].GSTIN;
-	//            return $scope.salesVM.InvoicingByAddress = address;
-	//        }
-	//        else if (flag === 'shipTo') {
-	//            $scope.salesVM.DeliveryState = state;
-	//            $scope.salesVM.DeliveryGSTIN = $.grep($scope.partyPlantList, function (item) { return item.Value === id; })[0].GSTIN;
-	//            return $scope.salesVM.DeliveryByAddress = address;
-	//        }
-	//    }
-	//    else {
-	//        if (flag === 'billTo') {
-	//            $scope.salesVM.InvoicingState = null;
-	//            $scope.salesVM.InvoicingGSTIN = null;
-	//            return $scope.productNew.InvoicingByAddress = null;
-	//        }
-	//        else if (flag === 'shipTo') {
-	//            $scope.salesVM.DeliveryState = null;
-	//            $scope.salesVM.DeliveryGSTIN = null;
-	//            return $scope.salesVM.DeliveryByAddress = null;
-	//        }
-	//    }
-	//};
+	
 
 
 	$scope.billShippAddress = function (id, flag) {
-		//debugger
-		//$http({
-		//    method: "GET",
-		//    dataType: 'JSON',
-		//    //url: $scope.getSearchListUrl,
-		//    url: 'Products/Requisition/GetStateByInvoicingPartyPlantId?InvoicingPartyPlantId=' + id,
-		//}).then(function successCallback(response) {
-		//    $scope.StateData = response.data[0].StandardName;
-		//    //alert('ff' + productNew.InvoicingPartyPlantId);
-
-		//});
 		if (!baseService.isUndefinedOrNull(id)) {
 			var address = $.grep($scope.plantList, function (item) { return item.Value === id; })[0].Address1;
 			var state = $.grep($scope.plantList, function (item) { return item.Value === id; })[0].StateName;
@@ -996,115 +816,7 @@ function RequisitionController(accountService, addressService, $window, cboServi
 	//$scope.MAction = "Edit";
 	//InventoryReceiveDetailId, TransactionQty, TransactionRate, TrnAmount, BaseTaxAmount, BaseAmount, index
 	$scope.detailPopUpEdit = function () {
-		//////debugger;
-		//if ($scope.MAction == "Edit") {
-		//    $scope.index = index;
-		//    $http({
-		//        method: 'GET',
-		//        url: $scope.path + 'GetReceiveTaxList?receiveDetailId=' + InventoryReceiveDetailId
-		//    }).then(function (response) {
-		//        $scope.receiveTaxList = response.data;
-		//        //$scope.HSNCode = response.data[0]['HSNCode'];
-		//        //angular.element(document.querySelector('#receiveTaxPopUp')).modal('show');
-		//    });
-		//    $scope.enable = false;
-		//    $scope.MAction = "Update";
-
-		//}
-		//else if ($scope.MAction == "Update") {
-		//    $http({
-		//        method: 'POST',
-		//        url: '/Products/Requisition/UpdateMaterial',
-		//        data: {
-		//            InventoryReceiveDetailId: InventoryReceiveDetailId,
-		//            TransactionQty: TransactionQty,
-		//            TransactionRate: TransactionRate,
-		//            TrnAmount: TrnAmount,
-		//            BaseAmount: BaseAmount,
-		//            BaseTaxAmount: BaseTaxAmount,
-		//            receiveTaxList:$scope.receiveTaxList
-		//        },
-		//        dataType: 'JSON'
-		//    }).then(function (response) {
-		//        if (response.data.Error === true) {
-		//            ShowResult(response.data.Message, 'failure');
-		//        }
-		//        else {
-		//            ShowResult(response.data.Message, 'success');
-		//            //$scope.productNew.Id = response.data.entity.Id;
-		//            //$scope.productNew.PartyName = $scope.product.PartyName;
-		//            //$scope.Action = "Update";
-		//            //getInventoryMaterialList($scope.detailModel.Id);
-
-		//        }
-		//    }), function (response) {
-		//        ShowResult(response.data.Message, 'failure');
-		//    };
-		//    $scope.enable = true;
-		//    $scope.MAction = "Edit";
-
-		//}
-		//else {
-		//}
-		//$scope.detailModel = {
-		//    Id: data.InventoryReceiveDetailId
-		//    //, CountryId: null
-		//    , InventoryReceiveId: $scope.productNew.Id
-		//    , MaterialStorageId: $scope.productNew.MaterialStorageId//$scope.productNew.MaterialStorageId
-		//    , CurrencyName: angular.element("#currency :selected").text()
-		//    , CurrencyId: $scope.productNew.CurrencyId
-		//    , BaseCurrencyId: $scope.baseCurrencyId
-		//    , DocDate: $scope.productNew.DocDate
-		//    , InventoryMaterialId: data.Id
-		//    //, MaterialMasterId: null
-		//    , MaterialMasterName: data.UserName
-		//    , ArticleId: null
-		//    , ArticleName: data.StandardName
-		//    , MaterialType: null
-		//    , OurStyleName: null
-		//    , Description: null
-		//    , MaterialGroupMasterName: data.MaterialGroupMasterName
-		//    , ProductMasterName: null
-		//    , IsOurStyleRequired: false
-		//    , IsProductMstRequired: false
-
-		//    , FirstCharacteristicsId: null
-		//    , FirstCharacteristicsValueId: null
-
-		//    , SecondCharacteristicsId: null
-		//    , SecondCharacteristicsValueId: null
-
-		//    , ThirdCharacteristicsId: null
-		//    , ThirdCharacteristicsValueId: null
-
-		//    , TransactionQty: data.TransactionQty
-		//    , TransactionUoMId: data.TransactionUoMId
-		//    , TransactionRate: data.TransactionRate
-		//    , TransactionAmount: data.TrnAmount
-		//    , BaseQty: data.TransactionQty
-		//    , BaseUOMId: data.TransactionUoMId
-		//    , BaseUoM: data.BaseUoM
-		//    , BaseUoMFactor: data.TransactionQty
-
-
-		//    , TotalQty: null
-		//    , TotalAmount: 0
-		//    , TotalTaxAmount: 0
-		//    , AvgRate: null
-		//    , ToCurrencyRate: $scope.productNew.ToCurrencyRate
-		//    , IsNonCreditable: $scope.productNew.IsNonCreditable
-		//    , IsOriginApplicable: false
-		//    , PartyCode: null
-		//};
-
-		//for (var i = 0; i < $scope.inventoryMaterialList.length; i++) {
-		//    for (var t = 0; t < $scope.inventoryMaterialList[i].TaxList.length; t++) {
-		//        $scope.receiveTaxList.push($scope.inventoryMaterialList[i].TaxList[t]);
-		//    }
-
-		//}
-		//$scope.enable = false;
-		//$scope.MAction = "Update"; 
+	
 		$http({
 			method: 'POST',
 			url: 'Products/Requisition/UpdateMaterial',
@@ -1119,26 +831,11 @@ function RequisitionController(accountService, addressService, $window, cboServi
 			}
 			else {
 				ShowResult(response.data.Message, 'success');
-				//$scope.productNew.Id = response.data.entity.Id;
-				//$scope.productNew.PartyName = $scope.product.PartyName;
-				//$scope.Action = "Update";
-				//getInventoryMaterialList($scope.detailModel.Id);
-
 			}
 		}), function (response) {
 			ShowResult(response.data.Message, 'failure');
 		};
 
-
-
-
-		//$scope.detailModel.MaterialStorageId = data.MaterialStorageId
-
-
-
-		// data.TransactionQty=
-		// $scope.clearCharNames();
-		// angular.element(document.querySelector('#detailPopUpEdit')).modal('show');
 	};
 
 
@@ -1151,11 +848,6 @@ function RequisitionController(accountService, addressService, $window, cboServi
 
 		try {
 			$scope.$broadcast('show-errors-check-validity');
-			//if (baseService.isUndefinedOrNull($scope.productNew.MaterialStorageId)) {
-			//    throw 'Please select Location';
-			//}
-			//else {
-			//if ($scope.Action === "Save") {
 			if ($scope.detailPopUpEditForm.$valid) {
 				$http({
 					method: 'POST',
@@ -1168,11 +860,7 @@ function RequisitionController(accountService, addressService, $window, cboServi
 					}
 					else {
 						ShowResult(response.data.Message, 'success', 'detailPopUpEdit');
-						//$scope.productNew.Id = response.data.entity.Id;
-						//$scope.productNew.PartyName = $scope.product.PartyName;
-						//$scope.Action = "Update";
-						//getInventoryMaterialList($scope.detailModel.Id);
-
+						
 					}
 				}), function (response) {
 					ShowResult(response.data.Message, 'failure', 'detailPopUpEdit');
@@ -1250,11 +938,26 @@ function RequisitionController(accountService, addressService, $window, cboServi
 			$scope.detailModel.ArticleId = ob.Id;
 			$scope.detailModel.ArticleName = ob.StandardName;
 			manualValidation('div_ar', false);
+			$scope.GetRequisitionStockBalance(ob.MaterialMasterId,ob.Id);
 			angular.element(document.querySelector('#articleSearchPop')).modal('hide');
 		} catch (e) {
 			ShowResult(e, '', 'articleSearchPop');
 		}
 	};
+
+	$scope.RequisitionStockBalanceList = [];
+	$scope.GetRequisitionStockBalance = function (materialMasterId,articleId) {
+		$http({
+			method: "GET",
+			dataType: 'JSON',
+			url: 'Products/Requisition/GetRequisitionStockBalance?requisitionDate=' + $scope.productNew.RequisitionDate + '&materialMasterId=' + materialMasterId + '&articleId=' + articleId,
+		}).then(function successCallback(response) {
+			$scope.RequisitionStockBalanceList = response.data;
+			$scope.StockBalance = Math.round($filter("sumByKey")($filter("filter")($scope.RequisitionStockBalanceList), "Stock") * 10000 + Number.EPSILON) / 10000;
+
+		});
+	};
+
 	$scope.setCharData = function (data) {
 		$scope[$scope.charValueSearchFor].CharacteristicsValueId = data.CharacteristicsValueId;
 		$scope[$scope.charValueSearchFor].FreeText = data.UserName;
@@ -1270,8 +973,7 @@ function RequisitionController(accountService, addressService, $window, cboServi
 			$scope.invalid = false;
 		}
 		else {
-			//var getRow = $filter("filter")($scope.inventoryMaterialList, { "MaterialMasterId": $scope.detailModel.MaterialMasterId });
-			//var getRow2 = $filter("filter")($scope.inventoryMaterialList, { "MaterialMasterId": $scope.detailModel.MaterialMasterId, "ArticleId": $scope.detailModel.ArticleId });
+			
 			if ($scope.detailModel.ArticleId)
 				var getRow3 = $filter("filter")($scope.inventoryMaterialList, { "MaterialMasterId": $scope.detailModel.MaterialMasterId, "ArticleId": $scope.detailModel.ArticleId, "FirstCharacteristicsValueId": $scope.detailModel.FirstCharacteristicsValueId, "SecondCharacteristicsValueId": $scope.detailModel.SecondCharacteristicsValueId, "ThirdCharacteristicsValueId": $scope.detailModel.ThirdCharacteristicsValueId });
 			//getRow == 0 || getRow2 == 0 ||
@@ -1312,15 +1014,7 @@ function RequisitionController(accountService, addressService, $window, cboServi
 				//ShowResult('Select Material');
 				ShowResult('Please Select Material', 'failure', 'detailPopUp');
 				return false;
-				//$scope.detailModel.InventoryReceiveId = null;
-				//$scope.detailModel.FirstCharacteristicsId = null
-				//$scope.detailModel.FirstCharacteristicsValueId = null
-				//$scope.detailModel.SecondCharacteristicsId = null
-				//$scope.detailModel.SecondCharacteristicsValueId = null
-				//$scope.detailModel.ThirdCharacteristicsId = null
-				//$scope.detailModel.ThirdCharacteristicsValueId = null
-				//$scope.detailModel.CountryId = null
-				//$scope.MatDescriptionValidation();
+				
 			}
 
 
@@ -1579,26 +1273,7 @@ function RequisitionController(accountService, addressService, $window, cboServi
 			.then(function (response) {
 
 				$scope.inventoryMaterialList = response.data.Rows;
-				//console.log($scope.inventoryMaterialList);
-				// $scope.DetailId = $scope.inventoryMaterialList[0].MaterialReqqusitionMasterId;
-				//$scope.InvoicingPartyPlantId = $scope.inventoryMaterialList[0].InvoicingPartyPlantId;
-
-				//$scope.productNew.InvoicingPartyPlantId = $scope.inventoryMaterialList[0].InvoicingPartyPlantId;
-				//$scope.productNew.InvoicingStateId = $scope.inventoryMaterialList[0].InvoicingStateId;
-				//$scope.productNew.PlantStateId = $scope.inventoryMaterialList[0].PlantStateId;
-				//checkSameValueInColumnList($scope.inventoryMaterialList, 'TransactionUoM');
-				//getGrossAmount($scope.inventoryMaterialList, 'BaseAmount', 'BaseTaxAmount', 'ChargesAmount', 'grossTotal');
-				//$scope.GetSalesTaxData();
 			});
-
-		//$http({
-		//    method: 'GET',
-		//    url: $scope.path + 'GetReceiveTaxList?receiveDetailId=' + inveReveiveId
-		//}).then(function (response) {
-		//    $scope.receiveTaxList = response.data;
-		//    //$scope.HSNCode = response.data[0]['HSNCode'];
-		//    //angular.element(document.querySelector('#receiveTaxPopUp')).modal('show');
-		//    });
 
 	}
 	function checkSameValueInColumnList(list, fieldName) {
@@ -1676,12 +1351,7 @@ function RequisitionController(accountService, addressService, $window, cboServi
 		for (var j = 0; j < $scope.receiveTaxList.length; j++) {
 			$scope.total = $scope.total + $scope.receiveTaxList[j].TaxAmount;
 		}
-		//$http({
-		//    method: 'GET',
-		//    url: $scope.path + 'GetReceiveTaxList?receiveDetailId=' + data.InventoryReceiveDetailId
-		//}).then(function (response) {
-		// $scope.receiveTaxList = response.data;
-		//$scope.HSNCode = $scope.receiveTaxList[0]['HSNCode'];
+		
 		angular.element(document.querySelector('#receiveTaxPopUp')).modal('show');
 		//});
 		// $Scope.TAction = "OK";
@@ -1726,15 +1396,6 @@ function RequisitionController(accountService, addressService, $window, cboServi
 				ShowResult("Input Tax Amount.", 'failure', 'receiveTaxPopUp');
 				return false;
 			}
-			//if ($scope.receiveTaxList[i].TaxAmount == "0.00") {
-			//    ShowResult("Tax Amount can't 0.", 'failure', 'receiveTaxPopUp');
-			//    return false;
-			//}
-			//if ($scope.receiveTaxList[i].TaxAmount == "0") {
-			//    ShowResult("Tax Amount can't 0.", 'failure', 'receiveTaxPopUp');
-			//    return false;
-			//}
-
 		}
 
 		//if ($scope.TAction === "OK") {
@@ -1754,10 +1415,7 @@ function RequisitionController(accountService, addressService, $window, cboServi
 			}
 			else {
 				ShowResult(response.data.Message, 'success', 'receiveTaxPopUp');
-				//$scope.productNew.Id = response.data.entity.Id;
-				// $scope.productNew.PartyName = $scope.product.PartyName;
-				// $scope.Action = "Update";
-				//$scope.getDataList();
+			
 				getInventoryMaterialList($scope.productNew.Id);
 			}
 		}), function (response) {
@@ -1795,18 +1453,7 @@ function RequisitionController(accountService, addressService, $window, cboServi
 				ShowResult("Input Tax Amount.", 'failure', 'ServiceChargeTaxPopUp');
 				return false;
 			}
-			//if ($scope.receiveTaxList[i].TaxAmount == "0.00") {
-			//    ShowResult("Tax Amount can't 0.", 'failure', 'ServiceChargeTaxPopUp');
-			//    return false;
-			//}
-			//if ($scope.receiveTaxList[i].TaxAmount == "0.0") {
-			//    ShowResult("Tax Amount can't 0.", 'failure', 'ServiceChargeTaxPopUp');
-			//    return false;
-			//}
-			//if ($scope.receiveTaxList[i].TaxAmount == "0") {
-			//    ShowResult("Tax Amount can't 0.", 'failure', 'ServiceChargeTaxPopUp');
-			//    return false;
-			//}
+			
 		}
 
 		//if ($scope.TAction === "OK") {
@@ -1827,10 +1474,7 @@ function RequisitionController(accountService, addressService, $window, cboServi
 			}
 			else {
 				ShowResult(response.data.Message, 'success', 'ServiceChargeTaxPopUp');
-				//$scope.productNew.Id = response.data.entity.Id;
-				// $scope.productNew.PartyName = $scope.product.PartyName;
-				// $scope.Action = "Update";
-				//$scope.getDataList();
+				
 			}
 		}), function (response) {
 			ShowResult(response.data.Message, 'failure', 'ServiceChargeTaxPopUp');
@@ -2075,14 +1719,7 @@ function RequisitionController(accountService, addressService, $window, cboServi
 			$scope.total = $scope.total + $scope.receiveTaxList[j].TaxAmount;
 		}
 		angular.element(document.querySelector('#ServiceChargeTaxPopUp')).modal('show');
-		//$http({
-		//    method: 'GET',
-		//    url: $scope.path + 'GetServiceTaxList?serviceId=' + data.Id
-		//}).then(function (response) {
-		//    $scope.receiveTaxList = response.data;
-		//    $scope.HSNCode = response.data[0]['HSNCode'];
-		//    angular.element(document.querySelector('#ServiceChargeTaxPopUp')).modal('show');
-		//});
+		
 	}
 	//Load2
 	$scope.GetServiceTaxData = function (masterId) {
@@ -2103,11 +1740,7 @@ function RequisitionController(accountService, addressService, $window, cboServi
 	};
 	function gettaxlist1(linepk1) {
 		var result1 = [];
-		//for (var i = 0; i < $scope.TaxList.length; i++) {
-		//    if ($scope.TaxList[i].PODetailId === linepk) {
-		//        result.push($scope.TaxList[i]);
-		//    }
-		//}
+		
 
 		for (var i = 0; i < $scope.ChargeTaxList.length; i++) {
 			if ($scope.ChargeTaxList[i].InventoryServiceId === linepk1) {
@@ -2132,24 +1765,6 @@ function RequisitionController(accountService, addressService, $window, cboServi
 	$scope.serviceChargePopUpEdit = function (Id, Amount, TotalTaxAmount) {
 		if (baseService.arrayLength($scope.inventoryMaterialList) === 0)
 			return ShowResult('Without material charges not aplicable.');
-		//debugger
-		//if ($scope.MSAction == "Edit") {
-
-		//    $http({
-		//        method: 'GET',
-		//        url: $scope.path + 'GetServiceTaxList?serviceId=' + Id
-		//    }).then(function (response) {
-		//        $scope.receiveTaxList = response.data;
-		//        //$scope.HSNCode = response.data[0]['HSNCode'];
-		//        //angular.element(document.querySelector('#ServiceChargeTaxPopUp')).modal('show');
-		//    });
-		//    $scope.enable = false;
-		//    $scope.MSAction = "Update";
-
-		//}
-		// else if ($scope.MSAction == "Update") {
-
-
 		for (var i = 0; i < $scope.chargesList.length; i++) {
 			for (var t = 0; t < $scope.chargesList[i].ChargeTaxList.length; t++) {
 				$scope.receiveTaxList.push($scope.chargesList[i].ChargeTaxList[t]);
@@ -2162,9 +1777,6 @@ function RequisitionController(accountService, addressService, $window, cboServi
 			url: 'Products/Requisition/UpdateServiceAndTax',
 			data: {
 				entity: $scope.chargesList,
-				// ChargeTaxList: $scope.ChargeTaxList
-				//TotalTaxAmount: TotalTaxAmount,
-				//InventoryReceiveDetailId: InventoryReceiveDetailId,
 				receiveTaxList: $scope.receiveTaxList
 			},
 			dataType: 'JSON'
@@ -2174,11 +1786,7 @@ function RequisitionController(accountService, addressService, $window, cboServi
 			}
 			else {
 				ShowResult(response.data.Message, 'success');
-				//$scope.productNew.Id = response.data.entity.Id;
-				//$scope.productNew.PartyName = $scope.product.PartyName;
-				//$scope.Action = "Update";
-				//getInventoryMaterialList($scope.detailModel.Id);
-
+				
 			}
 		}), function (response) {
 			ShowResult(response.data.Message, 'failure');
@@ -2271,12 +1879,6 @@ function RequisitionController(accountService, addressService, $window, cboServi
 	$scope.getApprovaldataAUth1();
 
 
-
-
-
-
-
-
 	$scope.GriddataVendor = [];
 	$scope.getalldataVendor = function () {
 		$http({
@@ -2312,16 +1914,6 @@ function RequisitionController(accountService, addressService, $window, cboServi
 
 	}
 
-	//function getPartyPlantEditList() {
-	//   //debugger
-
-	//    //var aa = $scope.Id;
-	//    //$scope.plantList = [];
-	//    $http.get('Products/Requisition/GetPartyPlantCbo?partyId=' + $scope.productNew.PartyId + '&Id=' + $scope.Id).then(function (response) {
-	//        $scope.plantList = response.data;
-	//    });
-
-	//} 
 	function getPartyPlantEditList(invoicingPartyPlantId, invoAddress, deliveryplant, deliAddress, deliState, deliGSTIN) {
 		$scope.plantList = [];
 		$http.get('Parties/party/GetPartyPlantCbo?partyId=' + $scope.productNew.PartyId).then(function (response) {
@@ -2350,10 +1942,6 @@ function RequisitionController(accountService, addressService, $window, cboServi
 		//debugger
 		var x = $event;
 		var Id = x.data.Id;
-		// alert('x' + d);
-		// $scope.index = index;
-		//$scope.product = $scope.products[$scope.index];
-		//$scope.productNew = Object.assign({}, $scope.product);
 		$scope.Currency = $("#currency option:selected").text();
 		$scope.productNew = x.data;
 		$scope.Id = $scope.productNew.Id;
@@ -2383,41 +1971,11 @@ function RequisitionController(accountService, addressService, $window, cboServi
 			$scope.productNew.labelCheckAndApproved = 'To be checked by';
 		}
 		getInventoryMaterialList($scope.productNew.Id);
-		//getPartyPlantEditList($scope.productNew.InvoicingPartyPlantId, $scope.productNew.InvoicingByAddress, $scope.productNew.DeliveryPartyPlantId, $scope.productNew.DeliveryByAddress, $scope.productNew.DeliveryState, $scope.productNew.DeliveryGSTIN);
-		// getPartyPlantEditList();
-
-
-		//getInventoryMaterialList(Id);
-		//getServiceChargeList($scope.productNew.Id);
-		//getServiceChargeList(Id);
-		//$scope.getToCurrencyRate();
-		//if (!baseService.isUndefinedOrNull($scope.productNew.PaymentTermId)) {
-		//    var paymentTerm = $.grep($scope.paymentTermList, function (item) { return item.Value === $scope.productNew.PaymentTermId; })[0];
-		//    if (paymentTerm.BaseLineDate !== null)
-		//        if (paymentTerm.BaseLineDate === 'documentdate')
-		//            $scope.IsBaseOnDueDateEnable = true;
-		//        else
-		//            $scope.IsBaseOnDueDateEnable = false;
-		//}
+		
 		$scope.Action = 'Update';
 		if (!$rootScope.isCollapsed) $rootScope.toggle();
 	};
-	//$scope.Vendorrecorddoubleclick = function ($event) {
-
-	//    var x = $event;
-	//    $scope.Id = x.data.Id;
-	//   // alert('x' + Id);
-	//    $scope.closePartyPopUp(x.data);
-
-	//}
-
-
-	//$scope.deleteRow = function (i) {
-	//    alert('f');
-	//    $scope.employees.splice(i, 1);
-	//};
-	//$scope.enable = true;  
-	//$scope.MSAction = "Edit"
+	
 	$scope.closeServiceChargePopUpEdit = function () {
 		$scope.serviceModel = {};
 		$scope.receiveTaxList = [];
@@ -2434,38 +1992,7 @@ function RequisitionController(accountService, addressService, $window, cboServi
 			}
 		}
 		$scope.dindex = -1;
-		//$('#AddTaxCharge tr').click(function () {
-		//    //alert('sk' + Id);
-		//    //////debugger;
-		//    if (Id == null) {
-		//        $(this).remove();
-		//        return false;
-		//    }
-		//    else {
-		//        $scope.message = 'Are you sure want to permanently delete this?';
-		//        angular.element(document.querySelector('#removerPopUp')).modal('show');
-		//        $http({
-		//            method: 'POST',
-		//            url: 'Products/Requisition/DeleteMaterialTax?Id=' + Id,
-		//            dataType: 'JSON'
-		//        }).then(function (response) {
-		//            if (response.data.Error === true)
-		//                ShowResult(response.data.Message, 'failure', 'receiveTaxPopUp');
-		//            else {
-		//                ShowResult(response.data.Message, 'success', 'receiveTaxPopUp');
-		//                //$scope.getDataList();
-		//                //ClearFields();
-		//                $(this).remove();
-		//                return false;
-		//            }
-		//            function errorCallBack(response) {
-		//                ShowResult(response.data.Message, 'failure', 'receiveTaxPopUp');
-		//            }
-		//        });
-
-		//    }
-
-		//});
+		
 	};
 	$scope.Del = function (Id, index) {
 		$scope.dindex = index;
@@ -2479,67 +2006,14 @@ function RequisitionController(accountService, addressService, $window, cboServi
 		$scope.dindex = -1;
 
 
-		//$('#AddTax tr').click(function () {
-		// alert('sk' + Id);
-		//////debugger;
-		//if (Id == null) {
-		//    $(this).remove();
-		//    $scope.receiveTaxList.splice(index);
-		//    return false;
-		//}
-		//else {
-		//             $(this).remove();
-		//            $scope.receiveTaxList.splice(index);
-		//            return false;
-		//$scope.message = 'Are you sure want to permanently delete this?';
-		//angular.element(document.querySelector('#removerPopUp')).modal('show');
-		//$http({
-		//    method: 'POST',
-		//    url: 'Products/Requisition/DeleteMaterialTax?Id=' + Id, 
-		//    dataType: 'JSON'
-		//}).then(function (response) {
-		//    if (response.data.Error === true)
-		//        ShowResult(response.data.Message, 'failure','receiveTaxPopUp');
-		//    else {
-		//        ShowResult(response.data.Message, 'success','receiveTaxPopUp');
-		//        //$scope.getDataList();
-		//        //ClearFields();
-		//        $(this).remove();
-		//        $scope.receiveTaxList.splice(index);
-		//        return false;
-		//    }
-		//    function errorCallBack(response) {
-		//        ShowResult(response.data.Message, 'failure','receiveTaxPopUp');
-		//    }
-		//});
-
-		//  }
-
-		//});
+		
 	};
 	$scope.calculateAmount = function (data) {
 		//debugger
 		data.TotalAmount = (data.TransactionQty * data.EstimatedRate).toFixed(2);
 		if (data.TotalAmount === 'NaN')
 			data.TotalAmount = 0;
-		//data.TaxAmount = 0;
-		//angular.forEach(data.TaxList, function (item) {
-		//    item.TaxAmount = data.TrnAmount * item.Percentage / 100;
-		//    data.BaseTaxAmount += item.TaxAmount;
-		//});
-		// data.NetAmount = parseFloat(data.TrnAmount) + parseFloat(data.TaxAmount);
-		//data.BaseAmount = $scope.productNew.ToCurrencyRate * data.TrnAmount;
-		//if ($scope.productNew.IsNonCreditable == 1) {
-		//    //data.NetAmount = parseFloat(data.TrnAmount) + parseFloat(data.TaxAmount);
-		//    if (data.BaseTaxAmount === null) {
-		//        data.BaseTaxAmount = '0.00';
-		//    }
-		//    data.BaseAmount = parseFloat(data.TrnAmount + data.BaseTaxAmount);
-		//}
-		//else {
-		//    // data.BaseAmount = $scope.productNew.ToCurrencyRate * data.TrnAmount;
-		//    data.BaseAmount = data.TrnAmount;
-		//}
+		
 	};
 	$scope.calculateRate = function (data, event) {
 		//debugger
@@ -2564,11 +2038,7 @@ function RequisitionController(accountService, addressService, $window, cboServi
 
 	};
 	$scope.calculateAmountForServiceCharge = function (data) {
-		//debugger
-		//data.TrnAmount = (data.TransactionQty * data.TransactionRate).toFixed(2);
-		//if (data.TrnAmount == 'NaN')
-		//    data.TrnAmount = 0;
-		//data.TaxAmount = 0;
+		
 		data.TotalTaxAmount = 0;
 		for (var i = 0; i < $scope.ChargeTaxList.length; i++) {
 			if ($scope.ChargeTaxList[i].InventoryServiceId === data.Id) {
@@ -2576,12 +2046,10 @@ function RequisitionController(accountService, addressService, $window, cboServi
 				data.TotalTaxAmount += $scope.ChargeTaxList[i].TaxAmount;
 			}
 		}
-		// data.NetAmount = parseFloat(data.TrnAmount) + parseFloat(data.TaxAmount);
-		//data.BaseAmount = $scope.productNew.ToCurrencyRate * data.TrnAmount;
+		
 	};
 	$scope.onchangeFunction = function (id) {
 		$scope.TaxCategoryId = id;
-		//debugger
 		var getRow = $filter("filter")($scope.receiveTaxList, { "TaxCategoryId": id });
 		if (getRow.length === 2) {
 			ShowResult("You can't add Same Tax two times", 'failure', 'ServiceChargeTaxPopUp');
@@ -2604,8 +2072,6 @@ function RequisitionController(accountService, addressService, $window, cboServi
 		var gridObj = $("#Grid").data("ejGrid");
 		//getting corresponding record             
 		var data = gridObj.getSelectedRecords()[0];
-		//alert('jj' + data.Id);
-		// $scope.valuePassInDelModal(data); 
 		location.href = "Products/Requisition/GePurchaseOrderReport?purchaseOrderId=" + data.Id;
 
 	};
@@ -2615,10 +2081,7 @@ function RequisitionController(accountService, addressService, $window, cboServi
 	$scope.onClick1 = function (args) {
 
 		var gridObj = $("#Grid").data("ejGrid");
-		//getting corresponding record             
 		var data = gridObj.getSelectedRecords()[0];
-		//alert('jj' + data.Id);
-		// $scope.valuePassInDelModal(data); 
 		location.href = "Products/Requisition/RequisitionReportby?RequisitionId=" + data.Id;
 
 	};
@@ -2652,9 +2115,6 @@ function RequisitionController(accountService, addressService, $window, cboServi
 	};
 
 
-
-
-
 	//#region Print for po Approval
 
 	$scope.onClickpoApprovalprint = function (args) {
@@ -2679,22 +2139,7 @@ function RequisitionController(accountService, addressService, $window, cboServi
 
 	//#endregion
 
-	//Compare with Todays Date
-	//$scope.checkDocDate = function () {
-	//    var msg = "";
-	//    if (new Date($scope.voucher.InvoiceDate) > new Date()) {
-	//        $scope.invalidDocDate = true;
-	//        msg = "Doc date must be below or equal to current Date!";
-	//    }
-	//    else if (baseService.isUndefinedOrNull($scope.voucher.InvoiceDate)) {
-	//        msg = "Doc Date is required.";
-	//        $scope.invalidDocDate = true;
-	//    }
-	//    else {
-	//        $scope.invalidDocDate = false;
-	//    }
-	//    return manualValidation("div_DocDate", $scope.invalidDocDate, msg);
-	//};
+	
 	$scope.invalidDocDate = false;
 	$scope.checkDocDate = function () {
 		var msg = "";
@@ -2703,10 +2148,7 @@ function RequisitionController(accountService, addressService, $window, cboServi
 			msg = "Doc date must be grater or equal to Vendor Doc. RefNo!";
 			$scope.invalidDocDate = true;
 		}
-		//else if (new Date($scope.voucher.DocDate) > new Date()) {
-		//    $scope.invalidDocDate = true;
-		//    msg = "Doc date must be below or equal to current Date!";
-		//}
+		
 		else $scope.invalidDocDate = false;
 		return manualValidation("div_DocDate", $scope.invalidDocDate, msg);
 	};
@@ -2895,20 +2337,7 @@ function RequisitionController(accountService, addressService, $window, cboServi
 		$scope.message = 'Are you sure want to Approve?';
 		angular.element(document.querySelector('#poapprovealertlock')).modal('show');
 	};
-	//$scope.onClickPOLock = function (args) {
-	//   //debugger
-	//    var gridObj = $("#Grid").data("ejGrid");
-	//    //getting corresponding record 
-	//    $scope.data = gridObj.getSelectedRecords()[0];
-	//    //alert('POClose' + data.Id);
-	//    $scope.onClickPOlock();
-
-	//};
-	//$scope.approveAlertlock = function () {
-	//    $scope.message = 'Are you sure want to Approve?';
-	//    angular.element(document.querySelector('#poapprovealertlock')).modal('show');    //};
-
-
+	
 	$scope.commandPoClose = [{
 
 		type: "details", buttonOptions: {
@@ -3260,16 +2689,6 @@ function RequisitionController(accountService, addressService, $window, cboServi
 
 	// #endregion
 
-
-
-
-
-
-
-
-
-
-
 	//#region FGForMasterOrder(Finishing Goods For Master Order) 22-Jun-2019
 
 	$scope.MasterOrderList = function () {
@@ -3313,14 +2732,6 @@ function RequisitionController(accountService, addressService, $window, cboServi
 			.then(function (response) {
 
 				$scope.inventoryMaterialList = response.data;
-				//$scope.DetailId = $scope.inventoryMaterialList[0].InventoryReceiveDetailId;
-				//$scope.InvoicingPartyPlantId = $scope.inventoryMaterialList[0].InvoicingPartyPlantId;
-
-				//$scope.productNew.InvoicingPartyPlantId = $scope.inventoryMaterialList[0].InvoicingPartyPlantId;
-				//$scope.productNew.InvoicingStateId = $scope.inventoryMaterialList[0].InvoicingStateId;
-				//$scope.productNew.PlantStateId = $scope.inventoryMaterialList[0].PlantStateId;
-				//checkSameValueInColumnList($scope.inventoryMaterialList, 'TransactionUoM');
-				//getGrossAmount($scope.inventoryMaterialList, 'BaseAmount', 'BaseTaxAmount', 'ChargesAmount', 'grossTotal');
 				$scope.GetSalesTaxData();
 			});
 	}
@@ -3405,14 +2816,6 @@ function RequisitionController(accountService, addressService, $window, cboServi
 			$scope.total = $scope.total + $scope.receiveTaxList[j].TaxAmount;
 		}
 		angular.element(document.querySelector('#ServiceChargeTaxPopUp')).modal('show');
-		//$http({
-		//    method: 'GET',
-		//    url: $scope.path + 'GetServiceTaxList?serviceId=' + data.Id
-		//}).then(function (response) {
-		//    $scope.receiveTaxList = response.data;
-		//    $scope.HSNCode = response.data[0]['HSNCode'];
-		//    angular.element(document.querySelector('#ServiceChargeTaxPopUp')).modal('show');
-		//});
 	}
 
 	$scope.AddReceiveTaxPopUpFG = function (Id, index) { //hossain
@@ -3454,48 +2857,10 @@ function RequisitionController(accountService, addressService, $window, cboServi
 			}
 			$scope.TaxList.push($scope.receiveTaxList);
 
-			//if ($scope.receiveTaxList[i].TaxAmount == "0.00") {
-			//    ShowResult("Tax Amount can't 0.", 'failure', 'receiveTaxPopUp');
-			//    return false;
-			//}
-			//if ($scope.receiveTaxList[i].TaxAmount == "0") {
-			//    ShowResult("Tax Amount can't 0.", 'failure', 'receiveTaxPopUp');
-			//    return false;
-			//}
-			// $scope.receiveTaxList1.push($scope.receiveTaxList);
-
+			
 		}
 		angular.element(document.querySelector('#receiveTaxPopUp')).modal('hide');
-		//if ($scope.TAction === "OK") {
-		//$http({
-		//    method: 'POST',
-		//    //url: $scope.saveUrl,
-		//    url: 'Products/Requisition/InsertExtraTax',
-		//    //data: $scope.receiveTaxList,
-		//    data: {
-		//        entity: $scope.detailModel
-		//        , taxCategoryList: $scope.receiveTaxList
-		//    },
-		//    dataType: 'JSON'
-		//}).then(function (response) {
-		//    if (response.data.Error === true) {
-		//        ShowResult(response.data.Message, 'failure', 'receiveTaxPopUp');
-		//    }
-		//    else {
-		//        ShowResult(response.data.Message, 'success', 'receiveTaxPopUp');
-		//        //$scope.productNew.Id = response.data.entity.Id;
-		//        // $scope.productNew.PartyName = $scope.product.PartyName;
-		//        // $scope.Action = "Update";
-		//        //$scope.getDataList();
-		//        getInventoryMaterialList($scope.productNew.Id);
-		//    }
-		//}), function (response) {
-		//    ShowResult(response.data.Message, 'failure', 'receiveTaxPopUp');
-		//};
-		// }
-
-		//angular.element(document.querySelector('#receiveTaxPopUp')).modal('hide');
-
+		
 	}
 
 	$scope.closeReceiveTaxPopUpFG = function () { //hossain        
@@ -3516,9 +2881,6 @@ function RequisitionController(accountService, addressService, $window, cboServi
 		$scope.percentageColumn = flag;
 
 		$scope.currentMaterialRow = index;
-		//$scope.taxAbleAmnt = data.TransactionAmount;
-		//$scope.taxAmnt = data.TaxAmount;
-		//$scope.receiveTaxList = [];
 		if (data.TaxList.length > 0) {
 			$scope.HSNCode = data.TaxList[0].HSNCode;
 			$scope.receiveTaxList = data.TaxList;
@@ -3529,12 +2891,7 @@ function RequisitionController(accountService, addressService, $window, cboServi
 			$scope.total = $scope.total + $scope.receiveTaxList[j].TaxAmount;
 
 		}
-		//$http({
-		//    method: 'GET',
-		//    url: $scope.path + 'GetReceiveTaxList?receiveDetailId=' + data.InventoryReceiveDetailId
-		//}).then(function (response) {
-		// $scope.receiveTaxList = response.data;
-		//$scope.HSNCode = $scope.receiveTaxList[0]['HSNCode'];
+		
 		angular.element(document.querySelector('#receiveTaxPopUp')).modal('show');
 		//});
 		// $Scope.TAction = "OK";
@@ -3584,10 +2941,7 @@ function RequisitionController(accountService, addressService, $window, cboServi
 			$scope.modelValidation('div_docDate', 'productNew', 'DocDate');
 			//$scope.modelValidation('div_entryNo', 'productNew', 'GateEntryNo');
 			$scope.modelValidation('div_PODate', 'productNew', 'PODate', 'PO Entry Date');
-			//if ($scope.Action === 'Update')
-			//    $scope.modelValidation('div_grnNo', 'productNew', 'Id');
-			//$scope.modelValidation('div_grnDate', 'productNew', 'GRNDate');
-
+		
 			$scope.manualValidationAddRemove('div_currency', 'productNew', 'CurrencyId');
 
 			if ($scope.productNew.CurrencyId !== $scope.productNew.BaseCurrencyId)
@@ -3597,14 +2951,7 @@ function RequisitionController(accountService, addressService, $window, cboServi
 
 			$scope.$broadcast('show-errors-check-validity');
 			if ($scope.productNewForm.$valid) {
-				//if (new Date($scope.productNew.EntryDate) < new Date($scope.productNew.DocDate))
-				//    return manualValidation('div_entryDate', true, "Gate entry date can't be less than Doc Date");
-				//else
-				//    manualValidation('div_entryDate', false);
-				//if (new Date($scope.productNew.GRNDate) < new Date($scope.productNew.EntryDate))
-				//    return manualValidation('div_grnDate', true, "PO date can't be less than gate entry date");
-				//else
-				//    manualValidation('div_grnDate', false);
+				
 				if (new Date($scope.productNew.PODate) < new Date($scope.productNew.DocDate))
 					return manualValidation('div_PODate', true, "PO date can't be less than Doc entry date");
 				else
@@ -3669,25 +3016,6 @@ function RequisitionController(accountService, addressService, $window, cboServi
 
 	//#endregion
 
-
-
-
-
-
-
-
-
-	//$scope.EntityList = [];
-	//$scope.GetEntity = function () {
-	//   //debugger
-	//    $http({
-	//        method: 'GET',
-	//        url: 'Products/Requisition/GetEntity'
-	//    }).then(function successCallback(response) {
-	//        $scope.EntityList = response.data;
-	//    });
-	//}
-	//$scope.GetEntity();
 	baseService.getCompanyConfiguration(function (result) {
 		$scope.companyConfig = result;
 	});
@@ -4323,19 +3651,6 @@ function RequisitionController(accountService, addressService, $window, cboServi
 		});
 	}
 	
-	//$scope.detailgrid1 = function detailGridData1(e) {
-	//	//debugger
-
-	//	var filteredData = e.data["Id"];
-	//	var data = windowemp.lst;//ej.DataManager(window.lst).executeLocal(ej.Query().where("MaterialReqqusitionMasterId", "equal", parseInt(filteredData), true).take(1000));
-	//	e.detailsElement.find("#detailGridemp").ejGrid({
-	//		dataSource: data,
-	//		columns: [{ field: "EmployeeName", headerText: "EmployeeName", width: 50 },
-	//		{ field: "ReqTotalAmount", headerText: "ReqTotalAmount", width: 150 },
-	//		{ field: "POTotalAmount", headerText: "POTotalAmount", width: 100 }]
-	//	});
-	//	e.detailsElement.find(".tabcontrol").ejTab();
-	//}
 
 	$scope.empwisemonthDataList = [];
 	$scope.getRequisitionByEmpInMonth = function () {

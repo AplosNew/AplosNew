@@ -92,14 +92,14 @@ namespace Aplos.Areas.HumanResource.Controllers
             var fileName = "ManpowerSummary" + DateTime.Now.ToString("yyMMdd") + ".xls";
             if(!withLine)
             {
-                var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcel(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, workDate, withLine);
+                var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcelNew(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, workDate, withLine);
                 workbook.Version = ExcelVersion.Excel97to2003;
                 workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open);
 
             }
             else
             {
-                var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcelWithLine(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, workDate, withLine);
+                var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcelWithLineNew(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, workDate, withLine);
                 workbook.Version = ExcelVersion.Excel97to2003;
                 workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open);
             }

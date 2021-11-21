@@ -4066,7 +4066,7 @@ where gpm.GatePassEntryDate between '"+ fromDate + @"' AND '" + toDate + @"'";
 		#endregion FA register
 
 
-		[Authorize, HttpPost]
+		[HttpPost]
 		public ActionResult createInOutGatePass(InOutGatePassMaster inOutGatePassMasterModel)
 		{
 			try
@@ -4190,6 +4190,21 @@ where gpm.GatePassEntryDate between '"+ fromDate + @"' AND '" + toDate + @"'";
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 				Library.MaterialManagement.InventoryManagements.GatePassAndGateEntryService obj = new Library.MaterialManagement.InventoryManagements.GatePassAndGateEntryService();
 				return Json(obj.InOutGatePassReport(identity.CompanyGroupId, identity.PlantId,GatePassId), JsonRequestBehavior.AllowGet);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+
+		}
+		[HttpGet, Authorize]
+		public JsonResult InOutGatePassSalesTeamplateReport(string GatePassId)
+		{
+			try
+			{
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+				Library.MaterialManagement.InventoryManagements.GatePassAndGateEntryService obj = new Library.MaterialManagement.InventoryManagements.GatePassAndGateEntryService();
+				return Json(obj.InOutGatePassSalesReport(identity.CompanyGroupId, identity.PlantId, GatePassId), JsonRequestBehavior.AllowGet);
 			}
 			catch (Exception ex)
 			{

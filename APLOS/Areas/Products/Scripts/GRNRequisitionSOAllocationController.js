@@ -198,40 +198,50 @@ function GRNRequisitionSOAllocationController(accountService, addressService, $w
     };
 
     $scope.UpdateJWSOAllocation = function () {
-        $scope.detailListNew = [];
-        for (var i = 0; i < $scope.OutSourceReceiptDetailData.length; i++) {
-            if ($scope.OutSourceReceiptDetailData[i].Active === true) {
-                //var OutSourceGRNData = $filter("filter")($scope.OutSourceGRNData, { "MaterialMasterId": $scope.OutSourceGRNData[i].MaterialMasterId, "ArticleId": $scope.OutSourceGRNData[i].ArticleId, "FirstCharacteristicsValueId": $scope.OutSourceGRNData[i].FirstCharacteristicsValueId, "SecondCharacteristicsValueId": $scope.OutSourceGRNData[i].SecondCharacteristicsValueId, "ThirdCharacteristicsValueId": $scope.OutSourceGRNData[i].ThirdCharacteristicsValueId, "ThirdCharacteristicsValueId": $scope.OutSourceGRNData[i].InventoryReceiveDetailId, "check": true }).TransactionQty;
-                //$scope.OutSourceGRNData[i].TransactionQty1 = $filter('sumByKey')($filter('filter')($scope.OutSourceGRNData, {	MaterialMasterId: $scope.OutSourceGRNData[i].MaterialMasterId, ArticleId: $scope.OutSourceGRNData[i].ArticleId, FirstCharacteristicsValueId: $scope.OutSourceGRNData[i].FirstCharacteristicsValueId, SecondCharacteristicsValueId: $scope.OutSourceGRNData[i].SecondCharacteristicsValueId, ThirdCharacteristicsValueId: $scope.OutSourceGRNData[i].ThirdCharacteristicsValueId, InventoryReceiveDetailId: $scope.OutSourceGRNData[i].InventoryReceiveDetailId, "check": true }), 'TransactionQty1');
-                $scope.detailListNew.push($scope.OutSourceReceiptDetailData[i]);
-            }
-        }
-        if (!$scope.validation()) {
-            if ($scope.Action === "Update") {
-                $http({
-                    method: 'POST'
-                    , url: 'Products/GoodsReceiveNote/CreateJWSOAllocation'
-                    , data: { 'Data': $scope.detailListNew }
-                    , dataType: 'JSON'
-                }).then(function (response) {
-                    if (response.data.Error === true)
-                        ShowResult(response.data.Message, 'failure');
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                        $scope.ClsoeListOfSo();
-                        $scope.GetOutSourceGRData();
-                        //$scope.Clear();
-                        //$scope.getdataInventoryIssue();
-                        //$scope.productNew.Id = response.data.inventoryIssue.Id;
-                        //$scope.getData();
-                        //$scope.GetDataList();
+        try {
+            $scope.detailListNew = [];
+            for (var i = 0; i < $scope.OutSourceReceiptDetailData.length; i++) {
+                if ($scope.OutSourceReceiptDetailData[i].Active === true) {
+
+                    if (baseService.isUndefinedOrNull($scope.OutSourceReceiptDetailData[i].BaseUoMId)) {
+                        throw "This GRN No: " + $scope.OutSourceReceiptDetailData[i].InventoryReceiveDetailId + " has no Base UoM.";
                     }
-                }), function (response) {
-                    ShowResult(response.data.Message, 'failure');
-                };
+
+                    //var OutSourceGRNData = $filter("filter")($scope.OutSourceGRNData, { "MaterialMasterId": $scope.OutSourceGRNData[i].MaterialMasterId, "ArticleId": $scope.OutSourceGRNData[i].ArticleId, "FirstCharacteristicsValueId": $scope.OutSourceGRNData[i].FirstCharacteristicsValueId, "SecondCharacteristicsValueId": $scope.OutSourceGRNData[i].SecondCharacteristicsValueId, "ThirdCharacteristicsValueId": $scope.OutSourceGRNData[i].ThirdCharacteristicsValueId, "ThirdCharacteristicsValueId": $scope.OutSourceGRNData[i].InventoryReceiveDetailId, "check": true }).TransactionQty;
+                    //$scope.OutSourceGRNData[i].TransactionQty1 = $filter('sumByKey')($filter('filter')($scope.OutSourceGRNData, {	MaterialMasterId: $scope.OutSourceGRNData[i].MaterialMasterId, ArticleId: $scope.OutSourceGRNData[i].ArticleId, FirstCharacteristicsValueId: $scope.OutSourceGRNData[i].FirstCharacteristicsValueId, SecondCharacteristicsValueId: $scope.OutSourceGRNData[i].SecondCharacteristicsValueId, ThirdCharacteristicsValueId: $scope.OutSourceGRNData[i].ThirdCharacteristicsValueId, InventoryReceiveDetailId: $scope.OutSourceGRNData[i].InventoryReceiveDetailId, "check": true }), 'TransactionQty1');
+                    $scope.detailListNew.push($scope.OutSourceReceiptDetailData[i]);
+                }
             }
-            else ShowResult('Please issue material', 'failure');
+            if (!$scope.validation()) {
+                if ($scope.Action === "Update") {
+                    $http({
+                        method: 'POST'
+                        , url: 'Products/GoodsReceiveNote/CreateJWSOAllocation'
+                        , data: { 'Data': $scope.detailListNew }
+                        , dataType: 'JSON'
+                    }).then(function (response) {
+                        if (response.data.Error === true)
+                            ShowResult(response.data.Message, 'failure');
+                        else {
+                            ShowResult(response.data.Message, 'success');
+                            $scope.ClsoeListOfSo();
+                            $scope.GetOutSourceGRData();
+                            //$scope.Clear();
+                            //$scope.getdataInventoryIssue();
+                            //$scope.productNew.Id = response.data.inventoryIssue.Id;
+                            //$scope.getData();
+                            //$scope.GetDataList();
+                        }
+                    }), function (response) {
+                        ShowResult(response.data.Message, 'failure');
+                    };
+                }
+                else ShowResult('Please issue material', 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, 'info');
         }
+       
     };
 
     $scope.UpdateJWSOAllocationFromUI = function () {

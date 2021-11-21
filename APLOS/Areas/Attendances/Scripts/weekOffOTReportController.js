@@ -159,6 +159,9 @@ function weekOffOTReportController(cboService, commonMessage, $scope, $rootScope
         var DropDownListObj = $("#plantList").data("ejDropDownList");
         $scope.PlantIdList = DropDownListObj.getSelectedValue();
 
+        var TypeDropDownListObj = $("#typeList").data("ejDropDownList");
+        $scope.EmployeeCodeTypeIdList = TypeDropDownListObj.getSelectedValue();
+
         ///
         var monthName = $scope.monthList.filter(function (mnth) {
             return mnth.Value == $scope.month;
@@ -213,6 +216,9 @@ function weekOffOTReportController(cboService, commonMessage, $scope, $rootScope
             var DropDownListObj = $("#plantList").data("ejDropDownList");
             $scope.PlantIdList = DropDownListObj.getSelectedValue();
 
+            $scope.TypeIdList = "";
+            var DropDownListObj = $("#typeList").data("ejDropDownList");
+            $scope.TypeIdList = DropDownListObj.getSelectedValue();
         ///
 
             if ($scope.isManualFilter == true) {
@@ -404,7 +410,16 @@ function weekOffOTReportController(cboService, commonMessage, $scope, $rootScope
         });
     };
     $scope.getDestination();
- 
+
+    $scope.EmployeeCodeTypeList = [];
+    $scope.EmployeeCodeTypeCbo = function () {
+        $http.get('employees/EmployeeCodeType/GetCbo')
+            .then(function (response) {
+                $scope.EmployeeCodeTypeList = response.data;
+            });
+    }
+    $scope.EmployeeCodeTypeCbo();
+
 //****************** To set data ***********************
  
 

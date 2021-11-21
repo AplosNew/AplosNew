@@ -25,7 +25,7 @@ function InOutGatePassController(accountService, addressService, $location, $win
 	$scope.chargesList = [];
 	$scope.ChargeTaxList = [];
 	$scope.StateData = [];
-	$scope.TypeLabel = 'Vendor';
+	$scope.TypeLabel = 'Vendor/Customer';
 	$scope.partyType = 'Vendor';
 	$scope.SelectType = 'Select Id';
 	$scope.TypeWiseDataList = [];
@@ -64,7 +64,13 @@ function InOutGatePassController(accountService, addressService, $location, $win
 		var x = "#" + z;
 		var gridObj = $(x).data("ejGrid");
 		var data = gridObj.getSelectedRecords()[0];
-		location.href = " GateentryToken/InOutGatePassTeamplateReport?GatePassId=" + data.Id;
+		if (data.GatePassType === 'FixedAssetSales' || data.GatePassType === 'FixedAssetScrap') {
+			location.href = " GateentryToken/InOutGatePassSalesTeamplateReport?GatePassId=" + data.Id;
+		}
+		else {
+			location.href = " GateentryToken/InOutGatePassTeamplateReport?GatePassId=" + data.Id;
+        }
+		
 	};
 
 	$scope.getPurchaseReturnData = function () {
@@ -822,9 +828,14 @@ function InOutGatePassController(accountService, addressService, $location, $win
 						}
 						else {
 							ShowResult(response.data.Message, 'success');
-							$scope.productNew.Id = response.data.entity.Id;
-							$scope.Action = "Update";
+							//$scope.Action = "Update";
+							$scope.PendingApprvedGateOut = 'Pending';
 							$scope.GetIndexGridDataList();
+							$scope.getPurchaseReturnData();
+							ClearFields();
+							$scope.productNew.Id = response.data.entity.Id;
+							
+							
 						}
 					}), function (response) {
 						ShowResult(response.data.Message, 'failure');
@@ -1114,13 +1125,16 @@ function InOutGatePassController(accountService, addressService, $location, $win
 			$scope.productNew.PartyName = data.VendorNameOrCuetomerName;
 			$scope.productNew.ChallanItemTypeId = data.ComId;
 			$scope.getFixedAssetSalesData();
-			$scope.GetFixedAssetRegisterElasticSearchData(data.ComId)
+			$scope.GetFixedAssetRegisterElasticSearchData(data.ComId);
 		}
 		else if (data.GatePassFor === 'FixedAssetScrap') {
 			$scope.TabName = 'Fixed Asset Scrap';
 			$scope.SelectType = 'Select FixedAsset Scrap';
+			$scope.productNew.GatePassType = 'FixedAssetScrap';
+			$scope.productNew.GatePassStatus = 'NonReturnable';
 			$scope.productNew.ChallanItemTypeId = data.ComId;
 			$scope.getFixedAssetScrapData();
+			$scope.GetFixedAssetRegisterElasticSearchData(data.ComId);
 		}
 		$scope.Action = 'Save';
 		if (!$rootScope.isCollapsed) $rootScope.toggle();
@@ -2423,6 +2437,7 @@ function InOutGatePassController(accountService, addressService, $location, $win
 		};
 
 		$scope.inventoryMaterialList = [];
+		$scope.FixedAssetRegisterElasticSearchList = [];
 		$scope.chargesList = [];
 		$scope.grossTotal = 0;
 		baseService.removeErrorClasses();

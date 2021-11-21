@@ -375,7 +375,14 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ClickDetail = response.data;
-            angular.element(document.querySelector('#TableDetailModal')).modal('show');
+            if ($scope.RptColumn == "BB") {
+                angular.element(document.querySelector('#TableDetailModalBB')).modal('show');
+
+            }
+            else {
+                angular.element(document.querySelector('#TableDetailModal')).modal('show');
+
+            }
         });
     }
 

@@ -842,6 +842,7 @@
     <Compile Include="Areas\PerformanceManagement\Controllers\JobEvaluationReportController.cs" />
     <Compile Include="Areas\PerformanceManagement\PerformanceManagementAreaRegistration.cs" />
     <Compile Include="Areas\Productions\Controllers\CutPlanController.cs" />
+    <Compile Include="Areas\Productions\Controllers\MachineLayoutReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionOrderProcessWithRateController.cs" />
     <Compile Include="Areas\Productions\Controllers\MarkerController.cs" />
     <Compile Include="Areas\Productions\Controllers\PackingInvoiceController.cs" />
@@ -2232,6 +2233,7 @@
     <Content Include="Areas\PerformanceManagement\Scripts\JobEvaluationMasterController.js" />
     <Content Include="Areas\PerformanceManagement\Scripts\JobEvaluationReportController.js" />
     <Content Include="Areas\PerformanceManagement\Scripts\PerformanceManagementConfig.js" />
+    <Content Include="Areas\Productions\Scripts\MachineLayoutReportController.js" />
     <Content Include="Areas\Productions\Scripts\FinishGoodsBookingPostController.js" />
     <Content Include="Areas\Productions\Scripts\CutPlanController.js" />
     <Content Include="Areas\Productions\Scripts\finishGoodsInventoryRegisterController.js" />
@@ -3853,6 +3855,8 @@
     <Content Include="Areas\Employees\Views\ResignationApprovalMultipleNew\Aplos.cshtml" />
     <Content Include="Areas\Payrolls\Views\PaySlips\PaySlipsNew.cshtml" />
     <Content Include="Areas\Payrolls\Views\PaySlipsNew\PaySlipsNew.cshtml" />
+    <Content Include="Areas\Productions\Views\MachineLayoutReport\Aplos.cshtml" />
+    <Content Include="Areas\JobWork\Views\JWIssueReturn\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -3938,6 +3942,11 @@
     <Content Include="POPResources\Templates\JWValAddedPurchaseOrder20202.docx" />
     <Content Include="POPResources\Templates\InventoryPreSalesReport202026.docx" />
     <Content Include="POPResources\Templates\FixedAssetDisposedScrap20171.docx" />
+    <Content Include="POPResources\Templates\JobWorkValAddedIssue20202.docx" />
+    <Content Include="POPResources\Templates\JobWorkIssue20202.docx" />
+    <Content Include="POPResources\Templates\JobWorkPurchaseOrder20202.docx" />
+    <Content Include="POPResources\Templates\JobWorkValAddedPurchaseOrder20202.docx" />
+    <Content Include="POPResources\Templates\InOutGatePassSales20171.docx" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />

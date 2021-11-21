@@ -84,7 +84,7 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(BnsPlcMthRetain master, List<BnsPlcMthRetainMthNo> months)
+        public JsonResult Create(BnsPlcMthRetain master, List<BnsPlcMthRetainMthNo> months,List<BonusPolicyMonthlyRetainMasterSalaryHead> HeadList)
         {
             string _id = string.Empty;
             try
@@ -94,7 +94,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 master.AddedBy = identity.Name;
                 master.AddedFromIP = identity.IPAddress;
                 clsBonusPolicyMonthlyRetain cr = new clsBonusPolicyMonthlyRetain();
-                cr.Save(master, months);
+                cr.Save(master, months, HeadList);
                 return Json(new { Error = false, Data = master.ID, Message = AplosMessage.Updated });
             }
             catch (Exception ex)
@@ -201,6 +201,36 @@ namespace Aplos.Areas.Attendances.Controllers
             {
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetHeads(string masterID)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select p.*,s.SalaryHead SalaryHeadName from BonusPolicyMonthlyRetainMasterSalaryHead p
+                                left join SalaryHead s on s.SalaryHeadID=p.SalaryHeadID
+                            where BonusPolicyMonthlyRetainMasterId ='" + masterID + "' Order By Sequence";
+            var data = _sqlRepository.GetDataCollection(sql);
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost, Authorize]
+        public ActionResult DeleteHeadMaster(string ID)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(ID))
+                    throw new Exception("Select Id first");
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from BonusPolicyMonthlyRetainMasterSalaryHead where Id='" + ID + "'");
+                con.CommitTransaction();
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
         }
         #endregion
     }
