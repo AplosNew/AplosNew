@@ -54,6 +54,12 @@
     </div>
     <div class="col-xs-6 col-sm-6-md-6">
         <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Issue Id<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" ng-model="productNew.Id" disabled class="form-control text-left" />
+            </div>
+        </div>
+        <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Issue Date<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <input type="text" name="Issue Date" ng-model="productNew.IssueDate" datepicker end-date="currentDate" class="form-control" placeholder="dd-mmm-yyyy" required tabindex="2">
@@ -90,7 +96,7 @@
     <div class="col-xs-12 col-sm-6 col-md-6">
 		<ul class="common-btn list-inline text-left">
 			@*<li><button ng-click="detailPopUp();" class="btn" ng-disabled="productNew.Id!=null">Select Asset</button></li>*@
-			<li><button ng-click="popUp();" class="btn" ng-disabled="productNew.MaterialStorageId===null || productNew.EntityId ===null">Select Asset</button></li>
+			<li><button ng-click="popUp();" class="btn" ng-disabled="productNew.MaterialStorageId===null || productNew.EntityId ===null || productNew.Id!=null">Select Asset</button></li>
 		</ul>
     </div>
     <div class="col-xs-12 col-sm-6 col-md-6">
@@ -451,49 +457,48 @@
                          e-recorddoubleclick="selectDoubleClick" e-filtersettings-filterType="excel"
                          e-enabletouch="true" e-allowselection="true"
                          e-scrollsettings="scroll" e-actioncomplete="popUpDataListScroll">
-						<div e-columns>
-							<div e-column e-field="Type" e-headertext="Type" e-width="100"></div>
-							<div e-column e-field="PartyName" e-headertext="Party" e-width="200"></div>
-							<div e-column e-field="EmployeeName" e-headertext="EmployeeName" e-width="200"></div>
-							<div e-column e-field="GRNNo" e-headertext="GRN" e-width="100"></div>
-							<div e-column e-field="GRNDate" e-headertext="GRNDate" e-width="100"></div>
-							<div e-column e-field="GRNDocRefNo" e-headertext="GRNDocRefNo" e-width="200"></div>
-							<div e-column e-field="PurchaseOrderId" e-headertext="PO No" e-width="100"></div>
-							<div e-column e-field="LCRef" e-headertext="LC Ref" e-width="100"></div>
+                        <div e-columns>
+                            <div e-column e-field="MaterialGroupMasterName" e-headertext="MaterialGroup" e-width="200"></div>
+                            <div e-column e-field="UserName" e-headertext="Material" e-width="250"></div>
+                            <div e-column e-field="StandardName" e-headertext="Article" e-width="350"></div>
+                            <div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="150"></div>
+                            <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="150"></div>
+                            <div e-column e-field="ThirdCharacteristicsValue" e-headertext="SKU3" e-width="150"></div>
+                            <div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="100"></div>
+                            <div e-column e-field="BaseQty" e-headertext="Base Qty" textAlign='Right' e-width="100"></div>
+                            <div e-column e-field="BalanceStock" e-headertext="Balance Qty" textAlign='Right' e-width="150"></div>
+                            <div e-column e-field="BaseIssueQty" e-headertext="Issue Qty" textAlign='Right' e-width="100"></div>
+                            <div e-column e-field="TransactionUoM" e-headertext="Base UOM" e-width="100"></div>
+                            <div e-column e-field="MaterialTranRate" e-headertext="MaterialTranRate" e-width="100" textAlign='Right'></div>
+                            <div e-column e-field="ToCurrencyRate" e-headertext="ToCurrencyRate" e-width="100" textAlign='Right'></div>
+                            <div e-column e-field="BaseCurrencyRate" e-headertext="BaseCurrencyRate" e-width="100" textAlign='Right'></div>
+                            <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="100"></div>
+                            <div e-column e-field="TotalMaterialBooksCurrencyAmount" e-headertext="TotalMaterialBooksCurrencyAmount" e-width="200" textAlign='Right'></div>
+
+                            <div e-column e-field="PurchaseReturnQty" e-headertext="Purchase Return Qty" textAlign='Right' e-width="200"></div>
+                            <div e-column e-field="IssueReturnQty" e-headertext="Issue Return Qty" textAlign='Right' e-width="200"></div>
+                            <div e-column e-field="ReductionByAdjustmentQty" e-headertext="Reduction By Adjustment Qty" textAlign='Right' e-width="200"></div>
+                            <div e-column e-field="InventorySalesQty" e-headertext="Inventory Sales Qty" textAlign='Right' e-width="200"></div>
+                            <div e-column e-field="InventoryScrapQty" e-headertext="Inventory Scrap Qty" textAlign='Right' e-width="200"></div>
+                            <div e-column e-field="InventoryTransferQty" e-headertext="Inventory Transfer Qty" textAlign='Right' e-width="200"></div>
+
+                            <div e-column e-field="Type" e-headertext="Type" e-width="100"></div>
+                            <div e-column e-field="PartyName" e-headertext="Party" e-width="200"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="EmployeeName" e-width="200"></div>
+                            <div e-column e-field="GRNNo" e-headertext="GRN" e-width="100"></div>
+                            <div e-column e-field="GRNDate" e-headertext="GRNDate" e-width="100"></div>
+                            <div e-column e-field="GRNDocRefNo" e-headertext="GRNDocRefNo" e-width="200"></div>
+                            <div e-column e-field="PurchaseOrderId" e-headertext="PO No" e-width="100"></div>
+                            <div e-column e-field="LCRef" e-headertext="LC Ref" e-width="100"></div>
+
+                            <div e-column e-field="CountryName" e-headertext="Country Name" e-width="150"></div>
+                            <div e-column e-field="AccountTitle" e-headertext="LC Opening Bank" e-width="200"></div>
+                            <div e-column e-field="AcceptanceNo" e-headertext="AcceptanceNo" e-width="200"></div>
+                            <div e-column e-field="BudgetName" e-headertext="Budget Activity" e-width="200"></div>
+                            <div e-column e-field="ActivityName" e-headertext="Activity" e-width="200"></div>
 
 
-							<div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="100"></div>
-							<div e-column e-field="BaseQty" e-headertext="Base Qty" textAlign='Right' e-width="100"></div>
-							<div e-column e-field="BalanceStock" e-headertext="Balance Qty" textAlign='Right' e-width="150"></div>
-							<div e-column e-field="BaseIssueQty" e-headertext="Issue Qty" textAlign='Right' e-width="100"></div>
-							<div e-column e-field="UserName" e-headertext="Material" e-width="250"></div>
-							<div e-column e-field="StandardName" e-headertext="Article" e-width="350"></div>
-							<div e-column e-field="TransactionUoM" e-headertext="Base UOM" e-width="100"></div>
-							<div e-column e-field="MaterialTranRate" e-headertext="MaterialTranRate" e-width="100" textAlign='Right'></div>
-							<div e-column e-field="ToCurrencyRate" e-headertext="ToCurrencyRate" e-width="100" textAlign='Right'></div>
-							<div e-column e-field="BaseCurrencyRate" e-headertext="BaseCurrencyRate" e-width="100" textAlign='Right'></div>
-							<div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="100"></div>
-							<div e-column e-field="TotalMaterialBooksCurrencyAmount" e-headertext="TotalMaterialBooksCurrencyAmount" e-width="200" textAlign='Right'></div>
-
-							<div e-column e-field="PurchaseReturnQty" e-headertext="Purchase Return Qty" textAlign='Right' e-width="200"></div>
-							<div e-column e-field="IssueReturnQty" e-headertext="Issue Return Qty" textAlign='Right' e-width="200"></div>
-							<div e-column e-field="ReductionByAdjustmentQty" e-headertext="Reduction By Adjustment Qty" textAlign='Right' e-width="200"></div>
-							<div e-column e-field="InventorySalesQty" e-headertext="Inventory Sales Qty" textAlign='Right' e-width="200"></div>
-							<div e-column e-field="InventoryScrapQty" e-headertext="Inventory Scrap Qty" textAlign='Right' e-width="200"></div>
-							<div e-column e-field="InventoryTransferQty" e-headertext="Inventory Transfer Qty" textAlign='Right' e-width="200"></div>
-
-							<div e-column e-field="MaterialGroupMasterName" e-headertext="MaterialGroup" e-width="200"></div>
-							<div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="150"></div>
-							<div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="150"></div>
-							<div e-column e-field="ThirdCharacteristicsValue" e-headertext="SKU3" e-width="150"></div>
-							<div e-column e-field="CountryName" e-headertext="Country Name" e-width="150"></div>
-							<div e-column e-field="AccountTitle" e-headertext="LC Opening Bank" e-width="200"></div>
-							<div e-column e-field="AcceptanceNo" e-headertext="AcceptanceNo" e-width="200"></div>
-							<div e-column e-field="BudgetName" e-headertext="Budget Activity" e-width="200"></div>
-							<div e-column e-field="ActivityName" e-headertext="Activity" e-width="200"></div>
-
-
-						</div>
+                        </div>
                     </div>
                 </div>
 

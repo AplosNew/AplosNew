@@ -25,7 +25,7 @@ function InOutGatePassController(accountService, addressService, $location, $win
 	$scope.chargesList = [];
 	$scope.ChargeTaxList = [];
 	$scope.StateData = [];
-	$scope.TypeLabel = 'Vendor';
+	$scope.TypeLabel = 'Vendor/Customer';
 	$scope.partyType = 'Vendor';
 	$scope.SelectType = 'Select Id';
 	$scope.TypeWiseDataList = [];
@@ -64,7 +64,13 @@ function InOutGatePassController(accountService, addressService, $location, $win
 		var x = "#" + z;
 		var gridObj = $(x).data("ejGrid");
 		var data = gridObj.getSelectedRecords()[0];
-		location.href = " GateentryToken/InOutGatePassTeamplateReport?GatePassId=" + data.Id;
+		if (data.GatePassType === 'FixedAssetSales' || data.GatePassType === 'FixedAssetScrap') {
+			location.href = " GateentryToken/InOutGatePassSalesTeamplateReport?GatePassId=" + data.Id;
+		}
+		else {
+			location.href = " GateentryToken/InOutGatePassTeamplateReport?GatePassId=" + data.Id;
+        }
+		
 	};
 
 	$scope.getPurchaseReturnData = function () {

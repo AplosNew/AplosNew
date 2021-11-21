@@ -3786,6 +3786,25 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
 				ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
 			}
 		}
+		[Authorize, HttpGet]
+		public JsonResult TermsAndConditions()
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			try
+			{
+				string _sql = "select Id,Description from TermsAndConditionsMaster";
+				//_sqlRepository.ExecuteSqlCommand(_sql);
+
+				return Json(_sqlRepository.GetDataCollection(_sql), JsonRequestBehavior.AllowGet);
+
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+				Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+				ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+			}
+		}
 		[HttpGet, Authorize]
 		public JsonResult NotificationSetting()
 		{

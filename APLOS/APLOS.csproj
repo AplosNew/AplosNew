@@ -1028,6 +1028,7 @@
     <Compile Include="Areas\Securities\Controllers\MenuUserCodeController.cs" />
     <Compile Include="Areas\Securities\Controllers\UserEntityController.cs" />
     <Compile Include="Areas\Commercial\Controllers\InvoiceBudgetChargesSettingController.cs" />
+    <Compile Include="Areas\Setups\Controllers\TermsAndConditionsController.cs" />
     <Compile Include="Areas\Setups\Controllers\LabelListController.cs" />
     <Compile Include="Areas\Setups\Controllers\ReportingGroupController.cs" />
     <Compile Include="Areas\Setups\Controllers\NotificationSettingController.cs" />
@@ -2376,6 +2377,7 @@
     <Content Include="Areas\Securities\Scripts\menuUserCodeController.js" />
     <Content Include="Areas\Securities\Scripts\syncURLController.js" />
     <Content Include="Areas\Securities\Scripts\employeeMobileAppsAuthorizationNewController.js" />
+    <Content Include="Areas\Setups\Scripts\TermsAndConditionController.js" />
     <Content Include="Areas\Setups\Scripts\LabelListController.js" />
     <Content Include="Areas\Setups\Scripts\ReportingGroupController.js" />
     <Content Include="Areas\Setups\Scripts\notificationSettingController.js" />
@@ -3946,6 +3948,8 @@
     <Content Include="POPResources\Templates\JobWorkIssue20202.docx" />
     <Content Include="POPResources\Templates\JobWorkPurchaseOrder20202.docx" />
     <Content Include="POPResources\Templates\JobWorkValAddedPurchaseOrder20202.docx" />
+    <Content Include="POPResources\Templates\InOutGatePassSales20171.docx" />
+    <Content Include="Areas\Setups\Views\TermsAndConditions\Aplos.cshtml" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />
