@@ -4820,14 +4820,17 @@ namespace Library.HumanResource.Report.OT
 
 
 
+                string wcEmpSystemId = parameters["EmpSystemId"];
+               
+
                 string FirstDayOfTheMonth = new DateTime((int)clsStaticInfo.dbl(Year), (int)clsStaticInfo.dbl(Month), 1).ToString("dd-MMM-yyyy");// "01 - " + Month + " - " + Year;
                 string LastDayOfTheMonth = new DateTime((int)clsStaticInfo.dbl(Year), (int)clsStaticInfo.dbl(Month), DateTime.DaysInMonth((int)clsStaticInfo.dbl(Year), (int)clsStaticInfo.dbl(Month))).ToString("dd-MMM-yyyy"); //Convert.ToDateTime(FirstDayOfTheMonth).AddMonths(1).AddDays(-1).ToString("dd-MMM-yyyy");
 
 
                 DataSet dsCurrency = null;
 
-                Dictionary<string, List<DataRow>> dicSalStructure = LoadSalaryStructureCon(PlantId, FirstDayOfTheMonth, LastDayOfTheMonth);
-                Dictionary<string, DataRow> dicOTpolicy = LoadOverTimePolicyCon(PlantId, FirstDayOfTheMonth, LastDayOfTheMonth);
+                Dictionary<string, List<DataRow>> dicSalStructure = LoadSalaryStructureCon(PlantId, FirstDayOfTheMonth, LastDayOfTheMonth, wcEmpSystemId);
+                Dictionary<string, DataRow> dicOTpolicy = LoadOverTimePolicyCon(PlantId, FirstDayOfTheMonth, LastDayOfTheMonth, wcEmpSystemId);
 
                 clsSalaryInfo objSal = new clsSalaryInfo();
 
@@ -5096,6 +5099,7 @@ namespace Library.HumanResource.Report.OT
                     {
                         FOT = (FOT / 60) * dicW[EmpSystemid];
                     }
+
                     if (dicNW.ContainsKey(EmpSystemid))
                     {
                         sheet1.Range[xlsRow, iAmount].Number = clsStaticInfo.dbl(dicNW[EmpSystemid]) * (NWOT / 60) + FOT;
@@ -5502,7 +5506,7 @@ namespace Library.HumanResource.Report.OT
             }
         }//End Function
 
-        public Dictionary<string, List<DataRow>> LoadSalaryStructureCon(string sPlantID, string sFromDate, string sToDate)
+        public Dictionary<string, List<DataRow>> LoadSalaryStructureCon(string sPlantID, string sFromDate, string sToDate, string EmpIds)
         {
             System.Data.DataSet dsRef = null;
             Dictionary<string, List<DataRow>> dicBonus = new Dictionary<string, List<DataRow>>();
@@ -5516,17 +5520,17 @@ namespace Library.HumanResource.Report.OT
                                 (---m
                             select max(ed) ed,EmpInfoSystemID from
                             (
-                            select EmpInfoSystemID,max(EffectiveDate) ed from SalaryInfoDefineMaster where IsApproved=1 and EffectiveDate<='" + sToDate + @"' and plantid in (" + sPlantID + @") group by EmpInfoSystemID
+                            select EmpInfoSystemID,max(EffectiveDate) ed from SalaryInfoDefineMaster where IsApproved=1 and EffectiveDate<='" + sToDate + @"' and EmpInfoSystemID in (" + EmpIds + @") group by EmpInfoSystemID
 												                            union 
-                            select EmpInfoSystemID,max(EffectiveDate) ed from SalaryInfoBackMaster where IsApproved=1 and EffectiveDate<='" + sToDate + @"' and plantid in (" + sPlantID + @")  group by EmpInfoSystemID
+                            select EmpInfoSystemID,max(EffectiveDate) ed from SalaryInfoBackMaster where IsApproved=1 and EffectiveDate<='" + sToDate + @"' and EmpInfoSystemID in (" + EmpIds + @")  group by EmpInfoSystemID
                             ) x 
                             group by EmpInfoSystemID
                             ) ---m
                             mx
                             left join (
-                            select SystemID,EmpInfoSystemID,EffectiveDate  from SalaryInfoDefineMaster where IsApproved=1 and EffectiveDate<='" + sToDate + @"' and plantid in (" + sPlantID + @")
+                            select SystemID,EmpInfoSystemID,EffectiveDate  from SalaryInfoDefineMaster where IsApproved=1 and EffectiveDate<='" + sToDate + @"' and EmpInfoSystemID in (" + EmpIds + @")
                             union
-                            select SystemID,EmpInfoSystemID,EffectiveDate  from SalaryInfoBackMaster where IsApproved=1 and EffectiveDate<='" + sToDate + @"' and plantid in (" + sPlantID + @")
+                            select SystemID,EmpInfoSystemID,EffectiveDate  from SalaryInfoBackMaster where IsApproved=1 and EffectiveDate<='" + sToDate + @"' and EmpInfoSystemID in (" + EmpIds + @")
                             )
                              m on m.EmpInfoSystemID=mx.EmpInfoSystemID and m.EffectiveDate=mx.ed
                             left join (
@@ -5544,7 +5548,7 @@ namespace Library.HumanResource.Report.OT
                             
                             LEFT JOIN scs.LegalSalaryGrade LG ON LG.Id = LGD.LegalSalaryGradeId
 
-                                where (e.DOJ<='" + sToDate + @"') and (e.DOS is null or e.DOS>='" + sFromDate + @"') and e.PlantId in (" + sPlantID + @")
+                                where (e.DOJ<='" + sToDate + @"') and (e.DOS is null or e.DOS>='" + sFromDate + @"') and e.SystemID in (" + EmpIds + @")
                             ORDER BY m.EmpInfoSystemID";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -5578,7 +5582,7 @@ namespace Library.HumanResource.Report.OT
             }
         }//End Function
 
-        public Dictionary<string, DataRow> LoadOverTimePolicyCon(string sPlantID, string sFromDate, string sToDate)
+        public Dictionary<string, DataRow> LoadOverTimePolicyCon(string sPlantID, string sFromDate, string sToDate, string empIds)
         {
             string strSQL;
             System.Data.DataSet dsRef = null;
@@ -5604,7 +5608,7 @@ namespace Library.HumanResource.Report.OT
 												left join OverTimePmtPolicyDetails oW on ow.OverTimePmtPolicyID=otpm.ID and ow.OverTimeDayType='Week Off'
 												left join OverTimePmtPolicyDetails oNW on oNW.OverTimePmtPolicyID=otpm.ID and onw.OverTimeDayType='Working Day'
 
-												where (e.DOJ<='" + sToDate + @"') and (dos is null or e.DOS>='" + sFromDate + @"') and e.PlantId in (" + sPlantID + @")";
+												where e.SystemId in (" + empIds + @")";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
