@@ -210,12 +210,11 @@ function paySlipsContractorController(commonMessage, $scope, $rootScope, baseSer
             var parameters = [];
             var gridObj = $("#empInfoGrid").ejGrid("instance");
             var filteredRecords = gridObj.getFilteredRecords();
-            if ($scope.isManualFilter == true) {
-                if (filteredRecords.length == 0) {
-                    filteredRecords = $scope.EmployeeListTemp;
 
-                }
+            if (filteredRecords.length == 0) {
+                filteredRecords = $scope.EmployeeListTemp;
             }
+
             if (angular.isUndefinedOrNull(filteredRecords) === false) {
                 if (filteredRecords.length > 0) {
                     parameters = [];

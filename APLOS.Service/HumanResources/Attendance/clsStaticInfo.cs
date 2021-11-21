@@ -8,6 +8,7 @@ using System.Web.UI.WebControls;
 using System.Data.SqlClient;
 using Syncfusion.XlsIO;
 using Library.Data.Sql;
+using Syncfusion.DocIO.DLS;
 
 namespace OTSBD
 {
@@ -118,10 +119,10 @@ namespace OTSBD
                 return new DateTime(dateTime.Year, dateTime.Month, 1).ToString(Format);
 
             if (Type == DateType.LastDayOfMonth)
-              return new DateTime(dateTime.Year, dateTime.Month, DateTime.DaysInMonth(dateTime.Year, dateTime.Month)).ToString(Format);
+                return new DateTime(dateTime.Year, dateTime.Month, DateTime.DaysInMonth(dateTime.Year, dateTime.Month)).ToString(Format);
 
             return Convert.ToDateTime(Date).ToString(Format);
-            
+
         }
         public static bool emailValidation(string emailID)
         {
@@ -2516,13 +2517,13 @@ namespace OTSBD
                     if (Value.Trim() == "")
                     {
                         Exception ex = new Exception("please insert [" + fieldName + "]");
-                        
+
                         throw (ex);
                     }
                     if (Convert.ToDouble(bplib.clsWebLib.GetNumData(Value.Trim())) == 0)
                     {
                         Exception ex = new Exception("please insert [" + fieldName + "]");
-                       
+
                         throw (ex);
                     }
 
@@ -2541,7 +2542,7 @@ namespace OTSBD
                     if (bplib.clsWebLib.IsNumeric(Value.Trim()) == false)
                     {
                         Exception ex = new Exception("Invalid numeric value");
-                        
+
                         throw (ex);
                     }
                     if (isInteger == true)
@@ -2549,7 +2550,7 @@ namespace OTSBD
                         if (isInt(Value.Trim()) == false)
                         {
                             Exception ex = new Exception("Number must be integer");
-                           
+
                             throw (ex);
                         }
                     }
@@ -3365,8 +3366,39 @@ namespace OTSBD
         }
 
         #endregion
-    } //end class
 
+        public static WPicture GetWordDocumentPicture(WordDocument Document, string ImageObjectName)
+        {
+            foreach (WSection section in Document.Sections)
+            {
+                for (int CE = 0; CE < section.Body.ChildEntities.Count; CE++)
+                {
+                    IEntity bodyItemEntity = section.Body.ChildEntities[CE];
+                    if (bodyItemEntity.EntityType == EntityType.Paragraph)
+                    {
+                        WParagraph paragraph = bodyItemEntity as WParagraph;
+                        for (int i = 0; i < paragraph.Items.Count; i++)
+                        {
+                            //Gets picture in paragraph.
+                            if (paragraph.Items[i] is WPicture)
+                            {
+                                WPicture picture = paragraph.Items[i] as WPicture;
+                                if (picture.Title.ToUpper() == ImageObjectName.ToUpper())
+                                    return picture;
+
+
+                                //picture.LoadImage(Image.FromFile(newImagePath));
+                            }
+
+                        }
+                    }
+
+                }
+            }
+
+            return null;
+        } //end class
+    }
     public class IdentityParameter
     {
         public string CompanyGroupId { get; set; }
