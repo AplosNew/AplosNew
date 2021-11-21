@@ -122,7 +122,7 @@ namespace OTSBD
         }//End Function 
 
 
-        public Dictionary<string, List<DataRow>> GetEmpLeaveInfoPaySlip(ParamList leavePara)
+        public Dictionary<string, List<DataRow>> GetEmpLeaveInfoPaySlip(ParamList leavePara, Dictionary<string, string> parameters)
         {
             Dictionary<string, List<DataRow>> dicBonus = new Dictionary<string, List<DataRow>>();
             var paraDate = Convert.ToDateTime(leavePara.FromDate);
@@ -140,22 +140,50 @@ namespace OTSBD
             try
             {
                 obs = new clsStaticInfo();
-                strSql = @"SELECT 
-	                        LTR.EmpSystemID,LT.Code,LT.LeaveType
-	                        ,SUM(LTD.LeaveDuration) AvailedLeave	                     
-                             FROM  EmployeeInformation  EEI                             
-							iNNER join LeaveTransaction LTR  ON EEI.SystemId = LTR.EmpSystemID
-                            Inner   JOIN LeaveType LT ON  LTR.LTSystemID = LT.Id 
-							inner JOIN (
-							 SELECT LTD.LvTrnsSystemID,LTD.LeaveDuration,WorkDate FROM LeaveTransactionDetails LTD WHERE LTd.WorkDate BETWEEN   '" + leavePara.FromDate + @"' AND  '" + leavePara.ToDate + @"'  AND  LTD.IsAvailed = 1
-							) LTD ON LTD.LvTrnsSystemID =LTR.SystemID 
-							iNNER JOIN
-							( SELECT * FROM AttdnProcessData  apd 
-						 LEFT JOIN DayType dt on apd.DayStatus = DT.DayType WHERE  WorkDate BETWEEN    '" + leavePara.FromDate + @"' AND  '" + leavePara.ToDate + @"' --AND EEI.PlantID = '202022'
-						 ) APD ON   EEI.SystemId = apd.EmpSystemID AND apd.WorkDate = ltd.WorkDate 
-							WHERE  LTR.IsApproved = 1 			
-                            AND EEI.PlantId = '" + leavePara.PlantId + @"'				          
-                         GROUP BY LTR.EmpSystemID,LT.Code,LT.LeaveType order by LTR.EmpSystemID,LT.Code";
+       //         strSql = @"SELECT 
+	      //                  LTR.EmpSystemID,LT.Code,LT.LeaveType
+	      //                  ,SUM(LTD.LeaveDuration) AvailedLeave	                     
+       //                      FROM  EmployeeInformation  EEI                             
+							//iNNER join LeaveTransaction LTR  ON EEI.SystemId = LTR.EmpSystemID
+       //                     Inner   JOIN LeaveType LT ON  LTR.LTSystemID = LT.Id 
+							//inner JOIN (
+							// SELECT LTD.LvTrnsSystemID,LTD.LeaveDuration,WorkDate FROM LeaveTransactionDetails LTD WHERE LTd.WorkDate BETWEEN   '" + leavePara.FromDate + @"' AND  '" + leavePara.ToDate + @"'  AND  LTD.IsAvailed = 1
+							//) LTD ON LTD.LvTrnsSystemID =LTR.SystemID 
+							//iNNER JOIN
+							//( SELECT * FROM AttdnProcessData  apd 
+						 //LEFT JOIN DayType dt on apd.DayStatus = DT.DayType WHERE  WorkDate BETWEEN    '" + leavePara.FromDate + @"' AND  '" + leavePara.ToDate + @"' --AND EEI.PlantID = '202022'
+						 //) APD ON   EEI.SystemId = apd.EmpSystemID AND apd.WorkDate = ltd.WorkDate 
+							//WHERE  LTR.IsApproved = 1 			
+       //                     AND EEI.PlantId = '" + leavePara.PlantId + @"'				          
+       //                  GROUP BY LTR.EmpSystemID,LT.Code,LT.LeaveType order by LTR.EmpSystemID,LT.Code";
+
+
+                strSql = @"
+                            SELECT  Ei.SystemID AS EmpSystemID, lt.Id AS LeaveTypeId,lt.Code, lt.Sequence,lt.LeaveType,
+                                CASE WHEN EncashWorkingDaysQty>0 THEN CONVERT(DECIMAL(18,4), EncashEarnLeaveQty)/CONVERT(DECIMAL(18,4),EncashWorkingDaysQty) ELSE 0 END * SUM(l.EarnValue) ActualEarnedLeave,
+                               SUM(L.AvailedValue) AS AvailedLeave,0 AS Balance,NULL AS BalanceId,
+                                'CUR' AS TransactionType
+						
+							 FROM 
+							 EmployeeInformation AS ei
+								LEFT JOIN LeaveType AS lt ON 1=1
+							    LEFT JOIN AttdnProcessData AS apd   ON lt.Id=apd.LTSystemID  AND apd.EmpSystemID=ei.SystemId
+								AND  apd.WorkDate BETWEEN   '" + leavePara.FromDate + @"' AND  '" + leavePara.ToDate + @"'
+								JOIN SalaryProcMaster AS spm ON spm.MonthNo=MONTH('" + leavePara.FromDate + @"') AND spm.YearNo=YEAR('" + leavePara.FromDate + @"')
+								JOIN SalaryProcessLogDetail AS spld ON spld.EmpSystemId=ei.SystemId AND spld.SalaryProcessId=spm.SystemID
+
+                                LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
+                                LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
+                                LEFT JOIN mst.DesignationMaster AS dm ON dm.Id=dmc.DesignationMasterId
+                                LEFT JOIN DayStatusPlantChild PC ON pc.PlantId=apd.PlantId AND pc.EmpTypeId=dm.EmployeeCategoryId
+                                left JOIN DayTypeWithValues AS ds ON ds.DayType=apd.DayStatus AND ds.HeaderId=pc.HeaderId
+                                LEFT JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id AND l.LeaveTypeId=apd.LTSystemID
+
+                                 LEFT JOIN LeavePolicyDetail AS lpd ON lpd.LPMSystemID=dmc.LeavePolicyMasterId AND lpd.LTSystemID=apd.LTSystemID
+                                 
+                                WHERE Ei.SystemID IN (" + parameters["EmpSystemId"] + @")
+                                 GROUP BY lt.LeaveType,Ei.SystemID, lt.Sequence,lt.Id,lt.Code,EncashWorkingDaysQty,EncashEarnLeaveQty
+                                ORDER BY Ei.SystemID,lt.Sequence";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
@@ -343,7 +371,7 @@ namespace OTSBD
                 objCon = null;
             }
         }//End Function  
-   
+
         public void SelectedPlant(string sPlantID, out DataSet dsRef)
         {
             ConnectionManager.DAL.ConManager objCon;

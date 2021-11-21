@@ -4820,6 +4820,9 @@ namespace Library.HumanResource.Report.OT
 
 
 
+                string wcEmpSystemId = parameters["EmpSystemId"];
+               
+
                 string FirstDayOfTheMonth = new DateTime((int)clsStaticInfo.dbl(Year), (int)clsStaticInfo.dbl(Month), 1).ToString("dd-MMM-yyyy");// "01 - " + Month + " - " + Year;
                 string LastDayOfTheMonth = new DateTime((int)clsStaticInfo.dbl(Year), (int)clsStaticInfo.dbl(Month), DateTime.DaysInMonth((int)clsStaticInfo.dbl(Year), (int)clsStaticInfo.dbl(Month))).ToString("dd-MMM-yyyy"); //Convert.ToDateTime(FirstDayOfTheMonth).AddMonths(1).AddDays(-1).ToString("dd-MMM-yyyy");
 
@@ -5101,6 +5104,7 @@ namespace Library.HumanResource.Report.OT
                     {
                         FOT = (FOT / 60) * dicW[EmpSystemid];
                     }
+
                     if (dicNW.ContainsKey(EmpSystemid))
                     {
                         sheet1.Range[xlsRow, iAmount].Number = clsStaticInfo.dbl(dicNW[EmpSystemid]) * (NWOT / 60) + FOT;
@@ -5522,17 +5526,17 @@ namespace Library.HumanResource.Report.OT
                                 (---m
                             select max(ed) ed,EmpInfoSystemID from
                             (
-                            select EmpInfoSystemID,max(EffectiveDate) ed from SalaryInfoDefineMaster where IsApproved=1 and EffectiveDate<='" + sToDate + @"' and plantid in (" + sPlantID + @") group by EmpInfoSystemID
+                            select EmpInfoSystemID,max(EffectiveDate) ed from SalaryInfoDefineMaster where IsApproved=1 and EffectiveDate<='" + sToDate + @"' and EmpInfoSystemID in (" + EmpIds + @") group by EmpInfoSystemID
 												                            union 
-                            select EmpInfoSystemID,max(EffectiveDate) ed from SalaryInfoBackMaster where IsApproved=1 and EffectiveDate<='" + sToDate + @"' and plantid in (" + sPlantID + @")  group by EmpInfoSystemID
+                            select EmpInfoSystemID,max(EffectiveDate) ed from SalaryInfoBackMaster where IsApproved=1 and EffectiveDate<='" + sToDate + @"' and EmpInfoSystemID in (" + EmpIds + @")  group by EmpInfoSystemID
                             ) x 
                             group by EmpInfoSystemID
                             ) ---m
                             mx
                             left join (
-                            select SystemID,EmpInfoSystemID,EffectiveDate  from SalaryInfoDefineMaster where IsApproved=1 and EffectiveDate<='" + sToDate + @"' and plantid in (" + sPlantID + @")
+                            select SystemID,EmpInfoSystemID,EffectiveDate  from SalaryInfoDefineMaster where IsApproved=1 and EffectiveDate<='" + sToDate + @"' and EmpInfoSystemID in (" + EmpIds + @")
                             union
-                            select SystemID,EmpInfoSystemID,EffectiveDate  from SalaryInfoBackMaster where IsApproved=1 and EffectiveDate<='" + sToDate + @"' and plantid in (" + sPlantID + @")
+                            select SystemID,EmpInfoSystemID,EffectiveDate  from SalaryInfoBackMaster where IsApproved=1 and EffectiveDate<='" + sToDate + @"' and EmpInfoSystemID in (" + EmpIds + @")
                             )
                              m on m.EmpInfoSystemID=mx.EmpInfoSystemID and m.EffectiveDate=mx.ed
                             left join (

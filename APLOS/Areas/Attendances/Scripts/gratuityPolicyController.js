@@ -46,7 +46,9 @@ function gratuityPolicyController($window, cboService, commonMessage, $scope, $r
         MaturityFormulaDesID: null,
         MaturityFormulaDescription: null,
         plantId: null,
-        CompanyId: null
+        CompanyId: null,
+        YearOrDayBasis: null,
+        NoOfDays: null,
     };
 
     $scope.GratuityList = [];
