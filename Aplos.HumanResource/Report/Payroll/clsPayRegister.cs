@@ -11167,9 +11167,24 @@ where h.HeadCategory='GROSS'
 
                     int empDetailFirstXlsRow = 0;
 
+
+
+
+
+
+
+
                     int empPaySlipDetailXlsRow = 0;
-                    Dictionary<string, List<DataRow>> dicLeaveEmp = objRpt.GetEmpLeaveInfoPaySlip(para);
+                    Dictionary<string, List<DataRow>> dicLeaveEmp = objRpt.GetEmpLeaveInfoPaySlip(para, parameters);
                     xlsRow = startRow;
+
+
+
+
+
+
+
+
 
 
                     if (dsCmp.Tables[0].Rows.Count > 0)
@@ -11399,35 +11414,50 @@ where h.HeadCategory='GROSS'
                             sheet1.Range[xlsRow + 2, xlsCol].Text = (1 + SrNo).ToString();
                             sheet1.Range[xlsRow, xlsCol, xlsRow + 2, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                            //
+                           
+
+
                             #region General Info     
                             xlsCol += 1;
+
 
                             sheet1.Range[xlsRow, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.LeaveInformation.ToString(), "Leave Info");//"Leave Info";
                             sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
 
                             sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
 
-                            sheet1.Range[xlsRow + 2, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.CasualLeave.ToString(), "CL"); //"Casual Leave";
-                            sheet1.Range[xlsRow + 2, xlsCol].ColumnWidth = 11;
+                            //string userIDFromDictionaryByKey = dicLeaveEmp["EmpLTCode"].ToString();
+                            if (dicLeaveEmp.ContainsKey(dtEmpInfo.Rows[i]["EmpSystemID"].ToString()))
+                            {
+                                int k = 1;
+                                drLeaveEmp = dicLeaveEmp[dtEmpInfo.Rows[i]["EmpSystemID"].ToString()];
+                                foreach (var item in drLeaveEmp)
+                                {
 
-                            sheet1.Range[xlsRow + 2, xlsCol + 1].Number = Convert.ToDouble(CL);
-                            sheet1.Range[xlsRow + 2, xlsCol + 1].ColumnWidth = 5;
 
-                            sheet1.Range[xlsRow + 3, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.SickLeave.ToString(), "SL");//"Sick Leave";
-                            sheet1.Range[xlsRow + 3, xlsCol + 1].Number = Convert.ToDouble(SL);
+                                    sheet1[1, xlsCol].ColumnWidth = 16;
+                                    sheet1[1, xlsCol + 1].ColumnWidth = 6;
 
-                            sheet1.Range[xlsRow + 4, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.EarnLeave.ToString(), "EL");//"Earn Leave";
+                                    sheet1.Range[xlsRow + k, xlsCol].Text = ru.GetLabelname(labelList, item["Code"].ToString(), item["Code"].ToString()); //"Casual Leave";
+                                    sheet1.Range[xlsRow + k, xlsCol + 1].Number = clsStaticInfo.dbl(item["AvailedLeave"].ToString());
+                                    k++;
+                                }
+                                k++;
+                                foreach (var item in drLeaveEmp)
+                                {
 
-                            sheet1.Range[xlsRow + 4, xlsCol + 1].Number = Convert.ToDouble(EL);
+                                    if (string.IsNullOrEmpty(item["BalanceId"].ToString()) == true)
+                                        continue;
 
-                            sheet1.Range[xlsRow + 5, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.LWP.ToString(), "LWP");//"Leave Without Pay";
-                            sheet1.Range[xlsRow + 5, xlsCol + 1].Number = Convert.ToDouble(LWP);
+                                    sheet1[1, xlsCol].ColumnWidth = 16;
+                                    sheet1[1, xlsCol + 1].ColumnWidth = 6;
 
-                            sheet1.Range[xlsRow + 6, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.SickLeaveESIC.ToString(), "SL Esic"); //"Sick Leave Esic";
-                            sheet1.Range[xlsRow + 6, xlsCol + 1].Number = Convert.ToDouble(SLESIC);
+                                    sheet1.Range[xlsRow + k, xlsCol].Text = ru.GetLabelname(labelList, item["Code"].ToString(), "B" + item["Code"].ToString()); //"Casual Leave";
+                                    sheet1.Range[xlsRow + k, xlsCol + 1].Number = clsStaticInfo.dbl(item["BalanceLeave"].ToString());
+                                    k++;
+                                }
+                            }
 
-                            sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
 
                             _Info_Last_Row = xlsRow + 7;
 
@@ -11435,6 +11465,8 @@ where h.HeadCategory='GROSS'
 
                             #region Attendance
                             xlsCol += 2;
+                            double EarningDays = 0;
+                            double DeductingDays = 0;
 
                             string _pd = "";
                             string _ad = "";
@@ -11450,43 +11482,30 @@ where h.HeadCategory='GROSS'
                             _ld = dtEmpInfo.Rows[i]["TotalLv"].ToString();
 
 
-                            if (!String.IsNullOrEmpty(dtEmpInfo.Rows[i]["WorkingDaysInAMonth"].ToString().ToUpper()))
-                            {
-                                if (dtEmpInfo.Rows[i]["WorkingDaysInAMonth"].ToString().ToUpper() == WorkingDaysInAMonth.ExcludingWeekOffAndHoliday.ToString().ToUpper())
-                                {
-                                    PDay = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalProcDate"].ToString()) - clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalAbsent"].ToString()) - clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalHoliDay"].ToString()) - clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalWeekOff"].ToString());
-                                }
-                                if (dtEmpInfo.Rows[i]["WorkingDaysInAMonth"].ToString().ToUpper() == WorkingDaysInAMonth.ExcludingWeekOff.ToString().ToUpper())
-                                {
-                                    PDay = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalProcDate"].ToString()) - clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalAbsent"].ToString()) - clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalWeekOff"].ToString());
-                                }
-                            }
-                            else
-                            {
-                                PDay = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalProcDate"].ToString()) - clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalAbsent"].ToString());
-                            }
-
+                            PDay = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalPayDay"].ToString());
 
                             sheet1.Range[xlsRow, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.WorkDaysDetail.ToString(), "Work Days Detail"); //"Attendance Info";
                             sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
 
                             sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
 
-                            _x = 2;
+                            _x = 1;
+                            sheet1[1, xlsCol].ColumnWidth = 14;
+                            sheet1[1, xlsCol + 1].ColumnWidth = 6;
                             sheet1.Range[xlsRow + _x, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.Present.ToString(), "Present");//"Present";
-                            sheet1.Range[xlsRow + _x, xlsCol + 1].Number = Convert.ToDouble(dtEmpInfo.Rows[i]["TotalPresent"].ToString());
+                            sheet1.Range[xlsRow + _x, xlsCol + 1].Number = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalPresent"].ToString()) + clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalLate"].ToString());
                             sheet1.Range[xlsRow + _x, xlsCol + 1].CellStyle.Font.Size = 10;
                             //GetEarningDays(ref EarningDays, _pd);
 
                             _x++;
                             sheet1.Range[xlsRow + _x, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.Absent.ToString(), "Absent"); // "Absent";
-                            sheet1.Range[xlsRow + _x, xlsCol + 1].Number = Convert.ToDouble(dtEmpInfo.Rows[i]["TotalAbsent"]);// - Convert.ToDouble(dvAttdnInfo[0]["TotalLWP"]);
+                            sheet1.Range[xlsRow + _x, xlsCol + 1].Number = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalAbsent"].ToString()); //- clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalLWP"].ToString());
                             //GetEarningDays(ref DeductingDays, _ad);
                             //GetEarningDays(ref EarningDays, _ad);
 
                             _x++;
                             sheet1.Range[xlsRow + _x, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.LWP.ToString(), "LWP"); //"LWP";
-                            sheet1.Range[xlsRow + _x, xlsCol + 1].Number = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalLWP"].ToString()) + Convert.ToDouble(SLESIC);
+                            sheet1.Range[xlsRow + _x, xlsCol + 1].Number = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalLWP"].ToString()) + clsStaticInfo.dbl(SLESIC);
 
                             _x++;
                             sheet1.Range[xlsRow + _x, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.WorkOff.ToString(), "W.Off"); //"W.Off";
@@ -11499,8 +11518,17 @@ where h.HeadCategory='GROSS'
 
                             //GetEarningDays(ref EarningDays, _wod);
                             _x++;
-                            sheet1.Range[xlsRow + _x, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.LeaveInformation.ToString(), "Leave");//"Leave";
-                            sheet1.Range[xlsRow + _x, xlsCol + 1].Number = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalLv"].ToString());
+                            sheet1.Range[xlsRow + _x, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.LeaveInformation.ToString(), "LeaveWithPay");//"Leave";
+                            sheet1.Range[xlsRow + _x, xlsCol + 1].Number = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalLVWithPay"].ToString());
+
+
+                            sheet1.Range[xlsRow + _x, xlsCol + 1].CellStyle.Font.Size = 10;
+                            //GetEarningDays(ref EarningDays, _ld);
+
+                            _x++;
+                            sheet1.Range[xlsRow + _x, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.PayDays.ToString(), "Pay days");
+                            sheet1.Range[xlsRow + _x, xlsCol + 1].Number = PDay;
+
                             _x++;
                             //decimal totalOT = Convert.ToDecimal(dtEmpInfo.Rows[i]["TotalOTHr"].ToString()) / 60;
 
@@ -11516,21 +11544,12 @@ where h.HeadCategory='GROSS'
                                 sheet1[xlsRow + _x, xlsCol + 1].NumberFormat = clsStaticInfo.NumberFormat(2);
                             }
                             _x++;
-                            _x++;
 
                             if (_x > _maxRow)
                                 _maxRow = _x;
-
-
-
-                            sheet1.Range[xlsRow + _x, xlsCol + 1].CellStyle.Font.Size = 10;
-                            //GetEarningDays(ref EarningDays, _ld);
-
-                            _x++;
-                            sheet1.Range[xlsRow + _x, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.PayDays.ToString(), "Pay days");
-                            sheet1.Range[xlsRow + _x, xlsCol + 1].Number = PDay;
-
                             #endregion
+
+                           
 
                             xlsCol = 6;
 
@@ -12109,12 +12128,12 @@ where h.HeadCategory='GROSS'
                                     INNER JOIN
 		                                    (
 													SELECT EmpSystemID,MonthNo,YearNo, ISNULL(TotalProcDate,0) TotalProcDate,IsNULL(TotalPresent,0) TotalPresent,ISNULL(TotalLate,0) TotalLate,ISNULL(TotalAbsent,'') TotalAbsent
-										,ISNULL(TotalLv,0) TotalLv
+										,ISNULL(TotalLv,0) TotalLv,isnull(MMDSA.TotalPayDay,0) AS TotalPayDay
 										,ISNULL(TotalMLv,0) TotalMLv,ISNULL(TotalCompAssignLv,0) TotalCompAssignLv,ISNULL(TotalWeekOff,0) +  ISNULL(TotalWeekOffHoliDay,0) TotalWeekOff, ISNULL(TotalWeekOffHoliDay,0) TotalWeekOffHoliDay
 										,ISNULL(TotalOTHr,0) TotalOTHr,ISNULL(TotalNormalOTHr,0) TotalNormalOTHr,ISNULL(TotalExtraOTHr,0) TotalExtraOTHr,ISNULL(WeekOffOTHr,0) WeekOffOTHr
-										,ISNULL(HoliDayOTHr,0) HoliDayOTHr,ISNULL(TotalLWP,0) TotalLWP,ISNULL(IsOTEntitled,0) IsOTEntitled,ISNULL(OTRate,0) OTRate,ISNULL(TotalHoliDay,0) TotalHoliDay
-										  FROM SalaryProceAttdnData MMDSA where MMDSA.MonthNo = MONTH('" + fromDate + @"') AND
-						                               MMDSA.YearNo = YEAR('" + fromDate + @"') AND MMDSA.PlantID = '" + plantId + @"' 
+										,ISNULL(HoliDayOTHr,0) HoliDayOTHr,ISNULL(TotalLWP,0) TotalLWP,ISNULL(TotalLVWithPay,0) TotalLVWithPay,ISNULL(IsOTEntitled,0) IsOTEntitled,ISNULL(OTRate,0) OTRate,ISNULL(TotalHoliDay,0) TotalHoliDay
+										  FROM SalaryProceAttdnData  MMDSA where MMDSA.MonthNo = MONTH('" + fromDate + @"') AND
+						                               MMDSA.YearNo = YEAR('" + fromDate + @"')
 											) MMDSA ON EmpBasic.EmpSystemID = MMDSA.EmpSystemID 
                                             WHERE EmpBasic.CompanyGroupId = '" + companyGroupId + @"'  AND EmpBasic.PlantId ='" + plantId + @"' " + wcEmpStatus + @"";
                 try

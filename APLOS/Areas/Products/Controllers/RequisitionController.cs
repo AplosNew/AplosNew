@@ -24,6 +24,7 @@ using System.Linq;
 using System.Threading;
 using System.Web;
 using System.Web.Mvc;
+using Library.MaterialManagement.InventoryManagements;
 
 namespace Aplos.Areas.Products.Controllers
 {
@@ -979,7 +980,16 @@ namespace Aplos.Areas.Products.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_materialRequsitionMasterServiceService.GetInventoryMaterialListById(inveReveiveId), JsonRequestBehavior.AllowGet);
         }
-        [Authorize, HttpPost]
+
+		[HttpGet, Authorize]
+		public JsonResult GetRequisitionStockBalance(string requisitionDate, string materialMasterId, string articleId)
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			InventoryStockReportService inventoryStockReportService = new InventoryStockReportService();
+			return Json(inventoryStockReportService.GetRequisitionStockBalance(identity.PlantId, requisitionDate, materialMasterId, articleId), JsonRequestBehavior.AllowGet);
+		}
+
+		[Authorize, HttpPost]
         public JsonResult UpdateMaterial(IEnumerable<MaterialRequisitionDetailViewModel> entity, IEnumerable<PurchaseOrderTax> receiveTaxList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

@@ -132,6 +132,7 @@ namespace Aplos.Areas.Attendances.Controllers
 									,ISNULL(SubSection.UserName,'') SubSection 
 									,ISNULL(Unit.UserName,'') Unit 
                                     ,ISNULL(Line.UserName,'') Line
+                                    ,E.EmployeeCodeTypeId,ECT.UserName EmployeeCodeType
                                     ,ISNULL(REPLACE(CONVERT(VARCHAR(11), e.DOJ, 106), ' ', '-'),'') DOJ
                                     ,ISNULL(REPLACE(CONVERT(VARCHAR(11), e.DOS, 106), ' ', '-'),'') DOS
                                     , CASE WHEN MONTH(DOS) =  MONTH('" + effectiveDate + @"')  AND YEAR(DOS) = YEAR('" + effectiveDate + @"') then 'Separated' else 'Regular' end CurrentMonthEmployeeStatus
@@ -181,7 +182,7 @@ namespace Aplos.Areas.Attendances.Controllers
                                     Left Join [dbo].[JobLocation] jl on jl.SystemID = E.JobLocationID
 									left join [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=e.SystemId
 									left join [HKP].[Bank] bb on bb.Id = ebi.BankSystemID
-
+                                    left join dbo.EmployeeCodeType ECT on ECT.Id = e.EmployeeCodeTypeId
                                      WHERE " + param + @" " + strDOJ + @"
                                             " + wcPayrollGroup + @"  " + wcSalaryProcess + @"  
                                                     
