@@ -444,7 +444,7 @@ namespace Library.HumanResource.Report.Payroll
                 {
                     throw new Exception("No Data Found");
                 }
-                DataTable dtEmployees = dvEmp.ToTable(true, "SystemID", "Department", "LegalDesignation", "DOJ", "DOS", "DOB", "Grade", "GradeCode", "EmployeeName", "EmployeeCode", "SalaryHeadValue", "Line", "Gender", "PayRollGroup", "JobLocation", "PaymentMode", "BankName", "Section", "Unit","OTHr", "OTConsiderOn", "OTHrMinute");
+                DataTable dtEmployees = dvEmp.ToTable(true, "SystemID", "Department", "LegalDesignation", "DOJ", "DOS", "DOB", "Grade", "GradeCode", "EmployeeName", "EmployeeCode", "SalaryHeadValue", "Line", "Gender", "PayRollGroup", "JobLocation", "PaymentMode", "BankName", "Section", "Unit", "OTHr", "OTConsiderOn", "OTHrMinute");
 
 
                 objRpt.SelectedPlantWiseCompany(para.PlantId, out dsCmp);
@@ -507,8 +507,8 @@ namespace Library.HumanResource.Report.Payroll
 
                 //SR to
                 sheet1.Range[xlsRow, ColSr].Text = "Employee Information";
-                sheet1.Range[xlsRow, ColSr, xlsRow, xlsCol -1].Merge();
-                ColGrs = xlsCol -1;
+                sheet1.Range[xlsRow, ColSr, xlsRow, xlsCol - 1].Merge();
+                ColGrs = xlsCol - 1;
 
                 DataView dvSalaryHead = new DataView(dsSlrProc.Tables[0]);
                 dvSalaryHead.Sort = "HeadType desc,Sequence";
@@ -541,9 +541,9 @@ namespace Library.HumanResource.Report.Payroll
                 {
                     //xlsCol++;
                     np = ColGrs + list.Count;
-             
+
                 }
-                xlsCol = ColGrs + _count_earning_ctchead+1;
+                xlsCol = ColGrs + _count_earning_ctchead + 1;
                 ru.SetCellValue("Total Gross", sheet1, xlsRow, ref xlsCol, out int ColTotalGross, 20);
                 ru.SetCellValue("Total CTC", sheet1, xlsRow, ref xlsCol, out int ColTotalCTC, 20);
 
@@ -713,7 +713,7 @@ namespace Library.HumanResource.Report.Payroll
                     sheet1.Range[xlsRow, ColOTHours].HorizontalAlignment = ExcelHAlign.HAlignRight;
                     sheet1.Range[xlsRow, ColOTHours].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet1.Range[xlsRow, ColOTHours].NumberFormat = ru.NumberFormatDecimalTwo();
-                 
+
                     double amt = clsStaticInfo.dbl(dtEmployees.Rows[i]["OTHr"].ToString()) * nwRate;
                     sheet1.Range[xlsRow, ColOTAmount].Number = amt;
                     sheet1.Range[xlsRow, ColOTAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -746,7 +746,7 @@ namespace Library.HumanResource.Report.Payroll
                         //});
                     }//for dtSalaryHead
 
-                    sheet1.Range[xlsRow, ColTotalCTC].Formula = "= SUM(" + ru.GetColumnNameForXls(ColOTAmount) + (xlsRow) + "+" + ru.GetColumnNameForXls(ColOTAmount +2) + (xlsRow) + ")"; 
+                    sheet1.Range[xlsRow, ColTotalCTC].Formula = "= SUM(" + ru.GetColumnNameForXls(ColOTAmount) + (xlsRow) + "+" + ru.GetColumnNameForXls(ColOTAmount + 2) + (xlsRow) + ")";
                     sheet1.Range[xlsRow, ColTotalCTC].HorizontalAlignment = ExcelHAlign.HAlignRight;
                     sheet1.Range[xlsRow, ColTotalCTC].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet1.Range[xlsRow, ColTotalCTC].NumberFormat = ru.NumberFormatDecimalTwo();
@@ -780,7 +780,7 @@ namespace Library.HumanResource.Report.Payroll
                     var ob = list[ci];
                     if (ob.SalaryHead.Length > 0)
                     {
-                        sheet1.Range[xlsRow, ob.XLColIndex].Formula = "= SUM(" + ru.GetColumnNameForXls(ob.XLColIndex) + (startRow -1) + ":" + ru.GetColumnNameForXls(ob.XLColIndex) + (xlsRow - 1)+")";//clsStaticInfo.dbl(bplib.clsWebLib.GetNumData(_data.EntryAmount > 0 ? _data.EntryAmount.ToString() : (_data.EntryAmount * (-1)).ToString())) / clsStaticInfo.dbl(payDays);
+                        sheet1.Range[xlsRow, ob.XLColIndex].Formula = "= SUM(" + ru.GetColumnNameForXls(ob.XLColIndex) + (startRow - 1) + ":" + ru.GetColumnNameForXls(ob.XLColIndex) + (xlsRow - 1) + ")";//clsStaticInfo.dbl(bplib.clsWebLib.GetNumData(_data.EntryAmount > 0 ? _data.EntryAmount.ToString() : (_data.EntryAmount * (-1)).ToString())) / clsStaticInfo.dbl(payDays);
 
                         sheet1.Range[xlsRow, ob.XLColIndex].NumberFormat = GetDecimalFormat(ob);// oRU.NumberFormatInt();
                         sheet1.Range[xlsRow, ob.XLColIndex].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -912,7 +912,7 @@ namespace Library.HumanResource.Report.Payroll
                         DataTable dtSalaryHead = dvss.ToTable(true, "SalaryHeadID", "SalaryHead");
 
 
-                       // GetFormulValue(FormulaDesIDH, ref dtValue, _currencyId, out hRate, ref dtSalaryHead);
+                        // GetFormulValue(FormulaDesIDH, ref dtValue, _currencyId, out hRate, ref dtSalaryHead);
 
                         //GetFormulValue(FormulaDesIDW, ref dtValue, _currencyId, out wRate, ref dtSalaryHead);
 
@@ -2511,6 +2511,7 @@ namespace Library.HumanResource.Report.Payroll
                 objRpt.GetMonthWiseEmpMonthlyAttdnInfo(FromDate, ToDate, dsMonth.Tables[0], out dsEmpAttdn);
                 dtEmpAttdn = dsEmpAttdn.Tables[0];
                 Dictionary<string, List<DataRow>> dicBonus = GetSummarisedEmpBonusInfo(FromDate, ToDate, companyGroupId, companyId, plantId, dsMonth.Tables[0]);
+                Dictionary<string, List<DataRow>> dicBonusH = GetSummarisedEmpBonusInfoH(FromDate, ToDate, companyGroupId, companyId, plantId, dsMonth.Tables[0]);
 
                 DataTable dtMonthInfo = dsMonth.Tables[0];
 
@@ -2580,7 +2581,11 @@ namespace Library.HumanResource.Report.Payroll
                 int startxlsRow = xlsRow;
                 for (int dti = 0; dti < dtEmpInfo.Rows.Count; dti++)
                 {
+                    totalSalaryAmount = 0.00;
+                    earningBonusAmount = 0.00;
+                    totalEarningBonusAmountYearly = 0.00;
                     List<DataRow> BonusList = dicBonus[dtEmpInfo.Rows[dti]["EmpSystemId"].ToString()];
+
                     //if (BonusList.Count == 1)
                     //{
                     //    continue;
@@ -2590,10 +2595,10 @@ namespace Library.HumanResource.Report.Payroll
                     var timeSpan = DateTime.Now - Convert.ToDateTime(dtEmpInfo.Rows[dti]["DOJ"].ToString()); ;
                     int yearSpan = new DateTime(timeSpan.Ticks).Year - 1;
 
-                    if (dtEmpInfo.Rows[dti]["EmployeeCode"].ToString() == "10005866")
-                    {
+                    //if (dtEmpInfo.Rows[dti]["EmployeeCode"].ToString() == "10005866")
+                    //{
 
-                    }
+                    //}
                     sheet1.Range[xlsRow, colEmpCode].Text = dtEmpInfo.Rows[dti]["EmployeeCode"].ToString();
                     sheet1.Range[xlsRow, colEmpCode].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
@@ -2638,53 +2643,60 @@ namespace Library.HumanResource.Report.Payroll
                         earningBonusAmount = 0.00;
                         for (int BNS = 0; BNS < BonusList.Count; BNS++)
                         {
-                            if (BonusList[BNS]["HeadCategory"].ToString().ToUpper() == "BASIC")
-                            {
-                                totalSalaryAmount += Service.Extension.clsStaticInfo.dbl(BonusList[BNS]["DisbusmentAmount"].ToString());
-                                sheet1.Range[xlsRow, colTotalYearlyBasicSalary].Number = Service.Extension.clsStaticInfo.dbl(BonusList[BNS]["DisbusmentAmount"].ToString());
-                                sheet1.Range[xlsRow, colTotalYearlyBasicSalary].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                                sheet1.Range[xlsRow, colTotalYearlyBasicSalary].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            }
-                            else
-                            {
-                                totalSalaryAmount += Service.Extension.clsStaticInfo.dbl(BonusList[BNS]["EntryAmount"].ToString());
-                            }
-                            if (BonusList[BNS]["HeadCategory"].ToString().ToUpper() == "OTHER BONUS")
-                            {
-                                earningBonusAmount = clsStaticInfo.dbl(BonusList[BNS]["DisbusmentAmount"].ToString());
-                                totalEarningBonusAmountYearly += Convert.ToDouble(earningBonusAmount);
-                            }
-
-                            if (BonusList[BNS]["HeadCategory"].ToString().ToUpper() == "RetainedBonus".ToUpper())
-                            {
-                                earningBonusAmount += clsStaticInfo.dbl(BonusList[BNS]["DisbusmentAmount"].ToString());
-                                totalEarningBonusAmountYearly += Convert.ToDouble(earningBonusAmount);
-                            }
-                            if (BonusList[BNS]["HeadCategory"].ToString().ToUpper() == "Monthly Bonus Retain".ToUpper())
-                            {
-                                earningBonusAmount += clsStaticInfo.dbl(BonusList[BNS]["DisbusmentAmount"].ToString());
-                                totalEarningBonusAmountYearly += Convert.ToDouble(earningBonusAmount);
-                            }
+                            totalSalaryAmount += Service.Extension.clsStaticInfo.dbl(BonusList[BNS]["DisbusmentAmount"].ToString());
                             isDecimal = bplib.clsWebLib.GetBoolData(BonusList[BNS]["IntegerInDisb"].ToString());
                             decimalNo = clsStaticInfo.dbl(BonusList[BNS]["DecimalNo"].ToString());
-                            if (earningBonusAmount == 0)
-                            {
-                                sheet1.Range[xlsRow, colBonusAmount].Text = "-";// + Environment.NewLine + totalPayDay;                              
-                                sheet1.Range[xlsRow, colBonusAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                                sheet1.Range[xlsRow, colBonusAmount].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            }
-                            else
-                            {
-                                sheet1.Range[xlsRow, colBonusAmount].Number = Convert.ToDouble(earningBonusAmount);// + Environment.NewLine + totalPayDay;
-                                sheet1.Range[xlsRow, colBonusAmount].NumberFormat = GetDecimalFormat(isDecimal, Convert.ToInt32(decimalNo));
-                                sheet1.Range[xlsRow, colBonusAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                                sheet1.Range[xlsRow, colBonusAmount].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 
-                                sheet1.Range[xlsRow, colTotalAmount].Number = Convert.ToDouble(earningBonusAmount);// + Environment.NewLine + totalPayDay;
-                                sheet1.Range[xlsRow, colTotalAmount].NumberFormat = GetDecimalFormat(isDecimal, Convert.ToInt32(decimalNo));
-                                sheet1.Range[xlsRow, colTotalAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                                sheet1.Range[xlsRow, colTotalAmount].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        }
+                        sheet1.Range[xlsRow, colTotalYearlyBasicSalary].Number = Service.Extension.clsStaticInfo.dbl(totalSalaryAmount);
+                        sheet1.Range[xlsRow, colTotalYearlyBasicSalary].NumberFormat = GetDecimalFormat(isDecimal, Convert.ToInt32(decimalNo));
+                        sheet1.Range[xlsRow, colTotalYearlyBasicSalary].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow, colTotalYearlyBasicSalary].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        //if (dicBonusH.ContainsKey(dtEmpInfo.Rows[dti]["EmpSystemId"].ToString())==true)
+                        //{
+
+                        //}
+                        if (dicBonusH.ContainsKey(dtEmpInfo.Rows[dti]["EmpSystemId"].ToString()) == true)
+                        {
+                            List<DataRow> BonusListH = dicBonusH[dtEmpInfo.Rows[dti]["EmpSystemId"].ToString()];
+                            for (int i = 0; i < BonusListH.Count; i++)
+                            {
+                                if (BonusListH[i]["HeadCategory"].ToString().ToUpper() == "OTHER BONUS")
+                                {
+                                    earningBonusAmount = clsStaticInfo.dbl(BonusListH[i]["DisbusmentAmount"].ToString());
+                                    totalEarningBonusAmountYearly += Convert.ToDouble(earningBonusAmount);
+                                }
+
+                                if (BonusListH[i]["HeadCategory"].ToString().ToUpper() == "RetainedBonus".ToUpper())
+                                {
+                                    earningBonusAmount += clsStaticInfo.dbl(BonusListH[i]["DisbusmentAmount"].ToString());
+                                    totalEarningBonusAmountYearly += Convert.ToDouble(earningBonusAmount);
+                                }
+                                if (BonusListH[i]["HeadCategory"].ToString().ToUpper() == "Monthly Bonus Retain".ToUpper())
+                                {
+                                    earningBonusAmount += clsStaticInfo.dbl(BonusListH[i]["DisbusmentAmount"].ToString());
+                                    totalEarningBonusAmountYearly += Convert.ToDouble(earningBonusAmount);
+                                }
                             }
+                        }
+
+                        if (totalEarningBonusAmountYearly == 0)
+                        {
+                            sheet1.Range[xlsRow, colBonusAmount].Text = "-";// + Environment.NewLine + totalPayDay;                              
+                            sheet1.Range[xlsRow, colBonusAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            sheet1.Range[xlsRow, colBonusAmount].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        }
+                        else
+                        {
+                            sheet1.Range[xlsRow, colBonusAmount].Number = Convert.ToDouble(totalEarningBonusAmountYearly);// + Environment.NewLine + totalPayDay;
+                            sheet1.Range[xlsRow, colBonusAmount].NumberFormat = GetDecimalFormat(isDecimal, Convert.ToInt32(decimalNo));
+                            sheet1.Range[xlsRow, colBonusAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            sheet1.Range[xlsRow, colBonusAmount].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
+                            sheet1.Range[xlsRow, colTotalAmount].Number = Convert.ToDouble(totalEarningBonusAmountYearly);// + Environment.NewLine + totalPayDay;
+                            sheet1.Range[xlsRow, colTotalAmount].NumberFormat = GetDecimalFormat(isDecimal, Convert.ToInt32(decimalNo));
+                            sheet1.Range[xlsRow, colTotalAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            sheet1.Range[xlsRow, colTotalAmount].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                         }
                     }
                     catch (Exception ex)
@@ -2938,7 +2950,7 @@ namespace Library.HumanResource.Report.Payroll
                 objRpt.GetFiscalMonthListSql(FromDate, ToDate, out dsMonth);
                 objRpt.GetMonthWiseEmpMonthlyAttdnInfo(FromDate, ToDate, dsMonth.Tables[0], out dsEmpAttdn);
                 dtEmpAttdn = dsEmpAttdn.Tables[0];
-                Dictionary<string, List<DataRow>> dicBonus = GetSummarisedEmpBonusInfo(FromDate, ToDate, companyGroupId, companyId, plantId, dsMonth.Tables[0]);
+                Dictionary<string, List<DataRow>> dicBonus = GetSummarisedEmpBonusInfoO(FromDate, ToDate, companyGroupId, companyId, plantId, dsMonth.Tables[0]);
 
                 DataTable dtMonthInfo = dsMonth.Tables[0];
 
@@ -3977,7 +3989,198 @@ namespace Library.HumanResource.Report.Payroll
             return dicBonus;
         }
 
+        public Dictionary<string, List<DataRow>> GetSummarisedEmpBonusInfoO(string fromDate, string toDate, string companyGroupId, string companyId, string plantId, DataTable dtMonth)
+        {
+            string salaryProcessId = "";
+            string strSqlSal = @"SELECT  m.SystemID FROM SalaryProcMaster m
+                                    INNER JOIN SalaryProcChild c on c.SlrProcMstSystemID=m.SystemID and c.PlantID='" + plantId + @"'
+                                        WHERE 1=1 
+                                        " + getMonthYearBonus(fromDate, toDate, "YearNo", "MonthNo") + @"";
 
+            DataTable dtSalPrcId = _sqlRepository.GetDataTable(strSqlSal);
+            salaryProcessId = "''";
+            dtSalPrcId = dtSalPrcId.DefaultView.ToTable(true, "SystemID");
+            for (int si = 0; si < dtSalPrcId.Rows.Count; si++)
+            {
+                salaryProcessId += ",'" + dtSalPrcId.Rows[si]["SystemID"].ToString() + "'";
+            }
+
+
+
+            string strSql = @"SELECT    EmpSlr.PlantID
+                                , EmpSlr.SalaryHead
+								, EmpSlr.HeadCategory
+								, EmpSlr.SalaryHeadID
+								, EmpSlr.EntryCurrencyID
+								, EmpSlr.DisbusmentCurrencyID
+								, EmpSlr.EmpInfoSystemID							
+								, EmpBasic.SystemId EmpSystemId
+								, EmpBasic.EmployeeCode 
+								, EmpBasic.EmployeeName
+								, EmpBasic.PaymentMode
+								, EmpBasic.BankName
+								, EmpBasic.BankAccNo
+								, EmpBasic.BankShortName
+                                , EmpBasic.DepartmentName
+                                ,EmpBasic.WorkingDaysInAMonth
+                                ,EmpBasic.EmpCategoryName
+
+                                , EmpBasic.DesignationName
+								, FORMAT(EmpBasic.DOS,'dd-MMM-yyyy') DOS
+								, FORMAT(EmpBasic.DOJ,'dd-MMM-yyyy') DOJ
+                                , TotalProcDate
+	                            , TotalPresent
+	                            , TotalLate
+	                            , TotalAbsent 
+	                            , TotalLv
+	                            , TotalMLv
+	                            , TotalCompAssignLv
+	                            , TotalWeekOff
+	                            , TotalHoliDay
+	                            , TotalWeekOffHoliDay
+	                            , TotalOTHr
+	                            , TotalNormalOTHr
+	                            , TotalExtraOTHr
+                                --, ISNULL(MMDSA.TotalProcDate,0) - ISNULL(MMDSA.AbsentDays,0) PayDays
+                                , ISNULL(EmpSlr.IntegerInDisb,0) IntegerInDisb
+								, ISNULL(EmpSlr.DecimalNo,0)  DecimalNo
+								, SUM(EmpSlr.EntryAmount) EntryAmount
+                                , SUM(EmpSlr.DisbusmentAmount) DisbusmentAmount
+
+							FROM
+                                    (
+										 SELECT  E.SystemID, E.EmployeeCode, E.EmployeeName,E.DOB, E.DOJ,E.DOS, E.EmployeeStatus,DATEDIFF(YY,E.DOB,'" + fromDate + @"') As Age
+											--DG.UserName DesignationGroupName, E.DesignationSystemID, DE.UserName DesignationName,GVDE.UserName GivenDesignationName,
+                                            , DE.UserName DesignationName
+											,'' UserGroupSystemID, E.PlantID, F.UserName PlantName, E.UnitID,
+											FU.UserName UnitName, E.DivisionID, DV.UserName DivisionName, E.DepartmentID, DP.UserName DepartmentName,
+											E.SectionID, S.UserName SectionName, E.SubSectionID, SS.UserName SubSectionName, E.EmployeeCategorySystemID,
+											EC.UserName EmpCategoryName,Ec.WorkingDaysInAMonth, Bank.ShortName BankShortName, Bank.UserName BankName, EBI.BankAccNo
+                                            ,E.PaymentMode
+                                     FROM EmployeeInformation E
+												LEFT JOIN org.Plant F ON E.PlantID = F.Id
+												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
+												LEFT JOIN hkp.LegalDesignation DE ON E.LegalDesignationId = DE.Id
+												LEFT JOIN hkp.Designation GVDE ON E.GivenDesignationId = GVDE.Id
+												LEFT JOIN org.Unit FU ON E.UnitID = FU.Id
+												LEFT JOIN org.Division DV ON E.DivisionID = DV.Id
+												LEFT JOIN org.Department DP ON E.DepartmentID = DP.Id
+												LEFT JOIN org.Section S ON E.SectionID = S.Id
+												LEFT JOIN org.SubSection SS ON E.SubSectionID = SS.Id
+												left join EmployeeBankInfo EBI ON EBI.EmpSystemID = E.SystemId
+												left join  HKP.Bank Bank ON EBI.BankSystemID = Bank.Id
+													left join mst.DesignationMasterLegalDesignation m on m.LegalDesignationId=e.LegalDesignationId
+													left join mst.DesignationMaster dm on dm.id=m.DesignationMasterId
+													left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId											    
+                                    --WHERE E.PlantId='" + plantId + @"'
+                                    WHERE ISNULL(E.VendorId,'') = ''
+									) EmpBasic
+                                    INNER JOIN
+											(
+											 SELECT SPC.SystemID AS SlrProcChdSysID, SPC.SlrProcMstSystemID, SPM.SalaryProcID, SPM.FromDate, SPM.ToDate,
+													SPC.EmpInfoSystemID, SPC.PlantID, SPM.UserGroupSystemID, SPM.MonthNo, SPM.YearNo, SPC.PayAbleShSystemID,
+													SPC.SalaryHeadID, SPC.EntryCurrencyID, SPC.EntryAmount, SPC.DefineCurrencyID, SPC.DefineAmount,
+													SPC.DisbusmentCurrencyID, SPC.DisbusmentAmount, SPC.AcltExcDisbSlrHDID, SPC.AcltExcDisbSlrHDAmt,
+												    SPM.AmtDefinitionCurrencyID,
+													SPM.AmtDefinitionCurrencyRate, SPC.IsNetPayEffect
+                                                    ,sh.SalaryHead,sh.HeadCategory,sh.HeadType
+                                                    ,sh.IsCTCComponent,sh.IsGrossComponent
+                                                    ,CRC.IntegerInDisb, CRC.DecimalNo,sl.IsLocked
+													,sh.IsRetained
+											 FROM SalaryProcChild SPC
+												INNER JOIN SalaryProcMaster SPM ON SPC.SlrProcMstSystemID = SPM.SystemID
+																							AND SPM.SystemID IN(" + salaryProcessId + @")
+												inner join EmployeeInformation einfo on einfo.SystemId=spc.EmpInfoSystemID
+												left join BonusPolicyMonthlyRetainMaster bn on bn.PlantID = einfo.PlantId
+												join BonusPolicyMonthlyRetainMasterSalaryHead bns on bns.BonusPolicyMonthlyRetainMasterId = bn.ID
+												INNER JOIN SalaryHead SH ON SH.SalaryHeadID=SPC.SalaryHeadID 
+                                                LEFT JOIN SalaryLock sl on sl.YearNo=spm.YearNo and sl.MonthNo=spm.MonthNo and sl.EmpSystemId=spc.EmpInfoSystemID
+                                            LEFT JOIN SalaryRuleMaster SRM ON SRM.SystemID = SPC.SlrProcMstSystemID
+																	LEFT JOIN CurrencyRuleMaster CRM ON CRM.SystemID = SRM.CurrencyRuleSystemID                                                                    
+										LEFT JOIN CurrencyRuleChild CRC ON CRC.MstSystemID = srm.CurrencyRuleSystemID AND CRC.SalaryHeadID = SH.SalaryHeadID
+															WHERE sh.HeadCategory in ('Basic','OTHER BONUS','RetainedBonus','Monthly Bonus Retain')	
+											) EmpSlr ON EmpBasic.SystemID = EmpSlr.EmpInfoSystemID --AND EmpBasic.PlantID = EmpSlr.PlantID
+                                    LEFT JOIN
+		                                    (
+											 SELECT EmpSystemID
+                                                  , 	SUM(ISNULL(TotalProcDate,0)) TotalProcDate
+	                                                ,SUM(ISNULL(TotalPresent,0)) TotalPresent
+	                                                ,SUM(ISNULL(TotalLate,0)) TotalLate
+	                                                ,SUM(ISNULL(TotalAbsent,0)) TotalAbsent
+	                                                ,SUM(ISNULL(TotalLv,0)) TotalLv
+	                                                ,SUM(ISNULL(TotalMLv,0)) TotalMLv
+	                                                ,SUM(ISNULL(TotalCompAssignLv,0)) TotalCompAssignLv
+	                                                ,SUM(ISNULL(TotalWeekOff,0)) TotalWeekOff
+	                                                ,SUM(ISNULL(TotalHoliDay,0)) TotalHoliDay
+	                                                ,SUM(ISNULL(TotalWeekOffHoliDay,0)) TotalWeekOffHoliDay
+	                                                ,SUM(ISNULL(TotalOTHr,0)) TotalOTHr
+	                                                ,SUM(ISNULL(TotalNormalOTHr,0)) TotalNormalOTHr
+	                                                ,SUM(ISNULL(TotalExtraOTHr,0)) TotalExtraOTHr
+
+				                              FROM SalaryProceAttdnData  WHERE " + getMonthYearWithoutAnd(fromDate, toDate, "YearNo", "MonthNo") + @" 
+											 GROUP BY EmpSystemID
+                            ) MMDSA ON EmpSlr.EmpInfoSystemID = MMDSA.EmpSystemID --AND EmpSlr.MonthNo =  MMDSA.MonthNo AND EMPslr.YearNo = MMDSA.YearNo												   
+													   WHERE EmpSlr.IsLocked = 1  and 1=1
+														and EmpBasic.PlantId = '" + plantId + @"' 
+                                                " + getMonthYearBonus(fromDate, toDate, "EmpSlr.YearNo", "EmpSlr.MonthNo") + @"
+													
+                                Group by  EmpSlr.PlantID 
+                                , EmpSlr.SalaryHead
+								, EmpSlr.HeadCategory
+								, EmpSlr.SalaryHeadID
+								, EmpSlr.EntryCurrencyID
+								, EmpSlr.DisbusmentCurrencyID
+								, EmpSlr.EmpInfoSystemID 
+							    , EmpBasic.DepartmentName
+								, EmpBasic.SystemId 
+								, EmpBasic.EmployeeCode 
+								, EmpBasic.EmployeeName
+								, EmpBasic.PaymentMode
+								, EmpBasic.BankName
+								, EmpBasic.BankAccNo
+								, EmpBasic.BankShortName
+								, EmpBasic.DOS
+								, EmpBasic.DOJ
+                                , EmpSlr.IntegerInDisb
+								, EmpSlr.DecimalNo
+                                , EmpBasic.DesignationName
+                                , TotalProcDate
+	                            , TotalPresent
+	                            , TotalLate
+	                            , TotalAbsent 
+	                            , TotalLv
+	                            , TotalMLv
+	                            , TotalCompAssignLv
+	                            , TotalWeekOff
+	                            , TotalHoliDay
+	                            , TotalWeekOffHoliDay
+	                            , TotalOTHr
+	                            , TotalNormalOTHr
+	                            , TotalExtraOTHr
+                                ,EmpBasic.WorkingDaysInAMonth
+                                ,EmpBasic.EmpCategoryName
+                                HAVING SUM(EmpSlr.DisbusmentAmount) > 0
+								ORDER BY EmpSystemId";
+            DataTable dt = _sqlRepository.GetDataTable(strSql);
+
+            Dictionary<string, List<DataRow>> dicBonus = new Dictionary<string, List<DataRow>>();
+            List<DataRow> _data = new List<DataRow>();
+            string empId = "";
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+
+                if (empId != dt.Rows[i]["EmpSystemID"].ToString())
+                {
+                    _data = new List<DataRow>();
+                    dicBonus.Add(dt.Rows[i]["EmpSystemID"].ToString(), _data);
+                }
+                _data.Add(dt.Rows[i]);
+
+                empId = dt.Rows[i]["EmpSystemID"].ToString();
+            }
+
+            return dicBonus;
+        }
         public Dictionary<string, List<DataRow>> GetSummarisedEmpBonusInfo(string fromDate, string toDate, string companyGroupId, string companyId, string plantId, DataTable dtMonth)
         {
             string salaryProcessId = "";
@@ -4079,12 +4282,207 @@ namespace Library.HumanResource.Report.Payroll
 											 FROM SalaryProcChild SPC
 												INNER JOIN SalaryProcMaster SPM ON SPC.SlrProcMstSystemID = SPM.SystemID
 																							AND SPM.SystemID IN(" + salaryProcessId + @")
+												inner join EmployeeInformation einfo on einfo.SystemId=spc.EmpInfoSystemID
+												left join BonusPolicyMonthlyRetainMaster bn on bn.PlantID = einfo.PlantId
+												join BonusPolicyMonthlyRetainMasterSalaryHead bns on bns.BonusPolicyMonthlyRetainMasterId = bn.ID
 												INNER JOIN SalaryHead SH ON SH.SalaryHeadID=SPC.SalaryHeadID 
                                                 LEFT JOIN SalaryLock sl on sl.YearNo=spm.YearNo and sl.MonthNo=spm.MonthNo and sl.EmpSystemId=spc.EmpInfoSystemID
                                             LEFT JOIN SalaryRuleMaster SRM ON SRM.SystemID = SPC.SlrProcMstSystemID
 																	LEFT JOIN CurrencyRuleMaster CRM ON CRM.SystemID = SRM.CurrencyRuleSystemID                                                                    
 										LEFT JOIN CurrencyRuleChild CRC ON CRC.MstSystemID = srm.CurrencyRuleSystemID AND CRC.SalaryHeadID = SH.SalaryHeadID
-															WHERE HeadCategory IN ( 'Basic','Other Bonus','RetainedBonus','Monthly Bonus Retain') 	
+															WHERE sh.SalaryHeadID IN ( bns.SalaryHeadID)	
+											) EmpSlr ON EmpBasic.SystemID = EmpSlr.EmpInfoSystemID --AND EmpBasic.PlantID = EmpSlr.PlantID
+                                    LEFT JOIN
+		                                    (
+											 SELECT EmpSystemID
+                                                  , 	SUM(ISNULL(TotalProcDate,0)) TotalProcDate
+	                                                ,SUM(ISNULL(TotalPresent,0)) TotalPresent
+	                                                ,SUM(ISNULL(TotalLate,0)) TotalLate
+	                                                ,SUM(ISNULL(TotalAbsent,0)) TotalAbsent
+	                                                ,SUM(ISNULL(TotalLv,0)) TotalLv
+	                                                ,SUM(ISNULL(TotalMLv,0)) TotalMLv
+	                                                ,SUM(ISNULL(TotalCompAssignLv,0)) TotalCompAssignLv
+	                                                ,SUM(ISNULL(TotalWeekOff,0)) TotalWeekOff
+	                                                ,SUM(ISNULL(TotalHoliDay,0)) TotalHoliDay
+	                                                ,SUM(ISNULL(TotalWeekOffHoliDay,0)) TotalWeekOffHoliDay
+	                                                ,SUM(ISNULL(TotalOTHr,0)) TotalOTHr
+	                                                ,SUM(ISNULL(TotalNormalOTHr,0)) TotalNormalOTHr
+	                                                ,SUM(ISNULL(TotalExtraOTHr,0)) TotalExtraOTHr
+
+				                              FROM SalaryProceAttdnData  WHERE " + getMonthYearWithoutAnd(fromDate, toDate, "YearNo", "MonthNo") + @" 
+											 GROUP BY EmpSystemID
+                            ) MMDSA ON EmpSlr.EmpInfoSystemID = MMDSA.EmpSystemID --AND EmpSlr.MonthNo =  MMDSA.MonthNo AND EMPslr.YearNo = MMDSA.YearNo												   
+													   WHERE EmpSlr.IsLocked = 1  and 1=1
+														and EmpBasic.PlantId = '" + plantId + @"' 
+                                                " + getMonthYearBonus(fromDate, toDate, "EmpSlr.YearNo", "EmpSlr.MonthNo") + @"
+													
+                                Group by  EmpSlr.PlantID 
+                                , EmpSlr.SalaryHead
+								, EmpSlr.HeadCategory
+								, EmpSlr.SalaryHeadID
+								, EmpSlr.EntryCurrencyID
+								, EmpSlr.DisbusmentCurrencyID
+								, EmpSlr.EmpInfoSystemID 
+							    , EmpBasic.DepartmentName
+								, EmpBasic.SystemId 
+								, EmpBasic.EmployeeCode 
+								, EmpBasic.EmployeeName
+								, EmpBasic.PaymentMode
+								, EmpBasic.BankName
+								, EmpBasic.BankAccNo
+								, EmpBasic.BankShortName
+								, EmpBasic.DOS
+								, EmpBasic.DOJ
+                                , EmpSlr.IntegerInDisb
+								, EmpSlr.DecimalNo
+                                , EmpBasic.DesignationName
+                                , TotalProcDate
+	                            , TotalPresent
+	                            , TotalLate
+	                            , TotalAbsent 
+	                            , TotalLv
+	                            , TotalMLv
+	                            , TotalCompAssignLv
+	                            , TotalWeekOff
+	                            , TotalHoliDay
+	                            , TotalWeekOffHoliDay
+	                            , TotalOTHr
+	                            , TotalNormalOTHr
+	                            , TotalExtraOTHr
+                                ,EmpBasic.WorkingDaysInAMonth
+                                ,EmpBasic.EmpCategoryName
+                                HAVING SUM(EmpSlr.DisbusmentAmount) > 0
+								ORDER BY EmpSystemId";
+            DataTable dt = _sqlRepository.GetDataTable(strSql);
+
+            Dictionary<string, List<DataRow>> dicBonus = new Dictionary<string, List<DataRow>>();
+            List<DataRow> _data = new List<DataRow>();
+            string empId = "";
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+
+                if (empId != dt.Rows[i]["EmpSystemID"].ToString())
+                {
+                    _data = new List<DataRow>();
+                    dicBonus.Add(dt.Rows[i]["EmpSystemID"].ToString(), _data);
+                }
+                _data.Add(dt.Rows[i]);
+
+                empId = dt.Rows[i]["EmpSystemID"].ToString();
+            }
+
+            return dicBonus;
+        }
+        public Dictionary<string, List<DataRow>> GetSummarisedEmpBonusInfoH(string fromDate, string toDate, string companyGroupId, string companyId, string plantId, DataTable dtMonth)
+        {
+            string salaryProcessId = "";
+            string strSqlSal = @"SELECT  m.SystemID FROM SalaryProcMaster m
+                                    INNER JOIN SalaryProcChild c on c.SlrProcMstSystemID=m.SystemID and c.PlantID='" + plantId + @"'
+                                        WHERE 1=1 
+                                        " + getMonthYearBonus(fromDate, toDate, "YearNo", "MonthNo") + @"";
+
+            DataTable dtSalPrcId = _sqlRepository.GetDataTable(strSqlSal);
+            salaryProcessId = "''";
+            dtSalPrcId = dtSalPrcId.DefaultView.ToTable(true, "SystemID");
+            for (int si = 0; si < dtSalPrcId.Rows.Count; si++)
+            {
+                salaryProcessId += ",'" + dtSalPrcId.Rows[si]["SystemID"].ToString() + "'";
+            }
+
+
+
+            string strSql = @"SELECT    EmpSlr.PlantID
+                                , EmpSlr.SalaryHead
+								, EmpSlr.HeadCategory
+								, EmpSlr.SalaryHeadID
+								, EmpSlr.EntryCurrencyID
+								, EmpSlr.DisbusmentCurrencyID
+								, EmpSlr.EmpInfoSystemID							
+								, EmpBasic.SystemId EmpSystemId
+								, EmpBasic.EmployeeCode 
+								, EmpBasic.EmployeeName
+								, EmpBasic.PaymentMode
+								, EmpBasic.BankName
+								, EmpBasic.BankAccNo
+								, EmpBasic.BankShortName
+                                , EmpBasic.DepartmentName
+                                ,EmpBasic.WorkingDaysInAMonth
+                                ,EmpBasic.EmpCategoryName
+
+                                , EmpBasic.DesignationName
+								, FORMAT(EmpBasic.DOS,'dd-MMM-yyyy') DOS
+								, FORMAT(EmpBasic.DOJ,'dd-MMM-yyyy') DOJ
+                                , TotalProcDate
+	                            , TotalPresent
+	                            , TotalLate
+	                            , TotalAbsent 
+	                            , TotalLv
+	                            , TotalMLv
+	                            , TotalCompAssignLv
+	                            , TotalWeekOff
+	                            , TotalHoliDay
+	                            , TotalWeekOffHoliDay
+	                            , TotalOTHr
+	                            , TotalNormalOTHr
+	                            , TotalExtraOTHr
+                                --, ISNULL(MMDSA.TotalProcDate,0) - ISNULL(MMDSA.AbsentDays,0) PayDays
+                                , ISNULL(EmpSlr.IntegerInDisb,0) IntegerInDisb
+								, ISNULL(EmpSlr.DecimalNo,0)  DecimalNo
+								, SUM(EmpSlr.EntryAmount) EntryAmount
+                                , SUM(EmpSlr.DisbusmentAmount) DisbusmentAmount
+
+							FROM
+                                    (
+										 SELECT  E.SystemID, E.EmployeeCode, E.EmployeeName,E.DOB, E.DOJ,E.DOS, E.EmployeeStatus,DATEDIFF(YY,E.DOB,'" + fromDate + @"') As Age
+											--DG.UserName DesignationGroupName, E.DesignationSystemID, DE.UserName DesignationName,GVDE.UserName GivenDesignationName,
+                                            , DE.UserName DesignationName
+											,'' UserGroupSystemID, E.PlantID, F.UserName PlantName, E.UnitID,
+											FU.UserName UnitName, E.DivisionID, DV.UserName DivisionName, E.DepartmentID, DP.UserName DepartmentName,
+											E.SectionID, S.UserName SectionName, E.SubSectionID, SS.UserName SubSectionName, E.EmployeeCategorySystemID,
+											EC.UserName EmpCategoryName,Ec.WorkingDaysInAMonth, Bank.ShortName BankShortName, Bank.UserName BankName, EBI.BankAccNo
+                                            ,E.PaymentMode
+                                     FROM EmployeeInformation E
+												LEFT JOIN org.Plant F ON E.PlantID = F.Id
+												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
+												LEFT JOIN hkp.LegalDesignation DE ON E.LegalDesignationId = DE.Id
+												LEFT JOIN hkp.Designation GVDE ON E.GivenDesignationId = GVDE.Id
+												LEFT JOIN org.Unit FU ON E.UnitID = FU.Id
+												LEFT JOIN org.Division DV ON E.DivisionID = DV.Id
+												LEFT JOIN org.Department DP ON E.DepartmentID = DP.Id
+												LEFT JOIN org.Section S ON E.SectionID = S.Id
+												LEFT JOIN org.SubSection SS ON E.SubSectionID = SS.Id
+												left join EmployeeBankInfo EBI ON EBI.EmpSystemID = E.SystemId
+												left join  HKP.Bank Bank ON EBI.BankSystemID = Bank.Id
+													left join mst.DesignationMasterLegalDesignation m on m.LegalDesignationId=e.LegalDesignationId
+													left join mst.DesignationMaster dm on dm.id=m.DesignationMasterId
+													left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId											    
+                                    --WHERE E.PlantId='" + plantId + @"'
+                                    WHERE ISNULL(E.VendorId,'') = ''
+									) EmpBasic
+                                    INNER JOIN
+											(
+											 SELECT SPC.SystemID AS SlrProcChdSysID, SPC.SlrProcMstSystemID, SPM.SalaryProcID, SPM.FromDate, SPM.ToDate,
+													SPC.EmpInfoSystemID, SPC.PlantID, SPM.UserGroupSystemID, SPM.MonthNo, SPM.YearNo, SPC.PayAbleShSystemID,
+													SPC.SalaryHeadID, SPC.EntryCurrencyID, SPC.EntryAmount, SPC.DefineCurrencyID, SPC.DefineAmount,
+													SPC.DisbusmentCurrencyID, SPC.DisbusmentAmount, SPC.AcltExcDisbSlrHDID, SPC.AcltExcDisbSlrHDAmt,
+												    SPM.AmtDefinitionCurrencyID,
+													SPM.AmtDefinitionCurrencyRate, SPC.IsNetPayEffect
+                                                    ,sh.SalaryHead,sh.HeadCategory,sh.HeadType
+                                                    ,sh.IsCTCComponent,sh.IsGrossComponent
+                                                    ,CRC.IntegerInDisb, CRC.DecimalNo,sl.IsLocked
+													,sh.IsRetained
+											 FROM SalaryProcChild SPC
+												INNER JOIN SalaryProcMaster SPM ON SPC.SlrProcMstSystemID = SPM.SystemID
+																							AND SPM.SystemID IN(" + salaryProcessId + @")
+												inner join EmployeeInformation einfo on einfo.SystemId=spc.EmpInfoSystemID
+												left join BonusPolicyMonthlyRetainMaster bn on bn.PlantID = einfo.PlantId
+												join BonusPolicyMonthlyRetainMasterSalaryHead bns on bns.BonusPolicyMonthlyRetainMasterId = bn.ID
+												INNER JOIN SalaryHead SH ON SH.SalaryHeadID=SPC.SalaryHeadID 
+                                                LEFT JOIN SalaryLock sl on sl.YearNo=spm.YearNo and sl.MonthNo=spm.MonthNo and sl.EmpSystemId=spc.EmpInfoSystemID
+                                            LEFT JOIN SalaryRuleMaster SRM ON SRM.SystemID = SPC.SlrProcMstSystemID
+																	LEFT JOIN CurrencyRuleMaster CRM ON CRM.SystemID = SRM.CurrencyRuleSystemID                                                                    
+										LEFT JOIN CurrencyRuleChild CRC ON CRC.MstSystemID = srm.CurrencyRuleSystemID AND CRC.SalaryHeadID = SH.SalaryHeadID
+															WHERE sh.HeadCategory in ('OTHER BONUS','RetainedBonus','Monthly Bonus Retain')
 											) EmpSlr ON EmpBasic.SystemID = EmpSlr.EmpInfoSystemID --AND EmpBasic.PlantID = EmpSlr.PlantID
                                     LEFT JOIN
 		                                    (

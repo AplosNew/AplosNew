@@ -273,7 +273,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						WHERE IRD.TransferedFromGrnId is not null
 
                         Union all
-						SELECT FARD.Id ComId, REPLACE(CONVERT(CHAR(11), FARD.AddedDate, 106), ' ', '-') AS  CreatedDate
+						SELECT FARD.Id ComId, REPLACE(CONVERT(CHAR(11), FARD.DocDate, 106), ' ', '-') AS  CreatedDate
 						,'FixedAssetSales' GatePassFor,p.UserName VendorNameOrCuetomerName 
 						,null PlantId
 						FROM Trn.FixedAssetRegisterDisposed FARD
@@ -282,7 +282,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						FARD.Id not in (Select FixedAssetRegisterDisposedId from trn.InOutGatePassMaster where FixedAssetRegisterDisposedId is not null)
 
                         Union all
-						SELECT distinct FARD.Id ComId, REPLACE(CONVERT(CHAR(11), FARD.AddedDate, 106), ' ', '-') AS  CreatedDate
+						SELECT distinct FARD.Id ComId, REPLACE(CONVERT(CHAR(11), FARD.DocDate, 106), ' ', '-') AS  CreatedDate
 						,'FixedAssetScrap' GatePassFor,p.UserName VendorNameOrCuetomerName 
 						,null PlantId
 						FROM Trn.FixedAssetRegisterDisposed FARD
@@ -294,6 +294,7 @@ namespace Library.MaterialManagement.InventoryManagements
 
 
 				)x
+                order by x.CreatedDate desc
 				--where x.PlantId='" + identity.PlantId+ "'";
 				return _sqlRepository.GetDataCollection(sql);
 			}
@@ -1301,8 +1302,7 @@ namespace Library.MaterialManagement.InventoryManagements
             DataTable dsOrderMaster;
             dsOrderMaster = loadInOutGatePassMasterSales(GatePassId); 
             fileName = "InOutGatePassSales" + plantId + ".docx";
-            
-            
+
             strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), /*"IDCardBengali.xlsx"*/fileName);  // IDCardEng.xlsx
             File = strPath;
             if (!System.IO.File.Exists(strPath))
@@ -1334,6 +1334,7 @@ namespace Library.MaterialManagement.InventoryManagements
                     columns.Add("{" + item.ColumnName.ToUpper() + "}", item.ColumnName);
                 // dsServiceItems = loadServicerMasterItems(purchaseOrderId);
                 var materialTotal = makeInOutGatePassDetailSalesTable(document, dsOrderMaster, GatePassId);//Material Details 
+
                 var serviceTotal = 0.00;
                 //if (dsServiceItems.Rows.Count > 0)
                 //{
@@ -1369,10 +1370,14 @@ namespace Library.MaterialManagement.InventoryManagements
                 document.Replace("{Date}", System.DateTime.Now.ToString("dd-MMM-yyyy"), false, false);
                 CodeQrBarcodeDraw qrCode = BarcodeDrawFactory.CodeQr;
                 System.Drawing.Image barcodeImg = qrCode.Draw(dsOrderMaster.Rows[0]["Id"].ToString(), 200, 2);
-                //clsStaticinfo.GetWordDocumentPicture
-                    //document.GetWordDocumentPicture("{GatepassQR}", barcodeImg, false, false);
-                //document.SetQRCode("{GatepassQR}", barcodeImg, false, false);
-                //ConvertPresentationToPdf.SetQRCode(presentation.Slides[i], "EmpQR", barcodeImg);
+                
+                WPicture picture=  OTSBD.clsStaticInfo.GetWordDocumentPicture(document, "GatepassQR");
+                if(picture!=null)
+                {
+                    picture.LoadImage(barcodeImg);
+                }
+                
+                
                 //removing any unused place holder
                 foreach (var item in ReplaceInfo.Keys)
                 {
@@ -1464,6 +1469,215 @@ namespace Library.MaterialManagement.InventoryManagements
 							LEFT JOIN Employeeinformation EI on EI.SystemId= GPM.FromEmployeeId
 							LEFT JOIN Employeeinformation EI1 on EI1.SystemId= GPM.RunnerEmployeeId 
 							LEFT JOIN TRN.FixedAssetRegisterDisposed FAD ON FAD.Id=GPM.FixedAssetRegisterDisposedId
+							LEFT JOIN TRN.FixedAssetRegisterDisposedDetail FARD ON FARD.FixedAssetRegisterDisposedId=FAD.Id
+                            LEFT JOIN [TRN].[FixedAssetRegister] FR   ON FR.Id=FARD.FixedAssetRegisterId 
+	                        LEFT JOIN HKP.Party Customer ON Customer.Id = FAD.PartyId
+                            LEFT JOIN SCS.Currency CU ON CU.Id =FAD.CurrencyId
+							LEFT JOIN HKP.PartyPlant VPL ON VPL.Id = FAD.DeliveryPartyPlantId
+							Left JOIN  TRN.InventoryMaterial AS IM  ON IM.Id=FR.MaterialMasterId
+							left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
+							LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
+							LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id
+							LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId=FC.Id
+							LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId=SC.Id
+							LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId=TC.Id
+							LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId=FCV.Id
+							LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
+							LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
+							LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
+						    JOIN MST.FixedAssetMaster FA ON FA.Id=FR.FixedAssetMasterId
+                    Where GPM.Id='" + GatePassId + @"'Order By GPM.[Id] DESC";
+
+                return _sqlRepository.GetDataTable(strSQL);
+
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+
+            }
+        }
+
+        public IWordDocument InOutGatePassScrapReport(string companyGroupId, string plantId, string GatePassId)
+        {
+
+            ReportUtility ru = new ReportUtility();
+            var fileName = "";
+            var strPath = "";
+            var File = "";
+            DataTable dsOrderMaster;
+            dsOrderMaster = loadInOutGatePassMasterScrap(GatePassId);
+            fileName = "InOutGatePassScrap" + plantId + ".docx";
+
+            strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), /*"IDCardBengali.xlsx"*/fileName);  // IDCardEng.xlsx
+            File = strPath;
+            if (!System.IO.File.Exists(strPath))
+            {
+                throw new CustomException("File <" + fileName + "> Not Found.");
+            }
+
+            ////A opens input document.
+            WordDocument document = new WordDocument(File, FormatType.Docx);
+
+            //Gets the paragraph at index 1
+            try
+            {
+                string invoicePartyAddress = "";
+                string vendorPartyAddress = "";
+                WSection section = document.Sections[0];
+
+                DataTable dsServiceItems;
+                /*dsOrderMaster = loadInOutGatePassMaster(GatePassId);*///sql
+                Dictionary<string, string> columns = new Dictionary<string, string>();
+                var poApprovedStatus = "";
+                //invoicePartyAddress = ru.GetAddress(dsOrderMaster.Rows[0]["InvoicePartyAddressMasterId"].ToString(), dsOrderMaster.Rows[0]["InvoicingByAddress"].ToString());
+                document.Replace("{InvoicingPartyAddress}", invoicePartyAddress, false, false);
+                //vendorPartyAddress = ru.GetAddress(dsOrderMaster.Rows[0]["VendorAddressMasterId"].ToString(), "");
+                document.Replace("{VendorAddress}", vendorPartyAddress, false, false);
+                //document.Replace("{DeliveryInstruction}", dsOrderMaster.Rows[0]["DeliveryInstruction"].ToString(), false, false);
+                //document.Replace("{SpecialInstruction}", dsOrderMaster.Rows[0]["SpecialInstruction"].ToString(), false, false);
+                foreach (DataColumn item in dsOrderMaster.Columns)
+                    columns.Add("{" + item.ColumnName.ToUpper() + "}", item.ColumnName);
+                // dsServiceItems = loadServicerMasterItems(purchaseOrderId);
+                var materialTotal = makeInOutGatePassDetailSalesTable(document, dsOrderMaster, GatePassId);//Material Details 
+
+                var serviceTotal = 0.00;
+                //if (dsServiceItems.Rows.Count > 0)
+                //{
+                //    //{ServiceItems}
+                //    serviceTotal = makeServiceDetailsTable(document, dsServiceItems, purchaseOrderId);//Service Details 
+                //    document.Replace("{ServiceDetails}", "Service Details", true, true);
+                //}
+                //document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("#,##0.00") + " " + dsOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
+                //document.Replace("{TotalInWords}", ru.InWord((materialTotal + serviceTotal), dsOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
+                Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
+                TextSelection[] allresult = document.FindAll(new Regex("{.*?}"));
+                //creating secondary array to prevent memory leak and accidental over-writing (Tarek Talukder-26-May-2019)
+                List<string> strReplace = new List<string>();
+                for (int i = 0; i < allresult.Length; i++)
+                    strReplace.Add(allresult[i].SelectedText.ToString().ToUpper());
+                StringCollection strColDistinct = new StringCollection();
+                for (int i = 0; i < strReplace.Count; i++)
+                {
+                    if (strColDistinct.Contains(strReplace[i].ToUpper()))
+                        continue;
+
+                    strColDistinct.Add(strReplace[i].ToUpper());
+
+                    string text = strReplace[i].ToUpper();
+                    ReplaceInfo.Add(text, 0);
+                    if (columns.ContainsKey(text.ToUpper()))
+                    {
+                        ReplaceInfo[text] = document.Replace(text, dsOrderMaster.Rows[0][columns[text.ToUpper()]].ToString(), false, false);
+                    }
+
+                }
+
+                document.Replace("{Date}", System.DateTime.Now.ToString("dd-MMM-yyyy"), false, false);
+                CodeQrBarcodeDraw qrCode = BarcodeDrawFactory.CodeQr;
+                System.Drawing.Image barcodeImg = qrCode.Draw(dsOrderMaster.Rows[0]["Id"].ToString(), 200, 2);
+
+                WPicture picture = OTSBD.clsStaticInfo.GetWordDocumentPicture(document, "GatepassQR");
+                if (picture != null)
+                {
+                    picture.LoadImage(barcodeImg);
+                }
+
+
+                //removing any unused place holder
+                foreach (var item in ReplaceInfo.Keys)
+                {
+                    if (ReplaceInfo[item.ToString()] == 0)
+                        document.Replace(item.ToString(), "", false, false);
+
+                }
+                DocToPDFConverter converter = new DocToPDFConverter();
+                //Converts Word document into PDF document
+                //Syncfusion.Pdf.PdfDocument pdfDocument = converter.ConvertToPDF(document);
+                PdfDocument pdfDocument = converter.ConvertToPDF(document);
+                pdfDocument.PageSettings.Width = 1200;
+                pdfDocument.PageSettings.Orientation = PdfPageOrientation.Landscape;
+                //Releases all resources used by DocToPDFConverter
+                converter.Dispose();
+                //Closes the instance of document objects
+                document.Close();
+                string Prefix = "InOutGatePass" + GatePassId;
+                //Saves the PDF file 
+                pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
+                //Closes the instance of document objects
+                pdfDocument.Close(true);
+                document.Close();
+
+                return document;
+            }
+
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            //Closes the instance of document objects
+
+
+        }
+
+
+        public DataTable loadInOutGatePassMasterScrap(string GatePassId)
+        {
+            string strSQL;
+            //clsConnection objCon;
+            try
+            {
+                strSQL = @"SELECT  GPM.[Id]
+								,GPM.[CompanyGroupId]
+								,GPM.[CompanyId]
+								,GPM.[PlantId]
+								,GPM.[GatePassType]
+								,GPM.[GatePassStatus]                             
+								,REPLACE(CONVERT(CHAR(11), GPM.[GatePassEntryDate], 106),' ','-') AS GatePassEntryDate
+								,GPM.[FromEmployeeId]
+								,EI.EmployeeName SenderName
+								,GPM.[Through]
+								,GPM.[CourierName]
+								,GPM.[RunnerEmployeeId]
+								,EI1.EmployeeName RunnerEmployee                              
+								,GPM.[Remarks]
+								,GPM.[CheckedBy]
+								,GPM.[CheckedByStatus]
+								,GPM.[CheckedHoldRejectReason]
+								,GPM.[ApprovedBy]
+								,GPM.[ApprovedByStatus]
+								,GPM.[ApprovedHoldRejectReason]                            
+								,GPM.[AddedBy]
+								,GPM.[AddedDate]
+								,GPM.[AddedFromIP]
+								,GPM.[UpdatedBy]
+								,GPM.[UpdatedDate]
+								,GPM.[UpdatedFromIP]
+								,GPM.PurchaseReturnId
+								,GPM.InventorySalesId
+								,GPM.InventoryScrapId
+								,GPM.InventoryTransferId
+								,GPM.FixedAssetRegisterDisposedId
+								,GPM.FixedAssetScrapId
+						,MT.UserName MaterialType
+						,MGM.UserName AS MaterialGroupMasterName
+						,IM.MaterialMasterId
+						,MM.UserName MaterialMasterName
+						, ART.StandardName ArticleName
+						,FA.UserName AssetMaster
+						,IsAsset=CASE WHEN MM.IsAsset=0 then 'No' else 'Yes' END
+						, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue
+						, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
+						, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 
+						,Round(FARD.NegotiationValue,2) TotalMaterialBooksCurrencyAmount
+						, FR.SerialNo, FR.Id AssetNo,FAD.Id DisposalNo,FR.Status,FAD.DeliveryByAddress,VPL.UserName DeliveryParty
+							FROM [TRN].[InOutGatePassMaster] GPM
+							LEFT JOIN Employeeinformation EI on EI.SystemId= GPM.FromEmployeeId
+							LEFT JOIN Employeeinformation EI1 on EI1.SystemId= GPM.RunnerEmployeeId 
+							LEFT JOIN TRN.FixedAssetRegisterDisposed FAD ON FAD.Id=GPM.FixedAssetScrapId
 							LEFT JOIN TRN.FixedAssetRegisterDisposedDetail FARD ON FARD.FixedAssetRegisterDisposedId=FAD.Id
                             LEFT JOIN [TRN].[FixedAssetRegister] FR   ON FR.Id=FARD.FixedAssetRegisterId 
 	                        LEFT JOIN HKP.Party Customer ON Customer.Id = FAD.PartyId
@@ -1874,6 +2088,7 @@ namespace Library.MaterialManagement.InventoryManagements
             document.Replace(replaceString, textBodyPart, true, true);
             return total;
         }
+        
 
 
         // public DataTable loadMaterialTax(string GatePassId)
