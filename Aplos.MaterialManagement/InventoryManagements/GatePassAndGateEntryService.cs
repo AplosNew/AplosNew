@@ -23,6 +23,7 @@ using System.Collections.Specialized;
 using Syncfusion.DocToPDFConverter;
 using Syncfusion.Pdf;
 using System.Text.RegularExpressions;
+using Zen.Barcode;
 
 #endregion Using
 
@@ -1366,6 +1367,12 @@ namespace Library.MaterialManagement.InventoryManagements
                 }
 
                 document.Replace("{Date}", System.DateTime.Now.ToString("dd-MMM-yyyy"), false, false);
+                CodeQrBarcodeDraw qrCode = BarcodeDrawFactory.CodeQr;
+                System.Drawing.Image barcodeImg = qrCode.Draw(dsOrderMaster.Rows[0]["Id"].ToString(), 200, 2);
+                //clsStaticinfo.GetWordDocumentPicture
+                    //document.GetWordDocumentPicture("{GatepassQR}", barcodeImg, false, false);
+                //document.SetQRCode("{GatepassQR}", barcodeImg, false, false);
+                //ConvertPresentationToPdf.SetQRCode(presentation.Slides[i], "EmpQR", barcodeImg);
                 //removing any unused place holder
                 foreach (var item in ReplaceInfo.Keys)
                 {
