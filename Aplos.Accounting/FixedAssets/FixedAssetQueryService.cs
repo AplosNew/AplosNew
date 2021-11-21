@@ -1835,7 +1835,9 @@ namespace Library.Accounting.FixedAssets
 				 ,Customer.UserName CustomerName,CU.Code Currency,CAST(frd.ToCurrencyRate AS decimal(18,4))ToCurrencyRate,sum(rdd.NegotiationValue)NegotiationValue
 				 ,sum(rdd.BaseNagotiationValue)BaseNagotiationValue
 				 ,( sum(rdd.BaseNagotiationValue)- sum( ISNULL(FAR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) - ISNULL(FAR.ADBaseAmount,0) ))LossOrGain
-				 ,isnull(GP.Id,GPS.Id) GatePassNo, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
+				 ,isnull(GP.Id,GPS.Id) GatePassNo,CASE WHEN GP.GatePassEntryDate IS NOT NULL THEN format( GP.GatePassEntryDate,'dd-MMM-yyyy') 
+				 ELSE format( GPS.GatePassEntryDate,'dd-MMM-yyyy') END GatePassDate
+				, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
 				 ,ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue
 				 ,PC.Code PurchaseCurrency,isnull( FAR.Price,0 )PurchasePrice
 		        from TRN.FixedAssetRegister FAR 
@@ -1874,7 +1876,7 @@ namespace Library.Accounting.FixedAssets
 			   ,MM.IsAsset,MBP.BusinessProcessName,FAR.FixedAssetMasterId
 			    ,FAR.MaterialMasterId,FAR.MaterialMasterArticleId,FAR.VendorId,FAR.FixedAssetMasterId,FAR.Status,frd.DocDate,v.VoucherNo,frd.Id,frd.IsPark
 				,Customer.UserName,CU.Code,frd.ToCurrencyRate,GP.Id,ISNULL(FCV.UserName,''),ISNULL(SCV.UserName,''),ISNULL(TCV.UserName,'')
-				,FAR.Id,FAR.SerialNo,PC.Code,FAR.Price,GPS.Id";
+				,FAR.Id,FAR.SerialNo,PC.Code,FAR.Price,GPS.Id,GP.GatePassEntryDate,GPS.GatePassEntryDate";
 			return _sqlRepository.GetDataCollection(sql);
 
 		}
