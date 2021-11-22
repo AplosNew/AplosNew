@@ -3407,6 +3407,42 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 
 		});
 	}
+	$scope.TermsAndCondition = {
+		Id: null
+		, Description: null
+	};
+	$scope.TermsAndConditionsList = [];
+	$scope.TermsAndCondition = function () {
+
+		$http({
+			method: 'GET',
+			//url: 'Products/Requisition/GetAllReqdataDetails?ReqDetailId=' + $scope.filteredData
+			url: 'Products/PurchaseOrder/TermsAndConditions'
+		}).then(function successCallback(response) {
+			$scope.TermsAndConditionsList = response.data;
+			$scope.TermsAndCondition.Description = response.data[0].Description;
+
+		});
+	}
+	$scope.TermsAndCondition();
+	$scope.changeTermsAndCondition = function () {
+
+		if (!baseService.isUndefinedOrNull($scope.productNew.PaymentTermId)) {
+			var paymentTerm = $.grep($scope.TermsAndConditionsList, function (item) { return item.Value === $scope.productNew.PaymentTermId; })[0];
+			$scope.productNew.PaymentTermCode = paymentTerm.PaymentTermCode;
+			$scope.productNew.BaseNoOfDays = paymentTerm.NoOfDay;
+			if (paymentTerm.BaseLineDate !== null)
+				if (paymentTerm.BaseLineDate === 'documentdate') {
+					$scope.productNew.BaseOnDueDate = $filter('dateFiltering')($scope.productNew.DocDate);
+					$scope.IsBaseOnDueDateEnable = true;
+				}
+				else {
+					$scope.productNew.BaseOnDueDate = null;
+					$scope.IsBaseOnDueDateEnable = false;
+				}
+			$scope.getMatureDate($scope.productNew.BaseOnDueDate, $scope.productNew.BaseNoOfDays);
+		}
+	};
 
 
 

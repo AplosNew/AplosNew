@@ -325,6 +325,17 @@ namespace Aplos.Areas.HumanResource.Controllers
                             dr["OTComfirmBy"] = DBNull.Value;
                             dr["DateOTComfirm"] = DBNull.Value;
                             dr["IsOTComfirm"] = false;
+
+                            #region OT Columns Nullified
+
+                            dr["TargetOT"] = DBNull.Value;
+                            dr["PlanOT"] = DBNull.Value;
+                            dr["AppliedOTLimit"] = DBNull.Value;
+                            dr["AllowedOTLimit"] = DBNull.Value;
+                            dr["StandardOT"] = DBNull.Value;
+                            dr["AdditionalOt"] = DBNull.Value;
+
+                            #endregion
                             dr.EndEdit();
                         }
 

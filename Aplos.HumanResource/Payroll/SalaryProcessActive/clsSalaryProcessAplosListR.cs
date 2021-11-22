@@ -1397,6 +1397,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                                 #endregion Save Table SalaryProcMaster
 
+                                string SavingEmpIds = "''";
                                 if (dsSelectedEmp.Tables[0].Rows.Count > 0)
                                 {
                                     #region Create Table
@@ -1430,6 +1431,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                                     SendNotification("Calculating Salary Heads", TotProcComp, TotSelectEmpForProc);
 
+                                   
                                     for (int gd = 0; gd < dsSelectedEmp.Tables[0].Rows.Count; gd++)
                                     {
                                         #region UPPER BODY
@@ -1610,6 +1612,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                         string _EmployeeCode = dsSelectedEmp.Tables[0].Rows[gd]["EmployeeCode"].ToString().Trim();
                                         _emp_not_saved = _emp;
 
+                                        SavingEmpIds += ",'" + _emp + "'";
                                         if (_emp == "2102168")
                                         {
 
@@ -1972,9 +1975,9 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                                 if (dicLocal_Sub[i].RuleType == "Gen")
                                                                 {
                                                                     //DisbCur = (DefCur / TotWorkingDay) * (TotalDaysSlr - (WkOFDay + HDDay));
-                                                                    
-                                                                        DisbCur = SalaryPerDay * TotalPayDays;
-                                                                        //DisbCur = DisbCur - ((DefCur / (TotalDaysSlr - (WkOFDay + HDDay))) * AbsDay);
+
+                                                                    DisbCur = SalaryPerDay * TotalPayDays;
+                                                                    //DisbCur = DisbCur - ((DefCur / (TotalDaysSlr - (WkOFDay + HDDay))) * AbsDay);
                                                                 }
                                                                 else if (dicLocal_Sub[i].RuleType == "Abs")
                                                                 {
@@ -5060,6 +5063,9 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                     cfob.UploadCarryForwardSalaryDataForNextMonthProcess(Convert.ToDateTime(para.FromDate).Year.ToString(), Convert.ToDateTime(para.FromDate).Month.ToString(), para.FromDate, sEmpSysIDColl, para.NegativeSalaryHeadId, para.PlantId, para.USER);
                                 }
 
+                                SendNotification("Creating leave transaction data", TotProcComp, TotSelectEmpForProc);
+                                CreateMonthlyLeaveSummary(SavingEmpIds, para);
+
                                 SelectedEmpCnt = 0;
                                 sEmpInfoSysID = "";
                                 sEmpSysID = "";
@@ -6060,28 +6066,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                 objCon = null;
             }
         }//End Function 
-        public void xGetOTEntitlementInfo(string PlantId, string emplist, string FromDate, string ToDate, out DataSet dsLocal)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            string strSql = string.Empty;
-            try
-            {
-                strSql = @"select distinct IsOTEntitled,EmpSystemID from AttdnProcessData where
-                              (" + emplist + @") and WorkDate between '" + FromDate + @"' and '" + ToDate + @"'
-                             and PlantID='" + PlantId + "'";
-
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(strSql, out dsLocal, false, false, "", "1");
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-            finally
-            {
-                objCon = null;
-            }
-        }//End Function  
         public void GetOTEntitlementInfo(string PlantId, string emplist, string FromDate, string ToDate, out DataSet dsLocal)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -7254,138 +7238,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                 //
             }
         }//End Function ProcChild
-        private void xUpdateSlrProcChdDataRow(string OPN_FLAG, FunctionPara fpara, int xcounter, string sEmpSysID, string sSalaryID, string sPlantID, string strSlrRulMstSysID, string strSlrHD, string strEntCurID, decimal EntCur, string strDefCurID, decimal DefCur, string strDisbCurID, decimal DisbCur, string strAcltExcDisbSlrHDID, decimal AcltExcDisbSlrHDAmt, bool IsNetPayEffect, ref DataRow drLocal)
-        {
-            string _pk = string.Empty;
-            try
-            {
-                if (OPN_FLAG == "ADDNEW")
-                {
-                    bplib.clsGenID objGenID = new bplib.clsGenID();
-                    objGenID.GenHRID(DateTime.Now.ToShortDateString().ToString(), "SAL_PROC_CHILD_FX", out _pk);
-
-                    drLocal["SystemID"] = "SCF" + DateTime.Now.ToString("yy") + "_" + _pk;
-
-                    drLocal["IsDisbursed"] = 0;
-                    drLocal["AddedBy"] = bplib.clsWebLib.RetValidLen((fpara.USER));
-                    drLocal["DateAdded"] = DateTime.Now;
-                }
-
-                drLocal["SlrProcMstSystemID"] = bplib.clsWebLib.RetValidLen(fpara.lblSalaryProcSystemId.Trim());
-                drLocal["EmpInfoSystemID"] = bplib.clsWebLib.RetValidLen(sEmpSysID.Trim());
-                drLocal["SalaryID"] = bplib.clsWebLib.RetValidLen(sSalaryID.Trim());
-
-                drLocal["GroupID"] = bplib.clsWebLib.RetValidLen(fpara.GroupId.ToString().Trim());
-                drLocal["PlantID"] = bplib.clsWebLib.RetValidLen(sPlantID.Trim());
-
-                //drLocal["MonthNo"] = (int)Convert.ToDateTime(this.txtFromDate.Text.Trim()).Month;
-                //drLocal["YearNo"] = (int)Convert.ToDateTime(this.txtFromDate.Text.Trim()).Year;
-                drLocal["PayAbleShSystemID"] = bplib.clsWebLib.RetValidLen(strSlrRulMstSysID.Trim());
-                drLocal["SalaryHeadID"] = bplib.clsWebLib.RetValidLen(strSlrHD.Trim());
-
-                drLocal["EntryCurrencyID"] = bplib.clsWebLib.RetValidLen(strEntCurID.Trim());
-                drLocal["EntryAmount"] = EntCur;
-
-                drLocal["DefineCurrencyID"] = bplib.clsWebLib.RetValidLen(strDefCurID.Trim());
-                drLocal["DefineAmount"] = DefCur;
-
-                drLocal["DisbusmentCurrencyID"] = bplib.clsWebLib.RetValidLen(strDisbCurID.Trim());
-                drLocal["DisbusmentAmount"] = DisbCur;
-
-                drLocal["AcltExcDisbSlrHDID"] = bplib.clsWebLib.RetValidLen(strAcltExcDisbSlrHDID.Trim());
-                drLocal["AcltExcDisbSlrHDAmt"] = AcltExcDisbSlrHDAmt;
-                drLocal["IsNetPayEffect"] = IsNetPayEffect;
-
-                drLocal["UpdatedBy"] = bplib.clsWebLib.RetValidLen((fpara.USER));
-                drLocal["DateUpdated"] = DateTime.Now;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message + ": [" + sEmpSysID + "]");
-            }
-            finally
-            {
-                //
-            }
-        }//End Function
-        private void xUpdateSlrProcChdDataRow(string OPN_FLAG, FunctionPara fpara, int counter, string sEmpSysID, string sSalaryID, string sPlantID, string strSlrRulMstSysID, string strSlrHD, string strEntCurID, decimal EntCur, string strDefCurID, decimal DefCur, string strDisbCurID, decimal DisbCur, string strAcltExcDisbSlrHDID, decimal AcltExcDisbSlrHDAmt, bool IsNetPayEffect, ref ProcChild pc)
-        {
-            string _pk = string.Empty;
-            try
-            {
-                if (OPN_FLAG == "ADDNEW")
-                {
-                    bplib.clsGenID objGenID = new bplib.clsGenID();
-                    objGenID.GenHRID(DateTime.Now.ToShortDateString().ToString(), "SAL_PROC_CHILD_FX", out _pk);
-                    pc.SystemID = "SCF" + DateTime.Now.ToString("yy") + "_" + _pk;
-                    //drLocal["SystemID"] = "SCF" + DateTime.Now.ToString("yy") + "_" + _pk;
-
-                    //drLocal["IsDisbursed"] = 0;
-                    //drLocal["AddedBy"] = bplib.clsWebLib.RetValidLen((fpara.USER));
-                    //drLocal["DateAdded"] = DateTime.Now;
-
-                    pc.IsDisbursed = false;
-                    pc.AddedBy = fpara.USER;
-                    pc.DateAdded = DateTime.Now;
-                }
-
-                //drLocal["SlrProcMstSystemID"] = bplib.clsWebLib.RetValidLen(fpara.lblSalaryProcSystemId.Trim());
-                //drLocal["EmpInfoSystemID"] = bplib.clsWebLib.RetValidLen(sEmpSysID.Trim());
-                //drLocal["SalaryID"] = bplib.clsWebLib.RetValidLen(sSalaryID.Trim());
-                pc.SlrProcMstSystemID = fpara.lblSalaryProcSystemId.Trim();
-                pc.EmpInfoSystemID = sEmpSysID.Trim();
-                pc.SalaryID = sSalaryID.Trim();
-
-                //drLocal["GroupID"] = bplib.clsWebLib.RetValidLen(fpara.GroupId.ToString().Trim());
-                //drLocal["PlantID"] = bplib.clsWebLib.RetValidLen(sPlantID.Trim());
-                pc.GroupID = fpara.GroupId.ToString().Trim();
-                pc.PlantID = sPlantID.Trim();
-
-                //drLocal["MonthNo"] = (int)Convert.ToDateTime(this.txtFromDate.Text.Trim()).Month;
-                //drLocal["YearNo"] = (int)Convert.ToDateTime(this.txtFromDate.Text.Trim()).Year;
-
-                //drLocal["PayAbleShSystemID"] = bplib.clsWebLib.RetValidLen(strSlrRulMstSysID.Trim());
-                //drLocal["SalaryHeadID"] = bplib.clsWebLib.RetValidLen(strSlrHD.Trim());
-                pc.PayAbleShSystemID = strSlrRulMstSysID.Trim();
-                pc.SalaryHeadID = strSlrHD.Trim();
-
-
-                //drLocal["EntryCurrencyID"] = bplib.clsWebLib.RetValidLen(strEntCurID.Trim());
-                //drLocal["EntryAmount"] = EntCur;
-                pc.EntryCurrencyID = strEntCurID.Trim();
-                pc.EntryAmount = EntCur;
-
-                //drLocal["DefineCurrencyID"] = bplib.clsWebLib.RetValidLen(strDefCurID.Trim());
-                //drLocal["DefineAmount"] = DefCur;
-                pc.DefineCurrencyID = strDefCurID.Trim();
-                pc.DefineAmount = DefCur;
-
-                //drLocal["DisbusmentCurrencyID"] = bplib.clsWebLib.RetValidLen(strDisbCurID.Trim());
-                //drLocal["DisbusmentAmount"] = DisbCur;
-                pc.DisbusmentCurrencyID = strDisbCurID.Trim();
-                pc.DisbusmentAmount = DisbCur;
-
-                //drLocal["AcltExcDisbSlrHDID"] = bplib.clsWebLib.RetValidLen(strAcltExcDisbSlrHDID.Trim());
-                //drLocal["AcltExcDisbSlrHDAmt"] = AcltExcDisbSlrHDAmt;
-                //drLocal["IsNetPayEffect"] = IsNetPayEffect;
-                pc.AcltExcDisbSlrHDID = strAcltExcDisbSlrHDID.Trim();
-                pc.AcltExcDisbSlrHDAmt = AcltExcDisbSlrHDAmt;
-                pc.IsNetPayEffect = IsNetPayEffect;
-
-                //drLocal["UpdatedBy"] = bplib.clsWebLib.RetValidLen((fpara.USER));
-                //drLocal["DateUpdated"] = DateTime.Now;
-                pc.UpdatedBy = fpara.USER;
-                pc.DateUpdated = DateTime.Now;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message + ": [" + sEmpSysID + "]");
-            }
-            finally
-            {
-                //
-            }
-        }//End Function
         void StampCalculation(List<SPvalueHeadWise> dtValue, string _childPK_seed_fromDB, int _child_emp_seed, int _child_salaryhead_seed, List<dicPaymentModeWiseHeadAmount> dicMonWiExtAmt, string pEmployeeSysID, string _SalaryRuleMasterSystemId, string _PaymentMode, FunctionPara para, List<dicLocal> dicLocal_Sub, ref List<ProcChild> dicProcChild,
         ref decimal decTotalDeductionAmt, ref decimal decTotalErnDedAmt, ref decimal decTotalEarningAmt, ref decimal decTmpTotalErnDedAmt, ref decimal decTotalErnDedAmtDefinitionRate)
         {
@@ -7571,184 +7423,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             }
         }
 
-        void xStampCalculation(string _childPK_seed_fromDB, int _child_emp_seed, int _child_salaryhead_seed, List<dicPaymentModeWiseHeadAmount> dicMonWiExtAmt, string pEmployeeSysID, string _SalaryRuleMasterSystemId, string _PaymentMode, FunctionPara para, List<dicLocal> dicLocal_Sub, ref DataTable dtSPChd, ref DataSet dsSPChd
-            , ref decimal decTotalDeductionAmt, ref decimal decTotalErnDedAmt, ref decimal decTotalEarningAmt, ref decimal decTmpTotalErnDedAmt, ref decimal decTotalErnDedAmtDefinitionRate)
-        {
-            #region Variables
-            string sSalaryID = "";
-            string sPlantID = "";
-            string sSlrRulMstSysID = "";
-            string sSlrHD = "";
-            string sEntCurID = "";
-            string sDefCurID = "";
-            string sDisbCurID = "";
-            string sAcltExcDisbSlrHDID = "";
-            string sTotalEarningCrnID = "";
-
-            decimal tempDisbCur = 0;
-            decimal sFrgCurRate = 1;
-            decimal EntCur = 0;
-            decimal DefCur = 0;
-            decimal DisbCur = 0;
-            decimal MonWiExtAmt = 0;
-            string sRoundOption = "";
-            string sOutValue = "0";
-            bool IsNetPayEffect = false;
-            bool bIntegerInDisb = false;
-            bool bIsDecimalInDisb = false;
-            int counter = 0;
-            int iDecimalNo = 0;
-
-            decimal AcltExcDisbSlrHDAmt = 0;
-            DataView dvMonWiExtAmtFil = null;
-            string sEmployeeSysID = string.Empty;
-
-            //decimal decTotalEarningAmt = 0;
-            //decimal decTotalDeductionAmt = 0;
-            //decimal decTotalErnDedAmt = 0;
-            //decimal decTmpTotalErnDedAmt = 0;
-            //decimal decTotalErnDedAmtDefinitionRate = 0;
-            //DataTable dtSPChd = null;
-            DataRow drSPChd = null;
-            #endregion
-
-            try
-            {
-                clsSalaryUtility obSS = new clsSalaryUtility();
-
-                ///need to filter by SalaryRuleMasterSystemId, PaymentMode
-                // string _SalaryRuleMasterSystemId = string.Empty;
-                // string _PaymentMode = string.Empty;
-                var dicMonWiExtAmt_Sub = dicMonWiExtAmt.FindAll(x => x.SalaryRuleMasterSystemId == _SalaryRuleMasterSystemId && x.PaymentMode == _PaymentMode);
-                //var dicMonWiExtAmt_Sub = dicMonWiExtAmt.FindAll(x => x.EmpInfoSystemID == dsSelectedEmp.Tables[0].Rows[gd]["EmpSystemID"].ToString().Trim());
-                if (dicMonWiExtAmt_Sub.Count > 0)
-                {
-                    for (int i = 0; i < dicMonWiExtAmt_Sub.Count; i++)
-                    {
-                        //if (dicMonWiExtAmt_Sub[i].HeadCategory != "Total Earning" && dicMonWiExtAmt_Sub[i].HeadCategory != "Total Deduction" && dicMonWiExtAmt_Sub[i].HeadCategory != "Net Payable")
-                        //{
-                        #region Local Variable
-                        MonWiExtAmt = dicMonWiExtAmt_Sub[i].Amount;
-                        tempDisbCur = 0;
-                        DisbCur = 0;
-                        sEmployeeSysID = pEmployeeSysID;
-                        sPlantID = dicMonWiExtAmt_Sub[i].PlantId;
-                        sSlrRulMstSysID = _SalaryRuleMasterSystemId;// dicMonWiExtAmt_Sub[i].MSTSystemID;
-                        sSlrHD = dicMonWiExtAmt_Sub[i].SalaryHeadID;
-                        sEntCurID = dicMonWiExtAmt_Sub[i].EntryCurrencyID;
-                        sDefCurID = dicMonWiExtAmt_Sub[i].DefinitionCurrencyID;
-                        DefCur = dicMonWiExtAmt_Sub[i].Amount;
-
-                        IsNetPayEffect = true;
-
-                        sRoundOption = dicMonWiExtAmt_Sub[i].RoundOption;
-                        iDecimalNo = dicMonWiExtAmt_Sub[i].DecimalNo;
-                        bIntegerInDisb = dicMonWiExtAmt_Sub[i].IntegerInDisb;
-                        bIsDecimalInDisb = dicMonWiExtAmt_Sub[i].IsDecimalInDisb;
-                        #endregion
-
-                        #region Calculation
-                        sSalaryID = dicLocal_Sub[i].SalaryID;
-                        if (sEntCurID == sDefCurID)
-                        {
-                            EntCur = DefCur;
-                        }
-                        else if (sEntCurID != sDefCurID & sEntCurID == para.lblLocalCurrencyID.Trim() & sDefCurID == para.lblUseFrgCurID.Trim())
-                        {
-                            EntCur = (DefCur * sFrgCurRate);
-                        }
-                        else if (sEntCurID != sDefCurID & sDefCurID == para.lblLocalCurrencyID.Trim() & sEntCurID == para.lblUseFrgCurID.Trim())
-                        {
-                            EntCur = (DefCur / sFrgCurRate);
-                        }
-                        sDisbCurID = dicMonWiExtAmt_Sub[i].DisbustCurrencyID;
-                        DisbCur = DefCur;
-
-                        sAcltExcDisbSlrHDID = dicMonWiExtAmt_Sub[i].AcltExcDisbSlrHDID;
-                        AcltExcDisbSlrHDAmt = 0;
-
-                        if (sDefCurID == para.lblUseFrgCurID.Trim() & sDisbCurID == para.lblLocalCurrencyID.Trim())
-                        {
-                            tempDisbCur = (DisbCur * sFrgCurRate);
-                            DisbCur = (DisbCur * dicMonWiExtAmt_Sub[i].AmtDefinitionRate);
-                            AcltExcDisbSlrHDAmt = (tempDisbCur - DisbCur);
-                        }
-                        else if (sDisbCurID == para.lblUseFrgCurID.Trim() & sDefCurID == para.lblLocalCurrencyID.Trim())
-                        {
-                            tempDisbCur = (DisbCur / sFrgCurRate);
-                            DisbCur = (DisbCur / dicMonWiExtAmt_Sub[i].AmtDefinitionRate);
-                            AcltExcDisbSlrHDAmt = (tempDisbCur - DisbCur);
-                        }
-                        #endregion
-
-                        if (IsNetPayEffect == true)
-                        {
-                            decTotalErnDedAmt = DisbCur;
-                            if (sTotalEarningCrnID == dicLocal_Sub[i].DisbusmentCurrencyID)
-                            {
-                                decTotalErnDedAmtDefinitionRate = dicLocal_Sub[i].AmtDefinitionRate;
-                            }
-                            else
-                            {
-                                decTotalErnDedAmtDefinitionRate = Convert.ToDecimal(para.txtForeignCurRate);
-                            }
-
-                            if (sDisbCurID == para.lblUseFrgCurID.Trim() & sTotalEarningCrnID == para.lblLocalCurrencyID.Trim())
-                            {//Local Currency
-                                decTmpTotalErnDedAmt = (decTotalErnDedAmt * sFrgCurRate);
-                                decTotalErnDedAmt = (decTotalErnDedAmt * decTotalErnDedAmtDefinitionRate);
-                            }
-                            else if (sTotalEarningCrnID == para.lblUseFrgCurID.Trim() & sDisbCurID == para.lblLocalCurrencyID.Trim())
-                            {//Frg Currency
-                                decTmpTotalErnDedAmt = (decTotalErnDedAmt / sFrgCurRate);
-                                decTotalErnDedAmt = (decTotalErnDedAmt / decTotalErnDedAmtDefinitionRate);
-                            }
-                        }
-
-                        #region Round Option 
-
-                        sOutValue = "0";
-                        obSS.FractionCalculation(sRoundOption, bIntegerInDisb, bIsDecimalInDisb, iDecimalNo, EntCur.ToString(), out sOutValue);
-                        EntCur = Convert.ToDecimal(sOutValue);
-
-                        sOutValue = "0";
-                        obSS.FractionCalculation(sRoundOption, bIntegerInDisb, bIsDecimalInDisb, iDecimalNo, DefCur.ToString(), out sOutValue);
-                        DefCur = Convert.ToDecimal(sOutValue);
-
-                        sOutValue = "0";
-                        obSS.FractionCalculation(sRoundOption, bIntegerInDisb, bIsDecimalInDisb, iDecimalNo, DisbCur.ToString(), out sOutValue);
-                        DisbCur = Convert.ToDecimal(sOutValue);
-
-                        #endregion Round Option 
-
-                        if (dicMonWiExtAmt_Sub[i].HeadType == "E")
-                        {
-                            decTotalEarningAmt += decTotalErnDedAmt;
-                        }
-                        else if (dicMonWiExtAmt_Sub[i].HeadType == "D")
-                        {
-                            if (DisbCur > 0)
-                            {
-                                DisbCur = (DisbCur * (-1));
-                            }
-                            if (AcltExcDisbSlrHDAmt > 0)
-                            {
-                                AcltExcDisbSlrHDAmt = (AcltExcDisbSlrHDAmt * (-1));
-                            }
-                            decTotalDeductionAmt -= (decTotalErnDedAmt * (-1));
-                        }
-
-                        ParaSalaryProcess ob_sp = SetValue(_childPK_seed_fromDB, _child_emp_seed, _child_salaryhead_seed, pEmployeeSysID, sSalaryID, sPlantID, sSlrRulMstSysID, sSlrHD, sEntCurID, ref EntCur, sDefCurID, ref DefCur, sDisbCurID, DisbCur, sAcltExcDisbSlrHDID, AcltExcDisbSlrHDAmt, IsNetPayEffect);
-                        //SaveDataRow(ref dicpr, ob_sp, para);
-                        //SaveDataRow(ref dtSPChd, ref dsSPChd, ob_sp, para);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
 
         private void UpdateSlrProcAttdenDataRow(string OPN_FLAG, FunctionPara fpara, string sEmpSysID, string sPlantID, decimal OTHDay, decimal NorOTHDay, decimal ExtOTHDay, SalaryProcessActive.dicMMDSSI dicMMDSSI_Sub, ref DataRow drLocal)
         {
@@ -7805,85 +7479,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                 drLocal["UpdatedBy"] = bplib.clsWebLib.RetValidLen((fpara.USER));
                 drLocal["DateUpdated"] = DateTime.Now;
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-            finally
-            {
-                //
-            }
-        }//End Function
-        private void xUpdateSlrProcAttdenDataRow(string OPN_FLAG, FunctionPara fpara, string sEmpSysID, string sPlantID, decimal TotProcDay, decimal PresDay, decimal LateDay, decimal LWP, decimal AbsDay, decimal LvDay, decimal MLvDay, decimal CALDay, decimal WkOFDay, decimal HDDay, decimal WkOFHDDay, decimal OTHDay, decimal NorOTHDay, decimal ExtOTHDay, ref dicSalaryProceAttdnData drLocal)
-        {
-            try
-            {
-                if (OPN_FLAG == "ADDNEW")
-                {
-                    // drLocal["EmpSystemID"] = bplib.clsWebLib.RetValidLen(sEmpSysID.Trim());
-                    drLocal.EmpSystemID = sEmpSysID.Trim();
-
-                    //drLocal["AddedBy"] = bplib.clsWebLib.RetValidLen((fpara.USER));
-                    drLocal.AddedBy = (fpara.USER);
-                    //drLocal["DateAdded"] = DateTime.Now;
-                    drLocal.DateAdded = DateTime.Now;
-                }
-
-                drLocal.SlrProcMstSystemID = fpara.lblSalaryProcSystemId.Trim();
-                //drLocal["SlrProcMstSystemID"] = bplib.clsWebLib.RetValidLen(fpara.lblSalaryProcSystemId.Trim());
-
-                drLocal.MonthNo = (int)Convert.ToDateTime(fpara.FromDate.Trim()).Month;
-                //drLocal["MonthNo"] = (int)Convert.ToDateTime(fpara.FromDate.Trim()).Month;
-                drLocal.YearNo = (int)Convert.ToDateTime(fpara.FromDate.Trim()).Year;
-                //drLocal["YearNo"] = (int)Convert.ToDateTime(fpara.FromDate.Trim()).Year;
-                drLocal.GroupId = fpara.GroupId.ToString().Trim();
-                //drLocal["GroupID"] = bplib.clsWebLib.RetValidLen(fpara.GroupId.ToString().Trim());
-                drLocal.PlantID = sPlantID.Trim();
-                //drLocal["PlantID"] = bplib.clsWebLib.RetValidLen(sPlantID.Trim());
-
-                drLocal.FromDate = Convert.ToDateTime(fpara.FromDate.Trim());
-                //drLocal["FromDate"] = fpara.FromDate.Trim();
-                drLocal.ToDate = Convert.ToDateTime(fpara.ToDate.Trim());
-                //drLocal["ToDate"] = fpara.ToDate.Trim();
-
-                drLocal.TotalProcDate = TotProcDay;
-                //drLocal["TotalProcDate"] = TotProcDay;
-                drLocal.TotalPresent = PresDay;
-                //drLocal["TotalPresent"] = PresDay;
-
-                drLocal.TotalLate = LateDay;
-                //drLocal["TotalLate"] = LateDay;
-                drLocal.TotalAbsent = AbsDay;
-                //drLocal["TotalAbsent"] = AbsDay;
-                drLocal.TotalLWP = LWP;
-                //drLocal["TotalLWP"] = LWP;
-
-                drLocal.TotalLv = LvDay;
-                //drLocal["TotalLv"] = LvDay;
-                drLocal.TotalMLv = (int)MLvDay;
-                //drLocal["TotalMLv"] = MLvDay;
-
-                drLocal.TotalCompAssignLv = (int)CALDay;
-                //drLocal["TotalCompAssignLv"] = CALDay;
-                drLocal.TotalWeekOff = (int)WkOFDay;
-                //drLocal["TotalWeekOff"] = WkOFDay;
-
-                drLocal.TotalHoliDay = (int)HDDay;
-                //drLocal["TotalHoliDay"] = HDDay;
-                drLocal.TotalWeekOffHoliDay = (int)WkOFHDDay;
-                //drLocal["TotalWeekOffHoliDay"] = WkOFHDDay;
-                drLocal.TotalOTHr = OTHDay;
-                //drLocal["TotalOTHr"] = OTHDay;
-                drLocal.TotalNormalOTHr = NorOTHDay;
-                //drLocal["TotalNormalOTHr"] = NorOTHDay;
-                drLocal.TotalExtraOTHr = ExtOTHDay;
-                //drLocal["TotalExtraOTHr"] = ExtOTHDay;
-
-                drLocal.UpdatedBy = (fpara.USER);
-                //drLocal["UpdatedBy"] = bplib.clsWebLib.RetValidLen((fpara.USER));
-                drLocal.DateUpdated = DateTime.Now;
-                //drLocal["DateUpdated"] = DateTime.Now;
             }
             catch (Exception ex)
             {
@@ -8154,19 +7749,63 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                 throw ex;
             }
         }
-        //void AllowanceProcess(IclsAdvanceProcess cls)
-        //{
-        //    try
-        //    {
-        //        cls.ProcessEmployeeAdvance();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //}
 
 
+        public void CreateMonthlyLeaveSummary(string EmpIds, FunctionPara identity)
+        {
+            string strSQL;
+
+            try
+            {
+
+                strSQL = @"         DECLARE @fromDate DATETIME
+                                    DECLARE @toDate DATETIME
+                                    SET @fromDate='" + identity.FromDate + @"'
+                                    SET @toDate='" + identity.ToDate + @"'
+
+
+                                    DELETE FROM SalaryProcessMonthlyLeaveData WHERE EmployeeSystemId IN (" + EmpIds + @") AND MonthNo=MONTH(@fromDate) AND YearNo=YEAR(@fromDate)
+
+                                    INSERT INTO SalaryProcessMonthlyLeaveData
+
+
+                                    SELECT MONTH(apd.WorkDate)MonthNo,YEAR(apd.WorkDate) AS YearNo, apd.EmpSystemID, l.LeaveTypeId,
+                                    CASE WHEN EncashWorkingDaysQty>0 THEN CONVERT(DECIMAL(18,4), EncashEarnLeaveQty)/CONVERT(DECIMAL(18,4),EncashWorkingDaysQty) ELSE 0 END * SUM(l.EarnValue) ActualEarnedLeave,
+                                    SUM(L.AvailedValue) AS AvailedValue,
+                                    '" + identity.USER + @"',GETDATE(),':::','" + identity.USER + @"',GETDATE(),':::',
+                                    SUM(CASE WHEN ISNULL(ds.PayDay,0)>0 THEN l.AvailedValue ELSE 0 END) AS PaidLeave,
+                                    SUM(CASE WHEN ISNULL(ds.PayDay,0)=0 THEN l.AvailedValue ELSE 0 END) AS NonPaidLeave
+                                        FROM AttdnProcessData AS apd
+
+                                    LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=apd.EmpSystemID
+                                    LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
+                                    LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
+                                    LEFT JOIN mst.DesignationMaster AS dm ON dm.Id=dmc.DesignationMasterId
+                                    LEFT JOIN DayStatusPlantChild PC ON pc.PlantId=ei.PlantId AND pc.EmpTypeId=dm.EmployeeCategoryId
+                                    JOIN DayTypeWithValues AS ds ON ds.code=apd.DayStatus AND ds.HeaderId=pc.HeaderId
+                                    JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id 
+
+                                        LEFT JOIN LeavePolicyDetail AS lpd ON lpd.LPMSystemID=dmc.LeavePolicyMasterId AND lpd.LTSystemID=l.LeaveTypeId
+                                    WHERE apd.EmpSystemID IN (" + EmpIds + @")
+                                    apd.WorkDate BETWEEN @fromDate AND @toDate
+                                    AND L.LeaveTypeId IN (SELECT LeaveTypeId FROM LeaveWithWagesRegisterLeaveTypes) 
+                                    GROUP BY  MONTH(apd.WorkDate),YEAR(apd.WorkDate),  apd.EmpSystemID,l.LeaveTypeId,EncashWorkingDaysQty,EncashEarnLeaveQty";
+
+                ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
+                connection.BeginTransaction();
+                connection.executeQuery(strSQL);
+                connection.CommitTransaction();
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+            finally
+            {
+
+            }
+        }//End Function .
 
         void GetCarryForwardSalary(DataSet dsSelectedEmp, FunctionPara para, Dictionary<string, List<dicLocal>> _dicLocal, List<ProcChild> dicProcChild, List<SPvalueHeadWise> dtValue, List<SPSalaryHead> dicSalaryHead, List<CarryForwardSalary> dicCarryForwardSalary)
         {

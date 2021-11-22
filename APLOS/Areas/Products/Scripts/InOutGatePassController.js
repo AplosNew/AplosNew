@@ -64,8 +64,11 @@ function InOutGatePassController(accountService, addressService, $location, $win
 		var x = "#" + z;
 		var gridObj = $(x).data("ejGrid");
 		var data = gridObj.getSelectedRecords()[0];
-		if (data.GatePassType === 'FixedAssetSales' || data.GatePassType === 'FixedAssetScrap') {
+		if (data.GatePassType === 'FixedAssetSales') {
 			location.href = " GateentryToken/InOutGatePassSalesTeamplateReport?GatePassId=" + data.Id;
+		}
+		else if (data.GatePassType === 'FixedAssetScrap') {
+			location.href = " GateentryToken/InOutGatePassScrapTeamplateReport?GatePassId=" + data.Id;
 		}
 		else {
 			location.href = " GateentryToken/InOutGatePassTeamplateReport?GatePassId=" + data.Id;

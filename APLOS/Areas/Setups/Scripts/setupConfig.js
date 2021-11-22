@@ -226,5 +226,6 @@ function SetupConfig($routeProvider, $locationProvider) {
             templateUrl: 'setups/LabelList/aplos',
             controller: 'LabelListController'
         })
+    
         ;
 }

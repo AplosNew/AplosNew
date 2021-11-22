@@ -83,6 +83,8 @@
                         <div e-column e-field="MaturityFromYear" e-headertext="Maturity From Year" e-width="70"></div>
                         <div e-column e-field="MaturityToYear" e-headertext="Maturity To Year" e-width="70"></div>
                         <div e-column e-field="MaturityFormulaDescription" e-headertext="Maturity Formula Description" e-width="70"></div>
+                        <div e-column e-field="YearOrDayBasis" e-headertext="Year Or Day Basis" e-width="70"></div>
+                        <div e-column e-field="NoOfDays" e-headertext="No Of Days" e-width="70"></div>
                     </div>
                 </div>
             </div>
@@ -203,12 +205,35 @@
                                 </div>
                             </fieldset>
                         </div>
-                        
+
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Per year / Day Basis</label>
+                                <div class="col-sm-4 show-message">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="GratuityPolicyDetailsModel.YearOrDayBasis">
+                                            <option></option>
+                                            <option value="Day"> Day</option>
+                                            <option value="Year"> Year</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group" ng-show="GratuityPolicyDetailsModel.YearOrDayBasis == 'Day'">
+                                <label class="col-sm-4 control-label">No of days per year</label>
+                                <div class="col-sm-4">
+                                    <input type="text" ng-model="GratuityPolicyDetailsModel.NoOfDays" class="form-control" maxlength="100" tabindex="2">
+                                </div>
+                            </div>
+                        </div>
+
                     </fieldset>
                 </div>
                 <div class="common-btn">
                     <ul class="list-inline text-right">
-                        <li> <button ng-click="SaveD();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i></button></li> 
+                        <li> <button ng-click="SaveD();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li> 
                         <li><button ng-disabled="DisableActionButtons" ng-click="Confirm();" class="btn"><i class="glyphicon glyphicon-floppy-remove" tabindex="9"></i> Delete</button></li>
                         <li> <button ng-click="ClearD();" class="btn" tabindex="13"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                         

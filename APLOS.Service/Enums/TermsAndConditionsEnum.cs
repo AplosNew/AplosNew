@@ -5,6 +5,7 @@
         Contract,
         LetterOfCredit,
         PerformaInvoice,
-        Invoice
+        Invoice,
+        PO
     }
 }
