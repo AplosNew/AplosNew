@@ -398,6 +398,7 @@
     <Compile Include="Areas\Attendances\Controllers\ManualOTReportNewController.cs" />
     <Compile Include="Areas\Attendances\Controllers\ManualOTUploadNewController.cs" />
     <Compile Include="Areas\Attendances\Controllers\OTManualNewController.cs" />
+    <Compile Include="Areas\Attendances\Controllers\MonthlyLeaveBalanceController.cs" />
     <Compile Include="Areas\Attendances\Controllers\WeekOffHolidayOTReportOriginalController.cs" />
     <Compile Include="Areas\Attendances\Controllers\WeekOffHolidayOTReportController.cs" />
     <Compile Include="Areas\Attendances\Controllers\DailyAttendanceReportController.cs" />
@@ -1028,7 +1029,6 @@
     <Compile Include="Areas\Securities\Controllers\MenuUserCodeController.cs" />
     <Compile Include="Areas\Securities\Controllers\UserEntityController.cs" />
     <Compile Include="Areas\Commercial\Controllers\InvoiceBudgetChargesSettingController.cs" />
-    <Compile Include="Areas\Setups\Controllers\TermsAndConditionsController.cs" />
     <Compile Include="Areas\Setups\Controllers\LabelListController.cs" />
     <Compile Include="Areas\Setups\Controllers\ReportingGroupController.cs" />
     <Compile Include="Areas\Setups\Controllers\NotificationSettingController.cs" />
@@ -1660,6 +1660,7 @@
     <Content Include="Areas\Attendances\Scripts\ManualOTReportNewController.js" />
     <Content Include="Areas\Attendances\Scripts\ManualOTUploadNewController.js" />
     <Content Include="Areas\Attendances\Scripts\OTManualNewController.js" />
+    <Content Include="Areas\Attendances\Scripts\MonthlyLeaveBalanceController.js" />
     <Content Include="Areas\Attendances\Scripts\weekOffOTReportOriginalController.js" />
     <Content Include="Areas\Attendances\Scripts\weekOffOTReportController.js" />
     <Content Include="Areas\Attendances\Scripts\AdditionalPayDayController.js" />
@@ -2377,7 +2378,6 @@
     <Content Include="Areas\Securities\Scripts\menuUserCodeController.js" />
     <Content Include="Areas\Securities\Scripts\syncURLController.js" />
     <Content Include="Areas\Securities\Scripts\employeeMobileAppsAuthorizationNewController.js" />
-    <Content Include="Areas\Setups\Scripts\TermsAndConditionController.js" />
     <Content Include="Areas\Setups\Scripts\LabelListController.js" />
     <Content Include="Areas\Setups\Scripts\ReportingGroupController.js" />
     <Content Include="Areas\Setups\Scripts\notificationSettingController.js" />
@@ -3859,6 +3859,7 @@
     <Content Include="Areas\Payrolls\Views\PaySlipsNew\PaySlipsNew.cshtml" />
     <Content Include="Areas\Productions\Views\MachineLayoutReport\Aplos.cshtml" />
     <Content Include="Areas\JobWork\Views\JWIssueReturn\Aplos.cshtml" />
+    <Content Include="Areas\Attendances\Views\MonthlyLeaveBalance\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
