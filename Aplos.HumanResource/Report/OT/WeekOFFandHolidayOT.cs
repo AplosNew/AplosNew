@@ -4777,7 +4777,7 @@ namespace Library.HumanResource.Report.OT
         }//End Function
 
         //Sayanto Addition For Consolidated Weekends/WeekOff Good Work Report
-        public IWorkbook GetWeekOFFExtraOTCon(string Name, string CompanyGroupId, string CompanyId, string PlantId, string Month, string Year, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity)
+        public IWorkbook GetWeekOFFExtraOTCon(string Name, string CompanyGroupId, string CompanyId, string PlantId, string TypeId, string Month, string Year, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity)
         {
             #region declare
             clsReport objRpt = null;
@@ -4795,9 +4795,9 @@ namespace Library.HumanResource.Report.OT
             {
                 Dictionary<string, DataRow> dicHourlyOTNW = new Dictionary<string, DataRow>();
 
-                DataTable dtEmpHourlyOt = getHourlyOTCon(PlantId, Month, Year, parameters);
+                DataTable dtEmpHourlyOt = getHourlyOTCon(PlantId, TypeId, Month, Year, parameters);
 
-                dicHourlyOTNW = GetDictionaryHourotmonthReportwithoutWeekendHolidayCon(Year, Month, PlantId, CompanyId, CompanyGroupId, parameters, isActive, isSeperated);
+                dicHourlyOTNW = GetDictionaryHourotmonthReportwithoutWeekendHolidayCon(Year, Month, PlantId, TypeId, CompanyId, CompanyGroupId, parameters, isActive, isSeperated);
                 if (dtEmpHourlyOt.Rows.Count == 0)
                 {
                     Exception ex = new Exception("No Data Found....");
@@ -4816,7 +4816,7 @@ namespace Library.HumanResource.Report.OT
                 application = excelEngine.Excel;
 
                 Dictionary<string, DataRow> dicHourlyOTW = new Dictionary<string, DataRow>();
-                dicHourlyOTW = GetDictionaryHourOTMonthReportWithWeekendORHolidayCon(Year, Month, PlantId, CompanyId, CompanyGroupId, parameters, isActive, isSeperated, "Weekend");
+                dicHourlyOTW = GetDictionaryHourOTMonthReportWithWeekendORHolidayCon(Year, Month, PlantId, TypeId, CompanyId, CompanyGroupId, parameters, isActive, isSeperated, "Weekend");
 
 
 
@@ -4829,8 +4829,8 @@ namespace Library.HumanResource.Report.OT
 
                 DataSet dsCurrency = null;
 
-                Dictionary<string, List<DataRow>> dicSalStructure = LoadSalaryStructureCon(PlantId, FirstDayOfTheMonth, LastDayOfTheMonth, wcEmpSystemId);
-                Dictionary<string, DataRow> dicOTpolicy = LoadOverTimePolicyCon(PlantId, FirstDayOfTheMonth, LastDayOfTheMonth, wcEmpSystemId);
+                Dictionary<string, List<DataRow>> dicSalStructure = LoadSalaryStructureCon(PlantId, TypeId, FirstDayOfTheMonth, LastDayOfTheMonth);
+                Dictionary<string, DataRow> dicOTpolicy = LoadOverTimePolicyCon(PlantId, TypeId, FirstDayOfTheMonth, LastDayOfTheMonth);
 
                 clsSalaryInfo objSal = new clsSalaryInfo();
 
@@ -4928,6 +4928,10 @@ namespace Library.HumanResource.Report.OT
                 int iEmployeeCategory = xlsCol;
                 sheet1.Range[xlsRow, iEmployeeCategory].Text = "Employee Category";
                 sheet1.Range[xlsRow, iEmployeeCategory].ColumnWidth = 25;
+                xlsCol += 1;
+                int iEmployeeCodeType = xlsCol;
+                sheet1.Range[xlsRow, iEmployeeCodeType].Text = "EmployeeCode Type";
+                sheet1.Range[xlsRow, iEmployeeCodeType].ColumnWidth = 18;
 
                 xlsCol += 1;
                 iSection = xlsCol;
@@ -5081,6 +5085,7 @@ namespace Library.HumanResource.Report.OT
                     sheet1.Range[xlsRow, iBankName].Text = dtEmpHourlyOt.Rows[i]["BankName"].ToString();
                     sheet1.Range[xlsRow, iIFSCNO].Text = dtEmpHourlyOt.Rows[i]["IFSCCode"].ToString();
                     sheet1.Range[xlsRow, iEmployeeCategory].Text = dtEmpHourlyOt.Rows[i]["EmployeeCategory"].ToString();
+                    sheet1.Range[xlsRow, iEmployeeCodeType].Text = dtEmpHourlyOt.Rows[i]["EmployeeCodeType"].ToString();
 
                     sheet1.Range[xlsRow, iWeekDayOTHr].Text = nwotFormated;
                     sheet1.Range[xlsRow, iWeekDayOTHr].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -5189,7 +5194,7 @@ namespace Library.HumanResource.Report.OT
             }
         }
 
-        public DataTable getHourlyOTCon(string plantId, string monthNo, string yearNo, Dictionary<string, string> parameters)
+        public DataTable getHourlyOTCon(string plantId, string TypeId, string monthNo, string yearNo, Dictionary<string, string> parameters)
         {
             DataSet dsRef = null;
             try
@@ -5224,7 +5229,7 @@ namespace Library.HumanResource.Report.OT
 									,ISNULL(PG.UserName,'') PayRollGroup
                                     ,ISNULL(ebi.IFSCCode,'') IFSCCode
 									,ISNULL(ebi.BankAccNo,'') BankAccNo
-                                    ,ISNULL(ec.UserName,'') EmployeeCategory, p.UserName as Plant
+                                    ,ISNULL(ec.UserName,'') EmployeeCategory, p.UserName as Plant,ECT.UserName EmployeeCodeType
                                       FROM EmployeeInformation ei   
                                       INNER JOIN (Select distinct EmpsystemId From HourlyOT HO where  HO.Duration !=0  and Month(HO.WorkDate) = " + monthNo + @" and Year(HO.WorkDate) = " + yearNo + @" ) HO ON ei.SystemId = HO.EmpSystemId
 									  LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = ei.BudgetCode
@@ -5249,7 +5254,8 @@ namespace Library.HumanResource.Report.OT
 									  LEFT OUTER JOIN MST.PayrollGroupMaster PGM ON PGM.employeeid = ei.SystemId
                                         LEFT OUTER JOIN HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
                                         left join org.Plant p on p.Id = ei.PlantId
-									WHERE  EI.plantid in (" + plantId + @") " + wcEmpSystemId + @"";
+                                        left join dbo.EmployeeCodeType ECT on ECT.Id = ei.EmployeeCodeTypeId
+									WHERE  EI.plantid in (" + plantId + @") AND EI.EmployeeCodeTypeId in (" + TypeId + @") " + wcEmpSystemId + @"";
                 ConnectionManager.clsConnectionManager con = new ConnectionManager.clsConnectionManager(600);
                 con.getDataSet(strSql, out dsRef);
 
@@ -5262,7 +5268,7 @@ namespace Library.HumanResource.Report.OT
                 throw ex;
             }
         }
-        public Dictionary<string, DataRow> GetDictionaryHourotmonthReportwithoutWeekendHolidayCon(string YearNo, string MonthNo, string plantId, string companyId, string companyGroupId, Dictionary<string, string> parameters, bool isActive, bool isSeperated)
+        public Dictionary<string, DataRow> GetDictionaryHourotmonthReportwithoutWeekendHolidayCon(string YearNo, string MonthNo, string plantId, string TypeId, string companyId, string companyGroupId, Dictionary<string, string> parameters, bool isActive, bool isSeperated)
         {
             //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
@@ -5347,7 +5353,7 @@ namespace Library.HumanResource.Report.OT
                                       LEFT JOIN DailyAllowanceRate dar on dar.DailyAllowanceId=ad.id AND dar.PlantId = ei.PlantId AND dar.DesignationId=DM.DesignationId
                                     WHERE Month(HO.WorkDate) = " + MonthNo + @" and Year(HO.WorkDate) = " + YearNo + @"
                                    AND (ISNULL(ap.HoliDayValue,0)=0 AND ISNULL(ap.WeekOffValue,0)=0)
-                                    " + wcDos + @" AND ei.plantid in (" + plantId + @") " + wcEmpSystemId + @"                             
+                                    " + wcDos + @" AND ei.plantid in (" + plantId + @") AND ei.EmployeeCodeTypeId in (" + TypeId + @") " + wcEmpSystemId + @"                             
                                     GROUP BY  EmployeeName,EmployeeCode,ei.SystemId,DOJ
 									,s.UserName,sb.UserName,lg.UserName,d.UserName,ei.GenderID,HO.EmpSystemId,l.UserName,hr.OTConsiderOn ,ad.IsAllDesignation 
                                     ,ad.IsFixed,ad.FormulaDesID,dar.IsFixed,dar.FormulaDesID,ad.Rate ,dar.rate,ei.DOS	,bb.UserName,PG.UserName
@@ -5378,7 +5384,7 @@ namespace Library.HumanResource.Report.OT
             }
         }//End Function
 
-        public Dictionary<string, DataRow> GetDictionaryHourOTMonthReportWithWeekendORHolidayCon(string YearNo, string MonthNo, string plantId, string companyId, string companyGroupId, Dictionary<string, string> parameters, bool isActive, bool isSeperated, string DayCategory)
+        public Dictionary<string, DataRow> GetDictionaryHourOTMonthReportWithWeekendORHolidayCon(string YearNo, string MonthNo, string plantId, string TypeId, string companyId, string companyGroupId, Dictionary<string, string> parameters, bool isActive, bool isSeperated, string DayCategory)
         {
             ConnectionManager.DAL.ConManager objCon;
             Dictionary<string, DataRow> dicOTPolicy = new Dictionary<string, DataRow>();
@@ -5462,7 +5468,7 @@ namespace Library.HumanResource.Report.OT
 									
                                       LEFT JOIN DailyAllowanceRate dar on dar.DailyAllowanceId=ad.id AND dar.PlantId = EI.PlantId AND dar.DesignationId=DM.DesignationId
 
-                                    WHERE Month(HO.WorkDate) = " + MonthNo + @" and Year(HO.WorkDate) = " + YearNo + @"  AND ISNULL(ap.WeekOffValue,0)>0  " + wcDos + @" AND ei.plantid in (" + plantId + @") " + wcEmpSystemId + @" 
+                                    WHERE Month(HO.WorkDate) = " + MonthNo + @" and Year(HO.WorkDate) = " + YearNo + @"  AND ISNULL(ap.WeekOffValue,0)>0  " + wcDos + @" AND ei.plantid in (" + plantId + @") AND ei.EmployeeCodeTypeId in (" + TypeId + @") " + wcEmpSystemId + @" 
                                         --AND ad.Catagory='HourlyOffDuty' AND ad.Active=1
                                     GROUP BY  EmployeeName,EmployeeCode,ei.SystemId,DOJ,s.UserName,sb.UserName,lg.UserName
 									,d.UserName,ei.GenderID,HO.EmpSystemId,l.UserName,hr.OTConsiderOn --,EntryAmount
@@ -5506,7 +5512,7 @@ namespace Library.HumanResource.Report.OT
             }
         }//End Function
 
-        public Dictionary<string, List<DataRow>> LoadSalaryStructureCon(string sPlantID, string sFromDate, string sToDate, string EmpIds)
+        public Dictionary<string, List<DataRow>> LoadSalaryStructureCon(string sPlantID, string TypeId, string sFromDate, string sToDate)
         {
             System.Data.DataSet dsRef = null;
             Dictionary<string, List<DataRow>> dicBonus = new Dictionary<string, List<DataRow>>();
@@ -5548,7 +5554,7 @@ namespace Library.HumanResource.Report.OT
                             
                             LEFT JOIN scs.LegalSalaryGrade LG ON LG.Id = LGD.LegalSalaryGradeId
 
-                                where (e.DOJ<='" + sToDate + @"') and (e.DOS is null or e.DOS>='" + sFromDate + @"') and e.SystemID in (" + EmpIds + @")
+                                where (e.DOJ<='" + sToDate + @"') and (e.DOS is null or e.DOS>='" + sFromDate + @"') and e.PlantId in (" + sPlantID + @") and e.EmployeeCodeTypeId in (" + TypeId + @")
                             ORDER BY m.EmpInfoSystemID";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -5582,7 +5588,7 @@ namespace Library.HumanResource.Report.OT
             }
         }//End Function
 
-        public Dictionary<string, DataRow> LoadOverTimePolicyCon(string sPlantID, string sFromDate, string sToDate, string empIds)
+        public Dictionary<string, DataRow> LoadOverTimePolicyCon(string sPlantID, string TypeId, string sFromDate, string sToDate)
         {
             string strSQL;
             System.Data.DataSet dsRef = null;
@@ -5608,7 +5614,7 @@ namespace Library.HumanResource.Report.OT
 												left join OverTimePmtPolicyDetails oW on ow.OverTimePmtPolicyID=otpm.ID and ow.OverTimeDayType='Week Off'
 												left join OverTimePmtPolicyDetails oNW on oNW.OverTimePmtPolicyID=otpm.ID and onw.OverTimeDayType='Working Day'
 
-												where e.SystemId in (" + empIds + @")";
+												where (e.DOJ<='" + sToDate + @"') and (dos is null or e.DOS>='" + sFromDate + @"') and e.PlantId in (" + sPlantID + @") and e.EmployeeCodeTypeId in (" + TypeId + @")";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");

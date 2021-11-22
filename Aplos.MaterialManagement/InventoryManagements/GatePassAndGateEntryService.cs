@@ -273,7 +273,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						WHERE IRD.TransferedFromGrnId is not null
 
                         Union all
-						SELECT FARD.Id ComId, REPLACE(CONVERT(CHAR(11), FARD.AddedDate, 106), ' ', '-') AS  CreatedDate
+						SELECT FARD.Id ComId, REPLACE(CONVERT(CHAR(11), FARD.DocDate, 106), ' ', '-') AS  CreatedDate
 						,'FixedAssetSales' GatePassFor,p.UserName VendorNameOrCuetomerName 
 						,null PlantId
 						FROM Trn.FixedAssetRegisterDisposed FARD
@@ -282,7 +282,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						FARD.Id not in (Select FixedAssetRegisterDisposedId from trn.InOutGatePassMaster where FixedAssetRegisterDisposedId is not null)
 
                         Union all
-						SELECT distinct FARD.Id ComId, REPLACE(CONVERT(CHAR(11), FARD.AddedDate, 106), ' ', '-') AS  CreatedDate
+						SELECT distinct FARD.Id ComId, REPLACE(CONVERT(CHAR(11), FARD.DocDate, 106), ' ', '-') AS  CreatedDate
 						,'FixedAssetScrap' GatePassFor,p.UserName VendorNameOrCuetomerName 
 						,null PlantId
 						FROM Trn.FixedAssetRegisterDisposed FARD
@@ -294,6 +294,7 @@ namespace Library.MaterialManagement.InventoryManagements
 
 
 				)x
+                order by x.CreatedDate desc
 				--where x.PlantId='" + identity.PlantId+ "'";
 				return _sqlRepository.GetDataCollection(sql);
 			}

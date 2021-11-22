@@ -1,5 +1,5 @@
 ﻿<togglable name="{{title}}"></togglable>
-<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+<div class="form-elements form-horizontal row" ng-form name="ModelNewForm">
     <input type="hidden" ng-model="ModelNew.Id">
     <div class="col-xs-12 col-sm-6 col-md-6">
         <div class="form-group" show-errors>
@@ -33,7 +33,7 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Description<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <textarea  name="Description" class="form-control" rows="3" ng-model="ModelNew.Description" tabindex="9" maxlength="250" required></textarea>
+                <textarea name="Description" class="form-control" rows="3" ng-model="ModelNew.Description" tabindex="9" maxlength="250" required></textarea>
             </div>
         </div>
     </div>
@@ -86,7 +86,64 @@
             <li> <button ng-click="Clear();" class="btn" tabindex="13"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
     </div>
+    <div class="col-lg-12" ng-show="ModelNew.Id!=null">
+        <div class="form-group col-xs-12 col-sm-6 col-md-6">
+            <label class="col-sm-2 control-label">Title</label>
+            <div class="col-sm-10 show-message">
+                <input type="text" name="Title" ng-model="TitleModel.Title" class="form-control" tabindex="2" maxlength="10">
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-1 col-md-1">
+            <div class="common-btn">
+                <ul class="list-inline text-left">
+                    <li>
+                        <button ng-click="loadGrid();" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Show">
+                            <i class="glyphicon glyphicon-plus" style="color: greenyellow;"></i>
+                        </button>
+                    </li>
+                    <!--<li><button ng-click="loadGrid()"--> @*ng-disabled="ESICPolicyMaster.ID==null"*@ <!--class="btn"><i class="glyphicon glyphicon-plus"></i></button></li>-->
+                </ul>
+            </div>
+        </div>
+        <div class="col-sm-7" ng-show="GridList.length>0">
+            <div id="Grid2" ej-grid e-datasource="GridList" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowResizing="true" e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="false">
+                <div e-columns>
+                    <div e-column e-template="#templateTitle" e-headertext="Title" e-width="10"></div>
+                    <div e-column e-template="#ShowAction" e-headertext="Action" e-width="30px"></div>
+                    @*<div e-column e-template="#templateDescription" e-headertext="Description" e-width="15"></div>*@
+                    @*<div e-column e-headertext=" Action " e-template="#ActionBTN" e-width="6"></div>*@
+                </div>
+
+                <script type="text/ng-template" id="ShowAction">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right small">
+                            <li>
+                                <button ng-click="$parent.showRemarksPopUp(data);" title="Remarks" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                    <i class="glyphicon glyphicon-plus-sign"></i>
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </script>
+            </div>
+
+            <script type="text/template" id="templateTitle">
+                <input type="text" ng-model="data.Title" ng-maxlength="150" style="color:black;" class="form-control" />
+            </script>
+            <script type="text/template" id="templateDescription">
+                <input type="text" ng-model="data.Description" ng-maxlength="150" style="color:black;" class="form-control" />
+            </script>
+        </div>
+        <div class="common-btn" ng-show="GridList.length>0">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="SaveGrid();" class="btn" tabindex="11"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="12"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
+                <li> <button ng-click="Clear();" class="btn" tabindex="13"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+    </div>
 </div>
+
 <div class="row text-right aplos-grid-toggle">
     <div class="col-xs-12 col-sm-12 col-sm-12">
         <div class="search-form">
@@ -124,6 +181,31 @@
             <div e-column e-field="Description" e-headertext="Description" e-width="8"></div>
             <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
             <div e-column e-field="Mandatory" e-headertext="Mandatory" e-width="2"></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="RemarksPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="closeRemarksPopUp()">&times;</button>
+                <h4 class="modal-title">Remarks</h4>
+            </div>
+            <div class="modal-body">
+                <div id="gridRemarks" ej-grid e-datasource="RemarkList" e-pagesettings-pagesize="4" e-minheight="300"
+                     e-endadd="SaveRemarks" e-endedit="SaveRemarks" e-enddelete="DeleteRemarks" e-editsettings-allowediting="true" e-editsettings-allowadding="true" e-editsettings-allowdeleting="true"
+                     e-toolbarsettings-showtoolbar="true" e-toolbarsettings-toolbaritems="[ej.Grid.ToolBarItems.Add, ej.Grid.ToolBarItems.Edit, ej.Grid.ToolBarItems.Delete, ej.Grid.ToolBarItems.Update, ej.Grid.ToolBarItems.Cancel]"
+                     e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filtertype="excel">
+                    <div e-columns>
+                        <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-isprimarykey="true"></div>
+                        <div e-column e-field="OrderControlId" e-headertext="OrderControlId" e-visible="false"></div>
+                        <div e-column e-field="Remarks" e-headertext="Remarks" e-width="5"></div>
+                        <div e-column e-type="date" e-allowediting="false" e-format="{0:dd-MMM-yyyy}" e-field="AddedDate" e-headertext="Date" e-width="2"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

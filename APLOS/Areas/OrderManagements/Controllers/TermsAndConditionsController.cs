@@ -38,21 +38,16 @@ namespace Aplos.Areas.OrderManagements.Controllers
             _sqlRepository = R;
         }
 
-        #endregion Constructor
-
-
-     
+        #endregion Constructor     
         public ActionResult Aplos()
         {
             return View();
         }
-
         [Authorize, HttpGet]
         public JsonResult GetCbo()
         {
             return Json(tg.GetCbo(), JsonRequestBehavior.AllowGet);
         }
-
         [Authorize, HttpPost]
         public ActionResult Get(string Id)
         {
@@ -106,7 +101,6 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
             }
         }
-
         public ActionResult Delete(string id)
         {
             try
@@ -133,7 +127,6 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
 
         }
-
         private double GetSequence()
         {
             DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM " + TableName + "");
@@ -142,5 +135,151 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
             return 1;
         }
+
+
+        [HttpPost]
+        public JsonResult SaveData(Dictionary<string, object> TitleData, List<Dictionary<string, object>> GridData)
+        {
+            try
+            {
+
+                ConnectionManager.DAL.ConManager conTitle = new ConnectionManager.DAL.ConManager("1");
+                conTitle.OpenDataSetThroughAdapter("select * from dbo.TermsAndConditionsChild where Id='" + TitleData["Id"] + "'", out DataSet dsTitle, false, "1");
+
+                //if (dsTitle.Tables[0].Rows.Count > 0)
+                //{
+                //    throw new Exception("Id Already Exist.");
+                //}
+                //String TermsAndConditionsChildId = "";
+                //DataSet dsTitile;
+
+                //conTitle = new ConnectionManager.DAL.ConManager("1");
+                //conTitle.OpenDataSetThroughAdapter("select * from dbo.TermsAndConditionsDetails  where TermsAndConditionsChildId=='" + TitleData["Id"] + "'", out dsTitile, false, "1");
+
+                //if (TitleData["Id"] == null)
+                //{
+                //    bplib.clsGenID genid = new bplib.clsGenID();
+                //    genid.GenID("dbo.TermsAndConditionsDetails", out TermsAndConditionsChildId);
+                //    TermsAndConditionsChildId = "TD" + TermsAndConditionsChildId;
+                //    TitleData["Id"] = TermsAndConditionsChildId;
+                //    AddNewRow(dsTitile.Tables[0], TitleData);
+                //}
+
+                //if (TitleData["StorageLocationId"] == null)
+                //{
+                //    throw new Exception("Please Select Storage Location");
+                //}
+
+                string _Id = "";
+
+                #region data update
+                if (dsTitle.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("dbo.TermsAndConditionsChild", out _Id);
+                    _Id = "TC" + _Id;
+                    TitleData["Id"] = _Id;
+                    AddNewRow(dsTitle.Tables[0], TitleData);
+                }
+                else
+                {
+                    _Id = TitleData["Id"].ToString();
+                    EditRow(dsTitle.Tables[0].Rows[0], TitleData);
+                }
+                #endregion data update
+
+
+                DataSet dsGrid;
+
+                ConnectionManager.DAL.ConManager conBin = new ConnectionManager.DAL.ConManager("1");
+                conBin.OpenDataSetThroughAdapter("select * from dbo.TermsAndConditionsDetails where TermsAndConditionsChildId='" + _Id + "'", out dsGrid, false, "1");
+
+                string DetailId = "";
+                for (int i = 0; i < GridData.Count; i++)
+                {
+                    dsGrid.Tables[0].DefaultView.RowFilter = "Id='" + GridData[i]["Id"] + @"'";
+                    if (dsGrid.Tables[0].DefaultView.Count > 0)
+                    {
+                        //edit
+                        DataRow dr = dsGrid.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+                        dr["UserName"] = GridData[i]["UserName"];
+                        dr.EndEdit();
+                    }
+                    else
+                    {
+                        //addnew
+                        if (DetailId == "")
+                        {
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenID("dbo.TermsAndConditionsDetails", out DetailId);
+                        }
+                        DataRow dr = dsGrid.Tables[0].NewRow();
+
+                        dr["Id"] = "TD-" + DetailId + "-" + (i + 1);
+                        dr["TermsAndConditionsChildId"] = _Id;
+                        //dr["HeaderCaption"] = GridData[i]["Header"];
+                        //dr["Description"] = GridData[i]["Description"];
+                        //AddNewRow(dsGrid.Tables[0], GridData);
+                        //dsGrid.Tables[0].Rows.Add(dr);
+
+                    }
+                }
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsTitle, dsGrid);
+                //_info.SaveDataSets(dsTitle);
+
+                return Json(new { Error = false, Data = TitleData, Sequence = GetSequence(), Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr.EndEdit();
+        }
+
+
     }
 }
