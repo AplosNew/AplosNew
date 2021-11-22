@@ -877,6 +877,7 @@ function RequisitionController(accountService, addressService, $window, cboServi
 	$scope.closeDetaiPopUp = function () {
 		$scope.detailModel = {};
 		$scope.taxCategoryList = [];
+		$scope.RequisitionStockBalanceList = [];
 		removeValidationMsg();
 		angular.element(document.querySelector('#detailPopUp')).modal('hide');
 	};
@@ -957,6 +958,13 @@ function RequisitionController(accountService, addressService, $window, cboServi
 
 		});
 	};
+    $scope.showStockDetail = function () {
+		angular.element(document.querySelector('#StockDetailPopUp')).modal('show');
+    }
+
+	$scope.closeStockDetail = function () {
+		angular.element(document.querySelector('#StockDetailPopUp')).modal('hide');
+	}
 
 	$scope.setCharData = function (data) {
 		$scope[$scope.charValueSearchFor].CharacteristicsValueId = data.CharacteristicsValueId;

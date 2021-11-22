@@ -846,8 +846,10 @@ namespace Library.Accounting.FixedAssets
 
             reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Disposed No");
             reportUtility.SetText(ref sheet, row, 2, header["DisposedNo"].ToString());
-            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Disposal Type");
-            reportUtility.SetText(ref sheet, row, 5, header["DisposedStatus"].ToString());
+            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Doc Ref");
+            reportUtility.SetText(ref sheet, row, 5, header["DocRefNo"].ToString());
+            //reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Disposal Type");
+            //reportUtility.SetText(ref sheet, row, 5, header["DisposedStatus"].ToString());
             row++;
 
             reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Posting Date");
@@ -871,9 +873,12 @@ namespace Library.Accounting.FixedAssets
                 reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Customer");
                 reportUtility.SetText(ref sheet, row, 2, header["Vendor"].ToString());
             }
-            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Doc Ref");
-            reportUtility.SetText(ref sheet, row, 5, header["DocRefNo"].ToString());
-           
+            if (companyCurrencyId != transcationCurrency)
+            {
+                reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Sales Amount");
+                reportUtility.SetText(ref sheet, row, 5, Convert.ToDouble(header["SalesAmount"].ToString()) + " " + header["CurrencyCode"].ToString());
+            }
+
             row++;
 
             if (header["DisposedStatus"].ToString() == "Sales")
@@ -881,11 +886,7 @@ namespace Library.Accounting.FixedAssets
                 reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Customer Plant");
                 reportUtility.SetText(ref sheet, row, 2, header["VendorPlant"].ToString());
             }
-            if (companyCurrencyId != transcationCurrency)
-            {
-                reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Sales Amount");
-                reportUtility.SetText(ref sheet, row, 5, Convert.ToDouble(header["SalesAmount"].ToString()) + " " + header["CurrencyCode"].ToString() );
-            }
+            
             //reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Status");
             //reportUtility.SetText(ref sheet, row, 5, header["Status"].ToString());
             row++;
