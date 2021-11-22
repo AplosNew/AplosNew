@@ -74,7 +74,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
         //Addition By Sayanto
         [HttpPost, Authorize]
-        public ActionResult GetEmpInfo(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity, string PlantId)
+        public ActionResult GetEmpInfo(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity, string PlantId, string TypeId)
         {
            
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -83,6 +83,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 PlantId = identity.PlantId;
             }
             string Plant = "'" + PlantId.Replace(",", "','") + "'";//replaced with ""
+            string Type = "'" + TypeId.Replace(",", "','") + "'";//replaced with ""
             var month = Convert.ToDateTime(effectiveDate).AddMonths(1);
             var Ld = month.AddDays(-1);
             var wcPayrollGroup = "";
@@ -113,9 +114,9 @@ namespace Aplos.Areas.Attendances.Controllers
             }
             wcEmpStatus += ")";
 
-            param = "E.GroupID='" + identity.CompanyGroupId + "' AND E.CompanyId='" + identity.CompanyId + "' AND E.PlantId in (" + Plant + ")";
+            param = "E.GroupID='" + identity.CompanyGroupId + "' AND E.CompanyId='" + identity.CompanyId + "' AND E.PlantId in (" + Plant + ") AND E.EmployeeCodeTypeId IN ("+Type+")";
 
-            var cmdText = @"SELECT * fROM (  SELECT   dISTINCT        [CheckBoxSelect] = Convert(bit, 'False'),
+            var cmdText = @"SELECT * FROM (  SELECT   DISTINCT        [CheckBoxSelect] = Convert(bit, 'False'),
                                      isnull(e.SystemId,'') EmpSystemId
 									,ISNULL(e.EmployeeId,'')  EmployeeId                                     
                                     ,ISNULL(e.EmployeeCode,'') EmployeeCode
@@ -204,7 +205,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
 
         [HttpPost, Authorize]
-        public ActionResult GetMonthWiseWeekExtraOTReport(string Month, string Year, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity , string PlantId)
+        public ActionResult GetMonthWiseWeekExtraOTReport(string Month, string Year, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity , string PlantId,string TypeId)
         {
             try
             {
@@ -215,13 +216,14 @@ namespace Aplos.Areas.Attendances.Controllers
                     PlantId = identity.PlantId;
                 }
                 string Plant = "'" + PlantId.Replace(",", "','") + "'";//replaced with ""
+                string Type = "'" + TypeId.Replace(",", "','") + "'";//replaced with ""
 
                 WeekOFFandHolidayOT clsWeekOFFOTReport = new WeekOFFandHolidayOT();
                 var fileName = "WeekOFFOT" + DateTime.Now.ToString("yyMMdd") + ".xls";
                 string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
 
                 //GetWeekOFFExtraOT(string Name, string CompanyGroupId, string PlantId, string CompanyId, string PlantName, string Month, string Year, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity)
-                var workbook = clsWeekOFFOTReport.GetWeekOFFExtraOTCon(identity.Name, identity.CompanyGroupId, identity.CompanyId, Plant, Month, Year,  parameters,  isActive,  isSeperated,  isMaternity);
+                var workbook = clsWeekOFFOTReport.GetWeekOFFExtraOTCon(identity.Name, identity.CompanyGroupId, identity.CompanyId, Plant, TypeId, Month, Year,  parameters,  isActive,  isSeperated,  isMaternity);
 
                 workbook.Version = ExcelVersion.Excel97to2003;
                 workbook.SaveAs(fullPath);
