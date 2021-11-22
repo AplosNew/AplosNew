@@ -256,11 +256,33 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
     $scope.downloadgriddataUrl = 'GridReports/Download';
 
     $scope.Report = function () {
+
+        if (angular.isUndefinedOrNull($scope.WeekO)) {
+            ShowResult("Please Select the Week!!", 'failure');
+            throw ('Invaild Request');
+        }
+
+        if (angular.isUndefinedOrNull($scope.FromDateO) || angular.isUndefinedOrNull($scope.ToDateO)) {
+            ShowResult("Please Select the From and To Date!!", 'failure');
+            throw ('Invaild Request');
+        }
+
+        var gridObj = $("#WeekListO").data("ejGrid");
+        var filteredRecords = gridObj.getFilteredRecords();
+        if (filteredRecords.length == 0) {
+            filteredRecords = $scope.filters;
+        }
+
+        var parameters = [];
+        parameters.push({ "Key": "PlantId", "Value": getString(filteredRecords, "PlantId") });
+        parameters.push({ "Key": "EntityId", "Value": getString(filteredRecords, "EntityId") });
+
+
         $http({
             method: 'POST',
             url: $scope.path + 'getOTReportDownload',
             data: {
-                'Week': $scope.Week, 'FromDate': $scope.FromDate, 'ToDate': $scope.ToDate, 'OTConfirmationValue': $scope.OTConfirmationValue
+                'Week': $scope.WeekO, 'FromDate': $scope.FromDateO, 'ToDate': $scope.ToDateO, 'OTConfirmationValue': $scope.OTConfirmationValue
                 , 'Process': $scope.Process, 'ProcessValue': $scope.ProcessValue, 'DayStatus': $scope.DayStatus, 'DSApp': $scope.DSApp, 'Parameters': parameters
             },
             dataType: 'JSON'
