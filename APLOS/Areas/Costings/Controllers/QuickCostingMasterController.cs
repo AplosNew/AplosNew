@@ -1976,7 +1976,7 @@ namespace Aplos.Areas.Costings.Controllers
         [HttpGet, Authorize]
         public ActionResult GetDirectCostingMaterialWithItemByComponentId(string costingComponentId, string costingMasterTemplateId)
         {
-            string sql = @"select ci.CostingComponentId,m.Consumption,CI.Id AS CostingItemId,m.CostingMasterTemplateId,m.GrossAmount,m.GrossConsumption,m.Id,m.Rate,m.ResponsiblePersoinId,m.UOM
+            string sql = @"select ci.CostingComponentId,CI.Sequence,m.Consumption,CI.Id AS CostingItemId,m.CostingMasterTemplateId,m.GrossAmount,m.GrossConsumption,m.Id,m.Rate,m.ResponsiblePersoinId,m.UOM
                         ,isnull(m.ValueLoss,ci.Wastage) AS ValueLoss,M.Remarks,M.ProcurementLevel,M.BOQDays,M.DependentDate,M.BOQCriteria,MGM.UserName AS MaterialGroup
                         ,m.SourcingType, ISNULL(m.IsUDApplicable,0) AS IsUDApplicable, m.Usage, ISNULL(m.IsGeneric,0) AS IsGeneric,ISNULL(m.IsMandatory,0) AS  IsMandatory
 						,m.MaterialMasterId, m.ArticleId, mm.UserName as MaterialMasterName, mma.StandardName as ArticleName
@@ -2043,7 +2043,7 @@ namespace Aplos.Areas.Costings.Controllers
         [HttpGet, Authorize]
         public ActionResult GetOperationWithItemByComponentId(string costingComponentId, string costingMasterTemplateId)
         {
-            string sql = @"select ci.CostingComponentId,o.Id,CI.Id AS CostingItemId, o.[Value], o.[Description],e.EmployeeName as ResponsiblePersoin, e.SystemId as ResponsiblePersoinId,  ci.UserName, o.Description
+            string sql = @"select ci.CostingComponentId,CI.Sequence,o.Id,CI.Id AS CostingItemId, o.[Value], o.[Description],e.EmployeeName as ResponsiblePersoin, e.SystemId as ResponsiblePersoinId,  ci.UserName, o.Description
                             from hkp.CostingItem ci
 						 join [dbo].[PreCostingOperation] o on o.CostingItemId = ci.Id  and o.CostingMasterTemplateId = '" + costingMasterTemplateId + @"' 
                         left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
@@ -2200,7 +2200,7 @@ namespace Aplos.Areas.Costings.Controllers
         [HttpGet, Authorize]
         public ActionResult GetDirectProcessWithItemByComponentId(string costingComponentId, string costingMasterTemplateId)
         {
-            string sql = @"select ci.CostingComponentId,ci.UserName,p.Id,CI.Id AS CostingItemId, p.CostingMasterTemplateId, p.ExecutionType,
+            string sql = @"select ci.CostingComponentId,CI.Sequence,ci.UserName,p.Id,CI.Id AS CostingItemId, p.CostingMasterTemplateId, p.ExecutionType,
        p.[Value], p.Rate, p.Amount, p.[Description],e.SystemId as ResponsiblePersoinId, e.EmployeeName as ResponsiblePersoin
                         from hkp.CostingItem ci
                         join [dbo].[PreCostingDirectProcess] p on CostingItemId = ci.Id and p.CostingMasterTemplateId = '" + costingMasterTemplateId + @"' 

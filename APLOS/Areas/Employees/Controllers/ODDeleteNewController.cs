@@ -131,6 +131,18 @@ namespace Aplos.Areas.Employees.Controllers
                             dr["LockedBy"] = DBNull.Value;
                             dr["LockedDate"] = DBNull.Value; 
                             dr["isLock"] = false;
+
+                            #region OT Columns Nullified
+
+                            dr["TargetOT"] = DBNull.Value;
+                            dr["PlanOT"] = DBNull.Value;
+                            dr["AppliedOTLimit"] = DBNull.Value;
+                            dr["AllowedOTLimit"] = DBNull.Value;
+                            dr["StandardOT"] = DBNull.Value;
+                            dr["AdditionalOt"] = DBNull.Value;
+
+                            #endregion
+
                             dr.EndEdit();
                         }
                     }

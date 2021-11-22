@@ -2667,7 +2667,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 earlyout=null,OverStay=null,UnderStay=null,DurationStatus=null,EarlyLateIn=null,EarlyLateOut=null,
                 SandwichFlag=NULL,DayTypeOtApplicable=null,SandwichStatus=null,ProcessFinalDayStatus=null,
                 DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0,DayTypeGoodWorkApplicable=null,IsLock=0,LockedBy=null,
-                LockedDate=null 
+                LockedDate=null ,IsOTComfirm=0,OTComfirmBy=null,DateOTComfirm=null,StandardOT=null,PlanOT=null,AppliedOTLimit=null,
+                AllowedOTLimit=null,TargetOT=null,AdditionalOT=null
                 where PlantID='" + Plant+"' and WorkDate='"+PreDay+"'";
 
                 ConnectionManager.DAL.ConManager objCone = null;
@@ -2984,7 +2985,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                var sql = @"select distinct p.RowId from AttdnProcessData p
+                var sql = @"select distinct p.RowId,p.WorkDate from AttdnProcessData p
                         join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
                                   left join mst.DesignationMasterLegalDesignation ddm on 
                         ddm.LegalDesignationId = ei.LegalDesignationId
@@ -2997,7 +2998,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 									        where p.ManualFlag=1 and dt.DayType=p.DayStatus 
 											and IsOTEntitled=1 and isOTConfirmationAuto=1
 											and DayTypeOtApplicable=0
-									        and ei.PlantId='" + PlantId+@"' order by WorkDate asc";
+									        and ei.PlantId='" + PlantId+ @"' order by WorkDate,RowId asc";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }

@@ -73,15 +73,15 @@ namespace Aplos.Areas.Employees.Controllers
             IEnumerable<object> SeparationTypeFixedAmount = null;
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string SeparationTypesql = @"SELECT * FROM hkp.[SeparationType] WHERE Id='" + Id + "'";
-            string SeparationTypeDetailssql = @"SELECT * FROM [SeparationTypeDetails] WHERE SeparationTypeId='"+ Id + "' ORDER BY CONVERT( int ,YearNo)";
+            string SeparationTypeDetailssql = @"SELECT * FROM [SeparationTypeDetails] WHERE SeparationTypeId='" + Id + "' ORDER BY CONVERT( int ,YearNo)";
             string SeparationTypeFiexdDayAmountsql = @"SELECT EmploymentType,DayNo FROM SeparationTypeFixedDayAmount  WHERE SeparationTypeId='" + Id + "'";
 
             var SeparationType = _sqlRepository.GetDataCollection(SeparationTypesql);
             var SeparationTypeDetails = _sqlRepository.GetDataCollection(SeparationTypeDetailssql);
             var SeparationTypeFixedAmounttemp = _sqlRepository.GetDataCollection(SeparationTypeFiexdDayAmountsql);
-            if (SeparationTypeFixedAmounttemp.Count>0)
+            if (SeparationTypeFixedAmounttemp.Count > 0)
             {
-                 SeparationTypeFixedAmount = SeparationTypeFixedAmounttemp;
+                SeparationTypeFixedAmount = SeparationTypeFixedAmounttemp;
             }
             else
             {
@@ -105,10 +105,10 @@ namespace Aplos.Areas.Employees.Controllers
             DataSet dsSeparationTypeFixedDayAmountList = null;
             try
             {
-                if (SeparationTypeDetailsData == null )
-                {
-                    throw new Exception("Year No & Days no cannot be null..");
-                }
+                //if (SeparationTypeDetailsData == null )
+                //{
+                //    throw new Exception("Year No & Days no cannot be null..");
+                //}
 
                 //SELECT * FROM [dbo].[ExceptionEmployee] WHERE PlantId='' AND EmpSystemId=''
                 string sql = @"SELECT * FROM [HKP].[SeparationType] WHERE PlantID = '" + identity.PlantId + "'";
@@ -231,53 +231,54 @@ namespace Aplos.Areas.Employees.Controllers
                 objCon.OpenDataSetThroughAdapter(sqldetails, out dsSeparationTypeDetailsDataList, false, "1");
 
                 int count = 0;
-
-                if (SeparationTypeDetailsData.Count()>0)
+                if (SeparationTypeDetailsData != null)
                 {
-
-                    DataView dvSeparationTypeDetailsDataList = new DataView(dsSeparationTypeDetailsDataList.Tables[0]);
-                    dvSeparationTypeDetailsDataList.RowFilter = "SeparationTypeId='" + masterepk + "'";
-                    if (dvSeparationTypeDetailsDataList.Count==0)
+                    if (SeparationTypeDetailsData.Count() > 0)
                     {
-                        foreach (var item in SeparationTypeDetailsData.Where(x => Convert.ToInt32(x.DayNo) > 0).ToList())
+
+                        DataView dvSeparationTypeDetailsDataList = new DataView(dsSeparationTypeDetailsDataList.Tables[0]);
+                        dvSeparationTypeDetailsDataList.RowFilter = "SeparationTypeId='" + masterepk + "'";
+                        if (dvSeparationTypeDetailsDataList.Count == 0)
                         {
-                            count++;
-                            string sIDdetails = string.Empty;
-                            //bplib.clsGenID objGenID = new bplib.clsGenID();
-                            //objGenID.GenHRID(DateTime.Now.ToShortDateString().ToString(), "SeparationTypeDetails", out sIDdetails);
-                            bplib.clsGenID genid = new bplib.clsGenID();
-                            genid.GenID(DateTime.Now.ToShortDateString().ToString(), "SeparationTypeDetails", out sIDdetails);
+                            foreach (var item in SeparationTypeDetailsData.Where(x => Convert.ToInt32(x.DayNo) > 0).ToList())
+                            {
+                                count++;
+                                string sIDdetails = string.Empty;
+                                //bplib.clsGenID objGenID = new bplib.clsGenID();
+                                //objGenID.GenHRID(DateTime.Now.ToShortDateString().ToString(), "SeparationTypeDetails", out sIDdetails);
+                                bplib.clsGenID genid = new bplib.clsGenID();
+                                genid.GenID(DateTime.Now.ToShortDateString().ToString(), "SeparationTypeDetails", out sIDdetails);
 
-                            DataRow dr = dsSeparationTypeDetailsDataList.Tables[0].NewRow();
-                            dr["Id"] = "STD" + sIDdetails+ count;
-                            dr["SeparationTypeId"] = masterepk;
-                            dr["DayNo"] = item.DayNo;
-                            dr["YearNo"] = item.YearNo;
-                            dr["RoundUp"] = item.RoundUp;
-                            dr["EmploymentType"] = item.EmploymentType;
-                            dr["AddedBy"] = identity.Name;
-                            dr["AddedDate"] = System.DateTime.Now.ToString();
-                            dr["AddedFromIP"] = identity.IPAddress;
-                            dr["UpdatedBy"] = identity.Name;
-                            dr["UpdatedDate"] = System.DateTime.Now.ToString();
-                            dr["UpdatedFromIP"] = identity.IPAddress;
-                            dsSeparationTypeDetailsDataList.Tables[0].Rows.Add(dr);
+                                DataRow dr = dsSeparationTypeDetailsDataList.Tables[0].NewRow();
+                                dr["Id"] = "STD" + sIDdetails + count;
+                                dr["SeparationTypeId"] = masterepk;
+                                dr["DayNo"] = item.DayNo;
+                                dr["YearNo"] = item.YearNo;
+                                dr["RoundUp"] = item.RoundUp;
+                                dr["EmploymentType"] = item.EmploymentType;
+                                dr["AddedBy"] = identity.Name;
+                                dr["AddedDate"] = System.DateTime.Now.ToString();
+                                dr["AddedFromIP"] = identity.IPAddress;
+                                dr["UpdatedBy"] = identity.Name;
+                                dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                                dr["UpdatedFromIP"] = identity.IPAddress;
+                                dsSeparationTypeDetailsDataList.Tables[0].Rows.Add(dr);
 
 
 
+                            }
                         }
+
+
+
+
                     }
-                    
-
-                    
-
                 }
-
 
                 if (SeparationTypeData.IsFixedDayAmountApplicable)
                 {
-                   
-                   
+
+
                     string sqlFixedDayAmountdelete = @"Delete FROM [dbo].[SeparationTypeFixedDayAmount] WHERE SeparationTypeId = '" + masterepk + "'";
                     objCon = new ConnectionManager.DAL.ConManager("1");
                     objCon.OpenDataSetThroughAdapter(sqlFixedDayAmountdelete, out dsSeparationTypeFixedDayAmountDataDeleteList, false, "1");
@@ -287,12 +288,12 @@ namespace Aplos.Areas.Employees.Controllers
                     objCon = new ConnectionManager.DAL.ConManager("1");
                     objCon.OpenDataSetThroughAdapter(sqlFixedDayAmount, out dsSeparationTypeFixedDayAmountList, false, "1");
 
-                    if (SeparationTypeFixedDayAmountData.Count() >0)
+                    if (SeparationTypeFixedDayAmountData.Count() > 0)
                     {
 
                         DataView dvSeparationTypeFixedDayAmountList = new DataView(dsSeparationTypeFixedDayAmountList.Tables[0]);
                         dvSeparationTypeFixedDayAmountList.RowFilter = "SeparationTypeId='" + masterepk + "'";
-                        if (dvSeparationTypeFixedDayAmountList.Count==0)
+                        if (dvSeparationTypeFixedDayAmountList.Count == 0)
                         {
                             foreach (var item in SeparationTypeFixedDayAmountData.ToList())
                             {
@@ -317,18 +318,27 @@ namespace Aplos.Areas.Employees.Controllers
 
                             }
                         }
-                      
+
 
 
 
                     }
                 }
 
+                if (SeparationTypeDetailsData != null)
+                {
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsSeparationTypeDataList, dsSeparationTypeDetailsDataList, dsSeparationTypeFixedDayAmountList);
+                }
 
+                else
+                {
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsSeparationTypeDataList, dsSeparationTypeFixedDayAmountList);
+                }
 
-
-                clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsSeparationTypeDataList, dsSeparationTypeDetailsDataList, dsSeparationTypeFixedDayAmountList);
+                //    clsStaticInfo obj = new clsStaticInfo();
+                //obj.SaveDataSets(dsSeparationTypeDataList, dsSeparationTypeDetailsDataList, dsSeparationTypeFixedDayAmountList);
 
 
             }
@@ -406,12 +416,12 @@ namespace Aplos.Areas.Employees.Controllers
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet,Authorize]
+        [HttpGet, Authorize]
         public JsonResult GetAutoSequence()
         {
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT max(Sequence)+1 Sequence FROM hkp.[SeparationType] WHERE PlantID='"+ identity .PlantId+ "'";          
+            string sql = @"SELECT max(Sequence)+1 Sequence FROM hkp.[SeparationType] WHERE PlantID='" + identity.PlantId + "'";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -431,12 +441,12 @@ namespace Aplos.Areas.Employees.Controllers
                 }, JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet,Authorize]
+        [HttpGet, Authorize]
         public JsonResult GetSeparationTypeById(string id)
         {
             return Json(_separationTypeService.Find(id), JsonRequestBehavior.AllowGet);
         }
-        [HttpPost,Authorize]
+        [HttpPost, Authorize]
         public JsonResult Create(SeparationType SeparationType)
         {
             if (ModelState.IsValid)
@@ -448,7 +458,7 @@ namespace Aplos.Areas.Employees.Controllers
                 throw new CustomException(Resources.RequiredFieldMessage);
         }
 
-        [HttpPost,Authorize]
+        [HttpPost, Authorize]
         public JsonResult Edit(SeparationType SeparationType)
         {
             if (ModelState.IsValid)
@@ -483,8 +493,8 @@ namespace Aplos.Areas.Employees.Controllers
 
     public class SeparationTypeFixedDayAmount
     {
-        public string Id { get; set; }       
-        public string DayNo { get; set; }       
+        public string Id { get; set; }
+        public string DayNo { get; set; }
         public string EmploymentType { get; set; }
     }
 }

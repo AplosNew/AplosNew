@@ -398,5 +398,9 @@ function AccessControllerConfig($routeProvider, $locationProvider, $windowProvid
             templateUrl: 'Attendances/SandwichProcess/Aplos',
             controller: 'SandwichProcessController'
         })
+        .when('/monthly-leave-balance', {
+            templateUrl: 'Attendances/MonthlyLeaveBalance/Aplos',
+            controller: 'MonthlyLeaveBalanceController'
+        })
         ;
 } 

@@ -4212,6 +4212,21 @@ where gpm.GatePassEntryDate between '"+ fromDate + @"' AND '" + toDate + @"'";
 			}
 
 		}
+		[HttpGet, Authorize]
+		public JsonResult InOutGatePassScrapTeamplateReport(string GatePassId)
+		{
+			try
+			{
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+				Library.MaterialManagement.InventoryManagements.GatePassAndGateEntryService obj = new Library.MaterialManagement.InventoryManagements.GatePassAndGateEntryService();
+				return Json(obj.InOutGatePassScrapReport(identity.CompanyGroupId, identity.PlantId, GatePassId), JsonRequestBehavior.AllowGet);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+
+		}
 		#endregion
 
 

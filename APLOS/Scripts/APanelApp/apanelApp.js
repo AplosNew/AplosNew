@@ -11,6 +11,8 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller("chartOfAccountLevel5Controller", ChartOfAccountLevel5Controller)
     .controller("chartOfAccountLevel6Controller", ChartOfAccountLevel6Controller)
     .controller("companyFiscalYearController", CompanyFiscalYearController)
+    .controller("MonthlyLeaveBalanceController", MonthlyLeaveBalanceController)
+
     .controller("companyTaxYearController", CompanyTaxYearController)
     .controller("countryTaxYearController", CountryTaxYearController)
     .controller("companyFiscalYearPeriodController", CompanyFiscalYearPeriodController)
