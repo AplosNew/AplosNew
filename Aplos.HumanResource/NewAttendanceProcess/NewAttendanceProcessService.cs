@@ -2973,11 +2973,15 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
-        public void UpdateEmployeesProcessedOT()
+        public void UpdateEmployeesProcessedOT(string Date,string Plant)
         {
             try
             {
-                var sql = @"";
+                var sql = @"UPDATE AttdnProcessData SET IsOTComfirm=1,OTComfirmBy='AutoConfirmation',
+                DateOTComfirm=GETDATE()
+                where ProcessedOT=0 AND OverStay IS NULL
+                and WorkDate='"+Date+@"' and IsOTComfirm=0 AND IsOTEntitled=1
+                and PlantID='"+Plant+"'";
 
                 ConnectionManager.DAL.ConManager objCone = null;
                 objCone = new ConnectionManager.DAL.ConManager("1");
@@ -4583,13 +4587,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     // Dataset Generated for Duration EarlyIn EarlyOut Calculation
                     var sqlx = "";
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                    if(empMaster == "")
+                    if (empMaster == "")
                     {
                         sqlx = @"select * from AttdnProcessData where IsLock=0 and isnull(InTime,'')!='' and isnull(OutTime,'')!='' and PlantID='" + PlantValue + "' and ManualFlag=1";
                     }
                     else
                     {
-                        sqlx = @"select * from AttdnProcessData where IsLock=0 and isnull(InTime,'')!='' and isnull(OutTime,'')!='' and PlantID='" + PlantValue + "' and ManualFlag=1 and RowId in("+ empList + ")";
+                        sqlx = @"select * from AttdnProcessData where IsLock=0 and isnull(InTime,'')!='' and isnull(OutTime,'')!='' and PlantID='" + PlantValue + "' and ManualFlag=1 and RowId in(" + empList + ")";
                     }
 
                     objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
@@ -4692,14 +4696,14 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 {
                     // OverStay underStay DataSet Generation using (Duration - ShiftHoursWithoutOT)
                     var sqlx = "";
-                   ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                    if(empMaster == "")
+                    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                    if (empMaster == "")
                     {
                         sqlx = @"select * from AttdnProcessData where  IsLock=0 and ManualFlag=1 and Duration >0 and PlantID='" + PlantValue + "'";
                     }
                     else
                     {
-                        sqlx = @"select * from AttdnProcessData where  IsLock=0 and ManualFlag=1 and Duration >0 and PlantID='" + PlantValue + "' and RowId in ("+ empList + ")";
+                        sqlx = @"select * from AttdnProcessData where  IsLock=0 and ManualFlag=1 and Duration >0 and PlantID='" + PlantValue + "' and RowId in (" + empList + ")";
                     }
 
 
@@ -4746,6 +4750,48 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     SaveDataSets(dsRef);
 
                 }
+
+                #endregion
+
+                #region Manual OverStay Rounding Off 
+                DataSet ManualOverStayRounding;
+                ManualOverStayRoundingOff(out ManualOverStayRounding, PlantValue);
+                if (ManualOverStayRounding.Tables[0].Rows.Count > 0)
+                {
+                    // OverStay Rounding Off
+                    var sqlx = "";
+                    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                    if (empMaster == "")
+                    {
+                        sqlx = @"select * from AttdnProcessData where  IsLock=0 and ManualFlag=1 and OverStay >0 and PlantID='" + PlantValue + "'";
+                    }
+                    else
+                    {
+                        sqlx = @"select * from AttdnProcessData where  IsLock=0 and ManualFlag=1 and OverStay >0 and PlantID='" + PlantValue + "' and RowId in (" + empList + ")";
+                    }
+                    objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+
+                    for (int i = 0; i < ManualOverStayRounding.Tables[0].Rows.Count; i++)
+                    {
+                        string WorkDate = ManualOverStayRounding.Tables[0].Rows[i][@"WorkDate"].ToString();
+                        string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
+
+                        string EmpId = clsWebLib.RetValidLen(ManualOverStayRounding.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
+                        string Result = clsWebLib.RetValidLen(ManualOverStayRounding.Tables[0].Rows[i][@"Result"]).ToString();
+
+                        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                        if (dsRef.Tables[0].DefaultView.Count > 0)
+                        {
+                            DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();
+                            dr["OverStay"] = Result;
+                            dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                            dr.EndEdit();
+                        }
+                    }
+                    SaveDataSets(dsRef);
+                }
+
 
                 #endregion
 
