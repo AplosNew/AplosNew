@@ -7772,7 +7772,9 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                     SELECT MONTH(apd.WorkDate)MonthNo,YEAR(apd.WorkDate) AS YearNo, apd.EmpSystemID, l.LeaveTypeId,
                                     CASE WHEN EncashWorkingDaysQty>0 THEN CONVERT(DECIMAL(18,4), EncashEarnLeaveQty)/CONVERT(DECIMAL(18,4),EncashWorkingDaysQty) ELSE 0 END * SUM(l.EarnValue) ActualEarnedLeave,
                                     SUM(L.AvailedValue) AS AvailedValue,
-                                    '" + identity.USER + @"',GETDATE(),':::','" + identity.USER + @"',GETDATE(),':::'
+                                    '" + identity.USER + @"',GETDATE(),':::','" + identity.USER + @"',GETDATE(),':::',
+                                    SUM(CASE WHEN ISNULL(ds.PayDay,0)>0 THEN l.AvailedValue ELSE 0 END) AS PaidLeave,
+                                    SUM(CASE WHEN ISNULL(ds.PayDay,0)=0 THEN l.AvailedValue ELSE 0 END) AS NonPaidLeave
                                         FROM AttdnProcessData AS apd
 
                                     LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=apd.EmpSystemID
