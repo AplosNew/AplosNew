@@ -969,7 +969,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						,BOQD.Id AS BOQId
 
 						--,FGQty.Qty
-						,BOQD.Consumption
+						,BOQD.Consumption 
 						,BOQD.WastagePer
 						,RequisitionQty=(BOQD.Consumption*FGQty.Qty)+(((BOQD.Consumption*FGQty.Qty)*BOQD.WastagePer)/100)
 						, RequisitionQtyOrginal=(BOQD.Consumption*FGQty.Qty)+(((BOQD.Consumption*FGQty.Qty)*BOQD.WastagePer)/100)					
