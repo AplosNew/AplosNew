@@ -1,6 +1,6 @@
 ﻿'use strict';
-weekOffOTReportController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http'];
-function weekOffOTReportController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http) {
+weekOffOTReportController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$window'];
+function weekOffOTReportController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $window) {
     $rootScope.title = 'Week OFF OT Report';
 
     $scope.path = 'Attendances/WeekOffHolidayOTReport/';
@@ -154,54 +154,63 @@ function weekOffOTReportController(cboService, commonMessage, $scope, $rootScope
     $scope.EmployeeListTemp = [];
     $scope.PlantIdList = [];
     $scope.GetEmployeeInformation = function () {
+        try {
 
-        //addition Sayanto
-        var DropDownListObj = $("#plantList").data("ejDropDownList");
-        $scope.PlantIdList = DropDownListObj.getSelectedValue();
+            //addition Sayanto
+            var DropDownListObj = $("#plantList").data("ejDropDownList");
+            $scope.PlantIdList = DropDownListObj.getSelectedValue();
 
-        var TypeDropDownListObj = $("#typeList").data("ejDropDownList");
-        $scope.EmployeeCodeTypeIdList = TypeDropDownListObj.getSelectedValue();
+            var TypeDropDownListObj = $("#typeList").data("ejDropDownList");
+            $scope.EmployeeCodeTypeIdList = TypeDropDownListObj.getSelectedValue();
 
-        ///
-        var monthName = $scope.monthList.filter(function (mnth) {
-            return mnth.Value == $scope.month;
-        });
-        $scope.effectiveDate = 1 + '-' + monthName[0].Text + '-' + $scope.year;
+            if (angular.isUndefinedOrNull($scope.EmployeeCodeTypeIdList)) {
+                throw "Select Type";
+            }
 
-        if (angular.isUndefinedOrNull($scope.month)) {
-            ShowResult("Select Month", 'failure');
-        }
-        if (angular.isUndefinedOrNull($scope.year)) {
-            ShowResult("Select Year", 'failure');
-        }
-
-        else {
-
-            var parameters = {
-                'effectiveDate': $scope.effectiveDate,
-                'payRollGroup': $scope.payGroupListSelected,
-                'isActive': $scope.isActive,
-                'isSeperated': $scope.isSeperated,
-                'isMaternity': $scope.isMaternity,
-                'PlantId': $scope.PlantIdList
-            };
-            $http({
-                method: "POST",
-                dataType: 'JSON',
-                url: 'Attendances/WeekOffHolidayOTReport/GetEmpInfo',
-                data: parameters
-            }).then(function successCallback(response) {
-                if (response.data.length > 0) {
-                    $scope.empGrid = true;
-                    $scope.EmployeeListDefault = response.data;//.filter(d => d.isSelect == true);
-                    $scope.EmployeeList = $scope.EmployeeListDefault;
-                    $scope.EmployeeListTemp = $scope.EmployeeListDefault;
-                }
-                else {
-                    $scope.empGrid = false;
-                    ShowResult("No Data Found", 'failure');
-                }
+            ///
+            var monthName = $scope.monthList.filter(function (mnth) {
+                return mnth.Value == $scope.month;
             });
+            $scope.effectiveDate = 1 + '-' + monthName[0].Text + '-' + $scope.year;
+
+            if (angular.isUndefinedOrNull($scope.month)) {
+                throw "Select Month";
+            }
+            if (angular.isUndefinedOrNull($scope.year)) {
+                throw "Select Year";
+            }
+
+            else {
+
+                var parameters = {
+                    'effectiveDate': $scope.effectiveDate,
+                    'payRollGroup': $scope.payGroupListSelected,
+                    'isActive': $scope.isActive,
+                    'isSeperated': $scope.isSeperated,
+                    'isMaternity': $scope.isMaternity,
+                    'PlantId': $scope.PlantIdList,
+                    'TypeId': $scope.EmployeeCodeTypeIdList
+                };
+                $http({
+                    method: "POST",
+                    dataType: 'JSON',
+                    url: 'Attendances/WeekOffHolidayOTReport/GetEmpInfo',
+                    data: parameters
+                }).then(function successCallback(response) {
+                    if (response.data.length > 0) {
+                        $scope.empGrid = true;
+                        $scope.EmployeeListDefault = response.data;//.filter(d => d.isSelect == true);
+                        $scope.EmployeeList = $scope.EmployeeListDefault;
+                        $scope.EmployeeListTemp = $scope.EmployeeListDefault;
+                    }
+                    else {
+                        $scope.empGrid = false;
+                        ShowResult("No Data Found", 'failure');
+                    }
+                });
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
         }
     };
 
@@ -219,7 +228,7 @@ function weekOffOTReportController(cboService, commonMessage, $scope, $rootScope
             $scope.TypeIdList = "";
             var DropDownListObj = $("#typeList").data("ejDropDownList");
             $scope.TypeIdList = DropDownListObj.getSelectedValue();
-        ///
+            ///
 
             if ($scope.isManualFilter == true) {
                 if (filteredRecords.length == 0) {
@@ -239,15 +248,16 @@ function weekOffOTReportController(cboService, commonMessage, $scope, $rootScope
             }
             $http({
                 method: 'POST',
-                url: $scope.path +'GetMonthWiseWeekExtraOTReport',
+                url: $scope.path + 'GetMonthWiseWeekExtraOTReport',
                 data: {
                     'month': $scope.month,
-                    'year': $scope.year,                   
+                    'year': $scope.year,
                     'parameters': parameters,
                     'isActive': $scope.isActive,
                     'isSeperated': $scope.isSeperated,
                     'isMaternity': $scope.isMaternity,
-                    'PlantId': $scope.PlantIdList
+                    'PlantId': $scope.PlantIdList,
+                    'TypeId': $scope.TypeIdList
                 }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -407,6 +417,21 @@ function weekOffOTReportController(cboService, commonMessage, $scope, $rootScope
             url: $scope.path + 'getPlants',
         }).then(function successCallback(response) {
             $scope.plantList = response.data;
+
+            var index = 0;
+            for (var i = 0; i < $scope.plantList.length; i++) {
+                if ($scope.plantList[i].Value == $window.plantId) {
+                    index = i;
+                }
+            }
+
+            $('#plantList').ejDropDownList(
+                {
+                    dataSource: $scope.plantList,
+                    fields: { text: "Text", value: "Value" },
+                    selectedIndex: index, showCheckBox: true, multiSelectMode: ej.MultiSelectMode.VisualMode
+                    , width: 250
+                });
         });
     };
     $scope.getDestination();
@@ -420,10 +445,10 @@ function weekOffOTReportController(cboService, commonMessage, $scope, $rootScope
     }
     $scope.EmployeeCodeTypeCbo();
 
-//****************** To set data ***********************
- 
+    //****************** To set data ***********************
 
- 
+
+
 
 
 
