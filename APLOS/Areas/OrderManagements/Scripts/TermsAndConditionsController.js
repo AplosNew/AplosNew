@@ -9,6 +9,7 @@ function TermsAndConditionsController(cboService, commonMessage, $scope, $rootSc
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'create';
     $scope.saveGridUrl = $scope.path + 'SaveData';
+    $scope.saveTitleUrl = $scope.path + 'SaveTitle';
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
     $scope.searchBy = "UserName"; $scope.search = "";
@@ -118,10 +119,29 @@ function TermsAndConditionsController(cboService, commonMessage, $scope, $rootSc
     $scope.GridList = [];
     $scope.TitleModel = {
         Id: null,
+        TermsAndConditionsMasterId: null,
+        TermsAndConditionsChildId : null,
+        TermsAndConditionsDetailId: null,
         Title: null,
         Header: null,
         Description: null
     }
+    $scope.TitleList = [];
+    $scope.GridTitle = function () {
+
+        $http.get('OrderManagements/TermsAndConditions/GetTitle?masterID=' + $scope.ModelNew.Id)
+            .then(function (response) {
+
+                //for (var i = 0; i < response.data.length; i++) {
+                //    try {
+                //        response.data[i].AddedDate = new Date(response.data[i].AddedDate);
+                //    } catch (e) {
+
+                //    }
+                $scope.TitleList = response.data;
+            });
+    }
+
     $scope.loadGrid = function () {
         try {
             if ($scope.GridList > 0) {
@@ -138,7 +158,10 @@ function TermsAndConditionsController(cboService, commonMessage, $scope, $rootSc
             }
             var newObj = {
                 Id: null,
-                Title: null,
+                TermsAndConditionsMasterId: null,
+                TermsAndConditionsChildId: null,
+                TermsAndConditionsDetailId: null,
+                Title:null,
                 Header: null,
                 Description: null
             };
@@ -150,6 +173,9 @@ function TermsAndConditionsController(cboService, commonMessage, $scope, $rootSc
             $scope.GridList.push(newObj);
             newObj = {
                 Id: null,
+                TermsAndConditionsMasterId: null,
+                TermsAndConditionsChildId: null,
+                TermsAndConditionsDetailId: null,
                 Title: null,
                 Header: null,
                 Description: null
@@ -161,11 +187,36 @@ function TermsAndConditionsController(cboService, commonMessage, $scope, $rootSc
     // $scope.loadGrid();
 
     $scope.SaveGrid = function () {
+        $scope.TitleModel.TermsAndConditionsMasterId = $scope.ModelNew.Id;
         $scope.$broadcast('show-errors-check-validity');
         $http({
             method: 'POST',
             url: $scope.saveGridUrl,
-            data: { 'TitleData': $scope.TitleModel, 'GridData': $scope.GridList },
+            data: { 'GridData': $scope.POPupList, 'TitleId': $scope.TitleId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                /*ClearFields(response.data.Sequence);*/
+                //$scope.LoadRackList();
+                //$scope.GetDetails({ data: { Id: response.data.Data.Id } });
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+
+    };
+
+    $scope.SaveTitle = function () {
+        $scope.TitleModel.TermsAndConditionsMasterId = $scope.ModelNew.Id;
+        $scope.$broadcast('show-errors-check-validity');
+        $http({
+            method: 'POST',
+            url: $scope.saveTitleUrl,
+            data: { 'TitleData': $scope.TitleModel, 'TitleId': $scope.ModelNew.Id},
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -201,16 +252,78 @@ function TermsAndConditionsController(cboService, commonMessage, $scope, $rootSc
         $scope.Action = 'Save';
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ModelNew.Sequence = seq;
+        $scope.TitleModel = {};
     }
 
     $scope.showRemarksPopUp = function (args) {
-        //$scope.OrderControlNew = args;
-        //$scope.GetRemarksByMaster($scope.OrderControlNew.Id);
-        angular.element(document.querySelector('#RemarksPopUp')).modal('show');
+        $scope.TitleId = args.Id;
+        //$scope.GetRemarksByMaster($scope.TitleModel.TermsAndConditionsDetailId);
+        angular.element(document.querySelector('#GridPopUp')).modal('show');
     }
 
     $scope.closeRemarksPopUp = function () {
 
-        angular.element(document.querySelector('#RemarksPopUp')).modal('hide');
+        angular.element(document.querySelector('#GridPopUp')).modal('hide');
     }
+
+    $scope.POPupList = [];
+
+    $scope.GetRemarksByMaster = function (id) {
+        $scope.POPupList = [];
+        $http.get('OrderManagements/TermsAndConditions/GetPopUp?TermsAndConditionsDetailId=' + id)
+            //.then(function (response) {
+
+            //    for (var i = 0; i < response.data.length; i++) {
+            //        try {
+            //            response.data[i].AddedDate = new Date(response.data[i].AddedDate);
+            //        } catch (e) {
+
+            //        }
+            //    }
+        $scope.POPupList = response.data;
+     /*       });*/
+    }
+
+    $scope.SaveRemarks = function (model) {
+        try {
+            $scope.OrderControlNew.ControlTypeId = $scope.OrderControl.ControlTypeId;
+            $http({
+                method: 'POST',
+                data: { data: $scope.OrderControlNew, child: model.data },
+                url: 'OrderManagements/OrderControl/Create'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetDayAndLevel();
+                    $scope.GetRemarksByMaster($scope.OrderControlNew.Id);
+                }
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+    $scope.DeleteRemarks = function (model) {
+        try {
+
+            $http({
+                method: 'POST',
+                data: { id: model.data.Id },
+                url: 'OrderManagements/OrderControl/Delete'
+            }).then(function successCallback(response) {
+                if (response.data.Error == false) {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetRemarksByMaster($scope.OrderControlNew.Id);
+                }
+                else {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
 }
