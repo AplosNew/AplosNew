@@ -21925,7 +21925,7 @@ namespace Library.Service.HumanResources
                 }
                 else
                 {
-                    File = "Fs" + plantId + "English.docx";
+                    File = "FsPSLEnglish.docx";
                     filepath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), File);
                 }
 

@@ -184,7 +184,7 @@ namespace Aplos.Areas.Attendances.Controllers
                     }
                     else
                     {
-                    dr["NoOfDays"] = null;
+                    dr["NoOfDays"] = DBNull.Value; 
                     }
 
                     dr["CompanyGroupId"] = identity.CompanyGroupId;
@@ -213,7 +213,7 @@ namespace Aplos.Areas.Attendances.Controllers
                     }
                     else
                     {
-                        dr["NoOfDays"] = null;
+                        dr["NoOfDays"] = DBNull.Value;
                     }
                     dr["CompanyGroupId"] = identity.CompanyGroupId;
                     dr["plantId"] = GratuityPolicyDetails.plantId;
