@@ -56,39 +56,10 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
-        public IEnumerable<object> getGridData(string Week, string FromDate, string ToDate, string OTConfirmationValue, string OTLimit, string Process, string ProcessValue, string DayStatus
- , string DSApp, Dictionary<string, string> Parameters)
+        public IEnumerable<object> getGridData(string Week, string FromDate, string ToDate, string DayStatus, Dictionary<string, string> Parameters)
         {
             try
             {
-                string OTConfirm = "";
-                if(clsWebLib.RetValidLen(OTConfirmationValue).ToString() != "" && clsWebLib.RetValidLen(OTConfirmationValue).ToString() != "2")
-                {
-                    OTConfirm = "and IsOTComfirm = " + OTConfirmationValue;
-                }
-
-                string isDayStatus = "";
-                if (clsWebLib.RetValidLen(DSApp).ToString() != "" && clsWebLib.RetValidLen(DSApp).ToString() != "2") 
-                {
-                    isDayStatus = "and isLock =" + DSApp;
-                }
-
-                string ProcessFil = "";
-                if(clsWebLib.RetValidLen(Process).ToString() != "" && clsWebLib.RetValidLen(ProcessValue).ToString() == "")
-                {
-                    throw new Exception("Please Enter The Process Filter Value!!");
-                }
-
-                if (clsWebLib.RetValidLen(Process).ToString() == "" && clsWebLib.RetValidLen(ProcessValue).ToString() != "")
-                {
-                    throw new Exception("Please Enter The Process Filter Selection!!");
-                }
-
-                if(clsWebLib.RetValidLen(Process).ToString() != "" && clsWebLib.RetValidLen(ProcessValue).ToString() != "")
-                {
-                    ProcessFil = " and "+Process + ProcessValue;
-                }
-
                 string DaySt = "";
                 if(clsWebLib.RetValidLen(DayStatus).ToString() != "" )
                 {
@@ -124,8 +95,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             and '"+ToDate+@"') and ISNULL(ExtendTheDayLimit,'')! =''
                             where  IsOTEntitled=1
                             and dt.DayType=a.DayStatus 
-                            "+OTConfirm+@" "+isDayStatus+@"
-                            "+ProcessFil+@" "+DaySt+@"
+                            "+DaySt+@"
                             and OTWeek="+Week+@"
                             and a.WorkDate between '"+FromDate+@"' and '"+ToDate+@"'
                             and p.Id in ("+ Parameters["PlantId"] + ") order by WorkDate asc";

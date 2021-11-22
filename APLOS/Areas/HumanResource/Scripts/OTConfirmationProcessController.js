@@ -152,8 +152,8 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
             method: 'POST',
             url: $scope.path + 'getGridData',
             data: {
-                'Week': $scope.Week, 'FromDate': $scope.FromDate, 'ToDate': $scope.ToDate, 'OTConfirmationValue': $scope.OTConfirmationValue
-                , 'OTLimit': $scope.OTLimit, 'Process': $scope.Process, 'ProcessValue': $scope.ProcessValue, 'DayStatus': $scope.DayStatus, 'DSApp':$scope.DSApp,'Parameters': parameters },
+                'Week': $scope.Week, 'FromDate': $scope.FromDate, 'ToDate': $scope.ToDate
+                ,  'DayStatus': $scope.DayStatus, 'Parameters': parameters },
         }).then(function succ(resp) {
             if (resp.data.Error === true) {
                 ShowResult(resp.data.Message, 'failure');

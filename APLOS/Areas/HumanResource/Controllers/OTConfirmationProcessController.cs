@@ -44,10 +44,9 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost,Authorize]
-        public ActionResult getGridData(string Week, string FromDate, string ToDate, string OTConfirmationValue, string OTLimit, string Process, string ProcessValue, string DayStatus
- , string DSApp, Dictionary<string , string> Parameters)
+        public ActionResult getGridData(string Week, string FromDate, string ToDate,  string DayStatus, Dictionary<string , string> Parameters)
         {
-            var json = Json(ot.getGridData(Week, FromDate, ToDate, OTConfirmationValue, OTLimit, Process, ProcessValue, DayStatus, DSApp, Parameters), JsonRequestBehavior.AllowGet);
+            var json = Json(ot.getGridData(Week, FromDate, ToDate, DayStatus, Parameters), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
