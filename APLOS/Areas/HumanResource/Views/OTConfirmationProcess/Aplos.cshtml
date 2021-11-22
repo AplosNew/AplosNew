@@ -65,7 +65,7 @@
 
                 <div class="row" style="margin-top:10px">
                     <div class="col-md-6 col-lg-6 col-sm-12">
-                        <div class="form-group">
+                        @*<div class="form-group">
                             <label class="col-sm-2 control-label">Day Status</label>
                             <div class="col-sm-4">
                                 <input type="text" ng-model="DayStatus" ng-click="selectCurrDayStatus()" class="form-control" maxlength="100">
@@ -74,7 +74,7 @@
                             <div class="col-sm-4">
                                 <button ng-click="selectCurrDayStatus()" class="btn" tabindex="10"><i class="glyphicon glyphicon-search"></i></button>
                             </div>
-                        </div>
+                        </div>*@
                     </div>
                     <div class="col-md-6 col-lg-6 col-sm-12">
                         
@@ -161,7 +161,7 @@
                             <label class="col-sm-4 control-label">Week</label>
                             <div class="col-sm-8 ">
                                 <div class="select-style">
-                                    <select id="OTWApp" class="form-control" ng-model="Week" name="Week">
+                                    <select id="OTWApp" class="form-control" ng-model="WeekO" name="Week">
                                         <option value="">-Select-</option>
                                         <option Value="1">Week 1</option>
                                         <option Value="2">Week 2</option>
@@ -179,7 +179,7 @@
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
-                                        <input id="datepicker" e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="FromDate" e-width="100%" />
+                                        <input id="datepicker" e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="FromDateO" e-width="100%" />
                                     </div>
                                 </div>
                             </div>
@@ -187,7 +187,7 @@
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
-                                        <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="ToDate" e-width="100%" />
+                                        <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="ToDateO" e-width="100%" />
                                     </div>
                                 </div>
                             </div>
@@ -265,7 +265,7 @@
                         </div>
                         <div class="common-btn">
                             <ul class="list-inline text-right">
-                                <li> <button ng-click="getData();" class="btn" tabindex="10"><i class="glyphicon glyphicon-download"></i> View </button></li>
+                                <li> <button ng-click="getReportData();" class="btn" tabindex="10"><i class="glyphicon glyphicon-download"></i> View </button></li>
                             </ul>
                         </div>
                     </div>

@@ -8,6 +8,7 @@ function TermsAndConditionsController(cboService, commonMessage, $scope, $rootSc
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'create';
+    $scope.saveGridUrl = $scope.path + 'SaveData';
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
     $scope.searchBy = "UserName"; $scope.search = "";
@@ -20,9 +21,9 @@ function TermsAndConditionsController(cboService, commonMessage, $scope, $rootSc
             url: $scope.path + "GetList",
             data: { column: $scope.searchBy, value: $scope.search },
             dataType: 'JSON'
-        }).then(function successCallback(response) {          
+        }).then(function successCallback(response) {
             $scope.ModelList = response.data;
-            ClearFields(response.data.Sequence);
+
             $scope.GetSequence();
         });
     }
@@ -31,11 +32,11 @@ function TermsAndConditionsController(cboService, commonMessage, $scope, $rootSc
     $scope.ModelTemp = {
         Id: null,
         Sequence: 0,
-        Type:null,
+        Type: null,
         Code: null,
         ShortName: null,
         StandardName: null,
-        MaxLimit:0,
+        MaxLimit: 0,
         UserName: null,
         Description: null,
         Remarks: null,
@@ -52,7 +53,7 @@ function TermsAndConditionsController(cboService, commonMessage, $scope, $rootSc
     };
     $scope.GetSequence();
 
-    $scope.typesList= [];
+    $scope.typesList = [];
     cboService.getEnumCbo('Enum/GetTermsAndConditionsEnumCbo', function (result) {
         $scope.typesList = result;
     });
@@ -81,7 +82,8 @@ function TermsAndConditionsController(cboService, commonMessage, $scope, $rootSc
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    ClearFields(response.data.Sequence);
+                    $scope.ModelNew.Id = response.data.Data.Id;
+                    /* ClearFields(response.data.Sequence);*/
                     $scope.getData();
 
                 }
@@ -113,6 +115,82 @@ function TermsAndConditionsController(cboService, commonMessage, $scope, $rootSc
             });
         }
     };
+    $scope.GridList = [];
+    $scope.TitleModel = {
+        Id: null,
+        Title: null,
+        Header: null,
+        Description: null
+    }
+    $scope.loadGrid = function () {
+        try {
+            if ($scope.GridList > 0) {
+
+
+                for (var i = 0; i < $scope.GridList.length; i++) {
+                    if (baseService.isUndefinedOrNull($scope.GridList[i].Description)) {
+                        throw "Description is empty.";
+                    }
+                    if (baseService.isUndefinedOrNull($scope.GridList[i].Header)) {
+                        throw "Header Description is empty.";
+                    }
+                }
+            }
+            var newObj = {
+                Id: null,
+                Title: null,
+                Header: null,
+                Description: null
+            };
+
+            newObj.Title = $scope.TitleModel.Title;
+            newObj.Header = null;
+            newObj.Description = null;
+
+            $scope.GridList.push(newObj);
+            newObj = {
+                Id: null,
+                Title: null,
+                Header: null,
+                Description: null
+            };
+        } catch (e) {
+            ShowResult(e, 'info');
+        }
+    };
+    // $scope.loadGrid();
+
+    $scope.SaveGrid = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        $http({
+            method: 'POST',
+            url: $scope.saveGridUrl,
+            data: { 'TitleData': $scope.TitleModel, 'GridData': $scope.GridList },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                /*ClearFields(response.data.Sequence);*/
+                //$scope.LoadRackList();
+                //$scope.GetDetails({ data: { Id: response.data.Data.Id } });
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+
+    };
+
+
+
+
+    $scope.Remove = function (index) {
+        var removed = $scope.GridList.splice(index, 1);
+        $scope.TitleModel = removed;
+        //$scope.Detail.pop(); 
+    }
 
     $scope.Clear = function () {
         ClearFields($scope.GetSequence());
@@ -123,5 +201,16 @@ function TermsAndConditionsController(cboService, commonMessage, $scope, $rootSc
         $scope.Action = 'Save';
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ModelNew.Sequence = seq;
+    }
+
+    $scope.showRemarksPopUp = function (args) {
+        //$scope.OrderControlNew = args;
+        //$scope.GetRemarksByMaster($scope.OrderControlNew.Id);
+        angular.element(document.querySelector('#RemarksPopUp')).modal('show');
+    }
+
+    $scope.closeRemarksPopUp = function () {
+
+        angular.element(document.querySelector('#RemarksPopUp')).modal('hide');
     }
 }

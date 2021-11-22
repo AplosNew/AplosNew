@@ -214,7 +214,8 @@ namespace Library.MaterialManagement.JobWork
 				--, TC.UserName AS ThirdCharacteristics
 				, IM.ThirdCharacteristicsValueId
 				, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 
-				, BaseUOMFactor=CASE WHEN MaA.BaseUOMFactor IS null then 1 else MaA.BaseUOMFactor end
+				--, BaseUOMFactor=CASE WHEN MaA.BaseUOMFactor IS null then 1 else MaA.BaseUOMFactor end
+				, IRD.BaseUOMFactor
 				FROM trn.InventoryReceive IR
 				Left JOIN TRN.InventoryReceiveDetail IRD on IR.Id=IRD.InventoryReceiveId
 				left join [dbo].OSPOBOQMAP OSBOQMAP ON OSBOQMAP.OSTransformationPODetailId =IRD.OSTransformationPODetailId

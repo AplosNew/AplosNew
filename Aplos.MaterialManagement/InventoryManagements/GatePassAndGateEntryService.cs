@@ -1455,7 +1455,7 @@ namespace Library.MaterialManagement.InventoryManagements
 								,GPM.FixedAssetScrapId
 						,MT.UserName MaterialType
 						,MGM.UserName AS MaterialGroupMasterName
-						,IM.MaterialMasterId
+						,FR.MaterialMasterId
 						,MM.UserName MaterialMasterName
 						, ART.StandardName ArticleName
 						,FA.UserName AssetMaster
@@ -1474,18 +1474,14 @@ namespace Library.MaterialManagement.InventoryManagements
 	                        LEFT JOIN HKP.Party Customer ON Customer.Id = FAD.PartyId
                             LEFT JOIN SCS.Currency CU ON CU.Id =FAD.CurrencyId
 							LEFT JOIN HKP.PartyPlant VPL ON VPL.Id = FAD.DeliveryPartyPlantId
-							Left JOIN  TRN.InventoryMaterial AS IM  ON IM.Id=FR.MaterialMasterId
-							left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
+							left JOIN MST.MaterialMaster AS MM ON FR.MaterialMasterId=MM.Id
 							LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
-							LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id
-							LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId=FC.Id
-							LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId=SC.Id
-							LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId=TC.Id
-							LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId=FCV.Id
-							LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
-							LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
+							LEFT JOIN MST.MaterialMasterArticle AS ART ON FR.MaterialMasterArticleId=ART.Id
+							LEFT JOIN HKP.CharacteristicsValue AS FCV ON MM.Id=FCV.MaterialMasterId
+							LEFT JOIN HKP.CharacteristicsValue AS SCV ON MM.Id=SCV.MaterialMasterId
+							LEFT JOIN HKP.CharacteristicsValue AS TCV ON MM.Id=TCV.MaterialMasterId
 							LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
-						    JOIN MST.FixedAssetMaster FA ON FA.Id=FR.FixedAssetMasterId
+						    LEFT JOIN MST.FixedAssetMaster FA ON FA.Id=FR.FixedAssetMasterId
                     Where GPM.Id='" + GatePassId + @"'Order By GPM.[Id] DESC";
 
                 return _sqlRepository.GetDataTable(strSQL);
@@ -1664,7 +1660,7 @@ namespace Library.MaterialManagement.InventoryManagements
 								,GPM.FixedAssetScrapId
 						,MT.UserName MaterialType
 						,MGM.UserName AS MaterialGroupMasterName
-						,IM.MaterialMasterId
+						,FR.MaterialMasterId
 						,MM.UserName MaterialMasterName
 						, ART.StandardName ArticleName
 						,FA.UserName AssetMaster
@@ -1683,18 +1679,14 @@ namespace Library.MaterialManagement.InventoryManagements
 	                        LEFT JOIN HKP.Party Customer ON Customer.Id = FAD.PartyId
                             LEFT JOIN SCS.Currency CU ON CU.Id =FAD.CurrencyId
 							LEFT JOIN HKP.PartyPlant VPL ON VPL.Id = FAD.DeliveryPartyPlantId
-							Left JOIN  TRN.InventoryMaterial AS IM  ON IM.Id=FR.MaterialMasterId
-							left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
+							left JOIN MST.MaterialMaster AS MM ON FR.MaterialMasterId=MM.Id
 							LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
-							LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id
-							LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId=FC.Id
-							LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId=SC.Id
-							LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId=TC.Id
-							LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId=FCV.Id
-							LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
-							LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
+							LEFT JOIN MST.MaterialMasterArticle AS ART ON FR.MaterialMasterArticleId=ART.Id
+							LEFT JOIN HKP.CharacteristicsValue AS FCV ON MM.Id=FCV.MaterialMasterId
+							LEFT JOIN HKP.CharacteristicsValue AS SCV ON MM.Id=SCV.MaterialMasterId
+							LEFT JOIN HKP.CharacteristicsValue AS TCV ON MM.Id=TCV.MaterialMasterId
 							LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
-						    JOIN MST.FixedAssetMaster FA ON FA.Id=FR.FixedAssetMasterId
+						    LEFT JOIN MST.FixedAssetMaster FA ON FA.Id=FR.FixedAssetMasterId
                     Where GPM.Id='" + GatePassId + @"'Order By GPM.[Id] DESC";
 
                 return _sqlRepository.GetDataTable(strSQL);
@@ -1720,7 +1712,7 @@ namespace Library.MaterialManagement.InventoryManagements
 
             //dsTax = loadMaterialTax(purchaseOrderId);
 
-            int LasColumnIndex = 8;
+            int LasColumnIndex = 7;
             Dictionary<string, int> dicTaxes = new Dictionary<string, int>();
             //DataView dv = new DataView(dsTax.DefaultView.ToTable(true, "TaxCode"));
 
@@ -1790,9 +1782,9 @@ namespace Library.MaterialManagement.InventoryManagements
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU3");
             range.ApplyCharacterFormat(FontBold);
             int colChar3 = COL; COL++;
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Asset Master");//TRN.PurchaseOrderDetail ->CountryId
-            range.ApplyCharacterFormat(FontBold);
-            int colAssetMaster = COL; COL++;
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Asset Master");//TRN.PurchaseOrderDetail ->CountryId
+            //range.ApplyCharacterFormat(FontBold);
+            //int colAssetMaster = COL; COL++;
 
             //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Material Detail");
             //range.ApplyCharacterFormat(FontBold);
@@ -1954,7 +1946,7 @@ namespace Library.MaterialManagement.InventoryManagements
                 TROW.Cells[colChar1].AddParagraph().AppendText(dsMaterialItems.Rows[i]["FirstCharacteristicsValue"].ToString());
                 TROW.Cells[colChar2].AddParagraph().AppendText(dsMaterialItems.Rows[i]["SecondCharacteristicsValue"].ToString());
                 TROW.Cells[colChar3].AddParagraph().AppendText(dsMaterialItems.Rows[i]["ThirdCharacteristicsValue"].ToString());
-                TROW.Cells[colAssetMaster].AddParagraph().AppendText(dsMaterialItems.Rows[i]["AssetMaster"].ToString());
+                //TROW.Cells[colAssetMaster].AddParagraph().AppendText(dsMaterialItems.Rows[i]["AssetMaster"].ToString());
                 //TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsMaterialItems.Rows[i]["TransactionQty"].ToString()).ToString("F2"));
 
                 //ROW++;
