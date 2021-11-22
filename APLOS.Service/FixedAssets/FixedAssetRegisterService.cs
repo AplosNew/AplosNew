@@ -3749,7 +3749,9 @@ GROUP BY FAR.FABudgetMasterId
 				,PC.Code PurchaseCurrency
 				,BC.Code BaseCurrency
 				,FR.Quantity
+                ,TUOM.UserName PurchaseUOM
                 ,isnull( FR.Price,0 )PurchasePrice
+                ,IR.ToCurrencyRate PurchaseExchangeRate
 				,isnull( FR.FABaseAmount,0)FABaseAmount
 				,ISNULL(SAR.SubAssetAmount,0) SubAssetBaseAmount
 
@@ -3788,6 +3790,7 @@ GROUP BY FAR.FABudgetMasterId
                 LEFT JOIN TRN.InventoryIssueHistory IIH ON IIH.Id=FRD.InventoryIssueHistoryId
                 LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
                 LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
+                LEFT JOIN SCS.UnitOfMeasurement TUOM ON TUOM.Id=IRD.TransactionUoMId
 				left join scs.Currency PC on PC.Id= FR.CurrencyId
 				left join scs.Currency BC on BC.Id= FR.FABaseCurrencyId
 				left join mst.FixedAssetDepreciationRule FADR ON FADR.Id = FR.DepreciationRuleId
@@ -4405,13 +4408,6 @@ GROUP BY FAR.FABudgetMasterId
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-            worksheet[ROW, COL].Text = "Pur. Currency";
-            int colPurchaseCurrency = COL;
-            worksheet[ROW, COL].ColumnWidth = 10;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-            COL++;
-
             worksheet[ROW, COL].Text = "Quantity";
             int colQuantity = COL;
             worksheet[ROW, COL].ColumnWidth = 8;
@@ -4419,13 +4415,33 @@ GROUP BY FAR.FABudgetMasterId
             // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
-            worksheet[ROW, COL].Text = "Purchase Rate";
+            worksheet[ROW, COL].Text = "Pur. UOM";
+            int colPurchaseUOM = COL;
+            worksheet[ROW, COL].ColumnWidth = 8;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Pur. Currency";
+            int colPurchaseCurrency = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Pur. Rate";
             int colPurchasePrice = COL;
             worksheet[ROW, COL].ColumnWidth = 15;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
+            worksheet[ROW, COL].Text = "Pur. Exchange Rate";
+            int colPurchaseExchangeRate = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
 
             worksheet[ROW, COL].Text = "Base Currency";
             int colBaseCurrency = COL;
@@ -4553,8 +4569,10 @@ GROUP BY FAR.FABudgetMasterId
                 worksheet[ROW, colBaseCurrency].Text = dtGatenntryRegisterList.Rows[i]["BaseCurrency"].ToString();
 
                 worksheet[ROW, colQuantity].Text = dtGatenntryRegisterList.Rows[i]["Quantity"].ToString();
+                worksheet[ROW, colPurchaseUOM].Text = dtGatenntryRegisterList.Rows[i]["PurchaseUOM"].ToString();
+                worksheet[ROW, colPurchaseExchangeRate].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["PurchaseExchangeRate"].ToString());
+                worksheet.Range[ROW, colPurchaseExchangeRate].NumberFormat = reportUtility.NumberFormatDecimalFour();
 
-                
                 worksheet[ROW, colVendorName].Text = dtGatenntryRegisterList.Rows[i]["VendorName"].ToString();
                 worksheet[ROW, colLifeTime].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["LifeTime"].ToString());
                 worksheet[ROW, colOriginName].Text = dtGatenntryRegisterList.Rows[i]["OriginName"].ToString();

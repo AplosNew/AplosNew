@@ -3512,7 +3512,7 @@ namespace Library.MaterialManagement.InventoryManagements
 							,isnull( ART.StandardName,'') ArticleName	
 							 ,ART.Id ArticleId		
 							,MaterialStorageLocation= MS.UserName
-                           
+                           ,FCV.UserName SKU1,SCV.UserName SKU2
 							--Balance    
 							,Stock=(((((((isnull(opbal.TransactionQty,0)- isnull(IFDOB.IssueQty,0)-isnull(PurchaseReturnOBData.Qty,0)-isnull(InventorySalesOBData.Qty,0) + isnull(opbal2.TransactionQty,0))-isnull(IFD1.IssueQty,0)-isnull(PurchaseReturnData.Qty,0))-isnull(AdjustmentData.Qty,0))+isnull(IssueReturnData.Qty,0))-isnull(InventorySalesData.Qty,0))-isnull(InventoryScrapData.Qty,0))-isnull(InventoryTransferData.Qty,0))  
 
@@ -3535,7 +3535,7 @@ namespace Library.MaterialManagement.InventoryManagements
                                     ,IRD.IsAsset,Sum(IRD.BaseQty) AS TransactionQty, Sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
 			                        FROM [TRN].[InventoryReceiveDetail] IRD
 			                        LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
-			                        where convert(Date,IR.GRNDate) <= '"+ requisitionDate + @"' AND IR.OpeningBalanceId IS NOT NULL 
+			                        where convert(Date,IR.GRNDate) <= '" + requisitionDate + @"' AND IR.OpeningBalanceId IS NOT NULL 
 									group By IRD.InventoryMaterialId,IRD.MaterialStorageId
                                     ,IRD.IsAsset
 			                        UNION ALL 
