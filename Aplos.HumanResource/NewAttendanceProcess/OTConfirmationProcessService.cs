@@ -144,9 +144,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                 #region Monthly Confirmed OT
 
                 DataSet MonthData;
-                MonthlyOTData(out MonthData,StringDates.Min(date => date).ToString("dd-MMM-yyyy"));
-               
+                MonthlyOTData(out MonthData,StringDates.Min(date => date).ToString("dd-MMM-yyyy"),OTWeek);
+
                 #endregion
+
+                #region DataTable Traversing
 
                 for (int i = 0; i < Table.Rows.Count; i++)
                 {
@@ -347,8 +349,57 @@ namespace Library.HumanResource.NewAttendanceProcess
                     }
 
                 }
+                #endregion
+
+                #region To Save Data in APD
+                if (Table.Rows.Count > 0)
+                {
+                    string FinalMin = StringDates.Min(date => date).ToString("dd-MMM-yyyy");
+                    string FinalMax = StringDates.Max(date => date).ToString("dd-MMM-yyyy");
+                    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                    var sqlx = @"select * from AttdnProcessData where IsOTComfirm=0 and WorkDate between '" + FinalMin + "' and '" + FinalMax + "'";
+
+                    objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+
+                    for (int i = 0; i < Table.Rows.Count; i++)
+                    {
+                        string RowId = Table.Rows[i][@"RowId"].ToString();
+                        decimal TargetOT = Convert.ToDecimal(Table.Rows[i][@"TargetOT"].ToString());
+                        decimal StdOT = Convert.ToDecimal(Table.DefaultView[0][@"StandardOT"].ToString());
+                        decimal PlanOT = Convert.ToDecimal(Table.Rows[i][@"TargetOT"].ToString());
+                        decimal AdditionalOT = Convert.ToDecimal(Table.Rows[i][@"AdditionalOT"].ToString());
+                        decimal AppliedOTLimit = Convert.ToDecimal(Table.Rows[i][@"AppliedOTLimit"].ToString());
+                        decimal AllowedOTLimit = Convert.ToDecimal(Table.Rows[i][@"AllowedOTLimit"].ToString());
+
+                        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId+ "' ";
+                        if (dsRef.Tables[0].DefaultView.Count > 0)
+                        {
+                            DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();
+
+                            dr["TargetOT"] = TargetOT;
+                            dr["PlanOT"] = PlanOT;
+                            dr["AppliedOTLimit"] = AppliedOTLimit;
+                            dr["AllowedOTLimit"] = AllowedOTLimit;
+                            dr["StandardOT"] = StdOT;
+                            dr["AdditionalOt"] = AdditionalOT;
+
+                            dr["IsOTComfirm"] = true;
+                            dr["OTComfirmBy"] = identity.Name;
+                            dr["DateOTComfirm"]= Convert.ToDateTime(DateTime.Now);
+                            dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                            
+                            dr.EndEdit();
+
+                        }
+
+                    }
+                }
+                   
+                #endregion
+               
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
@@ -405,14 +456,14 @@ namespace Library.HumanResource.NewAttendanceProcess
 
         }
 
-        public void MonthlyOTData(out DataSet ds,string Date)
+        public void MonthlyOTData(out DataSet ds,string Date,string OTWeek)
         {
             ConnectionManager.DAL.ConManager objCon;
             try
             {
                 var sql = @"select EmpSystemID as EmpId,Isnull(Sum(StandardOT),'0')MonthlyConfirmedOT
                 from AttdnProcessData where OTMonth=Month('" + Date+@"') and OTYear=Year('"+Date+@"')
-                and ISNULL(daystatus,'')!='' AND IsOTComfirm=1
+                and ISNULL(daystatus,'')!='' AND IsOTComfirm=1 and otweek<>'"+OTWeek+@"'
                 group by EmpSystemID";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
