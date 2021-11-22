@@ -4829,7 +4829,7 @@ namespace Library.HumanResource.Report.OT
 
                 DataSet dsCurrency = null;
 
-                Dictionary<string, List<DataRow>> dicSalStructure = LoadSalaryStructureCon(PlantId, TypeId, FirstDayOfTheMonth, LastDayOfTheMonth);
+                Dictionary<string, List<DataRow>> dicSalStructure = LoadSalaryStructureCon(PlantId, TypeId, FirstDayOfTheMonth, LastDayOfTheMonth, wcEmpSystemId);
                 Dictionary<string, DataRow> dicOTpolicy = LoadOverTimePolicyCon(PlantId, TypeId, FirstDayOfTheMonth, LastDayOfTheMonth);
 
                 clsSalaryInfo objSal = new clsSalaryInfo();
@@ -5512,7 +5512,7 @@ namespace Library.HumanResource.Report.OT
             }
         }//End Function
 
-        public Dictionary<string, List<DataRow>> LoadSalaryStructureCon(string sPlantID, string TypeId, string sFromDate, string sToDate)
+        public Dictionary<string, List<DataRow>> LoadSalaryStructureCon(string sPlantID, string TypeId, string sFromDate, string sToDate, string EmpIds)
         {
             System.Data.DataSet dsRef = null;
             Dictionary<string, List<DataRow>> dicBonus = new Dictionary<string, List<DataRow>>();
