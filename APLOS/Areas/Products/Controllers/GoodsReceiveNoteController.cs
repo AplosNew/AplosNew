@@ -3865,6 +3865,142 @@ UNION ALL
             _inventoryDetailService.JWInsertOrUpdateGraphNew(entity, entityMat, taxCategoryList, id, MaterialStorageId, GRNType, entityMatByProduct);
             return Json(new { Message = AplosMessage.Success });
         }
+
+
+        // Job Work Receipt
+
+        [HttpPost]
+        public JsonResult SaveJobWorkGRN(InventoryReceive entity, string entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string AcceptanceId, string CheckedByStatusForNoti, string ApprovedByStatusForNoti, string entityMatByProduct)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            entity.CompanyGroupId = identity.CompanyGroupId;
+            entity.CompanyId = identity.CompanyId;
+            entity.PlantId = identity.PlantId;
+
+            if (string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
+            {
+                CheckedByStatusForNoti = "False";
+                ApprovedByStatusForNoti = "False";
+            }
+
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+
+            //IEnumerable<InventoryMaterialViewModel>
+            List<InventoryMaterialViewModel> entityMatAndImat1 = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(entityMatAndImat, settings);
+            List<InventoryMaterialViewModel> entityMatByProduct1 = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(entityMatByProduct, settings);
+            if (identity.EmployeeId == entity.CheckedBy)
+            {
+                throw new CustomException("Please select another employee for Check by.");
+            }
+            else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "True")
+            {
+
+                entity.AuthorizedBy = entity.CheckedBy;
+                entity.AuthorizedByStatus = "For Approval";
+                entity.CheckedBy = null;
+                entity.CheckedByStatus = null;
+                entity.IsApproved = false;
+                entity.RequiredPosting = true;
+            }
+            else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
+            {
+                entity.CheckedByStatus = null;
+                entity.AuthorizedByStatus = null;
+                entity.CheckedBy = null;
+                entity.AuthorizedBy = null;
+                entity.IsApproved = true;
+                entity.RequiredPosting = true;
+            }
+            else
+            {
+                entity.CheckedBy = entity.CheckedBy;
+                entity.CheckedByStatus = "ForChecked";
+                entity.AuthorizedBy = null;
+                entity.AuthorizedByStatus = null;
+                entity.IsApproved = false;
+                entity.RequiredPosting = true;
+            }
+            if (entityMatAndImat1 != null)
+            {
+                foreach (var item in entityMatAndImat1)
+                {
+
+                    if (!item.check)
+                    {
+                        throw new CustomException("Please Select Materials !");
+
+                    }
+                    else if (item.TransactionQty.ToString() == "0")
+                    {
+                        throw new CustomException("Please Input The Current Qty !");
+                    }
+
+                }
+            }
+            else
+            {
+                throw new CustomException("Please Select atlest one Materials !");
+            }
+            if (chargesListPO != null)
+            {
+                foreach (var item in chargesListPO)
+                {
+                    if (!item.check)
+                    {
+                        throw new CustomException("Please Select Materials !");
+                    }
+                    else if (item.Amount.ToString() == "0")
+                    {
+                        throw new CustomException("Please Input  Amount !");
+                    }
+
+                }
+            }
+            bool _returnRes = GetDocRef(entity.DocRefNo, entity.PartyId, entity.DocDate.ToString(), entity.Id);
+            if (_returnRes == true)
+            {
+                throw new CustomException("Vendor / Docref / Docdate cannot duplicate!");
+            }
+            if (entityMatAndImat1 != null)
+            {
+                foreach (var item in entityMatAndImat1)
+                {
+
+                    if (!item.check)
+                    {
+                        throw new CustomException("Please Select Materials !");
+
+                    }
+                    else if (item.TransactionQty.ToString() == "0")
+                    {
+                        throw new CustomException("Please Input The Current Qty !");
+                    }
+
+                }
+            }
+            else
+            {
+                throw new CustomException("Please Select atlest one Materials !");
+            }
+
+
+            SaveJobWorkDetail(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType, entityMatByProduct1);
+            return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
+        }
+        public JsonResult SaveJobWorkDetail(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType, IEnumerable<InventoryMaterialViewModel> entityMatByProduct)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            _inventoryDetailService.JobWorkInsertOrUpdateNew(entity, entityMat, taxCategoryList, id, MaterialStorageId, GRNType, entityMatByProduct);
+            return Json(new { Message = AplosMessage.Success });
+        }
+
+
+
+
         //[HttpPost]
         //public JsonResult UpdateJWGRN(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
         //{

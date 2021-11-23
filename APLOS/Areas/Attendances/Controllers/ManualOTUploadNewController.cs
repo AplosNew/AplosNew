@@ -94,7 +94,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
 
             string sql = @"select distinct top 100 ot.*,FORMAT(ot.WorkDate,'dd-MMM-yyyy') as OTWorkDate,ei.SystemId,ei.EmployeeCode, ei.EmployeeName as EmpName,ei.EmployeeStatus
-                                                                    from dbo.OTfromApp ot
+                                                                    from AttdnProcessData ot
                                                                     left join dbo.EmployeeInformation ei on ei.SystemId=ot.EmpSystemId
 																    WHERE " + strkey + " order by ot.WorkDate desc ";
 

@@ -120,11 +120,11 @@ namespace Aplos.Areas.Attendances.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
            
 
-            string sql = @"Select * from (select distinct ot.*,FORMAT(ot.WorkDate,'dd-MMM-yyyy') as OTWorkDate,ei.SystemId,ei.EmployeeCode, ei.EmployeeName as EmpName,ei.EmployeeStatus, p.UserName as Plant
-                                                                    from dbo.OTfromApp ot
+            string sql = @"Select top 100 * from (select distinct ot.*,FORMAT(ot.WorkDate,'dd-MMM-yyyy') as OTWorkDate,ei.SystemId,ei.EmployeeCode, ei.EmployeeName as EmpName,ei.EmployeeStatus, p.UserName as Plant
+                                                                    from AttdnProcessData ot
                                                                     left join dbo.EmployeeInformation ei on ei.SystemId=ot.EmpSystemId
 																	left join ORG.Plant p on p.Id=ei.PlantId
-																	where ei.PlantId='"+ identity.PlantId + @"')
+																	where ei.PlantId='" + identity.PlantId + @"')
                                                                     as Temp
 																    WHERE " + strkey + " order by Temp.WorkDate desc ";
 

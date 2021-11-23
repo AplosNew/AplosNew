@@ -45,7 +45,12 @@ namespace Library.Model.Inventory
         public string OSTransformationPODetailId { get; set; }
         public string OSTransformationPOInputMaterialId { get; set; }
         public string OSTransformationPOByProductId { get; set; }
-        public string MaterialFor { get; set; } 
+        public string MaterialFor { get; set; }
+
+        public string JWTransformationPOId { get; set; }
+        public string JWTransformationPODetailId { get; set; }
+        public string JWTransformationPOInputMaterialId { get; set; }
+        public string JWTransformationPOByProductId { get; set; }
 
         #endregion Scalar Properties
 
