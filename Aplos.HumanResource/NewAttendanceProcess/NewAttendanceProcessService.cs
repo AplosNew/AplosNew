@@ -2973,7 +2973,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
-        public void UpdateEmployeesProcessedOT(string Date,string Plant)
+        public void UpdateZeroProcessedOTEmp(string Date,string Plant)
         {
             try
             {
@@ -3335,6 +3335,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
+                                // OverStay Value is rounded using OT Per Min Policy
                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                 dr.BeginEdit();
                                 dr["OverStay"] = Result;
@@ -4000,13 +4001,16 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     #endregion
 
-                    #region OT Entitled Employees whose Processed OverTime is 0
+                    #region OT Entitled Employees whose ProcessedOT is 0
+
+                    // Confirming the OT of Employees Whose Processed OT is 0
+                    UpdateZeroProcessedOTEmp(PreviousDay, PlantValue);
 
                     #endregion
 
                     #endregion
 
-                    #region Credit Limit Process
+                    #region Credit Limit Process Commented Code
 
                     //DataSet CreditLimitData;
                     //DailyCreditDataSource(PreviousDay, out CreditLimitData, PlantValue);
@@ -4476,6 +4480,29 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public void ManualZeroProcessedOTEmployees(string Plant)
+        {
+            try
+            {
+                var sql = @"UPDATE AttdnProcessData SET IsOTComfirm=1,OTComfirmBy='AutoConfirmation',
+                DateOTComfirm=GETDATE()
+                where ProcessedOT=0 AND OverStay IS NULL
+                and ManualFlag=1 and IsOTComfirm=0 AND IsOTEntitled=1
+                and PlantID='"+Plant+"'";
+
+                ConnectionManager.DAL.ConManager objCone = null;
+                objCone = new ConnectionManager.DAL.ConManager("1");
+                objCone.OpenConnection("1");
+                objCone.BeginTransaction();
+
+                objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                objCone.CommitTransaction();
             }
             catch (Exception ex)
             {
@@ -5425,6 +5452,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     }
                     ConfirmOTFlag(RowMaster);
                 }
+
+                #endregion
+
+                #region OT Entitled Employees whose ProcessedOT is 0
+
+                // Confirming the OT of Employees Whose Processed OT is 0
+                ManualZeroProcessedOTEmployees(PlantValue);
 
                 #endregion
 
