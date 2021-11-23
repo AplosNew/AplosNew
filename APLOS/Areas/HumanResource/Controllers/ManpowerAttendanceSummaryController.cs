@@ -44,7 +44,12 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             return View();
         }
-        
+
+        public ActionResult AplosNew()
+        {
+            return View();
+        }
+
         public ActionResult AttendanceGroup()
         {
             return View();
@@ -55,6 +60,54 @@ namespace Aplos.Areas.HumanResource.Controllers
             return View();
         }
         #endregion -- Pages
+        [HttpGet, Authorize]
+        public ActionResult GetmanpowerAttendanceSummaryrViewReportOld(string workDate, bool withLine)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var fileName = "ManpowerSummary";
+            if (!withLine)
+            {
+                var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcel(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, workDate, withLine);
+
+                workbook.Version = ExcelVersion.Excel97to2003;
+                //workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open);
+                return RenderReportAsPdf(workbook, fileName);
+            }
+            else
+            {
+                var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcelWithLine(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, workDate, withLine);
+               
+                workbook.Version = ExcelVersion.Excel97to2003;
+                return RenderReportAsPdf(workbook, fileName);
+            }
+
+            //return null;
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetmanpowerAttendanceSummaryrReportOld(string workDate, bool withLine)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var fileName = "ManpowerSummary" + DateTime.Now.ToString("yyMMdd") + ".xls";
+            if (!withLine)
+            {
+                var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcel(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, workDate, withLine);
+                workbook.Version = ExcelVersion.Excel97to2003;
+                workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open);
+
+            }
+            else
+            {
+                var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcelWithLine(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, workDate, withLine);
+                workbook.Version = ExcelVersion.Excel97to2003;
+                workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open);
+            }
+
+            return null;
+        }
+
 
         [HttpGet, Authorize]
         public ActionResult GetmanpowerAttendanceSummaryrViewReport(string workDate, bool withLine)
@@ -64,19 +117,16 @@ namespace Aplos.Areas.HumanResource.Controllers
             var fileName = "ManpowerSummary";
             if (!withLine)
             {
-                var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcel(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, workDate, withLine);
+               // var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcel(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, workDate, withLine);
+                var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcelNew(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, workDate, withLine);
                 workbook.Version = ExcelVersion.Excel97to2003;
                 //workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open);
                 return RenderReportAsPdf(workbook, fileName);
-
-
-                
-
-
             }
             else
             {
-                var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcelWithLine(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, workDate, withLine);
+                //var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcelWithLine(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, workDate, withLine);
+                var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcelWithLineNew(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, workDate, withLine);
                 workbook.Version = ExcelVersion.Excel97to2003;
                 return RenderReportAsPdf(workbook, fileName);
             }

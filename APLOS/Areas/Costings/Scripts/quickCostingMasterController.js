@@ -177,7 +177,7 @@ function quickCostingMasterController(cboService, commonMessage, $scope, $rootSc
     $scope.SaveCostingItemsForCostingComponent = function () {
         try {
 
-            var Sequenc = $scope.DirectMaterialList.length + 1;
+            //var Sequenc = $scope.DirectMaterialList.length + 1;
 
             if (angular.isUndefinedOrNull($scope.CostingMasterTemplateId))
                 throw 'Please save the costing master first';

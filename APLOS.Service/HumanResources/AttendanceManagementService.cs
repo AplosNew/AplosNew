@@ -2863,7 +2863,7 @@ namespace Library.Service.HumanResources
 
                                         //if (Convert.ToDateTime(FinalOutTime) > Convert.ToDateTime(dvBioDvAC[i]["punchTime"].ToString()))
                                         //{
-                                            FinalOutTime = dvBioDvAC[i]["OutTimeShow"].ToString();
+                                        FinalOutTime = dvBioDvAC[i]["OutTimeShow"].ToString();
                                         //}
 
                                         sheet1.Range[xlsRow, iOutTime].NumberFormat = "hh:mm AM/PM";
@@ -15066,8 +15066,8 @@ namespace Library.Service.HumanResources
                 var iMatchingDescription = 0;
                 var iPlant = 0;
                 var iEntity = 0;
-                var iShift= 0;
-                var iRemarks= 0;
+                var iShift = 0;
+                var iRemarks = 0;
                 var iAddedDate = 0;
                 var SLNo = 1;
 
@@ -21965,7 +21965,8 @@ namespace Library.Service.HumanResources
                         ///=====
                         value = dtEmpInformation.Rows[0][dtEmpInformation.Columns[colName].ColumnName].ToString();
 
-                        if (bplib.clsWebLib.IsNumeric(value)) { 
+                        if (bplib.clsWebLib.IsNumeric(value))
+                        {
                             replaced[foundText] = document.Replace(foundText, cnDgt(Convert.ToDecimal(value).ToString(), UserName), false, true);
                         }
                         else if (bplib.clsWebLib.IsDateOK(value))
@@ -21979,7 +21980,8 @@ namespace Library.Service.HumanResources
                         ///=====
                         value = dtFinalSettlementData.Rows[0][dtFinalSettlementData.Columns[colName].ColumnName].ToString();
 
-                        if (bplib.clsWebLib.IsNumeric(value)) {
+                        if (bplib.clsWebLib.IsNumeric(value))
+                        {
                             if (colName == "LvEncashmentDayNo")
                             {
                                 replaced[foundText] = document.Replace(foundText, cnDgt(Convert.ToDecimal(value).ToString(), UserName), false, true);
@@ -22065,7 +22067,7 @@ namespace Library.Service.HumanResources
                 decimal LvEncashmentAmount = 0;
                 decimal LastMonthNetPayAmount = 0;
                 decimal FinalSettlementEarningData = 0;
-
+                decimal SepTypeAmount = 0;
                 if (dtFinalSettlementData.Rows.Count > 0)
                 {
                     dtFinalSettlementDedutionData = ob.GetFinalSettlementDeductionData(dtFinalSettlementData.Rows[0]["Id"].ToString(), LanguageId);
@@ -22086,7 +22088,10 @@ namespace Library.Service.HumanResources
 
                 if (dtFinalSettlementData.Rows.Count > 0)
                 {
-                    SeparationTypeAmount = Convert.ToDecimal(dtFinalSettlementData.Rows[0]["SeparationTypeAmount"].ToString());
+                    if (dtFinalSettlementData.Rows[0]["SeparationTypeAmount"].ToString() != "N/A")
+                        SepTypeAmount = Convert.ToDecimal(dtFinalSettlementData.Rows[0]["SeparationTypeAmount"].ToString());
+
+                    SeparationTypeAmount = SepTypeAmount;
                     LvEncashmentAmount = Convert.ToDecimal(dtFinalSettlementData.Rows[0]["LvEncashmentAmount"].ToString());
                     LastMonthNetPayAmount = Convert.ToDecimal(dtFinalSettlementData.Rows[0]["LastMonthNetPayAmount"].ToString());
                     FinalSettlementEarningData = dtFinalSettlementEarningData.Rows.Count > 0 ? Convert.ToDecimal(dtFinalSettlementEarningData.Compute("SUM(Amount)", string.Empty)) : 0;

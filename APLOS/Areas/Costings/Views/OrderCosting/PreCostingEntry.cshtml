@@ -9,6 +9,7 @@
         <thead>
             <tr>
                 <th style="width: 150px !important">Costing Item</th>
+                <th style="width: 40px !important">Seq.No.</th>
                 <th style="width: 150px !important;text-align:center!important;">Particulars</th>
                 <th>UoM</th>
                 <th class="text-right">Consumption</th>
@@ -52,6 +53,11 @@
 
             <tr ng-repeat="x in DirectMaterialList">
                 <td style="width:150px!important;color:blue!important;cursor:pointer!important;" ng-click="ShowToolTip('PRE',x)">{{x.UserName}}</td>
+                
+                <td class="text-right">
+                    <input type="number" style="min-width:80px;background-color:{{x.Sequence<0?'red':'white'}}" name="MaterialMasterName" min="0" ng-click="x.Sequence>0?x.Sequence:x.Sequence=''" ng-model="x.Sequence" ng-change="CalculateFinalCosting(x);" class="form-control">
+                </td>
+
                 <td style="width:150px!important;">
                     <input style="min-width:150px;" type="text" ng-model="x.Particulars" class="form-control" />
 
@@ -235,6 +241,7 @@
         <thead>
             <tr>
                 <th>Costing Item</th>
+                <th>Seq.No.</th>
                 <th class="text-right">Value</th>
                 <th>Res. Person</th>
                 <th>Description</th>
@@ -244,6 +251,12 @@
         <tbody>
             <tr ng-repeat="x in OperationList">
                 <td style="width:150px!important;color:blue!important;cursor:pointer!important;" ng-click="ShowToolTip('PRE',x)">{{x.UserName}}</td>
+
+                <td>
+                    <input type="number" style="min-width:40px;background-color:{{x.Sequence<0?'red':'white'}}" name="MaterialMasterName" min="0" ng-model="x.Sequence" ng-change="CalculateFinalCosting(x);" class="form-control">
+
+                </td>
+
                 <td>
                     <input type="number" ng-disabled="false" style="min-width:80px" name="MaterialMasterName" min="0" ng-model="x.Value" ng-change="CalculateFinalCosting(x);" class="form-control">
 
@@ -303,6 +316,7 @@
         <thead>
             <tr>
                 <th>Costing Item</th>
+                <th>Seq.No.</th>
                 <th>Execution Type</th>
                 <th>Value Loss (%)</th>
                 <th>Rate</th>
@@ -314,7 +328,15 @@
         </thead>
         <tbody>
             <tr ng-repeat="x in DirectProcessList">
-                <td style="width:150px!important;color:blue!important;cursor:pointer!important;" ng-click="ShowToolTip('PRE',x)">{{x.UserName}}</td>
+                <td style="width:160px!important;color:blue!important;cursor:pointer!important;" ng-click="ShowToolTip('PRE',x)">{{x.UserName}}</td>
+
+                <td>
+                    <input type="number" style="min-width:40px;background-color:{{x.Sequence<0?'red':'white'}}" name="MaterialMasterName" min="0" ng-model="x.Sequence" ng-change="CalculateFinalCosting(x);" class="form-control">
+
+                    @*<input type="text" ej-numerictextbox e-showspinbutton="false" e-minvalue="0" e-decimalplaces="2" e-enablertl="false" e-change="x.bb=0;CalculateFinalCosting(x);" e-value="x.Value" e-width="100" />*@
+
+                </td>
+
                 <td>
                     <div class="select-style">
                         <select ng-change="GetDirectProcessRateValue(x);" style="margin-left: 0px;" name="Executiontype" id="ExecutiontypeId" ng-model="x.ExecutionType">
