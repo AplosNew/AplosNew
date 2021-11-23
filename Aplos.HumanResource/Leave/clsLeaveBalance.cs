@@ -946,6 +946,79 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
 
         #endregion
 
+        //first dictionary will contain employeeId,second one will hold the leave type wise balances
+        public Dictionary<string, Dictionary<string, DataRow>> GetLeaveBalance(int MonthNo, int YearNo, string EmployeeIds, string UpToDate = "", string LeaveTypeIds = "")
+        {
+            if (string.IsNullOrEmpty(UpToDate))
+                UpToDate = new DateTime(YearNo, MonthNo, DateTime.DaysInMonth(YearNo, MonthNo)).ToString("dd-MMM-yyyy");
+
+            if (LeaveTypeIds != "")
+                LeaveTypeIds = " AND lt.Id IN (" + LeaveTypeIds + @") ";
+            string sql = @"SELECT lt.Sequence, ELs.EmployeeId, els.LeaveTypeId,lt.LeaveType, lt.Code AS LeaveCode,
+                                els.CurrentYearAllocation,els.CarryForwardOpeningBalance,els.BroughtForward,
+                                SUM(ISNULL(CR.EarnedValue,0))CurrentPeriodEarned,SUM(ISNULL(cr.AvailedValue,0)) AS CurrentPeriodAvailed,
+                                ISNULL(els.CurrentYearAllocation,0)+ISNULL(els.CarryForwardOpeningBalance,0)+ISNULL(els.BroughtForward,0)+SUM(ISNULL(CR.EarnedValue,0)) AS UpToDateEarned,
+
+                                ISNULL(els.CurrentYearAllocation,0)+ISNULL(els.CarryForwardOpeningBalance,0)+ISNULL(els.BroughtForward,0)+SUM(ISNULL(CR.EarnedValue,0))-SUM(ISNULL(cr.AvailedValue,0)) AS ClosingBalance
+                                FROM trn.EmployeeLeaveSummary AS els 
+                                LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=els.EmployeeId
+                                JOIN YearlyCalendar AS yc ON yc.Id=els.CalanderYearId AND yc.YearNo=(SELECT TOP 1 y.YearNo FROM YearlyCalendar Y WHERE y.PlantId=ei.PlantId AND y.YearNo<=" + YearNo + @" ORDER BY y.YearNo DESC)
+                                LEFT JOIN (
+                                SELECT d.YearNo,d.MonthNo, d.EmployeeSystemId,D.LeaveTypeId,SUM( d.EarnedValue) AS EarnedValue, SUM(d.AvailedValue) AS AvailedValue
+			                                  FROM SalaryProcessMonthlyLeaveData D
+			                                GROUP BY d.YearNo,d.MonthNo, d.EmployeeSystemId,D.LeaveTypeId
+                                ) AS CR ON cr.EmployeeSystemId=els.EmployeeId AND cr.LeaveTypeId=els.LeaveTypeId AND DATEFROMPARTS(CR.YearNo,CR.MonthNo,1) BETWEEN yc.FromDate AND '" + UpToDate + @"'
+                                LEFT JOIN LeaveType AS lt ON lt.Id=els.LeaveTypeId
+
+                                WHERE yc.YearNo='" + YearNo + @"'
+                                AND els.EmployeeId(" + EmployeeIds + @")" + LeaveTypeIds + @" 
+
+
+                                GROUP BY lt.Sequence, ELs.EmployeeId, els.LeaveTypeId,lt.LeaveType, lt.Code,els.CurrentYearAllocation,els.CarryForwardOpeningBalance,els.BroughtForward--,,
+
+                                ORDER BY  ELs.EmployeeId,lt.Sequence";
+
+            DataTable dt = _sqlRepository.GetDataTable(sql);
+
+            Dictionary<string, Dictionary<string, DataRow>> empLeaveData = new Dictionary<string, Dictionary<string, DataRow>>();
+            Dictionary<string, DataRow> LeaveData = new Dictionary<string, DataRow>();
+            string employeeId = "";
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                if (employeeId != dt.Rows[i]["EmployeeId"].ToString())
+                {
+                    LeaveData = new Dictionary<string, DataRow>();
+                    empLeaveData.Add(dt.Rows[i]["EmployeeId"].ToString(), LeaveData);
+                }
+
+                LeaveData.Add(dt.Rows[i]["LeaveTypeId"].ToString(), dt.Rows[i]);
+
+                employeeId = dt.Rows[i]["EmployeeId"].ToString();
+            }
+
+            return empLeaveData;
+        }
+
+        public Dictionary<string, Dictionary<string, DataRow>> GetLeaveBalance(DateTime UpToDate, string EmployeeIds)
+        {
+            int YearNo = Convert.ToDateTime(UpToDate).Year;
+            int MonthNo = Convert.ToDateTime(UpToDate).Month;
+
+            GetLeaveBalance(MonthNo, YearNo, EmployeeIds, UpToDate.ToString("dd-MMM-yyyy"));
+            return null;
+        }
+        public Dictionary<string, Dictionary<string, DataRow>> GetLeaveBalanceOnlyEarned(int MonthNo, int YearNo, string EmployeeIds)
+        {
+          
+            DataTable dt = _sqlRepository.GetDataTable("SELECT * FROM LeaveType AS lt WHERE lt.Code IN ('CL','PL')");
+            string leaveTypeIds = "''";
+            foreach (DataRow item in dt.Rows)
+                leaveTypeIds += ",'" + item["Id"].ToString() + @"'";
+
+            GetLeaveBalance(MonthNo, YearNo, EmployeeIds, leaveTypeIds);
+            return null;
+        }
+
     }
 }
 
