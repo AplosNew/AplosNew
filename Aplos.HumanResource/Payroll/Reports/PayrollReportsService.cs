@@ -10611,25 +10611,24 @@ namespace Library.HumanResource.Payroll
                                 }
                                 k++;
 
-
-                                if (LeaveData.ContainsKey(dtEmpInfo.Rows[i]["EmpSystemId"].ToString()) == true)
+                                if (LeaveData != null)
                                 {
-
-                                    Dictionary<string, DataRow> _dicLeave = LeaveData[dtEmpInfo.Rows[i]["EmpSystemId"].ToString()];
-                                    foreach (KeyValuePair<string, DataRow> LeaveItem in _dicLeave)
+                                    if (LeaveData.ContainsKey(dtEmpInfo.Rows[i]["EmpSystemId"].ToString()) == true)
                                     {
 
+                                        Dictionary<string, DataRow> _dicLeave = LeaveData[dtEmpInfo.Rows[i]["EmpSystemId"].ToString()];
+                                        foreach (KeyValuePair<string, DataRow> LeaveItem in _dicLeave)
+                                        {
+                                            sheet1[1, xlsCol].ColumnWidth = 16;
+                                            sheet1[1, xlsCol + 1].ColumnWidth = 6;
 
+                                            sheet1.Range[xlsRow + k, xlsCol].Text = ru.GetLabelname(labelList, LeaveItem.Value["LeaveCode"].ToString(), "B" + LeaveItem.Value["LeaveCode"].ToString()); //"Casual Leave";
+                                            sheet1.Range[xlsRow + k, xlsCol + 1].Number = clsStaticInfo.dbl(LeaveItem.Value["ClosingBalance"].ToString());
 
-                                        sheet1[1, xlsCol].ColumnWidth = 16;
-                                        sheet1[1, xlsCol + 1].ColumnWidth = 6;
+                                            k++;
+                                        }
 
-                                        sheet1.Range[xlsRow + k, xlsCol].Text = ru.GetLabelname(labelList, LeaveItem.Value["LeaveCode"].ToString(), "B" + LeaveItem.Value["LeaveCode"].ToString()); //"Casual Leave";
-                                        sheet1.Range[xlsRow + k, xlsCol + 1].Number = clsStaticInfo.dbl(LeaveItem.Value["ClosingBalance"].ToString());
-
-                                        k++;
                                     }
-
                                 }
                             }
                             //sheet1.Range[xlsRow + 2, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.CasualLeave.ToString(), "CL"); //"Casual Leave";
