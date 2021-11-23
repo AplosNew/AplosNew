@@ -80,6 +80,14 @@ function monthlyGoodWorkReportNewController(commonMessage, $scope, $rootScope, b
     $scope.GoodWork.YearNo = new Date().getFullYear().toString();
     $scope.GoodWork.MonthNo = new Date().getMonth().toString();
 
+    $scope.EmployeeCodeTypeList = [];
+    $scope.EmployeeCodeTypeCbo = function () {
+        $http.get('employees/EmployeeCodeType/GetCbo')
+            .then(function (response) {
+                $scope.EmployeeCodeTypeList = response.data;
+            });
+    }
+    $scope.EmployeeCodeTypeCbo();
   
     $scope.parameters = [];
     $scope.filters = [];
@@ -135,6 +143,13 @@ function monthlyGoodWorkReportNewController(commonMessage, $scope, $rootScope, b
 
     $scope.GetGoodWorkReport = function (reportType) {
         try {
+            var TypeDropDownListObj = $("#typeList").data("ejDropDownList");
+            $scope.EmployeeCodeTypeIdList = TypeDropDownListObj.getSelectedValue();
+
+            if (angular.isUndefinedOrNull($scope.EmployeeCodeTypeIdList)) {
+                throw "Select Type";
+            }
+
             //The Filters Code
             var g = $("#filters").data("ejGrid");
             var fl = g.getFilteredRecords();
@@ -168,7 +183,7 @@ function monthlyGoodWorkReportNewController(commonMessage, $scope, $rootScope, b
                     method: 'POST',
                     url: $scope.path + '/XlsGoodWorkReport',
                     data: {
-                        'Month': $scope.GoodWork.MonthNo, 'Year': $scope.GoodWork.YearNo , 'Parameters' : $scope.parameters
+                        'Month': $scope.GoodWork.MonthNo, 'Year': $scope.GoodWork.YearNo, 'Parameters': $scope.parameters, 'typeId': $scope.EmployeeCodeTypeIdList
                     }
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
