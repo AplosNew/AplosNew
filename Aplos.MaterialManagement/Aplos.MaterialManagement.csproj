@@ -176,6 +176,7 @@
     <Compile Include="Inventory\SFGMovementService.cs" />
     <Compile Include="JobWork\JWCommon.cs" />
     <Compile Include="JobWork\JWIssueReturnService.cs" />
+    <Compile Include="JobWork\JWReceiptService.cs" />
     <Compile Include="JobWork\OutsourceReceiveAllocationService.cs" />
     <Compile Include="JobWork\OSCommon.cs" />
     <Compile Include="JobWork\JobWorkIssueReturnConfirmationService.cs" />

@@ -978,6 +978,7 @@ var upanelApp = angular
     .controller("multipleResignationApprovalNewController", multipleResignationApprovalNewController)
     .controller('JWIssueReturnController', JWIssueReturnController)
     .controller('MachineLayoutReportController', MachineLayoutReportController)
+    .controller('JWReceiptController', JWReceiptController)
 
 
     .config(AccessControllerConfig)
