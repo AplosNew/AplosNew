@@ -971,7 +971,7 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
                                 LEFT JOIN LeaveType AS lt ON lt.Id=els.LeaveTypeId
 
                                 WHERE yc.YearNo='" + YearNo + @"'
-                                AND els.EmployeeId(" + EmployeeIds + @")" + LeaveTypeIds + @" 
+                                AND els.EmployeeId IN (" + EmployeeIds + @")" + LeaveTypeIds + @" 
 
 
                                 GROUP BY lt.Sequence, ELs.EmployeeId, els.LeaveTypeId,lt.LeaveType, lt.Code,els.CurrentYearAllocation,els.CarryForwardOpeningBalance,els.BroughtForward--,,
@@ -1004,19 +1004,19 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
             int YearNo = Convert.ToDateTime(UpToDate).Year;
             int MonthNo = Convert.ToDateTime(UpToDate).Month;
 
-            GetLeaveBalance(MonthNo, YearNo, EmployeeIds, UpToDate.ToString("dd-MMM-yyyy"));
-            return null;
+            
+            return GetLeaveBalance(MonthNo, YearNo, EmployeeIds, UpToDate.ToString("dd-MMM-yyyy")); 
         }
         public Dictionary<string, Dictionary<string, DataRow>> GetLeaveBalanceOnlyEarned(int MonthNo, int YearNo, string EmployeeIds)
         {
-          
+
             DataTable dt = _sqlRepository.GetDataTable("SELECT * FROM LeaveType AS lt WHERE lt.Code IN ('CL','PL')");
             string leaveTypeIds = "''";
             foreach (DataRow item in dt.Rows)
                 leaveTypeIds += ",'" + item["Id"].ToString() + @"'";
 
-            GetLeaveBalance(MonthNo, YearNo, EmployeeIds, leaveTypeIds);
-            return null;
+            
+            return GetLeaveBalance(MonthNo, YearNo, EmployeeIds, "", leaveTypeIds); 
         }
 
     }
