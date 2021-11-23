@@ -2997,7 +2997,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 									        where p.ManualFlag=1 and dt.DayType=p.DayStatus 
 											and IsOTEntitled=1 and isOTConfirmationAuto=1
 											and DayTypeOtApplicable=0
-									        and ei.PlantId='" + PlantId+@"' order by WorkDate asc";
+									        and ei.PlantId='" + PlantId+@"' --order by WorkDate asc";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
