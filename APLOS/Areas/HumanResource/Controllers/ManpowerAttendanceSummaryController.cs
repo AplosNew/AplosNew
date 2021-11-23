@@ -64,7 +64,8 @@ namespace Aplos.Areas.HumanResource.Controllers
             var fileName = "ManpowerSummary";
             if (!withLine)
             {
-                var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcel(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, workDate, withLine);
+               // var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcel(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, workDate, withLine);
+                var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcelNew(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, workDate, withLine);
                 workbook.Version = ExcelVersion.Excel97to2003;
                 //workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open);
                 return RenderReportAsPdf(workbook, fileName);
@@ -76,7 +77,8 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
             else
             {
-                var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcelWithLine(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, workDate, withLine);
+                //var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcelWithLine(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, workDate, withLine);
+                var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcelWithLineNew(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, workDate, withLine);
                 workbook.Version = ExcelVersion.Excel97to2003;
                 return RenderReportAsPdf(workbook, fileName);
             }

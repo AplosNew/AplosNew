@@ -1340,6 +1340,8 @@ namespace Aplos.Areas.Payrolls.Controllers
 
 
 
+                try
+                {
 
                 TextSelection[] X = document.FindAll(new Regex("{.*?}")).ToArray();
                 List<string> allDeleteresult = new List<string>();
@@ -1352,6 +1354,11 @@ namespace Aplos.Areas.Payrolls.Controllers
                         document.Replace(item, "", false, true);
                 }
 
+                }
+                catch (Exception ex)
+                {
+
+                }
                 //if (!string.IsNullOrEmpty(dtEmp.Rows[0]["EmployeeCode"].ToString()))
                 //{
 
