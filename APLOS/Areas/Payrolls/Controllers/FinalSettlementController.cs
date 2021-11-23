@@ -378,13 +378,9 @@ namespace Aplos.Areas.Payrolls.Controllers
                     dr["NoticePeriodRate"] = FinalSettlementData.NoticePeriodRate;
                     dr["NoticePeriodType"] = FinalSettlementData.NoticePeriodType;
 
-
-
-
-
-
-
-
+                    dr["GratuityDayOrYear"] = FinalSettlementData.GratuityDaysOrYear;
+                    dr["GratuityNoOfDaysOrYear"] = FinalSettlementData.GratuityEligibleYearOrDays;
+                    dr["GratuityRate"] = FinalSettlementData.GratuityRate;
 
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = System.DateTime.Now.ToString();
@@ -447,15 +443,14 @@ namespace Aplos.Areas.Payrolls.Controllers
                     dr["NoticePeriodRate"] = FinalSettlementData.NoticePeriodRate;
                     dr["NoticePeriodType"] = FinalSettlementData.NoticePeriodType;
 
+                    dr["GratuityDaysOrYear"] = FinalSettlementData.GratuityDaysOrYear;
+                    dr["GratuityNoOfDaysOrYear"] = FinalSettlementData.GratuityEligibleYearOrDays;
+                    dr["GratuityRate"] = FinalSettlementData.GratuityRate;
 
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = System.DateTime.Now.ToString();
                     dr["UpdatedFromIP"] = identity.IPAddress;
                     dr.EndEdit();
-
-
-
-
                 }
 
 

@@ -335,10 +335,10 @@ function FixedAssetsRegisterDisposedReportController(commonMessage, $scope, $roo
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "SubAssetAmount", dataMember: "SubAssetAmount", format: "{0:N2}" },
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalBaseAmount", dataMember: "TotalBaseAmount", format: "{0:N2}" },
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "ADBaseAmount", dataMember: "ADBaseAmount", format: "{0:N2}" },
-            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "NetFixedAssetsAmount", dataMember: "NetFixedAssetsAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "NetFixedAssetsBaseAmount", dataMember: "NetFixedAssetsBaseAmount", format: "{0:N2}" },
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BaseNagotiationValue", dataMember: "BaseNagotiationValue", format: "{0:N2}" },
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "LossOrGain", dataMember: "LossOrGain", format: "{0:N2}" },
-            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "FACount", dataMember: "FACount" }
+            //{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "FACount", dataMember: "FACount" }
 
         ],
         showCaptionSummary: true

@@ -37,10 +37,10 @@ function JobWorkConfig($routeProvider, $locationProvider) {
         //    templateUrl: 'JobWork/MaterialReconcilationReport/aplos',
         //    controller: 'MaterialReconcilationReportController'
         //})
-        //.when('/receipt', {
-        //    templateUrl: 'JobWork/OSReceiptValueAdded/aplos',
-        //    controller: 'OSReceiptValueAddedController'
-        //})
+        .when('/jw-receipt', {
+            templateUrl: 'JobWork/JWReceipt/aplos',
+            controller: 'JWReceiptController'
+        })
         //.when('/receive-billing', {
         //    templateUrl: 'JobWork/OSReceiveBilling/aplos',
         //    controller: 'OSReceiveBillingController'

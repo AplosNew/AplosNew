@@ -32,7 +32,7 @@ case when PO.PlantId='" + identity.PlantId + @"' and EN.PlantId<>PO.PlantId then
 case when PO.PlantId<>'" + identity.PlantId + @"' AND EN.PlantId='" + identity.PlantId + @"' THEN 'IN' ELSE '' END END END AS Owner,
 PO.*,isnull(po.Remarks,'') AS ProductionRemarks,isnull(s.UserName,'') AS ProductionStatus, isnull(EN.UserName,'') AS EntityName, 
 FORMAT(PO.AddedDate,'dd-MMM-yyyy') CreationDate,
-                                        isnull(PS.UserName,'') AS ProductionStatusName,SO.*
+                                        isnull(PS.UserName,'') AS ProductionStatusName,PB.Id BulletinTemplateId,SO.*
                                 FROM [TRN].[ProductionOrder] AS PO
                             JOIN [ORG].[Entity] AS EN ON PO.EntityId = EN.Id
                             LEFT JOIN [HKP].[ProductionStatus] AS PS ON PO.EntityId = PS.Id
@@ -114,7 +114,8 @@ from
                                                     left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
 
                                                     group by pod.ProductionOrderId,mm.userName,PM.UserName,pc.UserName,PM.Id) AS SO ON so.ProductionOrderId=po.Id
-                            LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId";
+                            LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
+                            LEFT OUTER JOIN [TRN].[ProductionBulletinTemplate] AS PB ON PB.ProductionOrderId=po.Id";
 
         }
         public string SalesOrderListForCostingBOQ(string CustomerId)

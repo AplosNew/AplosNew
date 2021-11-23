@@ -425,6 +425,39 @@ namespace Library.OrderManagement.ShipmentControl
 
         }//End Function
 
+
+        public IEnumerable<object> GetTermsAndConditionPopUp(string TermsAndConditionsDetailId)
+        {
+            try
+            {
+                string strSQL = string.Empty;
+                strSQL = @"select * from TermsAndConditionsDetails where TermsAndConditionsChildId='" + TermsAndConditionsDetailId + "'";
+                return _sqlRepository.GetDataCollection(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }//End Function
+
+
+        public IEnumerable<object> Title(string masterID)
+        {
+            try
+            {
+                string strSQL = string.Empty;
+                strSQL = @"select * from TermsAndConditionsChild where TermsAndConditionsMasterId='" + masterID + "'";
+                return _sqlRepository.GetDataCollection(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }//End Function
+
+
         public void DeleteData(string Id)
         {
             string strSQL;

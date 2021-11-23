@@ -6,6 +6,7 @@ using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data.Sql;
 using Library.Model.Setups;
+using Library.OrderManagement.ShipmentControl;
 using Library.Service.Enums;
 using Library.Service.Setups;
 using OTSBD;
@@ -20,7 +21,7 @@ using Library.OrderManagement.TermsAndConditions;
 
 namespace Aplos.Areas.OrderManagements.Controllers
 {
-    public class TermsAndConditionsController  : BaseController
+    public class TermsAndConditionsController : BaseController
     {
         //abcd
         //this is my code from tarek
@@ -38,7 +39,9 @@ namespace Aplos.Areas.OrderManagements.Controllers
             _sqlRepository = R;
         }
 
-        #endregion Constructor     
+        #endregion Constructor    
+
+        ShipmentControl control = new ShipmentControl();
         public ActionResult Aplos()
         {
             return View();
@@ -127,6 +130,86 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
 
         }
+        //public ActionResult DeleteTitle(string id)
+        //{
+        //    try
+        //    {
+
+        //        string ret = tg.DeleteTitle(id);
+
+        //        if (ret == "Success")
+        //        {
+        //            return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+        //        }
+        //        else
+        //        {
+        //            return Json(new { Error = true, Message = ret }, JsonRequestBehavior.AllowGet);
+        //        }
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+
+        //        return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+        //    }
+
+
+        //}
+        public ActionResult DeleteTitle(string id)
+        {
+            try
+            {
+
+                string ret = tg.DeleteTitle(id);
+
+                if (ret == "Success")
+                {
+                    return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    return Json(new { Error = true, Message = ret }, JsonRequestBehavior.AllowGet);
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+        }
+
+        public ActionResult DeletePopup(string id)
+        {
+            try
+            {
+
+                string ret = tg.DeletePopUp(id);
+
+                if (ret == "Success")
+                {
+                    return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    return Json(new { Error = true, Message = ret }, JsonRequestBehavior.AllowGet);
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+        }
+
         private double GetSequence()
         {
             DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM " + TableName + "");
@@ -138,39 +221,71 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
 
         [HttpPost]
-        public JsonResult SaveData(Dictionary<string, object> TitleData, List<Dictionary<string, object>> GridData)
+        public JsonResult SaveData(Dictionary<string, object> GridData, string titleId)
         {
             try
             {
 
+                DataSet dsGrid;
+
+                ConnectionManager.DAL.ConManager conBin = new ConnectionManager.DAL.ConManager("1");
+                conBin.OpenDataSetThroughAdapter("select * from dbo.TermsAndConditionsDetails where TermsAndConditionsChildId='" + titleId + "'", out dsGrid, false, "1");
+
+                string DetailId = "";
+
+                DataView dv = new DataView(dsGrid.Tables[0]);
+                dv.RowFilter = "Id='" + GridData["Id"] + "'";
+
+                if (dv.Count == 0)
+                {
+                    if (DetailId == "")
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("dbo.TermsAndConditionsDetails", out DetailId);
+                    }
+                    DataRow dr = dsGrid.Tables[0].NewRow();
+
+                    GridData["Id"] = "TD-" + DetailId;
+                    GridData["TermsAndConditionsChildId"] = titleId;
+
+                    AddNewRow(dsGrid.Tables[0], GridData);
+                }
+                else
+                {
+                    DataRow drmo = dv[0].Row;
+                    EditRow(drmo, GridData);
+                }
+
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsGrid);
+
+
+                return Json(new { Error = false, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+
+        [HttpPost]
+        public JsonResult SaveTitle(Dictionary<string, object> TitleData, string TitleId)
+        {
+            try
+            {
                 ConnectionManager.DAL.ConManager conTitle = new ConnectionManager.DAL.ConManager("1");
-                conTitle.OpenDataSetThroughAdapter("select * from dbo.TermsAndConditionsChild where Id='" + TitleData["Id"] + "'", out DataSet dsTitle, false, "1");
-
-                //if (dsTitle.Tables[0].Rows.Count > 0)
-                //{
-                //    throw new Exception("Id Already Exist.");
-                //}
-                //String TermsAndConditionsChildId = "";
-                //DataSet dsTitile;
-
-                //conTitle = new ConnectionManager.DAL.ConManager("1");
-                //conTitle.OpenDataSetThroughAdapter("select * from dbo.TermsAndConditionsDetails  where TermsAndConditionsChildId=='" + TitleData["Id"] + "'", out dsTitile, false, "1");
-
-                //if (TitleData["Id"] == null)
-                //{
-                //    bplib.clsGenID genid = new bplib.clsGenID();
-                //    genid.GenID("dbo.TermsAndConditionsDetails", out TermsAndConditionsChildId);
-                //    TermsAndConditionsChildId = "TD" + TermsAndConditionsChildId;
-                //    TitleData["Id"] = TermsAndConditionsChildId;
-                //    AddNewRow(dsTitile.Tables[0], TitleData);
-                //}
-
-                //if (TitleData["StorageLocationId"] == null)
-                //{
-                //    throw new Exception("Please Select Storage Location");
-                //}
-
+                conTitle.OpenDataSetThroughAdapter("select * from dbo.TermsAndConditionsChild where TermsAndConditionsMasterId='" + TitleData["TermsAndConditionsMasterId"] + "' and Id='" + TitleData["Id"] + "' ", out DataSet dsTitle, false, "1");
                 string _Id = "";
+
+                //conTitle.OpenDataSetThroughAdapter("select * from  dbo.TermsAndConditionsChild where Title='" + TitleData["Title"] + "' AND  Id<>'" + TitleData["Id"] + "'", out DataSet dsValid, false, "1");
+                //if (dsValid.Tables[0].Rows.Count > 0)
+                //    throw new Exception("Same title already exists!!!");
 
                 #region data update
                 if (dsTitle.Tables[0].Rows.Count == 0)
@@ -187,59 +302,20 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     EditRow(dsTitle.Tables[0].Rows[0], TitleData);
                 }
                 #endregion data update
-
-
-                DataSet dsGrid;
-
-                ConnectionManager.DAL.ConManager conBin = new ConnectionManager.DAL.ConManager("1");
-                conBin.OpenDataSetThroughAdapter("select * from dbo.TermsAndConditionsDetails where TermsAndConditionsChildId='" + _Id + "'", out dsGrid, false, "1");
-
-                string DetailId = "";
-                for (int i = 0; i < GridData.Count; i++)
-                {
-                    dsGrid.Tables[0].DefaultView.RowFilter = "Id='" + GridData[i]["Id"] + @"'";
-                    if (dsGrid.Tables[0].DefaultView.Count > 0)
-                    {
-                        //edit
-                        DataRow dr = dsGrid.Tables[0].DefaultView[0].Row;
-                        dr.BeginEdit();
-                        dr["UserName"] = GridData[i]["UserName"];
-                        dr.EndEdit();
-                    }
-                    else
-                    {
-                        //addnew
-                        if (DetailId == "")
-                        {
-                            bplib.clsGenID genid = new bplib.clsGenID();
-                            genid.GenID("dbo.TermsAndConditionsDetails", out DetailId);
-                        }
-                        DataRow dr = dsGrid.Tables[0].NewRow();
-
-                        dr["Id"] = "TD-" + DetailId + "-" + (i + 1);
-                        dr["TermsAndConditionsChildId"] = _Id;
-                        //dr["HeaderCaption"] = GridData[i]["Header"];
-                        //dr["Description"] = GridData[i]["Description"];
-                        //AddNewRow(dsGrid.Tables[0], GridData);
-                        //dsGrid.Tables[0].Rows.Add(dr);
-
-                    }
-                }
-
-
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsTitle, dsGrid);
+                _info.SaveDataSets(dsTitle);
                 //_info.SaveDataSets(dsTitle);
 
-                return Json(new { Error = false, Data = TitleData, Sequence = GetSequence(), Message = AplosMessage.Insert });
+                return Json(new { Error = false, Data = TitleData, Message = AplosMessage.Insert });
 
             }
             catch (Exception ex)
             {
                 return Json(new { Error = true, Message = ex.Message });
-
             }
         }
+
+
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
@@ -279,6 +355,35 @@ namespace Aplos.Areas.OrderManagements.Controllers
             dr["UpdatedFromIP"] = identity.IPAddress;
             dr.EndEdit();
         }
+
+        [HttpGet, Authorize]
+        public JsonResult GetPopUp(string TermsAndConditionsDetailId)
+        {
+            try
+            {
+                return Json(control.GetTermsAndConditionPopUp(TermsAndConditionsDetailId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetTitle(string masterID)
+        {
+            try
+            {
+                return Json(control.Title(masterID), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }
+
 
 
     }

@@ -65,7 +65,7 @@ namespace Aplos.Areas.Attendances.Controllers
         #region -- Operations
 
         [HttpPost, Authorize]
-        public ActionResult XlsGoodWorkReport(string Month, string Year , Dictionary<string , string> parameters)
+        public ActionResult XlsGoodWorkReport(string Month, string Year , Dictionary<string , string> parameters, string typeId)
         {
             #region Variable
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -117,14 +117,15 @@ namespace Aplos.Areas.Attendances.Controllers
                 #endregion Variable
 
                 #region DataSet
+                string typeid = "'" + typeId.Replace(",", "','") + "'";//replaced with ""
 
-                gw.GetMonthlyGoodWorkReportNew( parameters, dtFrmDt.ToString("dd-MMM-yyyy"), dtEndDate.ToString("dd-MMM-yyyy"), sUnit, sDevi, sDept, sSect, sSbSe, sLine, sEmpC, sDeGr, sDesi, out dsOT );
+                gw.GetMonthlyGoodWorkReportNew( parameters, typeid, dtFrmDt.ToString("dd-MMM-yyyy"), dtEndDate.ToString("dd-MMM-yyyy"), sUnit, sDevi, sDept, sSect, sSbSe, sLine, sEmpC, sDeGr, sDesi, out dsOT );
                 dtOT = dsOT.Tables[0];
                 dvOT = new DataView();
                 dvOT.Table = dsOT.Tables[0];
                 var ListOT = dsOT.Tables[0].ToList<OTReport>();
                 DataView dvEmp = new DataView(dsOT.Tables[0]);
-                DataTable dtEmp = dvEmp.ToTable(true, "EmployeeCode", "EmployeeName", "Plant" ,"DOJ", "Unit", "Department", "Section", "Designation", "GivenDesignation", "LegalDG");
+                DataTable dtEmp = dvEmp.ToTable(true, "EmployeeCode", "EmployeeName", "Plant" ,"DOJ", "Unit", "Department", "Section", "Designation", "GivenDesignation", "LegalDG", "EmployeeCodeType");
                 objRpt.SelectedPlantWiseCompany(identity.PlantId, out dsCmp);
 
                 objRpt.SelectedPlant(identity.PlantId, out dsFactory);
@@ -153,6 +154,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 int iDesig = 0;
                 int iTotal = 0;
                 int iLine = 0;
+                int iType = 0;
 
                 #endregion Variables
 
@@ -218,7 +220,14 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iDesig].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[xlsRow, iDesig].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                xlsCol = iDesig;
+                xlsCol += 1;
+                iType = xlsCol;
+                sheet1.Range[xlsRow, iType].Text = "EmployeeCode Type";
+                sheet1.Range[xlsRow, iType].ColumnWidth = 15;
+                sheet1.Range[xlsRow, iType].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, iType].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                xlsCol = iType;
                 while (dtFrmDt <= dtEndDate)
                 {
                     xlsCol += 1;
@@ -294,11 +303,15 @@ namespace Aplos.Areas.Attendances.Controllers
                     sheet1.Range[xlsRow, iDesig].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     sheet1.Range[xlsRow, iDesig].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
+                    sheet1.Range[xlsRow, iType].Text = dtEmp.Rows[i]["EmployeeCodeType"].ToString().Trim();
+                    sheet1.Range[xlsRow, iType].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, iType].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
                     dtFrmDt = Convert.ToDateTime(Month + "/" + "01/" + Year);
                     string _m = bplib.clsWebLib.GetMonthName(Month);
                     dtFrmDt = Convert.ToDateTime("01-" + _m + "-" + Year);
-                    xlsCol = iDesig;
-                    otStartCol = iDesig + 1;
+                    xlsCol = iType;
+                    otStartCol = iType + 1;
                     while (dtFrmDt <= dtEndDate)
                     {
                         xlsCol += 1;
