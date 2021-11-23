@@ -80,8 +80,6 @@ namespace Aplos.Areas.Payrolls.Controllers
                 #region declare
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-
-
                 #endregion
 
                 List<IndividualGratuityPolicyModel> ob = new List<IndividualGratuityPolicyModel>();
@@ -93,12 +91,6 @@ namespace Aplos.Areas.Payrolls.Controllers
                 ConnectionManager.DAL.ConManager objCon;
                 try
                 {
-
-
-
-
-
-
                     string strGratuityInsuranceAgreementSQL = @"SELECT AgreementNo,Format(AgreementDate,'dd-MMM-yyyy') AgreementDate,InsuranceCompanyName,Branch                      
                             FROM  GratuityInsuranceAgreement                            
                             WHERE Id='" + AgreementId + @"'";
@@ -110,7 +102,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                             ,FORMAT(EI.DOJ,'dd-MMM-yyyy') DOJ
                             ,FORMAT(EI.DOS,'dd-MMM-yyyy') DOS
                             ,FORMAT(EI.DOB,'dd-MMM-yyyy') DOB
-                            ,DateDiff(day,EI.doj,Isnull(EI.dos,CONVERT(date,'" + ToDate + @"')))+1 TenureInDays
+                            ,convert(int,(isnull (FS.GratuityNoOfDaysOrYear,0))) TenureInDays
                             ,IGP.PolicyNo
                             ,IGP.EmployeeSystemId
                             ,GA.AgreementNo
@@ -191,15 +183,15 @@ namespace Aplos.Areas.Payrolls.Controllers
                             o.EmployeeCode = dr["EmployeeCode"].ToString();
                             o.EmployeeName = dr["EmployeeName"].ToString();
                             //o.LeaveType = dr["LeaveType"].ToString();
-
+                            //string xx = dr["TenureInDays"].ToString();
                             //o.CheckBoxSelect = Convert.ToBoolean(dr["CheckBoxSelect"].ToString());
                             o.DOJ = dr["DOJ"].ToString();
                             o.DOB = dr["DOB"].ToString();
                             o.DOS = dr["DOS"].ToString();
                             o.PolicyNo = dr["PolicyNo"].ToString();
-                            o.TenureInDays = Convert.ToInt32(dr["TenureInDays"].ToString());
-                            o.BasicAmount = Convert.ToDecimal(string.Format("{0:F2}", dr["BasicAmount"]));
-                            o.GratuityAmount = Convert.ToDecimal(string.Format("{0:F2}", dr["GratuityAmount"]));
+                            o.TenureInDays =(int)clsStaticInfo.dbl(dr["TenureInDays"].ToString());
+                            o.BasicAmount = Convert.ToDecimal(string.Format("{0:F2}", dr["BasicAmount"].ToString()));
+                            o.GratuityAmount = Convert.ToDecimal(string.Format("{0:F2}", dr["GratuityAmount"].ToString()));
                             //o.GratuityRate = Convert.ToDecimal(string.Format("{0:F2}", sFormulaResult));
                             //o.GratuityNumberOfYears = GratuityNumberOfYears;
 
@@ -1340,6 +1332,8 @@ namespace Aplos.Areas.Payrolls.Controllers
 
 
 
+                try
+                {
 
                 TextSelection[] X = document.FindAll(new Regex("{.*?}")).ToArray();
                 List<string> allDeleteresult = new List<string>();
@@ -1352,6 +1346,11 @@ namespace Aplos.Areas.Payrolls.Controllers
                         document.Replace(item, "", false, true);
                 }
 
+                }
+                catch (Exception ex)
+                {
+
+                }
                 //if (!string.IsNullOrEmpty(dtEmp.Rows[0]["EmployeeCode"].ToString()))
                 //{
 

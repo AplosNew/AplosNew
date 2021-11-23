@@ -29,6 +29,9 @@ namespace Library.MaterialManagement.Inventory
         
         void JWInsertOrUpdateGraphNew(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType, IEnumerable<InventoryMaterialViewModel> entityMatByProduct);
 
+        // Job Work Receipt
+        void JobWorkInsertOrUpdateNew(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType, IEnumerable<InventoryMaterialViewModel> entityMatByProduct);
+
 
         void IssueSlipDelete(string receiveDetailId);
         void IssueSlipDeleteFn(string receiveDetailId);
