@@ -56,15 +56,11 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
-        public IEnumerable<object> getGridData(string Week, string FromDate, string ToDate, string DayStatus, Dictionary<string, string> Parameters)
+        public IEnumerable<object> getGridData(string Week, string FromDate, string ToDate, Dictionary<string, string> Parameters)
         {
             try
             {
-                string DaySt = "";
-                if(clsWebLib.RetValidLen(DayStatus).ToString() != "" )
-                {
-                    DaySt = "and a.DayStatus = '"+DayStatus+"'";
-                }
+                
 
                 var str = @"select a.EmpSystemID,e.EmployeeCode,a.DayStatus,format(a.WorkDate ,'dd-MMM-yyyy') as WorkDate,e.PlantId,p.UserName as Plant,
                             a.InTime,a.OutTime,a.ProcessedOT,isnull((a.ProcessedOT*dt.OTMultiplingFactor),'0') as TargetOT,
@@ -95,7 +91,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                             and '"+ToDate+@"') and ISNULL(ExtendTheDayLimit,'')! =''
                             where  IsOTEntitled=1
                             and dt.DayType=a.DayStatus 
-                            "+DaySt+@"
                             and OTWeek="+Week+@"
                             and a.WorkDate between '"+FromDate+@"' and '"+ToDate+@"'
                             and p.Id in ("+ Parameters["PlantId"] + ") order by WorkDate asc";
@@ -107,6 +102,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 throw e;
             }
         }
+
 
         public void ProcessData(string Data, string OTWeek,string SelectedOT)
         {
@@ -479,5 +475,169 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
+        // Report Services
+        public IEnumerable<object> getReportData(string Week, string FromDate, string ToDate, string OTConfirmationValue, string OTLimit, string Process, string ProcessValue, string DayStatus
+ , string DSApp, Dictionary<string, string> Parameters)
+        {
+            try
+            {
+                string OTConfirm = "";
+                if (clsWebLib.RetValidLen(OTConfirmationValue).ToString() != "" && clsWebLib.RetValidLen(OTConfirmationValue).ToString() != "2")
+                {
+                    OTConfirm = "and IsOTComfirm = " + OTConfirmationValue;
+                }
+
+                string isDayStatus = "";
+                if (clsWebLib.RetValidLen(DSApp).ToString() != "" && clsWebLib.RetValidLen(DSApp).ToString() != "2")
+                {
+                    isDayStatus = "and isLock =" + DSApp;
+                }
+
+                string ProcessFil = "";
+                if (clsWebLib.RetValidLen(Process).ToString() != "" && clsWebLib.RetValidLen(ProcessValue).ToString() == "")
+                {
+                    throw new Exception("Please Enter The Process Filter Value!!");
+                }
+
+                if (clsWebLib.RetValidLen(Process).ToString() == "" && clsWebLib.RetValidLen(ProcessValue).ToString() != "")
+                {
+                    throw new Exception("Please Enter The Process Filter Selection!!");
+                }
+
+                if (clsWebLib.RetValidLen(Process).ToString() != "" && clsWebLib.RetValidLen(ProcessValue).ToString() != "")
+                {
+                    ProcessFil = " and " + Process + ProcessValue;
+                }
+
+                string DaySt = "";
+                if (clsWebLib.RetValidLen(DayStatus).ToString() != "")
+                {
+                    DaySt = "and a.DayStatus = '" + DayStatus + "'";
+                }
+
+                var str = @"select a.EmpSystemID,e.EmployeeCode,a.DayStatus,format(a.WorkDate ,'dd-MMM-yyyy') as WorkDate,e.PlantId,p.UserName as Plant,
+                            a.InTime,a.OutTime,a.ProcessedOT,isnull((a.ProcessedOT*dt.OTMultiplingFactor),'0') as TargetOT,
+                            isnull(PreallocatedOTHr*60,'0') as PlanOT,isnull(dt.DayLimit,'0')DayLimit,a.IsOTComfirm,
+                            isnull(a.StandardOT,'0')StandardOT,isnull(a.AppliedOTLimit,'0')AppliedOTLimit,
+                            isnull(a.AllowedOTLimit,'0')AllowedOTLimit,isnull(a.AdditionalOT,'0')AdditionalOT,dt.ApplicableWM,isnull(dt.MonthlyLimit,'0')MonthlyLimit,
+                            --- Week Data
+                            WeekLimit= case when a.OTWeek='1' then (select dt.Week1Limit)
+                            when a.OTWeek='2' then (select dt.Week2Limit)
+                            when a.OTWeek='3' then (select dt.Week3Limit)
+                            when a.OTWeek='4' then (select dt.Week4Limit) end,
+                            a.OTYear,a.OTMonth,a.OTWeek,a.ManualOutTime,
+                            d.UserName as Department,s.UserName as Section,ss.UserName AS SubSection,l.UserName as Designation 
+                            from AttdnProcessData a left join employeeinformation e on a.EmpSystemID=e.SystemId
+                            left join org.Plant p on p.Id=e.PlantId
+                            left join mst.DesignationMasterLegalDesignation ddm on
+                            ddm.LegalDesignationId = e.LegalDesignationId
+                            left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
+                            left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
+                            and dc.PlantId=e.PlantId
+                            left join DayStatusHeader dh on dh.Id=dc.headerId
+                            left join DayTypeWithValues dt on dt.HeaderId=dh.Id
+                            left join org.Section s on s.Id=e.SectionId
+                            left join ORG.SubSection ss on ss.Id=e.SubSectionId
+                            left join hkp.LegalDesignation l on l.Id=e.LegalDesignationId
+                            left join org.Department d on d.Id=e.DepartmentId
+                            left join PreallocatedOT pot on (pot.PlantID=e.PlantId and pot.WorkDate between '" + FromDate + @"'
+                            and '" + ToDate + @"') and ISNULL(ExtendTheDayLimit,'')! =''
+                            where  IsOTEntitled=1
+                            and dt.DayType=a.DayStatus 
+                            " + OTConfirm + @" " + isDayStatus + @"
+                            " + ProcessFil + @" " + DaySt + @"
+                            and OTWeek=" + Week + @"
+                            and a.WorkDate between '" + FromDate + @"' and '" + ToDate + @"'
+                            and p.Id in (" + Parameters["PlantId"] + ") order by WorkDate asc";
+
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public DataTable getReportDownload(string Week, string FromDate, string ToDate, string OTConfirmationValue, string OTLimit, string Process, string ProcessValue, string DayStatus
+ , string DSApp, Dictionary<string, string> Parameters)
+        {
+            try
+            {
+                string OTConfirm = "";
+                if (clsWebLib.RetValidLen(OTConfirmationValue).ToString() != "" && clsWebLib.RetValidLen(OTConfirmationValue).ToString() != "2")
+                {
+                    OTConfirm = "and IsOTComfirm = " + OTConfirmationValue;
+                }
+
+                string isDayStatus = "";
+                if (clsWebLib.RetValidLen(DSApp).ToString() != "" && clsWebLib.RetValidLen(DSApp).ToString() != "2")
+                {
+                    isDayStatus = "and isLock =" + DSApp;
+                }
+
+                string ProcessFil = "";
+                if (clsWebLib.RetValidLen(Process).ToString() != "" && clsWebLib.RetValidLen(ProcessValue).ToString() == "")
+                {
+                    throw new Exception("Please Enter The Process Filter Value!!");
+                }
+
+                if (clsWebLib.RetValidLen(Process).ToString() == "" && clsWebLib.RetValidLen(ProcessValue).ToString() != "")
+                {
+                    throw new Exception("Please Enter The Process Filter Selection!!");
+                }
+
+                if (clsWebLib.RetValidLen(Process).ToString() != "" && clsWebLib.RetValidLen(ProcessValue).ToString() != "")
+                {
+                    ProcessFil = " and " + Process + ProcessValue;
+                }
+
+                string DaySt = "";
+                if (clsWebLib.RetValidLen(DayStatus).ToString() != "")
+                {
+                    DaySt = "and a.DayStatus = '" + DayStatus + "'";
+                }
+
+                var str = @"select a.EmpSystemID,e.EmployeeCode,a.DayStatus,format(a.WorkDate ,'dd-MMM-yyyy') as WorkDate,e.PlantId,p.UserName as Plant,
+                            a.InTime,a.OutTime,a.ProcessedOT,isnull((a.ProcessedOT*dt.OTMultiplingFactor),'0') as TargetOT,
+                            isnull(PreallocatedOTHr*60,'0') as PlanOT,isnull(dt.DayLimit,'0')DayLimit,a.IsOTComfirm,
+                            isnull(a.StandardOT,'0')StandardOT,isnull(a.AppliedOTLimit,'0')AppliedOTLimit,
+                            isnull(a.AllowedOTLimit,'0')AllowedOTLimit,isnull(a.AdditionalOT,'0')AdditionalOT,dt.ApplicableWM,isnull(dt.MonthlyLimit,'0')MonthlyLimit,
+                            --- Week Data
+                            WeekLimit= case when a.OTWeek='1' then (select dt.Week1Limit)
+                            when a.OTWeek='2' then (select dt.Week2Limit)
+                            when a.OTWeek='3' then (select dt.Week3Limit)
+                            when a.OTWeek='4' then (select dt.Week4Limit) end,
+                            a.OTYear,a.OTMonth,a.OTWeek,a.ManualOutTime,
+                            d.UserName as Department,s.UserName as Section,ss.UserName AS SubSection,l.UserName as Designation 
+                            from AttdnProcessData a left join employeeinformation e on a.EmpSystemID=e.SystemId
+                            left join org.Plant p on p.Id=e.PlantId
+                            left join mst.DesignationMasterLegalDesignation ddm on
+                            ddm.LegalDesignationId = e.LegalDesignationId
+                            left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
+                            left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
+                            and dc.PlantId=e.PlantId
+                            left join DayStatusHeader dh on dh.Id=dc.headerId
+                            left join DayTypeWithValues dt on dt.HeaderId=dh.Id
+                            left join org.Section s on s.Id=e.SectionId
+                            left join ORG.SubSection ss on ss.Id=e.SubSectionId
+                            left join hkp.LegalDesignation l on l.Id=e.LegalDesignationId
+                            left join org.Department d on d.Id=e.DepartmentId
+                            left join PreallocatedOT pot on (pot.PlantID=e.PlantId and pot.WorkDate between '" + FromDate + @"'
+                            and '" + ToDate + @"') and ISNULL(ExtendTheDayLimit,'')! =''
+                            where  IsOTEntitled=1
+                            and dt.DayType=a.DayStatus 
+                            " + OTConfirm + @" " + isDayStatus + @"
+                            " + ProcessFil + @" " + DaySt + @"
+                            and OTWeek=" + Week + @"
+                            and a.WorkDate between '" + FromDate + @"' and '" + ToDate + @"'
+                            and p.Id in (" + Parameters["PlantId"] + ") order by WorkDate asc";
+
+                return _sqlRepository.GetDataTable(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
     }
 }
