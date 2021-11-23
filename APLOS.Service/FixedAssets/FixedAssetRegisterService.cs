@@ -3749,7 +3749,9 @@ GROUP BY FAR.FABudgetMasterId
 				,PC.Code PurchaseCurrency
 				,BC.Code BaseCurrency
 				,FR.Quantity
+                ,TUOM.UserName PurchaseUOM
                 ,isnull( FR.Price,0 )PurchasePrice
+                ,IR.ToCurrencyRate PurchaseExchangeRate
 				,isnull( FR.FABaseAmount,0)FABaseAmount
 				,ISNULL(SAR.SubAssetAmount,0) SubAssetBaseAmount
 
@@ -3770,7 +3772,9 @@ GROUP BY FAR.FABudgetMasterId
 				,Customer.UserName CustomerName,CU.Code Currency,CAST(fard.ToCurrencyRate AS decimal(18,4))ToCurrencyRate,rdd.NegotiationValue
 				 ,rdd.BaseNagotiationValue
 				 ,(rdd.BaseNagotiationValue-( ISNULL(FR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) - ISNULL(FR.ADBaseAmount,0)) )LossOrGain
-				 ,isnull(GP.Id,GPS.Id) GatePassNo, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
+				 ,isnull(GP.Id,GPS.Id) GatePassNo,CASE WHEN GP.GatePassEntryDate IS NOT NULL THEN format( GP.GatePassEntryDate,'dd-MMM-yyyy') 
+				 ELSE format( GPS.GatePassEntryDate,'dd-MMM-yyyy') END GatePassDate
+                , ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
 				 ,ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue
                 FROM [TRN].[FixedAssetRegister] FR
                 LEFT JOIN MST.MaterialMaster MM ON FR.MaterialMasterId=MM.Id
@@ -3786,6 +3790,7 @@ GROUP BY FAR.FABudgetMasterId
                 LEFT JOIN TRN.InventoryIssueHistory IIH ON IIH.Id=FRD.InventoryIssueHistoryId
                 LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
                 LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
+                LEFT JOIN SCS.UnitOfMeasurement TUOM ON TUOM.Id=IRD.TransactionUoMId
 				left join scs.Currency PC on PC.Id= FR.CurrencyId
 				left join scs.Currency BC on BC.Id= FR.FABaseCurrencyId
 				left join mst.FixedAssetDepreciationRule FADR ON FADR.Id = FR.DepreciationRuleId
@@ -4184,7 +4189,7 @@ GROUP BY FAR.FABudgetMasterId
         {
 
             //Start EmployeeAdvanceDueList
-
+            ReportUtility reportUtility = new ReportUtility();
 
             ExcelEngine excelEngine = new ExcelEngine();
             //Instantiate the Excel application object
@@ -4214,11 +4219,7 @@ GROUP BY FAR.FABudgetMasterId
             // worksheet[ROW, COL].CellStyle.Font.Bold = true;
             //  ROW++;
 
-            worksheet[ROW, COL].Text = "SerialNo";
-            int colSerialNo = COL;
-            worksheet[ROW, COL].ColumnWidth = 12;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            COL++;
+            
 
             worksheet[ROW, COL].Text = "AssetNo";
             int colAssetNo = COL;
@@ -4227,23 +4228,9 @@ GROUP BY FAR.FABudgetMasterId
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
-
-
-            worksheet[ROW, COL].Text = "Entity";
-            int colEntity = COL;
+            worksheet[ROW, COL].Text = "SerialNo";
+            int colSerialNo = COL;
             worksheet[ROW, COL].ColumnWidth = 12;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            COL++;
-
-            worksheet[ROW, COL].Text = "Department";
-            int colDepartment = COL;
-            worksheet[ROW, COL].ColumnWidth = 12;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            COL++;
-
-            worksheet[ROW, COL].Text = "Model";
-            int colModel = COL;
-            worksheet[ROW, COL].ColumnWidth = 16;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
@@ -4260,12 +4247,7 @@ GROUP BY FAR.FABudgetMasterId
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-            worksheet[ROW, COL].Text = "Description";
-            int colDescription = COL;
-            worksheet[ROW, COL].ColumnWidth = 40;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            COL++;
-
+            
             worksheet[ROW, COL].Text = "SKU1";
             int colSKU1 = COL;
             worksheet[ROW, COL].ColumnWidth = 20;
@@ -4290,7 +4272,7 @@ GROUP BY FAR.FABudgetMasterId
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-            
+           
 
             worksheet[ROW, COL].Text = "Disposal type";
             int colDisposaltype = COL;
@@ -4319,7 +4301,7 @@ GROUP BY FAR.FABudgetMasterId
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-            worksheet[ROW, COL].Text = "Exchange Currency";
+            worksheet[ROW, COL].Text = "Currency";
             int colCurrency = COL;
             worksheet[ROW, COL].ColumnWidth = 15;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
@@ -4347,7 +4329,7 @@ GROUP BY FAR.FABudgetMasterId
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
-            worksheet[ROW, COL].Text = "Net FABase Amount";
+            worksheet[ROW, COL].Text = "Net Book Val.";
             int colNetFixedAssetsBaseAmount = COL;
             worksheet[ROW, COL].ColumnWidth = 15;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
@@ -4382,7 +4364,36 @@ GROUP BY FAR.FABudgetMasterId
             //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
+            worksheet[ROW, COL].Text = "Gate Pass Date";
+            int colGatePassDate = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
 
+            worksheet[ROW, COL].Text = "Description";
+            int colDescription = COL;
+            worksheet[ROW, COL].ColumnWidth = 40;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Model";
+            int colModel = COL;
+            worksheet[ROW, COL].ColumnWidth = 16;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Entity";
+            int colEntity = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Department";
+            int colDepartment = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
 
             worksheet[ROW, COL].Text = "Depreciation Rules";
             int colDepreciationRules = COL;
@@ -4397,13 +4408,6 @@ GROUP BY FAR.FABudgetMasterId
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-            worksheet[ROW, COL].Text = "Pur. Currency";
-            int colPurchaseCurrency = COL;
-            worksheet[ROW, COL].ColumnWidth = 10;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-            COL++;
-
             worksheet[ROW, COL].Text = "Quantity";
             int colQuantity = COL;
             worksheet[ROW, COL].ColumnWidth = 8;
@@ -4411,13 +4415,33 @@ GROUP BY FAR.FABudgetMasterId
             // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
-            worksheet[ROW, COL].Text = "Purchase Rate";
+            worksheet[ROW, COL].Text = "Pur. UOM";
+            int colPurchaseUOM = COL;
+            worksheet[ROW, COL].ColumnWidth = 8;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Pur. Currency";
+            int colPurchaseCurrency = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Pur. Rate";
             int colPurchasePrice = COL;
             worksheet[ROW, COL].ColumnWidth = 15;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
+            worksheet[ROW, COL].Text = "Pur. Exchange Rate";
+            int colPurchaseExchangeRate = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
 
             worksheet[ROW, COL].Text = "Base Currency";
             int colBaseCurrency = COL;
@@ -4545,9 +4569,10 @@ GROUP BY FAR.FABudgetMasterId
                 worksheet[ROW, colBaseCurrency].Text = dtGatenntryRegisterList.Rows[i]["BaseCurrency"].ToString();
 
                 worksheet[ROW, colQuantity].Text = dtGatenntryRegisterList.Rows[i]["Quantity"].ToString();
+                worksheet[ROW, colPurchaseUOM].Text = dtGatenntryRegisterList.Rows[i]["PurchaseUOM"].ToString();
+                worksheet[ROW, colPurchaseExchangeRate].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["PurchaseExchangeRate"].ToString());
+                worksheet.Range[ROW, colPurchaseExchangeRate].NumberFormat = reportUtility.NumberFormatDecimalFour();
 
-                worksheet[ROW, colPurchasePrice].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["PurchasePrice"].ToString());
-                worksheet[ROW, colPurchasePrice].NumberFormat = clsStaticInfo.NumberFormat();
                 worksheet[ROW, colVendorName].Text = dtGatenntryRegisterList.Rows[i]["VendorName"].ToString();
                 worksheet[ROW, colLifeTime].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["LifeTime"].ToString());
                 worksheet[ROW, colOriginName].Text = dtGatenntryRegisterList.Rows[i]["OriginName"].ToString();
@@ -4565,18 +4590,30 @@ GROUP BY FAR.FABudgetMasterId
                 worksheet[ROW, colCustomerName].Text = dtGatenntryRegisterList.Rows[i]["CustomerName"].ToString();
                 worksheet[ROW, colCurrency].Text = dtGatenntryRegisterList.Rows[i]["Currency"].ToString();
                 worksheet[ROW, colToCurrencyRate].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["ToCurrencyRate"].ToString());
+                worksheet.Range[ROW, colToCurrencyRate].NumberFormat = reportUtility.NumberFormatDecimalFour();
                 worksheet[ROW, colNegotiationValue].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["NegotiationValue"].ToString());
+                worksheet.Range[ROW, colNegotiationValue].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+
                 worksheet[ROW, colBaseNagotiationValue].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["BaseNagotiationValue"].ToString());
+                worksheet.Range[ROW, colBaseNagotiationValue].NumberFormat = reportUtility.NumberFormatDecimalTwo();
                 worksheet[ROW, colLossOrGain].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["LossOrGain"].ToString());
+                worksheet.Range[ROW, colLossOrGain].NumberFormat = reportUtility.NumberFormatDecimalTwo();
                 worksheet[ROW, colGatePassNo].Text = dtGatenntryRegisterList.Rows[i]["GatePassNo"].ToString();
+                worksheet[ROW, colGatePassDate].Text = dtGatenntryRegisterList.Rows[i]["GatePassDate"].ToString();
 
                 worksheet[ROW, colPurchasePrice].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["PurchasePrice"].ToString());
+                worksheet.Range[ROW, colPurchasePrice].NumberFormat = reportUtility.NumberFormatDecimalFour();
                 worksheet[ROW, colFABaseAmount].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["FABaseAmount"].ToString());
+                worksheet.Range[ROW, colFABaseAmount].NumberFormat = reportUtility.NumberFormatDecimalTwo();
                 worksheet[ROW, colSubAssetAmount].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["SubAssetBaseAmount"].ToString());
+                worksheet.Range[ROW, colSubAssetAmount].NumberFormat = reportUtility.NumberFormatDecimalTwo();
                 worksheet[ROW, colTotalAmount].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["TotalBaseAmount"].ToString());
+                worksheet.Range[ROW, colTotalAmount].NumberFormat = reportUtility.NumberFormatDecimalTwo();
 
                 worksheet[ROW, colADBaseAmount].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["ADBaseAmount"].ToString());
+                worksheet.Range[ROW, colADBaseAmount].NumberFormat = reportUtility.NumberFormatDecimalTwo();
                 worksheet[ROW, colNetFixedAssetsBaseAmount].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["NetFixedAssetsBaseAmount"].ToString());
+                worksheet.Range[ROW, colNetFixedAssetsBaseAmount].NumberFormat = reportUtility.NumberFormatDecimalTwo();
 
                 worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                 worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -4590,7 +4627,7 @@ GROUP BY FAR.FABudgetMasterId
 
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            ReportUtility reportUtility = new ReportUtility();
+            //ReportUtility reportUtility = new ReportUtility();
 
             reportUtility.PlantHeader(ref worksheet, endCol, "Fixed Assets Register Disposed", identity.PlantId);
             reportUtility.PageSetup(ref worksheet, 5, ExcelPageOrientation.Landscape);

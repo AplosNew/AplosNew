@@ -18,7 +18,7 @@ namespace OTSBD
             // TODO: Add constructor logic here
         }//End Function
 
-        public EmployeeFinalSettlement CalculateFinalSettlementValue(string sEmpSystemId, string plantId ,out string DOS)
+        public EmployeeFinalSettlement CalculateFinalSettlementValue(string sEmpSystemId, string plantId, out string DOS)
         {
 
             EmployeeFinalSettlement obj = new EmployeeFinalSettlement();
@@ -35,6 +35,8 @@ namespace OTSBD
             bool IsNetPayWithFinalSattlement = false;
             string _formulaValue = "0";
             string sFormulaResult = "0";
+            decimal TotalTenureDays = 0;
+            decimal NoOfDays = 0;
             decimal sTotalAmount = 0;
             decimal sGratuityAmount = 0;
             decimal sFixedDayAmount = 0;
@@ -71,7 +73,7 @@ namespace OTSBD
                 }
 
                 GetTenureByEmpId(sEmpSystemId, out dsTenure);
-
+                TotalTenureDays = Convert.ToDecimal(dsTenure.Tables[0].Rows[0]["TenureInDays"].ToString());
                 //all head and Salary info
                 GetSalaryHead(out dsSalHd);
                 dtSlrHd = dsSalHd.Tables[0];
@@ -124,7 +126,7 @@ namespace OTSBD
                 string NoticePeriodFormula = GetNoticePeriodFormula(plantId);
                 obSSrecal.ReLoadFormulaWithValue(dsSeparationType.Tables[0].Rows[0]["FormulaDesID"].ToString(), ref dtValue, dsSalaryData.Tables[0].Rows[0]["EntryCurrencyID"].ToString().Trim(), "0", out _formulaValue, ref dtSlrHd);
                 sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString();
-                obj.NoticePeriodRate  = Convert.ToDecimal(string.Format("{0:F2}", sFormulaResult));
+                obj.NoticePeriodRate = Convert.ToDecimal(string.Format("{0:F2}", sFormulaResult));
 
                 #endregion
 
@@ -230,7 +232,7 @@ namespace OTSBD
 
 
                     //Calculate Gratuity
-                    if (isGratuityApplicable )
+                    if (isGratuityApplicable)
                     {
                         string _formulaValueG = "0";
                         int GratuityNumberOfYears = 0;
@@ -267,6 +269,11 @@ namespace OTSBD
                             {
                                 obSSrecal.ReLoadFormulaWithValue(dvGratuityPolicyTemp[0]["MaturityFormulaDesID"].ToString(), ref dtValue, dsSalaryData.Tables[0].Rows[0]["EntryCurrencyID"].ToString().Trim(), "0", out _formulaValueG, ref dtSlrHd);
                                 sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValueG).ToString();
+                                obj.GratuityDaysOrYear = dvGratuityPolicyTemp[0]["YearOrDayBasis"].ToString();
+                                if (!string.IsNullOrEmpty(dvGratuityPolicyTemp[0]["NoOfDays"].ToString()))
+                                {
+                                    NoOfDays = Convert.ToDecimal(dvGratuityPolicyTemp[0]["NoOfDays"].ToString());
+                                }
                             }
 
                         }
@@ -349,7 +356,7 @@ namespace OTSBD
                     // proc data
 
 
-                    if (IsMLVApplicable==false)//MLV leave is not applicable
+                    if (IsMLVApplicable == false)//MLV leave is not applicable
                     {
                         GetLastMonthSalaryInfoByEmpId(sEmpSystemId, Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOS"]).ToString("dd-MMM-yyyy"), out dsProcSalaryData);
                         if (dsProcSalaryData.Tables[0].Rows.Count > 0)
@@ -408,7 +415,7 @@ namespace OTSBD
                 DataSet dsBonusRetainedBalance;
                 GetBonusRetainedBalance(sEmpSystemId, Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOS"]).ToString("dd-MMM-yyyy"), plantId, out dsBonusRetainedBalance);
 
-                if (dsBonusRetainedBalance.Tables[0].Rows.Count>0)
+                if (dsBonusRetainedBalance.Tables[0].Rows.Count > 0)
                 {
                     //CustomParaBonusRetained cp = new CustomParaBonusRetained();
                     //cp.Description = "Final Settlement Bonus Retained Disbusment";
@@ -420,16 +427,16 @@ namespace OTSBD
                     //br.Add(ob);
                     //SaveBonusRetainedData(cp, br);
 
-                    obj.BonusRetainedAmount= Convert.ToDecimal(string.Format("{0:F2}", dsBonusRetainedBalance.Tables[0].Rows[0]["DisbusmentAmount"].ToString())); 
+                    obj.BonusRetainedAmount = Convert.ToDecimal(string.Format("{0:F2}", dsBonusRetainedBalance.Tables[0].Rows[0]["DisbusmentAmount"].ToString()));
 
                 }
 
 
-             
+
                 obj.EmpSystemId = sEmpSystemId;
                 obj.FormulaDes = dsSeparationType.Tables[0].Rows[0]["FormulaDes"].ToString();
                 obj.SeparationTypeAmount = Convert.ToDecimal(string.Format("{0:F2}", sTotalAmount));
-                obj.GratuityAmount = Convert.ToDecimal(string.Format("{0:F2}", sGratuityAmount));
+                //obj.GratuityAmount = Convert.ToDecimal(string.Format("{0:F2}", sGratuityAmount));
                 obj.FixedDayAmount = Convert.ToDecimal(string.Format("{0:F2}", sFixedDayAmount));
                 obj.BasicAmount = Convert.ToDecimal(string.Format("{0:F2}", sBasicAmount));
                 obj.GrossAmount = Convert.ToDecimal(string.Format("{0:F2}", sGrossAmount));
@@ -440,7 +447,7 @@ namespace OTSBD
                 obj.IsGratuityApplicable = isGratuityApplicable;
                 obj.IsFixedDayApplicable = isFixedDayAmountApplicable;
                 //obj.GratuityRate = sGratuityRate;
-                obj.GratuityRate = Convert.ToDecimal(string.Format("{0:F2}", sGratuityRate)); 
+                obj.GratuityRate = Convert.ToDecimal(string.Format("{0:F2}", sGratuityRate));
                 obj.GratuityYearNo = sGratuityYearNo;
                 // leave encashment
                 DataSet dsYearlyCalendar = null;
@@ -451,7 +458,6 @@ namespace OTSBD
                 obj.LvEncashmentRate = cc.Rate;
                 obj.LeaveTypeId = cc.LeaveTypeId;
 
-
                 obj.LvBroughtForward = cc.BroughtForward;
                 obj.LvCarryForward = cc.CarryForward;
                 obj.LvDaysCanBeSanctioned = cc.DaysCanBeSanctioned;
@@ -461,8 +467,16 @@ namespace OTSBD
                 obj.LvYearEndEncash = cc.YearEndEncash;
                 obj.LvYearEndLapse = cc.YearEndLapse;
                 obj.LvEncashedInbetween = cc.EncashedInbetween;
-                DOS= Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOS"]).ToString("dd-MMM-yyyy");
-
+                DOS = Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOS"]).ToString("dd-MMM-yyyy");
+                if (obj.GratuityDaysOrYear == "Day")
+                {
+                    obj.GratuityEligibleYearOrDays = obj.TenureYearNo * NoOfDays;
+                }
+                else
+                {
+                    obj.GratuityEligibleYearOrDays = obj.TenureYearNo;
+                }
+                obj.GratuityAmount = (Convert.ToDecimal(string.Format("{0:F2}", ((Convert.ToDecimal(string.Format("{0:F2}", sFormulaResult))) * obj.GratuityEligibleYearOrDays))));
                 return obj;
 
 
@@ -503,14 +517,14 @@ namespace OTSBD
             {
                 objCon = null;
             }
-            if (dsRef.Tables[0].Rows.Count>0)
+            if (dsRef.Tables[0].Rows.Count > 0)
             {
                 for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
                 {
                     Formula += " " + dsRef.Tables[0].Rows[i]["SalaryHeadID"].ToString();
                 }
-                
-            }    
+
+            }
 
             return Formula.Trim();
         }//End Function
@@ -566,7 +580,7 @@ namespace OTSBD
             try
             {
                 strSQL = @" SELECT * FROM leavetransaction  
-							where EmpSystemID= '"+ EmpSystemID+ @"'
+							where EmpSystemID= '" + EmpSystemID + @"'
 							AND '" + WorkDate + @"' Between FromDate and ToDate
 							And LTSystemID IN (select id from LeaveType where LeaveType='Maternity')";
 
@@ -590,7 +604,7 @@ namespace OTSBD
             {
                 strSQL = @"SELECT gpm.Id, gpm.UserName,  gpm.IsRoudingSixMonth,
                                gpd.MaturityFromYear, gpd.MaturityToYear,
-                               gpd.MaturityFormulaDesID, gpd.MaturityFormulaDescription
+                               gpd.MaturityFormulaDesID, gpd.MaturityFormulaDescription,gpd.YearOrDayBasis,gpd.NoOfDays
                         FROM GratuityPolicyMaster AS gpm
                         LEFT JOIN GratuityPolicyDetails AS gpd ON gpd.GratuityPolicyMasterId = gpm.Id
                         WHERE gpm.plantId='" + PlantId + @"' AND gpm.Active=1 ";
@@ -1181,8 +1195,8 @@ namespace OTSBD
             {
 
                 string DisbursementDate2 = Convert.ToDateTime(DisbursementDate).AddYears(-1).ToString("dd-MMM-yyyy");
-           
-                 strSQL = @"SELECT spc.EmpInfoSystemID 
+
+                strSQL = @"SELECT spc.EmpInfoSystemID 
                          
                             ,SUM(spc.DisbusmentAmount) DisbusmentAmount
                           
@@ -1201,7 +1215,7 @@ namespace OTSBD
                             order by spc.EmpInfoSystemID";
 
 
-                
+
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
@@ -1445,7 +1459,7 @@ namespace OTSBD
                 throw (ex);
             }
 
-          
+
         }
         public void GetBonusRetainedDataWithDetails(string DisbursementDate, out DataSet dsBonusRetainedDataWithDetails)
         {
@@ -1575,7 +1589,7 @@ namespace OTSBD
         public string Remarks { get; set; }
 
         public decimal LvBroughtForward { get; set; } = 0;
-        public decimal LvDaysCanBeSanctioned { get; set; } = 0;       
+        public decimal LvDaysCanBeSanctioned { get; set; } = 0;
         public decimal LvAvailedLeave { get; set; } = 0;
         public decimal LvBalance { get; set; } = 0;
         public decimal LvEncashedInbetween { get; set; } = 0;
@@ -1593,6 +1607,8 @@ namespace OTSBD
         public string NoticePeriodType { get; set; } = "Deduction";
         public decimal DeductionAmount { get; set; } = 0;
         public decimal TotalNetPayAmount { get; set; } = 0;
+        public string GratuityDaysOrYear { get; set; }
+        public decimal GratuityEligibleYearOrDays { get; set; }
     }
 
 
@@ -1625,9 +1641,9 @@ namespace OTSBD
         public string SalaryHead { get; set; }
         public string status { get; set; }
         public decimal DisbusmentAmount { get; set; }
-       
+
     }
 
 
-    
+
 }

@@ -82,7 +82,7 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
             {
 
                 string sql = @"Select efs.Id, FORMAT(efs.FinalSettlementDate,'dd-MMM-yyy') FinalSettlementDate
-							,efs.SalaryRate
+							,efs.SalaryRate 
 							,efs.OTRate
                             ,convert(int,ROUND(efs.[TotalDeductionAmount],0)) TotalDeductionAmount
                             ,convert(int,ROUND(efs.LvEncashmentAmount,0)) LvEncashmentAmount
@@ -113,7 +113,7 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
                             ,CONVERT(INT, ISNULL(efs.PolicyYearNo,0)*ISNULL(efs.PolicyDayNo,0)) PolicyDayNo
                             ,SY.UserName AS SeprationName
                             ,convert(int,ROUND(efs.TenureDayNo,0)) TenureDayNo
-							,convert(int,ROUND(efs.SeparationTypeAmount,0)) SeparationTypeAmount
+							,case when convert(int,ROUND(efs.SeparationTypeAmount,0)) = 0 then 'N/A' else convert(varchar(100),(efs.SeparationTypeAmount)) end  SeparationTypeAmount
 							,convert(int,ROUND(efs.GrossAmount,0)) GrossAmount
 							,convert(int,ROUND(efs.BasicAmount,0)) BasicAmount
 							,convert(int,efs.[TenureYearNo]) TenureYearNo
@@ -122,8 +122,9 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
 							,convert(int,ROUND(efs.LastMonthNetPayAmount,0)) LastMonthNetPayAmount
 							,efs.LvEncashmentRateAmount
 							,SY.UserName AS SeparationType
-							,CONVERT(INT, ISNULL(efs.PolicyYearNo,0)*ISNULL(efs.PolicyDayNo,0)) SeparationTypeDay
-							,efs.SalaryRate SeparationTypeRate,format(apd.WorkDate,'dd-MMM-yyyy') LastPayDate
+							,CONVERT(int,ISNULL(efs.PolicyYearNo,0)*ISNULL(efs.PolicyDayNo,0),0) SeparationTypeDay
+							,case when PolicyDayNo*PolicyYearNo = 0 then 'N/A' else convert(varchar(100),(SeparationTypeAmount/(PolicyDayNo*PolicyYearNo)),0) end SeparationTypeRate,format(apd.WorkDate,'dd-MMM-yyyy') LastPayDate
+                            --,isnull(efs.GratuityNoOfDaysOrYear,0) SeparationTypeDay
                             From [dbo].[EmployeeFinalSettlement] efs 
 	                        LEFT JOIN [HKP].[SeparationType] SY ON SY.Id=efs.SeparationTypeId
                             LEFT JOIN EmployeeInformation E ON E.SystemId=efs.EmpSystemID
@@ -160,9 +161,9 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
                             where efs.EmpSystemId='" + SystemId + @"'and ep.Id='" + plantId + @"'";
                 return _sqlRepository.GetDataTable(sql);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
         public DataTable GetFinalSettlementDeductionData(string EmployeeFinalSettlementId,string LanguageId)
@@ -209,7 +210,7 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
                                         left join [HKP].[LocalLanguage] ll on ll.FinalSettlementHeadId=fs.Id and ll.LanguageId='" + LanguageId + @"'
                                         where fs.EmployeeFinalSettlementId='" + EmployeeFinalSettlementId + @"' and dh.Category='Earning'
                                         UNION
-                                       SELECT ISNULL(ll.Name, concat(SH.SalaryHead, ' ','(',R.YearStatus,')')) AS FinalSettlementHead,Amount= convert(int,ROUND(R.Amount,0)),'Earning' Category  from FinalSettlementRetainedDetails R
+                                       SELECT ISNULL(ll.Name, concat(SH.SalaryHead, ' ','(',case when R.YearStatus = 'PreviousYear' then 'Previous Year' else 'Current Year' end,')')) AS FinalSettlementHead,Amount= convert(int,ROUND(R.Amount,0)),'Earning' Category  from FinalSettlementRetainedDetails R
                                         left Join SalaryHead SH ON SH.SalaryHeadID= R.SalaryHeadId
                                         left join [HKP].[LocalLanguage] ll on ll.SalaryHeadId=SH.SalaryHeadID and ll.LanguageId='" + LanguageId + @"'
                                         WHERE EmployeeFinalSettlementId='" + EmployeeFinalSettlementId + @"'

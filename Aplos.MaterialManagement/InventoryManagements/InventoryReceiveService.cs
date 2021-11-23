@@ -850,7 +850,9 @@ namespace Library.MaterialManagement.InventoryManagements
 				//		--Where " + paramter + @"  AND MM.IsAsset=0 AND BOQD.ProcessId='" + processId + @"' AND BOQD.SalesOrderId in(" + parameters + @")
 				//		Where BOQD.ProcessId='" + processId + @"' and 
 				//		Concat(BOQD.SalesOrderId,'-',ISNULL(BOQFGM.FirstCharacteristicsValueId,''),'-',ISNULL(BOQFGM.SecondCharacteristicsValueId,''),'-',ISNULL(BOQFGM.ThirdCharacteristicsValueId,'')) in (" + SOMATART + ")";
-				////"group by MGM.UserName	,MT.UserName,mm.Id,mm.UserName,BOQD.ArticleId,ART.StandardName,FC.Id,FC.UserName,BOQFGM.FirstCharacteristicsValueId	,isnull(v1.UserName, ''),SC.Id,SC.UserName,BOQFGM.SecondCharacteristicsValueId,isnull(v2.UserName, ''),TC.Id,TC.UserName,BOQFGM.ThirdCharacteristicsValueId,isnull(v3.UserName, ''),TUoM.Id,TUoM.UserName	,BOQD.RequiredQtyPO,BOQD.Consumption,BOQD.WastagePer,POUoMId.Id	,POUoMId.UserName,BaseUoMId.Id,BaseUoMId.UserName,GRNALLO.StockTransactionUoMId,GRNALLO.UserName,consumptionUoMId.UserName,consumptionUoMId.Id,BOQD.SalesOrderId,BOQD.FirstCharacteristicsValueId,BOQD.SecondCharacteristicsValueId,BOQD.ThirdCharacteristicsValueId,BOQD.BOQId,Isnull(MMAU.BaseUOMFactor,0)";
+				////"group by MGM.UserName	,MT.UserName,mm.Id,mm.UserName,BOQD.ArticleId,ART.StandardName,FC.Id,FC.UserName,BOQFGM.FirstCharacteristicsValueId	,isnull(v1.UserName, ''),SC.Id,SC.UserName,BOQFGM.SecondCharacteristicsValueId,isnull(v2.UserName, ''),TC.Id,TC.UserName,BOQFGM.ThirdCharacteristicsValueId,isnull(v3.UserName, ''),TUoM.Id,TUoM.UserName	,BOQD.RequiredQtyPO,BOQD.Consumption,BOQD.WastagePer,POUoMId.Id	,POUoMId.UserName,BaseUoMId.Id,BaseUoMId.UserName,GRNALLO.StockTransactionUoMId,GRNALLO.UserName
+				//,consumptionUoMId.UserName,consumptionUoMId.Id,BOQD.SalesOrderId
+					//,BOQD.FirstCharacteristicsValueId,BOQD.SecondCharacteristicsValueId,BOQD.ThirdCharacteristicsValueId,BOQD.BOQId,Isnull(MMAU.BaseUOMFactor,0)";
 				////return _sqlRepository.GetDataCollection(sql);
 				sql = @"select 
 						 Convert(bit, 'False') 'check'
@@ -967,7 +969,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						,BOQD.Id AS BOQId
 
 						--,FGQty.Qty
-						,BOQD.Consumption
+						,BOQD.Consumption 
 						,BOQD.WastagePer
 						,RequisitionQty=(BOQD.Consumption*FGQty.Qty)+(((BOQD.Consumption*FGQty.Qty)*BOQD.WastagePer)/100)
 						, RequisitionQtyOrginal=(BOQD.Consumption*FGQty.Qty)+(((BOQD.Consumption*FGQty.Qty)*BOQD.WastagePer)/100)					

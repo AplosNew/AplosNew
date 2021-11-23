@@ -3,8 +3,8 @@
 <div class="tab-design" id="tab_show">
     <div class="site-tab">
         <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="Master" role="tab" data-toggle="tab">Master Entry</a></li>
-            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="Child" role="tab" data-toggle="tab">Child Entry</a></li>
+            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="Process" role="tab" data-toggle="tab">Process</a></li>
+            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="Report" role="tab" data-toggle="tab">Report</a></li>
         </ul>
     </div>
     <div class="tab-content">
@@ -63,88 +63,21 @@
                     </div>
                 </div>
 
-                <div class="row" style="margin-top:10px;">
-                    <div class="col-md-3 col-lg-3 col-sm-6">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">OT Confirm<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <div class="select-style">
-                                    <select class="form-control" ng-model="OTConfirmationValue" name="OTConfirmation"
-                                            ng-options="item.Id as item.Value for item in OTConfirmSelection" required>
-                                        <option value="">--Select--</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 col-lg-3 col-sm-6">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">OT LImit Applicable</label>
-                            <div class="col-sm-8 ">
-                                <div class="select-style">
-                                    <select id="OtLimit" class="form-control" ng-model="OTLimit" name="OT Limit">
-                                        <option value="">-Select-</option>
-                                        <option Value="P">P</option>
-                                        <option Value="F">F</option>
-                                        <option Value="W">W</option>
-                                        <option Value="M">M</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <div class="col-md-6 col-lg-6 col-sm-12">
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label">Process Filter</label>
-                            <div class="col-sm-6 ">
-                                <div class="select-style">
-                                    <select id="OTWApp" class="form-control" ng-model="Process" name="ProcessOT" tabindex="1">
-                                        <option value="">-Select-</option>
-                                        <option Value="ProcessedOT<=">Process OT <=</option>
-                                        <option Value="ProcessedOT>=">Process OT >=</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-sm-4 control-label">
-                                <input type="text" onkeypress="return isNumber(event)" ng-model="ProcessValue" class="form-control" maxlength="100" tabindex="2">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="row" style="margin-top:10px">
                     <div class="col-md-6 col-lg-6 col-sm-12">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Day Status</label>
+                        @*<div class="form-group">
+                            <label class="col-sm-2 control-label">Day Status</label>
                             <div class="col-sm-4">
                                 <input type="text" ng-model="DayStatus" ng-click="selectCurrDayStatus()" class="form-control" maxlength="100">
+                                
                             </div>
-                            <div class="col-sm-4 ">
-                                <div class="common-btn">
-                                    <ul class="common-btn list-inline text-right">
-                                        <li><button ng-click="selectCurrDayStatus()" class="btn" tabindex="10"><i class="glyphicon glyphicon-search"></i></button></li>
-                                    </ul>
-                                </div>
+                            <div class="col-sm-4">
+                                <button ng-click="selectCurrDayStatus()" class="btn" tabindex="10"><i class="glyphicon glyphicon-search"></i></button>
                             </div>
-                            @*<div class="col-sm-4"></div>*@
-                        </div>
+                        </div>*@
                     </div>
                     <div class="col-md-6 col-lg-6 col-sm-12">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Day Status Applicable</label>
-                            <div class="col-sm-8 ">
-                                <div class="select-style">
-                                    <select id="OtLimit" class="form-control" ng-model="DSApp" name="OT Limit">
-                                        <option value="">-Select-</option>
-                                        <option Value=0>Yes</option>
-                                        <option Value=1>No</option>
-                                        <option Value=2>All</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
+                        
                         <div class="common-btn">
                             <ul class="list-inline text-right">
                                 <li> <button ng-click="getData();" class="btn" tabindex="10"><i class="glyphicon glyphicon-download"></i> View </button></li>
@@ -228,7 +161,7 @@
                             <label class="col-sm-4 control-label">Week</label>
                             <div class="col-sm-8 ">
                                 <div class="select-style">
-                                    <select id="OTWApp" class="form-control" ng-model="Week" name="Week">
+                                    <select id="OTWApp" class="form-control" ng-model="WeekO" name="Week">
                                         <option value="">-Select-</option>
                                         <option Value="1">Week 1</option>
                                         <option Value="2">Week 2</option>
@@ -246,7 +179,7 @@
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
-                                        <input id="datepicker" e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="FromDate" e-width="100%" />
+                                        <input id="datepicker" e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="FromDateO" e-width="100%" />
                                     </div>
                                 </div>
                             </div>
@@ -254,7 +187,7 @@
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
-                                        <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="ToDate" e-width="100%" />
+                                        <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="ToDateO" e-width="100%" />
                                     </div>
                                 </div>
                             </div>
@@ -273,22 +206,6 @@
                                     <select class="form-control" ng-model="OTConfirmationValue" name="OTConfirmation"
                                             ng-options="item.Id as item.Value for item in OTConfirmSelection" required>
                                         <option value="">--Select--</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 col-lg-3 col-sm-6">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">OT LImit Applicable</label>
-                            <div class="col-sm-8 ">
-                                <div class="select-style">
-                                    <select id="OtLimit" class="form-control" ng-model="OTLimit" name="OT Limit">
-                                        <option value="">-Select-</option>
-                                        <option Value="P">P</option>
-                                        <option Value="F">F</option>
-                                        <option Value="W">W</option>
-                                        <option Value="M">M</option>
                                     </select>
                                 </div>
                             </div>
@@ -348,7 +265,7 @@
                         </div>
                         <div class="common-btn">
                             <ul class="list-inline text-right">
-                                <li> <button ng-click="getData();" class="btn" tabindex="10"><i class="glyphicon glyphicon-download"></i> View </button></li>
+                                <li> <button ng-click="getReportData();" class="btn" tabindex="10"><i class="glyphicon glyphicon-download"></i> View </button></li>
                             </ul>
                         </div>
                     </div>
@@ -372,7 +289,8 @@
                             <div e-column e-field="OutTime" e-type="number" e-headertext="OutTime" e-width="80"></div>
                             <div e-column e-field="ProcessedOT" e-type="number" e-headertext="ProcessedOT" e-width="80"></div>
                             <div e-column e-field="TargetOT" e-type="number" e-headertext="TargetOT" e-width="80"></div>
-                            <div e-column e-headertext="PlanOT" e-template="#PlantOT" e-textalign="center" e-type="number" e-width="80"></div>
+                            <div e-column e-field="PlanOT" e-type="number" e-headertext="PlanOT" e-width="80"></div>
+                            @*<div e-column e-headertext="PlanOT" e-template="#PlantOT" e-textalign="center" e-type="number" e-width="80"></div>*@
 
                             <div e-column e-field="OTWeek" e-type="number" e-headertext="OTWeek" e-width="80"></div>
                             <div e-column e-field="OTMonth" e-type="number" e-headertext="OTMonth" e-width="80"></div>
@@ -380,25 +298,11 @@
                         </div>
                     </div>
 
-                    <script type="text/template" id="PlantOT">
+                    @*<script type="text/template" id="PlantOT">
                         <input type="number" ng-model="data.PlanOT" style="color:black; text-align:center" />
-                    </script>
+                    </script>*@
                 </div>
                 <div class="row" style="margin:10px;">
-                    <div class="col-md-6 col-lg-6 col-sm-12">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Select OT Type</label>
-                            <div class="col-sm-6 ">
-                                <div class="select-style">
-                                    <select id="OTWApp" class="form-control" ng-model="SelectedOT" name="SelectedOT" tabindex="1">
-                                        <option value="">-Select-</option>
-                                        <option Value="1">Allowed OT</option>
-                                        <option Value="2">Target OT</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                     <div class="col-md-6 col-lg-12 col-sm-12">
                         <div class="common-btn">
                             <ul class="common-btn list-inline text-right">
@@ -406,7 +310,6 @@
                             </ul>
                         </div>
                     </div>
-
                 </div>
             </div>
 

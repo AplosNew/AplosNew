@@ -177,6 +177,15 @@ namespace Aplos.Areas.Attendances.Controllers
                     dr["MaturityToYear"] = GratuityPolicyDetails.MaturityToYear;
                     dr["MaturityFormulaDesID"] = GratuityPolicyDetails.MaturityFormulaDesID;
                     dr["MaturityFormulaDescription"] = GratuityPolicyDetails.MaturityFormulaDescription;
+                    dr["YearOrDayBasis"] = GratuityPolicyDetails.YearOrDayBasis;
+                    if (GratuityPolicyDetails.YearOrDayBasis == "Day")
+                    {
+                        dr["NoOfDays"] = GratuityPolicyDetails.NoOfDays;
+                    }
+                    else
+                    {
+                    dr["NoOfDays"] = DBNull.Value; 
+                    }
 
                     dr["CompanyGroupId"] = identity.CompanyGroupId;
                     dr["plantId"] = GratuityPolicyDetails.plantId;
@@ -197,7 +206,15 @@ namespace Aplos.Areas.Attendances.Controllers
                     dr["MaturityToYear"] = GratuityPolicyDetails.MaturityToYear;
                     dr["MaturityFormulaDesID"] = GratuityPolicyDetails.MaturityFormulaDesID;
                     dr["MaturityFormulaDescription"] = GratuityPolicyDetails.MaturityFormulaDescription;
-
+                    dr["YearOrDayBasis"] = GratuityPolicyDetails.YearOrDayBasis;
+                    if (GratuityPolicyDetails.YearOrDayBasis == "Day")
+                    {
+                        dr["NoOfDays"] = GratuityPolicyDetails.NoOfDays;
+                    }
+                    else
+                    {
+                        dr["NoOfDays"] = DBNull.Value;
+                    }
                     dr["CompanyGroupId"] = identity.CompanyGroupId;
                     dr["plantId"] = GratuityPolicyDetails.plantId;
 
@@ -304,6 +321,8 @@ namespace Aplos.Areas.Attendances.Controllers
             public string MaturityFormulaDescription { get; set; }
             public string plantId { get; set; }
             public string CompanyGroupId { get; set; }
+            public string YearOrDayBasis { get; set; }
+            public double NoOfDays { get; set; }
 
             #endregion Scalar Properties
 

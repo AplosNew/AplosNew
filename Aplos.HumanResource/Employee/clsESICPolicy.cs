@@ -630,6 +630,22 @@ namespace Library.HumanResource.Employee
 
         }//End Function
 
+        public IEnumerable<object> GetTermsAndConditionMaster()
+        {
+            try
+            {
+                string strSQL = string.Empty;
+
+                strSQL = @"select * from TermsAndConditionsMaster";
+                return _sqlRepository.GetDataCollection(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }//End Function
+
         public IEnumerable<object> GetMonths(string MasterID)
         {
             try

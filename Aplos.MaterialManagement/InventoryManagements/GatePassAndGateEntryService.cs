@@ -23,6 +23,7 @@ using System.Collections.Specialized;
 using Syncfusion.DocToPDFConverter;
 using Syncfusion.Pdf;
 using System.Text.RegularExpressions;
+using Zen.Barcode;
 
 #endregion Using
 
@@ -272,7 +273,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						WHERE IRD.TransferedFromGrnId is not null
 
                         Union all
-						SELECT FARD.Id ComId, REPLACE(CONVERT(CHAR(11), FARD.AddedDate, 106), ' ', '-') AS  CreatedDate
+						SELECT FARD.Id ComId, REPLACE(CONVERT(CHAR(11), FARD.DocDate, 106), ' ', '-') AS  CreatedDate
 						,'FixedAssetSales' GatePassFor,p.UserName VendorNameOrCuetomerName 
 						,null PlantId
 						FROM Trn.FixedAssetRegisterDisposed FARD
@@ -281,7 +282,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						FARD.Id not in (Select FixedAssetRegisterDisposedId from trn.InOutGatePassMaster where FixedAssetRegisterDisposedId is not null)
 
                         Union all
-						SELECT distinct FARD.Id ComId, REPLACE(CONVERT(CHAR(11), FARD.AddedDate, 106), ' ', '-') AS  CreatedDate
+						SELECT distinct FARD.Id ComId, REPLACE(CONVERT(CHAR(11), FARD.DocDate, 106), ' ', '-') AS  CreatedDate
 						,'FixedAssetScrap' GatePassFor,p.UserName VendorNameOrCuetomerName 
 						,null PlantId
 						FROM Trn.FixedAssetRegisterDisposed FARD
@@ -293,6 +294,7 @@ namespace Library.MaterialManagement.InventoryManagements
 
 
 				)x
+                order by x.CreatedDate desc
 				--where x.PlantId='" + identity.PlantId+ "'";
 				return _sqlRepository.GetDataCollection(sql);
 			}
@@ -618,7 +620,7 @@ namespace Library.MaterialManagement.InventoryManagements
                             left jOIN [TRN].[PurchaseReturn] AS IR ON IR.Id=GPM.PurchaseReturnId
                             LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId   
 	                        LEFT JOIN TRn.InventoryReceive AS INR ON INR.ID=IR.InventoryReceiveId
-                            Where GPM.Addedby='" + Name + @"' AND GPM.CheckedByStatus ='Forchecked' OR (isnull(GPM.CheckedByStatus,'')='Hold' OR isnull(GPM.CheckedByStatus,'')='Reject')  Order By GPM.[Id] DESC";
+                            Where GPM.Addedby='" + Name + @"' AND GPM.CheckedByStatus ='Forchecked' OR (isnull(GPM.CheckedByStatus,'')='Hold' OR isnull(GPM.CheckedByStatus,'')='Reject')  Order By GPM.AddedDate DESC";
                 }
                 else if (PendingApprvedGateOut == "Checked")
                 {
@@ -658,7 +660,7 @@ namespace Library.MaterialManagement.InventoryManagements
                             left jOIN [TRN].[PurchaseReturn] AS IR ON IR.Id=GPM.PurchaseReturnId
                             LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId   
 	                        LEFT JOIN TRn.InventoryReceive AS INR ON INR.ID=IR.InventoryReceiveId
-                            Where GPM.Addedby='" + Name + @"' AND isnull(GPM.CheckedByStatus,'')='Checked'  Order By GPM.[Id] DESC";
+                            Where GPM.Addedby='" + Name + @"' AND isnull(GPM.CheckedByStatus,'')='Checked'  Order By GPM.AddedDate DESC";
 
                 }
                 else if (PendingApprvedGateOut == "GateOut")
@@ -699,7 +701,7 @@ namespace Library.MaterialManagement.InventoryManagements
                             left jOIN [TRN].[PurchaseReturn] AS IR ON IR.Id=GPM.PurchaseReturnId
                             LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId   
 	                        LEFT JOIN TRn.InventoryReceive AS INR ON INR.ID=IR.InventoryReceiveId
-                            Where GPM.Addedby='" + Name + @"' AND  GPM.CheckedByStatus = 'Checked' And Isnull(GPM.GateOutStatus,0)= 1  Order By GPM.[Id] DESC";
+                            Where GPM.Addedby='" + Name + @"' AND  GPM.CheckedByStatus = 'Checked' And Isnull(GPM.GateOutStatus,0)= 1  Order By GPM.AddedDate DESC";
                 }
                 
 
@@ -1290,6 +1292,795 @@ namespace Library.MaterialManagement.InventoryManagements
             return total;
         }
 
+        public IWordDocument InOutGatePassSalesReport(string companyGroupId, string plantId, string GatePassId)
+        {
+
+            ReportUtility ru = new ReportUtility();
+            var fileName = "";
+            var strPath = "";
+            var File = "";
+            DataTable dsOrderMaster;
+            dsOrderMaster = loadInOutGatePassMasterSales(GatePassId); 
+            fileName = "InOutGatePassSales" + plantId + ".docx";
+
+            strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), /*"IDCardBengali.xlsx"*/fileName);  // IDCardEng.xlsx
+            File = strPath;
+            if (!System.IO.File.Exists(strPath))
+            {
+                throw new CustomException("File <" + fileName + "> Not Found.");
+            }
+
+            ////A opens input document.
+            WordDocument document = new WordDocument(File, FormatType.Docx);
+
+            //Gets the paragraph at index 1
+            try
+            {
+                string invoicePartyAddress = "";
+                string vendorPartyAddress = "";
+                WSection section = document.Sections[0];
+
+                DataTable  dsServiceItems;
+                /*dsOrderMaster = loadInOutGatePassMaster(GatePassId);*///sql
+                Dictionary<string, string> columns = new Dictionary<string, string>();
+                var poApprovedStatus = "";
+                //invoicePartyAddress = ru.GetAddress(dsOrderMaster.Rows[0]["InvoicePartyAddressMasterId"].ToString(), dsOrderMaster.Rows[0]["InvoicingByAddress"].ToString());
+                document.Replace("{InvoicingPartyAddress}", invoicePartyAddress, false, false);
+                //vendorPartyAddress = ru.GetAddress(dsOrderMaster.Rows[0]["VendorAddressMasterId"].ToString(), "");
+                document.Replace("{VendorAddress}", vendorPartyAddress, false, false);
+                //document.Replace("{DeliveryInstruction}", dsOrderMaster.Rows[0]["DeliveryInstruction"].ToString(), false, false);
+                //document.Replace("{SpecialInstruction}", dsOrderMaster.Rows[0]["SpecialInstruction"].ToString(), false, false);
+                foreach (DataColumn item in dsOrderMaster.Columns)
+                    columns.Add("{" + item.ColumnName.ToUpper() + "}", item.ColumnName);
+                // dsServiceItems = loadServicerMasterItems(purchaseOrderId);
+                var materialTotal = makeInOutGatePassDetailSalesTable(document, dsOrderMaster, GatePassId);//Material Details 
+
+                var serviceTotal = 0.00;
+                //if (dsServiceItems.Rows.Count > 0)
+                //{
+                //    //{ServiceItems}
+                //    serviceTotal = makeServiceDetailsTable(document, dsServiceItems, purchaseOrderId);//Service Details 
+                //    document.Replace("{ServiceDetails}", "Service Details", true, true);
+                //}
+                //document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("#,##0.00") + " " + dsOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
+                //document.Replace("{TotalInWords}", ru.InWord((materialTotal + serviceTotal), dsOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
+                Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
+                TextSelection[] allresult = document.FindAll(new Regex("{.*?}"));
+                //creating secondary array to prevent memory leak and accidental over-writing (Tarek Talukder-26-May-2019)
+                List<string> strReplace = new List<string>();
+                for (int i = 0; i < allresult.Length; i++)
+                    strReplace.Add(allresult[i].SelectedText.ToString().ToUpper());
+                StringCollection strColDistinct = new StringCollection();
+                for (int i = 0; i < strReplace.Count; i++)
+                {
+                    if (strColDistinct.Contains(strReplace[i].ToUpper()))
+                        continue;
+
+                    strColDistinct.Add(strReplace[i].ToUpper());
+
+                    string text = strReplace[i].ToUpper();
+                    ReplaceInfo.Add(text, 0);
+                    if (columns.ContainsKey(text.ToUpper()))
+                    {
+                        ReplaceInfo[text] = document.Replace(text, dsOrderMaster.Rows[0][columns[text.ToUpper()]].ToString(), false, false);
+                    }
+
+                }
+
+                document.Replace("{Date}", System.DateTime.Now.ToString("dd-MMM-yyyy"), false, false);
+                CodeQrBarcodeDraw qrCode = BarcodeDrawFactory.CodeQr;
+                System.Drawing.Image barcodeImg = qrCode.Draw(dsOrderMaster.Rows[0]["Id"].ToString(), 200, 2);
+                
+                WPicture picture=  OTSBD.clsStaticInfo.GetWordDocumentPicture(document, "GatepassQR");
+                if(picture!=null)
+                {
+                    picture.LoadImage(barcodeImg);
+                }
+                
+                
+                //removing any unused place holder
+                foreach (var item in ReplaceInfo.Keys)
+                {
+                    if (ReplaceInfo[item.ToString()] == 0)
+                        document.Replace(item.ToString(), "", false, false);
+
+                }
+                DocToPDFConverter converter = new DocToPDFConverter();
+                //Converts Word document into PDF document
+                //Syncfusion.Pdf.PdfDocument pdfDocument = converter.ConvertToPDF(document);
+                PdfDocument pdfDocument = converter.ConvertToPDF(document);
+                pdfDocument.PageSettings.Width = 1200;
+                pdfDocument.PageSettings.Orientation = PdfPageOrientation.Landscape;
+                //Releases all resources used by DocToPDFConverter
+                converter.Dispose();
+                //Closes the instance of document objects
+                document.Close();
+                string Prefix = "InOutGatePass" + GatePassId;
+                //Saves the PDF file 
+                pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
+                //Closes the instance of document objects
+                pdfDocument.Close(true);
+                document.Close();
+
+                return document;
+            }
+
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            //Closes the instance of document objects
+
+
+        }
+
+
+        public DataTable loadInOutGatePassMasterSales(string GatePassId)
+        {
+            string strSQL;
+            //clsConnection objCon;
+            try
+            {
+                strSQL = @"SELECT  GPM.[Id]
+								,GPM.[CompanyGroupId]
+								,GPM.[CompanyId]
+								,GPM.[PlantId]
+								,GPM.[GatePassType]
+								,GPM.[GatePassStatus]                             
+								,REPLACE(CONVERT(CHAR(11), GPM.[GatePassEntryDate], 106),' ','-') AS GatePassEntryDate
+								,GPM.[FromEmployeeId]
+								,EI.EmployeeName SenderName
+								,GPM.[Through]
+								,GPM.[CourierName]
+								,GPM.[RunnerEmployeeId]
+								,EI1.EmployeeName RunnerEmployee                              
+								,GPM.[Remarks]
+								,GPM.[CheckedBy]
+								,GPM.[CheckedByStatus]
+								,GPM.[CheckedHoldRejectReason]
+								,GPM.[ApprovedBy]
+								,GPM.[ApprovedByStatus]
+								,GPM.[ApprovedHoldRejectReason]                            
+								,GPM.[AddedBy]
+								,GPM.[AddedDate]
+								,GPM.[AddedFromIP]
+								,GPM.[UpdatedBy]
+								,GPM.[UpdatedDate]
+								,GPM.[UpdatedFromIP]
+								,GPM.PurchaseReturnId
+								,GPM.InventorySalesId
+								,GPM.InventoryScrapId
+								,GPM.InventoryTransferId
+								,GPM.FixedAssetRegisterDisposedId
+								,GPM.FixedAssetScrapId
+						,MT.UserName MaterialType
+						,MGM.UserName AS MaterialGroupMasterName
+						,FR.MaterialMasterId
+						,MM.UserName MaterialMasterName
+						, ART.StandardName ArticleName
+						,FA.UserName AssetMaster
+						,IsAsset=CASE WHEN MM.IsAsset=0 then 'No' else 'Yes' END
+						, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue
+						, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
+						, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 
+						,Round(FARD.NegotiationValue,2) TotalMaterialBooksCurrencyAmount
+						, FR.SerialNo, FR.Id AssetNo,FAD.Id DisposalNo,FR.Status,FAD.DeliveryByAddress,VPL.UserName DeliveryParty
+							FROM [TRN].[InOutGatePassMaster] GPM
+							LEFT JOIN Employeeinformation EI on EI.SystemId= GPM.FromEmployeeId
+							LEFT JOIN Employeeinformation EI1 on EI1.SystemId= GPM.RunnerEmployeeId 
+							LEFT JOIN TRN.FixedAssetRegisterDisposed FAD ON FAD.Id=GPM.FixedAssetRegisterDisposedId
+							LEFT JOIN TRN.FixedAssetRegisterDisposedDetail FARD ON FARD.FixedAssetRegisterDisposedId=FAD.Id
+                            LEFT JOIN [TRN].[FixedAssetRegister] FR   ON FR.Id=FARD.FixedAssetRegisterId 
+	                        LEFT JOIN HKP.Party Customer ON Customer.Id = FAD.PartyId
+                            LEFT JOIN SCS.Currency CU ON CU.Id =FAD.CurrencyId
+							LEFT JOIN HKP.PartyPlant VPL ON VPL.Id = FAD.DeliveryPartyPlantId
+							left JOIN MST.MaterialMaster AS MM ON FR.MaterialMasterId=MM.Id
+							LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
+							LEFT JOIN MST.MaterialMasterArticle AS ART ON FR.MaterialMasterArticleId=ART.Id
+							LEFT JOIN HKP.CharacteristicsValue AS FCV ON MM.Id=FCV.MaterialMasterId
+							LEFT JOIN HKP.CharacteristicsValue AS SCV ON MM.Id=SCV.MaterialMasterId
+							LEFT JOIN HKP.CharacteristicsValue AS TCV ON MM.Id=TCV.MaterialMasterId
+							LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
+						    LEFT JOIN MST.FixedAssetMaster FA ON FA.Id=FR.FixedAssetMasterId
+                    Where GPM.Id='" + GatePassId + @"'Order By GPM.[Id] DESC";
+
+                return _sqlRepository.GetDataTable(strSQL);
+
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+
+            }
+        }
+
+        public IWordDocument InOutGatePassScrapReport(string companyGroupId, string plantId, string GatePassId)
+        {
+
+            ReportUtility ru = new ReportUtility();
+            var fileName = "";
+            var strPath = "";
+            var File = "";
+            DataTable dsOrderMaster;
+            dsOrderMaster = loadInOutGatePassMasterScrap(GatePassId);
+            fileName = "InOutGatePassScrap" + plantId + ".docx";
+
+            strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), /*"IDCardBengali.xlsx"*/fileName);  // IDCardEng.xlsx
+            File = strPath;
+            if (!System.IO.File.Exists(strPath))
+            {
+                throw new CustomException("File <" + fileName + "> Not Found.");
+            }
+
+            ////A opens input document.
+            WordDocument document = new WordDocument(File, FormatType.Docx);
+
+            //Gets the paragraph at index 1
+            try
+            {
+                string invoicePartyAddress = "";
+                string vendorPartyAddress = "";
+                WSection section = document.Sections[0];
+
+                DataTable dsServiceItems;
+                /*dsOrderMaster = loadInOutGatePassMaster(GatePassId);*///sql
+                Dictionary<string, string> columns = new Dictionary<string, string>();
+                var poApprovedStatus = "";
+                //invoicePartyAddress = ru.GetAddress(dsOrderMaster.Rows[0]["InvoicePartyAddressMasterId"].ToString(), dsOrderMaster.Rows[0]["InvoicingByAddress"].ToString());
+                document.Replace("{InvoicingPartyAddress}", invoicePartyAddress, false, false);
+                //vendorPartyAddress = ru.GetAddress(dsOrderMaster.Rows[0]["VendorAddressMasterId"].ToString(), "");
+                document.Replace("{VendorAddress}", vendorPartyAddress, false, false);
+                //document.Replace("{DeliveryInstruction}", dsOrderMaster.Rows[0]["DeliveryInstruction"].ToString(), false, false);
+                //document.Replace("{SpecialInstruction}", dsOrderMaster.Rows[0]["SpecialInstruction"].ToString(), false, false);
+                foreach (DataColumn item in dsOrderMaster.Columns)
+                    columns.Add("{" + item.ColumnName.ToUpper() + "}", item.ColumnName);
+                // dsServiceItems = loadServicerMasterItems(purchaseOrderId);
+                var materialTotal = makeInOutGatePassDetailSalesTable(document, dsOrderMaster, GatePassId);//Material Details 
+
+                var serviceTotal = 0.00;
+                //if (dsServiceItems.Rows.Count > 0)
+                //{
+                //    //{ServiceItems}
+                //    serviceTotal = makeServiceDetailsTable(document, dsServiceItems, purchaseOrderId);//Service Details 
+                //    document.Replace("{ServiceDetails}", "Service Details", true, true);
+                //}
+                //document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("#,##0.00") + " " + dsOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
+                //document.Replace("{TotalInWords}", ru.InWord((materialTotal + serviceTotal), dsOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
+                Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
+                TextSelection[] allresult = document.FindAll(new Regex("{.*?}"));
+                //creating secondary array to prevent memory leak and accidental over-writing (Tarek Talukder-26-May-2019)
+                List<string> strReplace = new List<string>();
+                for (int i = 0; i < allresult.Length; i++)
+                    strReplace.Add(allresult[i].SelectedText.ToString().ToUpper());
+                StringCollection strColDistinct = new StringCollection();
+                for (int i = 0; i < strReplace.Count; i++)
+                {
+                    if (strColDistinct.Contains(strReplace[i].ToUpper()))
+                        continue;
+
+                    strColDistinct.Add(strReplace[i].ToUpper());
+
+                    string text = strReplace[i].ToUpper();
+                    ReplaceInfo.Add(text, 0);
+                    if (columns.ContainsKey(text.ToUpper()))
+                    {
+                        ReplaceInfo[text] = document.Replace(text, dsOrderMaster.Rows[0][columns[text.ToUpper()]].ToString(), false, false);
+                    }
+
+                }
+
+                document.Replace("{Date}", System.DateTime.Now.ToString("dd-MMM-yyyy"), false, false);
+                CodeQrBarcodeDraw qrCode = BarcodeDrawFactory.CodeQr;
+                System.Drawing.Image barcodeImg = qrCode.Draw(dsOrderMaster.Rows[0]["Id"].ToString(), 200, 2);
+
+                WPicture picture = OTSBD.clsStaticInfo.GetWordDocumentPicture(document, "GatepassQR");
+                if (picture != null)
+                {
+                    picture.LoadImage(barcodeImg);
+                }
+
+
+                //removing any unused place holder
+                foreach (var item in ReplaceInfo.Keys)
+                {
+                    if (ReplaceInfo[item.ToString()] == 0)
+                        document.Replace(item.ToString(), "", false, false);
+
+                }
+                DocToPDFConverter converter = new DocToPDFConverter();
+                //Converts Word document into PDF document
+                //Syncfusion.Pdf.PdfDocument pdfDocument = converter.ConvertToPDF(document);
+                PdfDocument pdfDocument = converter.ConvertToPDF(document);
+                pdfDocument.PageSettings.Width = 1200;
+                pdfDocument.PageSettings.Orientation = PdfPageOrientation.Landscape;
+                //Releases all resources used by DocToPDFConverter
+                converter.Dispose();
+                //Closes the instance of document objects
+                document.Close();
+                string Prefix = "InOutGatePass" + GatePassId;
+                //Saves the PDF file 
+                pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
+                //Closes the instance of document objects
+                pdfDocument.Close(true);
+                document.Close();
+
+                return document;
+            }
+
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            //Closes the instance of document objects
+
+
+        }
+
+
+        public DataTable loadInOutGatePassMasterScrap(string GatePassId)
+        {
+            string strSQL;
+            //clsConnection objCon;
+            try
+            {
+                strSQL = @"SELECT  GPM.[Id]
+								,GPM.[CompanyGroupId]
+								,GPM.[CompanyId]
+								,GPM.[PlantId]
+								,GPM.[GatePassType]
+								,GPM.[GatePassStatus]                             
+								,REPLACE(CONVERT(CHAR(11), GPM.[GatePassEntryDate], 106),' ','-') AS GatePassEntryDate
+								,GPM.[FromEmployeeId]
+								,EI.EmployeeName SenderName
+								,GPM.[Through]
+								,GPM.[CourierName]
+								,GPM.[RunnerEmployeeId]
+								,EI1.EmployeeName RunnerEmployee                              
+								,GPM.[Remarks]
+								,GPM.[CheckedBy]
+								,GPM.[CheckedByStatus]
+								,GPM.[CheckedHoldRejectReason]
+								,GPM.[ApprovedBy]
+								,GPM.[ApprovedByStatus]
+								,GPM.[ApprovedHoldRejectReason]                            
+								,GPM.[AddedBy]
+								,GPM.[AddedDate]
+								,GPM.[AddedFromIP]
+								,GPM.[UpdatedBy]
+								,GPM.[UpdatedDate]
+								,GPM.[UpdatedFromIP]
+								,GPM.PurchaseReturnId
+								,GPM.InventorySalesId
+								,GPM.InventoryScrapId
+								,GPM.InventoryTransferId
+								,GPM.FixedAssetRegisterDisposedId
+								,GPM.FixedAssetScrapId
+						,MT.UserName MaterialType
+						,MGM.UserName AS MaterialGroupMasterName
+						,FR.MaterialMasterId
+						,MM.UserName MaterialMasterName
+						, ART.StandardName ArticleName
+						,FA.UserName AssetMaster
+						,IsAsset=CASE WHEN MM.IsAsset=0 then 'No' else 'Yes' END
+						, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue
+						, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
+						, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 
+						,Round(FARD.NegotiationValue,2) TotalMaterialBooksCurrencyAmount
+						, FR.SerialNo, FR.Id AssetNo,FAD.Id DisposalNo,FR.Status,FAD.DeliveryByAddress,VPL.UserName DeliveryParty
+							FROM [TRN].[InOutGatePassMaster] GPM
+							LEFT JOIN Employeeinformation EI on EI.SystemId= GPM.FromEmployeeId
+							LEFT JOIN Employeeinformation EI1 on EI1.SystemId= GPM.RunnerEmployeeId 
+							LEFT JOIN TRN.FixedAssetRegisterDisposed FAD ON FAD.Id=GPM.FixedAssetScrapId
+							LEFT JOIN TRN.FixedAssetRegisterDisposedDetail FARD ON FARD.FixedAssetRegisterDisposedId=FAD.Id
+                            LEFT JOIN [TRN].[FixedAssetRegister] FR   ON FR.Id=FARD.FixedAssetRegisterId 
+	                        LEFT JOIN HKP.Party Customer ON Customer.Id = FAD.PartyId
+                            LEFT JOIN SCS.Currency CU ON CU.Id =FAD.CurrencyId
+							LEFT JOIN HKP.PartyPlant VPL ON VPL.Id = FAD.DeliveryPartyPlantId
+							left JOIN MST.MaterialMaster AS MM ON FR.MaterialMasterId=MM.Id
+							LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
+							LEFT JOIN MST.MaterialMasterArticle AS ART ON FR.MaterialMasterArticleId=ART.Id
+							LEFT JOIN HKP.CharacteristicsValue AS FCV ON MM.Id=FCV.MaterialMasterId
+							LEFT JOIN HKP.CharacteristicsValue AS SCV ON MM.Id=SCV.MaterialMasterId
+							LEFT JOIN HKP.CharacteristicsValue AS TCV ON MM.Id=TCV.MaterialMasterId
+							LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
+						    LEFT JOIN MST.FixedAssetMaster FA ON FA.Id=FR.FixedAssetMasterId
+                    Where GPM.Id='" + GatePassId + @"'Order By GPM.[Id] DESC";
+
+                return _sqlRepository.GetDataTable(strSQL);
+
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+
+            }
+        }
+
+        public double makeInOutGatePassDetailSalesTable(WordDocument document, DataTable dsMaterialItems, string GatePassId)
+        {
+            string replaceString = "{materialItems}";
+            ReportUtility ru = new ReportUtility();
+            DataTable dsTax;
+            //clsDataContext data = new clsDataContext();
+
+
+            //dsTax = loadMaterialTax(purchaseOrderId);
+
+            int LasColumnIndex = 7;
+            Dictionary<string, int> dicTaxes = new Dictionary<string, int>();
+            //DataView dv = new DataView(dsTax.DefaultView.ToTable(true, "TaxCode"));
+
+            //if (dv.Count > 0)
+            //{
+            //    for (int i = 0; i < dv.Count; i++)
+            //    {
+            //        LasColumnIndex++;
+            //        dicTaxes.Add(dv[i]["TaxCode"].ToString(), LasColumnIndex);
+            //        LasColumnIndex++;
+            //    }
+            //}
+
+
+            WTable wTable = new WTable(document);
+            wTable.TableFormat.Borders.LineWidth = 1;
+            wTable.TableFormat.Borders.BorderType = BorderStyle.Single;
+            int ROW = 0; int COL = 0;
+            wTable.ResetCells(1, LasColumnIndex + 1);
+
+            WTableRow TemplateRow = wTable.Rows[0].Clone();
+
+            #region column headers
+            document.EnsureMinimal();
+            //wTable.Title = "Material Details";
+            WCharacterFormat FontBold = new WCharacterFormat(document);
+            FontBold.Bold = true;
+
+
+
+            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SL");
+            int colRo = COL; COL++;
+            //wTable.Rows[ROW].Cells[colRo].Width = 25;
+
+            //wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("RowId");
+            //int colRowId = COL; COL++;
+            //wTable.Rows[ROW].Cells[colRowId].Width = 50;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Asset No");
+            range.ApplyCharacterFormat(FontBold);
+            int colAssetNo = COL; COL++;
+            //wTable.Rows[ROW].Cells[colMaterialType].Width = 85;
+
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Serial No");
+            range.ApplyCharacterFormat(FontBold);
+            int colSerialNo = COL; COL++;
+            //wTable.Rows[ROW].Cells[colMaterialGroup].Width = 85;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Material Master");
+            range.ApplyCharacterFormat(FontBold);
+            int colMaterial = COL; COL++;
+            //wTable.Rows[ROW].Cells[colMaterial].Width = 85;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Article ");
+            range.ApplyCharacterFormat(FontBold);
+            int colArticle = COL; COL++;
+            //wTable.Rows[ROW].Cells[colArticle].Width = 85;
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU1");
+            range.ApplyCharacterFormat(FontBold);
+            int colChar1 = COL; COL++;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU2");
+            range.ApplyCharacterFormat(FontBold);
+            int colChar2 = COL; COL++;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU3");
+            range.ApplyCharacterFormat(FontBold);
+            int colChar3 = COL; COL++;
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Asset Master");//TRN.PurchaseOrderDetail ->CountryId
+            //range.ApplyCharacterFormat(FontBold);
+            //int colAssetMaster = COL; COL++;
+
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Material Detail");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colMaterialDetail = COL; COL++;
+
+
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Required Date");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colRequiredDate = COL; COL++;
+            //wTable.Rows[ROW].Cells[colRequiredDate].Width = 60;
+
+
+
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colQty = COL; COL++;
+
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate (" + dsMaterialItems.Rows[0]["CurrencyName"].ToString() + ")");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colRate = COL++;
+
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UOM");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colUOM = COL; COL++;
+            //wTable.Rows[ROW].Cells[colUOM].Width = 25;
+
+
+
+
+
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Total Amount");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colTotalTaxableAmount = COL; COL++;
+
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Normal/Over Budget/New");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colNormal = COL; COL++;
+            //wTable.Rows[ROW].Cells[colNormal].Width = 58;
+            ////range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Normal/OverBudget/New");
+            ////range.ApplyCharacterFormat(FontBold);
+            ////int colOB = COL; COL++;
+
+            ////range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Normal/OverBudget/New");
+            ////range.ApplyCharacterFormat(FontBold);
+            ////int colNew = COL; COL++;
+
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Own Stock");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colOnStock = COL; COL++;
+            //wTable.Rows[ROW].Cells[colUOM].Width = 40;
+
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Other Stock");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colOtherStock = COL; COL++;
+            //wTable.Rows[ROW].Cells[colOtherStock].Width = 40;
+
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Reason");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colReason = COL; COL++;
+
+
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Remarks");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colRemarks = COL;
+
+
+
+            //if (dv.Count > 0)
+            //{
+            //    COL++;
+            //    colTotalTaxableAmount = COL;
+            //    range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Taxable Amount");
+            //    range.ApplyCharacterFormat(FontBold);
+            //    //COL++;
+            //    for (int i = 0; i < dv.Count; i++)
+            //    {
+            //        //two columns required for tax
+            //        COL++;
+            //        range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText(dv[i]["TaxCode"].ToString());
+            //        range.ApplyCharacterFormat(FontBold);
+            //        COL++;
+            //        range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("");
+            //        range.ApplyCharacterFormat(FontBold);
+
+            //    }
+            //}
+            //else
+            //{
+
+
+            //}
+
+
+            //wTable.Rows.Add(TemplateRow);
+            //ROW++;
+
+            //if (dv.Count > 0)
+            //{
+            //    for (int i = 0; i < dv.Count; i++)
+            //    {
+
+            //        range = wTable.Rows[ROW].Cells[dicTaxes[dv[i]["TaxCode"].ToString()]].AddParagraph().AppendText("Rate");
+            //        range.ApplyCharacterFormat(FontBold);
+            //        range = wTable.Rows[ROW].Cells[dicTaxes[dv[i]["TaxCode"].ToString()] + 1].AddParagraph().AppendText("Amount");
+            //        range.ApplyCharacterFormat(FontBold);
+
+            //    }
+            //}
+            #endregion column headers
+            var NormalOverBudgetNew = "";
+            var normalBudgetType = "";
+            var overBudgetType = "";
+            var newBudgetType = "";
+            var MaterialDetail = "";
+            var RequiredDate = "";
+            var Remarks = "";
+            var Reason = "";
+            var OwnStock = "";
+            var OtherStock = " ";
+
+
+            double totalValue = 0;
+            int startRow = ROW;
+            int sl = 0;
+            for (int i = 0; i < dsMaterialItems.Rows.Count; i++)
+            {
+                sl++;
+                ROW++;
+                wTable.AddRow();
+                WTableRow TROW = wTable.LastRow;
+
+                // WTableRow TROW = wTable.Rows[1].Clone();
+                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+                {
+                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+                    {
+                        item.Text = "";
+                    }
+                }
+                //if (dsMaterialItems.Rows[i]["BudgetType"].ToString().ToUpper() == "NORMAL")
+                //{
+                //    NormalOverBudgetNew = "Normal";
+                //}
+                //if (dsMaterialItems.Rows[i]["BudgetType"].ToString().ToUpper() == "OVER BUDGET")
+                //{
+                //    NormalOverBudgetNew = "Over budget";
+                //}
+                //if (dsMaterialItems.Rows[i]["BudgetType"].ToString().ToUpper() != "NORMAL" && dsMaterialItems.Rows[i]["BudgetType"].ToString().ToUpper() != "OVER BUDGET")
+                //{
+                //    NormalOverBudgetNew = "New";
+                //}
+
+                TROW.Cells[colRo].AddParagraph().AppendText(sl.ToString());
+
+                TROW.Cells[colAssetNo].AddParagraph().AppendText(dsMaterialItems.Rows[i]["AssetNo"].ToString());
+                TROW.Cells[colSerialNo].AddParagraph().AppendText(dsMaterialItems.Rows[i]["SerialNo"].ToString());
+                TROW.Cells[colMaterial].AddParagraph().AppendText(dsMaterialItems.Rows[i]["MaterialMasterName"].ToString());
+                TROW.Cells[colArticle].AddParagraph().AppendText(dsMaterialItems.Rows[i]["ArticleName"].ToString());
+                TROW.Cells[colChar1].AddParagraph().AppendText(dsMaterialItems.Rows[i]["FirstCharacteristicsValue"].ToString());
+                TROW.Cells[colChar2].AddParagraph().AppendText(dsMaterialItems.Rows[i]["SecondCharacteristicsValue"].ToString());
+                TROW.Cells[colChar3].AddParagraph().AppendText(dsMaterialItems.Rows[i]["ThirdCharacteristicsValue"].ToString());
+                //TROW.Cells[colAssetMaster].AddParagraph().AppendText(dsMaterialItems.Rows[i]["AssetMaster"].ToString());
+                //TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsMaterialItems.Rows[i]["TransactionQty"].ToString()).ToString("F2"));
+
+                //ROW++;
+            }
+
+            #region Total
+            //int TotalRow = ROW;
+            //wTable.AddRow();
+            //WTableRow _TROW = wTable.LastRow;
+            //_TROW.Cells[0].AddParagraph().AppendText("Total").ApplyCharacterFormat(FontBold);
+            //double value = 0;
+            //for (int C = 0; C <= wTable.LastCell.GetCellIndex(); C++)
+            //{
+            //    value = 0;
+            //    if (C == colRo || C == colAssetNo || C == colMaterial || C == colArticle || C == colChar1 || C == colChar2 || C == colChar3 || /*C == colQty ||*/  C == colSerialNo)
+            //        continue;
+
+
+            //    for (int i = startRow; i <= TotalRow; i++)
+            //    {
+
+            //        foreach (WParagraph item in wTable.Rows[i].Cells[C].Paragraphs)
+            //        {
+            //            value += clsStdLib.dbl(item.Text);
+            //        }
+            //    }
+            //    _TROW.Cells[C].AddParagraph().AppendText(value.ToString("#,##0.00")).ApplyCharacterFormat(FontBold);
+
+            //}
+            #endregion Total
+
+
+            ROW++;
+            #region Sub Total
+            //int SubTotalRow = ROW;
+            //int SubTotalColumn = 0;//_TROW.Cells.Count - 5;
+            //wTable.AddRow();
+            //_TROW = wTable.LastRow;
+
+            //_TROW.Cells[SubTotalColumn].AddParagraph().AppendText("Sub Total");
+
+            double total = clsStdLib.dbl(dsMaterialItems.Compute("", "").ToString());
+            //- clsStdLib.dbl(dsOrderItems.Tables[0].Compute("SUM(Discount)", "").ToString())
+            //+ clsStdLib.dbl(dsTax.Compute("SUM(TaxAmount)", "").ToString());
+
+            //_TROW.Cells[SubTotalColumn + 1].AddParagraph().AppendText(total.ToString("F2") + " (" + ru.InWord(total, dsOrderMaster.Rows[0]["CurrencyId"].ToString()) + ")");
+
+            #endregion Total
+
+
+            ROW++;
+            #region Total Payable
+            //int TotalPayableRow = ROW;
+            //int TotalPayableColumn = 0;//_TROW.Cells.Count - 5;
+            //wTable.AddRow();
+            //_TROW = wTable.LastRow;
+
+            //_TROW.Cells[TotalPayableColumn].AddParagraph().AppendText("Total Amount Payable");
+            //_TROW.Cells[TotalPayableColumn + 1].AddParagraph().AppendText("Need To Discuss");
+
+            #endregion Total Payable
+
+
+            ROW++;
+
+            //for (int R = 1; R < wTable.Rows.Count; R++)
+            //{
+            //    WTableRow TROW = wTable.Rows[R];
+
+
+
+            //    foreach (WParagraph item in TROW.Cells[colQty].Paragraphs)
+            //    {
+            //        item.ApplyStyle("MyStyleRightAlign");
+            //    }
+
+            //}
+            #region paragrpath formats
+            //Adds a new paragraph style named "MyStyle"
+            IWParagraphStyle myStyle = document.AddParagraphStyle("MyStyle");
+            //Sets the formatting of the style
+            myStyle.CharacterFormat.FontSize = 8f;
+            //myStyle.CharacterFormat.TextColor = Color.Black;
+            myStyle.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
+
+            for (int R = 0; R < wTable.Rows.Count; R++)
+            {
+                WTableRow TROW = wTable.Rows[R];
+                //TROW.Cells[0].Width = 20;
+                //if (dv.Count < 3)
+                //    TROW.Cells[0].Width = 120 + ((3 - dv.Count) * 40);//for each tax group missing, adjust width with 0 cell
+
+                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+                {
+                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+                    {
+                        item.ApplyStyle("MyStyle");
+                    }
+                }
+            }
+
+
+            #endregion paragrpath formats
+
+
+            #region merging section
+
+
+            //tax codes merging (horizontal)
+            ROW = 0;
+            //for (int i = 0; i < dv.Count; i++)
+            //    wTable.ApplyHorizontalMerge(ROW, dicTaxes[dv[i]["TaxCode"].ToString()], dicTaxes[dv[i]["TaxCode"].ToString()] + 1);
+
+            //primary cells merging (veritcal)
+            ROW++;
+            //for (int i = 0; i <= colTotalTaxableAmount; i++)
+            //    wTable.ApplyVerticalMerge(i, ROW - 1, ROW);
+
+
+
+
+            IWParagraphStyle style = document.AddParagraphStyle("SubTotalStyle");
+            style.CharacterFormat.Bold = true;
+            style.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Left;
+            //Adds new paragraph to the section
+
+            #endregion merging section
+
+            TextBodyPart textBodyPart = new TextBodyPart(document);
+            textBodyPart.BodyItems.Add(wTable);
+            document.Replace(replaceString, textBodyPart, true, true);
+            return total;
+        }
+        
 
 
         // public DataTable loadMaterialTax(string GatePassId)

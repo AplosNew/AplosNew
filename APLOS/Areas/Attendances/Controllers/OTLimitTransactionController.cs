@@ -220,7 +220,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
         #region ProcessedOT
 
-     
+
         #endregion ProcessedOT
 
         [HttpPost]
@@ -505,6 +505,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             o.OriginalDayType = dv[i]["OriginalDayType"].ToString();
                             o.ShiftName = dv[i]["ShiftName"].ToString();
 
+                            o.OverStay = (decimal)OTSBD.clsStaticInfo.dbl(dv[i]["OverStay"].ToString());
 
                             o.IsManualInTime = Convert.ToBoolean(dv[i]["IsManualInTime"].ToString());
                             o.ManualInTime = dv[i]["ManualInTime"].ToString();
@@ -515,9 +516,11 @@ namespace Aplos.Areas.Attendances.Controllers
 
                             if (string.IsNullOrEmpty(o.NewOutTime) == false)
                             {
-                                double TimeToReduce = (double)(((NewOT + ExtraOT) / OTreductionFactor) - NewOT);
-                                o.NewOutTime = Convert.ToDateTime(o.NewOutTime).AddMinutes(TimeToReduce * -1).ToString("dd-MMM-yyyy hh:mm:ss tt");
+                                //double TimeToReduce = (double)(((NewOT + ExtraOT) / OTreductionFactor) - NewOT);
+                                double TimeToReduce = (double)((o.OverStay * -1) + (NewOT));
+                                o.NewOutTime = Convert.ToDateTime(o.NewOutTime).AddMinutes(TimeToReduce).ToString("dd-MMM-yyyy hh:mm:ss tt");
                             }
+
 
                             o.TotalOT = DailyOT;
                             o.OT = NewOT;
@@ -717,7 +720,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
 
                 strSql = @"SELECT  apd.EmpSystemID
-                           ,APD.ProcessedOT TotalOTHr
+                           ,APD.ProcessedOT TotalOTHr,apd.OverStay
                            ,FORMAT(apd.WorkDate, 'dd-MMM-yyyy') WorkDate
                            ,sd.UserName ShiftName
                            ,FORMAT(sd.InTime, 'hh:mm tt') ShiftInTime
@@ -3308,6 +3311,7 @@ namespace Aplos.Areas.Attendances.Controllers
         public bool IsExtraOTOnly { get; set; }
         public decimal FirstSlabMin { get; set; }
         public decimal OTreductionFactor { get; set; }
+        public decimal OverStay { get; set; }
 
 
 
