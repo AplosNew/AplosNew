@@ -431,7 +431,7 @@ namespace Library.OrderManagement.ShipmentControl
             try
             {
                 string strSQL = string.Empty;
-                strSQL = @"select * from TermsAndConditionsDetails where Id='" + TermsAndConditionsDetailId + "'";
+                strSQL = @"select * from TermsAndConditionsDetails where TermsAndConditionsChildId='" + TermsAndConditionsDetailId + "'";
                 return _sqlRepository.GetDataCollection(strSQL);
             }
             catch (Exception ex)
