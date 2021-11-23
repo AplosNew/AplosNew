@@ -7284,7 +7284,8 @@ group by x.MaterialMasterGroupName,x.MaterialType,x.MaterialMasterId,x.MaterialM
 									--,PID.TransactionQty AS POQty
 									--,ISNULL(Pre.OtherReceived, 0) OtherReceived
 									,IRD.TransactionQty
-									,(PID.TransactionQty - IRD.TransactionQty - ISNULL(Pre.OtherReceived, 0)) AS Balance
+								--	,(PID.TransactionQty - IRD.TransactionQty - ISNULL(Pre.OtherReceived, 0)) AS Balance
+									,(PID.Quantity - IRD.TransactionQty - ISNULL(Pre.OtherReceived, 0)) AS Balance
 									,IRD.TransactionUoMId
 									,IRD.BaseUOMId
 									,IRD.TotalMaterialTranAmount
@@ -7302,9 +7303,9 @@ group by x.MaterialMasterGroupName,x.MaterialType,x.MaterialMasterId,x.MaterialM
 									--,IRD.RejectValue AS RejectionValue
 									--,IRD.RejectClamPercent RejectionClamRate
 									,IR.CheckedBy
-									,MRD.MaterialDetail
+								--	,MRD.MaterialDetail
                                     ,C.Id,C.UserName CountryName,IRD.GrossAmount,IRD.DiscountAmount,MOI.MasterOrderId MasterOrderNo,IRD.MaterialFor
-								    ,MaterialBy=CASE WHEN IRD.MaterialFor='JWOUTPUTMaterial' THEN 'OutPut' WHEN IRD.MaterialFor='JWBYPRODUCTMaterial' THEN 'By Product' END
+								    ,MaterialBy=CASE WHEN IRD.MaterialFor='JobWorkOUTPUTMaterial' THEN 'OutPut' WHEN IRD.MaterialFor='JobWorkBYPRODUCTMaterial' THEN 'By Product' END
 								FROM TRN.InventoryMaterial AS IM
 								LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
 								LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
@@ -7316,21 +7317,29 @@ group by x.MaterialMasterGroupName,x.MaterialType,x.MaterialMasterId,x.MaterialM
 								LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
 								LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
 								LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId = IM.Id									
-								LEFT JOIN [TRN].[PurchaseOrderDetail] AS PID ON PID.Id = IRD.PODetailsId
-								LEFT JOIN (
-									SELECT PODetailsId
+						--		LEFT JOIN [TRN].[PurchaseOrderDetail] AS PID ON PID.Id = IRD.PODetailsId
+								LEFT JOIN dbo.JWTransformationPODetail AS PID ON PID.Id = IRD.JWTransformationPODetailId
+								--LEFT JOIN (
+								--	SELECT PODetailsId
+								--		,Sum(TransactionQty) AS OtherReceived
+								--	FROM trn.InventoryReceiveDetail	
+								--	GROUP BY PODetailsId
+								--	) AS Pre ON pre.PODetailsId = IRD.PODetailsId
+
+									LEFT JOIN (
+									SELECT JWTransformationPODetailId
 										,Sum(TransactionQty) AS OtherReceived
 									FROM trn.InventoryReceiveDetail	
-									GROUP BY PODetailsId
-									) AS Pre ON pre.PODetailsId = IRD.PODetailsId
+									GROUP BY JWTransformationPODetailId
+									) AS Pre ON pre.JWTransformationPODetailId = IRD.JWTransformationPODetailId
 								LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId = TUoM.Id
 								LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId = IR.Id
 								--	LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId = CU.Id
 								LEFT JOIN [SCS].[Currency] AS CUR ON CUR.Id=IR.BaseCurrencyId
-								LEFT JOIN TRN.MaterialRequsitionDetails MRD ON MRD.ID = PID.RequisitionDetailId
+							--	LEFT JOIN TRN.MaterialRequsitionDetails MRD ON MRD.ID = PID.RequisitionDetailId
                                 Left Join SCS.Country C ON C.Id=IM.CountryId
 								 LEFT JOIN [TRN].[MasterOrderItem] MOI ON IRD.MasterOrderItemId=MOI.Id
-								WHERE IM.MaterialMasterId IS NOT NULL  AND (IRD.MaterialFor='JWOUTPUTMaterial' OR IRD.MaterialFor='JWBYPRODUCTMaterial')
+								WHERE IM.MaterialMasterId IS NOT NULL  AND (IRD.MaterialFor='JobWorkOUTPUTMaterial' OR IRD.MaterialFor='JobWorkBYPRODUCTMaterial')
 	 
 
 								UNION ALL
@@ -7380,7 +7389,8 @@ group by x.MaterialMasterGroupName,x.MaterialType,x.MaterialMasterId,x.MaterialM
 									--,PID.TransactionQty AS POQty
 									--,ISNULL(Pre.OtherReceived, 0) OtherReceived
 									,IRD.TransactionQty
-									,(PID.TransactionQty - IRD.TransactionQty - ISNULL(Pre.OtherReceived, 0)) AS Balance
+									--	,(PID.TransactionQty - IRD.TransactionQty - ISNULL(Pre.OtherReceived, 0)) AS Balance
+									,(PID.Quantity - IRD.TransactionQty - ISNULL(Pre.OtherReceived, 0)) AS Balance
 									,IRD.TransactionUoMId
 									,IRD.BaseUOMId
 									,IRD.TotalMaterialTranAmount
@@ -7395,9 +7405,9 @@ group by x.MaterialMasterGroupName,x.MaterialType,x.MaterialMasterId,x.MaterialM
 									--,IRD.RejectValue AS RejectionValue
 									--,IRD.RejectClamPercent RejectionClamRate
 									,IR.CheckedBy
-									,MRD.MaterialDetail
+							--		,MRD.MaterialDetail
 	                                ,C.Id,C.UserName CountryName,IRD.GrossAmount,IRD.DiscountAmount,MOI.MasterOrderId MasterOrderNo,IRD.MaterialFor
-									,MaterialBy=CASE WHEN IRD.MaterialFor='JWOUTPUTMaterial' THEN 'OutPut' WHEN IRD.MaterialFor='JWBYPRODUCTMaterial' THEN 'By Product' END
+									,MaterialBy=CASE WHEN IRD.MaterialFor='JobWorkOUTPUTMaterial' THEN 'OutPut' WHEN IRD.MaterialFor='JobWorkBYPRODUCTMaterial' THEN 'By Product' END
 								FROM TRN.InventoryMaterial AS IM
 								LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
 								LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
@@ -7409,21 +7419,29 @@ group by x.MaterialMasterGroupName,x.MaterialType,x.MaterialMasterId,x.MaterialM
 								LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
 								LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
 								LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId = IM.Id									
-								LEFT JOIN [TRN].[PurchaseOrderDetail] AS PID ON PID.Id = IRD.PODetailsId
-								LEFT JOIN (
-									SELECT PODetailsId
+								--		LEFT JOIN [TRN].[PurchaseOrderDetail] AS PID ON PID.Id = IRD.PODetailsId
+								LEFT JOIN dbo.JWTransformationPODetail AS PID ON PID.Id = IRD.JWTransformationPODetailId
+								--LEFT JOIN (
+								--	SELECT PODetailsId
+								--		,Sum(TransactionQty) AS OtherReceived
+								--	FROM trn.InventoryReceiveDetail	
+								--	GROUP BY PODetailsId
+								--	) AS Pre ON pre.PODetailsId = IRD.PODetailsId
+
+									LEFT JOIN (
+									SELECT JWTransformationPODetailId
 										,Sum(TransactionQty) AS OtherReceived
 									FROM trn.InventoryReceiveDetail	
-									GROUP BY PODetailsId
-									) AS Pre ON pre.PODetailsId = IRD.PODetailsId
+									GROUP BY JWTransformationPODetailId
+									) AS Pre ON pre.JWTransformationPODetailId = IRD.JWTransformationPODetailId
 								LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId = TUoM.Id
 								LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId = IR.Id
 								--	LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId = CU.Id
 								LEFT JOIN [SCS].[Currency] AS CUR ON CUR.Id=IR.BaseCurrencyId
-								LEFT JOIN TRN.MaterialRequsitionDetails MRD ON MRD.ID = PID.RequisitionDetailId
+						--		LEFT JOIN TRN.MaterialRequsitionDetails MRD ON MRD.ID = PID.RequisitionDetailId
                                 Left Join SCS.Country C ON C.Id=IM.CountryId
 								 LEFT JOIN [TRN].[MasterOrderItem] MOI ON IRD.MasterOrderItemId=MOI.Id
-								WHERE IM.MaterialMasterId IS NULL  AND (IRD.MaterialFor='JWOUTPUTMaterial' OR IRD.MaterialFor='JWBYPRODUCTMaterial')";
+								WHERE IM.MaterialMasterId IS NULL  AND (IRD.MaterialFor='JobWorkOUTPUTMaterial' OR IRD.MaterialFor='JobWorkBYPRODUCTMaterial')";
 
 				return _sqlRepository.GetDataCollection(sql);
 			}
