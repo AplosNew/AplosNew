@@ -155,7 +155,9 @@ function weekOffOTReportController(cboService, commonMessage, $scope, $rootScope
     $scope.PlantIdList = [];
     $scope.GetEmployeeInformation = function () {
         try {
-
+            $scope.EmployeeList = [];
+            $scope.EmployeeListDefault = [];
+            $scope.EmployeeListTemp = [];
             //addition Sayanto
             var DropDownListObj = $("#plantList").data("ejDropDownList");
             $scope.PlantIdList = DropDownListObj.getSelectedValue();
@@ -198,10 +200,23 @@ function weekOffOTReportController(cboService, commonMessage, $scope, $rootScope
                     data: parameters
                 }).then(function successCallback(response) {
                     if (response.data.length > 0) {
+
+                        var gridObj = $("#empInfoGrid").data("ejGrid");
+                        gridObj.clearFiltering();
+                        gridObj.refreshTemplate(true);
+                        gridObj.refreshContent();
+
                         $scope.empGrid = true;
-                        $scope.EmployeeListDefault = response.data;//.filter(d => d.isSelect == true);
-                        $scope.EmployeeList = $scope.EmployeeListDefault;
-                        $scope.EmployeeListTemp = $scope.EmployeeListDefault;
+                        $scope.EmployeeListDefault = [];
+                        $scope.EmployeeList = [];
+                        $scope.EmployeeListTemp = [];
+
+                        $scope.EmployeeListDefault = response.data;
+                        $scope.EmployeeList = response.data;
+                        $scope.EmployeeListTemp = $scope.EmployeeList;
+
+                        gridObj.refreshTemplate(true);
+                        gridObj.refreshContent();
                     }
                     else {
                         $scope.empGrid = false;
@@ -235,6 +250,8 @@ function weekOffOTReportController(cboService, commonMessage, $scope, $rootScope
                     filteredRecords = $scope.EmployeeListTemp;
 
                 }
+            } else {
+                filteredRecords = $scope.EmployeeListTemp;
             }
             if (angular.isUndefinedOrNull(filteredRecords) === false) {
                 if (filteredRecords.length > 0) {
