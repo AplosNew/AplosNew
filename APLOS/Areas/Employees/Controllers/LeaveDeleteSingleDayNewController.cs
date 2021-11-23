@@ -138,7 +138,9 @@ namespace Aplos.Areas.Employees.Controllers
                 clsLeaveInfo p = new clsLeaveInfo();
                 p.DeleteLeave(ID, Update, _isFromDate, _isToDate, _fd.ToString("dd-MMM-yyyy"),_td.ToString("dd-MMM-yyyy"));
                 
-                var sqls = @"Update AttdnProcessData SET LeaveStatus=null , LTSystemID=null , ManualFlag=1 , IsLock=0 , LockedBy=null , LockedDate=null, OTComfirmBy=null,DateOTComfirm=null,IsOTComfirm=0 where EmpSystemID= '" + EmpId + @"' and WorkDate = '" + _wd + "'";
+                var sqls = @"Update AttdnProcessData SET LeaveStatus=null , LTSystemID=null , ManualFlag=1 , IsLock=0 , LockedBy=null ,
+                LockedDate=null, OTComfirmBy=null,DateOTComfirm=null,IsOTComfirm=0,PlanOT=null,TargetOT=null,StandardOT=null,
+                AdditionalOT=null,AppliedOTLimit=null,AllowedOTLimit=null where EmpSystemID= '" + EmpId + @"' and WorkDate = '" + _wd + "'";
 
                 ConnectionManager.DAL.ConManager objCone = null;
                 objCone = new ConnectionManager.DAL.ConManager("1");
