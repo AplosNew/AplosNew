@@ -589,6 +589,7 @@ var upanelApp = angular
     .controller('loanInterestPayableReverseController', loanInterestPayableReverseController)
     .controller('longAbsenteeismAssignController', longAbsenteeismAssignController)
     .controller('manpowerAttendanceSummaryController', manpowerAttendanceSummaryController)
+    .controller('manpowerAttendanceSummaryControllerNew', manpowerAttendanceSummaryControllerNew)
     .controller('manpowerBudgetController', manpowerBudgetController)
     .controller('ManualAttendanceConfirmationController', ManualAttendanceConfirmationController)
     .controller('masterLCController', masterLCController)
