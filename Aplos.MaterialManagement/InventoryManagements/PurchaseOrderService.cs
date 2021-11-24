@@ -349,81 +349,64 @@ namespace Library.MaterialManagement.InventoryManagements
                 try
                 {
                     var sql = "";
-                    sql = @"SELECT  b.Id BOQId,b.Sequence Sequence1
-						,b.MasterOrderItemId
-						,moi.MasterOrderId
-						,ISNULL(mo.OwnReferenceNo,'') OwnOrderReferenceNo
-						,ISNULL(mo.BuyerReferenceNo,'') BuyerOrderReferenceNo
+                    sql = @"SELECT  b.Id BOQId,b.Sequence Sequence1,b.MasterOrderItemId,moi.MasterOrderId
+                                    ,ISNULL(mo.OwnReferenceNo,'') OwnOrderReferenceNo
+                                    ,ISNULL(mo.BuyerReferenceNo,'') BuyerOrderReferenceNo
 
-						,ISNULL(moi.OwnReferenceNo,'') OwnItemReferenceNo
-						,ISNULL(moi.BuyerReferenceNo,'') BuyerItemReferenceNo
-						, b.VendorId
-						,b.SalesOrderId
-						,mm.Id MaterialMasterId,mma.Id ArticleId
-						,IsNULL(mm.UserName,'') AS UserName
-						,IsNULL(mma.StandardName,'') AS StandardName
-						,IsNULL(p.UserName,'') AS Vendor
-						,IsNULL(v1.UserName,'') AS FirstCharacteristicsValue
-						,IsNULL(v2.UserName,'') AS SecondCharacteristicsValue
-						,IsNULL(v3.UserName,'') AS ThirdCharacteristicsValue
+                                    ,ISNULL(moi.OwnReferenceNo,'') OwnItemReferenceNo
+                                    ,ISNULL(moi.BuyerReferenceNo,'') BuyerItemReferenceNo
+                                    , b.VendorId
+                                    ,b.SalesOrderId
+                                    ,mm.Id MaterialMasterId,mma.Id ArticleId
+                                    ,IsNULL(mm.UserName,'') AS UserName
+                                    ,IsNULL(mma.StandardName,'') AS StandardName
+                                    ,IsNULL(p.UserName,'') AS Vendor
+                                    ,IsNULL(v1.UserName,'') AS FirstCharacteristicsValue
+                                    ,IsNULL(v2.UserName,'') AS SecondCharacteristicsValue
+                                    ,IsNULL(v3.UserName,'') AS ThirdCharacteristicsValue
 
-						,b.FirstCharacteristicsValueId,FC.Id FirstCharacteristicsId
-						,b.SecondCharacteristicsValueId,SC.Id FirstCharacteristicsId
-						,b.ThirdCharacteristicsValueId,TC.Id ThirdCharacteristicsId
-						,RequiredQtyApproved=Case When CONVERT(BIT, isnull(b.RequiredQtyApproved,0))=0 Then 'No' ELSE 'Yes' END
-						,IncompleteMaterial=CASE WHEN CONVERT(BIT, isnull(b.IncompleteMaterial,0))=1 THEN 'Yes' ELSE 'No' END 
-						,b.RequiredQtyPO,b.OrderQty,b.PlanOrderQty,b.Consumption,b.WastagePer,Balance=b.RequiredQtyPO-Isnull(POMAP.TransactionQty,0)
-						,b.BOMQty,C.Id
-						,null CheckedStatus   ,null TaxList,MM.HSNCodeId	,MM.IsOriginApplicable
-						,Isnull(POMAP.TransactionQty,0) PORaisedQry,ISNULL(OtherPOData.TransactionQty,0) OtherPOQty
-						,REPLACE(CONVERT(CHAR(11), so.DeliveryDate, 106),' ','-') AS DeliveryDate 
-						,ISNULL(cpo.PONumber,'') PONumber
-						,AUOM.AlternativeUOMId,AUOM.BaseUOMId,AUOM.BaseUOMFactor,AUOM.AlternativeUOMFactor
-						,uom1.UserName AlternateUOM
-						,RequiredQty= CASE WHEN AUOM.BaseUOMFactor IS NULL THEN ROUND(isnull(b.RequiredQty,0),2) ELSE ROUND(isnull(b.BOMQty,0)/ISNULL(AUOM.BaseUOMFactor,0),2) END
-						,uom.UserName BOQUOM
-						,UOM=CASE WHEN AUOM.AlternativeUOMId IS NULL then uom.UserName else  uom1.UserName END
-						,TransactionUoMId=CASE WHEN AUOM.AlternativeUOMId IS NULL THEN b.UoMId ELSE AUOM.AlternativeUOMId END
-						,RefferenceNo=ISNULL(mo.OwnReferenceNo,'') + '/' + ISNULL(mo.BuyerReferenceNo,'') +'/'+ ISNULL(moi.OwnReferenceNo,'')+'/'+ISNULL(moi.BuyerReferenceNo,''),C.ContractNo
+                                    ,b.FirstCharacteristicsValueId,FC.Id FirstCharacteristicsId
+                                    ,b.SecondCharacteristicsValueId,SC.Id FirstCharacteristicsId
+                                    ,b.ThirdCharacteristicsValueId,TC.Id ThirdCharacteristicsId
+                                    ,RequiredQtyApproved=Case When CONVERT(BIT, isnull(b.RequiredQtyApproved,0))=0 Then 'No' ELSE 'Yes' END
+                                    ,IncompleteMaterial=CASE WHEN CONVERT(BIT, isnull(b.IncompleteMaterial,0))=1 THEN 'Yes' ELSE 'No' END 
+                                    ,b.RequiredQtyPO,b.OrderQty,b.PlanOrderQty,b.Consumption,b.WastagePer,Balance=b.RequiredQtyPO-Isnull(POMAP.TransactionQty,0)
+                                    ,b.BOMQty,C.Id
+                                    ,null CheckedStatus,null TaxList,MM.HSNCodeId,MM.IsOriginApplicable
+                                    ,Isnull(POMAP.TransactionQty,0) PORaisedQry,ISNULL(POMAP.TransactionQty,0) OtherPOQty
+                                    ,REPLACE(CONVERT(CHAR(11), so.DeliveryDate, 106),' ','-') AS DeliveryDate 
+                                    ,ISNULL(cpo.PONumber,'') PONumber,uom.UserName BOQUOM
+                                    ,RefferenceNo=ISNULL(mo.OwnReferenceNo,'') + '/' + ISNULL(mo.BuyerReferenceNo,'') +'/'+ ISNULL(moi.OwnReferenceNo,'')+'/'+ISNULL(moi.BuyerReferenceNo,''),C.ContractNo
 
-						FROM BOQ AS b
-						LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
-						LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
-						LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=b.UoMId
-						LEFT OUTER JOIN HKP.Party P ON p.Id=b.VendorId
-						LEFT OUTER JOIN trn.SalesOrder AS so ON so.Id=b.SalesOrderId
-						LEFT OUTER JOIN trn.MasterOrderItem AS moi ON moi.Id=b.MasterOrderItemId
-						LEFT OUTER JOIN trn.MasterOrder AS mo ON mo.Id=moi.MasterOrderId
-						left outer join [TRN].[CustomerPO] cpo On cpo.Id=so.CustomerPOId
+                                    FROM BOQ AS b
+                                    LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
+                                    LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
+                                    LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=b.UoMId
+                                    LEFT OUTER JOIN HKP.Party P ON p.Id=b.VendorId
+                                    LEFT OUTER JOIN trn.SalesOrder AS so ON so.Id=b.SalesOrderId
+                                    LEFT OUTER JOIN trn.MasterOrderItem AS moi ON moi.Id=b.MasterOrderItemId
+                                    LEFT OUTER JOIN trn.MasterOrder AS mo ON mo.Id=moi.MasterOrderId
+                                    left outer join [TRN].[CustomerPO] cpo On cpo.Id=so.CustomerPOId
 
-						LEFT OUTER JOIN [HKP].[CharacteristicsValue] V1 ON v1.Id=b.FirstCharacteristicsValueId
-						LEFT OUTER JOIN [HKP].[CharacteristicsValue] V2 ON v2.Id=b.SecondCharacteristicsValueId
-						LEFT OUTER JOIN [HKP].[CharacteristicsValue] V3 ON v3.Id=b.ThirdCharacteristicsValueId
+                                    LEFT OUTER JOIN [HKP].[CharacteristicsValue] V1 ON v1.Id=b.FirstCharacteristicsValueId
+                                    LEFT OUTER JOIN [HKP].[CharacteristicsValue] V2 ON v2.Id=b.SecondCharacteristicsValueId
+                                    LEFT OUTER JOIN [HKP].[CharacteristicsValue] V3 ON v3.Id=b.ThirdCharacteristicsValueId
 
-						LEFT JOIN HKP.Characteristics AS FC ON FC.Id=V1.CharacteristicsId
-						LEFT JOIN HKP.Characteristics AS SC ON SC.Id=V2.CharacteristicsId
-						LEFT JOIN HKP.Characteristics AS TC ON TC.Id=V3.CharacteristicsId
+                                    LEFT JOIN HKP.Characteristics AS FC ON FC.Id=V1.CharacteristicsId
+                                    LEFT JOIN HKP.Characteristics AS SC ON SC.Id=V2.CharacteristicsId
+                                    LEFT JOIN HKP.Characteristics AS TC ON TC.Id=V3.CharacteristicsId
 
-						LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId
-						--LEFT JOIN(Select  BOQDetailId,sum(TransactionQty) TransactionQty from [TRN].[POBOQMAP] group by BOQDetailId)POMAP ON POMAP.BOQDetailId=b.Id
-						LEFT JOIN (SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.TransactionQty) TransactionQty 
-									FROM [TRN].[POBOQMAP] POBOQMAP1
-									LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id=POBOQMAP1.PODetailId
-									LEFT JOIN TRN.PurchaseOrder POM ON POM.Id=POD.InventoryReceiveId
+                                    LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId
+                                    LEFT JOIN (SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.TransactionQty) TransactionQty 
+			                                     FROM [TRN].[POBOQMAP] POBOQMAP1
+			                                    LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id=POBOQMAP1.PODetailId
+			                                    LEFT JOIN TRN.PurchaseOrder POM ON POM.Id=POD.InventoryReceiveId
 									
-									GROUP by POBOQMAP1.BOQDetailId								
-									)POMAP ON POMAP.BOQDetailId=b.Id
-						LEFT JOIN(SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.TransactionQty) TransactionQty 
-									FROM [TRN].[POBOQMAP] POBOQMAP1
-									LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id=POBOQMAP1.PODetailId
-									LEFT JOIN TRN.PurchaseOrder POM ON POM.Id=POD.InventoryReceiveId
-									
-									GROUP by POBOQMAP1.BOQDetailId
-								) OtherPOData ON OtherPOData.BOQDetailId=b.Id
-						LEFT JOIN MST.MaterialMasterAlternativeUOM AUOM ON AUOM.MaterialMasterId=mm.Id 
-						LEFT OUTER JOIN scs.UnitOfMeasurement AS uom1 ON uom1.Id=AUOM.AlternativeUOMId
-                        WHERE (b.RequiredQtyPO-Isnull(POMAP.TransactionQty,0))>0
-						ORDER BY b.MaterialMasterId,b.SalesOrderId";
+			                                    GROUP by POBOQMAP1.BOQDetailId								
+			                                    )POMAP ON POMAP.BOQDetailId=b.Id
+
+                                    WHERE (b.RequiredQtyPO-Isnull(POMAP.TransactionQty,0))>0
+                                    ORDER BY b.MaterialMasterId,b.SalesOrderId";
                     return _sqlRepository.GetDataCollection(sql);
                 }
                 catch (Exception ex)

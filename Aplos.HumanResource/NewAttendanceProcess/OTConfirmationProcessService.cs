@@ -37,7 +37,23 @@ namespace Library.HumanResource.NewAttendanceProcess
                 throw e;
             }
         }
-      
+
+        public IEnumerable<object> GetWorkDateRange(string Year,string Month,string Week)
+        {
+            try
+            {
+                var str = @"select Format(min(workdate),'dd-MMM-yyyy')FromDate,
+                Format(max(workdate),'dd-MMM-yyyy')ToDate 
+                from AttdnProcessData where OTMonth='"+Month+"' and OTYear='"+Year+"' and otweek='"+Week+"'";
+                return _sqlRepository.GetDataCollection(str);
+
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         public object getFilters()
         {
             try
@@ -62,13 +78,14 @@ namespace Library.HumanResource.NewAttendanceProcess
             {
                 
 
-                var str = @"select a.EmpSystemID,e.EmployeeCode,a.DayStatus,format(a.WorkDate ,'dd-MMM-yyyy') as WorkDate,e.PlantId,p.UserName as Plant,
+                var str = @"select a.EmpSystemID,a.RowId,e.EmployeeCode,a.DayStatus,format(a.WorkDate ,'dd-MMM-yyyy') as WorkDate,e.PlantId,p.UserName as Plant,
                             a.InTime,a.OutTime,a.ProcessedOT,isnull((a.ProcessedOT*dt.OTMultiplingFactor),'0') as TargetOT,
                             isnull(PreallocatedOTHr*60,'0') as PlanOT,isnull(dt.DayLimit,'0')DayLimit,a.IsOTComfirm,
                             isnull(a.StandardOT,'0')StandardOT,isnull(a.AppliedOTLimit,'0')AppliedOTLimit,
                             isnull(a.AllowedOTLimit,'0')AllowedOTLimit,isnull(a.AdditionalOT,'0')AdditionalOT,dt.ApplicableWM,isnull(dt.MonthlyLimit,'0')MonthlyLimit,
                             --- Week Data
                             WeekLimit= case when a.OTWeek='1' then (select dt.Week1Limit)
+                            when a.OTWeek='2' then (select dt.Week2Limit)
                             when a.OTWeek='2' then (select dt.Week2Limit)
                             when a.OTWeek='3' then (select dt.Week3Limit)
                             when a.OTWeek='4' then (select dt.Week4Limit) end,
@@ -258,19 +275,28 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 // Min of Balance Limit of Week & DailyLimit
                                 decimal BalanceWeekLimit = WeekLimit - WeekStandardOTMaster;
                                 decimal SmallerValue = Math.Min(BalanceWeekLimit, DayLimit);
-                                if (SmallerValue >= 0)
+                                if (SmallerValue > 0)
                                 {
                                     dr["AllowedOTLimit"] = SmallerValue;
                                 }
+                                else
+                                {
+                                    dr["AllowedOTLimit"] = 0;
+                                }
+
                             }
                             else if (WkDateApplicableWM == "M")
                             {                                
                                 // Min of Balance Limit of Month & DailyLimit
                                 decimal BalanceMonthLimit = MonthlyLimit - MonthStandardOTMaster;
                                 decimal SmallerValue = Math.Min(BalanceMonthLimit, DayLimit);
-                                if (SmallerValue >= 0)
+                                if (SmallerValue > 0)
                                 {
                                     dr["AllowedOTLimit"] = SmallerValue;
+                                }
+                                else
+                                {
+                                    dr["AllowedOTLimit"] = 0;
                                 }
                             }
 
@@ -279,14 +305,14 @@ namespace Library.HumanResource.NewAttendanceProcess
                             #region AppliedOTLimit Calculation
 
                             if (PlanOT>0)
-                                {
-                                    dr["AppliedOTLimit"] = PlanOT;
-                                }
-                                else
-                                {
-                                    decimal Allowed = Convert.ToDecimal(Table.DefaultView[0][@"AllowedOTLimit"].ToString());
-                                    dr["AppliedOTLimit"] = Allowed;
-                                }
+                            {
+                                 dr["AppliedOTLimit"] = PlanOT;
+                            }
+                            else
+                            {
+                                 decimal Allowed = Convert.ToDecimal(Table.DefaultView[0][@"AllowedOTLimit"].ToString());
+                                 dr["AppliedOTLimit"] = Allowed;
+                            }
 
                             #endregion
 
@@ -330,13 +356,13 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 if (ProcessOT > 0)
                                 {
                                     ReducedMinutes = Convert.ToDecimal(ProcessOT - StdOT);
-                                }
-                                DateTime NewOutTime = Convert.ToDateTime(OutTime).AddMinutes(Convert.ToDouble(ReducedMinutes)*-1);
-                                string NewOut=NewOutTime.ToString("dd-MMM-yyyy hh:mm:ss tt");
 
-                                dr["OutTime"] = NewOut;
-                                dr["ManualOutTime"] = NewOut;
-                                
+                                    DateTime NewOutTime = Convert.ToDateTime(OutTime).AddMinutes(Convert.ToDouble(ReducedMinutes) * -1);
+                                    string NewOut = NewOutTime.ToString("dd-MMM-yyyy hh:mm:ss tt");
+
+                                    dr["OutTime"] = NewOut;
+                                    dr["ManualOutTime"] = NewOut;
+                                }
                             }
 
                             #endregion
@@ -366,10 +392,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                         string RowId = Table.Rows[i][@"RowId"].ToString();
                         decimal TargetOT = Convert.ToDecimal(Table.Rows[i][@"TargetOT"].ToString());
                         decimal StdOT = Convert.ToDecimal(Table.DefaultView[0][@"StandardOT"].ToString());
-                        decimal PlanOT = Convert.ToDecimal(Table.Rows[i][@"TargetOT"].ToString());
+                        decimal PlanOT = Convert.ToDecimal(Table.Rows[i][@"PlanOT"].ToString());
                         decimal AdditionalOT = Convert.ToDecimal(Table.Rows[i][@"AdditionalOT"].ToString());
                         decimal AppliedOTLimit = Convert.ToDecimal(Table.Rows[i][@"AppliedOTLimit"].ToString());
                         decimal AllowedOTLimit = Convert.ToDecimal(Table.Rows[i][@"AllowedOTLimit"].ToString());
+                        string NewOut = clsWebLib.RetValidLen(Table.Rows[i][@"OutTime"]).ToString();
 
                         dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId+ "' ";
                         if (dsRef.Tables[0].DefaultView.Count > 0)
@@ -384,6 +411,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                             dr["StandardOT"] = StdOT;
                             dr["AdditionalOt"] = AdditionalOT;
 
+                            dr["OutTime"] = NewOut;
+                            dr["ManualOutTime"] = NewOut;
+
                             dr["IsOTComfirm"] = true;
                             dr["OTComfirmBy"] = identity.Name;
                             dr["DateOTComfirm"]= Convert.ToDateTime(DateTime.Now);
@@ -394,6 +424,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                         }
 
                     }
+                    //clsStaticInfo info = new clsStaticInfo();
+                    //info.SaveDataSets(dsRef);
                 }
                    
                 #endregion
@@ -475,7 +507,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
-        // Report Services
+        #region Report Tab
         public IEnumerable<object> getReportData(string Week, string FromDate, string ToDate, string OTConfirmationValue, string OTLimit, string Process, string ProcessValue, string DayStatus
  , string DSApp, Dictionary<string, string> Parameters)
         {
@@ -639,5 +671,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 throw e;
             }
         }
+
+        #endregion
     }
 }
