@@ -256,6 +256,11 @@ function TermsAndConditionsController(cboService, commonMessage, $scope, $rootSc
         return true;
     };
 
+    $scope.ClearTitle = function () {
+        $scope.TitleModel = {};
+        
+    };
+
     function ClearFields(seq) {
         $scope.Action = 'Save';
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
@@ -355,11 +360,12 @@ function TermsAndConditionsController(cboService, commonMessage, $scope, $rootSc
 
     $scope.message_detailconfirmation = null;
     $scope.removeBoMDetail = function (obj) {
-
         $scope.TitleModel = obj.data;
         if (!baseService.isUndefinedOrNull($scope.TitleModel.Id))
             $scope.message_detailconfirmation = 'Are you sure want to delete permanently [ ' + $scope.TitleModel.Title + ' ]';
         angular.element(document.querySelector('#confirmBoMDetailPopUp')).modal('show');
+        /* $scope.TitleModel = {};*/
+ /*       $scope.ClearTitle();*/
     }
 
     $scope.DeleteBomDetail = function () {
@@ -381,5 +387,35 @@ function TermsAndConditionsController(cboService, commonMessage, $scope, $rootSc
 
     };
 
+    $window.onresize = function (event) {
+        $scope.actionComplete();
+    };
+
+    $scope.actionComplete = function (args) {
+        try {
+            if (args.requestType === "refresh") {
+                var gridObj = $("#Grid1").ejGrid("instance");
+                var scrollerwidth = $("#GridPopUp").width();//Obtain the width of the container
+                gridObj.option({ allowScrolling: true, scrollSettings: { width: scrollerwidth - 20, height: 300, width: 1080 } });//pass the obtainer width and height to gridmodel options
+                gridObj.windowonresize();
+
+                if (args.action == "rowReordering") {
+                    gridObj = $("#Grid1").data("ejGrid");
+                    // Gets current view data of grid control
+                    var data = gridObj.getCurrentViewData();
+                    var sorteddata = ej.DataManager(data).executeLocal(ej.Query().select(["Id"]));
+                    $http({
+                        method: 'POST',
+                        url: $scope.path + "UpdateMaterialSequence",
+                        data: { data: sorteddata }
+                    }).then(function successCallback(response) {
+
+                    });
+                }
+            }
+        } catch (e) {
+            // $scope.ShowResultCustom(e, 'failure');
+        }
+    };
 
 }

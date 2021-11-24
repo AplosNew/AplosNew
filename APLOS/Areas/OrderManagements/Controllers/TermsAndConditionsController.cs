@@ -384,7 +384,33 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
         }
 
+        [HttpPost, Authorize]
+        public ActionResult UpdateMaterialSequence(List<string> data)
+        {
+            try
+            {
+                if (data == null)
+                    throw new Exception("No data changed!!!");
 
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+
+                for (int i = 0; i < data.Count; i++)
+                {
+                    con.executeQuery("UPDATE [BOMDetail] SET Sequence=" + (i + 1) + " where id='" + data[i] + "'");
+                }
+
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = "Sequence updated successfully" }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
 
     }
 }
