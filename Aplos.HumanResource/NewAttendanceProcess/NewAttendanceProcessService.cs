@@ -4424,7 +4424,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     var sql = @"update AttdnProcessData set Duration=null,earlyin=null,latein=null,LateOut=null,
                     earlyout=null,OverStay=null,UnderStay=null,DurationStatus=null,EarlyLateIn=null,EarlyLateOut=null,
                     DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0,IsLock=0,ProcessFinalDayStatus=null,LockedBy=null,
-                    LockedDate=null 
+                    LockedDate=null,IsOTComfirm=0,OTComfirmBy=null,DateOTComfirm=null 
                     where PlantID='" + Plant+@"'
                     and ManualFlag=1 and RowId IN(" + empMaster + @")";
                   
@@ -4441,7 +4441,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     var sql = @"update AttdnProcessData set Duration=null,earlyin=null,latein=null,LateOut=null,
                     earlyout=null,OverStay=null,UnderStay=null,DurationStatus=null,EarlyLateIn=null,EarlyLateOut=null,
                     DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0,IsLock=0,ProcessFinalDayStatus=null,LockedBy=null,
-                    LockedDate=null 
+                    LockedDate=null
                     where PlantID='" + Plant + @"'
                     and ManualFlag=1";
 
@@ -4486,23 +4486,47 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
-        public void ManualZeroProcessedOTEmployees(string Plant)
+        public void ManualZeroProcessedOTEmployees(string Plant, string empMaster)
         {
             try
             {
-                var sql = @"UPDATE AttdnProcessData SET IsOTComfirm=1,OTComfirmBy='AutoConfirmation',
-                DateOTComfirm=GETDATE()
-                where ProcessedOT=0 AND OverStay IS NULL
-                and ManualFlag=1 and IsOTComfirm=0 AND IsOTEntitled=1
-                and PlantID='"+Plant+"'";
 
-                ConnectionManager.DAL.ConManager objCone = null;
-                objCone = new ConnectionManager.DAL.ConManager("1");
-                objCone.OpenConnection("1");
-                objCone.BeginTransaction();
+                string empMaster1 = (clsWebLib.RetValidLen(empMaster).ToString());
+                if (empMaster1 != "")
+                {
 
-                objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                objCone.CommitTransaction();
+                    var sql = @"UPDATE AttdnProcessData SET IsOTComfirm=1,OTComfirmBy='AutoConfirmation',
+                    DateOTComfirm=GETDATE()
+                    where ProcessedOT=0 AND OverStay IS NULL
+                    and ManualFlag=1 and IsOTComfirm=0 AND IsOTEntitled=1
+                    and PlantID='" + Plant + "' and RowId IN(" + empMaster + @")";
+
+                    ConnectionManager.DAL.ConManager objCone = null;
+                    objCone = new ConnectionManager.DAL.ConManager("1");
+                    objCone.OpenConnection("1");
+                    objCone.BeginTransaction();
+
+                    objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                    objCone.CommitTransaction();
+
+                }
+                else
+                {
+
+                    var sql = @"UPDATE AttdnProcessData SET IsOTComfirm=1,OTComfirmBy='AutoConfirmation',
+                        DateOTComfirm=GETDATE()
+                        where ProcessedOT=0 AND OverStay IS NULL
+                        and ManualFlag=1 and IsOTComfirm=0 AND IsOTEntitled=1
+                        and PlantID='" + Plant + "'";
+
+                    ConnectionManager.DAL.ConManager objCone = null;
+                    objCone = new ConnectionManager.DAL.ConManager("1");
+                    objCone.OpenConnection("1");
+                    objCone.BeginTransaction();
+
+                    objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                    objCone.CommitTransaction();
+                }
             }
             catch (Exception ex)
             {
@@ -5458,7 +5482,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 #region OT Entitled Employees whose ProcessedOT is 0
 
                 // Confirming the OT of Employees Whose Processed OT is 0
-                ManualZeroProcessedOTEmployees(PlantValue);
+                ManualZeroProcessedOTEmployees(PlantValue, empList);
 
                 #endregion
 
