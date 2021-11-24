@@ -2084,9 +2084,9 @@ namespace Library.MaterialManagement.Inventory
                         --,Round((IRD.MaterialTranRate * IR.ToCurrencyRate),4) 
 						 ,Round(ISNULL(IRD.BooksCurrencyBaseRate,0),4) BaseCurrencyRate
 						, IRD.TransactionQty, IRD.BaseQty
-						,ISNULL(IRD.BaseQty,0) - ISNULL(IRD.BaseIssueQty, 0) StockQty
-						, ISNULL(IRD.IssueQty,0) IssueQty, ISNULL(IRD.BaseIssueQty,0) BaseIssueQty, ISNULL(IRD.PurchaseReturnQty,0) PurchaseReturnQty,ISNULL(IRD.IssueReturnQty,0) IssueReturnQty,ISNULL(IRD.ReductionByAdjustmentQty,0) ReductionByAdjustmentQty,ISNULL(IRD.InventorySalesQty,0) InventorySalesQty,ISNULL(IRD.InventoryScrapQty,0) InventoryScrapQty,ISNULL(IRD.InventoryTransferQty,0) InventoryTransferQty
-						 ,((((((ISNULL(IRD.BaseQty,0) - ISNULL(IRD.BaseIssueQty, 0)-ISNULL(IRD.PurchaseReturnQty,0))+ISNULL(IRD.IssueReturnQty,0))-ISNULL(IRD.ReductionByAdjustmentQty,0))-ISNULL(IRD.InventorySalesQty,0))-ISNULL(IRD.InventoryScrapQty,0))-ISNULL(IRD.InventoryTransferQty,0)) AS BalanceStock
+						,ISNULL(IRD.BaseQty,0) - ISNULL(II.IssueQty, 0) StockQty
+						, ISNULL(IRD.IssueQty,0) IssueQty, ISNULL(II.IssueQty,0) BaseIssueQty, ISNULL(IRD.PurchaseReturnQty,0) PurchaseReturnQty,ISNULL(IRD.IssueReturnQty,0) IssueReturnQty,ISNULL(IRD.ReductionByAdjustmentQty,0) ReductionByAdjustmentQty,ISNULL(IRD.InventorySalesQty,0) InventorySalesQty,ISNULL(IRD.InventoryScrapQty,0) InventoryScrapQty,ISNULL(IRD.InventoryTransferQty,0) InventoryTransferQty
+						 ,((((((ISNULL(IRD.BaseQty,0) - ISNULL(II.IssueQty, 0)-ISNULL(IRD.PurchaseReturnQty,0))+ISNULL(IRD.IssueReturnQty,0))-ISNULL(IRD.ReductionByAdjustmentQty,0))-ISNULL(IRD.InventorySalesQty,0))-ISNULL(IRD.InventoryScrapQty,0))-ISNULL(IRD.InventoryTransferQty,0)) AS BalanceStock
                         ,ISNULL(IRD.TotalMaterialTranAmount,0) TotalMaterialTranAmount
 						 ,ISNULL(IRD.TotalMaterialBooksCurrencyAmount,0) TotalMaterialBooksCurrencyAmount
 						 ,Round(ISNULL(IRD.BooksCurrencyBaseRate,0),4) BooksCurrencyBaseRate
@@ -2104,7 +2104,7 @@ namespace Library.MaterialManagement.Inventory
 						,IM.FirstCharacteristicsId
 						,IM.SecondCharacteristicsId
 						,IM.ThirdCharacteristicsId,IssueByUoM=CASE WHEN MM.IssueByUoM=0 THEN 'No' ELSE 'Yes' END
-                        ,TrasactopmUomQty=(((ISNULL(IRD.BaseQty,0) - ISNULL(IRD.BaseIssueQty, 0))*BaseUoMFactor)/BaseUoMFactor) 
+                        ,TrasactopmUomQty=(((ISNULL(IRD.BaseQty,0) - ISNULL(II.IssueQty, 0))*BaseUoMFactor)/BaseUoMFactor) 
 						--,0 TrasactopmUomQty
 						,'' IssueTransactionUoMId
 						,'' IssueTransactionUoM
@@ -2117,13 +2117,22 @@ namespace Library.MaterialManagement.Inventory
                     left JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
                     left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
                     left JOIN [SCS].[UnitOfMeasurement] AS BUoM ON IRD.BaseUOMId=BUoM.Id
+					LEFT JOIN (
+									    select IID.InventoryMaterialId,IH.InventoryReceiveDetailId, II.MaterialStorageId
+                                        , Sum(ISNULL(IH.Qty,0)) IssueQty , Sum(ISNULL(IH.TotalAmount,0)) IssueAmount,IID.IsAsset
+									    FROM TRN.InventoryIssueDetail IID  
+									    LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId=II.Id	 
+									    LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryIssueDetailId=IID.Id
+									    WHERE convert(Date,II.IssueDate) <= CAST('" + issueDate + @"' AS DATE)  AND II.PlantId='" + entity.PlantId + @"'   
+									    GROUP BY IID.InventoryMaterialId,IID.IsAsset,IH.InventoryReceiveDetailId, II.MaterialStorageId
+									    ) II ON II.InventoryReceiveDetailId=IRD.Id and II.MaterialStorageId=IRD.MaterialStorageId 
                     left JOIN SCS.Country C On C.Id=IM.CountryId
                     WHERE IM.CompanyGroupId='" + entity.CompanyGroupId + "' AND IM.CompanyId='" + entity.CompanyId + "' AND IM.PlantId='" + entity.PlantId + @"'
                     AND IM.MaterialMasterId='" + entity.MaterialMasterId + @"' AND IR.[Status]='Posting' 
                     AND ISNULL(IM.ArticleId,'')='" + entity.ArticleId + "' AND ISNULL(IM.FirstCharacteristicsValueId,'')='" + entity.FirstCharacteristicsValueId + "' AND  ISNULL(IM.SecondCharacteristicsValueId,'')='" + entity.SecondCharacteristicsValueId + @"'
                     AND ISNULL(IM.ThirdCharacteristicsValueId,'')='" + entity.ThirdCharacteristicsValueId + "' AND ISNULL(IM.CountryId,'')='" + entity.CountryId + "' AND IRD.MaterialStorageId='" + entity.MaterialStorageId + @"' 
                     --AND ISNULL(IRD.IssueQty, 1)>0 
-					AND IRD.BaseQty !=IRD.BaseIssueQty
+					AND IRD.BaseQty !=II.IssueQty
                     AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE) 
 					Union ALL
 					SELECT IRD.InventoryReceiveId, IRD.POId, IRD.PODetailsId, IRD.Id AS InventoryReceiveDetailId, IRD.InventoryMaterialId, P.Code AS PartyCode, P.UserName AS PartyName

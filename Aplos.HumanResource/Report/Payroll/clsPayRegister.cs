@@ -2,6 +2,7 @@
 using Library.Core;
 using Library.Data;
 using Library.Data.Sql;
+using Library.HumanResource.Leave;
 using Library.Model.Enums;
 using Library.Model.HumanResources;
 using Library.Model.Setups;
@@ -11182,6 +11183,9 @@ where h.HeadCategory='GROSS'
 
 
 
+                    clsLeaveBalance _balance = new clsLeaveBalance();
+                    Dictionary<string, Dictionary<string, DataRow>> LeaveData = _balance.GetLeaveBalanceOnlyEarned(Convert.ToInt32(month), Convert.ToInt32(year), parameters["EmpSystemId"]);
+
 
 
 
@@ -11414,7 +11418,7 @@ where h.HeadCategory='GROSS'
                             sheet1.Range[xlsRow + 2, xlsCol].Text = (1 + SrNo).ToString();
                             sheet1.Range[xlsRow, xlsCol, xlsRow + 2, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                           
+
 
 
                             #region General Info     
@@ -11443,18 +11447,37 @@ where h.HeadCategory='GROSS'
                                     k++;
                                 }
                                 k++;
-                                foreach (var item in drLeaveEmp)
+                                //foreach (var item in drLeaveEmp)
+                                //{
+
+                                //    if (string.IsNullOrEmpty(item["BalanceId"].ToString()) == true)
+                                //        continue;
+
+                                //    sheet1[1, xlsCol].ColumnWidth = 16;
+                                //    sheet1[1, xlsCol + 1].ColumnWidth = 6;
+
+                                //    sheet1.Range[xlsRow + k, xlsCol].Text = ru.GetLabelname(labelList, item["Code"].ToString(), "B" + item["Code"].ToString()); //"Casual Leave";
+                                //    sheet1.Range[xlsRow + k, xlsCol + 1].Number = clsStaticInfo.dbl(item["BalanceLeave"].ToString());
+                                //    k++;
+                                //}
+                                if (LeaveData != null)
                                 {
+                                    if (LeaveData.ContainsKey(dtEmpInfo.Rows[i]["EmpSystemId"].ToString()) == true)
+                                    {
 
-                                    if (string.IsNullOrEmpty(item["BalanceId"].ToString()) == true)
-                                        continue;
+                                        Dictionary<string, DataRow> _dicLeave = LeaveData[dtEmpInfo.Rows[i]["EmpSystemId"].ToString()];
+                                        foreach (KeyValuePair<string, DataRow> LeaveItem in _dicLeave)
+                                        {
+                                            sheet1[1, xlsCol].ColumnWidth = 16;
+                                            sheet1[1, xlsCol + 1].ColumnWidth = 6;
 
-                                    sheet1[1, xlsCol].ColumnWidth = 16;
-                                    sheet1[1, xlsCol + 1].ColumnWidth = 6;
+                                            sheet1.Range[xlsRow + k, xlsCol].Text = ru.GetLabelname(labelList, LeaveItem.Value["LeaveCode"].ToString(), "B" + LeaveItem.Value["LeaveCode"].ToString()); //"Casual Leave";
+                                            sheet1.Range[xlsRow + k, xlsCol + 1].Number = clsStaticInfo.dbl(clsStaticInfo.dbl(LeaveItem.Value["ClosingBalance"].ToString()).ToString("F2"));
 
-                                    sheet1.Range[xlsRow + k, xlsCol].Text = ru.GetLabelname(labelList, item["Code"].ToString(), "B" + item["Code"].ToString()); //"Casual Leave";
-                                    sheet1.Range[xlsRow + k, xlsCol + 1].Number = clsStaticInfo.dbl(item["BalanceLeave"].ToString());
-                                    k++;
+                                            k++;
+                                        }
+
+                                    }
                                 }
                             }
 
@@ -11549,7 +11572,7 @@ where h.HeadCategory='GROSS'
                                 _maxRow = _x;
                             #endregion
 
-                           
+
 
                             xlsCol = 6;
 

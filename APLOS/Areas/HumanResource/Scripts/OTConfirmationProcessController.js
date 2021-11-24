@@ -1,6 +1,6 @@
 ﻿'use strict';
-OTConfirmationProcessController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function OTConfirmationProcessController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+OTConfirmationProcessController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', 'cboService', '$http', '$filter'];
+function OTConfirmationProcessController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, cboService, $http, $filter) {
     $rootScope.title = 'OT Confirmation Process';
     $scope.path = "humanresource/OTConfirmationProcess/";
 
@@ -15,7 +15,82 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
         return $scope.tab === tabNum;
     };
 
+    $scope.dateShow = function () {
+        if ($scope.month.length > 0 && $scope.year.length > 0 && angular.isUndefinedOrNull($scope.Week) == false) {
+            $http({
+                method: 'GET',
+                url: $scope.path + 'GetWorkDateRange',
+                params: { 'Week': $scope.Week, 'Month': $scope.month, 'Year': $scope.year },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.FromDate = response.data[0].FromDate;
+                $scope.ToDate = response.data[0].ToDate;
+            });
+        }
+    }
 
+    //
+    $scope.year = '';
+    $scope.month = '';
+    $scope.monthList = [
+        {
+            Value: 1,
+            Text: 'January'
+        },
+        {
+            Value: 2,
+            Text: 'February'
+        },
+        {
+            Value: 3,
+            Text: 'March'
+        },
+        {
+            Value: 4,
+            Text: 'April'
+        },
+        {
+            Value: 5,
+            Text: 'May'
+        },
+        {
+            Value: 6,
+            Text: 'June'
+        },
+        {
+            Value: 7,
+            Text: 'July'
+        },
+        {
+            Value: 8,
+            Text: 'August'
+        },
+        {
+            Value: 9,
+            Text: 'September'
+        },
+        {
+            Value: 10,
+            Text: 'October'
+        },
+        {
+            Value: 11,
+            Text: 'November'
+        },
+        {
+            Value: 12,
+            Text: 'December'
+        }
+    ];
+
+    $scope.yearList = [];
+    cboService.getCboLeaveYear(function (result) {
+        $scope.yearList = result;
+    });
+
+    //$scope.year = new Date().getFullYear().toString();
+    //$scope.month = new Date().getMonth().toString();
+    //
 
     var but = document.getElementById('ChkBtn')
     but.style.display = "none";
@@ -181,7 +256,7 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
         var ProcArr = [];
         for (var i = 0; i < $scope.Data.length; i++) {
             ProcArr.push({
-                'EmpSystemID': $scope.Data[i].EmpSystemID, 'WorkDate': $scope.Data[i].WorkDate, 'PlanOT': $scope.Data[i].PlanOT,
+                'EmpSystemID': $scope.Data[i].EmpSystemID, 'WorkDate': $scope.Data[i].WorkDate, 'PlanOT': $scope.Data[i].PlanOT, 'ProcessedOT': $scope.Data[i].ProcessedOT,
                 'DayLimit': $scope.Data[i].DayLimit, 'StandardOT': $scope.Data[i].StandardOT, 'AppliedOTLimit': $scope.Data[i].AppliedOTLimit,
                 'AllowedOTLimit': $scope.Data[i].AllowedOTLimit, 'AdditionalOT': $scope.Data[i].AdditionalOT, 'WeekLimit': $scope.Data[i].WeekLimit,
                 'TargetOT': $scope.Data[i].TargetOT, 'ApplicableWM': $scope.Data[i].ApplicableWM, 'IsOTComfirm': $scope.Data[i].IsOTComfirm,
