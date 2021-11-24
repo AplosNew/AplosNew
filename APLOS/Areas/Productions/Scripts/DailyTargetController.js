@@ -860,4 +860,29 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
             ShowResult(e, "failure");
         }
     };
+    $scope.downloadgriddataUrl = 'GridReports/Download';
+    $scope.DownloadReport = function (data) {
+        try {
+            $http({
+                method: 'POST',
+                url: 'Productions/MachineLayoutReport/Report',
+                data: {
+                    'EntityId': $scope.DailyProductionTargetNew.EntityId,
+                    'ProcessId': $scope.DailyProductionTargetNew.ProcessId,
+                    'ProductionDate': $scope.DailyProductionTargetNew.ProductionDate,
+                    'WorkCenterMasterId': data.WorkCenterMasterId,
+                    'Data': data
+                }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                }
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
 }

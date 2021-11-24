@@ -98,39 +98,39 @@ function GatePassController(accountService, addressService, $location, $window, 
 	};
 	// #endregion Requisition Tabs
 
-	$scope.showPartyPopUp = function () {
-		//debugger;
-		baseService.setCurrentPage('partyList');
-		$scope.getPartyList = function (pageno) {
+	//$scope.showPartyPopUp = function () {
+	//	//debugger;
+	//	baseService.setCurrentPage('partyList');
+	//	$scope.getPartyList = function (pageno) {
 
-			if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor') {
-				$scope.partyUrl = 'Parties/party/GetCompanyPartyDataList?partyType=' + $scope.partyType;
-			}
-			else if ($scope.partyType === 'Party') {
-				$scope.partyUrl = 'Parties/party/GetCompanyPartyDataList';
-			}
-			else if ($scope.partyType === 'Director') {
-				$scope.partyUrl = 'Parties/party/GetCompanyDirectorDataList';
-			}
-			else if ($scope.partyType === 'Other') {
-				$scope.partyUrl = 'Parties/party/GetCompanyOtherDataList';
-			}
-			baseService.paginationBase($scope.partyUrl, pageno, $scope.partyParameters)
-				.then(function (result) {
-					$scope.partyList = result.Rows;
-					$scope.partyParameters.total_count = result.Total;
-				}, function () {
-					ShowResult(commonMessage.NetworkError, 'failure');
-				}).finally(function () {
-				});
-		};
-		angular.element(document.querySelector('#partyPopUp')).modal('show');
-		$scope.getPartyList();
-	};
-	$scope.closePartyPopUp = function () {
+	//		if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor') {
+	//			$scope.partyUrl = 'Parties/party/GetCompanyPartyDataList?partyType=' + $scope.partyType;
+	//		}
+	//		else if ($scope.partyType === 'Party') {
+	//			$scope.partyUrl = 'Parties/party/GetCompanyPartyDataList';
+	//		}
+	//		else if ($scope.partyType === 'Director') {
+	//			$scope.partyUrl = 'Parties/party/GetCompanyDirectorDataList';
+	//		}
+	//		else if ($scope.partyType === 'Other') {
+	//			$scope.partyUrl = 'Parties/party/GetCompanyOtherDataList';
+	//		}
+	//		baseService.paginationBase($scope.partyUrl, pageno, $scope.partyParameters)
+	//			.then(function (result) {
+	//				$scope.partyList = result.Rows;
+	//				$scope.partyParameters.total_count = result.Total;
+	//			}, function () {
+	//				ShowResult(commonMessage.NetworkError, 'failure');
+	//			}).finally(function () {
+	//			});
+	//	};
+	//	angular.element(document.querySelector('#partyPopUp')).modal('show');
+	//	$scope.getPartyList();
+	//};
+	$scope.closePartyPopUp = function (x) {
 		//debugger;
-		if ($scope.partyIndex !== -1) {
-			var party = $scope.partyList[$scope.partyIndex];
+		
+			var party = x.data;
 			$scope.productNew.ToPartyCode = party.Code;
 			$scope.productNew.PartyName = party.UserName;
 			$scope.productNew.PartyId = party.Id;
@@ -153,7 +153,6 @@ function GatePassController(accountService, addressService, $location, $window, 
 				$scope.changePaymentTerm();
 			getPartyPlantList();
 			$scope.hidePartyPopUp();
-		}
 	};
 	$scope.changeSourceFrom = function (from) {
 		//debugger;
