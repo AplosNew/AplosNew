@@ -33,6 +33,7 @@ using Library.Service.Payrolls.OT;
 using Library.HumanResource.Report.Payroll;
 using System.Threading;
 using Library.Crosscutting.Security;
+using Library.HumanResource.Leave;
 
 #endregion Using
 
@@ -10313,8 +10314,8 @@ namespace Library.HumanResource.Payroll
 
 
 
-
-
+                    clsLeaveBalance _balance = new clsLeaveBalance();
+                    Dictionary<string, Dictionary<string, DataRow>> LeaveData = _balance.GetLeaveBalanceOnlyEarned(Convert.ToInt32(month), Convert.ToInt32(year), parameters["EmpSystemId"]);
 
 
 
@@ -10609,18 +10610,25 @@ namespace Library.HumanResource.Payroll
                                     k++;
                                 }
                                 k++;
-                                foreach (var item in drLeaveEmp)
+
+                                if (LeaveData != null)
                                 {
+                                    if (LeaveData.ContainsKey(dtEmpInfo.Rows[i]["EmpSystemId"].ToString()) == true)
+                                    {
 
-                                    if (string.IsNullOrEmpty(item["BalanceId"].ToString()) == true)
-                                        continue;
+                                        Dictionary<string, DataRow> _dicLeave = LeaveData[dtEmpInfo.Rows[i]["EmpSystemId"].ToString()];
+                                        foreach (KeyValuePair<string, DataRow> LeaveItem in _dicLeave)
+                                        {
+                                            sheet1[1, xlsCol].ColumnWidth = 16;
+                                            sheet1[1, xlsCol + 1].ColumnWidth = 6;
 
-                                    sheet1[1, xlsCol].ColumnWidth = 16;
-                                    sheet1[1, xlsCol + 1].ColumnWidth = 6;
+                                            sheet1.Range[xlsRow + k, xlsCol].Text = ru.GetLabelname(labelList, LeaveItem.Value["LeaveCode"].ToString(), "B" + LeaveItem.Value["LeaveCode"].ToString()); //"Casual Leave";
+                                            sheet1.Range[xlsRow + k, xlsCol + 1].Number = clsStaticInfo.dbl(clsStaticInfo.dbl(LeaveItem.Value["ClosingBalance"].ToString()).ToString("F2"));
 
-                                    sheet1.Range[xlsRow + k, xlsCol].Text = ru.GetLabelname(labelList, item["Code"].ToString(), "B" + item["Code"].ToString()); //"Casual Leave";
-                                    sheet1.Range[xlsRow + k, xlsCol + 1].Number = clsStaticInfo.dbl(item["BalanceLeave"].ToString());
-                                    k++;
+                                            k++;
+                                        }
+
+                                    }
                                 }
                             }
                             //sheet1.Range[xlsRow + 2, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.CasualLeave.ToString(), "CL"); //"Casual Leave";
@@ -18702,7 +18710,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
         private void GetLeaveBalances(string EmployeeId, string FromDate, string ToDate, out DataTable dtLeaveBalance)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"Select L.LeaveTypeId,ISNULL(l.BroughtForward,0)+ ISNULL(L.CarryForwardOpeningBalance,0) AS LeaveCount,'OB' AS TransactionType
+            string sql = @"Select L.LeaveTypeId, ISNULL(l.CurrentYearAllocation,0)+ISNULL(l.BroughtForward,0)+ ISNULL(L.CarryForwardOpeningBalance,0) AS LeaveCount,'OB' AS TransactionType
                                   from 
                                 YearlyCalendar AS C
                                 JOIN trn.EmployeeLeaveSummary L ON l.CalanderYearId=c.Id

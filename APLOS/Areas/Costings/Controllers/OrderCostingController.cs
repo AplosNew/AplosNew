@@ -665,13 +665,25 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
                             TableName = "OrderProcurementCostingValueLoss";
                     }
 
+                    ConnectionManager.DAL.ConManager objCon;
+
+                    DataSet dsConsumption;
                     if (Segment == CostingSegment.DirectMaterial.ToString())
+                    {
                         Consumption = "Select * from " + TableName + @"Consumption where CostingItemId in (" + CostingItemIds + ") AND OrderCostingMasterTemplateId='" + OrderCostingMasterTemplateId + "'";
+
+                    }
+                    else
+                    {
+                        Consumption = "Select * from OrderProcurementCostingDirectMaterialConsumption where 1=2";
+                    }
+                    objCon = new ConnectionManager.DAL.ConManager("1");
+                    objCon.OpenDataSetThroughAdapter(Consumption, out dsConsumption, false, "1");
 
 
                     DataSet dsMaster;
 
-                    ConnectionManager.DAL.ConManager objCon;
+                    
 
                     var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                     string _id = string.Empty;
@@ -683,6 +695,12 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
                     objCon = new ConnectionManager.DAL.ConManager("1");
                     objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
 
+                    double MaxSequence = 0;
+                    for (int i = 0; i < dsMaster.Tables[0].Rows.Count; i++)
+                    {
+                        if (MaxSequence < clsStaticInfo.dbl(dsMaster.Tables[0].Rows[i]["Sequence"].ToString()))
+                            MaxSequence = clsStaticInfo.dbl(dsMaster.Tables[0].Rows[i]["Sequence"].ToString());
+                    }
 
                     DataTable dtMainItems = _sqlRepository.GetDataTable(@"SELECT * FROM hkp.CostingItem AS ci WHERE ci.Id IN  (" + CostingItemIds + ") ");
 
@@ -698,8 +716,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
                                                FROM OrderCostingMasterTemplate AS cmt WHERE cmt.Id='" + OrderCostingMasterTemplateId + @"')
                                                AND m.CostingItemId IN (" + CostingItemIds + ") ORDER BY m.CostingItemId, co.ComponentName,CO.AreaType";
 
-                    objCon = new ConnectionManager.DAL.ConManager("1");
-                    objCon.OpenDataSetThroughAdapter(Consumption, out DataSet dsConsumption, false, "1");
+
 
                     DataTable dtConsumptionReference = _sqlRepository.GetDataTable(ConsumptionReference);
 
@@ -733,12 +750,14 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
                             _id = "" + GetPK("OrderCosting");
                         }
 
+                        MaxSequence++;
+
                         DataRow dr = dsMaster.Tables[0].NewRow();
 
                         dr["Id"] = _id + Index;
                         dr["CostingItemId"] = item["CostingItemId"];
                         dr["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
-
+                        dr["Sequence"] = MaxSequence;
 
 
                         dr["AddedBy"] = identity.Name;
@@ -2475,6 +2494,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
                             DataRow dr = dsMaster.Tables[0].NewRow();
                             dr["Id"] = _id;
                             dr["CostingItemId"] = item.CostingItemId;
+                            dr["Sequence"] = item.Sequence;
                             dr["Consumption"] = item.Consumption;
                             dr["UOM"] = item.UOM;
                             dr["Rate"] = item.Rate;
@@ -2523,6 +2543,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
 
 
                             dr["CostingItemId"] = item.CostingItemId;
+                            dr["Sequence"] = item.Sequence;
                             dr["Consumption"] = item.Consumption;
                             dr["UOM"] = item.UOM;
                             dr["Rate"] = item.Rate;
@@ -2592,7 +2613,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
         [HttpGet, Authorize]
         public ActionResult GetDirectCostingMaterialWithItemByComponentId(string costingComponentId, string OrderCostingMasterTemplateId)
         {
-            string sqlPre = @"select ci.CostingComponentId,m.Consumption,m.VendorId,p.UserName AS Vendor,CI.Id AS CostingItemId,m.OrderCostingMasterTemplateId,m.GrossAmount,m.GrossConsumption,m.Id,m.Rate,m.ResponsiblePersoinId,m.UOM
+            string sqlPre = @"select ci.CostingComponentId,m.Sequence,m.Consumption,m.VendorId,p.UserName AS Vendor,CI.Id AS CostingItemId,m.OrderCostingMasterTemplateId,m.GrossAmount,m.GrossConsumption,m.Id,m.Rate,m.ResponsiblePersoinId,m.UOM
                         ,isnull(m.ValueLoss,ci.Wastage) AS ValueLoss,M.Remarks,M.ProcurementLevel,M.BOQDays,M.DependentDate,M.BOQCriteria
                         ,m.SourcingType, ISNULL(m.IsUDApplicable,0) AS IsUDApplicable, m.Usage, ISNULL(m.IsGeneric,0) AS IsGeneric,ISNULL(m.IsMandatory,0) AS  IsMandatory
 						,m.MaterialMasterId, m.ArticleId, mm.UserName as MaterialMasterName, mma.StandardName as ArticleName
@@ -2608,9 +2629,9 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
 						left join mst.MaterialMaster mm on mm.Id = m.MaterialMasterId 
 						left join [MST].[MaterialMasterArticle] mma on mma.Id = m.ArticleId 
 						LEFT JOIN hkp.Party AS p ON p.Id=m.VendorId
-						WHERE ci.CostingComponentId='" + costingComponentId + @"'  Order By CI.Sequence";
+						WHERE ci.CostingComponentId='" + costingComponentId + @"'  Order By m.Sequence";
 
-            string sqlProcurement = @"select ci.CostingComponentId,m.Consumption,m.VendorId,p.UserName AS Vendor,CI.Id AS CostingItemId,m.OrderCostingMasterTemplateId,m.GrossAmount,m.GrossConsumption,m.Id,m.Rate,m.ResponsiblePersoinId,m.UOM
+            string sqlProcurement = @"select ci.CostingComponentId,m.Sequence,m.Consumption,m.VendorId,p.UserName AS Vendor,CI.Id AS CostingItemId,m.OrderCostingMasterTemplateId,m.GrossAmount,m.GrossConsumption,m.Id,m.Rate,m.ResponsiblePersoinId,m.UOM
                         ,isnull(m.ValueLoss,ci.Wastage) AS ValueLoss,M.Remarks,M.ProcurementLevel,M.BOQDays,M.DependentDate,M.BOQCriteria
                         ,m.SourcingType, ISNULL(m.IsUDApplicable,0) AS IsUDApplicable, m.Usage, ISNULL(m.IsGeneric,0) AS IsGeneric,ISNULL(m.IsMandatory,0) AS  IsMandatory
 						,m.MaterialMasterId, m.ArticleId, mm.UserName as MaterialMasterName, mma.StandardName as ArticleName
@@ -2626,7 +2647,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
 						left join mst.MaterialMaster mm on mm.Id = m.MaterialMasterId 
 						left join [MST].[MaterialMasterArticle] mma on mma.Id = m.ArticleId 
 						LEFT JOIN hkp.Party AS p ON p.Id=m.VendorId
-						WHERE ci.CostingComponentId='" + costingComponentId + @"'  Order By CI.Sequence";
+						WHERE ci.CostingComponentId='" + costingComponentId + @"'  Order By m.Sequence";
 
             return Json(new { Pre = _sqlRepository.GetDataCollection(sqlPre, null), Procurement = _sqlRepository.GetDataCollection(sqlProcurement, null) }, JsonRequestBehavior.AllowGet);
         }
@@ -2675,21 +2696,21 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
         [HttpGet, Authorize]
         public ActionResult GetOperationWithItemByComponentId(string costingComponentId, string OrderCostingMasterTemplateId)
         {
-            string sqlPre = @"select ci.CostingComponentId,o.Id,CI.Id AS CostingItemId, o.[Value], o.[Description],e.EmployeeName as ResponsiblePersoin, e.SystemId as ResponsiblePersoinId,  ci.UserName, o.Description
+            string sqlPre = @"select ci.CostingComponentId,o.Sequence,o.Id,CI.Id AS CostingItemId, o.[Value], o.[Description],e.EmployeeName as ResponsiblePersoin, e.SystemId as ResponsiblePersoinId,  ci.UserName, o.Description
                         ,O.FileName,O.FileOriginalName                           
                         from hkp.CostingItem ci
 						 join [dbo].[OrderPreCostingOperation] o on o.CostingItemId = ci.Id  and o.OrderCostingMasterTemplateId = '" + OrderCostingMasterTemplateId + @"' 
                         left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
 						left join EmployeeInformation e on e.SystemId = o.ResponsiblePersoinId
-                        where ci.CostingComponentId = '" + costingComponentId + "'  Order By CI.Sequence";
+                        where ci.CostingComponentId = '" + costingComponentId + "'  Order By o.Sequence";
 
-            string sqlProcurement = @"select ci.CostingComponentId,o.Id,CI.Id AS CostingItemId, o.[Value], o.[Description],e.EmployeeName as ResponsiblePersoin, e.SystemId as ResponsiblePersoinId,  ci.UserName, o.Description
+            string sqlProcurement = @"select ci.CostingComponentId,o.Sequence,o.Id,CI.Id AS CostingItemId, o.[Value], o.[Description],e.EmployeeName as ResponsiblePersoin, e.SystemId as ResponsiblePersoinId,  ci.UserName, o.Description
                           ,O.FileName,O.FileOriginalName      
                         from hkp.CostingItem ci
 						 join [dbo].[OrderProcurementCostingOperation] o on o.CostingItemId = ci.Id  and o.OrderCostingMasterTemplateId = '" + OrderCostingMasterTemplateId + @"' 
                         left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
 						left join EmployeeInformation e on e.SystemId = o.ResponsiblePersoinId
-                        where ci.CostingComponentId = '" + costingComponentId + "'  Order By CI.Sequence";
+                        where ci.CostingComponentId = '" + costingComponentId + "'  Order By o.Sequence";
 
             return Json(new { Pre = _sqlRepository.GetDataCollection(sqlPre, null), Procurement = _sqlRepository.GetDataCollection(sqlProcurement, null) }, JsonRequestBehavior.AllowGet);
         }
@@ -2730,6 +2751,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
 
                             dr["Id"] = _id;
                             dr["CostingItemId"] = item.CostingItemId;
+                            dr["Sequence"] = item.Sequence;
                             dr["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
                             dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
 
@@ -2751,6 +2773,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
                             dr.BeginEdit();
 
                             dr["CostingItemId"] = item.CostingItemId;
+                            dr["Sequence"] = item.Sequence;
                             dr["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
                             dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
                             dr["Value"] = item.Value;
@@ -2841,23 +2864,23 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
         [HttpGet, Authorize]
         public ActionResult GetDirectProcessWithItemByComponentId(string costingComponentId, string OrderCostingMasterTemplateId)
         {
-            string sqlPre = @"select ci.CostingComponentId,ci.UserName,p.Id,CI.Id AS CostingItemId, p.OrderCostingMasterTemplateId, p.ExecutionType,
+            string sqlPre = @"select ci.CostingComponentId,p.Sequence,ci.UserName,p.Id,CI.Id AS CostingItemId, p.OrderCostingMasterTemplateId, p.ExecutionType,
        p.[Value], p.Rate, p.Amount, p.[Description],e.SystemId as ResponsiblePersoinId, e.EmployeeName as ResponsiblePersoin
                      ,P.FileName,P.FileOriginalName   
                         from hkp.CostingItem ci
                         join [dbo].[OrderPreCostingDirectProcess] p on CostingItemId = ci.Id and p.OrderCostingMasterTemplateId = '" + OrderCostingMasterTemplateId + @"' 
                         left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
 						left join EmployeeInformation e on e.SystemId = p.ResponsiblePersoinId
-                        where ci.CostingComponentId = '" + costingComponentId + "'  Order By CI.Sequence";
+                        where ci.CostingComponentId = '" + costingComponentId + "'  Order By p.Sequence";
 
-            string sqlProcurement = @"select ci.CostingComponentId,ci.UserName,p.Id,CI.Id AS CostingItemId, p.OrderCostingMasterTemplateId, p.ExecutionType,
+            string sqlProcurement = @"select ci.CostingComponentId,p.Sequence,ci.UserName,p.Id,CI.Id AS CostingItemId, p.OrderCostingMasterTemplateId, p.ExecutionType,
        p.[Value], p.Rate, p.Amount, p.[Description],e.SystemId as ResponsiblePersoinId, e.EmployeeName as ResponsiblePersoin
                         ,P.FileName,P.FileOriginalName   
                         from hkp.CostingItem ci
                         join [dbo].[OrderProcurementCostingDirectProcess] p on CostingItemId = ci.Id and p.OrderCostingMasterTemplateId = '" + OrderCostingMasterTemplateId + @"' 
                         left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
 						left join EmployeeInformation e on e.SystemId = p.ResponsiblePersoinId
-                        where ci.CostingComponentId = '" + costingComponentId + "'  Order By CI.Sequence";
+                        where ci.CostingComponentId = '" + costingComponentId + "'  Order By p.Sequence";
 
             return Json(new { Pre = _sqlRepository.GetDataCollection(sqlPre, null), Procurement = _sqlRepository.GetDataCollection(sqlProcurement, null) }, JsonRequestBehavior.AllowGet);
         }
@@ -2898,6 +2921,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
 
                             dr["Id"] = _id;
                             dr["CostingItemId"] = item.CostingItemId;
+                            dr["Sequence"] = item.Sequence;
                             dr["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
                             dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
 
@@ -2921,6 +2945,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
                             dr.BeginEdit();
 
                             dr["CostingItemId"] = item.CostingItemId;
+                            dr["Sequence"] = item.Sequence;
                             dr["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
                             dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
 
@@ -3020,23 +3045,23 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
         [HttpGet, Authorize]
         public ActionResult GetSalesExpenseWithItemByComponentId(string costingComponentId, string OrderCostingMasterTemplateId)
         {
-            string sqlPre = @"select ci.CostingComponentId,s.Id,CI.Id AS CostingItemId, s.OrderCostingMasterTemplateId, s.[Type], s.[Value],
+            string sqlPre = @"select ci.CostingComponentId,s.Sequence,s.Id,CI.Id AS CostingItemId, s.OrderCostingMasterTemplateId, s.[Type], s.[Value],
        s.Amount, s.[Description],e.SystemId as ResponsiblePersoinId, e.EmployeeName as ResponsiblePersoin,ci.UserName,
                         S.FileName,S.FileOriginalName
                         from hkp.CostingItem ci
                         join [dbo].[OrderPreCostingSalesExpense] s on CostingItemId = ci.Id  and s.OrderCostingMasterTemplateId = '" + OrderCostingMasterTemplateId + @"' 
                         left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
 						left join EmployeeInformation e on e.SystemId = s.ResponsiblePersoinId
-                        where ci.CostingComponentId = '" + costingComponentId + "'  Order By CI.Sequence";
+                        where ci.CostingComponentId = '" + costingComponentId + "'  Order By s.Sequence";
 
-            string sqlProcurement = @"select ci.CostingComponentId,s.Id,CI.Id AS CostingItemId, s.OrderCostingMasterTemplateId, s.[Type], s.[Value],
+            string sqlProcurement = @"select ci.CostingComponentId,s.Sequence,s.Id,CI.Id AS CostingItemId, s.OrderCostingMasterTemplateId, s.[Type], s.[Value],
        s.Amount, s.[Description],e.SystemId as ResponsiblePersoinId, e.EmployeeName as ResponsiblePersoin,ci.UserName,
                         S.FileName,S.FileOriginalName
                         from hkp.CostingItem ci
                         join [dbo].[OrderProcurementCostingSalesExpense] s on CostingItemId = ci.Id  and s.OrderCostingMasterTemplateId = '" + OrderCostingMasterTemplateId + @"' 
                         left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
 						left join EmployeeInformation e on e.SystemId = s.ResponsiblePersoinId
-                        where ci.CostingComponentId = '" + costingComponentId + "'  Order By CI.Sequence";
+                        where ci.CostingComponentId = '" + costingComponentId + "'  Order By s.Sequence";
 
 
             return Json(new { Pre = _sqlRepository.GetDataCollection(sqlPre, null), Procurement = _sqlRepository.GetDataCollection(sqlProcurement, null) }, JsonRequestBehavior.AllowGet);
@@ -3078,6 +3103,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
 
                             dr["Id"] = _id;
                             dr["CostingItemId"] = item.CostingItemId;
+                            dr["Sequence"] = item.Sequence;
                             dr["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
                             dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
 
@@ -3101,6 +3127,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
 
 
                             dr["CostingItemId"] = item.CostingItemId;
+                            dr["Sequence"] = item.Sequence;
                             dr["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
                             dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
 
@@ -3200,45 +3227,45 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
         [HttpGet, Authorize]
         public ActionResult GetValueLossWithItemByComponentId(string costingComponentId, string OrderCostingMasterTemplateId)
         {
-            string sqlPre = @"select ci.CostingComponentId,p.Id,CI.Id AS CostingItemId, p.OrderCostingMasterTemplateId, p.[Type], p.[Value],
+            string sqlPre = @"select ci.CostingComponentId,p.Sequence,p.Id,CI.Id AS CostingItemId, p.OrderCostingMasterTemplateId, p.[Type], p.[Value],
                     p.Amount, p.[Description],e.EmployeeName as ResponsiblePersoin,p.ResponsiblePersoinId,ci.UserName,
                         P.FileName,P.FileOriginalName
                         from hkp.CostingItem ci
                         join [dbo].[OrderPreCostingValueLoss] p on CostingItemId = ci.Id  and p.OrderCostingMasterTemplateId = '" + OrderCostingMasterTemplateId + @"' 
                         left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
 						left join EmployeeInformation e on e.SystemId = p.ResponsiblePersoinId
-                        where ci.CostingComponentId = '" + costingComponentId + "'  Order By CI.Sequence";
+                        where ci.CostingComponentId = '" + costingComponentId + "'  Order By p.Sequence";
 
-            string sqlProcurement = @"select ci.CostingComponentId,p.Id,CI.Id AS CostingItemId, p.OrderCostingMasterTemplateId, p.[Type], p.[Value],
+            string sqlProcurement = @"select ci.CostingComponentId,p.Sequence,p.Id,CI.Id AS CostingItemId, p.OrderCostingMasterTemplateId, p.[Type], p.[Value],
                     p.Amount, p.[Description],e.EmployeeName as ResponsiblePersoin,p.ResponsiblePersoinId,ci.UserName,
                         P.FileName,P.FileOriginalName
                         from hkp.CostingItem ci
                         join [dbo].[OrderProcurementCostingValueLoss] p on CostingItemId = ci.Id  and p.OrderCostingMasterTemplateId = '" + OrderCostingMasterTemplateId + @"' 
                         left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
 						left join EmployeeInformation e on e.SystemId = p.ResponsiblePersoinId
-                        where ci.CostingComponentId = '" + costingComponentId + "'  Order By CI.Sequence";
+                        where ci.CostingComponentId = '" + costingComponentId + "'  Order By p.Sequence";
 
             return Json(new { Pre = _sqlRepository.GetDataCollection(sqlPre, null), Procurement = _sqlRepository.GetDataCollection(sqlProcurement, null) }, JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
         public ActionResult GetProfitWithItemByComponentId(string costingComponentId, string OrderCostingMasterTemplateId)
         {
-            string sqlPre = @"select ci.CostingComponentId,p.Id,CI.Id AS CostingItemId, p.OrderCostingMasterTemplateId, p.[Type], p.[Value],
+            string sqlPre = @"select ci.CostingComponentId,p.Sequence,p.Id,CI.Id AS CostingItemId, p.OrderCostingMasterTemplateId, p.[Type], p.[Value],
                     p.Amount, p.[Description],e.EmployeeName as ResponsiblePersoin,p.ResponsiblePersoinId,ci.UserName,
                         P.FileName,P.FileOriginalName
                         from hkp.CostingItem ci
                         join [dbo].[OrderPreCostingProfit] p on CostingItemId = ci.Id  and p.OrderCostingMasterTemplateId = '" + OrderCostingMasterTemplateId + @"' 
                         left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
 						left join EmployeeInformation e on e.SystemId = p.ResponsiblePersoinId
-                        where ci.CostingComponentId = '" + costingComponentId + "'  Order By CI.Sequence";
-            string sqlProcurement = @"select ci.CostingComponentId,p.Id,CI.Id AS CostingItemId, p.OrderCostingMasterTemplateId, p.[Type], p.[Value],
+                        where ci.CostingComponentId = '" + costingComponentId + "'  Order By p.Sequence";
+            string sqlProcurement = @"select ci.CostingComponentId,p.Sequence,p.Id,CI.Id AS CostingItemId, p.OrderCostingMasterTemplateId, p.[Type], p.[Value],
                     p.Amount, p.[Description],e.EmployeeName as ResponsiblePersoin,p.ResponsiblePersoinId,ci.UserName,
                         P.FileName,P.FileOriginalName
                         from hkp.CostingItem ci
                         join [dbo].[OrderProcurementCostingProfit] p on CostingItemId = ci.Id  and p.OrderCostingMasterTemplateId = '" + OrderCostingMasterTemplateId + @"' 
                         left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
 						left join EmployeeInformation e on e.SystemId = p.ResponsiblePersoinId
-                        where ci.CostingComponentId = '" + costingComponentId + "'  Order By CI.Sequence";
+                        where ci.CostingComponentId = '" + costingComponentId + "'  Order By p.Sequence";
             return Json(new { Pre = _sqlRepository.GetDataCollection(sqlPre, null), Procurement = _sqlRepository.GetDataCollection(sqlProcurement, null) }, JsonRequestBehavior.AllowGet);
         }
 
@@ -3278,6 +3305,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
 
                             dr["Id"] = _id;
                             dr["CostingItemId"] = item.CostingItemId;
+                            dr["Sequence"] = item.Sequence;
                             dr["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
                             dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
 
@@ -3301,6 +3329,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
 
 
                             dr["CostingItemId"] = item.CostingItemId;
+                            dr["Sequence"] = item.Sequence;
                             dr["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
                             dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
 
@@ -3378,6 +3407,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
                             DataRow dr = dsMaster.Tables[0].NewRow();
 
                             dr["Id"] = _id;
+                            dr["Sequence"] = item.Sequence;
                             dr["CostingItemId"] = item.CostingItemId;
                             dr["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
                             dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
@@ -3402,6 +3432,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
 
 
                             dr["CostingItemId"] = item.CostingItemId;
+                            dr["Sequence"] = item.Sequence;
                             dr["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
                             dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
 
@@ -4338,6 +4369,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
                             DataRow dr = dsMaster.Tables[0].NewRow();
                             dr["Id"] = _id;
                             dr["CostingItemId"] = item.CostingItemId;
+                            dr["Sequence"] = item.Sequence;
                             dr["Consumption"] = item.Consumption;
                             dr["UOM"] = item.UOM;
                             dr["Rate"] = item.Rate;
@@ -4386,6 +4418,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
 
 
                             dr["CostingItemId"] = item.CostingItemId;
+                            dr["Sequence"] = item.Sequence;
                             dr["Consumption"] = item.Consumption;
                             dr["UOM"] = item.UOM;
                             dr["Rate"] = item.Rate;
@@ -4487,6 +4520,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
 
                             dr["Id"] = _id;
                             dr["CostingItemId"] = item.CostingItemId;
+                            dr["Sequence"] = item.Sequence;
                             dr["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
                             dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
 
@@ -4508,6 +4542,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
                             dr.BeginEdit();
 
                             dr["CostingItemId"] = item.CostingItemId;
+                            dr["Sequence"] = item.Sequence;
                             dr["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
                             dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
                             dr["Value"] = item.Value;
@@ -4584,6 +4619,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
 
                             dr["Id"] = _id;
                             dr["CostingItemId"] = item.CostingItemId;
+                            dr["Sequence"] = item.Sequence;
                             dr["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
                             dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
 
@@ -4607,6 +4643,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
                             dr.BeginEdit();
 
                             dr["CostingItemId"] = item.CostingItemId;
+                            dr["Sequence"] = item.Sequence;
                             dr["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
                             dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
 
@@ -4687,6 +4724,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
 
                             dr["Id"] = _id;
                             dr["CostingItemId"] = item.CostingItemId;
+                            dr["Sequence"] = item.Sequence;
                             dr["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
                             dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
 
@@ -4710,6 +4748,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
 
 
                             dr["CostingItemId"] = item.CostingItemId;
+                            dr["Sequence"] = item.Sequence;
                             dr["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
                             dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
 
@@ -4790,6 +4829,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
 
                             dr["Id"] = _id;
                             dr["CostingItemId"] = item.CostingItemId;
+                            dr["Sequence"] = item.Sequence;
                             dr["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
                             dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
 
@@ -4813,6 +4853,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
 
 
                             dr["CostingItemId"] = item.CostingItemId;
+                            dr["Sequence"] = item.Sequence;
                             dr["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
                             dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
 
@@ -4891,6 +4932,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
 
                             dr["Id"] = _id;
                             dr["CostingItemId"] = item.CostingItemId;
+                            dr["Sequence"] = item.Sequence;
                             dr["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
                             dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
 
@@ -4914,6 +4956,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
 
 
                             dr["CostingItemId"] = item.CostingItemId;
+                            dr["Sequence"] = item.Sequence;
                             dr["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
                             dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
 
@@ -5735,6 +5778,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
     {
         public string Id { get; set; }
         public string CostingItemId { get; set; }
+        public decimal Sequence { get; set; }
         public decimal Consumption { get; set; }
         public decimal UOM { get; set; }
         public decimal Rate { get; set; }
@@ -5778,6 +5822,8 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
     {
         public string Id { get; set; }
         public string CostingItemId { get; set; }
+        public decimal Sequence { get; set; }
+
         public string OrderCostingMasterTemplateId { get; set; }
         public string ResponsiblePersoinId { get; set; }
 
@@ -5799,6 +5845,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
     {
         public string Id { get; set; }
         public string CostingItemId { get; set; }
+        public decimal Sequence { get; set; }
         public string OrderCostingMasterTemplateId { get; set; }
         public string ResponsiblePersoinId { get; set; }
 
@@ -5821,6 +5868,8 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
     {
         public string Id { get; set; }
         public string CostingItemId { get; set; }
+        public decimal Sequence { get; set; }
+
         public string OrderCostingMasterTemplateId { get; set; }
         public string ResponsiblePersoinId { get; set; }
 
@@ -5842,6 +5891,8 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
     {
         public string Id { get; set; }
         public string CostingItemId { get; set; }
+        public decimal Sequence { get; set; }
+
         public string OrderCostingMasterTemplateId { get; set; }
         public string ResponsiblePersoinId { get; set; }
 
@@ -5865,6 +5916,8 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
     {
         public string Id { get; set; }
         public string CostingItemId { get; set; }
+        public decimal Sequence { get; set; }
+
         public string OrderCostingMasterTemplateId { get; set; }
         public string ResponsiblePersoinId { get; set; }
 
@@ -5887,6 +5940,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
     {
         public string Id { get; set; }
         public string CostingItemId { get; set; }
+        public decimal Sequence { get; set; }
         public decimal Consumption { get; set; }
         public decimal UOM { get; set; }
         public decimal Rate { get; set; }
@@ -5930,6 +5984,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
     {
         public string Id { get; set; }
         public string CostingItemId { get; set; }
+        public decimal Sequence { get; set; }
         public string OrderCostingMasterTemplateId { get; set; }
         public string ResponsiblePersoinId { get; set; }
 
@@ -5951,6 +6006,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
     {
         public string Id { get; set; }
         public string CostingItemId { get; set; }
+        public decimal Sequence { get; set; }
         public string OrderCostingMasterTemplateId { get; set; }
         public string ResponsiblePersoinId { get; set; }
 
@@ -5973,6 +6029,8 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
     {
         public string Id { get; set; }
         public string CostingItemId { get; set; }
+        public decimal Sequence { get; set; }
+
         public string OrderCostingMasterTemplateId { get; set; }
         public string ResponsiblePersoinId { get; set; }
 
@@ -5994,6 +6052,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
     {
         public string Id { get; set; }
         public string CostingItemId { get; set; }
+        public decimal Sequence { get; set; }
         public string OrderCostingMasterTemplateId { get; set; }
         public string ResponsiblePersoinId { get; set; }
 
@@ -6017,6 +6076,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
     {
         public string Id { get; set; }
         public string CostingItemId { get; set; }
+        public decimal Sequence { get; set; }
         public string OrderCostingMasterTemplateId { get; set; }
         public string ResponsiblePersoinId { get; set; }
 

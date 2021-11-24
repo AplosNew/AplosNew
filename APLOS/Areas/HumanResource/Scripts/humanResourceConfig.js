@@ -170,6 +170,10 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanresource/ManpowerAttendanceSummary/',
             controller: 'manpowerAttendanceSummaryController'
         })
+        .when('/manpower-attendance-summary-new', {
+            templateUrl: 'humanresource/ManpowerAttendanceSummary/AplosNew',
+            controller: 'manpowerAttendanceSummaryControllerNew'
+        })
         .when('/c-manpower-attendance-summary', {
             templateUrl: 'humanresource/ManpowerAttendanceSummary/CustomAttdnSummary',
             controller: 'manpowerAttendanceSummaryController'

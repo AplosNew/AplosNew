@@ -1,6 +1,6 @@
 ﻿'use strict';
-manpowerAttendanceSummaryController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'toaster', 'cboService'];
-function manpowerAttendanceSummaryController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, toaster, cboService) {
+manpowerAttendanceSummaryControllerNew.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'toaster', 'cboService'];
+function manpowerAttendanceSummaryControllerNew(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, toaster, cboService) {
 
     $scope.path = 'humanresource/PayRegisterBDReport/';
 
@@ -169,19 +169,12 @@ function manpowerAttendanceSummaryController(commonMessage, $scope, $rootScope, 
 
             //string divisionId, string unitId, string sectionId, string subSectionId, string departmentId, string payGroupId
             $scope.parameters = 'workDate=' + $scope.attdnDate + '&withLine=' + $scope.withLine;
-            location.href = 'humanresource/ManpowerAttendanceSummary/GetmanpowerAttendanceSummaryrReportOld?' + $scope.parameters;
+            location.href = 'humanresource/ManpowerAttendanceSummary/GetmanpowerAttendanceSummaryrReport?' + $scope.parameters;
         } catch (e) {
             ShowResult(e, 'failure');
         }
     };//GetDailyAttendanceSummary
-    $scope.XGetmanpowerAttendanceSummaryrReport = function () {
-        try {
-            $scope.parameters = 'workDate=' + $scope.attdnDate;
-            location.href = 'humanresource/ManpowerAttendanceSummary/GetDailyAttendanceSummary?' + $scope.parameters;
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-    };
+  
 
     $scope.GetAttendancFromAppeReport = function () {
         try {
