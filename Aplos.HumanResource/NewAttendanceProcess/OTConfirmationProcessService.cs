@@ -37,7 +37,22 @@ namespace Library.HumanResource.NewAttendanceProcess
                 throw e;
             }
         }
-      
+
+        public IEnumerable<object> GetWorkDateRange(string Year,string Month,string Week)
+        {
+            try
+            {
+                var str = @"select Format(min(workdate),'dd-MMM-yyyy')FromDate,
+                Format(max(workdate),'dd-MMM-yyyy')ToDate 
+                from AttdnProcessData where OTMonth='"+Month+"' and OTYear='"+Year+"' and otweek='"+Week+"'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         public object getFilters()
         {
             try
