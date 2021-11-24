@@ -451,6 +451,15 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
             , dataType: 'JSON'
         }).then(function (response) {
             $scope.assetRegisterPopUpList = response.data;
+            if (baseService.arrayLength($scope.voucherDetailList) > 0) {
+                for (var i = 0; i < baseService.arrayLength($scope.voucherDetailList); i++) {
+                    for (var j = 0; j < baseService.arrayLength($scope.assetRegisterPopUpList); j++) {
+                        if ($scope.voucherDetailList[i].FixedAssetRegisterId == $scope.assetRegisterPopUpList[j].FixedAssetRegisterId) {
+                            $scope.assetRegisterPopUpList[j].Active = true;
+                        }
+                    }
+                }
+            }
         }), function (response) {
             ShowResult(response.data.Message, 'failure');
         };
@@ -459,71 +468,78 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
     $scope.closeFARegisterPopUp = function () {
         angular.element(document.querySelector("#assetRegisterPopUpmodal")).modal("hide");
     }
-    $scope.selectFARegisterPopUp = function (x) {
+    function checkFAExist(list, FixedAssetRegisterId) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].FixedAssetRegisterId === FixedAssetRegisterId) {
+
+                return true;
+            }
+        }
+        return false;
+    }
+    $scope.selectFARegisterPopUp = function () {
         if (!baseService.isUndefinedOrNull($scope.voucher.Status)) {
 
-            var data = x.data;
+            if (baseService.arrayLength($scope.assetRegisterPopUpList) > 0) {
+                $scope.voucherDetailList = [];
+                angular.forEach($scope.assetRegisterPopUpList, function (a) {
+                        if (a.Active) {
+                            $scope.voucherDetail.BudgetMasterId = a.BudgetMasterId;
+                            $scope.voucherDetail.BudgetName = a.BudgetName;
+                            $scope.voucherDetail.ActivityId = a.ActivityId;
+                            $scope.voucherDetail.ActivityName = a.ActivityName;
+                            $scope.voucherDetail.GLGeneralInfoId = a.GLGeneralInfoId;
+                            $scope.voucherDetail.GLGeneralInfoName = a.GLGeneralInfoCode + '-' + a.GLGeneralInfoName;
+                            $scope.voucherDetail.FixedAssetMasterId = a.FixedAssetMasterId;
+                            $scope.voucherDetail.FixedAssetRegisterId = a.FixedAssetRegisterId;
+                            $scope.voucherDetail.FixedAssetMasterName = a.FixedAssetMasterName;
 
-            var getRow = $filter("filter")($scope.voucherDetailList, { "GLGeneralInfoId": data.GLGeneralInfoId, "BudgetMasterId": data.BudgetMasterId, "ActivityId": data.ActivityId, "FixedAssetRegisterId": data.FixedAssetRegisterId });
-            if (!baseService.isUndefinedOrNull(getRow) && getRow.length == 0) {
-                $scope.voucherDetail.BudgetMasterId = data.BudgetMasterId;
-                $scope.voucherDetail.BudgetName = data.BudgetName;
-                $scope.voucherDetail.ActivityId = data.ActivityId;
-                $scope.voucherDetail.ActivityName = data.ActivityName;
-                $scope.voucherDetail.GLGeneralInfoId = data.GLGeneralInfoId;
-                $scope.voucherDetail.GLGeneralInfoName = data.GLGeneralInfoCode + '-' + data.GLGeneralInfoName;
-                $scope.voucherDetail.FixedAssetMasterId = data.FixedAssetMasterId;
-                $scope.voucherDetail.FixedAssetRegisterId = data.FixedAssetRegisterId;
-                $scope.voucherDetail.FixedAssetMasterName = data.FixedAssetMasterName;
+                            $scope.voucherDetail.MaterialMasterName = a.MaterialMasterName;
+                            $scope.voucherDetail.Article = a.Article;
+                            $scope.voucherDetail.CapitalizationDate = a.CapitalizationDate;
+                            $scope.voucherDetail.PurchaseDate = a.PurchaseDate;
+                            $scope.voucherDetail.IssueDate = a.IssueDate;
+                            $scope.voucherDetail.TrnCurrency = a.TrnCurrency;
+                            $scope.voucherDetail.baseCurrency = a.BaseCurrency;
 
-                $scope.voucherDetail.MaterialMasterName = data.MaterialMasterName;
-                $scope.voucherDetail.Article = data.Article;
-                $scope.voucherDetail.CapitalizationDate = data.CapitalizationDate;
-                $scope.voucherDetail.PurchaseDate = data.PurchaseDate;
-                $scope.voucherDetail.IssueDate = data.IssueDate;
-                $scope.voucherDetail.TrnCurrency = data.TrnCurrency;
-                $scope.voucherDetail.baseCurrency = data.BaseCurrency;
+                            $scope.voucherDetail.IsOpeningBalance = a.IsOpeningBalance;
+                            $scope.voucherDetail.vendor = a.Vendor;
 
-                $scope.voucherDetail.IsOpeningBalance = data.IsOpeningBalance;
-                $scope.voucherDetail.vendor = data.Vendor;
-
-                $scope.voucherDetail.FAType = $scope.voucher.FAType;
-                $scope.voucherDetail.DocDate = $filter("dateFiltering")($scope.voucher.DocDate);
-                $scope.voucherDetail.DocRefNo = $scope.voucher.DocRefNo;
-                $scope.voucherDetail.Narration = $scope.voucher.Narration;
-                $scope.voucherDetail.EntityId = $scope.voucher.EntityId;
-                $scope.voucherDetail.PlantId = $scope.voucher.PlantId;
+                            $scope.voucherDetail.FAType = $scope.voucher.FAType;
+                            $scope.voucherDetail.DocDate = $filter("dateFiltering")($scope.voucher.DocDate);
+                            $scope.voucherDetail.DocRefNo = $scope.voucher.DocRefNo;
+                            $scope.voucherDetail.Narration = $scope.voucher.Narration;
+                            $scope.voucherDetail.EntityId = $scope.voucher.EntityId;
+                            $scope.voucherDetail.PlantId = $scope.voucher.PlantId;
 
 
-                $scope.voucherDetail.FABaseAmount = data.FABaseAmount;
-                $scope.voucherDetail.SubAssetBaseAmount = data.SubAssetBaseAmount;
-                $scope.voucherDetail.PurchaseBaseAmount = data.PurchaseBaseAmount;
-                $scope.voucherDetail.ADBaseAmount = data.ADBaseAmount;
-                $scope.voucherDetail.NetBaseBookValue = data.NetBaseBookValue;
+                            $scope.voucherDetail.FABaseAmount = a.FABaseAmount;
+                            $scope.voucherDetail.SubAssetBaseAmount = a.SubAssetBaseAmount;
+                            $scope.voucherDetail.PurchaseBaseAmount = a.PurchaseBaseAmount;
+                            $scope.voucherDetail.ADBaseAmount = a.ADBaseAmount;
+                            $scope.voucherDetail.NetBaseBookValue = a.NetBaseBookValue;
 
-                $scope.voucherDetail.Price = data.Price;
-                $scope.voucherDetail.SubAssetAmount = data.SubAssetAmount;
-                $scope.voucherDetail.PurchasePrice = data.PurchasePrice;
-                $scope.voucherDetail.ADBaseAmount = data.ADBaseAmount;
-                $scope.voucherDetail.NetBookValue = data.NetBookValue;
-                $scope.voucherDetail.InvoiceNo = data.InvoiceNo;
+                            $scope.voucherDetail.Price = a.Price;
+                            $scope.voucherDetail.SubAssetAmount = a.SubAssetAmount;
+                            $scope.voucherDetail.PurchasePrice = a.PurchasePrice;
+                            $scope.voucherDetail.ADBaseAmount = a.ADBaseAmount;
+                            $scope.voucherDetail.NetBookValue = a.NetBookValue;
+                            $scope.voucherDetail.InvoiceNo = a.InvoiceNo;
 
-                if ($scope.voucher.Status == 'Scrap') {
-                    $scope.voucherDetail.NegotiationValue = data.NetBookValue;
-                }
-                $scope.voucherDetail.SerialNo = data.SerialNo;
-                $scope.voucherDetail.AssetNo = data.AssetNo;
-                $scope.voucherDetail.Id = data.Id;
-                $scope.voucherDetail.PartyType = 'Fixed Asset';
-                $scope.voucherDetailList.splice(0, 0, $scope.voucherDetail);
-                $scope.voucherDetail = {};
+                            if ($scope.voucher.Status == 'Scrap') {
+                                $scope.voucherDetail.NegotiationValue = a.NetBookValue;
+                            }
+                            $scope.voucherDetail.SerialNo = a.SerialNo;
+                            $scope.voucherDetail.AssetNo = a.AssetNo;
+                            $scope.voucherDetail.Id = a.Id;
+                            $scope.voucherDetail.PartyType = 'Fixed Asset';
+                            $scope.voucherDetailList.splice(0, 0, $scope.voucherDetail);
+                            $scope.voucherDetail = {};
+                        }
+                });
                 $scope.closeFARegisterPopUp();
-
             }
-            else {
-                ShowResult('Asset No ' + data.FixedAssetRegisterId + ' already exist !!', 'failure', 'assetRegisterPopUpmodal');
-
-            }
+            
 
         }
         else {
