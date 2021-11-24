@@ -26,7 +26,7 @@
         <div e-column e-template="#templateQuantity" e-headertext="Target Per Hour" e-width="15"></div>
         <div e-column e-field="Quantity" e-headertext="Quantity" e-width="10"></div>
 
-        <div e-column e-headertext="Actions" e-template="#ShowButtons" e-width="8"></div>
+        <div e-column e-headertext="Actions" e-template="#ShowButtons" e-width="12"></div>
 
 
 
@@ -36,8 +36,11 @@
 <script type="text/ng-template" id="ShowButtons">
     <div class="common-btn">
         <button ng-click="$parent.AddLineItemG(this);" ng-show="data.CanCopy||data.HasLayout" style="color: #f3f3ec; height: 28px; width: 28px; padding: 0px; margin: 0px; background-color:{{data.HasLayout?'#00ff00':'#ffd800'}}; " title="Actions" class="btn">
-            <i class="glyphicon glyphicon-list" ></i>
+            <i class="glyphicon glyphicon-list"></i>
         </button>
+        @*<button ng-click="$parent.DownloadReport(data);" style="height: 28px; width: 28px; padding: 0px; margin: 0px; " title="Report" class="btn">
+            <i class="glyphicon glyphicon-download"></i>
+        </button>*@
     </div>
 </script>
 
