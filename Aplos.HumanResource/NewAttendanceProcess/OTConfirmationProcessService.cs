@@ -274,19 +274,28 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 // Min of Balance Limit of Week & DailyLimit
                                 decimal BalanceWeekLimit = WeekLimit - WeekStandardOTMaster;
                                 decimal SmallerValue = Math.Min(BalanceWeekLimit, DayLimit);
-                                if (SmallerValue >= 0)
+                                if (SmallerValue > 0)
                                 {
                                     dr["AllowedOTLimit"] = SmallerValue;
                                 }
+                                else
+                                {
+                                    dr["AllowedOTLimit"] = 0;
+                                }
+
                             }
                             else if (WkDateApplicableWM == "M")
                             {                                
                                 // Min of Balance Limit of Month & DailyLimit
                                 decimal BalanceMonthLimit = MonthlyLimit - MonthStandardOTMaster;
                                 decimal SmallerValue = Math.Min(BalanceMonthLimit, DayLimit);
-                                if (SmallerValue >= 0)
+                                if (SmallerValue > 0)
                                 {
                                     dr["AllowedOTLimit"] = SmallerValue;
+                                }
+                                else
+                                {
+                                    dr["AllowedOTLimit"] = 0;
                                 }
                             }
 
@@ -295,14 +304,14 @@ namespace Library.HumanResource.NewAttendanceProcess
                             #region AppliedOTLimit Calculation
 
                             if (PlanOT>0)
-                                {
-                                    dr["AppliedOTLimit"] = PlanOT;
-                                }
-                                else
-                                {
-                                    decimal Allowed = Convert.ToDecimal(Table.DefaultView[0][@"AllowedOTLimit"].ToString());
-                                    dr["AppliedOTLimit"] = Allowed;
-                                }
+                            {
+                                 dr["AppliedOTLimit"] = PlanOT;
+                            }
+                            else
+                            {
+                                 decimal Allowed = Convert.ToDecimal(Table.DefaultView[0][@"AllowedOTLimit"].ToString());
+                                 dr["AppliedOTLimit"] = Allowed;
+                            }
 
                             #endregion
 
@@ -346,13 +355,13 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 if (ProcessOT > 0)
                                 {
                                     ReducedMinutes = Convert.ToDecimal(ProcessOT - StdOT);
-                                }
-                                DateTime NewOutTime = Convert.ToDateTime(OutTime).AddMinutes(Convert.ToDouble(ReducedMinutes)*-1);
-                                string NewOut=NewOutTime.ToString("dd-MMM-yyyy hh:mm:ss tt");
 
-                                dr["OutTime"] = NewOut;
-                                dr["ManualOutTime"] = NewOut;
-                                
+                                    DateTime NewOutTime = Convert.ToDateTime(OutTime).AddMinutes(Convert.ToDouble(ReducedMinutes) * -1);
+                                    string NewOut = NewOutTime.ToString("dd-MMM-yyyy hh:mm:ss tt");
+
+                                    dr["OutTime"] = NewOut;
+                                    dr["ManualOutTime"] = NewOut;
+                                }
                             }
 
                             #endregion
