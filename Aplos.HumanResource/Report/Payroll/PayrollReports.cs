@@ -2568,6 +2568,10 @@ namespace Library.HumanResource.Report.Payroll
                 var fPanRow = xlsRow + 1;
 
                 #region ******************Report Header******************
+                if (dicBonus.Count == 0)
+                {
+                    throw new Exception("No data found");
+                }
                 DataView view = new DataView(dicBonus.Values.ElementAt(0)[0].Table);
                 DataTable dtEmpInfo = view.ToTable(true, "EmpSystemId", "EmployeeCode", "EmployeeName", "DepartmentName", "DesignationName", "BankName"
                                                         , "DOJ", "BankShortName", "BankAccNo", "DOS", "PaymentMode", "WorkingDaysInAMonth", "TotalProcDate", "TotalAbsent", "TotalWeekOff", "TotalHoliDay");
