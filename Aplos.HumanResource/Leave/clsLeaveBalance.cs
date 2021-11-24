@@ -962,7 +962,7 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
                                 ISNULL(els.CurrentYearAllocation,0)+ISNULL(els.CarryForwardOpeningBalance,0)+ISNULL(els.BroughtForward,0)+SUM(ISNULL(CR.EarnedValue,0))-SUM(ISNULL(cr.AvailedValue,0)) AS ClosingBalance
                                 FROM trn.EmployeeLeaveSummary AS els 
                                 LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=els.EmployeeId
-                                JOIN YearlyCalendar AS yc ON yc.Id=els.CalanderYearId AND yc.YearNo=(SELECT TOP 1 y.YearNo FROM YearlyCalendar Y WHERE y.PlantId=ei.PlantId AND y.YearNo<=" + YearNo + @" ORDER BY y.YearNo DESC)
+                                JOIN YearlyCalendar AS yc ON  yc.PlantId=ei.PlantId and yc.Id=els.CalanderYearId AND yc.YearNo=(SELECT TOP 1 y.YearNo FROM YearlyCalendar Y WHERE y.PlantId=ei.PlantId AND y.YearNo<=" + YearNo + @" ORDER BY y.YearNo DESC)
                                 LEFT JOIN (
                                 SELECT d.YearNo,d.MonthNo, d.EmployeeSystemId,D.LeaveTypeId,SUM( d.EarnedValue) AS EarnedValue, SUM(d.AvailedValue) AS AvailedValue
 			                                  FROM SalaryProcessMonthlyLeaveData D
