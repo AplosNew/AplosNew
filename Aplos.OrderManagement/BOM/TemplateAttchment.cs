@@ -397,6 +397,7 @@ namespace Library.OrderManagement.BOM
                                 isnull(BOQP.OrderQty,b.OrderQty) AS OrderQty,isnull(BOQP.PlanOrderQty,b.PlanOrderQty) AS PlanOrderQty,b.Consumption,b.WastagePer,
                                 b.BOMQty,b.RequiredQty,b.RequiredQtyPO,uom.UserName AS UOM,uomp.UserName AS POUOM,uomm.UserName AS ParentUOM,
                                 b.RMDescription,	b.RMCustomerSpec,	b.RMVendorSpec,CUR.Code AS Currency,B.Rate
+                                ,CASE WHEN ISNULL(b.IsMainMaterial,0)=1 THEN BD.MainRawMaterialInhouseDate else BD.OtherRawMaterialInhouseDate END AS DeliveryDate
 
                                   FROM BOQ AS b
                                 LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
@@ -417,6 +418,13 @@ namespace Library.OrderManagement.BOM
                                 LEFT OUTER JOIN [HKP].[CharacteristicsValue] V2 ON v2.Id=b.SecondCharacteristicsValueId
                                 LEFT OUTER JOIN [HKP].[CharacteristicsValue] V3 ON v3.Id=b.ThirdCharacteristicsValueId
 
+                                LEFT JOIN (Select BOQId,FORMAT(MIN(B.MainRawMaterialInhouseDate),'dd-MMM-yyyy') MainRawMaterialInhouseDate
+							,FORMAT(MIN(B.OtherRawMaterialInhouseDate),'dd-MMM-yyyy') OtherRawMaterialInhouseDate FROM BOQDetail A
+							LEFT OUTER JOIN TRN.SalesOrder B ON B.Id=A.SalesOrderId
+							WHERE a.MasterOrderItemId='" + MasterOrderItemId + @"'
+							GROUP BY BOQId
+							) BD ON BD.BOQId=B.Id
+
                                 WHERE b.MasterOrderItemId='" + MasterOrderItemId + @"' and isnull(B.isParent,0)=" + parent + @"
                                 ORDER BY isnull(BOQP.Sequence,0),isnull(b.Sequence,0),b.SalesOrderId";
 
@@ -432,18 +440,26 @@ namespace Library.OrderManagement.BOM
                                     from (SELECT b.MaterialMasterId,b.ArticleId, b.MasterOrderItemId,b.VendorId,p.UserName AS Vendor,b.POUoMId,
                                 mm.UserName AS Material,mma.StandardName AS Article,b.Rate,b.CurrencyId,c.Code AS Currency,uomp.UserName AS POUOM
                                 ,sum(b.RequiredQtyPO) AS RequiredQtyPO,
-                                COUNT(*) AS TotalMaterial,SUM(CASE WHEN b.RequiredQtyApproved=1 THEN 1 ELSE 0 END) AS TotalApproved,
-                                case when SUM(case when isnull(IsMainMaterial,0)=1 THEN 1 else 0 END)>0 THEN convert(bit,1) ELSE convert(bit,0) END AS IsMainMaterial
-
+                                COUNT(*) AS TotalMaterial,SUM(CASE WHEN b.RequiredQtyApproved=1 THEN 1 ELSE 0 END) AS TotalApproved
+                                ,CASE WHEN SUM(CASE WHEN ISNULL(IsMainMaterial,0)=1 THEN 1 else 0 END)>0 THEN convert(bit,1) ELSE convert(bit,0) END AS IsMainMaterial
+                                ,CASE WHEN ISNULL(b.IsMainMaterial,0)=1 THEN BD.MainRawMaterialInhouseDate else BD.OtherRawMaterialInhouseDate END AS DeliveryDate
                                 FROM BOQ AS b
                             LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
                             LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
                             LEFT OUTER JOIN HKP.Party P ON p.Id=b.VendorId
                             LEFT OUTER JOIN scs.UnitOfMeasurement AS uomP ON uomP.Id=b.POUoMId
                             LEFT JOIN scs.Currency AS c ON c.Id=b.CurrencyId
+                            LEFT JOIN (Select ArticleId,FORMAT(MIN(B.MainRawMaterialInhouseDate),'dd-MMM-yyyy') MainRawMaterialInhouseDate
+							,FORMAT(MIN(B.OtherRawMaterialInhouseDate),'dd-MMM-yyyy') OtherRawMaterialInhouseDate
+							FROM BOQDetail A
+							LEFT OUTER JOIN TRN.SalesOrder B ON B.Id=A.SalesOrderId
+							WHERE a.MasterOrderItemId='" + MasterOrderItemId + @"'
+							GROUP BY ArticleId
+							) BD ON BD.ArticleId=B.ArticleId
                             WHERE b.MasterOrderItemId='" + MasterOrderItemId + @"' and isnull(B.isParent,0)=0
                                 group by  b.MaterialMasterId,b.ArticleId, b.MasterOrderItemId,b.VendorId,p.UserName,b.POUoMId,
                                 mm.UserName,mma.StandardName,b.Rate,b.CurrencyId,c.Code,uomp.UserName
+                                ,BD.MainRawMaterialInhouseDate,BD.OtherRawMaterialInhouseDate,b.IsMainMaterial
                             ) AS K
                             ORDER BY K.Material";
             return _sqlRepository.GetDataCollection(sql, null);
