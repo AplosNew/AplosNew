@@ -58,6 +58,8 @@ namespace Library.Model.Inventory
         public string msgForAllocationNeed { get; set; }
 
         public string TransformationContractId { get; set; }
+
+        public string JobWorkContractId { get; set; }
         public string ByWhomEmployeeId { get; set; } 
 
         #endregion Scalar Properties
