@@ -143,7 +143,52 @@ namespace Library.OrderManagement.TermsAndConditions
             }
         }
 
+        public string DeletePopUp(string id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
 
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from TermsAndConditionsDetails where Id='" + id + "'");
+
+                con.CommitTransaction();
+
+                return "Success";
+
+            }
+            catch (Exception ex)
+            {
+
+                return ex.Message;
+
+            }
+        }
+        public string DeleteTitle(string id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from TermsAndConditionsDetails where TermsAndConditionsChildid='" + id + "'");
+                con.executeQuery("delete from TermsAndConditionsChild where id='" + id + "'");
+                con.CommitTransaction();
+
+                return "Success";
+
+            }
+            catch (Exception ex)
+            {
+
+                return ex.Message;
+
+            }
+        }
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {

@@ -397,7 +397,7 @@ namespace Aplos.Areas.Materials.Controllers
                 string sql = @"SELECT G.Id
                           ,ISNULL(PWG.UserName,'') GateName
                           ,Replace(CONVERT(VARCHAR(11),G.EntryDate, 106), ' ', '-') EntryDate ,DATEDIFF(day,G.EntryDate,getdate()) AS DaysCount
-                          ,G. PartyCode 
+                          ,P.Code PartyCode 
 						  ,isnull(p.UserName,'') PartyName
 						  ,CG.UserName CompanyGrpName
 						  ,C.UserName CompanyName
@@ -420,7 +420,7 @@ namespace Aplos.Areas.Materials.Controllers
                           ,IR.Id GRNId
 						  ,Isnull(EI1.SystemId +'-'+ EI1.FirstName,'') AS EmployeeName
                       FROM TRN.[GateEntry] G
-                      LEFT Join hkp.Party p ON P.Id= G.PartyCode
+                      LEFT Join hkp.Party p ON P.Id= G.PartyId
 					  LEFT Join ORG.CompanyGroup CG ON CG .Id= G.CompanyGroupId
 					  LEFT Join ORG.Company C ON C.Id= G.CompanyId
 					  LEFT Join ORG.Plant Pl ON Pl.Id= G.PlantId

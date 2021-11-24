@@ -268,6 +268,7 @@ namespace Aplos.Areas.Costings.Controllers
                     if (MaxSequence < clsStaticInfo.dbl(dsMaster.Tables[0].Rows[i]["Sequence"].ToString()))
                         MaxSequence = clsStaticInfo.dbl(dsMaster.Tables[0].Rows[i]["Sequence"].ToString());
                 }
+                
 
                 DataTable dtMainItems = _sqlRepository.GetDataTable(@"SELECT * FROM hkp.CostingItem AS ci WHERE ci.Id IN  (" + CostingItemIds + ") ");
 
@@ -291,6 +292,7 @@ namespace Aplos.Areas.Costings.Controllers
                 int Index = 0;
                 foreach (var item in itemList)
                 {
+                    
                     Index++;
                     dsMaster.Tables[0].DefaultView.RowFilter = "CostingItemId='" + item["CostingItemId"].ToString() + "'";
                     if (bplib.clsWebLib.GetBoolData(item["Selected"].ToString()))
@@ -318,8 +320,8 @@ namespace Aplos.Areas.Costings.Controllers
                         _id = "" + GetPK("PreCosting");
                     }
 
-                    MaxSequence++;
 
+                    MaxSequence++;
                     DataRow dr = dsMaster.Tables[0].NewRow();
 
                     dr["Id"] = _id + Index;
@@ -1878,6 +1880,7 @@ namespace Aplos.Areas.Costings.Controllers
                             dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
 
                             dr["SourcingType"] = item.SourcingType;
+                            dr["Sequence"] = item.Sequence;
                             dr["Usage"] = item.Usage;
                             dr["IsUDApplicable"] = item.IsUDApplicable;
                             dr["IsGeneric"] = item.IsGeneric;
@@ -1914,6 +1917,7 @@ namespace Aplos.Areas.Costings.Controllers
 
 
                             dr["CostingItemId"] = item.CostingItemId;
+                            
                             dr["Consumption"] = item.Consumption;
                             dr["UOM"] = item.UOM;
                             dr["Rate"] = item.Rate;
@@ -1924,7 +1928,8 @@ namespace Aplos.Areas.Costings.Controllers
                             dr["CostingMasterTemplateId"] = costingMasterTemplateId;
                             dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
 
-                            dr["SourcingType"] = item.SourcingType;
+                            dr["SourcingType"] = item.SourcingType; 
+                            dr["Sequence"] = item.Sequence;
                             dr["Usage"] = item.Usage;
                             dr["IsUDApplicable"] = item.IsUDApplicable;
                             dr["IsGeneric"] = item.IsGeneric;
@@ -2094,6 +2099,7 @@ namespace Aplos.Areas.Costings.Controllers
 
                             dr["Id"] = _id;
                             dr["CostingItemId"] = item.CostingItemId;
+                            dr["Sequence"] = item.Sequence;
                             dr["CostingMasterTemplateId"] = costingMasterTemplateId;
                             dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
 
@@ -2115,6 +2121,7 @@ namespace Aplos.Areas.Costings.Controllers
                             dr.BeginEdit();
 
                             dr["CostingItemId"] = item.CostingItemId;
+                            dr["Sequence"] = item.Sequence;
                             dr["CostingMasterTemplateId"] = costingMasterTemplateId;
                             dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
                             dr["Value"] = item.Value;
@@ -2251,6 +2258,7 @@ namespace Aplos.Areas.Costings.Controllers
 
                             dr["Id"] = _id;
                             dr["CostingItemId"] = item.CostingItemId;
+                            dr["Sequence"] = item.Sequence;
                             dr["CostingMasterTemplateId"] = costingMasterTemplateId;
                             dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
 
@@ -2275,6 +2283,7 @@ namespace Aplos.Areas.Costings.Controllers
 
                             dr["CostingItemId"] = item.CostingItemId;
                             dr["CostingMasterTemplateId"] = costingMasterTemplateId;
+                            dr["Sequence"] = item.Sequence;
                             dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
 
                             dr["ExecutionType"] = item.ExecutionType;
@@ -2419,6 +2428,7 @@ namespace Aplos.Areas.Costings.Controllers
 
                             dr["Id"] = _id;
                             dr["CostingItemId"] = item.CostingItemId;
+                            dr["Sequence"] = item.Sequence;
                             dr["CostingMasterTemplateId"] = costingMasterTemplateId;
                             dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
 
@@ -2443,6 +2453,7 @@ namespace Aplos.Areas.Costings.Controllers
 
                             dr["CostingItemId"] = item.CostingItemId;
                             dr["CostingMasterTemplateId"] = costingMasterTemplateId;
+                            dr["Sequence"] = item.Sequence;
                             dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
 
                             dr["Type"] = item.Type;
@@ -2599,6 +2610,7 @@ namespace Aplos.Areas.Costings.Controllers
 
                             dr["Id"] = _id;
                             dr["CostingItemId"] = item.CostingItemId;
+                            dr["Sequence"] = item.Sequence;
                             dr["CostingMasterTemplateId"] = costingMasterTemplateId;
                             dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
 
@@ -2622,6 +2634,7 @@ namespace Aplos.Areas.Costings.Controllers
 
 
                             dr["CostingItemId"] = item.CostingItemId;
+                            dr["Sequence"] = item.Sequence;
                             dr["CostingMasterTemplateId"] = costingMasterTemplateId;
                             dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
 
@@ -2700,6 +2713,7 @@ namespace Aplos.Areas.Costings.Controllers
 
                             dr["Id"] = _id;
                             dr["CostingItemId"] = item.CostingItemId;
+                            dr["Sequence"] = item.Sequence;
                             dr["CostingMasterTemplateId"] = costingMasterTemplateId;
                             dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
 
@@ -2724,6 +2738,7 @@ namespace Aplos.Areas.Costings.Controllers
 
                             dr["CostingItemId"] = item.CostingItemId;
                             dr["CostingMasterTemplateId"] = costingMasterTemplateId;
+                            dr["Sequence"] = item.Sequence;
                             dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
 
                             dr["Type"] = item.Type;
@@ -3263,6 +3278,8 @@ namespace Aplos.Areas.Costings.Controllers
     {
         public string Id { get; set; }
         public string CostingItemId { get; set; }
+        public decimal Sequence { get; set; }
+
         public string CostingMasterTemplateId { get; set; }
         public string ResponsiblePersoinId { get; set; }
 
@@ -3282,6 +3299,8 @@ namespace Aplos.Areas.Costings.Controllers
     {
         public string Id { get; set; }
         public string CostingItemId { get; set; }
+        public decimal Sequence { get; set; }
+
         public string CostingMasterTemplateId { get; set; }
         public string ResponsiblePersoinId { get; set; }
 
@@ -3301,6 +3320,8 @@ namespace Aplos.Areas.Costings.Controllers
     {
         public string Id { get; set; }
         public string CostingItemId { get; set; }
+        public decimal Sequence { get; set; }
+
         public string CostingMasterTemplateId { get; set; }
         public string ResponsiblePersoinId { get; set; }
 
@@ -3327,6 +3348,7 @@ namespace Aplos.Areas.Costings.Controllers
         public decimal Value { get; set; }
         public decimal Rate { get; set; }
         public decimal Amount { get; set; }
+        public decimal Sequence { get; set; }
         public string Description { get; set; }
 
 
@@ -3342,6 +3364,7 @@ namespace Aplos.Areas.Costings.Controllers
     {
         public string Id { get; set; }
         public string CostingItemId { get; set; }
+        public decimal Sequence { get; set; }
         public string CostingMasterTemplateId { get; set; }
         public string ResponsiblePersoinId { get; set; }
 
@@ -3492,6 +3515,7 @@ namespace Aplos.Areas.Costings.Controllers
 
 
         public decimal MinimumOfQuantity { get; set; }
+        public decimal Sequence { get; set; }
         public int POIssueDeadLine { get; set; }
         public string PurchaseGroupId { get; set; }
         public string Particulars { get; set; }

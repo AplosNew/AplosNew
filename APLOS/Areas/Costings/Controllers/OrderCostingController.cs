@@ -2592,7 +2592,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
         [HttpGet, Authorize]
         public ActionResult GetDirectCostingMaterialWithItemByComponentId(string costingComponentId, string OrderCostingMasterTemplateId)
         {
-            string sqlPre = @"select ci.CostingComponentId,m.Consumption,m.VendorId,p.UserName AS Vendor,CI.Id AS CostingItemId,m.OrderCostingMasterTemplateId,m.GrossAmount,m.GrossConsumption,m.Id,m.Rate,m.ResponsiblePersoinId,m.UOM
+            string sqlPre = @"select ci.CostingComponentId,m.Sequence,m.Consumption,m.VendorId,p.UserName AS Vendor,CI.Id AS CostingItemId,m.OrderCostingMasterTemplateId,m.GrossAmount,m.GrossConsumption,m.Id,m.Rate,m.ResponsiblePersoinId,m.UOM
                         ,isnull(m.ValueLoss,ci.Wastage) AS ValueLoss,M.Remarks,M.ProcurementLevel,M.BOQDays,M.DependentDate,M.BOQCriteria
                         ,m.SourcingType, ISNULL(m.IsUDApplicable,0) AS IsUDApplicable, m.Usage, ISNULL(m.IsGeneric,0) AS IsGeneric,ISNULL(m.IsMandatory,0) AS  IsMandatory
 						,m.MaterialMasterId, m.ArticleId, mm.UserName as MaterialMasterName, mma.StandardName as ArticleName
@@ -2608,9 +2608,9 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
 						left join mst.MaterialMaster mm on mm.Id = m.MaterialMasterId 
 						left join [MST].[MaterialMasterArticle] mma on mma.Id = m.ArticleId 
 						LEFT JOIN hkp.Party AS p ON p.Id=m.VendorId
-						WHERE ci.CostingComponentId='" + costingComponentId + @"'  Order By CI.Sequence";
+						WHERE ci.CostingComponentId='" + costingComponentId + @"'  Order By m.Sequence";
 
-            string sqlProcurement = @"select ci.CostingComponentId,m.Consumption,m.VendorId,p.UserName AS Vendor,CI.Id AS CostingItemId,m.OrderCostingMasterTemplateId,m.GrossAmount,m.GrossConsumption,m.Id,m.Rate,m.ResponsiblePersoinId,m.UOM
+            string sqlProcurement = @"select ci.CostingComponentId,m.Sequence,m.Consumption,m.VendorId,p.UserName AS Vendor,CI.Id AS CostingItemId,m.OrderCostingMasterTemplateId,m.GrossAmount,m.GrossConsumption,m.Id,m.Rate,m.ResponsiblePersoinId,m.UOM
                         ,isnull(m.ValueLoss,ci.Wastage) AS ValueLoss,M.Remarks,M.ProcurementLevel,M.BOQDays,M.DependentDate,M.BOQCriteria
                         ,m.SourcingType, ISNULL(m.IsUDApplicable,0) AS IsUDApplicable, m.Usage, ISNULL(m.IsGeneric,0) AS IsGeneric,ISNULL(m.IsMandatory,0) AS  IsMandatory
 						,m.MaterialMasterId, m.ArticleId, mm.UserName as MaterialMasterName, mma.StandardName as ArticleName
@@ -2626,7 +2626,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
 						left join mst.MaterialMaster mm on mm.Id = m.MaterialMasterId 
 						left join [MST].[MaterialMasterArticle] mma on mma.Id = m.ArticleId 
 						LEFT JOIN hkp.Party AS p ON p.Id=m.VendorId
-						WHERE ci.CostingComponentId='" + costingComponentId + @"'  Order By CI.Sequence";
+						WHERE ci.CostingComponentId='" + costingComponentId + @"'  Order By m.Sequence";
 
             return Json(new { Pre = _sqlRepository.GetDataCollection(sqlPre, null), Procurement = _sqlRepository.GetDataCollection(sqlProcurement, null) }, JsonRequestBehavior.AllowGet);
         }
@@ -2675,21 +2675,21 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
         [HttpGet, Authorize]
         public ActionResult GetOperationWithItemByComponentId(string costingComponentId, string OrderCostingMasterTemplateId)
         {
-            string sqlPre = @"select ci.CostingComponentId,o.Id,CI.Id AS CostingItemId, o.[Value], o.[Description],e.EmployeeName as ResponsiblePersoin, e.SystemId as ResponsiblePersoinId,  ci.UserName, o.Description
+            string sqlPre = @"select ci.CostingComponentId,o.Sequence,o.Id,CI.Id AS CostingItemId, o.[Value], o.[Description],e.EmployeeName as ResponsiblePersoin, e.SystemId as ResponsiblePersoinId,  ci.UserName, o.Description
                         ,O.FileName,O.FileOriginalName                           
                         from hkp.CostingItem ci
 						 join [dbo].[OrderPreCostingOperation] o on o.CostingItemId = ci.Id  and o.OrderCostingMasterTemplateId = '" + OrderCostingMasterTemplateId + @"' 
                         left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
 						left join EmployeeInformation e on e.SystemId = o.ResponsiblePersoinId
-                        where ci.CostingComponentId = '" + costingComponentId + "'  Order By CI.Sequence";
+                        where ci.CostingComponentId = '" + costingComponentId + "'  Order By o.Sequence";
 
-            string sqlProcurement = @"select ci.CostingComponentId,o.Id,CI.Id AS CostingItemId, o.[Value], o.[Description],e.EmployeeName as ResponsiblePersoin, e.SystemId as ResponsiblePersoinId,  ci.UserName, o.Description
+            string sqlProcurement = @"select ci.CostingComponentId,o.Sequence,o.Id,CI.Id AS CostingItemId, o.[Value], o.[Description],e.EmployeeName as ResponsiblePersoin, e.SystemId as ResponsiblePersoinId,  ci.UserName, o.Description
                           ,O.FileName,O.FileOriginalName      
                         from hkp.CostingItem ci
 						 join [dbo].[OrderProcurementCostingOperation] o on o.CostingItemId = ci.Id  and o.OrderCostingMasterTemplateId = '" + OrderCostingMasterTemplateId + @"' 
                         left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
 						left join EmployeeInformation e on e.SystemId = o.ResponsiblePersoinId
-                        where ci.CostingComponentId = '" + costingComponentId + "'  Order By CI.Sequence";
+                        where ci.CostingComponentId = '" + costingComponentId + "'  Order By o.Sequence";
 
             return Json(new { Pre = _sqlRepository.GetDataCollection(sqlPre, null), Procurement = _sqlRepository.GetDataCollection(sqlProcurement, null) }, JsonRequestBehavior.AllowGet);
         }
@@ -2841,23 +2841,23 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
         [HttpGet, Authorize]
         public ActionResult GetDirectProcessWithItemByComponentId(string costingComponentId, string OrderCostingMasterTemplateId)
         {
-            string sqlPre = @"select ci.CostingComponentId,ci.UserName,p.Id,CI.Id AS CostingItemId, p.OrderCostingMasterTemplateId, p.ExecutionType,
+            string sqlPre = @"select ci.CostingComponentId,p.Sequence,ci.UserName,p.Id,CI.Id AS CostingItemId, p.OrderCostingMasterTemplateId, p.ExecutionType,
        p.[Value], p.Rate, p.Amount, p.[Description],e.SystemId as ResponsiblePersoinId, e.EmployeeName as ResponsiblePersoin
                      ,P.FileName,P.FileOriginalName   
                         from hkp.CostingItem ci
                         join [dbo].[OrderPreCostingDirectProcess] p on CostingItemId = ci.Id and p.OrderCostingMasterTemplateId = '" + OrderCostingMasterTemplateId + @"' 
                         left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
 						left join EmployeeInformation e on e.SystemId = p.ResponsiblePersoinId
-                        where ci.CostingComponentId = '" + costingComponentId + "'  Order By CI.Sequence";
+                        where ci.CostingComponentId = '" + costingComponentId + "'  Order By p.Sequence";
 
-            string sqlProcurement = @"select ci.CostingComponentId,ci.UserName,p.Id,CI.Id AS CostingItemId, p.OrderCostingMasterTemplateId, p.ExecutionType,
+            string sqlProcurement = @"select ci.CostingComponentId,p.Sequence,ci.UserName,p.Id,CI.Id AS CostingItemId, p.OrderCostingMasterTemplateId, p.ExecutionType,
        p.[Value], p.Rate, p.Amount, p.[Description],e.SystemId as ResponsiblePersoinId, e.EmployeeName as ResponsiblePersoin
                         ,P.FileName,P.FileOriginalName   
                         from hkp.CostingItem ci
                         join [dbo].[OrderProcurementCostingDirectProcess] p on CostingItemId = ci.Id and p.OrderCostingMasterTemplateId = '" + OrderCostingMasterTemplateId + @"' 
                         left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
 						left join EmployeeInformation e on e.SystemId = p.ResponsiblePersoinId
-                        where ci.CostingComponentId = '" + costingComponentId + "'  Order By CI.Sequence";
+                        where ci.CostingComponentId = '" + costingComponentId + "'  Order By p.Sequence";
 
             return Json(new { Pre = _sqlRepository.GetDataCollection(sqlPre, null), Procurement = _sqlRepository.GetDataCollection(sqlProcurement, null) }, JsonRequestBehavior.AllowGet);
         }
