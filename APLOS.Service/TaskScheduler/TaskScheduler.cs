@@ -26,6 +26,13 @@ using System.Threading.Tasks;
 
 namespace Library.Service.TaskScheduler
 {
+
+    //this bullshit has been written by tarek talukder
+    //if you are wasting time on reading this library
+    //i would suggest you to take a deep breathe and go somewhere in north/south pole to cool-down your brain
+    //please don't blame me if you are failing to understand this crap correctly
+    //I would suggest you to understand project management(theory) and science of task dependency
+    //for better understanding, please never call me
     public class TaskScheduler
     {
         #region Constructor

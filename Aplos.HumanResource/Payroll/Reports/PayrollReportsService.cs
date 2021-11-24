@@ -18710,7 +18710,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
         private void GetLeaveBalances(string EmployeeId, string FromDate, string ToDate, out DataTable dtLeaveBalance)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"Select L.LeaveTypeId,ISNULL(l.BroughtForward,0)+ ISNULL(L.CarryForwardOpeningBalance,0) AS LeaveCount,'OB' AS TransactionType
+            string sql = @"Select L.LeaveTypeId, ISNULL(l.CurrentYearAllocation,0)+ISNULL(l.BroughtForward,0)+ ISNULL(L.CarryForwardOpeningBalance,0) AS LeaveCount,'OB' AS TransactionType
                                   from 
                                 YearlyCalendar AS C
                                 JOIN trn.EmployeeLeaveSummary L ON l.CalanderYearId=c.Id
