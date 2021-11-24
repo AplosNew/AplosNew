@@ -249,6 +249,10 @@ namespace Aplos.Areas.Payrolls.Controllers
                     {
                         List<DataRow> dlrPF = dicPFSalaryHeadWiseData[dtEmpInfo.Rows[i]["EmpSystemId"].ToString()];
                         TotalNumer = 0;
+                        if (dlrPF.Count >1)
+                        {
+
+                        }
                         foreach (var item in dlrPF)
                         {
                             sheet1.Range[xlsRow, SalaryHeadIndex[item["SalaryHeadID"].ToString()]].Number = clsStaticInfo.dbl(item["DisbusmentAmount"].ToString());
@@ -256,7 +260,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                         }
                         GrandTotal = GrandTotal + TotalNumer;
                     }
-                        
+
                     SetSLText(ref sheet1, xlsRow, colSrNo, slCount);
                     if (dt.Rows.Count > 1)
                     {
@@ -544,7 +548,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
             try
             {
-                strSQL = @" SELECT SPC.SystemID AS SlrProcChdSysID, SPC.SlrProcMstSystemID, SPM.SalaryProcID, SPM.FromDate, SPM.ToDate,
+                strSQL = @" SELECT distinct SPC.SystemID AS SlrProcChdSysID, SPC.SlrProcMstSystemID, SPM.SalaryProcID, SPM.FromDate, SPM.ToDate,
 													SPC.EmpInfoSystemID, SPC.PlantID, SPM.UserGroupSystemID, SPM.MonthNo, SPM.YearNo, SPC.PayAbleShSystemID,
 													SPC.SalaryHeadID, SPC.EntryCurrencyID, SPC.EntryAmount, SPC.DefineCurrencyID, SPC.DefineAmount,
 													SPC.DisbusmentCurrencyID, SPC.DisbusmentAmount, SPC.AcltExcDisbSlrHDID, SPC.AcltExcDisbSlrHDAmt,

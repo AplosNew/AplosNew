@@ -2789,16 +2789,9 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
 				data.TrnAmount = 0;
 			data.TaxAmount = 0;
 			data.BaseTaxAmount = 0;
-			var TotalServiceAmount = $filter('sumByKey')($filter('filter')($scope.chargesListPO), 'POAmount');
-			var TotalTrnAmount = $filter('sumByKey')($filter('filter')($scope.inventoryMaterialListPO), 'TrnAmount');
-			var TotalServiceTaxAmount = $filter('sumByKey')($filter('filter')($scope.POServiceTaxList), 'TaxAmount');
-
-			//angular.forEach(data.POMaterialTaxList, function (item) {
-			//	item.TaxAmount = data.TrnAmount * item.Percentage / 100;
-			//	data.BaseTaxAmount += item.TaxAmount;
-
-			//});
-
+			var TotalServiceAmount = Math.round($filter('sumByKey')($filter('filter')($scope.chargesListPO), 'POAmount') * 100 + Number.EPSILON) / 100;
+			var TotalTrnAmount = Math.round($filter('sumByKey')($filter('filter')($scope.inventoryMaterialListPO), 'TrnAmount') * 100 + Number.EPSILON) / 100;
+			var TotalServiceTaxAmount = Math.round($filter('sumByKey')($filter('filter')($scope.POServiceTaxList), 'TaxAmount') * 100 + Number.EPSILON) / 100;
 
 			for (var i = 0; i < $scope.inventoryMaterialListPO.length; i++) {
 				$scope.inventoryMaterialListPO[i].Balance = '';
@@ -2810,24 +2803,16 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
 					ShowResult('Current quantity can not grater than balance qty!', 'failure');
 					return false;
 				}
-				//else if ($scope.inventoryMaterialListPO[i].POQty < (parseFloat($scope.inventoryMaterialListPO[i].GRNRcvQty + $scope.inventoryMaterialListPO[i].TransactionQty).toFixed(2)) && $scope.inventoryMaterialListPO[i].Tolerance > 0) {
-				//	//$scope.inventoryMaterialListPO[i].Balance = $scope.inventoryMaterialListPO[i].POQty - $scope.inventoryMaterialListPO[i].GRNRcvQty;
-				//	var ToleranceQty = $scope.inventoryMaterialListPO[i].POQty * $scope.inventoryMaterialListPO[i].Tolerance / 100;
-				//	var newpoQty = $scope.inventoryMaterialListPO[i].POQty + ToleranceQty;
-				//	return true;
-
-				//}
+				
 				else if (newpoQty < (parseFloat($scope.inventoryMaterialListPO[i].GRNRcvQty + $scope.inventoryMaterialListPO[i].TransactionQty).toFixed(2)) && (!baseService.isUndefinedOrNull($scope.inventoryMaterialListPO[i].Tolerance) || $scope.inventoryMaterialListPO[i].Tolerance > 0)) {
 					ShowResult('Current quantity can not grater than po qty and Tolerance qty!PO + Tolerance=' + newpoQty, 'failure');
 					return false;
 				}
 				else if ($scope.inventoryMaterialListPO[i].ShortageQty > $scope.inventoryMaterialListPO[i].TransactionQty) {
-					//$scope.inventoryMaterialListPO[i].Balance = $scope.inventoryMaterialListPO[i].POQty - $scope.inventoryMaterialListPO[i].GRNRcvQty;
 					ShowResult('Shortage Qty quantity can not grater than current qty!', 'failure');
 					return false;
 				}
 				else if ($scope.inventoryMaterialListPO[i].RejectionQty > $scope.inventoryMaterialListPO[i].TransactionQty) {
-					//$scope.inventoryMaterialListPO[i].Balance = $scope.inventoryMaterialListPO[i].POQty - $scope.inventoryMaterialListPO[i].GRNRcvQty;
 					ShowResult('Rejection Qty quantity can not grater than current qty!', 'failure');
 					return false;
 				}
@@ -3004,17 +2989,6 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
 				}
 
 			}
-
-
-			//angular.forEach($scope.inventoryMaterialListPO, function (item) {
-			//    item.ServiceCharge = (TotalServiceAmount / TotalTrnAmount) * data.TrnAmount;
-
-			//});
-
-			//$scope.detailModel.BaseUOMId = $filter("filter")($scope.chargesListPO, { IsBaseUom: 1 })[0].Value;
-
-			// data.NetAmount = parseFloat(data.TrnAmount) + parseFloat(data.TaxAmount);
-			//data.BaseAmount = $scope.productNew.ToCurrencyRate * data.TrnAmount;
 		}
 
 	};
@@ -3145,66 +3119,29 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
 		for (var i = 0; i < $scope.POServiceTaxList.length; i++) {
 
 			if ($scope.POServiceTaxList[i].InventoryServiceId == data.Id) {
-				$scope.POServiceTaxList[i].TaxAmount = data.Amount * $scope.POServiceTaxList[i].Percentage / 100;
+				$scope.POServiceTaxList[i].TaxAmount = Math.round((data.Amount * $scope.POServiceTaxList[i].Percentage / 100) * 100 + Number.EPSILON) / 100;
 				data.TotalTaxAmount += $scope.POServiceTaxList[i].TaxAmount;
 			}
 		}
-		var TotalServiceTaxAmount = $filter('sumByKey')($filter('filter')($scope.POServiceTaxList), 'TaxAmount');
-
-		// data.NetAmount = parseFloat(data.TrnAmount) + parseFloat(data.TaxAmount);
-		//data.BaseAmount = $scope.productNew.ToCurrencyRate * data.TrnAmount;
-
-
-		//for (var i = 0; i < $scope.inventoryMaterialListPO.length; i++) {
-		//    if ($scope.inventoryMaterialListPO[i].PODetailsID == data.PODetailsID) {
-		//        $scope.inventoryMaterialListPO[i].Amount = data.Amount;
-		//        $scope.inventoryMaterialListPO[i].ServiceCharge = (TotalServiceAmount / data.Amount) * $scope.inventoryMaterialListPO[i].Amount;
-		//        $scope.inventoryMaterialListPO[i].ServiceTax = (TotalServiceTaxAmount / data.Amount) * $scope.inventoryMaterialListPO[i].Amount;
-		//    }
-		//    else {
-		//        $scope.inventoryMaterialListPO[i].ServiceCharge = (TotalServiceAmount / data.Amount) * $scope.inventoryMaterialListPO[i].TrnAmount;
-		//        $scope.inventoryMaterialListPO[i].ServiceTax = (TotalServiceTaxAmount / data.Amount) * $scope.inventoryMaterialListPO[i].TrnAmount;
-		//    }
-		//    if ($scope.productNew.IsNonCreditable == 1) {
-		//        //data.NetAmount = parseFloat(data.TrnAmount) + parseFloat(data.TaxAmount);
-		//        $scope.inventoryMaterialListPO[i].BaseAmount = parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat(data.BaseTaxAmount) + $scope.inventoryMaterialListPO[i].ServiceCharge + data.ServiceTax;
-
-		//    }
-		//    else {
-		//        data.BaseAmount = parseFloat(data.TrnAmount) + data.ServiceCharge;
-		//    }
-
-		//}
-
+		var TotalServiceTaxAmount = Math.round($filter('sumByKey')($filter('filter')($scope.POServiceTaxList), 'TaxAmount') * 100 + Number.EPSILON) / 100;
 
 		for (var i = 0; i < $scope.inventoryMaterialListPO.length; i++) {
 
 			if ($scope.inventoryMaterialListPO[i].POID == data.InventoryReceiveId) {
-				var TotalServiceAmount = $filter('sumByKey')($filter('filter')($scope.chargesListPO, { 'InventoryReceiveId': data.InventoryReceiveId }), 'Amount');
-				var TotalTrnAmount = $filter('sumByKey')($filter('filter')($scope.inventoryMaterialListPO, { 'POID': $scope.inventoryMaterialListPO[i].POID }), 'TrnAmount');
-				//$scope.inventoryMaterialListPO[i].TrnAmount = data.TrnAmount;
-				$scope.inventoryMaterialListPO[i].ServiceCharge = ((TotalServiceAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount).toFixed(2);
-				$scope.inventoryMaterialListPO[i].ServiceTax = ((TotalServiceTaxAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount).toFixed(2);
+				var TotalServiceAmount = Math.round($filter('sumByKey')($filter('filter')($scope.chargesListPO, { 'InventoryReceiveId': data.InventoryReceiveId }), 'Amount') * 100 + Number.EPSILON) / 100;
+				var TotalTrnAmount = Math.round($filter('sumByKey')($filter('filter')($scope.inventoryMaterialListPO, { 'POID': $scope.inventoryMaterialListPO[i].POID }), 'TrnAmount') * 100 + Number.EPSILON) / 100;
+				$scope.inventoryMaterialListPO[i].ServiceCharge = Math.round(((TotalServiceAmount / TotalTrnAmount).toFixed(2) * $scope.inventoryMaterialListPO[i].TrnAmount.toFixed(2)) * 100 + Number.EPSILON) / 100;
+				$scope.inventoryMaterialListPO[i].ServiceTax = Math.round(((TotalServiceTaxAmount / TotalTrnAmount).toFixed(2) * $scope.inventoryMaterialListPO[i].TrnAmount.toFixed(2)) * 100 + Number.EPSILON) / 100;
 			}
-			//else {
-			//    $scope.inventoryMaterialListPO[i].ServiceCharge = (TotalServiceAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount;
-			//    $scope.inventoryMaterialListPO[i].ServiceTax = (TotalServiceTaxAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount;
-			//}
+			
 			if ($scope.productNew.IsNonCreditable == 1) {
-				//data.NetAmount = parseFloat(data.TrnAmount) + parseFloat(data.TaxAmount);
-
-				// $scope.inventoryMaterialListPO[i].TotalMaterialTranAmount = $scope.inventoryMaterialListPO[i].TrnAmount + $scope.inventoryMaterialListPO[i].BaseTaxAmount;
-				//$scope.inventoryMaterialListPO[i].TotalMaterialBaseAmount = parseFloat((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].BaseTaxAmount).toFixed(2) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge).toFixed(2) + parseFloat($scope.inventoryMaterialListPO[i].ServiceTax).toFixed(2)) * $scope.productNew.ToCurrencyRate).toFixed(2);
-
+				
 				$scope.inventoryMaterialListPO[i].TotalMaterialTranAmount = (parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].BaseTaxAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge) + parseFloat($scope.inventoryMaterialListPO[i].ServiceTax)).toFixed(2);
 				$scope.inventoryMaterialListPO[i].TotalMaterialBaseAmount = ((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].BaseTaxAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge) + parseFloat($scope.inventoryMaterialListPO[i].ServiceTax)) * $scope.productNew.ToCurrencyRate).toFixed(2);
-
-
 			}
 			else {
 				$scope.inventoryMaterialListPO[i].TotalMaterialTranAmount = (parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge)).toFixed(2);
 				$scope.inventoryMaterialListPO[i].TotalMaterialBaseAmount = ((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge)) * $scope.productNew.ToCurrencyRate).toFixed(2);
-				//$scope.inventoryMaterialListPO[i].TotalMaterialBaseAmount = ((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount).toFixed(2) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge).toFixed(2)) * $scope.productNew.ToCurrencyRate);
 			}
 
 		}
@@ -3213,24 +3150,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
 
 
 	$scope.calculateAmountForServiceCharge1 = function (data) {
-		//debugger;
-		////data.TrnAmount = (data.TransactionQty * data.TransactionRate).toFixed(2);
-		////if (data.TrnAmount == 'NaN')
-		////    data.TrnAmount = 0;
-		////data.TaxAmount = 0;
-		//data.TotalTaxAmount = 0;
-		//for (var i = 0; i < $scope.ServiceTaxList.length; i++) {
-		//    if ($scope.ServiceTaxList[i].InventoryServiceId == data.Id) {
-		//        $scope.ServiceTaxList[i].TaxAmount = data.Amount * $scope.ServiceTaxList[i].Percentage / 100;
-		//        data.TotalTaxAmount += $scope.ServiceTaxList[i].TaxAmount;
-		//    }
-		//}
-		//// data.NetAmount = parseFloat(data.TrnAmount) + parseFloat(data.TaxAmount);
-		////data.BaseAmount = $scope.productNew.ToCurrencyRate * data.TrnAmount;
-		//data.TrnAmount = (data.TransactionQty * data.TransactionRate).toFixed(2);
-		//if (data.TrnAmount == 'NaN')
-		//    data.TrnAmount = 0;
-		//data.TaxAmount = 0;
+		
 		data.TotalTaxAmount = 0;
 		var TotalServiceAmount = $filter('sumByKey')($filter('filter')($scope.chargesList), 'Amount');
 		var TotalTrnAmount = $filter('sumByKey')($filter('filter')($scope.inventoryMaterialList), 'TrnAmount');
@@ -3242,59 +3162,20 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
 			}
 		}
 		var TotalServiceTaxAmount = $filter('sumByKey')($filter('filter')($scope.ServiceTaxList), 'TaxAmount');
-		// data.NetAmount = parseFloat(data.TrnAmount) + parseFloat(data.TaxAmount);
-		//data.BaseAmount = $scope.productNew.ToCurrencyRate * data.TrnAmount;
-
-
-		//for (var i = 0; i < $scope.inventoryMaterialListPO.length; i++) {
-		//    if ($scope.inventoryMaterialListPO[i].PODetailsID == data.PODetailsID) {
-		//        $scope.inventoryMaterialListPO[i].Amount = data.Amount;
-		//        $scope.inventoryMaterialListPO[i].ServiceCharge = (TotalServiceAmount / data.Amount) * $scope.inventoryMaterialListPO[i].Amount;
-		//        $scope.inventoryMaterialListPO[i].ServiceTax = (TotalServiceTaxAmount / data.Amount) * $scope.inventoryMaterialListPO[i].Amount;
-		//    }
-		//    else {
-		//        $scope.inventoryMaterialListPO[i].ServiceCharge = (TotalServiceAmount / data.Amount) * $scope.inventoryMaterialListPO[i].TrnAmount;
-		//        $scope.inventoryMaterialListPO[i].ServiceTax = (TotalServiceTaxAmount / data.Amount) * $scope.inventoryMaterialListPO[i].TrnAmount;
-		//    }
-		//    if ($scope.productNew.IsNonCreditable == 1) {
-		//        //data.NetAmount = parseFloat(data.TrnAmount) + parseFloat(data.TaxAmount);
-		//        $scope.inventoryMaterialListPO[i].BaseAmount = parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat(data.BaseTaxAmount) + $scope.inventoryMaterialListPO[i].ServiceCharge + data.ServiceTax;
-
-		//    }
-		//    else {
-		//        data.BaseAmount = parseFloat(data.TrnAmount) + data.ServiceCharge;
-		//    }
-
-		//}
-
-
+		
 		for (var i = 0; i < $scope.inventoryMaterialList.length; i++) {
-			//if ($scope.inventoryMaterialListPO[i].PODetailsID == data.Id) {
-			//$scope.inventoryMaterialListPO[i].TrnAmount = data.TrnAmount;
 			$scope.inventoryMaterialList[i].ServiceCharge = (parseFloat(TotalServiceAmount).toFixed(2) / parseFloat(TotalTrnAmount).toFixed(2)) * parseFloat($scope.inventoryMaterialList[i].TrnAmount).toFixed(2);
 			$scope.inventoryMaterialList[i].ServiceTax = (parseFloat(TotalServiceTaxAmount).toFixed(2) / parseFloat(TotalTrnAmount).toFixed(2)) * parseFloat($scope.inventoryMaterialList[i].TrnAmount).toFixed(2);
-			//}
-			//else {
-			//    $scope.inventoryMaterialListPO[i].ServiceCharge = (TotalServiceAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount;
-			//    $scope.inventoryMaterialListPO[i].ServiceTax = (TotalServiceTaxAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount;
-			//}
+			
 			if ($scope.productNew.IsNonCreditable == 1) {
-				//data.NetAmount = parseFloat(data.TrnAmount) + parseFloat(data.TaxAmount);
-
-				// $scope.inventoryMaterialListPO[i].TotalMaterialTranAmount = $scope.inventoryMaterialListPO[i].TrnAmount + $scope.inventoryMaterialListPO[i].BaseTaxAmount;
-				//$scope.inventoryMaterialListPO[i].TotalMaterialBaseAmount = parseFloat((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].BaseTaxAmount).toFixed(2) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge).toFixed(2) + parseFloat($scope.inventoryMaterialListPO[i].ServiceTax).toFixed(2)) * $scope.productNew.ToCurrencyRate).toFixed(2);
-
+				
 				$scope.inventoryMaterialList[i].TotalMaterialTranAmount = (parseFloat($scope.inventoryMaterialList[i].TrnAmount) + parseFloat($scope.inventoryMaterialList[i].BaseTaxAmount) + parseFloat($scope.inventoryMaterialList[i].ServiceCharge) + parseFloat($scope.inventoryMaterialList[i].ServiceTax)).toFixed(2);
 				$scope.inventoryMaterialList[i].TotalMaterialBaseAmount = ((parseFloat($scope.inventoryMaterialList[i].TrnAmount) + parseFloat($scope.inventoryMaterialList[i].BaseTaxAmount) + parseFloat($scope.inventoryMaterialList[i].ServiceCharge) + parseFloat($scope.inventoryMaterialList[i].ServiceTax)) * $scope.productNew.ToCurrencyRate).toFixed(2);
-
 
 			}
 			else {
 				$scope.inventoryMaterialList[i].TotalMaterialTranAmount = (parseFloat($scope.inventoryMaterialList[i].TrnAmount) + parseFloat($scope.inventoryMaterialList[i].ServiceCharge)).toFixed(2);
 				$scope.inventoryMaterialList[i].TotalMaterialBaseAmount = ((parseFloat($scope.inventoryMaterialList[i].TrnAmount) + parseFloat($scope.inventoryMaterialList[i].ServiceCharge)) * $scope.productNew.ToCurrencyRate).toFixed(2);
-
-				//data.TotalMaterialTranAmount = parseFloat($scope.inventoryMaterialList[i].TrnAmount).toFixed(2) + parseFloat($scope.inventoryMaterialList[i].ServiceCharge).toFixed(2);
-				//data.TotalMaterialBaseAmount = ((parseFloat($scope.inventoryMaterialList[i].TrnAmount).toFixed(2) + parseFloat($scope.inventoryMaterialList[i].ServiceCharge).toFixed(2)) * $scope.productNew.ToCurrencyRate);
 			}
 
 		}
@@ -3311,71 +3192,27 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
 	//#endregion
 
 	$scope.calculateMaterialTax = function (data, index) {
-		//debugger;
-		// data.TransactionRate = (data.TrnAmount / data.TransactionQty).toFixed(2);
-		//data.TrnAmount = (data.TransactionQty * data.TransactionRate).toFixed(2);
-		//if (data.TrnAmount == 'NaN')
-		//    data.TrnAmount = 0;
-		//data.TaxAmount = 0;
-		//data.BaseTaxAmount = 0;
-
 		var TotalServiceAmount = $filter('sumByKey')($filter('filter')($scope.chargesListPO), 'Amount');
 		var TotalTrnAmount = $filter('sumByKey')($filter('filter')($scope.inventoryMaterialListPO), 'TrnAmount');
 		var TotalMaterialTaxAmount = $filter('sumByKey')($filter('filter')($scope.receiveTaxList), 'TaxAmount');
 
-		//angular.forEach(data.POMaterialTaxList, function (item) {
-		//    item.TaxAmount = data.TrnAmount * item.Percentage / 100;
-		//    data.BaseTaxAmount += item.TaxAmount;
-
-		//});
-
 		for (var i = 0; i < $scope.inventoryMaterialListPO.length; i++) {
 			if ($scope.inventoryMaterialListPO[i].PODetailsID == data.PODetailId) {
-				//$scope.inventoryMaterialListPO[i].TrnAmount = data.TrnAmount;
 				$scope.inventoryMaterialListPO[i].BaseTaxAmount = TotalMaterialTaxAmount;
-				// $scope.inventoryMaterialListPO[i].ServiceCharge = parseFloat((TotalServiceAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount).toFixed(4);
-				//$scope.inventoryMaterialListPO[i].ServiceTax = parseFloat((TotalMaterialTaxAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount).toFixed(4);
-
-				//else {
-				//    $scope.inventoryMaterialListPO[i].ServiceCharge = parseFloat((TotalServiceAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount).toFixed(4);
-				//    $scope.inventoryMaterialListPO[i].ServiceTax = parseFloat((TotalMaterialTaxAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount).toFixed(4);
-				//}
-				//if ($scope.productNew.IsNonCreditable == 1) {
-				//    //data.NetAmount = parseFloat(data.TrnAmount) + parseFloat(data.TaxAmount);
-				//    $scope.inventoryMaterialListPO[i].BaseAmount = parseFloat($scope.inventoryMaterialListPO[i].TrnAmount + $scope.inventoryMaterialListPO[i].BaseTaxAmount + $scope.inventoryMaterialListPO[i].ServiceCharge + $scope.inventoryMaterialListPO[i].ServiceTax).toFixed(4);
-
-				//}
-				//else {
-				//    data.BaseAmount = parseFloat($scope.inventoryMaterialListPO[i].TrnAmount).toFixed(4) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge).toFixed(4);
-				//}
+				
 				if ($scope.productNew.IsNonCreditable == 1) {
-					//data.NetAmount = parseFloat(data.TrnAmount) + parseFloat(data.TaxAmount);
-					//  $scope.inventoryMaterialListPO[i].TotalMaterialTranAmount = parseFloat($scope.inventoryMaterialListPO[i].TrnAmount + $scope.inventoryMaterialListPO[i].BaseTaxAmount + $scope.inventoryMaterialListPO[i].ServiceCharge + $scope.inventoryMaterialListPO[i].ServiceTax).toFixed(2);
 					$scope.inventoryMaterialListPO[i].TotalMaterialTranAmount = parseFloat((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].BaseTaxAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge) + parseFloat($scope.inventoryMaterialListPO[i].ServiceTax))).toFixed(2);
 
 					$scope.inventoryMaterialListPO[i].TotalMaterialBaseAmount = parseFloat((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].BaseTaxAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge) + parseFloat($scope.inventoryMaterialListPO[i].ServiceTax)) * $scope.productNew.ToCurrencyRate).toFixed(2);
 
 				}
 				else {
-					//$scope.inventoryMaterialListPO[i].TotalMaterialTranAmount = parseFloat(parseFloat($scope.inventoryMaterialListPO[i].TrnAmount).toFixed(2) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge).toFixed(2)).toFixed(2);
 					$scope.inventoryMaterialListPO[i].TotalMaterialTranAmount = parseFloat((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge))).toFixed(2);
-
-					// $scope.inventoryMaterialListPO[i].TotalMaterialBaseAmount = parseFloat((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount).toFixed(2) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge).toFixed(2)) * $scope.productNew.ToCurrencyRate).toFixed(2);
 					$scope.inventoryMaterialListPO[i].TotalMaterialBaseAmount = parseFloat((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge)) * $scope.productNew.ToCurrencyRate).toFixed(2);
 
 				}
 			}
 		}
-		//angular.forEach($scope.inventoryMaterialListPO, function (item) {
-		//    item.ServiceCharge = (TotalServiceAmount / TotalTrnAmount) * data.TrnAmount;
-
-		//});
-
-		//$scope.detailModel.BaseUOMId = $filter("filter")($scope.chargesListPO, { IsBaseUom: 1 })[0].Value;
-
-		// data.NetAmount = parseFloat(data.TrnAmount) + parseFloat(data.TaxAmount);
-		//data.BaseAmount = $scope.productNew.ToCurrencyRate * data.TrnAmount;
-
 	};
 
 	$scope.calculateSerciceTax = function (data) {
@@ -3397,20 +3234,6 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
 			//$scope.inventoryMaterialListPO[i].ServiceTax = Math.round(Math$scope.chargesListPO[i].TotalTaxAmount);
 			$scope.inventoryMaterialListPO[i].ServiceCharge = parseFloat((TotalServiceAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount).toFixed(4);
 			$scope.inventoryMaterialListPO[i].ServiceTax = parseFloat((TotalServiceTaxAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount).toFixed(4);
-			//}
-			//else {
-			//    $scope.inventoryMaterialListPO[i].ServiceCharge = (TotalServiceAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount;
-			//    $scope.inventoryMaterialListPO[i].ServiceTax = (TotalServiceTaxAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount;
-			//}
-			//if ($scope.productNew.IsNonCreditable == 1) {
-			//    //data.NetAmount = parseFloat(data.TrnAmount) + parseFloat(data.TaxAmount);
-			//    $scope.inventoryMaterialListPO[i].BaseAmount = parseFloat($scope.inventoryMaterialListPO[i].TrnAmount + $scope.inventoryMaterialListPO[i].BaseTaxAmount + $scope.inventoryMaterialListPO[i].ServiceCharge + $scope.inventoryMaterialListPO[i].ServiceTax).toFixed(4);
-
-			//}
-			//else {
-			//    data.BaseAmount = parseFloat($scope.inventoryMaterialListPO[i].TrnAmount + $scope.inventoryMaterialListPO[i].ServiceCharge).toFixed(4);
-			//}
-
 			if ($scope.productNew.IsNonCreditable == 1) {
 				//data.NetAmount = parseFloat(data.TrnAmount) + parseFloat(data.TaxAmount);
 				$scope.inventoryMaterialListPO[i].TotalMaterialTranAmount = parseFloat(parseFloat($scope.inventoryMaterialListPO[i].TrnAmount).toFixed(2) + parseFloat($scope.inventoryMaterialListPO[i].BaseTaxAmount).toFixed(2) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge).toFixed(2) + parseFloat($scope.inventoryMaterialListPO[i].ServiceTax).toFixed(2)).toFixed(2);

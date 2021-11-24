@@ -49,6 +49,12 @@ namespace Aplos.Areas.HumanResource.Controllers
             return Json(ot.getDayTypes(), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetWorkDateRange(string Year, string Month, string Week)
+        {
+            return Json(ot.GetWorkDateRange(Year,Month,Week), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost,Authorize]
         public ActionResult getGridData(string Week, string FromDate, string ToDate, Dictionary<string , string> Parameters)
         {

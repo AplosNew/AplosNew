@@ -183,6 +183,8 @@ namespace Library.MaterialManagement.Inventory
         void InsertPODocMap(GRNDocumentMap entity, string POId, out string Id);
 
         IEnumerable<object> GetJWApproving(string plantId, string GRNbyPOApprovedStatus);
+
+        IEnumerable<object> GetJobWorkApproving(string plantId, string GRNbyPOApprovedStatus);
         IEnumerable<object> GetJWCheckedByAndApprovedBY(string CheckedBy, string ApprovedBy);
 
         void FGInventoryReceive(string CompanyId, string CompanyGroupID, string plantId, string UserId, string grnId);

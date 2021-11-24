@@ -10623,7 +10623,7 @@ namespace Library.HumanResource.Payroll
                                             sheet1[1, xlsCol + 1].ColumnWidth = 6;
 
                                             sheet1.Range[xlsRow + k, xlsCol].Text = ru.GetLabelname(labelList, LeaveItem.Value["LeaveCode"].ToString(), "B" + LeaveItem.Value["LeaveCode"].ToString()); //"Casual Leave";
-                                            sheet1.Range[xlsRow + k, xlsCol + 1].Number = clsStaticInfo.dbl(LeaveItem.Value["ClosingBalance"].ToString());
+                                            sheet1.Range[xlsRow + k, xlsCol + 1].Number = clsStaticInfo.dbl(clsStaticInfo.dbl(LeaveItem.Value["ClosingBalance"].ToString()).ToString("F2"));
 
                                             k++;
                                         }
@@ -18710,15 +18710,15 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
         private void GetLeaveBalances(string EmployeeId, string FromDate, string ToDate, out DataTable dtLeaveBalance)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"Select L.LeaveTypeId,ISNULL(l.BroughtForward,0)+ ISNULL(L.CarryForwardOpeningBalance,0) AS LeaveCount,'OB' AS TransactionType
-                                  from 
-                                YearlyCalendar AS C
-                                JOIN trn.EmployeeLeaveSummary L ON l.CalanderYearId=c.Id
+            string sql = @"Select L.LeaveTypeId, ISNULL(l.CurrentYearAllocation,0) CurrentYearAllocation,ISNULL(l.BroughtForward,0)+ ISNULL(L.CarryForwardOpeningBalance,0) AS LeaveCount,'OB' AS TransactionType
+                                  from EmployeeInformation EI
+                                Join YearlyCalendar AS C ON C.PlantId=EI.PlantId
+                                JOIN trn.EmployeeLeaveSummary L ON l.CalanderYearId=c.Id and L.EmployeeId=EI.SystemId
                                 WHERE L.EmployeeId='" + EmployeeId + @"' AND '" + FromDate + @"' BETWEEN c.FromDate AND c.ToDate AND l.LeaveTypeId IN (SELECT LeaveTypeId FROM LeaveWithWagesRegisterLeaveTypes where CompanyId='" + identity.CompanyId + @"') 
                                 
                                 UNION ALL
 
-                                SELECT l.LeaveTypeId,
+                                SELECT l.LeaveTypeId,0 AS CurrentYearAllocation,
                                 CASE WHEN EncashWorkingDaysQty>0 THEN CONVERT(DECIMAL(18,4), EncashEarnLeaveQty)/CONVERT(DECIMAL(18,4),EncashWorkingDaysQty) ELSE 0 END * SUM(l.EarnValue) ActualEarnedLeave,
                                 'CUR' AS TransactionType
                                  FROM AttdnProcessData AS apd
@@ -18930,7 +18930,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                     sheet[ROW - 1, COL].Text = dtLeaveInfo.Rows[i]["LeaveDesc"].ToString();
                     sheet.Range[ROW - 1, COL, ROW - 1, COL + 2].Merge();
                     sheet.Range[ROW - 1, COL, ROW - 1, COL + 2].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet.Range[ROW - 1, COL, ROW - 1, COL + 2].CellStyle.Interior.Color = System.Drawing.Color.FromArgb(0, 0, 0);
+                    sheet.Range[ROW - 1, COL, ROW - 1, COL + 2].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_80_percent;
                     sheet.Range[ROW - 1, COL, ROW - 1, COL + 2].CellStyle.Font.Color = ExcelKnownColors.White;
                     sheet.Range[ROW - 1, COL, ROW - 1, COL + 2].CellStyle.Font.Bold = true;
                     sheet.Range[ROW - 1, COL, ROW - 1, COL + 2].CellStyle.Font.Size = 9f;
@@ -18958,8 +18958,8 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
 
                 int endCol = COL;
 
-                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.Color = System.Drawing.Color.FromArgb(0, 0, 0);
-                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex=ExcelKnownColors.Grey_25_percent;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.Black;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
                 sheet.Range[ROW, 1, ROW, endCol].WrapText = true;
@@ -18974,7 +18974,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                 sheet[startRow, 1].Text = "Balance From the preceeding year";
                 sheet[startRow + 1, 1].Text = "Credit for the current year";
                 sheet[startRow + 2, 1].Text = "Total leave to credit";
-
+                int LeaveBalanceRow = startRow + 2;
                 ROW = startRow + 3;
                 for (int i = 0; i < dtLeaveBalance.Rows.Count; i++)
                 {
@@ -18983,7 +18983,14 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                     if (dtLeaveBalance.Rows[i]["TransactionType"].ToString() == "OB")
                         sheet[startRow, tempLeaveCol + 2].Number = clsStaticInfo.dbl(dtLeaveBalance.Rows[i]["LeaveCount"].ToString());
                     else
-                        sheet[startRow + 1, tempLeaveCol + 2].Number = clsStaticInfo.dbl(dtLeaveBalance.Rows[i]["LeaveCount"].ToString());
+                    {
+                        double CurrentYearAllocation = 0;
+                        dtLeaveBalance.DefaultView.RowFilter = "LeaveTypeId='" + dtLeaveBalance.Rows[i]["LeaveTypeId"].ToString() + @"' AND TransactionType='OB'";
+                        if (dtLeaveBalance.DefaultView.Count > 0)
+                            CurrentYearAllocation = clsStaticInfo.dbl(dtLeaveBalance.DefaultView[0]["CurrentYearAllocation"].ToString());
+
+                        sheet[startRow + 1, tempLeaveCol + 2].Number = CurrentYearAllocation + clsStaticInfo.dbl(dtLeaveBalance.Rows[i]["LeaveCount"].ToString());
+                    }
                 }
                 for (int i = 0; i < dtLeaveInfo.Rows.Count; i++)
                 {
@@ -19058,7 +19065,18 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
 
                 }
 
+                sheet[ROW, 1].Text = "Closing Balance";
+                foreach (KeyValuePair<string, int> item in dicLeaveColIndex)
+                {
+                    int LeaveValueColumn = item.Value + 2;
+                    sheet[ROW, LeaveValueColumn].Formula = clsStaticInfo.GetxlsCol(LeaveValueColumn) + LeaveBalanceRow + "-SUM(" + clsStaticInfo.GetxlsCol(LeaveValueColumn) + (LeaveBalanceRow + 1) + ":" + clsStaticInfo.GetxlsCol(LeaveValueColumn) + (ROW - 1) + ")";
+                }
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
 
+                ROW++;
                 sheet.UsedRange.NumberFormat = clsStaticInfo.NumberFormat(2);
                 ReportUtility reportUtility = new ReportUtility();
                 reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Form 18", identity.CompanyId, identity.CompanyName, "");
