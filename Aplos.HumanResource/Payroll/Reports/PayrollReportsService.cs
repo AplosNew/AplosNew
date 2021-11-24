@@ -10623,7 +10623,7 @@ namespace Library.HumanResource.Payroll
                                             sheet1[1, xlsCol + 1].ColumnWidth = 6;
 
                                             sheet1.Range[xlsRow + k, xlsCol].Text = ru.GetLabelname(labelList, LeaveItem.Value["LeaveCode"].ToString(), "B" + LeaveItem.Value["LeaveCode"].ToString()); //"Casual Leave";
-                                            sheet1.Range[xlsRow + k, xlsCol + 1].Number = clsStaticInfo.dbl(LeaveItem.Value["ClosingBalance"].ToString());
+                                            sheet1.Range[xlsRow + k, xlsCol + 1].Number = clsStaticInfo.dbl(clsStaticInfo.dbl(LeaveItem.Value["ClosingBalance"].ToString()).ToString("F2"));
 
                                             k++;
                                         }
