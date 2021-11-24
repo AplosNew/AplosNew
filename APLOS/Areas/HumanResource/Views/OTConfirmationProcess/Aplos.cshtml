@@ -27,7 +27,7 @@
                             <label class="col-sm-4 control-label">Week</label>
                             <div class="col-sm-8 ">
                                 <div class="select-style">
-                                    <select id="OTWApp" class="form-control" ng-model="Week" name="Week">
+                                    <select id="OTWApp" class="form-control" ng-model="Week" ng-change="dateShow()" name="Week">
                                         <option value="">-Select-</option>
                                         <option Value="1">Week 1</option>
                                         <option Value="2">Week 2</option>
@@ -42,20 +42,16 @@
                     <div class="col-sm-6 col-md-6 col-lg-6">
                         <div class="row">
                             <div class="col-lg-6 col-md-6 col-sm-12">
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
-                                    <div class="col-sm-8 show-message">
-                                        <input id="datepicker" e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="FromDate" e-width="100%" />
+                                    <div class="col-md-12">
+                                        <input id="ddlYearList" e-watermarktext="Year" ej-dropdownlist e-datasource="yearList" e-enablefiltersearch="true" e-value="year" e-databound="SelectDefaultValue" e-fields-value="Text" e-fields-text="Text" e-width="100%" e-change="dateShow" />
                                     </div>
-                                </div>
+
                             </div>
                             <div class="col-lg-6 col-md-6 col-sm-12">
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
-                                    <div class="col-sm-8 show-message">
-                                        <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="ToDate" e-width="100%" />
+                                    <div class="col-md-12">
+                                        <input id="ddlMonthList" e-watermarktext="Month" ej-dropdownlist e-datasource="monthList" e-value="month" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-change="dateShow" />
                                     </div>
-                                </div>
+                                
                             </div>
 
                         </div>
@@ -65,16 +61,35 @@
 
                 <div class="row" style="margin-top:10px">
                     <div class="col-md-6 col-lg-6 col-sm-12">
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">From Date</label>
+                                    <div class="col-sm-8 show-message">
+                                        <input id="datepicker" e-dateformat="dd-MMM-yyyy" disabled ej-datepicker e-value="FromDate" e-width="100%" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">To Date</label>
+                                    <div class="col-sm-8 show-message">
+                                        <input e-dateformat="dd-MMM-yyyy" ej-datepicker disabled e-value="ToDate" e-width="100%" />
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
                         @*<div class="form-group">
-                            <label class="col-sm-2 control-label">Day Status</label>
-                            <div class="col-sm-4">
-                                <input type="text" ng-model="DayStatus" ng-click="selectCurrDayStatus()" class="form-control" maxlength="100">
-                                
-                            </div>
-                            <div class="col-sm-4">
-                                <button ng-click="selectCurrDayStatus()" class="btn" tabindex="10"><i class="glyphicon glyphicon-search"></i></button>
-                            </div>
-                        </div>*@
+            <label class="col-sm-2 control-label">Day Status</label>
+            <div class="col-sm-4">
+                <input type="text" ng-model="DayStatus" ng-click="selectCurrDayStatus()" class="form-control" maxlength="100">
+
+            </div>
+            <div class="col-sm-4">
+                <button ng-click="selectCurrDayStatus()" class="btn" tabindex="10"><i class="glyphicon glyphicon-search"></i></button>
+            </div>
+        </div>*@
                     </div>
                     <div class="col-md-6 col-lg-6 col-sm-12">
                         
