@@ -46,6 +46,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 Format(max(workdate),'dd-MMM-yyyy')ToDate 
                 from AttdnProcessData where OTMonth='"+Month+"' and OTYear='"+Year+"' and otweek='"+Week+"'";
                 return _sqlRepository.GetDataCollection(str);
+
             }
             catch (Exception e)
             {
