@@ -73,8 +73,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 		                                SELECT p.EmpSystemID, p.WorkDate, p.DayStatus,
 		                                dense_rank() OVER (PARTITION BY p.EmpSystemID ORDER BY P.WorkDate DESC) AS SEQ
 		                                FROM AttdnProcessData AS P
-		                                LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=p.EmpSystemID
-		                                WHERE EI.PlantId='" + identity.PlantId + @"' AND p.DayStatus NOT IN (select distinct DayType from DayType where Category in ('Holiday','Weekend')) 
+		                                WHERE p.DayStatus NOT IN (select distinct DayType from DayType where Category in ('Holiday','Weekend')) 
 	                                ) AS D
                                 INNER JOIN EmployeeInformation AS E ON e.SystemId=d.EmpSystemID 
                                 LEFT OUTER JOIN org.Department AS DEP ON dep.Id=e.DepartmentId

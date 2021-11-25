@@ -121,4 +121,25 @@ function NewAttendanceProcessPlantWiseController($window, $timeout, cboService, 
             });
         }
     }
+
+    $scope.RunTBS_LA_Process = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.NewAttdnProcessPlantWise.$valid) {
+            $http({
+                method: 'GET',
+                url: $scope.path + 'RunTBS_LA_Process?Date=' + $scope.Attnd.Date,
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                }
+            });
+        }
+    }
+
+
+
  }
