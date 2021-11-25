@@ -3407,12 +3407,13 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 
 		});
 	}
-	$scope.TermsAndCondition = {
+	$scope.TermsAndConditions = {
 		Id: null
 		, Description: null
+		, TermsAndConditions : null
 	};
 	$scope.TermsAndConditionsList = [];
-	$scope.TermsAndCondition = function () {
+	$scope.TermsAndConditions = function () {
 
 		$http({
 			method: 'GET',
@@ -3420,11 +3421,11 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 			url: 'Products/PurchaseOrder/TermsAndConditions'
 		}).then(function successCallback(response) {
 			$scope.TermsAndConditionsList = response.data;
-			$scope.TermsAndCondition.Description = response.data[0].Description;
+			//$scope.TermsAndCondition.TermsAndConditions = response.data[0].TermsAndConditions;
 
 		});
 	}
-	$scope.TermsAndCondition();
+	$scope.TermsAndConditions();
 	$scope.changeTermsAndCondition = function () {
 
 		if (!baseService.isUndefinedOrNull($scope.productNew.PaymentTermId)) {

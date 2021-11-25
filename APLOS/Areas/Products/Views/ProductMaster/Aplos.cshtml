@@ -6,6 +6,7 @@
             <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">Product Data</a></li>
             <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" data-toggle="tab">Planning Data</a></li>
             <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" data-toggle="tab">Costing Data</a></li>
+            <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" data-toggle="tab">Alternative UOM</a></li>
         </ul>
     </div>
     <div class="tab-content">
@@ -77,6 +78,17 @@
                         <div class="col-sm-8">
                             <div class="select-style">
                                 <select class="form-control" ng-model="productMasterNew.ProductId" ng-options="item.Value as item.Text for item in productList" id="productId" name="Product" tabindex="8">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Base UOM</label>
+                        <div class="col-sm-8">
+                            <div class="select-style">
+                                <select submit-="true" ng-model="productMasterNew.BaseUOMId" class="form-control" name="BaseUOM"
+                                        id="baseUOMId" ng-options="item.Value as item.Text for item in uOMList" ng-change="putValueInAltUom();createUomList();" tabindex="8">
                                     <option value=""></option>
                                 </select>
                             </div>
@@ -237,6 +249,77 @@
                 </div>
             </div>
         </div>
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
+            <div class="row" ng-form name="materialMasterFormTab2">
+                <div class="form-elements" id="materialMasterAlternativeUOMNew">
+                    <input type="hidden" ng-model="materialMasterAlternativeUOMNew.Id">
+                    <input type="hidden" ng-model="materialMasterAlternativeUOMNew.MaterialMasterId">
+                    <div class="col-xs-12 col-sm-9 col-md-9" style="padding-right: 0px;">
+                        <div class="form-group">
+                            <div class="col-sm-1">
+                                <input type="number" class="form-control text-center" value="1" readonly>
+                            </div>
+                            <label class="col-sm-2 control-label">Alternative UOM</label>
+                            <div class="col-sm-3">
+                                <div class="select-style">
+                                    <select ng-model="materialMasterAlternativeUOMNew.AlternativeUOMId" class="form-control" name="Unit Of Masurement" ng-change="GetToUoMFactor();"
+                                            id="altUOMId" ng-options="item.Value as item.Text for item in uOMList" tabindex="1">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                            <label class="col-sm-1 control-label">Is</label>
+                            <div class="col-sm-2">
+                                <input type="number" name="Base uom factor" string-to-number ng-model="materialMasterAlternativeUOMNew.BaseUOMFactor" class="form-control" tabindex="2" maxlength="50">
+                            </div>
+                            <div class="col-sm-3">
+                                <input type="text" name="Base uom" ng-model="baseUOM" class="form-control" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2" style="padding-left: 0px;">
+                        <button ng-click="addRow();createNewUomList();" class="btn single-small-btn" tabindex="3"><i class=""></i> {{AltUomAction}}</button>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="table-responsive modal-table" ng-show="altUOMtbl">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Action</th>
+                                    <th>Alternative UOM Factor</th>
+                                    <th>Alternative UOM</th>
+                                    <th>Base UOM Factor</th>
+                                    <th>Base UOM</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in materialMasterAlternativeUOMs">
+                                    <td>
+                                        <ul class="list-inline action-list">
+                                            <li>
+                                                <button ng-click="GetMaterialMasterAlternativeUom(x.Id, $index)" ng-disabled="x.UsedUomInPO!==null||x.UsedUomInGRN!==null||x.UsedUomInBOM!==null" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
+                                                    <i class="glyphicon glyphicon-pencil"></i>
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button ng-click="valuePassInDelModal(x.Id, $index, x.AlternativeUOMName)" ng-disabled="x.UsedUomInPO!==null||x.UsedUomInGRN!==null||x.UsedUomInBOM!==null" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
+                                                    <i class="glyphicon glyphicon-remove"></i>
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                    <td>{{x.AlternativeUOMFactor}}</td>
+                                    <td>{{x.AlternativeUOMName}}</td>
+                                    <td>{{x.BaseUOMFactor}}</td>
+                                    <td>{{x.BaseUOMName}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="common-btn">
         <ul class="list-inline text-right">
@@ -280,6 +363,7 @@
                 <th>Product Subcategory</th>
                 <th>Product</th>
                 <th>Base Process</th>
+                <th>Base UoM</th>
                 <th>Active</th>
             </tr>
         </thead>
@@ -294,6 +378,7 @@
                 <td>{{x.ProductSubCategoryName}}</td>
                 <td>{{x.ProductName}}</td>
                 <td>{{x.BaseProcess}}</td>
+                <td>{{x.BaseUom}}</td>
                 <td>{{x.Active?'Yes':'No'}}</td>
             </tr>
         </tbody>
@@ -372,3 +457,4 @@
         </div>
     </div>
 </div>
+<confirm-archive-generic modalid="mmaltuom" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRow()"></confirm-archive-generic>
