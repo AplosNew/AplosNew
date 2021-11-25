@@ -6083,7 +6083,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                      
                         if (LAEmployees.Tables[0].Rows.Count > 0)
                         {
-                            UpdateEmpStatusLA(plantid, Date, LAEmployees); //update these emps as Long Absentism
+                            UpdateEmpStatusLA(plantid, LAEmployees); //update these emps as Long Absentism
                         }
                     }
                 }
@@ -6093,7 +6093,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw ex;
             }
         }
-        private void UpdateEmpStatusLA(string PlantId, string adate, DataSet dsLA)
+        private void UpdateEmpStatusLA(string PlantId, DataSet dsLA)
         {
             string strSql = string.Empty;
             try
@@ -6107,7 +6107,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     if (v != "")
                     {
 
-                        adate = Convert.ToDateTime(v).ToString("dd-MMM-yyyy");
+                       string adate = Convert.ToDateTime(v).ToString("dd-MMM-yyyy");
 
                         if (strSql.Length == 0)
                         {
@@ -6232,7 +6232,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         Get_tobe_TBS(plantid, adate, maxDays, out TBSDataSet);
                         if (TBSDataSet.Tables[0].Rows.Count > 0)
                         {
-                            UpdateEmpStatusTBS(plantid, adate, TBSDataSet); //update these Employees as TBS
+                            UpdateEmpStatusTBS(plantid,TBSDataSet); //update these Employees as TBS
                         }
                     }
                 }
@@ -6258,7 +6258,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }          
         }
-        private void UpdateEmpStatusTBS(string PlantId, string adate, DataSet dsLA)
+        private void UpdateEmpStatusTBS(string PlantId, DataSet dsLA)
         {
             string strSql = string.Empty;
             try
@@ -6270,7 +6270,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     string v = clsWebLib.RetValidLen(dsLA.Tables[0].Rows[i]["FirstAbsentDate"]).ToString();
                     if (v != "")
                     {
-                        adate = Convert.ToDateTime(v).ToString("dd-MMM-yyyy");
+                        string adate = Convert.ToDateTime(v).ToString("dd-MMM-yyyy");
 
                         if (strSql.Length == 0)
                         {
@@ -6318,7 +6318,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 		                                SELECT p.EmpSystemID, p.WorkDate, p.DayStatus,CASE WHEN daystatus IN (select distinct DayType from DayType where Category in ('Holiday','Weekend')) THEN 'A' ELSE daystatus END AS dayStatustemp,
 		                                dense_rank() OVER (PARTITION BY p.EmpSystemID ORDER BY P.WorkDate DESC) AS SEQ
 		                                FROM (select * from AttdnProcessData where
-										WorkDate<= '"+PlantId+"' and PlantID='"+PlantId+@"')  AS P 
+										WorkDate<= '"+adate+"' and PlantID='"+PlantId+@"')  AS P 
 		                                INNER JOIN EmployeeInformation AS ei ON ei.SystemId=p.EmpSystemID
                                         where p.DayStatus NOT IN (select distinct DayType from DayType where Category in ('Holiday','Weekend')) AND ei.EmployeeStatus='Active' AND (isnull(ei.EmployeeCurrentStatus,'')=''
                                 or isnull(ei.EmployeeCurrentStatus,'')='LONG ABSENTEEISM') 
