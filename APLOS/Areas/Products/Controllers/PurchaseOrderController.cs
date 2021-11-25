@@ -3792,7 +3792,7 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			try
 			{
-				string _sql = "select Id,Description from TermsAndConditionsMaster";
+				string _sql = "select Id,Description,UserName TermsAndConditions from HKP.TermsAndConditions";
 				//_sqlRepository.ExecuteSqlCommand(_sql);
 
 				return Json(_sqlRepository.GetDataCollection(_sql), JsonRequestBehavior.AllowGet);
