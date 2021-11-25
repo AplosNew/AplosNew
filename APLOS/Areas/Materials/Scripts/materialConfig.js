@@ -243,6 +243,6 @@ function MaterialConfig($routeProvider, $locationProvider) {
             templateUrl: 'materials/Rack/Aplos',
             controller: 'RackController'
         })
-
+        
        
 };
