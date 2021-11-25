@@ -88,7 +88,7 @@
                         <div class="col-sm-8">
                             <div class="select-style">
                                 <select submit-="true" ng-model="productMasterNew.BaseUOMId" class="form-control" name="BaseUOM"
-                                        id="baseUOMId" ng-options="item.Value as item.Text for item in uOMList" ng-change="putValueInAltUom();createUomList();" tabindex="8">
+                                        id="baseUOMId"  ng-disabled="materialMasterAlternativeUOMs.length>0" ng-options="item.Value as item.Text for item in uOMList" ng-change="putValueInAltUom();createUomList();" tabindex="8">
                                     <option value=""></option>
                                 </select>
                             </div>
@@ -298,12 +298,12 @@
                                     <td>
                                         <ul class="list-inline action-list">
                                             <li>
-                                                <button ng-click="GetMaterialMasterAlternativeUom(x.Id, $index)" ng-disabled="x.UsedUomInPO!==null||x.UsedUomInGRN!==null||x.UsedUomInBOM!==null" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
+                                                <button ng-click="GetMaterialMasterAlternativeUom(x.Id, $index)" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
                                                     <i class="glyphicon glyphicon-pencil"></i>
                                                 </button>
                                             </li>
                                             <li>
-                                                <button ng-click="valuePassInDelModal(x.Id, $index, x.AlternativeUOMName)" ng-disabled="x.UsedUomInPO!==null||x.UsedUomInGRN!==null||x.UsedUomInBOM!==null" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
+                                                <button ng-click="valuePassInDelModal(x.Id, $index, x.AlternativeUOMName)" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
                                                     <i class="glyphicon glyphicon-remove"></i>
                                                 </button>
                                             </li>

@@ -1083,7 +1083,7 @@ namespace Library.Service.IEnumerable
 
                     dr["Id"] = "B-" + GetPK();
                     dr["CompanyGroupId"] = data.CompanyGroupId;
-                    dr["BulletinName"] = data.BulletinName;
+                    dr["BulletinName"] = data.BulletinName+"-"+"Copy";
                     dr["AlternativeName"] = data.AlternativeName;
                     dr["ByWhom"] = data.ByWhom;
                     dr["ProductMasterId"] = data.ProductMasterId;
