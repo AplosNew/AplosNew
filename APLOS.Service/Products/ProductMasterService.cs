@@ -138,8 +138,11 @@ namespace Library.Service.Products
                                 _materialMasterAlternativeUOM.Insert(item);
                             }
                             else if (!string.IsNullOrEmpty(item.Id))
+                            {
                                 AuditService.UpdatedLog(item);
-                            _materialMasterAlternativeUOM.Update(item);
+                                _materialMasterAlternativeUOM.Update(item);
+                            }
+                       
                         }
                     }
                     if (dbList != null)

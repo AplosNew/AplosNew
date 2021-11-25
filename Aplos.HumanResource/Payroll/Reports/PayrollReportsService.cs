@@ -2681,6 +2681,7 @@ namespace Library.HumanResource.Payroll
                 SetCellValue("Name", sheet1, xlsRow, ref xlsCol, out ColName, 17);
                 SetCellValue("DOJ", sheet1, xlsRow, ref xlsCol, out ColDOJ, 12);
                 SetCellValue("DOS", sheet1, xlsRow, ref xlsCol, out ColDOS, 12);
+                SetCellValue("Plant", sheet1, xlsRow, ref xlsCol, out int ColPlant, 12);
                 SetCellValue("EmployeeCurrentStatus", sheet1, xlsRow, ref xlsCol, out colEmpCurrentStat, 12);
                 SetCellValue("EmployeeSatatus", sheet1, xlsRow, ref xlsCol, out colEmpStatus, 12);
                 SetCellValue("Gender", sheet1, xlsRow, ref xlsCol, out cGender, 12);
@@ -2933,7 +2934,12 @@ namespace Library.HumanResource.Payroll
                         if (string.IsNullOrEmpty(dtEmployees.Rows[i]["DOS"].ToString()) == false)
                             sheet1.Range[xlsRow, ColDOS].Text = dtEmployees.Rows[i]["DOS"].ToString();
                         sheet1.Range[xlsRow, ColDOS].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        sheet1.Range[xlsRow, ColDOS].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow, ColDOS].VerticalAlignment = ExcelVAlign.VAlignCenter; 
+                        
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["PlantName"].ToString()) == false)
+                            sheet1.Range[xlsRow, ColPlant].Text = dtEmployees.Rows[i]["PlantName"].ToString();
+                        sheet1.Range[xlsRow, ColPlant].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, ColPlant].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                         if (string.IsNullOrEmpty(dtEmployees.Rows[i]["EmployeeCurrentStatus"].ToString()) == false)
                             sheet1.Range[xlsRow, colEmpCurrentStat].Text = dtEmployees.Rows[i]["EmployeeCurrentStatus"].ToString();
@@ -14498,6 +14504,7 @@ INNER JOIN
         }//End Function
         public void GetEmployeeInfoDetail(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string salaryProcessSystemId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, bool sa, bool ca, string userId, out DataSet dsRef)
         {
+            plantId = "'" + plantId.Replace(",", "','") + "'";
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;
             var _wc = string.Empty;
@@ -14512,7 +14519,7 @@ INNER JOIN
             {
                 wcSalaryProcessSystemIdStr = @"SystemID IN( SELECT SystemID FROM SalaryProcMaster
                                       WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
-                                                        WHERE PlantID = '" + plantId + @"' GROUP BY SlrProcMstSystemID)
+                                                        WHERE PlantID in (" + plantId + @") GROUP BY SlrProcMstSystemID)
                                         AND MonthNo = Month('" + fromDate + "') AND YearNo = Year('" + fromDate + "')  )";
             }
             string wcEmpStatus = " AND (1=0 ";
@@ -14549,7 +14556,7 @@ INNER JOIN
                 string inPayrollGroup = "' '";
                 DataTable dtPayRollGrpEmpId = _sqlRepository.GetDataTable("SELECT employeeid FROM MST.PayrollGroupMaster WHERE PayrollGroupId IN (SELECT PayrollGroupId FROM SEC.UserPayrollGroup where UserId = '" + userId + @"') AND PlantID = '" + plantId + @"'");
                 DataTable dtNotPayRollGrpEmpId = _sqlRepository.GetDataTable(@"SELECT SystemId FROM EmployeeInformation E 
-                    WHERE SystemId NOT IN (SELECT employeeid from MST.PayrollGroupMaster where PlantID = '" + plantId + @"')  AND E.PlantID = '" + plantId + @"'");
+                    WHERE SystemId NOT IN (SELECT employeeid from MST.PayrollGroupMaster where PlantID IN (" + plantId + @"))  AND E.PlantID = '" + plantId + @"'");
 
                 if (dtPayRollGrpEmpId.Rows.Count > 0)
                 {
@@ -14632,7 +14639,7 @@ INNER JOIN
 												
                                             Where SPC.SlrProcMstSystemID IN( SELECT SystemID FROM SalaryProcMaster
                                       WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
-                                                        WHERE PlantID = '" + plantId + @"' GROUP BY SlrProcMstSystemID)
+                                                        WHERE PlantID in (" + plantId + @") GROUP BY SlrProcMstSystemID)
                                         AND MonthNo =  MONTH('" + fromDate + @"') AND YearNo =  YEAR('" + fromDate + @"')  )   
 
 									) EmpBasic
@@ -14667,7 +14674,7 @@ INNER JOIN
 										  FROM SalaryProceAttdnData MMDSA where MMDSA.MonthNo = MONTH('" + fromDate + @"') AND
 						                               MMDSA.YearNo = YEAR('" + fromDate + @"')
 											) MMDSA ON EmpBasic.EmpSystemID = MMDSA.EmpSystemID 
-                                            WHERE EmpBasic.CompanyGroupId = '" + companyGroupId + @"' AND EmpBasic.CompanyId ='" + companyId + @"' AND EmpBasic.PlantId ='" + plantId + @"' " + wcEmpStatus + @" " + wcPayrollGroup + @"";
+                                            WHERE EmpBasic.CompanyGroupId = '" + companyGroupId + @"' AND EmpBasic.CompanyId ='" + companyId + @"' AND EmpBasic.PlantId in (" + plantId + @") " + wcEmpStatus + @" " + wcPayrollGroup + @"";
                 try
                 {
                     if (parameters.Count > 0)
