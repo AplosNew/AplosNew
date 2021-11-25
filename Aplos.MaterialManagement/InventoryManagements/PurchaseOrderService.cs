@@ -374,9 +374,10 @@ namespace Library.MaterialManagement.InventoryManagements
                                     ,b.BOMQty,C.Id
                                     ,null CheckedStatus,null TaxList,MM.HSNCodeId,MM.IsOriginApplicable
                                     ,Isnull(POMAP.TransactionQty,0) PORaisedQry,ISNULL(POMAP.TransactionQty,0) OtherPOQty
-                                    ,REPLACE(CONVERT(CHAR(11), so.DeliveryDate, 106),' ','-') AS DeliveryDate 
+                                    --,REPLACE(CONVERT(CHAR(11), so.DeliveryDate, 106),' ','-') AS DeliveryDate 
                                     ,ISNULL(cpo.PONumber,'') PONumber,uom.UserName BOQUOM
                                     ,RefferenceNo=ISNULL(mo.OwnReferenceNo,'') + '/' + ISNULL(mo.BuyerReferenceNo,'') +'/'+ ISNULL(moi.OwnReferenceNo,'')+'/'+ISNULL(moi.BuyerReferenceNo,''),C.ContractNo
+                                    ,CASE WHEN ISNULL(b.IsMainMaterial,0)=1 THEN BD.MainRawMaterialInhouseDate else BD.OtherRawMaterialInhouseDate END AS DeliveryDate
 
                                     FROM BOQ AS b
                                     LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
@@ -400,10 +401,15 @@ namespace Library.MaterialManagement.InventoryManagements
                                     LEFT JOIN (SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.TransactionQty) TransactionQty 
 			                                     FROM [TRN].[POBOQMAP] POBOQMAP1
 			                                    LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id=POBOQMAP1.PODetailId
-			                                    LEFT JOIN TRN.PurchaseOrder POM ON POM.Id=POD.InventoryReceiveId
-									
+			                                    LEFT JOIN TRN.PurchaseOrder POM ON POM.Id=POD.InventoryReceiveId									
 			                                    GROUP by POBOQMAP1.BOQDetailId								
 			                                    )POMAP ON POMAP.BOQDetailId=b.Id
+
+                                LEFT JOIN (Select BOQId,FORMAT(MIN(B.MainRawMaterialInhouseDate),'dd-MMM-yyyy') MainRawMaterialInhouseDate
+							    ,FORMAT(MIN(B.OtherRawMaterialInhouseDate),'dd-MMM-yyyy') OtherRawMaterialInhouseDate FROM BOQDetail A
+							    LEFT OUTER JOIN TRN.SalesOrder B ON B.Id=A.SalesOrderId
+							    GROUP BY BOQId
+							    ) BD ON BD.BOQId=B.Id
 
                                     WHERE (b.RequiredQtyPO-Isnull(POMAP.TransactionQty,0))>0
                                     ORDER BY b.MaterialMasterId,b.SalesOrderId";

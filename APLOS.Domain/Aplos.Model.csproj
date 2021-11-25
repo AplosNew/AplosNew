@@ -469,6 +469,7 @@
     <Compile Include="Configurations\Products\InOutGatePassMasterConfiguration.cs" />
     <Compile Include="Configurations\Products\GatePassMasterConfiguration.cs" />
     <Compile Include="Configurations\Products\GRNRejectionDetailsConfiguration.cs" />
+    <Compile Include="Configurations\Products\ProductMasterAlternativeUOMConfiguration.cs" />
     <Compile Include="Configurations\Products\PlantWiseGateConfiguration.cs" />
     <Compile Include="Configurations\Products\POGVendorConfiguration.cs" />
     <Compile Include="Configurations\Products\QualityStdSetConfiguration.cs" />
@@ -815,6 +816,7 @@
     <Compile Include="Products\GateEntry.cs" />
     <Compile Include="Products\GRNPORequisitionAllocation.cs" />
     <Compile Include="Products\POGVendor.cs" />
+    <Compile Include="Products\ProductMasterAlternativeUOM.cs" />
     <Compile Include="Products\QualityStdSet.cs" />
     <Compile Include="Products\RequisitionIssueDetail.cs" />
     <Compile Include="Products\IssueRequestMaster.cs" />

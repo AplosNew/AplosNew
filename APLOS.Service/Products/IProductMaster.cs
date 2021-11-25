@@ -15,7 +15,7 @@ namespace Library.Service.Products
 
         GridModel GetCbo();
 
-        void Insert(ProductMaster entity, IEnumerable<ProductMasterAttributeValue> productMasterAttributeValue, IEnumerable<ProductMasterEfficency> efficencyList);
+        void Insert(ProductMaster entity, IEnumerable<ProductMasterAttributeValue> productMasterAttributeValue, IEnumerable<ProductMasterEfficency> efficencyList, IEnumerable<ProductMasterAlternativeUOM> materialMasterAlternativeUOM);
 
         IEnumerable<object> ProductMasterWithDetails(string productMasterId);
 
@@ -23,5 +23,6 @@ namespace Library.Service.Products
 
         GridModel Query(GridParameter parameters);
         IEnumerable<ProductMasterEfficency> GetEfficencyList(string masterId);
+        IEnumerable<object> GetProductMasterAltUomList(string productMasterId);
     }
 }
