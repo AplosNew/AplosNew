@@ -10015,7 +10015,8 @@ ORDER BY IR.ID DESC";
                 //var resId = id.Substring(2);
                 //entity.Id = plantId + yr + resId;
                 entity.Id = GetPKServicePOMaster();
-
+                if (string.IsNullOrEmpty(entity.EmployeeId) || string.IsNullOrWhiteSpace(entity.EmployeeId))
+                    entity.EmployeeId = null;
                 AuditService.AddedLog(entity);
                 entity.ModelState = ModelState.Added;
                 _ServicePOMaster.Insert(entity);
