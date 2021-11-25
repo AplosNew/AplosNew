@@ -4629,7 +4629,11 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
 		{
 			string ApproveRejectHold = "Approved";
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.PORollBackApproved(identity.PlantId, ApproveRejectHold), JsonRequestBehavior.AllowGet);
+
+			var res = _inventoryReveiveService.PORollBackApproved(identity.PlantId, ApproveRejectHold);
+			var jsondata = Json(res, JsonRequestBehavior.AllowGet);
+			jsondata.MaxJsonLength = int.MaxValue;
+			return jsondata;
 		}
 		[HttpPost]
 		public ActionResult PORollBackChecked(string InventoryReceiveId, Dictionary<string, object> UserSendData)

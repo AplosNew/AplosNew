@@ -26,6 +26,7 @@ namespace Library.Model.Products
         public string BaseProcessId { get; set; }
         public string CostingType { get; set; }
         public string PlanningType { get; set; }
+        public string BaseUOMId { get; set; }
         #endregion Scalar Properties
 
         #region Audit Properties

@@ -1,0 +1,92 @@
+﻿<h3 class="site-heading" style="cursor:default"><span class="glyphicon glyphicon-info-sign"></span> Role Privileges</h3>
+<div class="form-horizontal form-elements" ng-form name="roleDetailForm">
+    <input type="hidden" ng-model="roleDetail.UserId">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6" style="margin-top: 8px;">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Role<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" name="Role" ng-model="roleDetail.RoleId" ng-change="getDataByRole();" id="roleId"
+                                required ng-options="item.Value as item.Text for item in roleList" tabindex="1">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    @*<div class="col-xs-12 col-sm-6 col-md-6" style="padding-top: 11px;">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Module<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" name="Module" ng-model="roleDetail.ModuleId" ng-change="menuFarmeGet(roleDetail.ModuleId)"
+                            id="moduleId" required ng-options="item.Value as item.Text for item in moduleList" tabindex="2">
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>*@
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6" style="padding-top: 11px;">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Module<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" name="Module" ng-model="roleDetail.ModuleId" ng-change="menuFarmeGet(roleDetail.ModuleId)"
+                                id="moduleId" required ng-options="item.Value as item.Text for item in moduleList" tabindex="2">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6" style="padding-top: 11px;">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Menu Frame<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" name="Menu Frame" ng-model="roleDetail.MenuFrameId"
+                                id="menuFrameId" required ng-options="item.Value as item.Text for item in menuFrameList" tabindex="3">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="Add();" class="btn"><i class="glyphicon glyphicon-plus"></i> Add</button></li>
+        </ul>
+    </div>
+</div>
+<div class="clearfix"></div>
+<div class="table-responsive modal-table">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Module</th>
+                <th>Menu Frame</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="x in roleDetails">
+                <td>{{x.ModuleName}}</td>
+                <td>{{x.MenuFrameName}}</td>
+                <td class="text-right">
+                    <ul class="list-inline action-list">
+                        <li><a href="{{bootPoint}}role-detail-action" ng-click="send(x)" class="btn btn-action tooltip-here" data-placement="top" title="Role Details" tooltip>Role Details</a></li>
+                    </ul>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<confirm-modal></confirm-modal>

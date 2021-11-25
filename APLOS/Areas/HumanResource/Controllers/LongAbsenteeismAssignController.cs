@@ -61,13 +61,14 @@ namespace Aplos.Areas.HumanResource.Controllers
 
                 }
 
-
+                string FromDate = System.DateTime.Now.AddDays((days * 2 + 30) * -1).ToString("dd-MMM-yyyy");
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
 
                 return @"SELECT 0 AS Active, e.SystemId AS Id, e.EmployeeCode,E.EmployeeName,e.EmpPicPath,
                                 DEP.UserName AS Department,de.UserName AS designation,
                                 sec.UserName AS Section,ss.UserName AS SubSection,
-                                D.DayStatus,COUNT(d.DayStatus) AS AbsentCount,ab.AbsentDays, Format(ab.FirstAbsentDate,'dd-MMM-yyyy') FirstAbsentDate
+                                D.DayStatus,COUNT(d.DayStatus) AS AbsentCount,ab.AbsentDays,format(ab.FirstAbsentDate,'dd-MMM-yyyy') as FirstAbsentDate
                                 FROM (
 		                                SELECT p.EmpSystemID, p.WorkDate, p.DayStatus,
 		                                dense_rank() OVER (PARTITION BY p.EmpSystemID ORDER BY P.WorkDate DESC) AS SEQ
@@ -87,8 +88,8 @@ namespace Aplos.Areas.HumanResource.Controllers
 		                                dense_rank() OVER (PARTITION BY p.EmpSystemID ORDER BY P.WorkDate DESC) AS SEQ
 		                                FROM AttdnProcessData AS P 
 		                                INNER JOIN EmployeeInformation AS ei ON ei.SystemId=p.EmpSystemID
-                                        where p.DayStatus NOT IN (select distinct DayType from DayType where Category in ('Holiday','Weekend')) AND ei.EmployeeStatus='Active' AND isnull(ei.EmployeeCurrentStatus,'')=''
-                                ) AS K WHERE K.dayStatustemp='A') AS K -- AND K.SEQ<30
+                                        where EI.PlantId='" + identity.PlantId + @"'  AND p.DayStatus NOT IN (select distinct DayType from DayType where Category in ('Holiday','Weekend')) AND ei.EmployeeStatus='Active'
+                                ) AS K WHERE K.dayStatustemp='A') AS K 
                                 WHERE K.SEQ=K.SQ
                                 GROUP BY K.EmpSystemID
                                 HAVING COUNT(*)>=" + days + @") AS AB ON ab.EmpSystemID=E.SystemId
