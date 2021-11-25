@@ -555,62 +555,62 @@
             <legend class="scheduler-border">Terms And Instruction</legend>
             <div class="col-xs-12 col-sm-6 col-md-6">
                 @*<div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Delivery Instruction (If Any)<sup></sup></label>
-            <div class="col-sm-8 show-message">
-                <textarea class="form-control" rows="2" ng-model="productNew.DeliveryInstruction" tabindex="6"></textarea>
+                    <label class="col-sm-4 control-label">Delivery Instruction (If Any)<sup></sup></label>
+                    <div class="col-sm-8 show-message">
+                        <textarea class="form-control" rows="2" ng-model="productNew.DeliveryInstruction" tabindex="6"></textarea>
+                    </div>
+                </div>*@
+
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Terms And Conditions@*<sup>*</sup>*@</label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select id="TypeId" class="form-control" name="Terms And Conditions" ng-model="TermsAndConditions.TermsAndConditions" tabindex="12" required>
+                                <option ng-repeat="option in TermsAndConditionsList" value="{{option.Id}}">{{option.TermsAndConditions}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>*@
-            
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Select<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <div class="select-style">
-                                <select id="TypeId" class="form-control" name="Terms And Condition" ng-model="TermsAndCondition.Description" tabindex="12" required>
-                                    <option ng-repeat="option in TermsAndConditionsList" value="{{option.Id}}">{{option.Description}}</option>
-                                </select>
-                            </div>
-                        </div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-5 control-label">Special Instruction (If Any)<sup></sup></label>
+                    <div class="col-sm-7 show-message">
+                        <textarea class="form-control" rows="2" ng-model="productNew.SpecialInstruction" tabindex="6"></textarea>
                     </div>
                 </div>
-                <div class="col-xs-12 col-sm-6 col-md-6">
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-5 control-label">Special Instruction (If Any)<sup></sup></label>
-                        <div class="col-sm-7 show-message">
-                            <textarea class="form-control" rows="2" ng-model="productNew.SpecialInstruction" tabindex="6"></textarea>
-                        </div>
-                    </div>
-                </div>
+            </div>
 
-                <div class="col-xs-12 col-sm-6 col-md-6">
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label" ng-show="checkedByList.length">{{productNew.labelCheckAndApproved}}</label>
-                        <div class="col-sm-8 show-message">
-                            <div class="select-style" ng-show="checkedByList.length">
-                                <select id="CheckedBy" class="form-control" name="Checked By" ng-model="productNew.CheckedBy" tabindex="12">
-                                    <option ng-repeat="option in checkedByList" value="{{option.Value}}">{{option.Text}}</option>
-                                </select>
-                            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label" ng-show="checkedByList.length">{{productNew.labelCheckAndApproved}}</label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style" ng-show="checkedByList.length">
+                            <select id="CheckedBy" class="form-control" name="Checked By" ng-model="productNew.CheckedBy" tabindex="12">
+                                <option ng-repeat="option in checkedByList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="col-xs-12 col-sm-6 col-md-6">
-                    <div class="form-group" id="div_docNo">
-                        <label class="col-sm-5 control-label"><b>Discount Amount</b><sup>*</sup></label>
-                        <div class="col-sm-7 show-message">
-                            <input type="number" name="DiscountAmount" ng-model="productNew.DiscountAmount" class="form-control" maxlength="20" tabindex="" autocomplete="off" style="text-align:right;">
-                        </div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group" id="div_docNo">
+                    <label class="col-sm-5 control-label"><b>Discount Amount</b><sup>*</sup></label>
+                    <div class="col-sm-7 show-message">
+                        <input type="number" name="DiscountAmount" ng-model="productNew.DiscountAmount" class="form-control" maxlength="20" tabindex="" autocomplete="off" style="text-align:right;">
                     </div>
                 </div>
-                <div class="col-xs-12 col-sm-6 col-md-6">
-                    <div class="form-group" id="div_docNonos">
-                        <label class="col-sm-4 control-label">Tolerance(%)<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <input type="number" name="Tolerance" ng-model="productNew.Tolerance" class="form-control" maxlength="20" tabindex="" autocomplete="off" style="text-align:right;">
-                        </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group" id="div_docNonos">
+                    <label class="col-sm-4 control-label">Tolerance(%)<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="number" name="Tolerance" ng-model="productNew.Tolerance" class="form-control" maxlength="20" tabindex="" autocomplete="off" style="text-align:right;">
                     </div>
                 </div>
-</fieldset>
+            </div>
+        </fieldset>
     </div>
     <div class="clearfix"></div>
     <div class="col-md-6 text-left" style="padding-top: 17px;">

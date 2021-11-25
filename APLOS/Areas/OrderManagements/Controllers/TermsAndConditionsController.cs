@@ -229,10 +229,10 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 DataSet dsGrid;
 
                 ConnectionManager.DAL.ConManager conBin = new ConnectionManager.DAL.ConManager("1");
+                conBin.OpenDataSetThroughAdapter("select top 1 Sequence from dbo.TermsAndConditionsDetails where TermsAndConditionsChildId='" + titleId + "' order by AddedDate desc", out DataSet dsGridSeq, false, "1");
                 conBin.OpenDataSetThroughAdapter("select * from dbo.TermsAndConditionsDetails where TermsAndConditionsChildId='" + titleId + "'", out dsGrid, false, "1");
-
                 string DetailId = "";
-
+                int count = 0;
                 DataView dv = new DataView(dsGrid.Tables[0]);
                 dv.RowFilter = "Id='" + GridData["Id"] + "'";
 
@@ -243,10 +243,19 @@ namespace Aplos.Areas.OrderManagements.Controllers
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID("dbo.TermsAndConditionsDetails", out DetailId);
                     }
+                    if (string.IsNullOrEmpty(dsGridSeq.Tables[0].Rows[0]["Sequence"].ToString()))
+                    {
+                        count++;
+                    }
+                    else
+                    {
+                        count =(int) clsStaticInfo.dbl( dsGridSeq.Tables[0].Rows[0]["Sequence"].ToString())+1;
+                    }
                     DataRow dr = dsGrid.Tables[0].NewRow();
 
                     GridData["Id"] = "TD-" + DetailId;
                     GridData["TermsAndConditionsChildId"] = titleId;
+                    GridData["Sequence"] = count;
 
                     AddNewRow(dsGrid.Tables[0], GridData);
                 }
@@ -397,7 +406,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
                 for (int i = 0; i < data.Count; i++)
                 {
-                    con.executeQuery("UPDATE [BOMDetail] SET Sequence=" + (i + 1) + " where id='" + data[i] + "'");
+                    con.executeQuery("UPDATE TermsAndConditionsDetails SET Sequence=" + (i + 1) + " where id='" + data[i] + "'");
                 }
 
                 con.CommitTransaction();
