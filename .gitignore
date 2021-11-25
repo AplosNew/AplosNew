@@ -3,3 +3,16 @@
 ################################################################################
 
 /.vs
+/APLOS.Domain
+/Aplos.Accounting
+/APLOS
+/Aplos.ViewModel
+/Aplos.Service.Extension
+/APLOS.Service
+/Aplos.SchedulingServices
+/Aplos.Planning
+/Aplos.OrderManagement
+/Aplos.MaterialManagement
+/Aplos.HumanResource
+/Aplos.General
+/APLOS.EMP
