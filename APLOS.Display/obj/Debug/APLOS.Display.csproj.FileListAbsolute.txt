@@ -225,3 +225,4 @@ E:\APOP_AZURE_SOURCE\APLOS.Display\obj\Debug\APLOS.Display.csproj.GenerateResour
 E:\APOP_AZURE_SOURCE\APLOS.Display\obj\Debug\APLOS.Display.csproj.CoreCompileInputs.cache
 E:\APOP_AZURE_SOURCE\APLOS.Display\obj\Debug\AplosWebDisplay.dll
 E:\APOP_AZURE_SOURCE\APLOS.Display\obj\Debug\AplosWebDisplay.pdb
+E:\APOP_AZURE_SOURCE\APLOS.Display\obj\Debug\APLOS.Display.csproj.CopyComplete
