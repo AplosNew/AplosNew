@@ -6061,7 +6061,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
         #endregion
 
-        #region TBS LA Process Source Data
+        #region TBS LA Process
 
         #region LA
         
@@ -6142,8 +6142,9 @@ namespace Library.HumanResource.NewAttendanceProcess {
 										p.AbsentValue,p.daystatus,
 		                                dense_rank() OVER (PARTITION BY p.EmpSystemID ORDER 
 										BY P.WorkDate DESC) AS SEQ
-		                                FROM AttdnProcessData AS P
-		                                WHERE
+		                                FROM AttdnProcessData AS P	                               
+                                        join EmployeeInformation x on p.EmpSystemID=x.SystemId
+		                                WHERE x.PlantID='"+PlantId+@"' and 										
 										 p.DayStatus NOT IN 
 										 (select distinct DayType from DayType where Category in 
 										('Holiday','Weekend')) 
@@ -6162,7 +6163,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 										ELSE daystatus END AS dayStatustemp,
 		                                
 										dense_rank() OVER (PARTITION BY p.EmpSystemID ORDER BY P.WorkDate DESC) AS SEQ
-		                                FROM (select * from AttdnProcessData where WorkDate<= '' 
+		                                FROM (select * from AttdnProcessData where WorkDate<= '" + adate+@"' 
 										and PlantID='"+PlantId+@"')  AS P 
 		                                INNER JOIN EmployeeInformation AS ei ON ei.SystemId=p.EmpSystemID
                                      
@@ -6172,16 +6173,16 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 ) AS K WHERE K.dayStatustemp='A') AS K 
                                 WHERE K.SEQ=K.SQ
                                 GROUP BY K.EmpSystemID
-                                HAVING COUNT(*)>=10) AS AB ON ab.EmpSystemID=E.SystemId
+                                HAVING COUNT(*)>='"+maxDays+@"') AS AB ON ab.EmpSystemID=E.SystemId
 
 
                                 WHERE  e.EmployeeStatus='Active' AND isnull(e.EmployeeCurrentStatus,'')='' 
-								AND D.SEQ<=10 AND D.AbsentValue='1'
+								AND D.SEQ<='"+maxDays+@"' AND D.AbsentValue='1'
 								AND E.PlantId='"+PlantId+@"'
                                 GROUP BY e.SystemId,ab.AbsentDays, e.EmployeeCode,E.EmployeeName,
 								D.AbsentValue,d.DayStatus,
                                 ab.FirstAbsentDate
-                                HAVING COUNT(d.AbsentValue)>=10 ORDER BY AB.AbsentDays DESC";
+                                HAVING COUNT(d.AbsentValue)>='"+maxDays+"' ORDER BY AB.AbsentDays DESC";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
@@ -6295,7 +6296,45 @@ namespace Library.HumanResource.NewAttendanceProcess {
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                string strSql = @"";
+                string strSql = @"SELECT 0 AS Active, e.SystemId AS Id, e.EmployeeCode,                               
+                                D.DayStatus,ab.AbsentDays,Format(ab.FirstAbsentDate,'dd-MMM-yyyy')
+								FirstAbsentDate
+                                FROM (
+		                                SELECT p.EmpSystemID, p.WorkDate, p.DayStatus,p.AbsentValue,
+		                                dense_rank() OVER 
+										(PARTITION BY p.EmpSystemID ORDER BY P.WorkDate DESC) AS SEQ
+		                                FROM AttdnProcessData AS P
+										left join EmployeeInformation x on x.SystemId=p.EmpSystemID
+										where x.plantid='"+PlantId+@"' and
+		                                 p.DayStatus NOT IN 
+										(select distinct DayType from DayType 
+										where Category in ('Holiday','Weekend')) 
+										and p.WorkDate<='"+adate+@"'
+	                                ) AS D
+                                INNER JOIN (select * from EmployeeInformation) AS E ON e.SystemId=d.EmpSystemID 
+                            
+                                LEFT OUTER JOIN (select K.EmpSystemID,COUNT(*)AbsentDays,MIN(k.WorkDate) AS FirstAbsentDate
+                                  from (SELECT *,RANK() OVER(PARTITION BY EmpSystemID,dayStatustemp ORDER BY EmpSystemID,seq) AS SQ FROM (
+		                                SELECT p.EmpSystemID, p.WorkDate, p.DayStatus,CASE WHEN daystatus IN (select distinct DayType from DayType where Category in ('Holiday','Weekend')) THEN 'A' ELSE daystatus END AS dayStatustemp,
+		                                dense_rank() OVER (PARTITION BY p.EmpSystemID ORDER BY P.WorkDate DESC) AS SEQ
+		                                FROM (select * from AttdnProcessData where
+										WorkDate<= '"+PlantId+"' and PlantID='"+PlantId+@"')  AS P 
+		                                INNER JOIN EmployeeInformation AS ei ON ei.SystemId=p.EmpSystemID
+                                        where p.DayStatus NOT IN (select distinct DayType from DayType where Category in ('Holiday','Weekend')) AND ei.EmployeeStatus='Active' AND (isnull(ei.EmployeeCurrentStatus,'')=''
+                                or isnull(ei.EmployeeCurrentStatus,'')='LONG ABSENTEEISM') 
+                                ) AS K WHERE K.dayStatustemp='A') AS K 
+                                WHERE K.SEQ=K.SQ
+                                GROUP BY K.EmpSystemID
+                                HAVING COUNT(*)>='"+maxDays+@"') AS AB ON ab.EmpSystemID=E.SystemId
+
+
+                                WHERE  e.EmployeeStatus='Active' AND 
+								(isnull(e.EmployeeCurrentStatus,'')='' or
+								isnull(e.EmployeeCurrentStatus,'')='LONG ABSENTEEISM') 
+								AND D.SEQ<='"+maxDays+@"' AND D.AbsentValue='1'  AND E.PlantId='"+PlantId+@"'
+                                GROUP BY e.SystemId,ab.AbsentDays, e.EmployeeCode,D.AbsentValue,d.DayStatus
+                                ,ab.FirstAbsentDate
+                                HAVING COUNT(d.AbsentValue)>='"+maxDays+"' ORDER BY AB.AbsentDays DESC";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
             }
@@ -6401,9 +6440,11 @@ namespace Library.HumanResource.NewAttendanceProcess {
             {
                 objCon = null;
             }
-        } 
+        }
 
         #endregion
+
+        #region Supporting Functions
 
         private static string GetNumData(string strNumber)
         {
@@ -6420,7 +6461,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             {
                 return "0";
             }
-        }
+        }        
         private void UpdateEmpStatus(string sql)
         {
             bool IsTransactionStarted = false;
@@ -6450,10 +6491,9 @@ namespace Library.HumanResource.NewAttendanceProcess {
             }
         }
 
-
         #endregion
 
-        public void EmployeeAutoStatusChange(string Date, string PlantValue)
+        public void TBS_LA_Process(string Date, string PlantValue)
         {
             try
             {
@@ -6475,6 +6515,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
        
         }
 
+        #endregion
 
         #region Save Function
 
@@ -6716,7 +6757,36 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 }
             }
         }
-       
+
+        public void TBS_LA_ProcessGroupWise(string Date, string GroupId)
+        {
+            // Log Check
+            SaveLog("Group Call", "TBS_LA_Process", false);
+
+            DataSet PlantList;
+            GetPlant(GroupId, out PlantList);
+
+            if (PlantList.Tables[0].Rows.Count > 0)
+            {
+
+                for (int j = 0; j < PlantList.Tables[0].Rows.Count; j++)
+                {
+                    string CatchPlant = "";
+                    try
+                    {
+                        var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString();
+                        CatchPlant = PlantValue;
+                        TBS_LA_Process(Date, PlantValue);
+                    }
+                    catch (Exception ex)
+                    {
+                        CommonLogFunction(ex, CatchPlant, "TBS_LA_Process");
+                    }
+
+                }
+            }
+        }
+
         #endregion
 
         public void CommonLogFunction(Exception ex, string CatchPlant,string Process)
