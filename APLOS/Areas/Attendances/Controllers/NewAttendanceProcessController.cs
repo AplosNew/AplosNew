@@ -84,6 +84,56 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult RunTBS_LA_Process(string Date)
+        {
+            if (Convert.ToDateTime(Date) > DateTime.Now)
+            {
+                throw new Exception("Future Date Cannot be selected!!");
+            }
+
+            string CGId = "";
+
+            DataSet GroupList;
+            NewAttendanceProcessService repo = new NewAttendanceProcessService();
+
+            repo.GetCompanyGp(out GroupList);
+            if (GroupList.Tables[0].Rows.Count > 0)
+            {
+
+                for (int k = 0; k < GroupList.Tables[0].Rows.Count; k++)
+                {
+                    CGId = GroupList.Tables[0].Rows[k][@"CGId"].ToString();
+
+                }
+            }
+
+            DataSet PlantList;
+            repo.GetPlant(CGId, out PlantList);
+
+            if (PlantList.Tables[0].Rows.Count > 0)
+            {
+
+                for (int j = 0; j < PlantList.Tables[0].Rows.Count; j++)
+                {
+                    string CatchPlant = "";
+                    try
+                    {
+                        var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString();
+                        CatchPlant = PlantValue;
+                        rep.TBS_LA_Process(Date, PlantValue);
+                    }
+                    catch (Exception ex)
+                    {
+                        rep.CommonLogFunction(ex, CatchPlant, "TBS LA Process");
+                    }
+                }
+            }
+            return Json(new { Error = false, Message = "TBS LA Process Triggered Successfully..." }, JsonRequestBehavior.AllowGet);
+        }
+
+
+
+        [HttpGet, Authorize]
         public ActionResult RunAttnd(string Date)
         {
             if (Convert.ToDateTime(Date) > DateTime.Now)
