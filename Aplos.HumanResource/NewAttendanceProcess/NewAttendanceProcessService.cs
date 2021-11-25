@@ -6309,36 +6309,99 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
         #region Reverse LA
 
-        //private void EmployeeAutoStatusChange_LA_Reverse(string plantid, string Todate)
-        //{
-        //    DataSet ds_isauto_LA = null;
-        //    //DataSet ds_isauto_TBS = null;
-        //    DataSet ds_tobe_Active = null;
-        //    try
-        //    {
-        //        GetHRSettingForAutoLA(plantid, out ds_isauto_LA);
-        //        //GetHRSettingForAutoTBS(plantid, out ds_isauto_TBS);
+        private void UpdateEmpStatus_Reverse(string PlantId, DataSet dsLA)
+        {
+            string _empids = string.Empty;
+            try
+            {
 
-        //        if (ds_isauto_LA.Tables[0].Rows.Count > 0)//LA
-        //        {
-        //            string maxDays = GetNumData(ds_isauto_LA.Tables[0].Rows[0]["LongTermAbesnteeism"].ToString());
-        //            if (Convert.ToInt32(maxDays) > 0)
-        //            {
-        //                string FromDate = Convert.ToDateTime(Todate).AddDays(-Convert.ToInt32(maxDays)).ToString("dd-MMM-yyyy");
-        //                Get_tobe_Active_from_LA(plantid, FromDate, Todate, out ds_tobe_Active);
-        //                if (ds_tobe_Active.Tables[0].Rows.Count > 0)
-        //                {
-        //                    UpdateEmpStatus_Reverse(plantid, Todate, ds_tobe_Active);//update these emps as LA
-        //                }
-        //            }//>0
-        //        }//LA
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        //throw ex;
-        //    }
-        //}
+                for (int i = 0; i < dsLA.Tables[0].Rows.Count; i++)
+                {
+                    string _empid = dsLA.Tables[0].Rows[i]["systemid"].ToString();
+                    if (_empids.Length == 0)
+                    {
+                        _empids = "'" + _empid + "'";
+                    }
+                    else
+                    {
+                        _empids += ",'" + _empid + "'";
+                    }
+                }
 
+                if (_empids.Length == 0)
+                {
+                    _empids = " ";
+                }
+                else
+                {
+                    _empids = " and systemid in (" + _empids + ")";
+                }
+                string strSql = @"update EmployeeInformation set EmployeeCurrentStatus=null,EmployeeCurrentStatusEffectiveDate=null where plantid='" + PlantId + "' " + _empids + "";
+                UpdateEmpStatus(strSql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }           
+        } 
+        private void EmployeeAutoStatusChange_LA_Reverse(string plantid, string Todate)
+        {
+            try
+            {
+                DataSet HRSetting = null;
+                DataSet DsActive = null;
+
+                GetHRSettingForAutoLA(plantid, out HRSetting);
+             
+                if (HRSetting.Tables[0].Rows.Count > 0)
+                {
+                    string maxDays = GetNumData(HRSetting.Tables[0].Rows[0]["LongTermAbesnteeism"].ToString());
+                    if (Convert.ToInt32(maxDays) > 0)
+                    {
+                        string FromDate = Convert.ToDateTime(Todate).AddDays(-Convert.ToInt32(maxDays)).ToString("dd-MMM-yyyy");
+                        Get_tobe_Active_from_LA(plantid, FromDate, Todate, out DsActive);
+                        if (DsActive.Tables[0].Rows.Count > 0)
+                        {
+                            UpdateEmpStatus_Reverse(plantid, DsActive);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        private void Get_tobe_Active_from_LA(string PlantId, string fdate, string tdate, out DataSet dsRef)
+        {
+            ConnectionManager.DAL.ConManager objCon;       
+            try
+            {
+                var sql = @"select systemid,EmployeeStatus,EmployeeCurrentStatus,
+                            EmployeeCurrentStatusEffectiveDate  from EmployeeInformation
+                                where EmployeeStatus='Active' and systemid in
+                                (
+                                select EmpSystemID from AttdnProcessData p 
+								left join EmployeeInformation e on p.EmpSystemID=e.SystemId
+                                where EmployeeCurrentStatus='LONG ABSENTEEISM' and 
+								e.PlantId='"+PlantId+@"'
+								and WorkDate between '"+fdate+@"'  and '"+tdate+@"' and
+								(p.PresentValue='1' or p.LateValue='1' or p.LvValue='1' or 
+								p.PresentValue='0.5')   
+								and EmployeeCurrentStatusEffectiveDate<='"+tdate+"')";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        } 
 
         #endregion
 
@@ -6401,8 +6464,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 EmployeeAutoStatusChange_TBS(PlantValue, Date);
 
                 // Reverse LA
-                //EmployeeAutoStatusChange_LA_Reverse(PlantValue, Date);
-
+                EmployeeAutoStatusChange_LA_Reverse(PlantValue, Date);
 
             }
             catch (Exception ex)
