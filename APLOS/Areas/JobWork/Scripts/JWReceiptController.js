@@ -2781,7 +2781,7 @@ function JWReceiptController($window, cboService, commonMessage, $scope, $rootSc
 				method: "GET",
 				dataType: 'JSON',
 				//url: $scope.getSearchListUrl,
-				url: 'Products/GoodsReceiveNote/GetJWGRNDataChecking?GRNbyPOCheckStatus=' + $scope.GRNbyPOCheckStatus + '&POId=' + $scope.Transformation.Id,
+				url: 'Products/GoodsReceiveNote/GetJobWorkGRNDataChecking?GRNbyPOCheckStatus=' + $scope.GRNbyPOCheckStatus + '&POId=' + $scope.Transformation.Id,
 			}).then(function successCallback(response) {
 				$scope.GriddataMaster = response.data;
 				//entrydata = copy(searchdata);
@@ -2810,7 +2810,7 @@ function JWReceiptController($window, cboService, commonMessage, $scope, $rootSc
 				method: "GET",
 				dataType: 'JSON',
 				//url: $scope.getSearchListUrl,
-				url: 'Products/GoodsReceiveNote/GetJWGRNDataChecking?GRNbyPOCheckStatus=' + $scope.GRNbyPOCheckStatus + '&POId=' + $scope.ModelNew.Id,
+				url: 'Products/GoodsReceiveNote/GetJobWorkGRNDataChecking?GRNbyPOCheckStatus=' + $scope.GRNbyPOCheckStatus + '&POId=' + $scope.ModelNew.Id,
 			}).then(function successCallback(response) {
 				$scope.GriddataMaster = response.data;
 				//entrydata = copy(searchdata);
@@ -2825,7 +2825,7 @@ function JWReceiptController($window, cboService, commonMessage, $scope, $rootSc
 		//debugger;
 		$http({
 			method: 'GET',
-			url: 'Products/GoodsReceiveNote/JWGRNDetailsData'
+			url: 'Products/GoodsReceiveNote/JobWorkGRNDetailsData'
 		}).then(function successCallback(response) {
 			$scope.lst = response.data;
 			//$scope.detailgrid($scope.lst);
@@ -2858,7 +2858,7 @@ function JWReceiptController($window, cboService, commonMessage, $scope, $rootSc
 		$http({
 			method: "GET",
 			dataType: 'JSON',
-			url: 'Products/GoodsReceiveNote/GetJWApproving?GRNbyPOApprovedStatus=' + $scope.GRNbyPOApprovedStatus,
+			url: 'Products/GoodsReceiveNote/GetJobWorkApproving?GRNbyPOApprovedStatus=' + $scope.GRNbyPOApprovedStatus,
 		}).then(function successCallback(response) {
 			$scope.GriddataMaster2 = response.data;
 		});

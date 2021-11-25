@@ -293,35 +293,6 @@ namespace Aplos.Areas.Payrolls.Controllers
                         //{
 
                         //}
-
-                        double EarningValueRangeTo = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["EarningValueRangeTo"].ToString());
-                        double age = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["Age"].ToString());
-
-
-                        if (Convert.ToInt16(age) > 58 && Convert.ToDouble(basic) > EarningValueRangeTo)
-                        {
-                            wages8point33percent = 15000;
-                            wagesAbove15000 = Convert.ToInt32(basic) - Convert.ToInt32(EarningValueRangeTo);
-                        }
-                        else if (Convert.ToInt16(age) > 58 && Convert.ToDouble(basic) < EarningValueRangeTo)
-                        {
-                            wages8point33percent = Convert.ToInt32(basic);
-                            wagesAbove15000 = 0;
-                        }
-                        else if (Convert.ToInt16(age) <= 58 && Convert.ToDouble(basic) > EarningValueRangeTo)
-                        {
-                            wages8point33percent = Convert.ToInt32(EarningValueRangeTo);
-                            wagesAbove15000 = Convert.ToInt32(basic) - Convert.ToInt32(EarningValueRangeTo);
-                        }
-
-                        else if (Convert.ToInt16(age) <= 58 && Convert.ToDouble(basic) <= EarningValueRangeTo)
-                        {
-                            wages8point33percent = Convert.ToInt32(basic);
-                            wagesAbove15000 = 0;
-                        }
-                        slCount++;
-                        #region Loop
-
                         if (dicPFSalaryHeadWiseData.ContainsKey(dtEmpInfo.Rows[i]["EmpSystemId"].ToString()))
                         {
                             List<DataRow> dlrPF = dicPFSalaryHeadWiseData[dtEmpInfo.Rows[i]["EmpSystemId"].ToString()];
@@ -337,6 +308,36 @@ namespace Aplos.Areas.Payrolls.Controllers
                         {
                             ru.SetTextBorder(ref sheet1, xlsRow, colWagesTotal, Total);
                         }
+
+                        double EarningValueRangeTo = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["EarningValueRangeTo"].ToString());
+                        double age = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["Age"].ToString());
+
+
+                        if (Convert.ToInt16(age) > 58 && Convert.ToDouble(basic) > EarningValueRangeTo)
+                        {
+                            wages8point33percent =(int)clsStaticInfo.dbl(EarningValueRangeTo);
+                            wagesAbove15000 = Convert.ToInt32(Total) - Convert.ToInt32(EarningValueRangeTo);
+                        }
+                        else if (Convert.ToInt16(age) > 58 && Convert.ToDouble(basic) < EarningValueRangeTo)
+                        {
+                            wages8point33percent = Convert.ToInt32(basic);
+                            wagesAbove15000 = 0;
+                        }
+                        else if (Convert.ToInt16(age) <= 58 && Convert.ToDouble(basic) > EarningValueRangeTo)
+                        {
+                            wages8point33percent = Convert.ToInt32(EarningValueRangeTo);
+                            wagesAbove15000 = Convert.ToInt32(Total) - Convert.ToInt32(EarningValueRangeTo);
+                        }
+
+                        else if (Convert.ToInt16(age) <= 58 && Convert.ToDouble(basic) <= EarningValueRangeTo)
+                        {
+                            wages8point33percent = Convert.ToInt32(basic);
+                            wagesAbove15000 = 0;
+                        }
+                        slCount++;
+                        #region Loop
+
+                        
                         ru.SetTextBorder(ref sheet1, xlsRow, colSrNo, slCount);
                         ru.SetTextBorder(ref sheet1, xlsRow, colPaycode, dtEmpInfo.Rows[i]["EmployeeCode"].ToString());
                         ru.SetTextBorder(ref sheet1, xlsRow, colPFUANNo, dtEmpInfo.Rows[i]["DocNumber"].ToString());//dtEmpInfo.Tables[0].Rows[i][""].ToString()

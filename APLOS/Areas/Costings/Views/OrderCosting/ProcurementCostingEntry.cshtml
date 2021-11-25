@@ -55,10 +55,10 @@
         <tbody>
 
             <tr style="background-color:{{x.Error?'red':'white'}};" ng-repeat="x in DirectProcurementCostingMaterialList">
-                <td style="width:250px!important;color:blue!important;cursor:pointer!important;" ng-click="ShowToolTip('PROCUREMENT',x)">{{x.UserName}}</td>
+                <td style="width:150px!important;color:blue!important;cursor:pointer!important;" ng-click="ShowToolTip('PROCUREMENT',x)">{{x.UserName}}</td>
 
                 <td class="text-right">
-                    <input type="number" style="min-width:40px;background-color:{{x.Sequence<0?'red':'white'}}" name="Sequence" @*ng-click="x.Consumption>0?x.Consumption:x.Consumption=''"*@ ng-model="x.Sequence" class="form-control">
+                    <input type="number" style="min-width:80px;background-color:{{x.Sequence<0?'red':'white'}}" name="Sequence" @*ng-click="x.Consumption>0?x.Consumption:x.Consumption=''"*@ ng-model="x.Sequence" class="form-control">
                 </td>
 
                 <td style="width:150px!important;">
@@ -229,7 +229,7 @@
             </tr>
             <tr style="border:1px solid #dcdcdc !important">
                 <td>Total</td>
-                <td style="color:blue" class="text-right" colspan="7">@*{{toatalItemGrossConsumption | number:4}}*@</td>
+                <td style="color:blue" class="text-right" colspan="8">@*{{toatalItemGrossConsumption | number:4}}*@</td>
                 <td style="color:blue" class="text-right">{{TotalProcurementSegmentedValueByComponent | number:4}}</td>
                 <td style="color:blue" colspan="10"></td>
             </tr>
@@ -298,11 +298,10 @@
                 </td>
             </tr>
             <tr>
-                <td style="        color: blue
-">
+                <td style="color:blue">
                     Total
                 </td>
-                <td style="color: blue " class="text-right"><label>{{TotalProcurementSegmentedValueByComponent | number:4}}</label></td>
+                <td colspan="2" style="color: blue " class="text-right"><label>{{TotalProcurementSegmentedValueByComponent | number:4}}</label></td>
                 @*<td colspan="3"></td>*@
             </tr>
         </tbody>
@@ -398,7 +397,7 @@
                 </td>
             </tr>
             <tr>
-                <td colspan="4" style="color:blue;">Total</td>
+                <td colspan="5" style="color:blue;">Total</td>
                 <td style="color:blue;" class="text-right"><label>{{TotalProcurementSegmentedValueByComponent | number:4}}</label></td>
 
             </tr>
@@ -412,6 +411,7 @@
         <thead>
             <tr>
                 <th>Costing Item</th>
+                <th>Seq.No.</th>
                 <th>Type</th>
                 <th>Value</th>
                 <th class="text-right">Amount</th>
@@ -423,7 +423,13 @@
         </thead>
         <tbody>
             <tr style="background-color:{{x.Error?'red':'white'}};" ng-repeat="x in SalesExpenseProcurementCostingList">
-                <td style="width:250px!important;color:blue!important;cursor:pointer!important;" ng-click="ShowToolTip('PROCUREMENT',x)">{{x.UserName}}</td>
+                <td style="width:150px!important;color:blue!important;cursor:pointer!important;" ng-click="ShowToolTip('PROCUREMENT',x)">{{x.UserName}}</td>
+
+                <td style="width:40px!important;">
+
+                    <input type="number" style="min-width:40px;background-color:{{x.Sequence<0?'red':'white'}}" name="MaterialMasterName" min="0" ng-model="x.Sequence" ng-change="CalculateFinalCosting(x);" class="form-control">
+
+                </td>
 
                 <td style="width:100px!important;">
                     <div class="select-style">
@@ -477,7 +483,7 @@
                 </td>
             </tr>
             <tr>
-                <td style="color:blue;" colspan="3">Total</td>
+                <td style="color:blue;" colspan="4">Total</td>
                 <td class="text-right" style="color: blue;padding-right:4px!important;"><label>{{TotalProcurementSegmentedValueByComponent| number:4}}</label></td>
 
             </tr>
@@ -492,6 +498,7 @@
         <thead>
             <tr>
                 <th>Costing Item</th>
+                <th>Seq.No.</th>
                 <th>Type</th>
                 <th>Value</th>
                 <th class="text-right">Amount</th>
@@ -503,8 +510,12 @@
         </thead>
         <tbody>
             <tr style="background-color:{{x.Error?'red':'white'}};" ng-repeat="x in ValueLossProcurementCostingList">
-                <td style="width:250px!important;color:blue!important;cursor:pointer!important;" ng-click="ShowToolTip('PROCUREMENT',x)">{{x.UserName}}</td>
+                <td style="width:150px!important;color:blue!important;cursor:pointer!important;" ng-click="ShowToolTip('PROCUREMENT',x)">{{x.UserName}}</td>
+                <td style="width:40px!important;">
 
+                    <input type="number" style="min-width:40px;background-color:{{x.Sequence<0?'red':'white'}}" name="Sequence" min="0" ng-model="x.Sequence" ng-change="CalculateFinalCosting(x);" class="form-control">
+
+                </td>
                 <td style="width:100px!important;">
                     <div class="select-style">
                         <select style="margin-left: 0px;" name="Value Loss"
@@ -557,7 +568,7 @@
                 </td>
             </tr>
             <tr>
-                <td style="color:blue;" colspan="3">Total</td>
+                <td style="color:blue;" colspan="4">Total</td>
                 <td class="text-right" style="color: blue;padding-right:4px!important;"><label>{{TotalProcurementSegmentedValueByComponent| number:4}}</label></td>
 
             </tr>
@@ -572,6 +583,7 @@
         <thead>
             <tr>
                 <th>Costing Item</th>
+                <th>Seq.No.</th>
                 <th>Type</th>
                 <th>Value</th>
                 <th class="text-right">Amount</th>
@@ -583,7 +595,13 @@
         </thead>
         <tbody>
             <tr style="background-color:{{x.Error?'red':'white'}};" ng-repeat="x in ProfitProcurementCostingList">
-                <td sstyle="width:250px!important;color:blue!important;cursor:pointer!important;" ng-click="ShowToolTip('PROCUREMENT',x)">{{x.UserName}}</td>
+                <td sstyle="width:150px!important;color:blue!important;cursor:pointer!important;" ng-click="ShowToolTip('PROCUREMENT',x)">{{x.UserName}}</td>
+
+                <td style="width:80px!important;">
+
+                    <input type="number" style="min-width:40px;background-color:{{x.Sequence<0?'red':'white'}}" name="Sequence" min="0" ng-model="x.Sequence" ng-change="CalculateFinalCosting(x);" class="form-control">
+
+                </td>
 
                 <td style="width:100px!important;">
                     <div class="select-style">
@@ -637,7 +655,7 @@
                 </td>
             </tr>
             <tr>
-                <td style="color:blue;" colspan="3">Total</td>
+                <td style="color:blue;" colspan="4">Total</td>
                 <td class="text-right" style="color: blue;padding-right:4px!important;"><label>{{TotalProcurementSegmentedValueByComponent| number:4}}</label></td>
 
             </tr>
