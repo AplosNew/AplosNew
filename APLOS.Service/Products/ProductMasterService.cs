@@ -30,6 +30,7 @@ namespace Library.Service.Products
         private readonly ISqlRepository _sqlRepository;
         private readonly IRepositoryAsync<ProductMaster> _charaterValueRepository;
         private readonly IRepositoryAsync<ProductMasterEfficency> _efficencyRepository;
+        private readonly IRepositoryAsync<ProductMasterAlternativeUOM> _materialMasterAlternativeUOM;
 
         public ProductMasterService(
             IRepositoryAsync<ProductMaster> charaterValueRepository,
@@ -38,7 +39,8 @@ namespace Library.Service.Products
             IUnitOfWork unitOfWork
             , ISqlRepository sqlRepository
                , IRepositoryAsync<ProductMasterEfficency> efficencyRepository
-            ,IRepositoryAsync<ProductDefinition> productMasterRepository
+               , IRepositoryAsync<ProductMasterAlternativeUOM> materialMasterAlternativeUOM
+            , IRepositoryAsync<ProductDefinition> productMasterRepository
             ) :
             base(charaterValueRepository, unitOfWork, pkGeneratorService)
         {
@@ -48,6 +50,7 @@ namespace Library.Service.Products
             _productMasterAttributeValueService = productMasterAttributeValueService;
             _sqlRepository = sqlRepository;
             _efficencyRepository = efficencyRepository;
+            _materialMasterAlternativeUOM = materialMasterAlternativeUOM;
         }
 
         #endregion Constructor
@@ -64,7 +67,7 @@ namespace Library.Service.Products
             }
         }
 
-        public void Insert(ProductMaster entity, IEnumerable<ProductMasterAttributeValue> productMasterAttributeValue, IEnumerable<ProductMasterEfficency> efficencyList)
+        public void Insert(ProductMaster entity, IEnumerable<ProductMasterAttributeValue> productMasterAttributeValue, IEnumerable<ProductMasterEfficency> efficencyList, IEnumerable<ProductMasterAlternativeUOM> materialMasterAlternativeUOM)
         {
             var flag = false;
             try
@@ -117,6 +120,51 @@ namespace Library.Service.Products
                         }
                     }
                 }
+
+                if (materialMasterAlternativeUOM!=null)
+                {
+                    var dbList = _materialMasterAlternativeUOM.Query(t => t.ProductMasterId == entity.Id).Select().ToList();
+                    if (materialMasterAlternativeUOM != null)
+                    {
+                        var pk = _pkGeneratorService.GetMaxNumber(nameof(ProductMasterAlternativeUOM), PKGeneratorEnum.Auto, null, DateTime.Now);
+                        foreach (var item in materialMasterAlternativeUOM)
+                        {
+                            if (string.IsNullOrEmpty(item.Id))
+                            {
+                                pk.MaxNumber++;
+                                item.Id = pk.MaxNumber.ToString();
+                                item.ProductMasterId = entity.Id;
+                                AuditService.AddedLog(item);
+                                _materialMasterAlternativeUOM.Insert(item);
+                            }
+                            else if (!string.IsNullOrEmpty(item.Id))
+                            {
+                                AuditService.UpdatedLog(item);
+                                _materialMasterAlternativeUOM.Update(item);
+                            }
+                       
+                        }
+                    }
+                    if (dbList != null)
+                    {
+                        if (materialMasterAlternativeUOM == null)
+                        {
+                            foreach (var item in dbList)
+                            {
+                                _materialMasterAlternativeUOM.Delete(item);
+                            }
+                        }
+                        else
+                        {
+                            foreach (var item in dbList)
+                            {
+                                if (!materialMasterAlternativeUOM.Any(t => t.Id == item.Id))
+                                    _materialMasterAlternativeUOM.Delete(item);
+                            }
+                        }
+                    }
+                }
+
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
@@ -388,12 +436,14 @@ namespace Library.Service.Products
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                parameters.CmdText = @"SELECT PM.*, PC.UserName AS ProductCategoryName, PSC.UserName AS ProductSubCategoryName, P.UserName AS ProductName, PR.UserName BaseProcess FROM MST.[ProductMaster] AS PM 
+                parameters.CmdText = @"SELECT PM.*, PC.UserName AS ProductCategoryName, PSC.UserName AS ProductSubCategoryName, P.UserName AS ProductName, PR.UserName BaseProcess, UOMB.UserName AS BaseUom 
+                                        FROM MST.[ProductMaster] AS PM 
                                         LEFT OUTER JOIN HKP.[ProductCategory] AS PC ON PC.Id = PM.ProductCategoryId
                                         LEFT OUTER JOIN HKP.[ProductSubCategory] AS PSC ON PSC.Id = PM.ProductSubCategoryId
                                         LEFT OUTER JOIN HKP.[Product] AS P ON P.Id = PM.ProductId
                                         LEFT OUTER JOIN HKP.[Process] AS PR ON PR.Id = PM.BaseProcessId
-                                        WHERE PM.CompanyGroupId = '"+identity.CompanyGroupId+"' AND PM.Archive = 0";
+                                        LEFT JOIN [SCS].[UnitOfMeasurement] AS UOMB ON PM.BaseUOMId = UOMB.Id
+                                        WHERE PM.CompanyGroupId = '" + identity.CompanyGroupId+"' AND PM.Archive = 0";
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)
@@ -538,5 +588,27 @@ namespace Library.Service.Products
         }
 
         #endregion ProductMasterEfficency
+
+        #region AltUom
+        public IEnumerable<object> GetProductMasterAltUomList(string productMasterId)
+        {
+            try
+            {
+                var _sql = @"SELECT MMAU.*, UOMA.UserName AS AlternativeUOMName,UOMB.UserName AS BaseUOMName
+                            FROM MST.ProductMasterAlternativeUOM AS MMAU 
+                            LEFT OUTER JOIN SCS.[UnitOfMeasurement] AS UOMA ON MMAU.AlternativeUOMId=UOMA.Id 
+                            LEFT OUTER JOIN SCS.[UnitOfMeasurement] AS UOMB ON MMAU.BaseUOMId=UOMB.Id 
+                            WHERE MMAU.Archive = 0 AND MMAU.ProductMasterId = '" + productMasterId + "'";
+                return _sqlRepository.GetDataCollection(_sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name,
+                                null, ErrorType.ServiceError, null,
+                                ex.Message, ex.GetType().Name, false, ModuleEnum.Material.ToString()));
+            }
+        } 
+        #endregion
     }
 }

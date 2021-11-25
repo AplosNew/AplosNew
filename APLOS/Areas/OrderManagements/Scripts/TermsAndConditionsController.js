@@ -1,6 +1,6 @@
 ﻿'use strict';
-TermsAndConditionsController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function TermsAndConditionsController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+TermsAndConditionsController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter','$window'];
+function TermsAndConditionsController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
     $rootScope.title = 'Terms And Conditions';
     $scope.Action = 'Save';
     $scope.ModelList = [];
@@ -121,7 +121,8 @@ function TermsAndConditionsController(cboService, commonMessage, $scope, $rootSc
     $scope.TitleModel = {
         Id: null,
         TermsAndConditionsMasterId: $scope.ModelNew.Id,
-        Title: null
+        Title: null,
+        Sequence:0
     }
 
     $scope.titleAction = true;
@@ -394,13 +395,13 @@ function TermsAndConditionsController(cboService, commonMessage, $scope, $rootSc
     $scope.actionComplete = function (args) {
         try {
             if (args.requestType === "refresh") {
-                var gridObj = $("#Grid1").ejGrid("instance");
-                var scrollerwidth = $("#GridPopUp").width();//Obtain the width of the container
-                gridObj.option({ allowScrolling: true, scrollSettings: { width: scrollerwidth - 20, height: 300, width: 1080 } });//pass the obtainer width and height to gridmodel options
-                gridObj.windowonresize();
+                var gridObj = $("#gridRemarks").ejGrid("instance");
+                //var scrollerwidth = $("#GridPopUp").width();//Obtain the width of the container
+                //gridObj.option({ allowScrolling: true, scrollSettings: { width: scrollerwidth - 20, height: 300, width: 1080 } });//pass the obtainer width and height to gridmodel options
+                //gridObj.windowonresize();
 
                 if (args.action == "rowReordering") {
-                    gridObj = $("#Grid1").data("ejGrid");
+                    gridObj = $("#gridRemarks").data("ejGrid");
                     // Gets current view data of grid control
                     var data = gridObj.getCurrentViewData();
                     var sorteddata = ej.DataManager(data).executeLocal(ej.Query().select(["Id"]));

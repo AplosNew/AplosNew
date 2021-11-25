@@ -403,7 +403,7 @@
                                 <legend class="scheduler-border">Process</legend>
                                 <div class="common-btn" style="margin-top: -20px;">
                                     <ul class="list-inline text-left">
-                                        <li> <button ng-click="AddNewProcess();" ng-disabled="bulletintab" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i> Add New Process</button></li>
+                                        <li> <button ng-click="AddNewProcess();" ng-disabled="bulletintab || bulletinTemplateNew.Id==null" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i> Add New Process</button></li>
                                     </ul>
                                 </div>
                                 <div class="content-container-fluid" style="color:black;">
@@ -477,8 +477,8 @@
                                 <div class="col-xs-12">
                                     <div class="common-btn">
                                         <ul class="list-inline text-left">
-                                            <li><button style="margin-left: 5px;" ng-click="AddOperation();" class="btn"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i> Add {{Process}} Operation</button></li>
-                                            <li><button style="margin-left: 5px;" ng-click="AddMultiCode();" class="btn"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i> Multi Code</button></li>
+                                            <li><button style="margin-left: 5px;" ng-click="AddOperation();"  ng-disabled="bulletintab || bulletinTemplateNew.Id==null" class="btn"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i> Add {{Process}} Operation</button></li>
+                                            <li><button style="margin-left: 5px;" ng-click="AddMultiCode();"  ng-disabled="bulletintab || bulletinTemplateNew.Id==null" class="btn"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i> Multi Code</button></li>
                                         </ul>
                                     </div>
 
