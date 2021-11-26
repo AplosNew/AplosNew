@@ -298,6 +298,8 @@ function salaryProcessedReportSummaryController(commonMessage, $scope, $rootScop
         try {
             var parameteres = [];
            
+            var DropDownListObj = $("#CWPlant").data("ejDropDownList");
+            var PlantId = DropDownListObj.getSelectedValue();
 
             $http({
                 method: 'POST',
@@ -310,7 +312,8 @@ function salaryProcessedReportSummaryController(commonMessage, $scope, $rootScop
                     'parameters': parameteres,
                     'isActive': $scope.isActive,
                     'isSeperated': $scope.isSeperated,
-                    'isMaternity': $scope.isMaternity
+                    'isMaternity': $scope.isMaternity,
+                    'PlantId': PlantId
                 }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -460,6 +463,34 @@ function salaryProcessedReportSummaryController(commonMessage, $scope, $rootScop
         angular.element(document.querySelector('#empfilterPopUp')).modal('hide');
     };
     //--------------------------------------//
+
+    $scope.PlantIdFromUI = null;
+    $scope.PlantList = [];
+    $scope.getPlant = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetPlantList",
+        }).then(function successCallback(response) {
+            $scope.PlantList = response.data;
+            var index = 0;
+            for (var i = 0; i < $scope.PlantList.length; i++) {
+                if ($scope.PlantList[i].PlantId == $window.plantId) {
+                    index = i;
+                }
+            }
+
+            $('#CWPlant').ejDropDownList(
+                {
+                    dataSource: $scope.PlantList,
+                    fields: { text: "PlantName", value: "PlantId" },
+                    selectedIndex: index, showCheckBox: true, multiSelectMode: ej.MultiSelectMode.VisualMode
+                    , width: 250
+                });
+
+        });
+    }
+    $scope.getPlant();
+
 }
 
 

@@ -3792,7 +3792,7 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			try
 			{
-				string _sql = "select Id,Description from TermsAndConditionsMaster";
+				string _sql = "select Id,Description,UserName TermsAndConditions from HKP.TermsAndConditions";
 				//_sqlRepository.ExecuteSqlCommand(_sql);
 
 				return Json(_sqlRepository.GetDataCollection(_sql), JsonRequestBehavior.AllowGet);
@@ -3805,6 +3805,21 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
 				ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
 			}
 		}
+
+		[HttpPost, Authorize]
+		public ActionResult GetTermsAndConditionsList(string TermsAndConditionMasterId)
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			string sql = @" select 
+ TC.Id TermsAndConditionChildId,TD.Id TermsAndConditionDetailId, TC.Title , TD.HeaderCaption,TD.Description 
+ from TermsAndConditionsChild TC
+ left outer join TermsAndConditionsDetails Td on TD.TermsAndConditionsChildId=TC.Id
+ where TC.TermsAndConditionsMasterId='" + TermsAndConditionMasterId + @"'";
+
+			return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+		}
+
+
 		[HttpGet, Authorize]
 		public JsonResult NotificationSetting()
 		{

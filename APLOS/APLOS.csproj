@@ -674,6 +674,7 @@
     <Compile Include="Areas\JobWork\Controllers\JWIssueReturnController.cs" />
     <Compile Include="Areas\JobWork\Controllers\JWReceiptController.cs" />
     <Compile Include="Areas\JobWork\JobWorkRegistration.cs" />
+    <Compile Include="Areas\Productions\Controllers\WasteMasterController.cs" />
     <Compile Include="Areas\Outsourcing\Controllers\OSIssueRegisterController.cs" />
     <Compile Include="Areas\Outsourcing\Controllers\JobWorkActivityController.cs" />
     <Compile Include="Areas\Outsourcing\Controllers\JobWorkIssueReturnConfirmationController.cs" />
@@ -1955,6 +1956,7 @@
     <Content Include="Areas\JobWork\Scripts\JobWorkTransformationPOController.js" />
     <Content Include="Areas\JobWork\Scripts\JWIssueReturnController.js" />
     <Content Include="Areas\JobWork\Scripts\JWReceiptController.js" />
+    <Content Include="Areas\Productions\Scripts\WasteMasterController.js" />
     <Content Include="Areas\Outsourcing\Scripts\OSissueRegisterController.js" />
     <Content Include="Areas\Outsourcing\Scripts\jobWorkActivityController.js" />
     <Content Include="Areas\Outsourcing\Scripts\JobWorkIssueReturnConfirmationController.js" />
@@ -3865,6 +3867,7 @@
     <Content Include="Areas\JobWork\Views\JWIssueReturn\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\MonthlyLeaveBalance\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\ManpowerAttendanceSummary\AplosNew.cshtml" />
+    <Content Include="Areas\Productions\Views\WasteMaster\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

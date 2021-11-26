@@ -3026,7 +3026,10 @@ function RequisitionController(accountService, addressService, $window, cboServi
 
 	baseService.getCompanyConfiguration(function (result) {
 		$scope.companyConfig = result;
-	});
+    });
+
+    $scope.companyGroupId = $window.companyGroupId; $scope.companyId = $window.companyId;
+
 	cboService.getCboEntityByPlant($window.companyGroupId, $window.companyId, '', function (result) {
 		$scope.EntityList = result;
 	});
