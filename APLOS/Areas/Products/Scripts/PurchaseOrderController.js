@@ -4326,7 +4326,30 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
     };
     $scope.BOQItemsDetailsDataListHide = function () {
         angular.element(document.querySelector('#ListMaterial')).modal('hide');
-    };
+	};
+
+	$scope.TermsAndConditionGridList = [];
+	$scope.LoadTermsAndConditionGrid = function () {
+			$scope.TermsAndConditionGridList = [];
+			try {
+				$http({
+					method: 'POST',
+					url: $scope.path + "GetTermsAndConditionsList",
+					data: { 'TermsAndConditionMasterId': $scope.TermsAndConditions.Id },
+					dataType: 'JSON'
+
+				}).then(function successCallback(response) {
+					$scope.TermsAndConditionGridList = [];
+					$scope.TermsAndConditionGridList = response.data;
+				});
+			}
+			catch (e) {
+				ShowResult(e, 'failure');
+			
+
+		}
+	}
+/*	$scope.LoadTermsAndConditionGrid();*/
 
 }//End Of main
 

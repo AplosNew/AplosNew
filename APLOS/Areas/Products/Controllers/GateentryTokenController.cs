@@ -642,7 +642,7 @@ namespace Aplos.Areas.Products.Controllers
                           LEFT JOIN Employeeinformation EI4 on EI4.SystemId= GPM.ReceiverSecurityEmployeeId
                           LEFT JOIN Employeeinformation EI5 on EI5.SystemId= GPM.CheckedBy
                           LEFT JOIN Employeeinformation EI6 on EI6.SystemId= GPM.ApprovedBy
-                          Where GPM.FromEmployeeId='" + identity.EmployeeId + @"' 
+                          Where GPM.FromEmployeeId='" + identity.EmployeeId + @"'  
 						  AND GPM.CheckedByStatus='ForChecked' AND GPM.GateRegisterType='"+ GateRegisterType + @"' Order By GPM.[Id] DESC";
 				}
 				if (ReqStatus == "2")//Checked Hold/Reject
