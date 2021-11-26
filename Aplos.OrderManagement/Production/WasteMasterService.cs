@@ -1,60 +1,53 @@
 ﻿using Library.Crosscutting.Security;
-using Library.Data;
 using Library.Data.Sql;
 using OTSBD;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Reflection;
 using System.Threading;
-#region Using
-
-using Library.Service.Enums;
-using Library.Service.Logs;
-
-#endregion Using
+using System.Linq;
 
 namespace Library.OrderManagement.Production
 {
-	public class WasteMasterService
-	{
-		private readonly SqlRepository _sqlRepository;
+    public class WasteMasterService
+    {
+        private readonly SqlRepository _sqlRepository;
 
-		#region Constructor
-		public WasteMasterService()
-		{
-			_sqlRepository = new SqlRepository();
-		}
-		#endregion Constructor
+        #region Constructor
+        public WasteMasterService()
+        {
+            _sqlRepository = new SqlRepository();
+        }
+        #endregion Constructor
 
-        public IEnumerable<object> getPlants ()
+        public IEnumerable<object> getPlants()
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var str = "Select Id as Value , UserName as Text from Org.Plant where CompanyGroupId = '"+identity.CompanyGroupId+"'";
+                var str = "Select Id as Value , UserName as Text from Org.Plant where CompanyGroupId = '" + identity.CompanyGroupId + "'";
                 return _sqlRepository.GetDataCollection(str);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
         }
 
-        public IEnumerable<object> getEntity (string PlantId)
+        public IEnumerable<object> getEntity(string PlantId)
         {
             try
             {
                 var str = "Select Id as Value , UserName as Text from Org.Entity where PlantId = '" + PlantId + "'";
                 return _sqlRepository.GetDataCollection(str);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
         }
 
-        public IEnumerable<object> getUOM ()
+        public IEnumerable<object> getUOM()
         {
             try
             {
@@ -76,42 +69,42 @@ namespace Library.OrderManagement.Production
                             left join org.Position p on p.Id = mb.PositionId
                             left join org.Company c on c.Id = mb.CompanyId
                             left join org.Entity e on e.Id = mb.EntityId
-                            where e.Id = '"+EId+"' ";
+                            where e.Id = '" + EId + "' ";
                 return _sqlRepository.GetDataCollection(str);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
         }
 
-		public IEnumerable<object> Get( string Id)
+        public IEnumerable<object> Get(string Id)
         {
-			try
+            try
             {
-				var str = @"select * from dbo.WasteMaster wher Id = '" + Id + "' ";
-				return _sqlRepository.GetDataCollection(str);
+                var str = @"select * from dbo.WasteMaster wher Id = '" + Id + "' ";
+                return _sqlRepository.GetDataCollection(str);
             }
-			catch(Exception e)
+            catch (Exception e)
             {
-				throw e;
+                throw e;
             }
         }
 
-		public IEnumerable<object> GetList(string strkey)
+        public IEnumerable<object> GetList(string strkey)
         {
-			try
+            try
             {
-				string sql = @"select top 100 * from (SELECT * FROM dbo.WasteMaster) AS TEMP WHERE " + strkey + " order by sequence";
-				return _sqlRepository.GetDataCollection(sql);
-			}
-			catch(Exception e)
+                string sql = @"select top 100 * from (SELECT * FROM dbo.WasteMaster) AS TEMP WHERE " + strkey + " order by sequence";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
             {
-				throw e;
+                throw e;
             }
         }
 
-		public Dictionary<string, object> Create(Dictionary<string, object> data)
+        public Dictionary<string, object> Create(Dictionary<string, object> data)
         {
             try
             {
@@ -157,7 +150,7 @@ namespace Library.OrderManagement.Production
             }
         }
 
-        public void Delete (string id)
+        public void Delete(string id)
         {
             try
             {
@@ -226,4 +219,124 @@ namespace Library.OrderManagement.Production
         }
 
     }
+
+    public class WasteTransactionService
+    {
+        SqlRepository _sqlRepository;
+        ConnectionManager.clsConnectionManager ConManager;
+
+        public WasteTransactionService()
+        {
+            _sqlRepository = new SqlRepository();
+            ConManager = new ConnectionManager.clsConnectionManager();
+        }
+
+        public IEnumerable<object> GetBudgetInfo(string UserId)
+        {
+            try
+            {
+                var sql = @"select distinct u.Id as Value,u.UserId as Text,u.EmployeeId,
+                b.Id as BudgetId from [SEC].[User] u 
+                left join EmployeeInformation e on e.SystemId=u.EmployeeId
+                left join mst.ManpowerBudget b on b.Id=e.BudgetCode
+                where UserId='"+UserId+"'";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetItemName(string Entity,string BudgetId)
+        {
+            try
+            {
+                var sql = @"select Id as MasterId,ItemName from WasteMaster where EntityId='"+Entity+ "'" +
+                    " and BudgetId='"+BudgetId+"'";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string SaveData(IEnumerable<WasteTransactionModel> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<WasteTransactionModel> items = DataToSave.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from dbo.WasteTransactionData where 1=2", out dsMaster, false, "1");
+
+                foreach (WasteTransactionModel item in DataToSave)
+                {
+
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+
+                        bplib.clsGenID id = new bplib.clsGenID();
+                        id.GenIDYearly(DateTime.Now.ToShortDateString(), "WasteTransactionData", out string NewId);
+
+                        dr["Id"] = "WT"+ NewId;
+                        dr["Date"] = item.Date;
+                        dr["EntityId"] = item.EntityId;
+                        dr["WasteMasterId"] = item.WasteMasterId;
+                        dr["Quantity"] = item.Quantity;
+                        dr["Remarks"] = item.Remarks;
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedDate"] = DateTime.Now.ToString();
+                        dr["AddedFromIP"] = item.AddedFromIP;
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+
+                    }                   
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                if(MasterId.Contains("WT"))
+                {
+                    return "true";
+                }
+                return "false";
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
+
+    }
+
+
+    public class WasteTransactionModel
+    {
+        public string Id { get; set; }
+        public string WasteMasterId { get; set; }
+        public string EntityId { get; set; }
+        public string Remarks { get; set; }
+        public string Quantity { get; set; }
+        public DateTime Date { get; set; }
+        public string AddedBy { get; set; }
+        public DateTime AddedDate { get; set; }
+        public string UpdatedBy { get; set; }
+        public DateTime? UpdatedDate { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdatedFromIP { get; set; }
+      
+    }
+
 }

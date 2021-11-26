@@ -1,30 +1,30 @@
 ﻿using System;
-using Library.Service.EmployeeServices;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using APLOS;
+using Library.OrderManagement.Production;
 
 namespace Aplos.Controllers
 {
-    [BasicAuthenticationAttribute]
+    [BasicAuthentication]
     public class WasteTransactionController : ApiController
     {
-        ItemScanService _scan= new ItemScanService();
+        WasteTransactionService _data = new WasteTransactionService();
         public WasteTransactionController()
         {
-            _scan = new ItemScanService();
+            _data = new WasteTransactionService();
         }
-       
-       
+
+
         [HttpGet]
-        public IHttpActionResult GetFromLoc(string Entity,string Purp)
+        public IHttpActionResult GetBudgetInfo(string UserId)
         {
             try
             {
-                var result = _scan.FromLoc(Entity,Purp);
+                var result = _data.GetBudgetInfo(UserId);
                 return Json(result);
             }
             catch (Exception ex)
@@ -38,45 +38,11 @@ namespace Aplos.Controllers
         }
 
         [HttpGet]
-        public IHttpActionResult GetToLoc(string Entity, string Purp, string From)
+        public IHttpActionResult GetItemName(string Entity,string BudgetId)
         {
             try
             {
-                var result = _scan.ToLoc(Entity, Purp, From);
-                return Json(result);
-            }
-            catch (Exception ex)
-            {
-                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
-                {
-                    ReasonPhrase = ex.Message
-                };
-                throw new HttpResponseException(resp);
-            }
-        }
-
-
-        [HttpPost]
-        public string SaveHeader([FromBody] IEnumerable<ItemScanData> DataToSave)
-        {
-            try
-            {
-                string Id = _scan.SaveHeader(DataToSave);
-                return Id;
-            }
-            catch (Exception ex)
-            {
-                return ex.ToString();
-
-            }
-        }
-
-        [HttpGet]
-        public IHttpActionResult GetShift(string PlantId)
-        {
-            try
-            {
-                var result = _scan.GetShiftMaster(PlantId);
+                var result = _data.GetItemName(Entity,BudgetId);
                 return Json(result);
             }
             catch (Exception ex)
@@ -90,12 +56,11 @@ namespace Aplos.Controllers
         }
 
         [HttpPost]
-        [Route("api/Scan/MId/{MId}")]
-        public string Create([FromUri] string MId, [FromBody] IEnumerable<ItemScanChildData> DataToSave)
+        public string Create([FromBody] IEnumerable<WasteTransactionModel> DataToSave)
         {
             try
             {
-                string Id = _scan.Create(MId, DataToSave);
+                string Id = _data.SaveData(DataToSave);
                 return Id;
             }
             catch (Exception ex)
@@ -105,82 +70,5 @@ namespace Aplos.Controllers
             }
         }
 
-        [HttpGet]
-        public IHttpActionResult GetPurp(string Entity)
-        {
-            try
-            {
-                var result = _scan.GetPurpose(Entity);
-                return Json(result);
-            }
-            catch (Exception ex)
-            {
-                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
-                {
-                    ReasonPhrase = ex.Message
-                };
-                throw new HttpResponseException(resp);
-            }
-        }
-
-
-        // Dispatch & Booking
-
-
-        [HttpGet]
-        public IHttpActionResult GetPackingId(string Cust,string User)
-        {
-            try
-            {
-                var result = _scan.GetPackingId(Cust,User);
-                return Json(result);
-            }
-            catch (Exception ex)
-            {
-                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
-                {
-                    ReasonPhrase = ex.Message
-                };
-                throw new HttpResponseException(resp);
-            }
-        }
-
-
-        [HttpGet]
-        public IHttpActionResult GetCustomer()
-        {
-            try
-            {
-                var result = _scan.GetCust();
-                return Json(result);
-            }
-            catch (Exception ex)
-            {
-                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
-                {
-                    ReasonPhrase = ex.Message
-                };
-                throw new HttpResponseException(resp);
-            }
-        }
-    
-      
-     
-       
-        [HttpPost]
-        public string CreateDispatch([FromBody] IEnumerable<ItemScanChildData> DataToSave)
-        {
-            try
-            {
-                string Id = _scan.CreateDispatch(DataToSave);
-                return Id;
-            }
-            catch (Exception ex)
-            {
-                return ex.ToString();
-
-            }
-        }
-             
     }
 }
