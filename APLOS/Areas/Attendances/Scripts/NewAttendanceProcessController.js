@@ -41,6 +41,22 @@ function NewAttendanceProcessController($window, $timeout, cboService, commonMes
         }
     }
 
+    $scope.RunTBS_LA_Process  = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.NewAttdnProcess.$valid) {
+
+            $http({
+                method: 'GET',
+                url: $scope.path + 'RunTBS_LA_Process?Date=' + $scope.Attnd.Date,
+            }).then(function successCallback(response) {
+                if (response.data.Error == false) {
+                    ShowResult(response.data.Message, 'success');
+                }
+            });
+        }
+    }
+
+
     $scope.RunDayStatus = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.NewAttdnProcess.$valid)

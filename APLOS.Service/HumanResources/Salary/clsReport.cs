@@ -9598,6 +9598,7 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"')
         }//end function
         public void GetExtraAbsent(string plantid, Dictionary<string, string> empParameters, int smonth, int syear, out DataSet dsRef)
         {
+            string plantId = "'" + plantid.Replace(",", "','") + "'";
             ConnectionManager.DAL.ConManager objCon;
             string strSql = string.Empty;
 
@@ -9605,12 +9606,12 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"')
             {
                 strSql = @"SELECT WorkingDate,EmpSystemID
                               FROM [SCS].[WeeklyAbsentismAssignment]
-                              where month(WorkingDate)=" + smonth + " and YEAR(WorkingDate)=" + syear + " and plantid in (" + plantid + @") 
+                              where month(WorkingDate)=" + smonth + " and YEAR(WorkingDate)=" + syear + " and plantid in (" + plantId + @") 
                             union
 
                             SELECT WorkDate WorkingDate,EmpSystemID
                               FROM [trn].[HolidayAbsentismAssignment]
-                              where month(WorkDate)=" + smonth + " and YEAR(WorkDate)=" + syear + " and plantid in (" + plantid + @") 
+                              where month(WorkDate)=" + smonth + " and YEAR(WorkDate)=" + syear + " and plantid in (" + plantId + @") 
                      ";
                 try
                 {

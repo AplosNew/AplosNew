@@ -1,4 +1,5 @@
 ﻿using Library.Core;
+using Library.Model.Employees;
 using Library.Model.OpeningBalances;
 using Library.Model.Vouchers;
 using System;
@@ -131,7 +132,6 @@ namespace Library.Model.Inventory
 
         public string DeliveryPartyPlantId { get; set; }
 
-        //public OpeningBalance OpeningBalance { get; set; }
 
        // public string OpeningBalanceId { get; set; }
 

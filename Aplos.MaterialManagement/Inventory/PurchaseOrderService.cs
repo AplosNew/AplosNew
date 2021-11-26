@@ -8123,8 +8123,7 @@ ORDER BY IR.ID DESC";
                             LEFT JOIN [dbo].[Contract] C ON C.Id=PO.ContractId
                             LEFT JOIN SCS.Currency CN ON CN.Id=PO.CurrencyId 
                             --LEFT JOIN (Select ServicePoId,COUNT(ServiceAckId) GRNId from TRN.ServivePOAcknowledgementMap GROUP BY ServicePoId) GRN ON GRN.ServicePoId=PO.Id
-                            WHERE PO.PlantId='" + plantId + @"' AND PT.PaymentMode = 'LC' AND ISNULL(PO.PurchaseLCId,'')='' AND ISNULL(PO.IsClosed,0)=0 AND PO.IsApproved=1
-                                    ";
+                            WHERE PO.PlantId='" + plantId + @"' AND PT.PaymentMode = 'LC' AND ISNULL(PO.PurchaseLCId,'')='' AND ISNULL(PO.IsClosed,0)=0 AND PO.IsApproved=1";
 
                 return _sqlRepository.GetDataCollection(Sql);
             }
@@ -10015,7 +10014,8 @@ ORDER BY IR.ID DESC";
                 //var resId = id.Substring(2);
                 //entity.Id = plantId + yr + resId;
                 entity.Id = GetPKServicePOMaster();
-
+                if (string.IsNullOrEmpty(entity.EmployeeId) || string.IsNullOrWhiteSpace(entity.EmployeeId))
+                    entity.EmployeeId = null;
                 AuditService.AddedLog(entity);
                 entity.ModelState = ModelState.Added;
                 _ServicePOMaster.Insert(entity);
