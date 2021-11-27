@@ -111,6 +111,7 @@
     <Compile Include="Production\ProductionOrder.cs" />
     <Compile Include="Production\ProductionSummaryData.cs" />
     <Compile Include="Production\DailyProductionData.cs" />
+    <Compile Include="Production\WasteMasterService.cs" />
     <Compile Include="Production\WIPReport.cs" />
     <Compile Include="LcNavigation\LcNavigation.cs" />
     <Compile Include="Packing\clsPacking.cs" />

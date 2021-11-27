@@ -57,6 +57,7 @@ function EmployeeServiceBookingController(cboService, commonMessage, $scope, $ro
             $scope.CategoryIdList = response.data;
             if ($scope.CategoryIdList.length > 0) {
                 $scope.EmployeeServiceBooking.EmployeeServiceCategoryId = $scope.CategoryIdList[0].Value;
+                $scope.GetForm();
             }
             
             });

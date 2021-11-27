@@ -79,7 +79,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 
 
                 var str = @"select a.EmpSystemID,a.RowId,e.EmployeeCode,a.DayStatus,format(a.WorkDate ,'dd-MMM-yyyy') as WorkDate,e.PlantId,p.UserName as Plant,
-                            a.InTime,a.OutTime,a.ProcessedOT,isnull((a.ProcessedOT*dt.OTMultiplingFactor),'0') as TargetOT,
+                            a.InTime,a.OutTime,a.IsManualOutTime,a.ProcessedOT,isnull((a.ProcessedOT*dt.OTMultiplingFactor),'0') as TargetOT,
                             isnull(PreallocatedOTHr*60,'0') as PlanOT,isnull(dt.DayLimit,'0')DayLimit,a.IsOTComfirm,
                             isnull(a.StandardOT,'0')StandardOT,isnull(a.AppliedOTLimit,'0')AppliedOTLimit,
                             isnull(a.AllowedOTLimit,'0')AllowedOTLimit,isnull(a.AdditionalOT,'0')AdditionalOT,dt.ApplicableWM,isnull(dt.MonthlyLimit,'0')MonthlyLimit,
@@ -348,7 +348,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             #endregion
 
                             #region Outime Adjust
-
+                            
                             if (OutTime != "")
                             {
                                 decimal ProcessOT = Convert.ToDecimal(Table.DefaultView[0][@"ProcessedOT"].ToString());
@@ -359,9 +359,10 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                                     DateTime NewOutTime = Convert.ToDateTime(OutTime).AddMinutes(Convert.ToDouble(ReducedMinutes) * -1);
                                     string NewOut = NewOutTime.ToString("dd-MMM-yyyy hh:mm:ss tt");
-
+                                   
+                                    dr["IsManualOutTime"] = true;
                                     dr["OutTime"] = NewOut;
-                                    dr["ManualOutTime"] = NewOut;
+                                    dr["ManualOutTime"] = NewOut;                                   
                                 }
                             }
 
@@ -391,12 +392,13 @@ namespace Library.HumanResource.NewAttendanceProcess
                     {
                         string RowId = Table.Rows[i][@"RowId"].ToString();
                         decimal TargetOT = Convert.ToDecimal(Table.Rows[i][@"TargetOT"].ToString());
-                        decimal StdOT = Convert.ToDecimal(Table.DefaultView[0][@"StandardOT"].ToString());
+                        decimal StdOT = Convert.ToDecimal(Table.Rows[i][@"StandardOT"].ToString());
                         decimal PlanOT = Convert.ToDecimal(Table.Rows[i][@"PlanOT"].ToString());
                         decimal AdditionalOT = Convert.ToDecimal(Table.Rows[i][@"AdditionalOT"].ToString());
                         decimal AppliedOTLimit = Convert.ToDecimal(Table.Rows[i][@"AppliedOTLimit"].ToString());
                         decimal AllowedOTLimit = Convert.ToDecimal(Table.Rows[i][@"AllowedOTLimit"].ToString());
                         string NewOut = clsWebLib.RetValidLen(Table.Rows[i][@"OutTime"]).ToString();
+                        string IsManual = clsWebLib.GetBoolData(Table.Rows[i][@"IsManualOutTime"]).ToString();
 
                         dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId+ "' ";
                         if (dsRef.Tables[0].DefaultView.Count > 0)
@@ -411,8 +413,12 @@ namespace Library.HumanResource.NewAttendanceProcess
                             dr["StandardOT"] = StdOT;
                             dr["AdditionalOt"] = AdditionalOT;
 
-                            dr["OutTime"] = NewOut;
-                            dr["ManualOutTime"] = NewOut;
+                            if (IsManual == "True")
+                            {
+                                dr["OutTime"] = NewOut;
+                                dr["ManualOutTime"] = NewOut;
+                                dr["IsManualOutTime"] = IsManual;
+                            }
 
                             dr["IsOTComfirm"] = true;
                             dr["OTComfirmBy"] = identity.Name;
@@ -424,8 +430,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                         }
 
                     }
-                    //clsStaticInfo info = new clsStaticInfo();
-                    //info.SaveDataSets(dsRef);
+                    clsStaticInfo info = new clsStaticInfo();
+                    info.SaveDataSets(dsRef);
                 }
                    
                 #endregion

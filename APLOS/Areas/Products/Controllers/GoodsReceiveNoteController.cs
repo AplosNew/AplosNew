@@ -4146,10 +4146,24 @@ UNION ALL
         }
 
         [Authorize, HttpGet]
+        public JsonResult GetJobWorkOutPutInventoryMaterialList(string inveReveiveId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryMaterialService.JobWorkOutPutQuery(inveReveiveId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public JsonResult GetJWByProductInventoryMaterialList(string inveReveiveId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_inventoryMaterialService.JWByProductQuery(inveReveiveId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetJobWorkByProductInventoryMaterialList(string inveReveiveId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryMaterialService.JobWorkByProductQuery(inveReveiveId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Delete))]
