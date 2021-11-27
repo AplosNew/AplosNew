@@ -3864,6 +3864,8 @@
     <Content Include="Areas\JobWork\Views\JWIssueReturn\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\MonthlyLeaveBalance\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\ManpowerAttendanceSummary\AplosNew.cshtml" />
+    <Content Include="Areas\Accounts\Views\_ExpenseDistributePopUp.cshtml" />
+    <Content Include="Areas\Accounts\Views\_InboundInvoicePopUp.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

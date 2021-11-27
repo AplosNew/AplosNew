@@ -2,8 +2,10 @@
 {
     public enum ActivityOrderTypeEnum
     {
-       In,
-       Out,
-       Both
+        InboundInvoice,
+        OutboundInvoice,
+        BothInOutboundInvoice,
+        Order,
+        Contract
     }
 }
