@@ -2283,6 +2283,7 @@
     <Content Include="Areas\Productions\Scripts\recipeGlobalMasterController.js" />
     <Content Include="Areas\Productions\Scripts\recipeMaterialController.js" />
     <Content Include="Areas\Products\Scripts\assetInventoryIssueController.js" />
+    <Content Include="Areas\Products\Scripts\GatePassPotalController.js" />
     <Content Include="Areas\Products\Scripts\GatePassRegisterController.js" />
     <Content Include="Areas\Products\Scripts\GRNRequisitionSOAllocationController.js" />
     <Content Include="Areas\Products\Scripts\InGatePassEntryController.js" />
