@@ -315,6 +315,7 @@ function TermsAndConditionsController(cboService, commonMessage, $scope, $rootSc
             ShowResult(e, 'failure');
         }
     }
+
     $scope.DeleteTitle = function () {
         if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
             $http({
