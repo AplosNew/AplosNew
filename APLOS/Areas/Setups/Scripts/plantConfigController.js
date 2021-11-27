@@ -32,6 +32,7 @@ function PlantConfigController(cboService, commonMessage, $scope, $rootScope, ba
         , BlanketDefaultLength: null
         , BlanketDefaultWidth: null
         , IsBlanketDefaultLengthValuesChangeable:false
+        , IsProductionHourOpen:false
         , IsBlanketDefaultWidthValuesChangeable:false
         , IsAfterWashShrinkageOnActual:false
         , ProcessAssign: "ProductionOrder"
