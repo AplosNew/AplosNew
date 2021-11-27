@@ -3065,7 +3065,7 @@ function JWReceiptController($window, cboService, commonMessage, $scope, $rootSc
 			$scope.inventoryMaterialList = [];
 			$http({
 				method: 'GET',
-				url: 'Products/GoodsReceiveNote/GetJWOutPutInventoryMaterialList?inveReveiveId=' + inveReveiveId
+				url: 'Products/GoodsReceiveNote/GetJobWorkOutPutInventoryMaterialList?inveReveiveId=' + inveReveiveId
 			}).then(function successCallback(response) {
 				$scope.inventoryMaterialList = response.data;
 				if ($scope.inventoryMaterialList.length > 0) {
@@ -3081,7 +3081,7 @@ function JWReceiptController($window, cboService, commonMessage, $scope, $rootSc
 			$scope.ReceiptVAChildList = [];
 			$http({
 				method: 'GET',
-				url: 'Products/GoodsReceiveNote/GetJWOutPutInventoryMaterialList?inveReveiveId=' + inveReveiveId
+				url: 'Products/GoodsReceiveNote/GetJobWorkOutPutInventoryMaterialList?inveReveiveId=' + inveReveiveId
 			}).then(function successCallback(response) {
 				$scope.ReceiptVAChildList = response.data;
 				if ($scope.ReceiptVAChildList.length > 0) {
@@ -3100,7 +3100,7 @@ function JWReceiptController($window, cboService, commonMessage, $scope, $rootSc
 		$scope.inventoryMaterialList = [];
 		$http({
 			method: 'GET',
-			url: 'Products/GoodsReceiveNote/GetJWByProductInventoryMaterialList?inveReveiveId=' + inveReveiveId
+			url: 'Products/GoodsReceiveNote/GetJobWorkByProductInventoryMaterialList?inveReveiveId=' + inveReveiveId
 		}).then(function successCallback(response) {
 			$scope.inventoryMaterialListPO = response.data;
 			if ($scope.inventoryMaterialListPO.length > 0) {

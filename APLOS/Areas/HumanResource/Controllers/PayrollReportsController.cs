@@ -683,6 +683,16 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
             return jsondata;
         }
 
+        [HttpPost, Authorize]
+        public ActionResult GetEmpInfoYearlySalaryPorcessedbyFromYear(string ToYear, string ToMonth, bool isActive, bool isSeperated, bool isMaternity, string FromYear, string FromMonth)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            Library.HumanResource.Report.Payroll.PayrollReports prr = new Library.HumanResource.Report.Payroll.PayrollReports();
+            var jsondata = Json(prr.GetEmpInfoYearlySalaryPorcessedFromYear(identity.CompanyGroupId, identity.PlantId, ToYear, identity.IsSysAdmin, identity.IsControlAdmin, identity.UserId, isActive, isSeperated, isMaternity,ToMonth,FromYear,FromMonth), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetAllArrearProcessInfo()
         {

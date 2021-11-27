@@ -44,6 +44,7 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
     .controller("inventoryScrapCheckApproveController", inventoryScrapCheckApproveController)
     .controller("employeeMyAppLeaveApplicationController", employeeMyAppLeaveApplicationController)
     .controller("firstAuthEmpLeaveApprovalController", firstAuthEmpLeaveApprovalController)
+    .controller("GatePassPotalController", GatePassPotalController)
     //#endregion
 
     .config(['$routeProvider', '$locationProvider', '$httpProvider', function ($routeProvider, $locationProvider, $httpProvider) {
@@ -215,11 +216,11 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
 
             .when('/gate-pass-checked', {
                 templateUrl: 'Products/GateentryToken/GatePassChecked',
-                controller: 'GatePassController'
+                controller: 'GatePassPotalController'
             })
             .when('/gate-pass-approved', {
                 templateUrl: 'Products/GateentryToken/GatePassApproved',
-                controller: 'GatePassController'
+                controller: 'GatePassPotalController'
             })
             .when('/gate-pass-dispatch', {
                 templateUrl: 'Products/GateentryToken/GatePassApprovedBySecurity',
