@@ -234,11 +234,11 @@
                         </select>
                     </div>
                     @*<div class="select-style" ng-show="Status==='INVENTORY'">
-                            <select class="form-control" ng-model="productionSummaryNew.ToSFGInventoryId" ng-change="getProdLevel();"
-                                    name="ToId" ng-options="item.ToId as item.UserName for item in listToProcessOrSFGInventory" required>
-                                <option value=""></option>
-                            </select>
-                        </div>*@
+                    <select class="form-control" ng-model="productionSummaryNew.ToSFGInventoryId" ng-change="getProdLevel();"
+                            name="ToId" ng-options="item.ToId as item.UserName for item in listToProcessOrSFGInventory" required>
+                        <option value=""></option>
+                    </select>
+                </div>*@
                 </div>
             </div>
 
@@ -255,12 +255,12 @@
             <div class="form-group" style="margin-bottom: 25px;">
                 @*<label class="col-sm-4 control-label"></label>
 
-        <div class="col-sm-2" style="padding-right:0;">
-            <button ng-click="masterGo(true);loadWC();" ng-disabled="disGo" class="btn" tabindex="9"><i class="glyphicon glyphicon-send"></i> GO</button>
-        </div>
-        <div class="col-sm-2" style="padding-left:0;">
-            <button ng-click="SetBack(false);" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-left"></i> Back</button>
-        </div>*@
+            <div class="col-sm-2" style="padding-right:0;">
+                <button ng-click="masterGo(true);loadWC();" ng-disabled="disGo" class="btn" tabindex="9"><i class="glyphicon glyphicon-send"></i> GO</button>
+            </div>
+            <div class="col-sm-2" style="padding-left:0;">
+                <button ng-click="SetBack(false);" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-left"></i> Back</button>
+            </div>*@
                 <div class="common-btn">
                     <ul class="list-inline text-right">
                         <li><button ng-click="masterGo(true);loadWC(productionSummaryNew.ProcessId);" ng-disabled="disGo" class="btn" tabindex="9"><i class="glyphicon glyphicon-send"></i> GO</button></li>
@@ -319,8 +319,7 @@
                     <input type="text" name="Lot Number" ng-model="productionSummaryNew.LotNumber" ng-show="ShowLotNum==false" class="form-control" tabindex="5" maxlength="20" ng-keyup="CheckValidLotNumber();">
 
                     <div class="select-style" ng-show="ShowLotNum==true">
-                        <select id="LotNumber" name="Lot Number" class="form-control" ng-model="productionSummaryNew.LotNumber" ng-options="item.Text as item.Text for item in LotNumberList">
-                        </select>
+                        <select id="LotNumber" name="Lot Number" class="form-control" ng-model="productionSummaryNew.LotNumber" ng-options="item.Text as item.Text for item in LotNumberList"></select>
                     </div>
 
                 </div>
@@ -333,6 +332,18 @@
                             <span class="slider round"></span>
                         </label>
 
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" ng-show="IsGo===true && IsProductionHourOpen===true">
+                <label class="col-sm-4 control-label">Production Period</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select submit-="true" ng-model="productionSummaryNew.ProductionBookingPeriodId" class="form-control" name="ProductionBookingPeriod"
+                                id="ProductionBookingPeriod" ng-options="item.Value as item.Text for item in ProductionBookingPeriodList" tabindex="8">
+                            <option value=""></option>
+                        </select>
                     </div>
                 </div>
             </div>

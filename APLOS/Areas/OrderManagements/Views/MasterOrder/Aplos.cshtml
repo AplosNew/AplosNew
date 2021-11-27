@@ -487,6 +487,7 @@
                                         <td>
                                             <div class="select-style">
                                                 <select name="UOM" style="width: 60px;" class="form-control" ng-model="x.UOMId" ng-options="item.Value as item.Text for item in uOMList"></select>
+                                                @*<select name="UOM" style="width: 60px;" class="form-control" ng-model="x.UOMId" ng-options="item.Value as item.Text for item in ProductMasterUoMList| filter:{ProductMasterId:x.ProductMasterId }"></select>*@
                                             </div>
                                         </td>
                                         <td>
@@ -3385,8 +3386,7 @@
     </div>
 
 </ej-dialog>
-<ej-dialog id="CostingPopUp" title="Order Costing" e-enablemodal="true" e-position-y="0" e-showoninit="false"
-           e-close="onDialogClose" e-minwidth="450" e-minheight="80" e-open="enableBtn">
+@*<ej-dialog id="CostingPopUp" title="Order Costing" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-close="onDialogClose" e-minwidth="450" e-minheight="80" e-open="enableBtn">
     <div class="row">
         <div class="col-md-12">
             <div class="form-group">
@@ -3400,8 +3400,26 @@
 
         </div>
     </div>
-</ej-dialog>
-
+</ej-dialog>*@
+<div class="modal fade site-modal in" id="CostingPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header"> Order Costing<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="form-group" style="padding-left: 15px;">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li> <button ng-click="OrderPreCosting();closePopup('CostingPopUp');" class="btn">Pre Costing</button></li>
+                                <li> <button ng-click="OrderProcurementCosting();closePopup('CostingPopUp');" class="btn">Procurement Costing</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="modal fade site-modal in" id="SKUsPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">

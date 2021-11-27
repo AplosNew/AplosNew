@@ -121,8 +121,8 @@ namespace Library.Service.Products
                     }
                 }
 
-                if (materialMasterAlternativeUOM!=null)
-                {
+                //if (materialMasterAlternativeUOM!=null)
+                //{
                     var dbList = _materialMasterAlternativeUOM.Query(t => t.ProductMasterId == entity.Id).Select().ToList();
                     if (materialMasterAlternativeUOM != null)
                     {
@@ -163,7 +163,7 @@ namespace Library.Service.Products
                             }
                         }
                     }
-                }
+                //}
 
                 _unitOfWork.SaveChanges();
                 flag = false;

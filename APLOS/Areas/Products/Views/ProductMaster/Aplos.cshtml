@@ -278,7 +278,7 @@
                         </div>
                     </div>
                     <div class="col-xs-12 col-sm-2 col-md-2" style="padding-left: 0px;">
-                        <button ng-click="addRow();createNewUomList();" class="btn single-small-btn" tabindex="3"><i class=""></i> {{AltUomAction}}</button>
+                        <button ng-click="addRow();createNewUomList();" ng-disabled="productMasterNew.Id==null" class="btn single-small-btn" tabindex="3"><i class=""></i> {{AltUomAction}}</button>
                     </div>
                 </div>
                 <div class="col-xs-12 col-sm-12 col-md-12">
