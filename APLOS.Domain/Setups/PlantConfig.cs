@@ -14,6 +14,8 @@ namespace Library.Model.Setups
         public bool BuyerApplicable { get; set; }
         public decimal BlanketDefaultLength { get; set; }
         public decimal BlanketDefaultWidth { get; set; }
+        public bool IsProductionHourOpen { get; set; }
+
         public bool IsBlanketDefaultLengthValuesChangeable { get; set; }
         public bool IsBlanketDefaultWidthValuesChangeable { get; set; }
         public bool IsAfterWashShrinkageOnActual { get; set; }
