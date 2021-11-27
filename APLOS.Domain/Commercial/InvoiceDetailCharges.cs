@@ -18,6 +18,12 @@ namespace Library.Model.Commercial
         public string InvoiceType { get; set; }
         public decimal Amount { get; set; }
         public decimal DistributedAmount { get; set; }
+
+        public string VoucherDetailId { get; set; }
+        public string GLGeneralInfoId { get; set; }
+        public string BudgetMasterId { get; set; }
+        public string ActivityId { get; set; }
+
         #endregion Scalar Properties
 
         #region Audit Properties

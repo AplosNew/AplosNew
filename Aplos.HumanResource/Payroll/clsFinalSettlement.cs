@@ -58,6 +58,10 @@ namespace OTSBD
 
                 //Separation Type and Employee info
                 GetSeparationTypeByEmpId(sEmpSystemId, out dsSeparationType);
+                if (string.IsNullOrEmpty(dsSeparationType.Tables[0].Rows[0]["FormulaDesID"].ToString()))
+                {
+                    throw new Exception("Formula is not define for this ["+ dsSeparationType.Tables[0].Rows[0]["UserName"].ToString() + "] separation type");
+                }
                 if (dsSeparationType.Tables[0].Rows.Count > 0)
                 {
                     GetSeparationTypeDetailsById(dsSeparationType.Tables[0].Rows[0]["Id"].ToString(), out dsSeparationTypeDetails);

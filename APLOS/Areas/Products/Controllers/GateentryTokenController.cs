@@ -566,7 +566,6 @@ namespace Aplos.Areas.Products.Controllers
 		[Authorize, HttpGet]
 		public JsonResult GetIndexGridDataList(string ReqStatus,string GateRegisterType)
 		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			try
 			{
 				var sql = "";
@@ -642,8 +641,7 @@ namespace Aplos.Areas.Products.Controllers
                           LEFT JOIN Employeeinformation EI4 on EI4.SystemId= GPM.ReceiverSecurityEmployeeId
                           LEFT JOIN Employeeinformation EI5 on EI5.SystemId= GPM.CheckedBy
                           LEFT JOIN Employeeinformation EI6 on EI6.SystemId= GPM.ApprovedBy
-                          Where GPM.FromEmployeeId='" + identity.EmployeeId + @"'  
-						  AND GPM.CheckedByStatus='ForChecked' AND GPM.GateRegisterType='"+ GateRegisterType + @"' Order By GPM.[Id] DESC";
+                          Where GPM.CheckedByStatus='ForChecked' AND GPM.GateRegisterType='"+ GateRegisterType + @"' Order By GPM.[Id] DESC";
 				}
 				if (ReqStatus == "2")//Checked Hold/Reject
 				{
@@ -717,8 +715,7 @@ namespace Aplos.Areas.Products.Controllers
                           LEFT JOIN Employeeinformation EI4 on EI4.SystemId= GPM.ReceiverSecurityEmployeeId
                           LEFT JOIN Employeeinformation EI5 on EI5.SystemId= GPM.CheckedBy
                           LEFT JOIN Employeeinformation EI6 on EI6.SystemId= GPM.ApprovedBy
-                          Where GPM.FromEmployeeId='" + identity.EmployeeId + @"' 
-						  AND (GPM.CheckedByStatus='Hold' or GPM.CheckedByStatus='Reject') AND GPM.GateRegisterType='" + GateRegisterType + @"' Order By GPM.[Id] DESC";
+                          Where (GPM.CheckedByStatus='Hold' or GPM.CheckedByStatus='Reject') AND GPM.GateRegisterType='" + GateRegisterType + @"' Order By GPM.[Id] DESC";
 				}
 				if (ReqStatus == "3")//Checked
 				{
@@ -792,8 +789,7 @@ namespace Aplos.Areas.Products.Controllers
                           LEFT JOIN Employeeinformation EI4 on EI4.SystemId= GPM.ReceiverSecurityEmployeeId
                           LEFT JOIN Employeeinformation EI5 on EI5.SystemId= GPM.CheckedBy
                           LEFT JOIN Employeeinformation EI6 on EI6.SystemId= GPM.ApprovedBy
-                          Where GPM.FromEmployeeId='" + identity.EmployeeId + @"' 
-						  AND GPM.CheckedByStatus='Checked' AND ApprovedByStatus='For Approval' AND GPM.GateRegisterType='" + GateRegisterType + @"' Order By GPM.[Id] DESC";
+                          Where GPM.CheckedByStatus='Checked' AND ApprovedByStatus='For Approval' AND GPM.GateRegisterType='" + GateRegisterType + @"' Order By GPM.[Id] DESC";
 				}
 				if (ReqStatus == "4")
 				{
@@ -867,8 +863,7 @@ namespace Aplos.Areas.Products.Controllers
                           LEFT JOIN Employeeinformation EI4 on EI4.SystemId= GPM.ReceiverSecurityEmployeeId
                           LEFT JOIN Employeeinformation EI5 on EI5.SystemId= GPM.CheckedBy
                           LEFT JOIN Employeeinformation EI6 on EI6.SystemId= GPM.ApprovedBy
-                          Where GPM.FromEmployeeId='" + identity.EmployeeId + @"' 
-						  AND GPM.CheckedByStatus='Checked' AND (ApprovedByStatus='Hold' or ApprovedByStatus='Reject') AND GPM.GateRegisterType='" + GateRegisterType + @"'  Order By GPM.[Id] DESC";
+                          Where GPM.CheckedByStatus='Checked' AND (ApprovedByStatus='Hold' or ApprovedByStatus='Reject') AND GPM.GateRegisterType='" + GateRegisterType + @"'  Order By GPM.[Id] DESC";
 				}
 				if (ReqStatus == "5")
 				{
@@ -942,8 +937,7 @@ namespace Aplos.Areas.Products.Controllers
                           LEFT JOIN Employeeinformation EI4 on EI4.SystemId= GPM.ReceiverSecurityEmployeeId
                           LEFT JOIN Employeeinformation EI5 on EI5.SystemId= GPM.CheckedBy
                           LEFT JOIN Employeeinformation EI6 on EI6.SystemId= GPM.ApprovedBy
-                          Where GPM.FromEmployeeId='" + identity.EmployeeId + @"' 
-						  AND GPM.CheckedByStatus='Checked' AND ApprovedByStatus='Approved'  AND GPM.GateRegisterType='" + GateRegisterType + @"' Order By GPM.[Id] DESC";
+                          Where GPM.CheckedByStatus='Checked' AND ApprovedByStatus='Approved'  AND GPM.GateRegisterType='" + GateRegisterType + @"' Order By GPM.[Id] DESC";
 				}
 				if (ReqStatus == "6")
 				{
@@ -1017,8 +1011,7 @@ namespace Aplos.Areas.Products.Controllers
                           LEFT JOIN Employeeinformation EI4 on EI4.SystemId= GPM.ReceiverSecurityEmployeeId
                           LEFT JOIN Employeeinformation EI5 on EI5.SystemId= GPM.CheckedBy
                           LEFT JOIN Employeeinformation EI6 on EI6.SystemId= GPM.ApprovedBy
-                          Where GPM.FromEmployeeId='" + identity.EmployeeId + @"' 
-						  AND GPM.CheckedByStatus='Checked' AND ApprovedByStatus='Approved'
+                          Where GPM.CheckedByStatus='Checked' AND ApprovedByStatus='Approved'
 						  AND SenderSecurityApprovedStatus='Approved'and GateOutStatus=1 AND GPM.GateRegisterType='" + GateRegisterType + @"'
 						  Order By GPM.[Id] DESC";
 
@@ -1041,7 +1034,7 @@ namespace Aplos.Areas.Products.Controllers
 			try
 			{
 				var sql = "";
-				if (ReqStatus == "1")//Created List
+				if (ReqStatus == "1")//Created List 
 				{
 					sql = @"
                         SELECT  GPM.[Id]
