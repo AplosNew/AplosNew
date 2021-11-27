@@ -169,16 +169,16 @@ function yearlySalaryProcessedReportController(commonMessage, $scope, $rootScope
             var ddlFromYearList = $("#ddlFromYearList").data("ejDropDownList");
             $scope.FromYear = ddlFromYearList.getSelectedValue();
             if (angular.isUndefinedOrNull($scope.FromYear)) {
-                throw ("Select From Year", 'failure');
+                throw "Select From Year";
             }
             var ddlFromMonthList = $("#ddlFromMonthList").data("ejDropDownList");
             $scope.FromMonth = ddlFromMonthList.getSelectedValue();
             if (angular.isUndefinedOrNull($scope.FromMonth)) {
-                ShowResult("Select From Month", 'failure');
+                throw"Select From Month";
             }
             for (var i = 0; i < $scope.monthList.length; i++) {
                 if ($scope.FromMonth == $scope.monthList[i].Value) {
-                    $scope.FromMonth = $scope.monthList[i].Text;
+                    var FromMonth = $scope.monthList[i].Text;
                     break;
                 }
             }
@@ -186,27 +186,27 @@ function yearlySalaryProcessedReportController(commonMessage, $scope, $rootScope
             var DropDownListYear = $("#ddlYearList").data("ejDropDownList");
             $scope.year = DropDownListYear.getSelectedValue();
             if (angular.isUndefinedOrNull($scope.year)) {
-                ShowResult("Select To Year", 'failure');
+                throw"Select To Year";
             }
             var ddlMonthList = $("#ddlMonthList").data("ejDropDownList");
             $scope.month = ddlMonthList.getSelectedValue();
             if (angular.isUndefinedOrNull($scope.month)) {
-                ShowResult("Select To Month", 'failure');
+                throw "Select To Month" ;
             }
             for (var i = 0; i < $scope.monthList.length; i++) {
                 if ($scope.month == $scope.monthList[i].Value) {
-                    $scope.month = $scope.monthList[i].Text;
+                    var month = $scope.monthList[i].Text;
                     break;
                 }
             }
             //else {
 
             var parameters = {
-                'ToYear': $scope.year, 'ToMonth': $scope.month, 'isActive': $scope.isActive,
+                'ToYear': $scope.year, 'ToMonth': month, 'isActive': $scope.isActive,
                 'isSeperated': $scope.isSeperated,
                 'isMaternity': $scope.isMaternity,
                 'FromYear': $scope.FromYear,
-                'FromMonth': $scope.FromMonth,
+                'FromMonth': FromMonth,
             };
             $http({
                 method: "POST",
@@ -220,8 +220,12 @@ function yearlySalaryProcessedReportController(commonMessage, $scope, $rootScope
                     $scope.EmployeeList = $scope.EmployeeListDefault;
                     $scope.EmployeeListTemp = $scope.EmployeeListDefault;
                 }
+                else if (response.data.length == 0) {
+                    ShowResult('No data found', 'failure');
+                    $scope.empGrid = false;
+                }
                 else {
-                    ShowResult("No Data Found", 'failure');
+                    ShowResult(response.data.Message, 'failure');
                     $scope.empGrid = false;
                 }
                 var gridObj = $("#empInfoGrid").data("ejGrid");
@@ -245,6 +249,11 @@ function yearlySalaryProcessedReportController(commonMessage, $scope, $rootScope
                     filteredRecords = $scope.EmployeeListTemp;
                 }
             }
+            else {
+                if (filteredRecords.length == 0) {
+                    filteredRecords = $scope.EmployeeListTemp;
+                }
+            }
             if (angular.isUndefinedOrNull(filteredRecords) === false) {
                 if (filteredRecords.length > 0) {
                     parameters = [];
@@ -255,18 +264,49 @@ function yearlySalaryProcessedReportController(commonMessage, $scope, $rootScope
                 parameters.push({ "Key": "", "Value": "" });
 
             }
-            var DropDownListYear = $("#ddltaxYearList").data("ejDropDownList");
+            var ddlFromYearList = $("#ddlFromYearList").data("ejDropDownList");
+            $scope.FromYear = ddlFromYearList.getSelectedValue();
+            if (angular.isUndefinedOrNull($scope.FromYear)) {
+                throw "Select From Year";
+            }
+            var ddlFromMonthList = $("#ddlFromMonthList").data("ejDropDownList");
+            $scope.FromMonth = ddlFromMonthList.getSelectedValue();
+            if (angular.isUndefinedOrNull($scope.FromMonth)) {
+                throw "Select From Month";
+            }
+            for (var i = 0; i < $scope.monthList.length; i++) {
+                if ($scope.FromMonth == $scope.monthList[i].Value) {
+                    var FromMonth = $scope.monthList[i].Text;
+                    break;
+                }
+            }
+
+            var DropDownListYear = $("#ddlYearList").data("ejDropDownList");
             $scope.year = DropDownListYear.getSelectedValue();
             if (angular.isUndefinedOrNull($scope.year)) {
-                ShowResult("Select Year", 'failure');
+                throw "Select To Year";
             }
-            else {
+            var ddlMonthList = $("#ddlMonthList").data("ejDropDownList");
+            $scope.month = ddlMonthList.getSelectedValue();
+            if (angular.isUndefinedOrNull($scope.month)) {
+                throw "Select To Month";
+            }
+            for (var i = 0; i < $scope.monthList.length; i++) {
+                if ($scope.month == $scope.monthList[i].Value) {
+                    var month = $scope.monthList[i].Text;
+                    break;
+                }
+            }
+            //else {
                 $http({
                     method: 'POST',
                     url: 'humanresource/PayrollReports/GetEmployeeSalaryProcessedReportYearlySalary',
                     data: {
                         'withGoodWork': $scope.withGoodWork,
-                        'taxYearId': $scope.year,
+                        'FromYear': $scope.FromYear,
+                        'FromMonth': FromMonth,
+                        'ToYear': $scope.year,
+                        'ToMonth': month,
                         'parameters': parameters,
                         'isActive': $scope.isActive,
                         'isSeperated': $scope.isSeperated,
@@ -280,7 +320,7 @@ function yearlySalaryProcessedReportController(commonMessage, $scope, $rootScope
                         $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
                     }
                 });
-            }
+            //}
         } catch (e) {
             ShowResult(e, 'failure');
         }

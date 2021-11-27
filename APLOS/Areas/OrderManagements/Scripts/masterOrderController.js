@@ -119,6 +119,17 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     };
     $scope.GetProductLibraryCbo();
 
+    $scope.ProductMasterUoMList = [];
+    $scope.GetUoMCboByProductMaster = function () {
+        $http({
+            method: 'GET',
+            url: 'OrderManagements/MasterOrder/GetUoMCboByProductMaster/'
+        }).then(function successCallback(response) {
+            $scope.ProductMasterUoMList = response.data;
+        });
+    };
+    $scope.GetUoMCboByProductMaster();
+
     $scope.yearList = [];
     $scope.getYearOfHaving = function () {
         $scope.yearList = [];
@@ -1423,7 +1434,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         try {
             $scope.OrderCostingId = x.OrderCostingMasterTemplateId;
 
-            $scope.openPopup('CostingPopUp');
+            //$scope.openPopup('CostingPopUp');
+            angular.element(document.querySelector('#CostingPopUp')).modal('show');
         } catch (e) {
         }
     }
