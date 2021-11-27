@@ -80,7 +80,11 @@ namespace Library.MaterialManagement.Inventory
         void JWInsertOrUpdateFromReceive(InventoryMaterialViewModel entity);
         InventoryMaterial JWGetInventoryMaterialByUpToSku(InventoryMaterialViewModel entity);
         IEnumerable<object> JWOutPutQuery(string inveReveiveId);
+
+        IEnumerable<object> JobWorkOutPutQuery(string inveReveiveId);
         IEnumerable<object> JWByProductQuery(string inveReveiveId);
+
+        IEnumerable<object> JobWorkByProductQuery(string inveReveiveId);
 
         Dictionary<string, object> GetJWStock(InventoryMaterialViewModel entity, string issueDate); 
     }

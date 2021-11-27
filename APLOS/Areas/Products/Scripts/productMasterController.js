@@ -3,8 +3,10 @@ ProductMasterController.$inject = ['cboService', 'commonMessage', '$scope', '$ro
 function ProductMasterController(cboService,commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
     $rootScope.title = "Product Master";
     $scope.Action = 'Save';
+    $scope.AltUomAction = 'Add Alternative UOM';
     $scope.productMasterTypeCheck = false;
     $scope.index = -1;
+    $scope.altUomIndex = -1;
     $scope.productMasterTypeList = [];
     $scope.productMasters = [];
     $scope.path = 'Products/productmaster/';
@@ -24,8 +26,6 @@ function ProductMasterController(cboService,commonMessage, $scope, $rootScope, b
             });
     };
     $scope.getData();
-
-   
 
     $scope.searchByProductMasterList = [
         {
@@ -82,6 +82,10 @@ function ProductMasterController(cboService,commonMessage, $scope, $rootScope, b
         $scope.productList = response.data;
         });
 
+    cboService.getUoMCbo(function (response) {
+        $scope.uOMList = response;
+    });
+
     // #region Product Master
 
     $scope.productMaster = {
@@ -109,6 +113,7 @@ function ProductMasterController(cboService,commonMessage, $scope, $rootScope, b
         , TargetQty: null
         , CostingType: null
         ,PlanningType:null
+        , BaseUOMId:null
     };
     $scope.productMasterNew = angular.copy($scope.productMaster);
 
@@ -262,6 +267,196 @@ function ProductMasterController(cboService,commonMessage, $scope, $rootScope, b
     };
     // #endregion End AttributeValue
 
+    // #region MaterialMasterAlternativeUOM
+
+    $scope.altUOMtbl = false;
+    $scope.baseUOMDisable = false;
+    $scope.materialMasterAlternativeUOMs = [];
+    $scope.materialMasterAlternativeUOM = {
+        Id: null,
+        ProductMasterId: null,
+        AlternativeUOMId: null,
+        AlternativeUOMName: null,
+        AlternativeUOMFactor: 1,
+        BaseUOMId: null,
+        BaseUOMName: null,
+        BaseUOMFactor: null,
+        Active: true,
+        Archive: false,
+        UsedUomInBOM: null,
+        UsedUomInGRN: null,
+        UsedUomInPO: null
+    };
+    $scope.materialMasterAlternativeUOMNew = angular.copy($scope.materialMasterAlternativeUOM);
+
+    $scope.putValueInAltUom = function () {
+        $scope.productMasterNew.OIRUoMId = $scope.productMasterNew.BaseUOMId;
+        $scope.baseUOM = document.getElementById("baseUOMId").options[document.getElementById('baseUOMId').selectedIndex].text;
+    }
+
+    $scope.GetToUoMFactor = function () {
+        cboService.getToUoMFactor($scope.materialMasterAlternativeUOMNew.AlternativeUOMId, $scope.productMasterNew.BaseUOMId, function (response) {
+            $scope.materialMasterAlternativeUOMNew.BaseUOMFactor = response.data
+        });
+    }
+
+    $scope.GetAlternativeUomListByProductMaster = function (id) {
+        $http({
+            method: 'GET',
+            url: 'Products/ProductMaster/GetProductMasterAltUomList?productMasterId=' + id,
+        }).then(function successCallback(response) {
+            $scope.materialMasterAlternativeUOMs = response.data;
+            if (response.data.length > 0) {
+                $scope.altUOMtbl = true;
+                $scope.baseUOMDisable = true;
+            }
+            else
+                $scope.altUOMtbl = false;
+            $scope.createUomList();
+        });
+    }
+    $scope.GetMaterialMasterAlternativeUom = function (id, index) {
+        $scope.altUomIndex = index;
+        $scope.materialMasterAlternativeUOM = $scope.materialMasterAlternativeUOMs[$scope.altUomIndex];
+        $scope.materialMasterAlternativeUOMNew = angular.copy($scope.materialMasterAlternativeUOM);
+        $scope.AltUomAction = 'Update Alternative UOM';
+    }
+    $scope.addRow = function () {
+        try {
+            if ($scope.productMasterNew.BaseUOMId == null) {
+                throw 'Please select base uom from uom tab';
+            }
+            if ($scope.materialMasterAlternativeUOMNew.AlternativeUOMId == null) {
+                throw 'Please select alternative uom';
+            }
+            if ($scope.productMasterNew.BaseUOMId == $scope.materialMasterAlternativeUOMNew.AlternativeUOMId) {
+                throw 'Base uom and alternative uom can not be same. Please select another alternative uom.';
+            }
+            var isAvailable = false;
+            $scope.altUomName = document.getElementById("altUOMId").options[document.getElementById('altUOMId').selectedIndex].text;
+            $scope.baseUOM = document.getElementById("baseUOMId").options[document.getElementById('baseUOMId').selectedIndex].text;
+            for (var i = 0; i < $scope.materialMasterAlternativeUOMs.length; i++) {
+                isAvailable = listValidation($scope.materialMasterAlternativeUOMs[i].AlternativeUOMId,
+                    $scope.materialMasterAlternativeUOMNew.AlternativeUOMId,
+                    $scope.materialMasterAlternativeUOMs[i].Archive, i);
+                if (isAvailable) {
+                    throw 'This alternative uom : [' + $scope.altUomName + '] has been already taken. Please select another alternative uom';
+                }
+            }
+            if ($scope.materialMasterAlternativeUOMs > -1) {
+                $scope.baseUOMDisable = true;
+            }
+            if ($scope.materialMasterAlternativeUOMNew.BaseUOMFactor > 0) {
+                angular.copy($scope.materialMasterAlternativeUOMNew, $scope.materialMasterAlternativeUOM);
+                // isAvailable true == add new
+                if (!isAvailable) {
+                    if ($scope.altUomIndex == -1) {
+                        this.materialMasterAlternativeUOM.Id = null;
+                        this.materialMasterAlternativeUOM.AlternativeUOMId = $scope.materialMasterAlternativeUOMNew.AlternativeUOMId;
+                        this.materialMasterAlternativeUOM.AlternativeUOMName = $scope.altUomName;
+                        this.materialMasterAlternativeUOM.BaseUOMId = $scope.productMasterNew.BaseUOMId;
+                        this.materialMasterAlternativeUOM.BaseUOMName = $scope.baseUOM;
+                        this.materialMasterAlternativeUOM.Active = true;
+                        this.materialMasterAlternativeUOM.UsedUomInPO = null;
+                        this.materialMasterAlternativeUOM.UsedUomInGRN = null;
+                        this.materialMasterAlternativeUOM.UsedUomInBOM = null;
+                        $scope.materialMasterAlternativeUOMs.push($scope.materialMasterAlternativeUOM);
+                        clearAltUOM();
+                        $scope.altUOMtbl = true;
+                    }
+                    else {
+                        $scope.materialMasterAlternativeUOMs[$scope.altUomIndex] = this.materialMasterAlternativeUOM;
+                        $scope.materialMasterAlternativeUOMs[$scope.altUomIndex].AlternativeUOMName = $scope.altUomName;
+                        $scope.materialMasterAlternativeUOMs[$scope.altUomIndex].BaseUOMName = $scope.baseUOM;
+                        $scope.altUomIndex = -1;
+                        clearAltUOM();
+                    }
+                    $scope.AltUomAction = 'Add Alternative UOM';
+                    $scope.index = -1;
+                }
+            } else
+                throw 'Please insert base uom factor';
+        } catch (err) {
+            ShowResult(err, 'failure');
+        }
+    }
+
+    //Check Alt UOM List
+    function listValidation(oldValue, newValue, archive, index) {
+        var isAvailable = false;
+        // Id
+        if ($scope.altUomIndex == -1) {
+            if (!archive) {
+                if (oldValue == newValue) {
+                    isAvailable = true;
+                    return isAvailable;
+                }
+            }
+        }
+        else {
+            if ($scope.altUomIndex != index) {
+                if (archive) {
+                    if (oldValue == newValue) {
+                        isAvailable = true;
+                        return isAvailable;
+                    }
+                }
+            }
+        }
+        return isAvailable;
+    }
+    $scope.valuePassInDelModal = function (id, index, altUomName) {
+        $scope.mauid = id;
+        $scope.mauindex = index;
+        $scope.message_confirmation = 'Are you sure want to delete [ ' + altUomName + ' ]';
+        angular.element(document.querySelector('#mmaltuom')).modal('show');
+    };
+    $scope.removeRow = function () {
+        $scope.materialMasterAlternativeUOMs.splice($scope.mauindex, 1);
+        $scope.createUomList();
+        $scope.AltUomAction = 'Add Alternative UOM';
+        $scope.mauid = null;
+        $scope.mauindex = -1;
+    };
+
+    $scope.oirUoMList = [];
+    $scope.createUomList = function () {
+        var OIRUoMId = $scope.productMasterNew.OIRUoMId;
+        $scope.oirUoMList = oirUoMListCreate($scope.productMasterNew.BaseUOMId, $scope.materialMasterAlternativeUOMs);
+    }
+    
+    function oirUoMListCreate(baseUoM, altList) {
+        var list = [];
+        if (!baseService.isUndefinedOrNull(baseUoM)) {
+            list.push({
+                Value: baseUoM,
+                Text: $scope.baseUOM
+            });
+            for (var i = 0; i < baseService.arrayLength(altList); i++) {
+                list.push({
+                    Value: altList[i].AlternativeUOMId,
+                    Text: altList[i].AlternativeUOMName
+                });
+            }
+        }
+        return list;
+    }
+
+    $scope.createNewUomList = function () {
+      
+        var OIRUoMId = $scope.productMasterNew.OIRUoMId;
+        $scope.oirUoMList = oirUoMListCreate($scope.productMasterNew.BaseUOMId, $scope.materialMasterAlternativeUOMs);
+       
+    }
+
+
+    function clearAltUOM() {
+        $scope.materialMasterAlternativeUOMNew.AlternativeUOMId = null;
+        $scope.materialMasterAlternativeUOMNew.BaseUOMFactor = null;
+        $scope.materialMasterAlternativeUOM = {};
+    }
+    // #endregion
+
     // #region Start CRUD 
     $scope.Get = function (id, index) {
         $scope.index = index;
@@ -272,6 +467,10 @@ function ProductMasterController(cboService,commonMessage, $scope, $rootScope, b
         }
         $scope.getAttribute($scope.productMasterNew.ProductSubCategoryId, $scope.productMasterNew.Id);
         $scope.getEfficencyList();
+
+        $scope.GetAlternativeUomListByProductMaster($scope.productMasterNew.Id);
+        $scope.baseUOM = $scope.productMasters[$scope.index].BaseUom;
+
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -402,7 +601,7 @@ function ProductMasterController(cboService,commonMessage, $scope, $rootScope, b
                 $http({
                     method: 'POST',
                     url: $scope.saveUrl,
-                    data: { 'productMaster': $scope.productMaster, 'productMasterAttributeValue': $scope.attributeList, 'efficencyList': $scope.efficencyList},
+                    data: { 'productMaster': $scope.productMaster, 'productMasterAttributeValue': $scope.attributeList, 'efficencyList': $scope.efficencyList, 'materialMasterAlternativeUOM': $scope.materialMasterAlternativeUOMs},
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
@@ -428,7 +627,7 @@ function ProductMasterController(cboService,commonMessage, $scope, $rootScope, b
                 $http({
                     method: 'POST',
                     url: $scope.saveUrl,
-                    data: { 'productMaster': $scope.productMaster, 'productMasterAttributeValue': $scope.attributeList, 'efficencyList': $scope.efficencyList},
+                    data: { 'productMaster': $scope.productMaster, 'productMasterAttributeValue': $scope.attributeList, 'efficencyList': $scope.efficencyList, 'materialMasterAlternativeUOM': $scope.materialMasterAlternativeUOMs},
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
@@ -476,7 +675,7 @@ function ProductMasterController(cboService,commonMessage, $scope, $rootScope, b
     };
 
     // #endregion End CRUD Operations
-
+    
     $scope.Clear = function () {
         ClearFields($scope.GetSequence());
         return true;
@@ -492,6 +691,8 @@ function ProductMasterController(cboService,commonMessage, $scope, $rootScope, b
         $scope.productMasterNew.Active = true;
         $scope.productMasterNew.WithSKU = true;
         $scope.getEfficencyList();
+        $scope.materialMasterAlternativeUOMs = [];
+        $scope.baseUOM = null;
     }
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -500,4 +701,5 @@ function ProductMasterController(cboService,commonMessage, $scope, $rootScope, b
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
     };
+
 }

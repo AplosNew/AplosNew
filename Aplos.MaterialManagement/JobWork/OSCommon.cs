@@ -6741,15 +6741,15 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                                 --,CurrentReqQty=(om.Quantity * KK.NetConsumption) * (1 + (KK.ValueLoss/100))
                                 ,CurrentReqQty=(om.Quantity * mi.NetConsumption) * (1 + (mi.ValueLoss/100))
 								,KK.BOQReqQty,KK.NetConsumption,kk.Rejection,KK.ValueLoss,KK.GrossConsumption
-                                from dbo.JobWorkTransformationContractChild3 mi 
+                                from dbo.OSTransformationPOInputMaterial mi 
                                 left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
                                 left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
                                 left join SCS.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
                                 left join dbo.OSTransformationPODetail om on om.Id=mi.OSTransformationPODetailId
 								left join (Select ArticleId,SUM(BOQRequiredQuantity) as BOQReqQty, Sum(NetConsumption) as NetConsumption, Sum(Rejection) as Rejection
-								,Sum(ValueLoss) ValueLoss, Sum(GrossConsumption) GrossConsumption from dbo.JobWorkTransformationContractChild3 group by ArticleId)
+								,Sum(ValueLoss) ValueLoss, Sum(GrossConsumption) GrossConsumption from dbo.OSTransformationPOInputMaterial group by ArticleId)
 								KK on KK.ArticleId=mma.Id
-                                where mi.OSTransformationPODetailId='" + Id + @"'
+                                where mi.OSTransformationPODetailId='"+ Id + @"'
 								group by mm.Id,mma.Code,mm.UserName,mma.StandardName,mm.Code,uom.UserName
 								,mm.BaseUOMId,om.Quantity,KK.BOQReqQty,KK.NetConsumption,kk.Rejection,KK.ValueLoss,KK.GrossConsumption
                                 ,mi.NetConsumption,mi.Rejection, mi.ValueLoss, mi.GrossConsumption,mi.BOQRequiredQuantity ";

@@ -2681,6 +2681,7 @@ namespace Library.HumanResource.Payroll
                 SetCellValue("Name", sheet1, xlsRow, ref xlsCol, out ColName, 17);
                 SetCellValue("DOJ", sheet1, xlsRow, ref xlsCol, out ColDOJ, 12);
                 SetCellValue("DOS", sheet1, xlsRow, ref xlsCol, out ColDOS, 12);
+                SetCellValue("Plant", sheet1, xlsRow, ref xlsCol, out int ColPlant, 12);
                 SetCellValue("EmployeeCurrentStatus", sheet1, xlsRow, ref xlsCol, out colEmpCurrentStat, 12);
                 SetCellValue("EmployeeSatatus", sheet1, xlsRow, ref xlsCol, out colEmpStatus, 12);
                 SetCellValue("Gender", sheet1, xlsRow, ref xlsCol, out cGender, 12);
@@ -2933,7 +2934,12 @@ namespace Library.HumanResource.Payroll
                         if (string.IsNullOrEmpty(dtEmployees.Rows[i]["DOS"].ToString()) == false)
                             sheet1.Range[xlsRow, ColDOS].Text = dtEmployees.Rows[i]["DOS"].ToString();
                         sheet1.Range[xlsRow, ColDOS].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        sheet1.Range[xlsRow, ColDOS].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow, ColDOS].VerticalAlignment = ExcelVAlign.VAlignCenter; 
+                        
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["PlantName"].ToString()) == false)
+                            sheet1.Range[xlsRow, ColPlant].Text = dtEmployees.Rows[i]["PlantName"].ToString();
+                        sheet1.Range[xlsRow, ColPlant].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, ColPlant].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                         if (string.IsNullOrEmpty(dtEmployees.Rows[i]["EmployeeCurrentStatus"].ToString()) == false)
                             sheet1.Range[xlsRow, colEmpCurrentStat].Text = dtEmployees.Rows[i]["EmployeeCurrentStatus"].ToString();
@@ -10623,7 +10629,7 @@ namespace Library.HumanResource.Payroll
                                             sheet1[1, xlsCol + 1].ColumnWidth = 6;
 
                                             sheet1.Range[xlsRow + k, xlsCol].Text = ru.GetLabelname(labelList, LeaveItem.Value["LeaveCode"].ToString(), "B" + LeaveItem.Value["LeaveCode"].ToString()); //"Casual Leave";
-                                            sheet1.Range[xlsRow + k, xlsCol + 1].Number = clsStaticInfo.dbl(LeaveItem.Value["ClosingBalance"].ToString());
+                                            sheet1.Range[xlsRow + k, xlsCol + 1].Number = clsStaticInfo.dbl(clsStaticInfo.dbl(LeaveItem.Value["ClosingBalance"].ToString()).ToString("F2"));
 
                                             k++;
                                         }
@@ -14498,6 +14504,7 @@ INNER JOIN
         }//End Function
         public void GetEmployeeInfoDetail(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string salaryProcessSystemId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, bool sa, bool ca, string userId, out DataSet dsRef)
         {
+            plantId = "'" + plantId.Replace(",", "','") + "'";
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;
             var _wc = string.Empty;
@@ -14512,7 +14519,7 @@ INNER JOIN
             {
                 wcSalaryProcessSystemIdStr = @"SystemID IN( SELECT SystemID FROM SalaryProcMaster
                                       WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
-                                                        WHERE PlantID = '" + plantId + @"' GROUP BY SlrProcMstSystemID)
+                                                        WHERE PlantID in (" + plantId + @") GROUP BY SlrProcMstSystemID)
                                         AND MonthNo = Month('" + fromDate + "') AND YearNo = Year('" + fromDate + "')  )";
             }
             string wcEmpStatus = " AND (1=0 ";
@@ -14549,7 +14556,7 @@ INNER JOIN
                 string inPayrollGroup = "' '";
                 DataTable dtPayRollGrpEmpId = _sqlRepository.GetDataTable("SELECT employeeid FROM MST.PayrollGroupMaster WHERE PayrollGroupId IN (SELECT PayrollGroupId FROM SEC.UserPayrollGroup where UserId = '" + userId + @"') AND PlantID = '" + plantId + @"'");
                 DataTable dtNotPayRollGrpEmpId = _sqlRepository.GetDataTable(@"SELECT SystemId FROM EmployeeInformation E 
-                    WHERE SystemId NOT IN (SELECT employeeid from MST.PayrollGroupMaster where PlantID = '" + plantId + @"')  AND E.PlantID = '" + plantId + @"'");
+                    WHERE SystemId NOT IN (SELECT employeeid from MST.PayrollGroupMaster where PlantID IN (" + plantId + @"))  AND E.PlantID = '" + plantId + @"'");
 
                 if (dtPayRollGrpEmpId.Rows.Count > 0)
                 {
@@ -14632,7 +14639,7 @@ INNER JOIN
 												
                                             Where SPC.SlrProcMstSystemID IN( SELECT SystemID FROM SalaryProcMaster
                                       WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
-                                                        WHERE PlantID = '" + plantId + @"' GROUP BY SlrProcMstSystemID)
+                                                        WHERE PlantID in (" + plantId + @") GROUP BY SlrProcMstSystemID)
                                         AND MonthNo =  MONTH('" + fromDate + @"') AND YearNo =  YEAR('" + fromDate + @"')  )   
 
 									) EmpBasic
@@ -14667,7 +14674,7 @@ INNER JOIN
 										  FROM SalaryProceAttdnData MMDSA where MMDSA.MonthNo = MONTH('" + fromDate + @"') AND
 						                               MMDSA.YearNo = YEAR('" + fromDate + @"')
 											) MMDSA ON EmpBasic.EmpSystemID = MMDSA.EmpSystemID 
-                                            WHERE EmpBasic.CompanyGroupId = '" + companyGroupId + @"' AND EmpBasic.CompanyId ='" + companyId + @"' AND EmpBasic.PlantId ='" + plantId + @"' " + wcEmpStatus + @" " + wcPayrollGroup + @"";
+                                            WHERE EmpBasic.CompanyGroupId = '" + companyGroupId + @"' AND EmpBasic.CompanyId ='" + companyId + @"' AND EmpBasic.PlantId in (" + plantId + @") " + wcEmpStatus + @" " + wcPayrollGroup + @"";
                 try
                 {
                     if (parameters.Count > 0)
@@ -18710,15 +18717,15 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
         private void GetLeaveBalances(string EmployeeId, string FromDate, string ToDate, out DataTable dtLeaveBalance)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"Select L.LeaveTypeId,ISNULL(l.BroughtForward,0)+ ISNULL(L.CarryForwardOpeningBalance,0) AS LeaveCount,'OB' AS TransactionType
-                                  from 
-                                YearlyCalendar AS C
-                                JOIN trn.EmployeeLeaveSummary L ON l.CalanderYearId=c.Id
+            string sql = @"Select L.LeaveTypeId, ISNULL(l.CurrentYearAllocation,0) CurrentYearAllocation,ISNULL(l.BroughtForward,0)+ ISNULL(L.CarryForwardOpeningBalance,0) AS LeaveCount,'OB' AS TransactionType
+                                  from EmployeeInformation EI
+                                Join YearlyCalendar AS C ON C.PlantId=EI.PlantId
+                                JOIN trn.EmployeeLeaveSummary L ON l.CalanderYearId=c.Id and L.EmployeeId=EI.SystemId
                                 WHERE L.EmployeeId='" + EmployeeId + @"' AND '" + FromDate + @"' BETWEEN c.FromDate AND c.ToDate AND l.LeaveTypeId IN (SELECT LeaveTypeId FROM LeaveWithWagesRegisterLeaveTypes where CompanyId='" + identity.CompanyId + @"') 
                                 
                                 UNION ALL
 
-                                SELECT l.LeaveTypeId,
+                                SELECT l.LeaveTypeId,0 AS CurrentYearAllocation,
                                 CASE WHEN EncashWorkingDaysQty>0 THEN CONVERT(DECIMAL(18,4), EncashEarnLeaveQty)/CONVERT(DECIMAL(18,4),EncashWorkingDaysQty) ELSE 0 END * SUM(l.EarnValue) ActualEarnedLeave,
                                 'CUR' AS TransactionType
                                  FROM AttdnProcessData AS apd
@@ -18930,7 +18937,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                     sheet[ROW - 1, COL].Text = dtLeaveInfo.Rows[i]["LeaveDesc"].ToString();
                     sheet.Range[ROW - 1, COL, ROW - 1, COL + 2].Merge();
                     sheet.Range[ROW - 1, COL, ROW - 1, COL + 2].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet.Range[ROW - 1, COL, ROW - 1, COL + 2].CellStyle.Interior.Color = System.Drawing.Color.FromArgb(0, 0, 0);
+                    sheet.Range[ROW - 1, COL, ROW - 1, COL + 2].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_80_percent;
                     sheet.Range[ROW - 1, COL, ROW - 1, COL + 2].CellStyle.Font.Color = ExcelKnownColors.White;
                     sheet.Range[ROW - 1, COL, ROW - 1, COL + 2].CellStyle.Font.Bold = true;
                     sheet.Range[ROW - 1, COL, ROW - 1, COL + 2].CellStyle.Font.Size = 9f;
@@ -18958,8 +18965,8 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
 
                 int endCol = COL;
 
-                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.Color = System.Drawing.Color.FromArgb(0, 0, 0);
-                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex=ExcelKnownColors.Grey_25_percent;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.Black;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
                 sheet.Range[ROW, 1, ROW, endCol].WrapText = true;
@@ -18974,7 +18981,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                 sheet[startRow, 1].Text = "Balance From the preceeding year";
                 sheet[startRow + 1, 1].Text = "Credit for the current year";
                 sheet[startRow + 2, 1].Text = "Total leave to credit";
-
+                int LeaveBalanceRow = startRow + 2;
                 ROW = startRow + 3;
                 for (int i = 0; i < dtLeaveBalance.Rows.Count; i++)
                 {
@@ -18983,7 +18990,14 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                     if (dtLeaveBalance.Rows[i]["TransactionType"].ToString() == "OB")
                         sheet[startRow, tempLeaveCol + 2].Number = clsStaticInfo.dbl(dtLeaveBalance.Rows[i]["LeaveCount"].ToString());
                     else
-                        sheet[startRow + 1, tempLeaveCol + 2].Number = clsStaticInfo.dbl(dtLeaveBalance.Rows[i]["LeaveCount"].ToString());
+                    {
+                        double CurrentYearAllocation = 0;
+                        dtLeaveBalance.DefaultView.RowFilter = "LeaveTypeId='" + dtLeaveBalance.Rows[i]["LeaveTypeId"].ToString() + @"' AND TransactionType='OB'";
+                        if (dtLeaveBalance.DefaultView.Count > 0)
+                            CurrentYearAllocation = clsStaticInfo.dbl(dtLeaveBalance.DefaultView[0]["CurrentYearAllocation"].ToString());
+
+                        sheet[startRow + 1, tempLeaveCol + 2].Number = CurrentYearAllocation + clsStaticInfo.dbl(dtLeaveBalance.Rows[i]["LeaveCount"].ToString());
+                    }
                 }
                 for (int i = 0; i < dtLeaveInfo.Rows.Count; i++)
                 {
@@ -19058,7 +19072,18 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
 
                 }
 
+                sheet[ROW, 1].Text = "Closing Balance";
+                foreach (KeyValuePair<string, int> item in dicLeaveColIndex)
+                {
+                    int LeaveValueColumn = item.Value + 2;
+                    sheet[ROW, LeaveValueColumn].Formula = clsStaticInfo.GetxlsCol(LeaveValueColumn) + LeaveBalanceRow + "-SUM(" + clsStaticInfo.GetxlsCol(LeaveValueColumn) + (LeaveBalanceRow + 1) + ":" + clsStaticInfo.GetxlsCol(LeaveValueColumn) + (ROW - 1) + ")";
+                }
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
 
+                ROW++;
                 sheet.UsedRange.NumberFormat = clsStaticInfo.NumberFormat(2);
                 ReportUtility reportUtility = new ReportUtility();
                 reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Form 18", identity.CompanyId, identity.CompanyName, "");

@@ -4424,7 +4424,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     var sql = @"update AttdnProcessData set Duration=null,earlyin=null,latein=null,LateOut=null,
                     earlyout=null,OverStay=null,UnderStay=null,DurationStatus=null,EarlyLateIn=null,EarlyLateOut=null,
                     DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0,IsLock=0,ProcessFinalDayStatus=null,LockedBy=null,
-                    LockedDate=null 
+                    LockedDate=null,IsOTComfirm=0,OTComfirmBy=null,DateOTComfirm=null 
                     where PlantID='" + Plant+@"'
                     and ManualFlag=1 and RowId IN(" + empMaster + @")";
                   
@@ -4441,7 +4441,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     var sql = @"update AttdnProcessData set Duration=null,earlyin=null,latein=null,LateOut=null,
                     earlyout=null,OverStay=null,UnderStay=null,DurationStatus=null,EarlyLateIn=null,EarlyLateOut=null,
                     DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0,IsLock=0,ProcessFinalDayStatus=null,LockedBy=null,
-                    LockedDate=null 
+                    LockedDate=null
                     where PlantID='" + Plant + @"'
                     and ManualFlag=1";
 
@@ -4486,23 +4486,47 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
-        public void ManualZeroProcessedOTEmployees(string Plant)
+        public void ManualZeroProcessedOTEmployees(string Plant, string empMaster)
         {
             try
             {
-                var sql = @"UPDATE AttdnProcessData SET IsOTComfirm=1,OTComfirmBy='AutoConfirmation',
-                DateOTComfirm=GETDATE()
-                where ProcessedOT=0 AND OverStay IS NULL
-                and ManualFlag=1 and IsOTComfirm=0 AND IsOTEntitled=1
-                and PlantID='"+Plant+"'";
 
-                ConnectionManager.DAL.ConManager objCone = null;
-                objCone = new ConnectionManager.DAL.ConManager("1");
-                objCone.OpenConnection("1");
-                objCone.BeginTransaction();
+                string empMaster1 = (clsWebLib.RetValidLen(empMaster).ToString());
+                if (empMaster1 != "")
+                {
 
-                objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                objCone.CommitTransaction();
+                    var sql = @"UPDATE AttdnProcessData SET IsOTComfirm=1,OTComfirmBy='AutoConfirmation',
+                    DateOTComfirm=GETDATE()
+                    where ProcessedOT=0 AND OverStay IS NULL
+                    and ManualFlag=1 and IsOTComfirm=0 AND IsOTEntitled=1
+                    and PlantID='" + Plant + "' and RowId IN(" + empMaster + @")";
+
+                    ConnectionManager.DAL.ConManager objCone = null;
+                    objCone = new ConnectionManager.DAL.ConManager("1");
+                    objCone.OpenConnection("1");
+                    objCone.BeginTransaction();
+
+                    objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                    objCone.CommitTransaction();
+
+                }
+                else
+                {
+
+                    var sql = @"UPDATE AttdnProcessData SET IsOTComfirm=1,OTComfirmBy='AutoConfirmation',
+                        DateOTComfirm=GETDATE()
+                        where ProcessedOT=0 AND OverStay IS NULL
+                        and ManualFlag=1 and IsOTComfirm=0 AND IsOTEntitled=1
+                        and PlantID='" + Plant + "'";
+
+                    ConnectionManager.DAL.ConManager objCone = null;
+                    objCone = new ConnectionManager.DAL.ConManager("1");
+                    objCone.OpenConnection("1");
+                    objCone.BeginTransaction();
+
+                    objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                    objCone.CommitTransaction();
+                }
             }
             catch (Exception ex)
             {
@@ -5458,7 +5482,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 #region OT Entitled Employees whose ProcessedOT is 0
 
                 // Confirming the OT of Employees Whose Processed OT is 0
-                ManualZeroProcessedOTEmployees(PlantValue);
+                ManualZeroProcessedOTEmployees(PlantValue, empList);
 
                 #endregion
 
@@ -6037,22 +6061,465 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
         #endregion
 
-        public void OTAutoConfirmationProcess(string Date, string PlantValue)
+        #region TBS LA Process
+
+        #region LA
+        
+        private void EmployeeAutoStatusChange_LA(string plantid, string Date)
         {
             try
-            { 
+            {
+                DataSet HRSettingLA = null;
+                DataSet LAEmployees = null;
+
+                GetHRSettingForAutoLA(plantid, out HRSettingLA);
             
+                if (HRSettingLA.Tables[0].Rows.Count > 0)//LA
+                {
+                    string maxDays = GetNumData(HRSettingLA.Tables[0].Rows[0]["LongTermAbesnteeism"].ToString());
+                    if (Convert.ToInt32(maxDays) > 0)
+                    {
+                        Get_tobe_LA(plantid, Date, maxDays, out LAEmployees);
+                     
+                        if (LAEmployees.Tables[0].Rows.Count > 0)
+                        {
+                            UpdateEmpStatusLA(plantid, LAEmployees); //update these emps as Long Absentism
+                        }
+                    }
+                }
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
+        private void UpdateEmpStatusLA(string PlantId, DataSet dsLA)
+        {
+            string strSql = string.Empty;
+            try
+            {
 
-         
+                for (int i = 0; i < dsLA.Tables[0].Rows.Count; i++)
+                {
+                    string _empid = dsLA.Tables[0].Rows[i]["Id"].ToString();
+
+                    string v = clsWebLib.RetValidLen(dsLA.Tables[0].Rows[i]["FirstAbsentDate"]).ToString();
+                    if (v != "")
+                    {
+
+                       string adate = Convert.ToDateTime(v).ToString("dd-MMM-yyyy");
+
+                        if (strSql.Length == 0)
+                        {
+                            strSql = @"update EmployeeInformation set EmployeeCurrentStatus='LONG ABSENTEEISM',EmployeeCurrentStatusEffectiveDate='" + adate + "' where plantid='" + PlantId + "'  and systemid ='" + _empid + "';";
+                        }
+                        else
+                        {
+                            strSql += Environment.NewLine + @"update EmployeeInformation set EmployeeCurrentStatus='LONG ABSENTEEISM',EmployeeCurrentStatusEffectiveDate='" + adate + "' where plantid='" + PlantId + "'  and systemid ='" + _empid + "';";
+                        }
+                    }
+
+
+                }
+                 
+                UpdateEmpStatus(strSql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }          
+        }
+        private void Get_tobe_LA(string PlantId, string adate, string maxDays, out DataSet dsRef)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                string strSql = @"SELECT 0 AS Active, e.SystemId AS Id, e.EmployeeCode,E.EmployeeName,
+                D.DayStatus,COUNT(d.AbsentValue) AS AbsentCount,ab.AbsentDays,
+                Format(ab.FirstAbsentDate,'dd-MMM-yyyy')FirstAbsentDate
+                                FROM (
+		                                SELECT p.EmpSystemID, p.WorkDate,
+										p.AbsentValue,p.daystatus,
+		                                dense_rank() OVER (PARTITION BY p.EmpSystemID ORDER 
+										BY P.WorkDate DESC) AS SEQ
+		                                FROM AttdnProcessData AS P	                               
+                                        join EmployeeInformation x on p.EmpSystemID=x.SystemId
+		                                WHERE x.PlantID='"+PlantId+@"' and 										
+										 p.DayStatus NOT IN 
+										 (select distinct DayType from DayType where Category in 
+										('Holiday','Weekend')) 
+										
+	                                ) AS D
+
+                                INNER JOIN (select * from EmployeeInformation) AS E ON e.SystemId=d.EmpSystemID 
+                                LEFT OUTER JOIN (select K.EmpSystemID,COUNT(*)AbsentDays,MIN(k.WorkDate) AS FirstAbsentDate
+                                  from (SELECT *,RANK() OVER(PARTITION BY EmpSystemID,dayStatustemp ORDER BY EmpSystemID,seq) 
+								  AS SQ FROM (
+		                                SELECT p.EmpSystemID, p.WorkDate, p.DayStatus,
+										
+										CASE WHEN daystatus IN
+										(select distinct DayType from DayType where Category in
+										('Holiday','Weekend')) THEN 'A' 
+										ELSE daystatus END AS dayStatustemp,
+		                                
+										dense_rank() OVER (PARTITION BY p.EmpSystemID ORDER BY P.WorkDate DESC) AS SEQ
+		                                FROM (select * from AttdnProcessData where WorkDate<= '" + adate+@"' 
+										and PlantID='"+PlantId+@"')  AS P 
+		                                INNER JOIN EmployeeInformation AS ei ON ei.SystemId=p.EmpSystemID
+                                     
+									 where p.DayStatus NOT IN (select distinct DayType from DayType where 
+										Category in ('Holiday','Weekend')) 
+										AND ei.EmployeeStatus='Active' AND isnull(ei.EmployeeCurrentStatus,'')=''
+                                ) AS K WHERE K.dayStatustemp='A') AS K 
+                                WHERE K.SEQ=K.SQ
+                                GROUP BY K.EmpSystemID
+                                HAVING COUNT(*)>='"+maxDays+@"') AS AB ON ab.EmpSystemID=E.SystemId
+
+
+                                WHERE  e.EmployeeStatus='Active' AND isnull(e.EmployeeCurrentStatus,'')='' 
+								AND D.SEQ<='"+maxDays+@"' AND D.AbsentValue='1'
+								AND E.PlantId='"+PlantId+@"'
+                                GROUP BY e.SystemId,ab.AbsentDays, e.EmployeeCode,E.EmployeeName,
+								D.AbsentValue,d.DayStatus,
+                                ab.FirstAbsentDate
+                                HAVING COUNT(d.AbsentValue)>='"+maxDays+"' ORDER BY AB.AbsentDays DESC";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+        private void GetHRSettingForAutoLA(string PlantId, out DataSet dsRef)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var strSql = @"select LongTermAbesnteeism from PlantWiseHRMSSetting where PlantId='" + PlantId + "' and IsLongAbsenteeismAuto=1";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }           
+        }
+
+        #endregion
+
+        #region TBS
+
+        private void EmployeeAutoStatusChange_TBS(string plantid, string adate)
+        {
+            try
+            {
+                DataSet HRSetting_TBS = null;
+                DataSet TBSDataSet = null;
+
+                GetHRSettingForAutoTBS(plantid, out HRSetting_TBS);
+
+                if (HRSetting_TBS.Tables[0].Rows.Count > 0)
+                {
+                    string maxDays = GetNumData(HRSetting_TBS.Tables[0].Rows[0]["TBSDays"].ToString());
+                    if (Convert.ToInt32(maxDays) > 0)
+                    {
+                        Get_tobe_TBS(plantid, adate, maxDays, out TBSDataSet);
+                        if (TBSDataSet.Tables[0].Rows.Count > 0)
+                        {
+                            UpdateEmpStatusTBS(plantid,TBSDataSet); //update these Employees as TBS
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        private void GetHRSettingForAutoTBS(string PlantId, out DataSet dsRef)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            try
+            {
+                strSql = @"select TBSDays from PlantWiseHRMSSetting where PlantId='" + PlantId + "' and IsTBSAuto=1";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }          
+        }
+        private void UpdateEmpStatusTBS(string PlantId, DataSet dsLA)
+        {
+            string strSql = string.Empty;
+            try
+            {
+
+                for (int i = 0; i < dsLA.Tables[0].Rows.Count; i++)
+                {
+                    string _empid = dsLA.Tables[0].Rows[i]["Id"].ToString();
+                    string v = clsWebLib.RetValidLen(dsLA.Tables[0].Rows[i]["FirstAbsentDate"]).ToString();
+                    if (v != "")
+                    {
+                        string adate = Convert.ToDateTime(v).ToString("dd-MMM-yyyy");
+
+                        if (strSql.Length == 0)
+                        {
+                            strSql = @" update EmployeeInformation set EmployeeCurrentStatus='TBS',EmployeeCurrentStatusEffectiveDate='" + adate + "' where plantid='" + PlantId + "'  and systemid ='" + _empid + "';";
+                        }
+                        else
+                        {
+                            strSql += Environment.NewLine + @" update EmployeeInformation set EmployeeCurrentStatus='TBS',EmployeeCurrentStatusEffectiveDate='" + adate + "' where plantid='" + PlantId + "'  and systemid ='" + _empid + "';";
+                        }
+                    }
+                }
+
+                UpdateEmpStatus(strSql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+           
+        }
+        private void Get_tobe_TBS(string PlantId, string adate, string maxDays, out DataSet dsRef)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                string strSql = @"SELECT 0 AS Active, e.SystemId AS Id, e.EmployeeCode,                               
+                                D.DayStatus,ab.AbsentDays,Format(ab.FirstAbsentDate,'dd-MMM-yyyy')
+								FirstAbsentDate
+                                FROM (
+		                                SELECT p.EmpSystemID, p.WorkDate, p.DayStatus,p.AbsentValue,
+		                                dense_rank() OVER 
+										(PARTITION BY p.EmpSystemID ORDER BY P.WorkDate DESC) AS SEQ
+		                                FROM AttdnProcessData AS P
+										left join EmployeeInformation x on x.SystemId=p.EmpSystemID
+										where x.plantid='"+PlantId+@"' and
+		                                 p.DayStatus NOT IN 
+										(select distinct DayType from DayType 
+										where Category in ('Holiday','Weekend')) 
+										and p.WorkDate<='"+adate+@"'
+	                                ) AS D
+                                INNER JOIN (select * from EmployeeInformation) AS E ON e.SystemId=d.EmpSystemID 
+                            
+                                LEFT OUTER JOIN (select K.EmpSystemID,COUNT(*)AbsentDays,MIN(k.WorkDate) AS FirstAbsentDate
+                                  from (SELECT *,RANK() OVER(PARTITION BY EmpSystemID,dayStatustemp ORDER BY EmpSystemID,seq) AS SQ FROM (
+		                                SELECT p.EmpSystemID, p.WorkDate, p.DayStatus,CASE WHEN daystatus IN (select distinct DayType from DayType where Category in ('Holiday','Weekend')) THEN 'A' ELSE daystatus END AS dayStatustemp,
+		                                dense_rank() OVER (PARTITION BY p.EmpSystemID ORDER BY P.WorkDate DESC) AS SEQ
+		                                FROM (select * from AttdnProcessData where
+										WorkDate<= '"+adate+"' and PlantID='"+PlantId+@"')  AS P 
+		                                INNER JOIN EmployeeInformation AS ei ON ei.SystemId=p.EmpSystemID
+                                        where p.DayStatus NOT IN (select distinct DayType from DayType where Category in ('Holiday','Weekend')) AND ei.EmployeeStatus='Active' AND (isnull(ei.EmployeeCurrentStatus,'')=''
+                                or isnull(ei.EmployeeCurrentStatus,'')='LONG ABSENTEEISM') 
+                                ) AS K WHERE K.dayStatustemp='A') AS K 
+                                WHERE K.SEQ=K.SQ
+                                GROUP BY K.EmpSystemID
+                                HAVING COUNT(*)>='"+maxDays+@"') AS AB ON ab.EmpSystemID=E.SystemId
+
+
+                                WHERE  e.EmployeeStatus='Active' AND 
+								(isnull(e.EmployeeCurrentStatus,'')='' or
+								isnull(e.EmployeeCurrentStatus,'')='LONG ABSENTEEISM') 
+								AND D.SEQ<='"+maxDays+@"' AND D.AbsentValue='1'  AND E.PlantId='"+PlantId+@"'
+                                GROUP BY e.SystemId,ab.AbsentDays, e.EmployeeCode,D.AbsentValue,d.DayStatus
+                                ,ab.FirstAbsentDate
+                                HAVING COUNT(d.AbsentValue)>='"+maxDays+"' ORDER BY AB.AbsentDays DESC";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        #endregion
+
+        #region Reverse LA
+
+        private void UpdateEmpStatus_Reverse(string PlantId, DataSet dsLA)
+        {
+            string _empids = string.Empty;
+            try
+            {
+
+                for (int i = 0; i < dsLA.Tables[0].Rows.Count; i++)
+                {
+                    string _empid = dsLA.Tables[0].Rows[i]["systemid"].ToString();
+                    if (_empids.Length == 0)
+                    {
+                        _empids = "'" + _empid + "'";
+                    }
+                    else
+                    {
+                        _empids += ",'" + _empid + "'";
+                    }
+                }
+
+                if (_empids.Length == 0)
+                {
+                    _empids = " ";
+                }
+                else
+                {
+                    _empids = " and systemid in (" + _empids + ")";
+                }
+                string strSql = @"update EmployeeInformation set EmployeeCurrentStatus=null,EmployeeCurrentStatusEffectiveDate=null where plantid='" + PlantId + "' " + _empids + "";
+                UpdateEmpStatus(strSql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }           
+        } 
+        private void EmployeeAutoStatusChange_LA_Reverse(string plantid, string Todate)
+        {
+            try
+            {
+                DataSet HRSetting = null;
+                DataSet DsActive = null;
+
+                GetHRSettingForAutoLA(plantid, out HRSetting);
+             
+                if (HRSetting.Tables[0].Rows.Count > 0)
+                {
+                    string maxDays = GetNumData(HRSetting.Tables[0].Rows[0]["LongTermAbesnteeism"].ToString());
+                    if (Convert.ToInt32(maxDays) > 0)
+                    {
+                        string FromDate = Convert.ToDateTime(Todate).AddDays(-Convert.ToInt32(maxDays)).ToString("dd-MMM-yyyy");
+                        Get_tobe_Active_from_LA(plantid, FromDate, Todate, out DsActive);
+                        if (DsActive.Tables[0].Rows.Count > 0)
+                        {
+                            UpdateEmpStatus_Reverse(plantid, DsActive);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        private void Get_tobe_Active_from_LA(string PlantId, string fdate, string tdate, out DataSet dsRef)
+        {
+            ConnectionManager.DAL.ConManager objCon;       
+            try
+            {
+                var sql = @"select systemid,EmployeeStatus,EmployeeCurrentStatus,
+                            EmployeeCurrentStatusEffectiveDate  from EmployeeInformation
+                                where EmployeeStatus='Active' and systemid in
+                                (
+                                select EmpSystemID from AttdnProcessData p 
+								left join EmployeeInformation e on p.EmpSystemID=e.SystemId
+                                where EmployeeCurrentStatus='LONG ABSENTEEISM' and 
+								e.PlantId='"+PlantId+@"'
+								and WorkDate between '"+fdate+@"'  and '"+tdate+@"' and
+								(p.PresentValue='1' or p.LateValue='1' or p.LvValue='1' or 
+								p.PresentValue='0.5')   
+								and EmployeeCurrentStatusEffectiveDate<='"+tdate+"')";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        #endregion
+
+        #region Supporting Functions
+
+        private static string GetNumData(string strNumber)
+        {
+            double d;
+            strNumber = strNumber.Replace(",", "");
+            System.Globalization.NumberFormatInfo n = new System.Globalization.NumberFormatInfo();
+            if (strNumber.Trim() == "")
+            { return "0"; }
+            else if (Double.TryParse(strNumber, System.Globalization.NumberStyles.Float, n, out d) == true)
+            {
+                return strNumber;
+            }
+            else
+            {
+                return "0";
+            }
+        }        
+        private void UpdateEmpStatus(string sql)
+        {
+            bool IsTransactionStarted = false;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                IsTransactionStarted = true;
+                objCon.ExecuteNonQueryWrapper(sql, true, "1");
+                objCon.CommitTransaction();
+                IsTransactionStarted = false;
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                if (IsTransactionStarted)
+                {
+                    objCon.RollBack();
+                }
+                objCon.CloseConnection();
+                objCon = null;
+            }
+        }
+
+        #endregion
+
+        public void TBS_LA_Process(string Date, string PlantValue)
+        {
+            try
+            {
+                // Change to Long Absentism
+                EmployeeAutoStatusChange_LA(PlantValue, Date);
+
+                // Change to TBS
+                EmployeeAutoStatusChange_TBS(PlantValue, Date);
+
+                // Reverse LA
+                EmployeeAutoStatusChange_LA_Reverse(PlantValue, Date);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+       
+        }
+
+        #endregion
+
         #region Save Function
 
-                public static void SaveLog(string Message, string UserName, bool isError = false)
+        public static void SaveLog(string Message, string UserName, bool isError = false)
         {
             if (Message.Length > 2000)
                 Message = Message.Substring(0, 2000);
@@ -6290,7 +6757,36 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 }
             }
         }
-       
+
+        public void TBS_LA_ProcessGroupWise(string Date, string GroupId)
+        {
+            // Log Check
+            SaveLog("Group Call", "TBS_LA_Process", false);
+
+            DataSet PlantList;
+            GetPlant(GroupId, out PlantList);
+
+            if (PlantList.Tables[0].Rows.Count > 0)
+            {
+
+                for (int j = 0; j < PlantList.Tables[0].Rows.Count; j++)
+                {
+                    string CatchPlant = "";
+                    try
+                    {
+                        var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString();
+                        CatchPlant = PlantValue;
+                        TBS_LA_Process(Date, PlantValue);
+                    }
+                    catch (Exception ex)
+                    {
+                        CommonLogFunction(ex, CatchPlant, "TBS_LA_Process");
+                    }
+
+                }
+            }
+        }
+
         #endregion
 
         public void CommonLogFunction(Exception ex, string CatchPlant,string Process)

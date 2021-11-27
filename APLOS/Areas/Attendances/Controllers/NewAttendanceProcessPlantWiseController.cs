@@ -173,6 +173,31 @@ namespace Aplos.Areas.Attendances.Controllers
             }
             return Json(new { Error = false, Message = "Roster Process Triggered Successfully..." }, JsonRequestBehavior.AllowGet);
         }
+
+        public ActionResult RunTBS_LA_Process(string Date)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string CatchPlant = "";
+            try
+            {
+                if (Convert.ToDateTime(Date) > DateTime.Now)
+                {
+                    throw new Exception("Future Date Cannot be selected!!");
+                }
+                CatchPlant = identity.PlantId;
+                rep.TBS_LA_Process(Date, CatchPlant);
+            }
+            catch (Exception ex)
+            {
+                rep.CommonLogFunction(ex, CatchPlant, "TBS_LA_Process");
+                return Json(new { Error = true, Message = "Error Occured..." }, JsonRequestBehavior.AllowGet);
+            }
+
+            return Json(new { Error = false, Message = "TBS LA Process Triggered Successfully..." }, JsonRequestBehavior.AllowGet);
+
+        }
+
+
     }
 }
  

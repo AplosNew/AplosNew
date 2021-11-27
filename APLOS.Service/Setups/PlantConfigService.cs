@@ -118,7 +118,8 @@ namespace Library.Service.Setups
                         Operation = from_ui.Operation,
                         OperationInProductionBookingWillBeCapturebyBulletin = from_ui.OperationInProductionBookingWillBeCapturebyBulletin,
                         MachineBudgetLevel = from_ui.MachineBudgetLevel,
-                        IsMachineChangeableinBulletinTemplate = from_ui.IsMachineChangeableinBulletinTemplate
+                        IsMachineChangeableinBulletinTemplate = from_ui.IsMachineChangeableinBulletinTemplate,
+                        IsProductionHourOpen = from_ui.IsProductionHourOpen
                     };
                 }
                 else
@@ -140,6 +141,7 @@ namespace Library.Service.Setups
                     from_db.OperationInProductionBookingWillBeCapturebyBulletin = from_ui.OperationInProductionBookingWillBeCapturebyBulletin;
                     from_db.MachineBudgetLevel = from_ui.MachineBudgetLevel;
                     from_db.IsMachineChangeableinBulletinTemplate = from_ui.IsMachineChangeableinBulletinTemplate;
+                    from_db.IsProductionHourOpen = from_ui.IsProductionHourOpen;
                 }
                 AuditService.Log(from_db);
                 InsertOrUpdateGraph(from_db);
@@ -181,7 +183,7 @@ namespace Library.Service.Setups
                                   , pc.CompanyId, c.UserName AS CompanyName
                                   ,BlanketDefaultLength,BlanketDefaultWidth,IsBlanketDefaultLengthValuesChangeable,IsBlanketDefaultWidthValuesChangeable
                                   ,IsAfterWashShrinkageOnActual,PC.FabRollPrefix,PC.IsProductionOrderCreatedAfterConfirmationOfSO,PC.WeekendforProductionOrder,PC.Operation,PC.OperationInProductionBookingWillBeCapturebyBulletin,pc.MachineBudgetLevel
-                                  ,PC.IsMachineChangeableinBulletinTemplate
+                                  ,PC.IsMachineChangeableinBulletinTemplate,pc.IsProductionHourOpen
                             FROM SCS.PlantConfig pc
                             LEFT JOIN ORG.Plant p2 ON pc.PlantId = p2.Id
                             LEFT JOIN ORG.CompanyGroup cg ON pc.CompanyGroupId=cg.Id

@@ -555,62 +555,62 @@
             <legend class="scheduler-border">Terms And Instruction</legend>
             <div class="col-xs-12 col-sm-6 col-md-6">
                 @*<div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Delivery Instruction (If Any)<sup></sup></label>
-            <div class="col-sm-8 show-message">
-                <textarea class="form-control" rows="2" ng-model="productNew.DeliveryInstruction" tabindex="6"></textarea>
+                        <label class="col-sm-4 control-label">Delivery Instruction (If Any)<sup></sup></label>
+                        <div class="col-sm-8 show-message">
+                            <textarea class="form-control" rows="2" ng-model="productNew.DeliveryInstruction" tabindex="6"></textarea>
+                        </div>
+                    </div>*@
+
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Terms And Conditions@*<sup>*</sup>*@</label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select id="TypeId" class="form-control" name="Terms And Conditions" ng-model="TermsAndConditions.Id" ng-change="LoadTermsAndConditionGrid();" tabindex="12" required>
+                                <option ng-repeat="option in TermsAndConditionsList" value="{{option.Id}}">{{option.TermsAndConditions}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>*@
-            
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Select<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <div class="select-style">
-                                <select id="TypeId" class="form-control" name="Terms And Condition" ng-model="TermsAndCondition.Description" tabindex="12" required>
-                                    <option ng-repeat="option in TermsAndConditionsList" value="{{option.Id}}">{{option.Description}}</option>
-                                </select>
-                            </div>
-                        </div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-5 control-label">Special Instruction (If Any)<sup></sup></label>
+                    <div class="col-sm-7 show-message">
+                        <textarea class="form-control" rows="2" ng-model="productNew.SpecialInstruction" tabindex="6"></textarea>
                     </div>
                 </div>
-                <div class="col-xs-12 col-sm-6 col-md-6">
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-5 control-label">Special Instruction (If Any)<sup></sup></label>
-                        <div class="col-sm-7 show-message">
-                            <textarea class="form-control" rows="2" ng-model="productNew.SpecialInstruction" tabindex="6"></textarea>
-                        </div>
-                    </div>
-                </div>
+            </div>
 
-                <div class="col-xs-12 col-sm-6 col-md-6">
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label" ng-show="checkedByList.length">{{productNew.labelCheckAndApproved}}</label>
-                        <div class="col-sm-8 show-message">
-                            <div class="select-style" ng-show="checkedByList.length">
-                                <select id="CheckedBy" class="form-control" name="Checked By" ng-model="productNew.CheckedBy" tabindex="12">
-                                    <option ng-repeat="option in checkedByList" value="{{option.Value}}">{{option.Text}}</option>
-                                </select>
-                            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label" ng-show="checkedByList.length">{{productNew.labelCheckAndApproved}}</label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style" ng-show="checkedByList.length">
+                            <select id="CheckedBy" class="form-control" name="Checked By" ng-model="productNew.CheckedBy" tabindex="12">
+                                <option ng-repeat="option in checkedByList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="col-xs-12 col-sm-6 col-md-6">
-                    <div class="form-group" id="div_docNo">
-                        <label class="col-sm-5 control-label"><b>Discount Amount</b><sup>*</sup></label>
-                        <div class="col-sm-7 show-message">
-                            <input type="number" name="DiscountAmount" ng-model="productNew.DiscountAmount" class="form-control" maxlength="20" tabindex="" autocomplete="off" style="text-align:right;">
-                        </div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group" id="div_docNo">
+                    <label class="col-sm-5 control-label"><b>Discount Amount</b><sup>*</sup></label>
+                    <div class="col-sm-7 show-message">
+                        <input type="number" name="DiscountAmount" ng-model="productNew.DiscountAmount" class="form-control" maxlength="20" tabindex="" autocomplete="off" style="text-align:right;">
                     </div>
                 </div>
-                <div class="col-xs-12 col-sm-6 col-md-6">
-                    <div class="form-group" id="div_docNonos">
-                        <label class="col-sm-4 control-label">Tolerance(%)<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <input type="number" name="Tolerance" ng-model="productNew.Tolerance" class="form-control" maxlength="20" tabindex="" autocomplete="off" style="text-align:right;">
-                        </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group" id="div_docNonos">
+                    <label class="col-sm-4 control-label">Tolerance(%)<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="number" name="Tolerance" ng-model="productNew.Tolerance" class="form-control" maxlength="20" tabindex="" autocomplete="off" style="text-align:right;">
                     </div>
                 </div>
-</fieldset>
+            </div>
+        </fieldset>
     </div>
     <div class="clearfix"></div>
     <div class="col-md-6 text-left" style="padding-top: 17px;">
@@ -661,6 +661,7 @@
             <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Material</a></li>
             <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">Charges</a></li>
             <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" data-toggle="tab">Documents Attach</a></li>
+            <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" data-toggle="tab">T & C</a></li>
         </ul>
     </div>
     <div class="tab-content">
@@ -923,6 +924,37 @@
                     </div>*@
             </div>
         </div>
+
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+            <div style="color:black;" id="GridTermsAndConditions" ej-grid e-datasource="TermsAndConditionGridList" @*e-rowdatabound="rowDataBoundOrder"*@
+                 e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
+                 e-filtersettings-filterType="excel" e-enabletouch="false"
+                 e-allowselection="false">
+                <div e-columns>
+                    <div e-column e-field="TermsAndConditionChildId" e-headertext="TermsAndConditionsChildId" e-visible="false"></div>
+                    <div e-column e-field="TermsAndConditionDetailId" e-headertext="TermsAndConditionsChildId" e-visible="false"></div>
+
+                    <div e-column e-type="string" e-field="Title" e-headertext="Title" e-width="100"></div>
+                    <div e-column e-type="string" e-field="HeaderCaption" e-headertext="Header Caption" e-width="100"></div>
+                    <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="100"></div>
+                    @*<div e-column e-headertext=" Action " e-template="#LCCloseTemplate" e-width="120"></div>*@
+
+                </div>
+                <!--<script id="LCCloseTemplate" type="text/template">
+                    <div class="common-btn">
+                        <ul class="common-btn list-inline text-center">
+                            <li>
+                                <button--> @*ng-disabled="data.IsPark==false"*@ <!--ng-click="$parent.onLCClosePopUp(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="LCClose">
+                                    <i class="glyphicon glyphicon-eye-open" style="color:orangered;"></i>
+                                </button>
+
+                            </li>
+                        </ul>
+                    </div>
+                </script>-->
+            </div>
+        </div>
+
     </div>
 </div>
 @*End Master & Details Data Entry*@
@@ -2153,7 +2185,8 @@
                             <div e-column e-type="numeric" e-format="{0:0.00}" e-field="RequiredQtyPO" e-headertext="Booking Qty" e-width="70" e-textalign="right"></div>
                             <div e-column e-type="numeric" e-format="{0:0.00}" e-field="OtherPOQty" e-headertext="Other PO Qty" e-width="80" e-textalign="right"></div>
                             <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Balance" e-headertext="Balance Qty" e-width="80" e-textalign="right"></div>
-                            <div e-column e-type="string" e-field="UOM" e-headertext="UoM" e-width="50"></div>
+                            <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BOMQty" e-headertext="BOQ Qty" e-width="80" e-textalign="right"></div>
+                            <div e-column e-type="string" e-field="BOQUOM" e-headertext="UoM" e-width="70"></div>
 
                             <div e-column e-type="string" e-field="Vendor" e-headertext="Vendor" e-width="300"></div>
                             <div e-column e-type="string" e-field="MasterOrderId" e-headertext="MasterOrderId" e-width="50"></div>
@@ -2165,10 +2198,6 @@
                             <div e-column e-type="string" e-field="BuyerItemReferenceNo" e-headertext="BuyerItem#" e-width="80"></div>
                             <div e-column e-type="string" e-field="OwnItemReferenceNo" e-headertext="OwnItem#" e-width="80"></div>
                             <div e-column e-type="string" e-field="SalesOrderId" e-headertext="SalesOrderId" e-width="80"></div>
-
-                            <div e-column e-type="numeric" e-field="BOMQty" e-headertext="BOQ" e-width="80" e-textalign="right"></div>
-                            <div e-column e-type="string" e-field="BOQUOM" e-headertext="UoM" e-width="70"></div>
-                            <div e-column e-type="string" e-field="TransactionRateBOQ" e-headertext="BOQRate" e-width="80" e-textalign="right"></div>
 
                             <div e-column e-type="string" e-field="RequiredQtyApproved" e-headertext="Approved" e-width="100"></div>
                             <div e-column e-type="string" e-field="IncompleteMaterial" e-headertext="Incomplete" e-width="120"></div>

@@ -1,0 +1,15 @@
+﻿<div class="row">
+    <div style="padding: 20px;"></div>
+    <div class="col-sm-4"></div>
+    <div class="col-sm-6">
+        <h3>Select Plant Login</h3>
+        <sqan class="msg-error" ng-show="errorText!=null">{{errorText}}</sqan>
+        <div class="col-sm-9 panel panel-default">
+            <div class="panel-body">
+                <div ng-repeat="y in plantList| orderBy:'PlantName'" style="padding-left: 20px;font-size: 14px;color: darkcyan;font-weight: 500;">
+                    <p ng-click="selectPlant(y.PlantId, y.PlantName)" style="text-decoration: underline;cursor: pointer;">{{y.PlantName}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

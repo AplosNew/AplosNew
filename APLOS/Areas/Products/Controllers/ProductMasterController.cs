@@ -75,11 +75,17 @@ namespace Aplos.Areas.Products.Controllers
             return Json(_productMasterService.GetEfficencyList(masterId), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public JsonResult GetProductMasterAltUomList(string productMasterId)
+        {
+            return Json(_productMasterService.GetProductMasterAltUomList(productMasterId), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost]
-        public JsonResult Create(ProductMaster productMaster, IEnumerable<ProductMasterAttributeValue> productMasterAttributeValue, IEnumerable<ProductMasterEfficency> efficencyList)
+        public JsonResult Create(ProductMaster productMaster, IEnumerable<ProductMasterAttributeValue> productMasterAttributeValue, IEnumerable<ProductMasterEfficency> efficencyList, IEnumerable<ProductMasterAlternativeUOM> materialMasterAlternativeUOM)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            _productMasterService.Insert(productMaster, productMasterAttributeValue, efficencyList);
+            _productMasterService.Insert(productMaster, productMasterAttributeValue, efficencyList, materialMasterAlternativeUOM);
             return Json(new { ProductMaster = productMaster, Sequence = _productMasterService.GetAutoSequence(), Message = AplosMessage.Insert });
         }
 

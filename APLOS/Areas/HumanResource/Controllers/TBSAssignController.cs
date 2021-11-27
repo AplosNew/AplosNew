@@ -62,7 +62,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
                 }
 
-
+                string FromDate = System.DateTime.Now.AddDays((days * 2 + 30) * -1).ToString("dd-MMM-yyyy");
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
                 return @"SELECT 0 AS Active, e.SystemId AS Id, e.EmployeeCode,E.EmployeeName,e.EmpPicPath,
@@ -73,6 +73,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 		                                SELECT p.EmpSystemID, p.WorkDate, p.DayStatus,
 		                                dense_rank() OVER (PARTITION BY p.EmpSystemID ORDER BY P.WorkDate DESC) AS SEQ
 		                                FROM AttdnProcessData AS P
+		                               
 		                                WHERE p.DayStatus NOT IN (select distinct DayType from DayType where Category in ('Holiday','Weekend')) 
 	                                ) AS D
                                 INNER JOIN EmployeeInformation AS E ON e.SystemId=d.EmpSystemID 
@@ -88,14 +89,14 @@ namespace Aplos.Areas.HumanResource.Controllers
 		                                dense_rank() OVER (PARTITION BY p.EmpSystemID ORDER BY P.WorkDate DESC) AS SEQ
 		                                FROM AttdnProcessData AS P 
 		                                INNER JOIN EmployeeInformation AS ei ON ei.SystemId=p.EmpSystemID
-                                        where p.DayStatus NOT IN (select distinct DayType from DayType where Category in ('Holiday','Weekend')) AND ei.EmployeeStatus='Active' AND isnull(ei.EmployeeCurrentStatus,'')=''
-                                ) AS K WHERE K.dayStatustemp='A') AS K -- AND K.SEQ<30
+                                        where EI.PlantId='" + identity.PlantId + @"'  AND p.DayStatus NOT IN (select distinct DayType from DayType where Category in ('Holiday','Weekend')) AND ei.EmployeeStatus='Active' 
+                                ) AS K WHERE K.dayStatustemp='A') AS K 
                                 WHERE K.SEQ=K.SQ
                                 GROUP BY K.EmpSystemID
                                 HAVING COUNT(*)>=" + days + @") AS AB ON ab.EmpSystemID=E.SystemId
 
 
-                                WHERE  e.EmployeeStatus='Active' AND isnull(e.EmployeeCurrentStatus,'')='' AND D.SEQ<=" + days + @" AND D.DayStatus='A'  AND E.PlantId='" + identity.PlantId + @"'
+                                WHERE  e.EmployeeStatus='Active' AND isnull(e.EmployeeCurrentStatus,'')<>'TBS' AND D.SEQ<=" + days + @" AND D.DayStatus='A'  AND E.PlantId='" + identity.PlantId + @"'
                                 GROUP BY e.SystemId,ab.AbsentDays, e.EmployeeCode,E.EmployeeName,D.DayStatus,
                                 DEP.UserName,de.UserName,sec.UserName,ss.UserName,e.EmpPicPath,ab.FirstAbsentDate
                                 HAVING COUNT(d.DayStatus)>=" + days + @" ORDER BY AB.AbsentDays DESC";
@@ -327,12 +328,12 @@ namespace Aplos.Areas.HumanResource.Controllers
 
 
 
- 
+
                 #region DA
                 string DAIds = "''";
 
-                
-                foreach (TBSUnAssignModel item in empids.Where(x=>x.IsFromDA=true))
+
+                foreach (TBSUnAssignModel item in empids.Where(x => x.IsFromDA = true))
                 {
                     DAIds += ",'" + item.CaseNo + "'";
                 }
@@ -349,18 +350,18 @@ namespace Aplos.Areas.HumanResource.Controllers
                 {
                     DataView dv = new DataView(dsDA.Tables[0]);
                     dv.RowFilter = "Id='" + item.CaseNo + "'";
-                    if (dv.Count==0)
+                    if (dv.Count == 0)
                     {
 
                     }
                     else
-                    {  
+                    {
                         DataRow dr = dsDA.Tables[0].DefaultView[0].Row;
-                        dr.BeginEdit();                      
-                        dr["DACompeletionRemark"] = item.Remarks;                        
+                        dr.BeginEdit();
+                        dr["DACompeletionRemark"] = item.Remarks;
                         dr["IsDACompleted"] = true;
                         dr["DACompeletedBy"] = identity.Name;
-                        dr["DACompeletionDate"] = System.DateTime.Now.ToString();                     
+                        dr["DACompeletionDate"] = System.DateTime.Now.ToString();
 
                         dr.EndEdit();
                     }
@@ -378,7 +379,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
                 DataSet dsRef;
                 string strSql = @"select * from employeeinformation where systemid in (" + ids + ")";
-                 objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, "1");
 
 
@@ -400,7 +401,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
                     if (flag.ToUpper() == "ACTIVE")
                     {
-                        
+
                         dsRef.Tables[0].Rows[i]["EmployeeDisciplinaryActionIdForLA"] = DBNull.Value;
                         dsRef.Tables[0].Rows[i]["EmployeeCurrentStatusEffectiveDate"] = DBNull.Value;
                         dsRef.Tables[0].Rows[i]["EmployeeCurrentStatus"] = DBNull.Value;
@@ -411,7 +412,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
                 clsStaticInfo obj = new clsStaticInfo();
                 obj.SaveDataSets(dsRef, dsDA);
-             
+
 
                 return Json(new { Message = "Data updated successfully", Error = false, }, JsonRequestBehavior.AllowGet);
             }
@@ -540,7 +541,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         #endregion -- Operations
     }
-    public  class TBSUnAssignModel
+    public class TBSUnAssignModel
     {
         public string EmpSystemId { get; set; }
         public bool IsFromDA { get; set; } = false;
