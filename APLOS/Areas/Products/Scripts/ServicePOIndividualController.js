@@ -236,6 +236,7 @@ function ServicePOIndividualController(accountService, addressService, $window, 
 		, TaxOptionService: 'Yes'
 		, TaxOptionServiceModify: 'Yes'
 		, POType: 'ServicePO'
+		, EmployeeId:null
 		
 	};
 

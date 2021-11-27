@@ -4102,11 +4102,40 @@ UNION ALL
                 throw ex;
             }
         }
+
+        [Authorize, HttpGet]
+        public JsonResult GetJobWorkGRNDataChecking(string GRNbyPOCheckStatus, string POId)
+        {
+            //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            //return Json(_inventoryReveiveService.QueryGetListForMasterData(identity.PlantId, GRNbyPOCheckStatus), JsonRequestBehavior.AllowGet);
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
+                return Json(obj.GetJobWorkGRNDataChecking(identity.PlantId, GRNbyPOCheckStatus, POId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+
         [Authorize, HttpGet]
         public JsonResult GetJWApproving(string GRNbyPOApprovedStatus)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_inventoryReveiveService.GetJWApproving(identity.PlantId, GRNbyPOApprovedStatus), JsonRequestBehavior.AllowGet);
+        }
+
+        // job work
+
+        [Authorize, HttpGet]
+        public JsonResult GetJobWorkApproving(string GRNbyPOApprovedStatus)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.GetJobWorkApproving(identity.PlantId, GRNbyPOApprovedStatus), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
@@ -4117,10 +4146,24 @@ UNION ALL
         }
 
         [Authorize, HttpGet]
+        public JsonResult GetJobWorkOutPutInventoryMaterialList(string inveReveiveId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryMaterialService.JobWorkOutPutQuery(inveReveiveId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public JsonResult GetJWByProductInventoryMaterialList(string inveReveiveId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_inventoryMaterialService.JWByProductQuery(inveReveiveId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetJobWorkByProductInventoryMaterialList(string inveReveiveId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryMaterialService.JobWorkByProductQuery(inveReveiveId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Delete))]
@@ -4150,13 +4193,18 @@ UNION ALL
             Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
             return Json(obj.JWGRNDetailsData(inveReveiveId, POID), JsonRequestBehavior.AllowGet);
 
-            //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            //var jsondata = Json(_inventoryMaterialService.JWGRNDetailsData(inveReveiveId, POID), JsonRequestBehavior.AllowGet);
-            //jsondata.MaxJsonLength = int.MaxValue;
-            //return jsondata;
-
         }
         #endregion GRN-By-JW
+
+        [Authorize, HttpGet]
+        public JsonResult JobWorkGRNDetailsData(string inveReveiveId, string POID)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
+            return Json(obj.JobWorkGRNDetailsData(inveReveiveId, POID), JsonRequestBehavior.AllowGet);
+
+        }
 
 
 

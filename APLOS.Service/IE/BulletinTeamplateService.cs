@@ -131,7 +131,7 @@ namespace Library.Service.IEnumerable
                         ,PBCount=(Select Count (Id) From [TRN].[ProductionBulletinTemplate] Where BulletinTemplateId=BT.Id)			
                          FROM [MST].[BulletinTemplate] BT
                          LEFT JOIN MST.ProductMaster PM ON PM.Id=BT.ProductMasterId
-                         LEFT JOIN HKP.SizeGroup SG ON SG.Id=BT.SizeGroupId WHERE BT.CompanyGroupId='" + companyGroupId + "'";
+                         LEFT JOIN HKP.SizeGroup SG ON SG.Id=BT.SizeGroupId WHERE BT.CompanyGroupId='" + companyGroupId + "' ORDER BY BT.AddedDate DESC";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
@@ -1083,7 +1083,7 @@ namespace Library.Service.IEnumerable
 
                     dr["Id"] = "B-" + GetPK();
                     dr["CompanyGroupId"] = data.CompanyGroupId;
-                    dr["BulletinName"] = data.BulletinName;
+                    dr["BulletinName"] = data.BulletinName+"-"+"Copy";
                     dr["AlternativeName"] = data.AlternativeName;
                     dr["ByWhom"] = data.ByWhom;
                     dr["ProductMasterId"] = data.ProductMasterId;

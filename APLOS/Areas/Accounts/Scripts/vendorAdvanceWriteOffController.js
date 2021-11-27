@@ -14,7 +14,7 @@ function vendorAdvanceWriteOffController(cboService, commonMessage, $scope, $roo
     $scope.listUrl = $scope.url + '/GetVendorAdvanceWriteOffList';
     $scope.postUrl = $scope.url + '/PostVendorAdvanceWriteOff';
 
-    $scope.deleteUrl = $scope.url + "/DeleteCustomerBanksReceipt";
+    $scope.deleteUrl = $scope.url + "/DeleteCustomerAdvanceWriteOff";
 
 
     $controller('currencyBaseController', { $scope: $scope, $http: $http });

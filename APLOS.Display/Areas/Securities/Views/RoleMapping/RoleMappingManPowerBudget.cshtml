@@ -1,0 +1,154 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> Role Mapping Manpower Budget</h3>
+<div class="form-elements form-horizontal" ng-form name="roleMapping">
+    <input type="hidden" ng-model="roleMapping.Id">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Company<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="roleMapping.CompanyId" id="companyId" ng-change="onCompanyChange()" required name="Company"
+                                ng-options="item.Value as item.Text for item in companyList" tabindex="1" ng-disabled="roleMappingList.length>0">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Manpower Budget<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="roleMapping.ManPowerBudgetMasterId" id="mbId" name="Manpower Budget" ng-options="item.Value as item.Text for item in positionList" required
+                                ng-change="getPosition();roleMappingSearch();" tabindex="3" ng-disabled="roleMappingList.length>0">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 modal-table">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th ng-repeat="x in positions">{{x.Text}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="y in positionValue">
+                        <td ng-repeat="x in positions">{{y[x.Value]}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="clearfix"></div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <ul class="common-btn list-inline text-left">
+                <li><button ng-click="popUp();" class="btn" tabindex="4" ng-show="addRole"><i class="glyphicon glyphicon-plus"></i> Add Role</button></li>
+            </ul>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <ul class="common-btn list-inline text-right">
+                <li><button ng-click="Save();" class="btn" tabindex="5"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table" ng-show="roleMappingList.length>0">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Role Id</th>
+                <th>Role Name</th>
+                <th>Remarks</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="x in roleMappingList|filter:{Archive:false} " ng-class="{selected : x.Id==null}">
+                <td>{{x.RoleId}}</td>
+                <td>{{x.RoleName}}</td>
+                <td>{{x.Remarks}}</td>
+                <td class="text-right table-td">
+                    <ul class="list-inline action-list">
+                        <li>
+                            <button ng-click="valuePassInDelModal(x.Id, x.RoleId,x.RoleName, $index)" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
+                                <i class="glyphicon glyphicon-remove"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<confirm-archive-generic modalid="confirmgenericPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRow()">
+</confirm-archive-generic>
+<div class="modal fade site-modal in" id="popUpId" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" ng-form name="materialgridCharacteristicsForm">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="closePopUp()">&times;</button>
+                <h4 class="modal-title"><i class="glyphicon glyphicon-info-sign"></i> Manpower Budget</h4>
+            </div>
+            <div class="modal-body">
+                <div ng-show="roleData">
+                    <div class="row text-right">
+                        <div class="col-xs-12 col-sm-12 col-sm-12">
+                            <div class="search-form">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="select-style">
+                                            <select ng-model="popUpParameters.searchBy">
+                                                <option ng-repeat="option in popUpList" value="{{option.Value}}">{{option.Text}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-7 col-md-7">
+                                        <input type="text" class="form-control" placeholder="Search" ng-model="popUpParameters.search" ng-enter="getPopUpData()">
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <button type="button" ng-click="getPopUpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th style="width:30px;"></th>
+                                    <th>Role Id</th>
+                                    <th>Role Name</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr dir-paginate="x in popUpDataList|itemsPerPage:popUpParameters.pageSize" total-items="popUpParameters.total_count">
+                                    <td>
+                                        <div class="checkbox-site">
+                                            <label style="margin-bottom: 0px;   ">
+                                                <input type="checkbox" ng-model="x.Flag" ng-checked="x.Flag">
+                                                <span class="cr" style="margin-top: 2px;"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <td>{{x.Id}}</td>
+                                    <td>{{x.RoleName}}</td>
+                                    <td>{{x.Remarks}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getPopUpData(newPageNumber)"></dir-pagination-controls>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="addInGrid()" class="btn">Select</button></li>
+                        </ul>
+                    </div>
+                </div>
+                <span class="msg-error" ng-show="roleDataNotFound">Data not found.!</span>
+            </div>
+        </div>
+    </div>
+</div>

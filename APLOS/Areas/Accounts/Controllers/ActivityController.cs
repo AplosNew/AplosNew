@@ -85,4 +85,4 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { Sequence = _activityService.GetAutoSequence(), Message = AplosMessage.Deleted });
         }
     }
-}
+} 

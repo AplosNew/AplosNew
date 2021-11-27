@@ -1,0 +1,2552 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Microsoft.Net.Compilers.3.3.1\build\Microsoft.Net.Compilers.props" Condition="Exists('..\packages\Microsoft.Net.Compilers.3.3.1\build\Microsoft.Net.Compilers.props')" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{2DCEF37D-A909-41E4-B4B2-F8936C23992B}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Aplos</RootNamespace>
+    <AssemblyName>AplosWebDisplay</AssemblyName>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <MvcBuildViews>false</MvcBuildViews>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+    <TargetFrameworkProfile />
+    <Use64BitIISExpress>
+    </Use64BitIISExpress>
+    <TypeScriptToolsVersion>2.3</TypeScriptToolsVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <DocumentationFile>
+    </DocumentationFile>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <LangVersion>default</LangVersion>
+    <TypeScriptTarget>ES2015</TypeScriptTarget>
+    <TypeScriptJSXEmit>None</TypeScriptJSXEmit>
+    <TypeScriptModuleKind>ES6</TypeScriptModuleKind>
+    <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
+    <TypeScriptNoImplicitAny>False</TypeScriptNoImplicitAny>
+    <TypeScriptRemoveComments>False</TypeScriptRemoveComments>
+    <TypeScriptOutFile />
+    <TypeScriptOutDir />
+    <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
+    <TypeScriptNoEmitOnError>True</TypeScriptNoEmitOnError>
+    <TypeScriptSourceMap>True</TypeScriptSourceMap>
+    <TypeScriptMapRoot />
+    <TypeScriptSourceRoot />
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ExcludeGeneratedDebugSymbol>false</ExcludeGeneratedDebugSymbol>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AplosAttendance, Version=20.4.20.6, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Library\AplosAttendance.dll</HintPath>
+    </Reference>
+    <Reference Include="AplosShiftProcess, Version=20.4.15.1, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Library\AplosShiftProcess.dll</HintPath>
+    </Reference>
+    <Reference Include="CommonServiceLocator, Version=2.0.4.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\APLOS CORE\Library.Core\Library.Service.Core\bin\Debug\CommonServiceLocator.dll</HintPath>
+    </Reference>
+    <Reference Include="ConnectionManager, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Users\Aplos02\Downloads\Microsoft.SkypeApp_kzf8qxf38zg5c!App\All\ConnectionManager.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="ExcelDataReader, Version=3.5.0.0, Culture=neutral, PublicKeyToken=93517dbe6a4012fa, processorArchitecture=MSIL">
+      <HintPath>..\packages\ExcelDataReader.3.5.0\lib\net45\ExcelDataReader.dll</HintPath>
+    </Reference>
+    <Reference Include="ExcelDataReader.DataSet, Version=3.5.0.0, Culture=neutral, PublicKeyToken=93517dbe6a4012fa, processorArchitecture=MSIL">
+      <HintPath>..\packages\ExcelDataReader.DataSet.3.5.0\lib\net35\ExcelDataReader.DataSet.dll</HintPath>
+    </Reference>
+    <Reference Include="GenericLeaveProcess, Version=20.7.26.1, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Library\GenericLeaveProcess.dll</HintPath>
+    </Reference>
+    <Reference Include="HtmlAgilityPack, Version=1.4.9.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Library\HtmlAgilityPack.dll</HintPath>
+    </Reference>
+    <Reference Include="Library.Core, Version=1.0.2.6, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Library\Library.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Library.Crosscutting, Version=1.0.2.8, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Library\Library.Crosscutting.dll</HintPath>
+    </Reference>
+    <Reference Include="Library.Data, Version=1.1.3.3, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Library\Library.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Library.Model.Core, Version=1.7.6.8, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Library\Library.Model.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Library.Security, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Library\Library.Security.dll</HintPath>
+    </Reference>
+    <Reference Include="Library.Service.Core, Version=2.3.5.8, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Library\Library.Service.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Library.ViewModel.Core, Version=1.1.6.8, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Library\Library.ViewModel.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="LinqKit, Version=1.1.15.0, Culture=neutral, PublicKeyToken=bc217f8844052a91, processorArchitecture=MSIL">
+      <HintPath>..\packages\LinqKit.1.1.15\lib\net45\LinqKit.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.SignalR.Client, Version=2.4.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.SignalR.Client.2.4.1\lib\net45\Microsoft.AspNet.SignalR.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.ReportViewer.Common, Version=15.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ReportingServices.ReportViewerControl.WebForms.150.900.148\lib\net40\Microsoft.ReportViewer.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.DataVisualization, Version=15.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ReportingServices.ReportViewerControl.WebForms.150.900.148\lib\net40\Microsoft.ReportViewer.DataVisualization.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.Design, Version=15.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ReportingServices.ReportViewerControl.WebForms.150.900.148\lib\net40\Microsoft.ReportViewer.Design.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.ProcessingObjectModel, Version=15.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ReportingServices.ReportViewerControl.WebForms.150.900.148\lib\net40\Microsoft.ReportViewer.ProcessingObjectModel.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.WebDesign, Version=15.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ReportingServices.ReportViewerControl.WebForms.150.900.148\lib\net40\Microsoft.ReportViewer.WebDesign.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.WebForms, Version=15.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ReportingServices.ReportViewerControl.WebForms.150.900.148\lib\net40\Microsoft.ReportViewer.WebForms.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.SqlServer.Types, Version=14.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.SqlServer.Types.14.0.1016.290\lib\net40\Microsoft.SqlServer.Types.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Web.Administration, Version=7.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Compression.Base, Version=18.1460.0.42, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Library\Syncfusion.Compression.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.DocIO.Base, Version=18.1460.0.42, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Library\Syncfusion.DocIO.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.DocToPdfConverter.Base, Version=18.1460.0.42, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Library\Syncfusion.DocToPdfConverter.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.ExcelToPDFConverter.Base, Version=18.1460.0.42, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Library\Syncfusion.ExcelToPDFConverter.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Pdf.Base, Version=18.1460.0.42, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Library\Syncfusion.Pdf.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Presentation.Base, Version=18.1460.0.52, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Library\Syncfusion.Presentation.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.PresentationToPdfConverter.Base, Version=18.1460.0.52, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Library\Syncfusion.PresentationToPdfConverter.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.XlsIO.Base, Version=18.1460.0.42, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Library\Syncfusion.XlsIO.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Configuration.ConfigurationManager, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Configuration.ConfigurationManager.4.5.0\lib\net461\System.Configuration.ConfigurationManager.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Net.Http.Formatting, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.7\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.WebRequest" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.7.0\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Thread, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Thread.4.0.0\lib\net46\System.Threading.Thread.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Abstractions" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.Helpers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.7\lib\net45\System.Web.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http.WebHost, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.5.2.7\lib\net45\System.Web.Http.WebHost.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Mvc, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.5.2.7\lib\net45\System.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Optimization, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.AspNet.Web.Optimization.1.1.3\lib\net40\System.Web.Optimization.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Razor.3.2.7\lib\net45\System.Web.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Routing" />
+    <Reference Include="System.Web.WebPages, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="Unity.Abstractions, Version=4.1.3.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unity.Abstractions.4.1.3\lib\net46\Unity.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Container, Version=5.10.3.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unity.Container.5.10.3\lib\net46\Unity.Container.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Mvc, Version=5.10.1.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unity.Mvc.5.10.1\lib\net46\Unity.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="WebActivatorEx, Version=2.0.0.0, Culture=neutral, PublicKeyToken=7b26dc2a43f6a0d4, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebActivatorEx.2.2.0\lib\net40\WebActivatorEx.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="WebGrease, Version=1.6.5135.21930, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebGrease.1.6.0\lib\WebGrease.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Zen.Barcode.Core, Version=3.1.0.0, Culture=neutral, PublicKeyToken=b5ae55aa76d2d9de, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Library\Zen.Barcode.Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="DOC\" />
+    <Folder Include="PDF\" />
+    <Folder Include="POPResources\Attendance\ManualAttendanceFile\" />
+    <Folder Include="POPResources\Biometrics\FingerPrint\" />
+    <Folder Include="POPResources\BoMDocument\" />
+    <Folder Include="POPResources\BOQ\" />
+    <Folder Include="POPResources\Costing\" />
+    <Folder Include="POPResources\EmployeeProfiles\AuthorizedSignature\" />
+    <Folder Include="POPResources\EmployeeProfiles\CardHolderSignature\" />
+    <Folder Include="POPResources\EmployeeProfiles\Documents\" />
+    <Folder Include="POPResources\EmployeeProfiles\ExperienceDoc\" />
+    <Folder Include="POPResources\EmployeeProfiles\JoiningLetter\" />
+    <Folder Include="POPResources\EmployeeProfiles\QualificationDoc\" />
+    <Folder Include="POPResources\EmployeeProfiles\ResignationLetter\" />
+    <Folder Include="POPResources\EmployeeProfiles\TrainingDoc\" />
+    <Folder Include="POPResources\Expenses\" />
+    <Folder Include="POPResources\GRN\" />
+    <Folder Include="POPResources\JobDescriptions\" />
+    <Folder Include="POPResources\JobWorkPurchaseOrder\" />
+    <Folder Include="POPResources\Materials\" />
+    <Folder Include="POPResources\PreRecruitments\Documents\" />
+    <Folder Include="POPResources\PreRecruitments\EmpPic\" />
+    <Folder Include="POPResources\PreRecruitments\ExperienceDoc\" />
+    <Folder Include="POPResources\PreRecruitments\QualificationDoc\" />
+    <Folder Include="POPResources\PreRecruitments\TrainingDoc\" />
+    <Folder Include="POPResources\Products\" />
+    <Folder Include="POPResources\PurchaseOrder\" />
+    <Folder Include="POPResources\ServicePO\" />
+    <Folder Include="POPResources\SOP\SOPActivityDocument\" />
+    <Folder Include="POPResources\SOP\SOPCategory\" />
+    <Folder Include="POPResources\SOP\SOPDocument\" />
+    <Folder Include="POPResources\SOP\SOPSubCategory\" />
+    <Folder Include="POPResources\TaxOpeningBalance\" />
+    <Folder Include="Reports\HumanResorce\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Areas\IE\Controllers\DailyProductionDisplayController.cs" />
+    <Compile Include="Areas\IE\Controllers\LineDesignerController.cs" />
+    <Compile Include="Areas\Securities\Controllers\AuthTokenLockLogController.cs" />
+    <Compile Include="Areas\Securities\Controllers\ControlAdminController.cs" />
+    <Compile Include="Areas\Securities\Controllers\CredentialPolicyController.cs" />
+    <Compile Include="Areas\Securities\Controllers\EmployeeMobileAppsAuthorizationController.cs" />
+    <Compile Include="Areas\Securities\Controllers\MenuUserCodeController.cs" />
+    <Compile Include="Areas\Securities\Controllers\RoleController.cs" />
+    <Compile Include="Areas\Securities\Controllers\RoleDetailController.cs" />
+    <Compile Include="Areas\Securities\Controllers\RoleMappingController.cs" />
+    <Compile Include="Areas\Securities\Controllers\SyncURLController.cs" />
+    <Compile Include="Areas\Securities\Controllers\SystemAdminController.cs" />
+    <Compile Include="Areas\Securities\Controllers\UserAccessAppController.cs" />
+    <Compile Include="Areas\Securities\Controllers\UserAccessPlantController.cs" />
+    <Compile Include="Areas\Securities\Controllers\UserController.cs" />
+    <Compile Include="Areas\Securities\Controllers\UserEntityController.cs" />
+    <Compile Include="Areas\Securities\Controllers\UserLockLogController.cs" />
+    <Compile Include="Areas\Securities\Controllers\UserRoleController.cs" />
+    <Compile Include="Areas\Securities\Controllers\UserRoleDetailController.cs" />
+    <Compile Include="Areas\Securities\SecuritiesAreaRegistration.cs" />
+    <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\UPanelController.cs" />
+    <Compile Include="Controllers\QueryController.cs" />
+    <Compile Include="Controllers\PortalController.cs" />
+    <Compile Include="Controllers\ResourcesPathReaderController.cs" />
+    <Compile Include="Areas\IE\IEAreaRegistration.cs" />
+    <Compile Include="Controllers\EnumController.cs" />
+    <Compile Include="Helpers\AccessInfo.cs" />
+    <Compile Include="Helpers\CaptchaHelper.cs" />
+    <Compile Include="Helpers\clsAPIData.cs" />
+    <Compile Include="Helpers\clsAplosConnectivity.cs" />
+    <Compile Include="Helpers\clsWebApi.cs" />
+    <Compile Include="Helpers\SourceCodeMenuCollection.cs" />
+    <Compile Include="identity\CompanyGroupId.cs" />
+    <Compile Include="identity\CompanyId.cs" />
+    <Compile Include="Properties\AplosMessage.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>AplosMessage.resx</DependentUpon>
+    </Compile>
+    <Compile Include="App_Start\BundleConfig.cs" />
+    <Compile Include="App_Start\FilterConfig.cs" />
+    <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="App_Start\UnityConfig.cs" />
+    <Compile Include="App_Start\UnityMvcActivator.cs" />
+    <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\DownloadController.cs" />
+    <Compile Include="Controllers\BaseController.cs" />
+    <Compile Include="Filters\CustomActionFilterAttribute.cs" />
+    <Compile Include="Filters\CustomAuthorizeAttribute.cs" />
+    <Compile Include="Filters\CustomHandleErrorAttribute.cs" />
+    <Compile Include="Controllers\ErrorController.cs" />
+    <Compile Include="Controllers\SecurityController.cs" />
+    <Compile Include="Controllers\RouteController.cs" />
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Helpers\ComboSourceBuilder.cs" />
+    <Compile Include="Helpers\CustomJsonResult.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="App_Start\UnityResolver.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Helpers\ExcelResult.cs" />
+    <Compile Include="Helpers\XlsIOExtension.cs" />
+    <Compile Include="Reports\Products\ProductsDataSet.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ProductsDataSet.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SqlServerTypes\Loader.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\IE\Scripts\DailyProductionDisplayController.js" />
+    <Content Include="Areas\IE\Scripts\LineDesignerController.js" />
+    <Content Include="Areas\Securities\Scripts\additionalRoleActionController.js" />
+    <Content Include="Areas\Securities\Scripts\additionalRoleController.js" />
+    <Content Include="Areas\Securities\Scripts\authTokenLockController.js" />
+    <Content Include="Areas\Securities\Scripts\authTokenLockLogController.js" />
+    <Content Include="Areas\Securities\Scripts\controlAdminController.js" />
+    <Content Include="Areas\Securities\Scripts\controlAdminPasswordResetController.js" />
+    <Content Include="Areas\Securities\Scripts\cPasswordChangeController.js" />
+    <Content Include="Areas\Securities\Scripts\credentialPolicyController.js" />
+    <Content Include="Areas\Securities\Scripts\employeeMobileAppsAuthorizationController.js" />
+    <Content Include="Areas\Securities\Scripts\employeeMobileAppsAuthorizationNewController.js" />
+    <Content Include="Areas\Securities\Scripts\encryptDecryptController.js" />
+    <Content Include="Areas\Securities\Scripts\menuUserCodeController.js" />
+    <Content Include="Areas\Securities\Scripts\roleController.js" />
+    <Content Include="Areas\Securities\Scripts\roleDetailActionController.js" />
+    <Content Include="Areas\Securities\Scripts\roleDetailController.js" />
+    <Content Include="Areas\Securities\Scripts\roleMappingManPowerBudgetController.js" />
+    <Content Include="Areas\Securities\Scripts\roleMappingPositionController.js" />
+    <Content Include="Areas\Securities\Scripts\securityConfig.js" />
+    <Content Include="Areas\Securities\Scripts\showAllUserController.js" />
+    <Content Include="Areas\Securities\Scripts\syncURLController.js" />
+    <Content Include="Areas\Securities\Scripts\sysAuthTokenLockController.js" />
+    <Content Include="Areas\Securities\Scripts\sysLockController.js" />
+    <Content Include="Areas\Securities\Scripts\systemAdminAuthtokenController.js" />
+    <Content Include="Areas\Securities\Scripts\systemAdminController.js" />
+    <Content Include="Areas\Securities\Scripts\systemAdminResetController.js" />
+    <Content Include="Areas\Securities\Scripts\userAccessAppController.js" />
+    <Content Include="Areas\Securities\Scripts\userAccessPlantController.js" />
+    <Content Include="Areas\Securities\Scripts\userAuthtokenController.js" />
+    <Content Include="Areas\Securities\Scripts\userController.js" />
+    <Content Include="Areas\Securities\Scripts\userEntityController.js" />
+    <Content Include="Areas\Securities\Scripts\userLockController.js" />
+    <Content Include="Areas\Securities\Scripts\userLockLogController.js" />
+    <Content Include="Areas\Securities\Scripts\userPasswordChangeController.js" />
+    <Content Include="Areas\Securities\Scripts\userPasswordResetController.js" />
+    <Content Include="Areas\Securities\Scripts\userRoleController.js" />
+    <Content Include="Areas\Securities\Scripts\userRoleDetailController.js" />
+    <Content Include="Areas\Securities\Views\AuthTokenLockLog\Aplos.cshtml" />
+    <Content Include="Areas\Securities\Views\ControlAdmin\Aplos.cshtml" />
+    <Content Include="Areas\Securities\Views\ControlAdmin\Change.cshtml" />
+    <Content Include="Areas\Securities\Views\ControlAdmin\EncryptDecrypt.cshtml" />
+    <Content Include="Areas\Securities\Views\ControlAdmin\Reset.cshtml" />
+    <Content Include="Areas\Securities\Views\CredentialPolicy\Aplos.cshtml" />
+    <Content Include="Areas\Securities\Views\EmployeeMobileAppsAuthorization\Aplos.cshtml" />
+    <Content Include="Areas\Securities\Views\EmployeeMobileAppsAuthorization\MobileApp.cshtml" />
+    <Content Include="Areas\Securities\Views\RoleDetail\Aplos.cshtml" />
+    <Content Include="Areas\Securities\Views\RoleDetail\RoleDetailAction.cshtml" />
+    <Content Include="Areas\Securities\Views\RoleMapping\RoleMappingManPowerBudget.cshtml" />
+    <Content Include="Areas\Securities\Views\RoleMapping\RoleMappingPosition.cshtml" />
+    <Content Include="Areas\Securities\Views\Role\Aplos.cshtml" />
+    <Content Include="Areas\Securities\Views\SyncURL\Aplos.cshtml" />
+    <Content Include="Areas\Securities\Views\SystemAdmin\Aplos.cshtml" />
+    <Content Include="Areas\Securities\Views\SystemAdmin\AuthTokenChange.cshtml" />
+    <Content Include="Areas\Securities\Views\SystemAdmin\Reset.cshtml" />
+    <Content Include="Areas\Securities\Views\SystemAdmin\ShowAllUser.cshtml" />
+    <Content Include="Areas\Securities\Views\SystemAdmin\SysAdminAuthTokenUnLock.cshtml" />
+    <Content Include="Areas\Securities\Views\SystemAdmin\SysUnLock.cshtml" />
+    <Content Include="Areas\Securities\Views\UserAccessApp\Aplos.cshtml" />
+    <Content Include="Areas\Securities\Views\UserAccessPlant\Aplos.cshtml" />
+    <Content Include="Areas\Securities\Views\UserEntity\Aplos.cshtml" />
+    <Content Include="Areas\Securities\Views\UserLockLog\Aplos.cshtml" />
+    <Content Include="Areas\Securities\Views\UserRoleDetail\AdditionalRole.cshtml" />
+    <Content Include="Areas\Securities\Views\UserRoleDetail\AdditionalRoleAction.cshtml" />
+    <Content Include="Areas\Securities\Views\UserRoleDetail\Aplos.cshtml" />
+    <Content Include="Areas\Securities\Views\UserRole\Aplos.cshtml" />
+    <Content Include="Areas\Securities\Views\User\Aplos.cshtml" />
+    <Content Include="Areas\Securities\Views\User\AuthTokenChange.cshtml" />
+    <Content Include="Areas\Securities\Views\User\AuthTokenUnLock.cshtml" />
+    <Content Include="Areas\Securities\Views\User\PasswordChange.cshtml" />
+    <Content Include="Areas\Securities\Views\User\Reset.cshtml" />
+    <Content Include="Areas\Securities\Views\User\UserUnLock.cshtml" />
+    <Content Include="Areas\Securities\Views\web.config" />
+    <Content Include="Content\angucomplete-alt.css" />
+    <Content Include="Content\bootstrap-datepicker3.css" />
+    <Content Include="Content\bootstrap-datepicker3.min.css" />
+    <Content Include="Content\bootstrap-grid.css" />
+    <Content Include="Content\bootstrap-grid.min.css" />
+    <Content Include="Content\bootstrap-reboot.css" />
+    <Content Include="Content\bootstrap-reboot.min.css" />
+    <Content Include="Content\bootstrap-theme.css" />
+    <Content Include="Content\bootstrap-theme.min.css" />
+    <Content Include="Content\bootstrap.css" />
+    <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\css\select2.css" />
+    <Content Include="Content\css\select2.min.css" />
+    <Content Include="Content\fullcalendar.css" />
+    <Content Include="Content\jquery.timepicker.min.css" />
+    <Content Include="Content\OpenSans.css" />
+    <Content Include="Content\Site.css" />
+    <Content Include="Content\style-dashboard.css" />
+    <Content Include="Content\style.css" />
+    <Content Include="Content\toaster.css" />
+    <Content Include="Content\toaster.min.css" />
+    <Content Include="Content\ui-grid.css" />
+    <Content Include="css\Loaders.css" />
+    <Content Include="css\PObyRequisition.css" />
+    <Content Include="images\blankuser.png" />
+    <Content Include="images\loader.gif" />
+    <Content Include="images\loader.jpg" />
+    <Content Include="Library\Aplos.Model.dll" />
+    <Content Include="Library\Aplos.Service.dll" />
+    <Content Include="Library\Aplos.ViewModel.dll" />
+    <Content Include="Library\AplosAttendance.dll" />
+    <Content Include="Library\AplosShiftProcess.dll" />
+    <Content Include="Library\CommonServiceLocator.dll" />
+    <Content Include="Library\ConnectionManager.dll" />
+    <Content Include="Library\EntityFramework.dll" />
+    <Content Include="Library\EntityFramework.SqlServer.dll" />
+    <Content Include="Library\GenericLeaveProcess.dll" />
+    <Content Include="Library\HtmlAgilityPack.dll" />
+    <Content Include="Library\Library.Core.dll" />
+    <Content Include="Library\Library.Crosscutting.dll" />
+    <Content Include="Library\Library.Data.dll" />
+    <Content Include="Library\Library.Model.Core.dll" />
+    <Content Include="Library\Library.Security.dll" />
+    <Content Include="Library\Library.Service.Core.dll" />
+    <Content Include="Library\Library.ViewModel.Core.dll" />
+    <Content Include="Library\Microsoft.AspNet.SignalR.Client.dll" />
+    <Content Include="Library\Microsoft.ReportViewer.Common.dll" />
+    <Content Include="Library\Microsoft.ReportViewer.DataVisualization.dll" />
+    <Content Include="Library\Microsoft.ReportViewer.Design.dll" />
+    <Content Include="Library\Microsoft.ReportViewer.ProcessingObjectModel.dll" />
+    <Content Include="Library\Microsoft.ReportViewer.WebDesign.dll" />
+    <Content Include="Library\Microsoft.ReportViewer.WebForms.dll" />
+    <Content Include="Library\Microsoft.ReportViewer.WinForms.dll" />
+    <Content Include="Library\Syncfusion.Compression.Base.dll" />
+    <Content Include="Library\Syncfusion.DocIO.Base.dll" />
+    <Content Include="Library\Syncfusion.DocIO.Helper.MVC.dll" />
+    <Content Include="Library\Syncfusion.DocToPdfConverter.Base.dll" />
+    <Content Include="Library\Syncfusion.EJ.dll" />
+    <Content Include="Library\Syncfusion.EJ.Export.dll" />
+    <Content Include="Library\Syncfusion.EJ.MVC.dll" />
+    <Content Include="Library\Syncfusion.EJ.PdfViewer.dll" />
+    <Content Include="Library\Syncfusion.EJ.Web.dll" />
+    <Content Include="Library\Syncfusion.ExcelToPdfConverter.Base.dll" />
+    <Content Include="Library\Syncfusion.Linq.Base.dll" />
+    <Content Include="Library\Syncfusion.OfficeChart.Base.dll" />
+    <Content Include="Library\Syncfusion.OfficeChartToImageConverter.WPF.dll" />
+    <Content Include="Library\Syncfusion.Pdf.Base.dll" />
+    <Content Include="Library\Syncfusion.Pdf.Windows.dll" />
+    <Content Include="Library\Syncfusion.PdfViewer.Windows.dll" />
+    <Content Include="Library\Syncfusion.Presentation.Base.dll" />
+    <Content Include="Library\Syncfusion.PresentationToPdfConverter.Base.dll" />
+    <Content Include="Library\Syncfusion.XlsIO.Base.dll" />
+    <Content Include="Library\Syncfusion.XlsIO.Helper.MVC.dll" />
+    <Content Include="Library\Zen.Barcode.Core.dll" />
+    <Content Include="POPResources\EmployeeProfiles\EmpPic\1800004.jpg" />
+    <Content Include="POPResources\EmployeeProfiles\EmpPic\1800001.jpg" />
+    <Content Include="POPResources\EmployeeProfiles\EmpPic\1801630.jpg" />
+    <Content Include="POPResources\Organizations\C20181.jpg" />
+    <Content Include="POPResources\Organizations\CG20181.png" />
+    <Content Include="fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="images\organization-alt.png" />
+    <Content Include="POPResources\Templates\PurchaseOrder20188.docx" />
+    <Content Include="POPResources\UserPictures\altUser.jpg" />
+    <Content Include="fonts\glyphicons-halflings-regular.woff2" />
+    <Content Include="fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="Scripts\ag-grid-enterprise.min.js" />
+    <Content Include="Scripts\angucomplete-alt.js" />
+    <Content Include="Scripts\angular-cbo-factory.js" />
+    <Content Include="Scripts\angular-constant-path.js" />
+    <Content Include="Scripts\angular-constant.js" />
+    <Content Include="Scripts\angular-cookies.js" />
+    <Content Include="Scripts\angular-cookies.min.js" />
+    <Content Include="Scripts\angular-directive.js" />
+    <Content Include="Scripts\angular-factory.js" />
+    <Content Include="Scripts\angular-filter.js" />
+    <Content Include="Scripts\angular-mocks.js" />
+    <Content Include="Scripts\angular-route.js" />
+    <Content Include="Scripts\angular-route.min.js" />
+    <Content Include="Scripts\angular-service-factory.js" />
+    <Content Include="Scripts\angular-toggle-switch.min.js" />
+    <Content Include="Scripts\angular.js" />
+    <Content Include="Scripts\angular.min.js" />
+    <Content Include="Scripts\angularjs-dropdown-multiselect.min.js" />
+    <Content Include="Scripts\bootstrap-datepicker.js" />
+    <Content Include="Scripts\bootstrap-datepicker.min.js" />
+    <Content Include="Scripts\bootstrap-datetimepicker.js" />
+    <Content Include="Scripts\bootstrap-toggle.min.css" />
+    <Content Include="Scripts\bootstrap-toggle.min.js" />
+    <Content Include="Scripts\bootstrap.js" />
+    <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Scripts\BootstrapTimePicker\Content\bootstrap-theme.css" />
+    <Content Include="Scripts\BootstrapTimePicker\Content\bootstrap-theme.min.css" />
+    <Content Include="Scripts\BootstrapTimePicker\Content\bootstrap.css" />
+    <Content Include="Scripts\BootstrapTimePicker\Content\bootstrap.min.css" />
+    <Content Include="Scripts\BootstrapTimePicker\css\bootstrap-timepicker.css" />
+    <Content Include="Scripts\BootstrapTimePicker\css\bootstrap-timepicker.min.css" />
+    <Content Include="Scripts\BootstrapTimePicker\fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="Scripts\BootstrapTimePicker\js\bootstrap-timepicker - Copy.js" />
+    <Content Include="Scripts\BootstrapTimePicker\js\bootstrap-timepicker.js" />
+    <Content Include="Scripts\BootstrapTimePicker\js\bootstrap-timepicker.min.js" />
+    <Content Include="Scripts\BootstrapTimePicker\Scripts\bootstrap.js" />
+    <Content Include="Scripts\BootstrapTimePicker\Scripts\bootstrap.min.js" />
+    <Content Include="POPResources\Templates\Ack20181Bengali.docx" />
+    <Content Include="POPResources\Templates\IssueReport20188.docx" />
+    <Content Include="POPResources\Templates\Joi20181Bengali.docx" />
+    <Content Include="POPResources\Templates\Lvr20181Bengali.docx" />
+    <Content Include="POPResources\Templates\Lvr20181Bengali.xlsx" />
+    <Content Include="POPResources\Templates\Nom20181Bengali.docx" />
+    <Content Include="POPResources\Templates\Requisition20188.docx" />
+    <Content Include="POPResources\Templates\GateEntry20171.docx" />
+    <Content Include="POPResources\Templates\Requisition20171.docx" />
+    <Content Include="Areas\IE\Views\LineDesigner\Aplos.cshtml" />
+    <Content Include="POPResources\Templates\IssueRequestReport20171.docx" />
+    <Content Include="POPResources\Templates\IssueRequestReport20188.docx" />
+    <Content Include="POPResources\Templates\GateEntry20188.docx" />
+    <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20188.docx" />
+    <Content Include="POPResources\Templates\GateEntry20171 -.docx" />
+    <Content Include="POPResources\Templates\IssueReport201816.docx" />
+    <Content Include="POPResources\Templates\IssueReport20171.docx" />
+    <Content Include="POPResources\Templates\GRNReport201816.docx" />
+    <Content Include="POPResources\Templates\Lvr20188English.xlsx" />
+    <Content Include="POPResources\Templates\Requisition201816.docx" />
+    <Content Include="POPResources\Templates\GateEntry201816.docx" />
+    <Content Include="POPResources\Templates\MlrBengali20181.xlsx" />
+    <Content Include="POPResources\Templates\Fs20181Bengali.docx" />
+    <Content Include="POPResources\Templates\App20181Bengali.docx" />
+    <Content Include="POPResources\Templates\sc20188English.docx" />
+    <Content Include="POPResources\Templates\PurchaseOrder201816.docx" />
+    <Content Include="POPResources\Templates\AssetIssueReport20188.docx" />
+    <Content Include="POPResources\Templates\AssetIssueReport201816.docx" />
+    <Content Include="POPResources\Templates\AssetIssueReport20171.docx" />
+    <Content Include="POPResources\Templates\IssueRequestReport201816.docx" />
+    <Content Include="POPResources\Templates\IssueWithReqPOGRNReport201816.docx" />
+    <Content Include="POPResources\Templates\SalaryCertificate201816.docx" />
+    <Content Include="POPResources\Templates\GRNReport20171.docx" />
+    <Content Include="POPResources\Templates\Requisition20181.docx" />
+    <Content Include="POPResources\Templates\PurchaseOrder20181.docx" />
+    <Content Include="POPResources\Templates\GRNReport20181.docx" />
+    <Content Include="POPResources\Templates\IssueReport20181.docx" />
+    <Content Include="POPResources\Templates\IssueRequestReport20181.docx" />
+    <Content Include="POPResources\Templates\AssetIssueReport20181.docx" />
+    <Content Include="POPResources\Templates\GateEntry20181.docx" />
+    <Content Include="POPResources\Templates\AssetIssueReport20201.docx" />
+    <Content Include="POPResources\Templates\GateEntry20201.docx" />
+    <Content Include="POPResources\Templates\GRNReport20201.docx" />
+    <Content Include="POPResources\Templates\IssueReport20201.docx" />
+    <Content Include="POPResources\Templates\PurchaseOrder20201.docx" />
+    <Content Include="POPResources\Templates\Requisition20201.docx" />
+    <Content Include="POPResources\Templates\AssetIssueReport20202.docx" />
+    <Content Include="POPResources\Templates\GateEntry20202.docx" />
+    <Content Include="POPResources\Templates\GRNReport20202.docx" />
+    <Content Include="POPResources\Templates\IssueReport20202.docx" />
+    <Content Include="POPResources\Templates\PurchaseOrder20202.docx" />
+    <Content Include="POPResources\Templates\Requisition20202.docx" />
+    <Content Include="POPResources\Templates\AssetIssueReport20203.docx" />
+    <Content Include="POPResources\Templates\GateEntry20203.docx" />
+    <Content Include="POPResources\Templates\GRNReport20203.docx" />
+    <Content Include="POPResources\Templates\IssueReport20203.docx" />
+    <Content Include="POPResources\Templates\PurchaseOrder20203.docx" />
+    <Content Include="POPResources\Templates\Requisition20203.docx" />
+    <Content Include="POPResources\Templates\AssetIssueReport20204.docx" />
+    <Content Include="POPResources\Templates\GateEntry20204.docx" />
+    <Content Include="POPResources\Templates\GRNReport20204.docx" />
+    <Content Include="POPResources\Templates\IssueReport20204.docx" />
+    <Content Include="POPResources\Templates\PurchaseOrder20204.docx" />
+    <Content Include="POPResources\Templates\Requisition20204.docx" />
+    <Content Include="POPResources\Output\20-Feb-2020_abdMamun_SalaryPaySlipRdlc.pdf" />
+    <Content Include="POPResources\Templates\Requisition20205.docx" />
+    <Content Include="POPResources\Templates\PurchaseOrder20205.docx" />
+    <Content Include="POPResources\Templates\PurchaseDocAcceptance20171.docx" />
+    <Content Include="POPResources\Templates\PurchaseDocAcceptance20181.docx" />
+    <Content Include="POPResources\Templates\PurchaseDocAcceptance201816.docx" />
+    <Content Include="POPResources\Templates\IssueReport20205.docx" />
+    <Content Include="POPResources\Templates\IssueRequestReport20205.docx" />
+    <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20205.docx" />
+    <Content Include="POPResources\Templates\GRNReport20205.docx" />
+    <Content Include="POPResources\Templates\GateEntry20205.docx" />
+    <Content Include="POPResources\Templates\AssetIssueReport20205.docx" />
+    <Content Include="POPResources\Templates\ServicePurchaseOrder20171.docx" />
+    <Content Include="POPResources\Templates\ServiceRequisition20171.docx" />
+    <Content Include="POPResources\Templates\ServiceAcknowledgement20171.docx" />
+    <Content Include="POPResources\Templates\IssueRequestReport20201.docx" />
+    <Content Include="POPResources\Templates\IssueRequestReport20202.docx" />
+    <Content Include="POPResources\Templates\IssueRequestReport20203.docx" />
+    <Content Include="POPResources\Templates\IssueRequestReport20204.docx" />
+    <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20201.docx" />
+    <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20202.docx" />
+    <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20203.docx" />
+    <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20204.docx" />
+    <Content Include="POPResources\Templates\MMMM.docx" />
+    <Content Include="POPResources\Templates\ServicePurchaseOrder20181.docx" />
+    <Content Include="POPResources\Templates\ServicePurchaseOrder201816.docx" />
+    <Content Include="POPResources\Templates\ServicePurchaseOrder20188.docx" />
+    <Content Include="POPResources\Templates\ServicePurchaseOrder20201.docx" />
+    <Content Include="POPResources\Templates\ServicePurchaseOrder20202.docx" />
+    <Content Include="POPResources\Templates\ServicePurchaseOrder20203.docx" />
+    <Content Include="POPResources\Templates\ServicePurchaseOrder20204.docx" />
+    <Content Include="POPResources\Templates\ServicePurchaseOrder20205.docx" />
+    <Content Include="POPResources\Templates\ServiceRequisition20181.docx" />
+    <Content Include="POPResources\Templates\ServiceRequisition201816.docx" />
+    <Content Include="POPResources\Templates\ServiceRequisition20188.docx" />
+    <Content Include="POPResources\Templates\ServiceRequisition20201.docx" />
+    <Content Include="POPResources\Templates\ServiceRequisition20202.docx" />
+    <Content Include="POPResources\Templates\ServiceRequisition20203.docx" />
+    <Content Include="POPResources\Templates\ServiceRequisition20204.docx" />
+    <Content Include="POPResources\Templates\ServiceRequisition20205.docx" />
+    <Content Include="POPResources\Templates\PurchaseReturnRpt20171.docx" />
+    <Content Include="POPResources\Templates\InventoryIssueReturn20171.docx" />
+    <Content Include="POPResources\Templates\PhysicalStockAdjustment20171.docx" />
+    <Content Include="POPResources\Templates\FinalSettlementVoucher20188.docx" />
+    <Content Include="POPResources\Templates\FinalSettlementVoucher201816.docx" />
+    <Content Include="POPResources\Templates\FinalSettlementVoucher20186.docx" />
+    <Content Include="POPResources\Templates\FinalSettlementVoucher20189.docx" />
+    <Content Include="POPResources\Templates\InventoryIssueReturn20181.docx" />
+    <Content Include="POPResources\Templates\InventoryIssueReturn201816.docx" />
+    <Content Include="POPResources\Templates\InventoryIssueReturn20188.docx" />
+    <Content Include="POPResources\Templates\InventoryIssueReturn20201.docx" />
+    <Content Include="POPResources\Templates\InventoryIssueReturn20202.docx" />
+    <Content Include="POPResources\Templates\InventoryIssueReturn20203.docx" />
+    <Content Include="POPResources\Templates\InventoryIssueReturn20204.docx" />
+    <Content Include="POPResources\Templates\InventoryIssueReturn20205.docx" />
+    <Content Include="POPResources\Templates\PhysicalStockAdjustment20181.docx" />
+    <Content Include="POPResources\Templates\PhysicalStockAdjustment201816.docx" />
+    <Content Include="POPResources\Templates\PhysicalStockAdjustment20188.docx" />
+    <Content Include="POPResources\Templates\PhysicalStockAdjustment20201.docx" />
+    <Content Include="POPResources\Templates\PhysicalStockAdjustment20202.docx" />
+    <Content Include="POPResources\Templates\PhysicalStockAdjustment20203.docx" />
+    <Content Include="POPResources\Templates\PhysicalStockAdjustment20204.docx" />
+    <Content Include="POPResources\Templates\PhysicalStockAdjustment20205.docx" />
+    <Content Include="POPResources\Templates\PurchaseReturnRpt20181.docx" />
+    <Content Include="POPResources\Templates\PurchaseReturnRpt201816.docx" />
+    <Content Include="POPResources\Templates\PurchaseReturnRpt20188.docx" />
+    <Content Include="POPResources\Templates\PurchaseReturnRpt20201.docx" />
+    <Content Include="POPResources\Templates\PurchaseReturnRpt20202.docx" />
+    <Content Include="POPResources\Templates\PurchaseReturnRpt20203.docx" />
+    <Content Include="POPResources\Templates\PurchaseReturnRpt20204.docx" />
+    <Content Include="POPResources\Templates\PurchaseReturnRpt20205.docx" />
+    <Content Include="POPResources\Templates\ServiceAcknowledgement20181.docx" />
+    <Content Include="POPResources\Templates\ServiceAcknowledgement201816.docx" />
+    <Content Include="POPResources\Templates\ServiceAcknowledgement20188.docx" />
+    <Content Include="POPResources\Templates\ServiceAcknowledgement20201.docx" />
+    <Content Include="POPResources\Templates\ServiceAcknowledgement20202.docx" />
+    <Content Include="POPResources\Templates\ServiceAcknowledgement20203.docx" />
+    <Content Include="POPResources\Templates\ServiceAcknowledgement20204.docx" />
+    <Content Include="POPResources\Templates\ServiceAcknowledgement20205.docx" />
+    <Content Include="POPResources\Templates\ServiceRequisition201816 .docx" />
+    <Content Include="libman.json" />
+    <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
+    <Content Include="POPResources\Templates\PurchaseDocAcceptance20188.docx" />
+    <Content Include="POPResources\Templates\PurchaseDocAcceptance20201.docx" />
+    <Content Include="POPResources\Templates\PurchaseDocAcceptance20202.docx" />
+    <Content Include="POPResources\Templates\PurchaseDocAcceptance20203.docx" />
+    <Content Include="POPResources\Templates\PurchaseDocAcceptance20204.docx" />
+    <Content Include="POPResources\Templates\PurchaseDocAcceptance20205.docx" />
+    <Content Include="POPResources\Templates\AssetIssueReport202026.docx" />
+    <Content Include="POPResources\Templates\GateEntry202026.docx" />
+    <Content Include="POPResources\Templates\GRNReport202026.docx" />
+    <Content Include="POPResources\Templates\InventoryIssueReturn202026.docx" />
+    <Content Include="POPResources\Templates\IssueReport202026.docx" />
+    <Content Include="POPResources\Templates\IssueRequestReport202026.docx" />
+    <Content Include="POPResources\Templates\IssueWithReqPOGRNReport202026.docx" />
+    <Content Include="POPResources\Templates\PhysicalStockAdjustment202026.docx" />
+    <Content Include="POPResources\Templates\PurchaseOrder202026.docx" />
+    <Content Include="POPResources\Templates\PurchaseReturnRpt202026.docx" />
+    <Content Include="POPResources\Templates\Requisition202026.docx" />
+    <Content Include="POPResources\Templates\ServiceAcknowledgement202026.docx" />
+    <Content Include="POPResources\Templates\ServicePurchaseOrder202026.docx" />
+    <Content Include="POPResources\Templates\ServiceRequisition202026.docx" />
+    <Content Include="POPResources\Templates\InventorySalesReport20171.docx" />
+    <Content Include="POPResources\Templates\InventorySalesReport20181.docx" />
+    <Content Include="POPResources\Templates\InventorySalesReport201816.docx" />
+    <Content Include="POPResources\Templates\InventorySalesReport20188.docx" />
+    <Content Include="POPResources\Templates\InventorySalesReport20201.docx" />
+    <Content Include="POPResources\Templates\InventorySalesReport20202.docx" />
+    <Content Include="POPResources\Templates\InventorySalesReport202026.docx" />
+    <Content Include="POPResources\Templates\InventorySalesReport20203.docx" />
+    <Content Include="POPResources\Templates\InventorySalesReport20204.docx" />
+    <Content Include="POPResources\Templates\InventorySalesReport20205.docx" />
+    <Content Include="POPResources\Templates\Check\NonCashcheck.docx" />
+    <Content Include="POPResources\Templates\InOutGatePass20171.docx" />
+    <Content Include="POPResources\Templates\Check\ODYSSEYCheck.docx" />
+    <Content Include="POPResources\Templates\PurchaseOrder202034.docx" />
+    <Content Include="POPResources\Templates\InventoryScrapReport202026.docx" />
+    <Content Include="POPResources\Templates\GratuityInsuranceAgreement.docx" />
+    <Content Include="POPResources\Templates\TaxInvoice202034.docx" />
+    <Content Include="POPResources\Templates\ServiceRequisition202034.docx" />
+    <Content Include="POPResources\Templates\ServicePurchaseOrder202034.docx" />
+    <Content Include="POPResources\Templates\ServiceAcknowledgement202034.docx" />
+    <Content Include="POPResources\Templates\Requisition202034.docx" />
+    <Content Include="POPResources\Templates\PurchaseReturnRpt202034.docx" />
+    <Content Include="POPResources\Templates\TaxInvoice20181.docx" />
+    <Content Include="POPResources\Templates\PI No F.docx" />
+    <Content Include="POPResources\Templates\ProformaInvoice20181.docx" />
+    <Content Include="POPResources\Templates\Check\BDCheckFormat.docx" />
+    <Content Include="POPResources\Templates\ProformaInvoice202034.docx" />
+    <Content Include="POPResources\Templates\Check\CottonWorldCheck.docx" />
+    <Content Include="POPResources\Templates\IndivisualGatePass20171.docx" />
+    <Content Include="POPResources\Templates\IndivisualGatePass202034.docx" />
+    <Content Include="POPResources\Templates\Fs202022English.docx" />
+    <Content Include="POPResources\Templates\JWIssue202026.docx" />
+    <Content Include="POPResources\Templates\JWPurchaseOrder202026.docx" />
+    <Content Include="POPResources\Templates\InventorySalesReport202032.docx" />
+    <Content Include="POPResources\Templates\JWPurchaseOrder20202.docx" />
+    <Content Include="POPResources\Templates\JWIssue20202.docx" />
+    <Content Include="POPResources\Templates\JWGRNReceiptReport20202.docx" />
+    <Content Include="POPResources\Templates\JWValAddedIssue20202.docx" />
+    <Content Include="POPResources\Templates\JWValAddedGRNReceiptReport20202.docx" />
+    <Content Include="POPResources\Templates\JWValAddedPurchaseOrder20202.docx" />
+    <Content Include="POPResources\Templates\InventoryPreSalesReport202026.docx" />
+    <Content Include="Content\bootstrap-grid.css.map" />
+    <Content Include="Content\bootstrap-grid.min.css.map" />
+    <Content Include="Content\bootstrap-reboot.css.map" />
+    <Content Include="Content\bootstrap-reboot.min.css.map" />
+    <Content Include="Areas\Securities\Views\MenuUserCode\Aplos.cshtml" />
+    <Content Include="Areas\IE\Views\DailyProductionDisplay\Aplos.cshtml" />
+    <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
+    <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
+    <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />
+    <Content Include="Scripts\calendar.js" />
+    <Content Include="Scripts\Chart.js" />
+    <Content Include="Scripts\Chart.min.js" />
+    <Content Include="Scripts\custom-datetime-validate.js" />
+    <Content Include="Scripts\dirPagination.js" />
+    <Content Include="Scripts\dom-to-image.js" />
+    <Content Include="Scripts\fileSaver.js" />
+    <Content Include="Scripts\from_html.js" />
+    <Content Include="Scripts\fullcalendar.js" />
+    <Content Include="Scripts\gcal.js" />
+    <Content Include="Scripts\html2pdf.js" />
+    <Content Include="Scripts\angular.min.js.map" />
+    <Content Include="Scripts\angular-cookies.min.js.map" />
+    <Content Include="Scripts\angular-route.min.js.map" />
+    <Content Include="POPResources\Templates\App20188English.xls" />
+    <Content Include="POPResources\Templates\App20181English.xls" />
+    <Content Include="POPResources\Templates\App20188Bengali.xls" />
+    <Content Include="POPResources\Templates\Con20188Bengali.xls" />
+    <Content Include="POPResources\Templates\Con20188English.xls" />
+    <Content Include="POPResources\Templates\Con20188Hindi.xls" />
+    <Content Include="POPResources\Templates\AppHindi.xls" />
+    <Content Include="POPResources\Templates\App20188Hindi.xls" />
+    <Content Include="POPResources\Templates\IDCardBengali.xlsx" />
+    <Content Include="POPResources\Templates\IDCardEng.xlsx" />
+    <Content Include="POPResources\Templates\IDCardBengali.xlsx" />
+    <Content Include="POPResources\Templates\IDCardEng.xlsx" />
+    <Content Include="POPResources\Templates\Srv20181Bengali.docx" />
+    <Content Include="POPResources\Templates\App20171Bengali.docx" />
+    <Content Include="POPResources\Templates\App20171English.docx" />
+    <Content Include="POPResources\Templates\App20181English.docx" />
+    <Content Include="Reports\Products\ProductsDataSet.xsc">
+      <DependentUpon>ProductsDataSet.xsd</DependentUpon>
+    </Content>
+    <Content Include="POPResources\Templates\GRNReport20188.docx" />
+    <Content Include="POPResources\Templates\SalesReport20188.docx" />
+    <Content Include="POPResources\Templates\IdCard20171Bengali.xlsx" />
+    <Content Include="POPResources\Templates\IdCard20171English.xlsx" />
+    <Content Include="POPResources\Templates\Srv20171Bengali.docx" />
+    <Content Include="POPResources\Templates\Lvr20171Bengali.xlsx" />
+    <Content Include="POPResources\Templates\PurchaseOrder20171.docx" />
+    <None Include="Reports\Products\ProductsDataSet.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>ProductsDataSet.Designer.cs</LastGenOutput>
+    </None>
+    <Content Include="Reports\Products\ProductsDataSet.xss">
+      <DependentUpon>ProductsDataSet.xsd</DependentUpon>
+    </Content>
+    <Content Include="POPResources\Templates\App20171Bengali.docx" />
+    <Content Include="POPResources\Templates\App20171English.docx" />
+    <Content Include="POPResources\Templates\App20181English.docx" />
+    <Content Include="POPResources\Templates\Srv20181Bengali.docx" />
+    <Content Include="Scripts\BootstrapTimePicker\css\timepicker.less" />
+    <Content Include="Scripts\BootstrapTimePicker\fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="Scripts\BootstrapTimePicker\fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="Scripts\BootstrapTimePicker\fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.map" />
+    <None Include="Scripts\jquery-3.2.1.intellisense.js" />
+    <Content Include="Scripts\i18n\af.js" />
+    <Content Include="Scripts\i18n\ar.js" />
+    <Content Include="Scripts\i18n\az.js" />
+    <Content Include="Scripts\i18n\bg.js" />
+    <Content Include="Scripts\i18n\bs.js" />
+    <Content Include="Scripts\i18n\ca.js" />
+    <Content Include="Scripts\i18n\cs.js" />
+    <Content Include="Scripts\i18n\da.js" />
+    <Content Include="Scripts\i18n\de.js" />
+    <Content Include="Scripts\i18n\dsb.js" />
+    <Content Include="Scripts\i18n\el.js" />
+    <Content Include="Scripts\i18n\en.js" />
+    <Content Include="Scripts\i18n\es.js" />
+    <Content Include="Scripts\i18n\et.js" />
+    <Content Include="Scripts\i18n\eu.js" />
+    <Content Include="Scripts\i18n\fa.js" />
+    <Content Include="Scripts\i18n\fi.js" />
+    <Content Include="Scripts\i18n\fr.js" />
+    <Content Include="Scripts\i18n\gl.js" />
+    <Content Include="Scripts\i18n\he.js" />
+    <Content Include="Scripts\i18n\hi.js" />
+    <Content Include="Scripts\i18n\hr.js" />
+    <Content Include="Scripts\i18n\hsb.js" />
+    <Content Include="Scripts\i18n\hu.js" />
+    <Content Include="Scripts\i18n\hy.js" />
+    <Content Include="Scripts\i18n\id.js" />
+    <Content Include="Scripts\i18n\is.js" />
+    <Content Include="Scripts\i18n\it.js" />
+    <Content Include="Scripts\i18n\ja.js" />
+    <Content Include="Scripts\i18n\km.js" />
+    <Content Include="Scripts\i18n\ko.js" />
+    <Content Include="Scripts\i18n\lt.js" />
+    <Content Include="Scripts\i18n\lv.js" />
+    <Content Include="Scripts\i18n\mk.js" />
+    <Content Include="Scripts\i18n\ms.js" />
+    <Content Include="Scripts\i18n\nb.js" />
+    <Content Include="Scripts\i18n\nl.js" />
+    <Content Include="Scripts\i18n\pl.js" />
+    <Content Include="Scripts\i18n\ps.js" />
+    <Content Include="Scripts\i18n\pt-BR.js" />
+    <Content Include="Scripts\i18n\pt.js" />
+    <Content Include="Scripts\i18n\ro.js" />
+    <Content Include="Scripts\i18n\ru.js" />
+    <Content Include="Scripts\i18n\sk.js" />
+    <Content Include="Scripts\i18n\sl.js" />
+    <Content Include="Scripts\i18n\sr-Cyrl.js" />
+    <Content Include="Scripts\i18n\sr.js" />
+    <Content Include="Scripts\i18n\sv.js" />
+    <Content Include="Scripts\i18n\th.js" />
+    <Content Include="Scripts\i18n\tr.js" />
+    <Content Include="Scripts\i18n\uk.js" />
+    <Content Include="Scripts\i18n\vi.js" />
+    <Content Include="Scripts\i18n\zh-CN.js" />
+    <Content Include="Scripts\i18n\zh-TW.js" />
+    <Content Include="Scripts\jquery-3.2.1.js" />
+    <Content Include="Scripts\jquery-3.2.1.min.js" />
+    <None Include="Scripts\jquery-3.3.1.intellisense.js" />
+    <Content Include="Scripts\jquery-3.3.1.js" />
+    <Content Include="Scripts\jquery-3.3.1.min.js" />
+    <Content Include="Scripts\jquery-3.3.1.slim.js" />
+    <Content Include="Scripts\jquery-3.3.1.slim.min.js" />
+    <Content Include="Scripts\jquery-common.js" />
+    <Content Include="Scripts\jquery-menu.js" />
+    <Content Include="Scripts\jquery-ui-1.12.0.js" />
+    <Content Include="Scripts\jquery-ui-1.12.0.min.js" />
+    <Content Include="Scripts\jquery.dataTables.js" />
+    <Content Include="Scripts\jquery.nicescroll.min.js" />
+    <Content Include="Scripts\jquery.signalR-2.4.1.js" />
+    <Content Include="Scripts\jquery.signalR-2.4.1.min.js" />
+    <Content Include="Scripts\jquery.timepicker.min.js" />
+    <Content Include="Scripts\jquery.tmpl.min.js" />
+    <Content Include="Scripts\jspdf.debug.js" />
+    <Content Include="Scripts\jspdf.js" />
+    <Content Include="Scripts\loader.js" />
+    <Content Include="Scripts\modernizr-2.6.2.js" />
+    <Content Include="Scripts\moment-with-locales.js" />
+    <Content Include="Scripts\moment-with-locales.min.js" />
+    <Content Include="Scripts\moment.js" />
+    <Content Include="Scripts\moment.min.js" />
+    <Content Include="Scripts\multi-select-load.js" />
+    <Content Include="Scripts\navAccordion.min.js" />
+    <Content Include="Scripts\preRecruitmentDocumentApprovalController.js" />
+    <Content Include="Scripts\select2.js" />
+    <Content Include="Scripts\select2.min.js" />
+    <Content Include="Scripts\SignalR-factory.js" />
+    <Content Include="Scripts\SignalRInit.js" />
+    <Content Include="Scripts\split_text_to_size.js" />
+    <Content Include="Scripts\standard_fonts_metrics.js" />
+    <Content Include="Scripts\test_harness.js" />
+    <Content Include="Scripts\toaster.js" />
+    <Content Include="Scripts\toaster.min.js" />
+    <Content Include="Scripts\ui-bootstrap-tpls.min.js" />
+    <Content Include="Scripts\ui-grid.js" />
+    <Content Include="Scripts\UPanelApp\plantSelectionController.js" />
+    <Content Include="Scripts\UPanelApp\upanelApp.js" />
+    <Content Include="Scripts\UPanelApp\upanelDashboardController.js" />
+    <Content Include="Scripts\UPanelApp\upanelLoginApp.js" />
+    <Content Include="Scripts\UPanelApp\upanelLoginController.js" />
+    <Content Include="Scripts\UPanelApp\upanelLogoutController.js" />
+    <Content Include="SqlServerTypes\readme.htm" />
+    <Content Include="SqlServerTypes\x64\msvcr120.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SqlServerTypes\x64\SqlServerSpatial140.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SqlServerTypes\x86\msvcr120.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SqlServerTypes\x86\SqlServerSpatial140.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SyncfusionLib\css\mobile\android-theme\ej.mobile.android-core.css" />
+    <Content Include="SyncfusionLib\css\mobile\android-theme\ej.mobile.android-core.min.css" />
+    <Content Include="SyncfusionLib\css\mobile\android-theme\ej.mobile.android.css" />
+    <Content Include="SyncfusionLib\css\mobile\android-theme\ej.mobile.android.min.css" />
+    <Content Include="SyncfusionLib\css\mobile\ej.mobile.all.css" />
+    <Content Include="SyncfusionLib\css\mobile\ej.mobile.all.min.css" />
+    <Content Include="SyncfusionLib\css\mobile\flat-theme\ej.mobile.flat-core.css" />
+    <Content Include="SyncfusionLib\css\mobile\flat-theme\ej.mobile.flat-core.min.css" />
+    <Content Include="SyncfusionLib\css\mobile\flat-theme\ej.mobile.flat-theme.css" />
+    <Content Include="SyncfusionLib\css\mobile\flat-theme\ej.mobile.flat-theme.min.css" />
+    <Content Include="SyncfusionLib\css\mobile\images\ejmmobilefonts.eot" />
+    <Content Include="SyncfusionLib\css\mobile\images\ejmmobilefonts.svg" />
+    <Content Include="SyncfusionLib\css\mobile\images\ejmmobilefonts.ttf" />
+    <Content Include="SyncfusionLib\css\mobile\images\ejmmobilefonts.woff" />
+    <Content Include="SyncfusionLib\css\mobile\images\PullToRefresh\PtR_android_dark.GIF" />
+    <Content Include="SyncfusionLib\css\mobile\images\PullToRefresh\PtR_android_light.GIF" />
+    <Content Include="SyncfusionLib\css\mobile\images\PullToRefresh\PtR_ios7_dark.gif" />
+    <Content Include="SyncfusionLib\css\mobile\images\PullToRefresh\PtR_ios7_light.gif" />
+    <Content Include="SyncfusionLib\css\mobile\images\PullToRefresh\PtR_windows.GIF" />
+    <Content Include="SyncfusionLib\css\mobile\images\PullToRefresh\PtR_winrt.GIF" />
+    <Content Include="SyncfusionLib\css\mobile\images\radialmenu\androidback.png" />
+    <Content Include="SyncfusionLib\css\mobile\images\radialmenu\androidradial.png" />
+    <Content Include="SyncfusionLib\css\mobile\images\radialmenu\flatback.png" />
+    <Content Include="SyncfusionLib\css\mobile\images\radialmenu\flatradial.png" />
+    <Content Include="SyncfusionLib\css\mobile\images\radialmenu\ios7back.png" />
+    <Content Include="SyncfusionLib\css\mobile\images\radialmenu\ios7radial.png" />
+    <Content Include="SyncfusionLib\css\mobile\images\radialmenu\windowsback.png" />
+    <Content Include="SyncfusionLib\css\mobile\images\radialmenu\windowsradial.png" />
+    <Content Include="SyncfusionLib\css\mobile\images\scrollpanel\pullarrow.png" />
+    <Content Include="SyncfusionLib\css\mobile\images\scrollpanel\refreshing-ios-light.gif" />
+    <Content Include="SyncfusionLib\css\mobile\images\waitingpopup\waitingpopup_android.GIF" />
+    <Content Include="SyncfusionLib\css\mobile\images\waitingpopup\waitingpopup_ios7.gif" />
+    <Content Include="SyncfusionLib\css\mobile\images\waitingpopup\waitingpopup_windows.GIF" />
+    <Content Include="SyncfusionLib\css\mobile\images\waitingpopup\waitingpopup_winrt.GIF" />
+    <Content Include="SyncfusionLib\css\mobile\ios7-theme\ej.mobile.ios7-core.css" />
+    <Content Include="SyncfusionLib\css\mobile\ios7-theme\ej.mobile.ios7-core.min.css" />
+    <Content Include="SyncfusionLib\css\mobile\ios7-theme\ej.mobile.ios7.css" />
+    <Content Include="SyncfusionLib\css\mobile\ios7-theme\ej.mobile.ios7.min.css" />
+    <Content Include="SyncfusionLib\css\mobile\windows-theme\ej.mobile.windows-core.css" />
+    <Content Include="SyncfusionLib\css\mobile\windows-theme\ej.mobile.windows-core.min.css" />
+    <Content Include="SyncfusionLib\css\mobile\windows-theme\ej.mobile.windows.css" />
+    <Content Include="SyncfusionLib\css\mobile\windows-theme\ej.mobile.windows.min.css" />
+    <Content Include="SyncfusionLib\css\web\bootstrap-theme\ej.reports.core.css" />
+    <Content Include="SyncfusionLib\css\web\bootstrap-theme\ej.theme.css" />
+    <Content Include="SyncfusionLib\css\web\bootstrap-theme\ej.theme.less" />
+    <Content Include="SyncfusionLib\css\web\bootstrap-theme\ej.theme.min.css" />
+    <Content Include="SyncfusionLib\css\web\bootstrap-theme\ej.web.all.min.css" />
+    <Content Include="SyncfusionLib\css\web\bootstrap-theme\images\ajax-loader.gif" />
+    <Content Include="SyncfusionLib\css\web\bootstrap-theme\images\checkedtick.png" />
+    <Content Include="SyncfusionLib\css\web\bootstrap-theme\images\drop-sibling.png" />
+    <Content Include="SyncfusionLib\css\web\bootstrap-theme\images\rating-star.png" />
+    <Content Include="SyncfusionLib\css\web\bootstrap-theme\images\rotator-icon.png" />
+    <Content Include="SyncfusionLib\css\web\bootstrap-theme\images\slider-tick.png" />
+    <Content Include="SyncfusionLib\css\web\bootstrap-theme\images\waitingpopup.gif" />
+    <Content Include="SyncfusionLib\css\web\common-images\darktheme\colorpicker_dark.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\diagram\diagram_context.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\diagram\diagram_context1.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\diagram\Rotate.cur" />
+    <Content Include="SyncfusionLib\css\web\common-images\documenteditor\cellbottomalignment.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\documenteditor\cellcenteralignment.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\documenteditor\celltopalignment.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\documenteditor\tablecenteralignment.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\documenteditor\tableleftalignment.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\documenteditor\tablerightalignment.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\ejicons.eot" />
+    <Content Include="SyncfusionLib\css\web\common-images\ejicons.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\ejicons.ttf" />
+    <Content Include="SyncfusionLib\css\web\common-images\ejicons.woff" />
+    <Content Include="SyncfusionLib\css\web\common-images\fileexplorer\file_icons.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\grid\dropPointer.cur" />
+    <Content Include="SyncfusionLib\css\web\common-images\kanban\nouser.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\lighttheme\colorpicker_light.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\maps\Arrow_Bootom.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\maps\Arrow_Bootom_hover.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\maps\Arrow_Left.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\maps\Arrow_Left_hover.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\maps\Arrow_Right.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\maps\Arrow_Right_hover.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\maps\Arrow_Top.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\maps\Arrow_Top_hover.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\maps\Bar.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\maps\Home.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\maps\Home_hover.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\maps\Home_hover_lime.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\maps\Home_hover_saffron.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\maps\Home_lime.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\maps\Home_saffron.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\maps\Navicatior.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\maps\Zoom-In.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\maps\Zoom-In_hover.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\maps\Zoom-out.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\maps\Zoom-out_hover.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\materialtheme\colorpicker_light_material.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\mediaplayer\basic_view_toolbar_bg.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\mediaplayer\header_bg.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\mediaplayer\thumbnail.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\mediaplayer\waiting_popup.gif" />
+    <Content Include="SyncfusionLib\css\web\common-images\navigationdrawer\icons.eot" />
+    <Content Include="SyncfusionLib\css\web\common-images\navigationdrawer\icons.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\navigationdrawer\icons.ttf" />
+    <Content Include="SyncfusionLib\css\web\common-images\navigationdrawer\icons.woff" />
+    <Content Include="SyncfusionLib\css\web\common-images\pdfviewer\preloader-pdfviewer.gif" />
+    <Content Include="SyncfusionLib\css\web\common-images\pivotgrid\circle.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\pivotgrid\diamond.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\pivotgrid\down-arrow.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\pivotgrid\green.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\pivotgrid\red.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\pivotgrid\right-arrow.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\pivotgrid\three-color.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\pivotgrid\triangle.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\pivotgrid\up-arrow.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\radialmenu\back.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\radialmenu\radial.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\reportdesigner\Dataset.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\reportdesigner\Datasource.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\reportdesigner\DefaultImage.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\reportdesigner\DragTable.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\reportdesigner\Image.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\reportdesigner\MoveIcon.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\reportdesigner\Nodata.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\reportdesigner\Parameter.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\reportdesigner\resizeicon.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\reportdesigner\SettingIcon.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\reportviewer\alertIcon.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\reportviewer\collapse.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\reportviewer\down.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\reportviewer\ej-reportviewericons.eot" />
+    <Content Include="SyncfusionLib\css\web\common-images\reportviewer\ej-reportviewericons.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\reportviewer\ej-reportviewericons.ttf" />
+    <Content Include="SyncfusionLib\css\web\common-images\reportviewer\ej-reportviewericons.woff" />
+    <Content Include="SyncfusionLib\css\web\common-images\reportviewer\errorIcon.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\reportviewer\expand.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\reportviewer\minus.gif" />
+    <Content Include="SyncfusionLib\css\web\common-images\reportviewer\minus.jpg" />
+    <Content Include="SyncfusionLib\css\web\common-images\reportviewer\minus.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\reportviewer\plus.gif" />
+    <Content Include="SyncfusionLib\css\web\common-images\reportviewer\plus.jpg" />
+    <Content Include="SyncfusionLib\css\web\common-images\reportviewer\plus.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\reportviewer\up.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\reportviewer\updown.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\ribbon\Blank.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\ribbon\Browser.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\ribbon\Check.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\ribbon\Diet.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\ribbon\ejrbnicons.eot" />
+    <Content Include="SyncfusionLib\css\web\common-images\ribbon\ejrbnicons.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\ribbon\ejrbnicons.ttf" />
+    <Content Include="SyncfusionLib\css\web\common-images\ribbon\ejrbnicons.woff" />
+    <Content Include="SyncfusionLib\css\web\common-images\ribbon\gallery.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\ribbon\Gantt.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\ribbon\homegallery.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\ribbon\paste.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\ribbon\Project.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\ribbon\Protect.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\ribbon\Sales.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\ribbon\style.gallery.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\ribbon\User.jpg" />
+    <Content Include="SyncfusionLib\css\web\common-images\ribbon\Version.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\schedule\schedule_priority.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\spellcheck\highlight.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\blank.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\bluedatabar.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\bwrcolorscale.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\chart-sprites.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\charttab-sprites.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\charttype-sprites.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\cross.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\downarrow.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\downtriangle.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\down_arrow_dark.cur" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\down_arrow_light.cur" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\draw_border_dark.cur" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\draw_border_grid_dark.cur" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\draw_border_grid_light.cur" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\draw_border_light.cur" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\drystar.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\ejxlicons.eot" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\ejxlicons.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\ejxlicons.ttf" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\ejxlicons.woff" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\exclam.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\format_painter_dark.cur" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\format_painter_light.cur" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\fullstar.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\greenarrow.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\greencircle.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\greencircleindi.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\greendatabar.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\greenflag.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\gwcolorscale.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\gwrcolorscale.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\gycolorscale.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\gyrcolorscale.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\halfstar.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\lightbluedatabar.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\midarrow.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\midtriangle.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\orangedatabar.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\purpledatabar.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\redarrow.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\redcircle.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\redcircleindi.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\reddatabar.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\redflag.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\redsquare.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\right_arrow_dark.cur" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\right_arrow_light.cur" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\rimgreencircle.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\rimredcircle.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\rimyellowcircle.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\rwbcolorscale.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\rwcolorscale.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\rwgcolorscale.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\rygcolorscale.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\sprites.png" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\tick.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\uparrow.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\uptriangle.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\wgcolorscale.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\wrcolorscale.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\yellowarrow.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\yellowcircle.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\yellowcircleindi.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\yellowflag.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\yellowtri.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\spreadsheet\ygcolorscale.svg" />
+    <Content Include="SyncfusionLib\css\web\common-images\treeview\drop-sibling-rtl.png" />
+    <Content Include="SyncfusionLib\css\web\default-theme\ej.reports.core.css" />
+    <Content Include="SyncfusionLib\css\web\default-theme\ej.theme.css" />
+    <Content Include="SyncfusionLib\css\web\default-theme\ej.theme.less" />
+    <Content Include="SyncfusionLib\css\web\default-theme\ej.theme.min.css" />
+    <Content Include="SyncfusionLib\css\web\default-theme\ej.web.all.min.css" />
+    <Content Include="SyncfusionLib\css\web\default-theme\images\ajax-loader.gif" />
+    <Content Include="SyncfusionLib\css\web\default-theme\images\checkedtick.png" />
+    <Content Include="SyncfusionLib\css\web\default-theme\images\drop-sibling.png" />
+    <Content Include="SyncfusionLib\css\web\default-theme\images\rating-star.png" />
+    <Content Include="SyncfusionLib\css\web\default-theme\images\rotator-icon.png" />
+    <Content Include="SyncfusionLib\css\web\default-theme\images\slider-tick.png" />
+    <Content Include="SyncfusionLib\css\web\default-theme\images\waitingpopup.gif" />
+    <Content Include="SyncfusionLib\css\web\ej.widgets.core.bootstrap.less" />
+    <Content Include="SyncfusionLib\css\web\ej.widgets.core.bootstrap.min.css" />
+    <Content Include="SyncfusionLib\css\web\ej.widgets.core.less" />
+    <Content Include="SyncfusionLib\css\web\ej.widgets.core.material.less" />
+    <Content Include="SyncfusionLib\css\web\ej.widgets.core.material.min.css" />
+    <Content Include="SyncfusionLib\css\web\ej.widgets.core.min.css" />
+    <Content Include="SyncfusionLib\css\web\ej.widgets.core.office-365.less" />
+    <Content Include="SyncfusionLib\css\web\ej.widgets.core.office-365.min.css" />
+    <Content Include="SyncfusionLib\css\web\flat-azure-dark\ej.reports.core.css" />
+    <Content Include="SyncfusionLib\css\web\flat-azure-dark\ej.theme.css" />
+    <Content Include="SyncfusionLib\css\web\flat-azure-dark\ej.theme.less" />
+    <Content Include="SyncfusionLib\css\web\flat-azure-dark\ej.theme.min.css" />
+    <Content Include="SyncfusionLib\css\web\flat-azure-dark\ej.web.all.min.css" />
+    <Content Include="SyncfusionLib\css\web\flat-azure-dark\images\ajax-loader.gif" />
+    <Content Include="SyncfusionLib\css\web\flat-azure-dark\images\checkedtick.png" />
+    <Content Include="SyncfusionLib\css\web\flat-azure-dark\images\drop-sibling.png" />
+    <Content Include="SyncfusionLib\css\web\flat-azure-dark\images\rating-star.png" />
+    <Content Include="SyncfusionLib\css\web\flat-azure-dark\images\rotator-icon.png" />
+    <Content Include="SyncfusionLib\css\web\flat-azure-dark\images\slider-tick.png" />
+    <Content Include="SyncfusionLib\css\web\flat-azure-dark\images\waitingpopup.gif" />
+    <Content Include="SyncfusionLib\css\web\flat-lime-dark\ej.reports.core.css" />
+    <Content Include="SyncfusionLib\css\web\flat-lime-dark\ej.theme.css" />
+    <Content Include="SyncfusionLib\css\web\flat-lime-dark\ej.theme.less" />
+    <Content Include="SyncfusionLib\css\web\flat-lime-dark\ej.theme.min.css" />
+    <Content Include="SyncfusionLib\css\web\flat-lime-dark\ej.web.all.min.css" />
+    <Content Include="SyncfusionLib\css\web\flat-lime-dark\images\ajax-loader.gif" />
+    <Content Include="SyncfusionLib\css\web\flat-lime-dark\images\checkedtick.png" />
+    <Content Include="SyncfusionLib\css\web\flat-lime-dark\images\drop-sibling.png" />
+    <Content Include="SyncfusionLib\css\web\flat-lime-dark\images\rating-star.png" />
+    <Content Include="SyncfusionLib\css\web\flat-lime-dark\images\rotator-icon.png" />
+    <Content Include="SyncfusionLib\css\web\flat-lime-dark\images\slider-tick.png" />
+    <Content Include="SyncfusionLib\css\web\flat-lime-dark\images\waitingpopup.gif" />
+    <Content Include="SyncfusionLib\css\web\flat-lime\ej.reports.core.css" />
+    <Content Include="SyncfusionLib\css\web\flat-lime\ej.theme.css" />
+    <Content Include="SyncfusionLib\css\web\flat-lime\ej.theme.less" />
+    <Content Include="SyncfusionLib\css\web\flat-lime\ej.theme.min.css" />
+    <Content Include="SyncfusionLib\css\web\flat-lime\ej.web.all.min.css" />
+    <Content Include="SyncfusionLib\css\web\flat-lime\images\ajax-loader.gif" />
+    <Content Include="SyncfusionLib\css\web\flat-lime\images\checkedtick.png" />
+    <Content Include="SyncfusionLib\css\web\flat-lime\images\drop-sibling.png" />
+    <Content Include="SyncfusionLib\css\web\flat-lime\images\rating-star.png" />
+    <Content Include="SyncfusionLib\css\web\flat-lime\images\rotator-icon.png" />
+    <Content Include="SyncfusionLib\css\web\flat-lime\images\slider-tick.png" />
+    <Content Include="SyncfusionLib\css\web\flat-lime\images\waitingpopup.gif" />
+    <Content Include="SyncfusionLib\css\web\flat-saffron-dark\ej.reports.core.css" />
+    <Content Include="SyncfusionLib\css\web\flat-saffron-dark\ej.theme.css" />
+    <Content Include="SyncfusionLib\css\web\flat-saffron-dark\ej.theme.less" />
+    <Content Include="SyncfusionLib\css\web\flat-saffron-dark\ej.theme.min.css" />
+    <Content Include="SyncfusionLib\css\web\flat-saffron-dark\ej.web.all.min.css" />
+    <Content Include="SyncfusionLib\css\web\flat-saffron-dark\images\ajax-loader.gif" />
+    <Content Include="SyncfusionLib\css\web\flat-saffron-dark\images\checkedtick.png" />
+    <Content Include="SyncfusionLib\css\web\flat-saffron-dark\images\drop-sibling.png" />
+    <Content Include="SyncfusionLib\css\web\flat-saffron-dark\images\rating-star.png" />
+    <Content Include="SyncfusionLib\css\web\flat-saffron-dark\images\rotator-icon.png" />
+    <Content Include="SyncfusionLib\css\web\flat-saffron-dark\images\slider-tick.png" />
+    <Content Include="SyncfusionLib\css\web\flat-saffron-dark\images\waitingpopup.gif" />
+    <Content Include="SyncfusionLib\css\web\flat-saffron\ej.reports.core.css" />
+    <Content Include="SyncfusionLib\css\web\flat-saffron\ej.theme.css" />
+    <Content Include="SyncfusionLib\css\web\flat-saffron\ej.theme.less" />
+    <Content Include="SyncfusionLib\css\web\flat-saffron\ej.theme.min.css" />
+    <Content Include="SyncfusionLib\css\web\flat-saffron\ej.web.all.min.css" />
+    <Content Include="SyncfusionLib\css\web\flat-saffron\images\ajax-loader.gif" />
+    <Content Include="SyncfusionLib\css\web\flat-saffron\images\checkedtick.png" />
+    <Content Include="SyncfusionLib\css\web\flat-saffron\images\drop-sibling.png" />
+    <Content Include="SyncfusionLib\css\web\flat-saffron\images\rating-star.png" />
+    <Content Include="SyncfusionLib\css\web\flat-saffron\images\rotator-icon.png" />
+    <Content Include="SyncfusionLib\css\web\flat-saffron\images\slider-tick.png" />
+    <Content Include="SyncfusionLib\css\web\flat-saffron\images\waitingpopup.gif" />
+    <Content Include="SyncfusionLib\css\web\gradient-azure-dark\ej.reports.core.css" />
+    <Content Include="SyncfusionLib\css\web\gradient-azure-dark\ej.theme.css" />
+    <Content Include="SyncfusionLib\css\web\gradient-azure-dark\ej.theme.less" />
+    <Content Include="SyncfusionLib\css\web\gradient-azure-dark\ej.theme.min.css" />
+    <Content Include="SyncfusionLib\css\web\gradient-azure-dark\ej.web.all.min.css" />
+    <Content Include="SyncfusionLib\css\web\gradient-azure-dark\images\ajax-loader.gif" />
+    <Content Include="SyncfusionLib\css\web\gradient-azure-dark\images\checkedtick.png" />
+    <Content Include="SyncfusionLib\css\web\gradient-azure-dark\images\drop-sibling.png" />
+    <Content Include="SyncfusionLib\css\web\gradient-azure-dark\images\rating-star.png" />
+    <Content Include="SyncfusionLib\css\web\gradient-azure-dark\images\rotator-icon.png" />
+    <Content Include="SyncfusionLib\css\web\gradient-azure-dark\images\slider-tick.png" />
+    <Content Include="SyncfusionLib\css\web\gradient-azure-dark\images\waitingpopup.gif" />
+    <Content Include="SyncfusionLib\css\web\gradient-azure\ej.reports.core.css" />
+    <Content Include="SyncfusionLib\css\web\gradient-azure\ej.theme.css" />
+    <Content Include="SyncfusionLib\css\web\gradient-azure\ej.theme.less" />
+    <Content Include="SyncfusionLib\css\web\gradient-azure\ej.theme.min.css" />
+    <Content Include="SyncfusionLib\css\web\gradient-azure\ej.web.all.min.css" />
+    <Content Include="SyncfusionLib\css\web\gradient-azure\images\ajax-loader.gif" />
+    <Content Include="SyncfusionLib\css\web\gradient-azure\images\checkedtick.png" />
+    <Content Include="SyncfusionLib\css\web\gradient-azure\images\drop-sibling.png" />
+    <Content Include="SyncfusionLib\css\web\gradient-azure\images\rating-star.png" />
+    <Content Include="SyncfusionLib\css\web\gradient-azure\images\rotator-icon.png" />
+    <Content Include="SyncfusionLib\css\web\gradient-azure\images\slider-tick.png" />
+    <Content Include="SyncfusionLib\css\web\gradient-azure\images\waitingpopup.gif" />
+    <Content Include="SyncfusionLib\css\web\gradient-lime-dark\ej.reports.core.css" />
+    <Content Include="SyncfusionLib\css\web\gradient-lime-dark\ej.theme.css" />
+    <Content Include="SyncfusionLib\css\web\gradient-lime-dark\ej.theme.less" />
+    <Content Include="SyncfusionLib\css\web\gradient-lime-dark\ej.theme.min.css" />
+    <Content Include="SyncfusionLib\css\web\gradient-lime-dark\ej.web.all.min.css" />
+    <Content Include="SyncfusionLib\css\web\gradient-lime-dark\images\ajax-loader.gif" />
+    <Content Include="SyncfusionLib\css\web\gradient-lime-dark\images\checkedtick.png" />
+    <Content Include="SyncfusionLib\css\web\gradient-lime-dark\images\drop-sibling.png" />
+    <Content Include="SyncfusionLib\css\web\gradient-lime-dark\images\rating-star.png" />
+    <Content Include="SyncfusionLib\css\web\gradient-lime-dark\images\rotator-icon.png" />
+    <Content Include="SyncfusionLib\css\web\gradient-lime-dark\images\slider-tick.png" />
+    <Content Include="SyncfusionLib\css\web\gradient-lime-dark\images\waitingpopup.gif" />
+    <Content Include="SyncfusionLib\css\web\gradient-lime\ej.reports.core.css" />
+    <Content Include="SyncfusionLib\css\web\gradient-lime\ej.theme.css" />
+    <Content Include="SyncfusionLib\css\web\gradient-lime\ej.theme.less" />
+    <Content Include="SyncfusionLib\css\web\gradient-lime\ej.theme.min.css" />
+    <Content Include="SyncfusionLib\css\web\gradient-lime\ej.web.all.min.css" />
+    <Content Include="SyncfusionLib\css\web\gradient-lime\images\ajax-loader.gif" />
+    <Content Include="SyncfusionLib\css\web\gradient-lime\images\checkedtick.png" />
+    <Content Include="SyncfusionLib\css\web\gradient-lime\images\drop-sibling.png" />
+    <Content Include="SyncfusionLib\css\web\gradient-lime\images\rating-star.png" />
+    <Content Include="SyncfusionLib\css\web\gradient-lime\images\rotator-icon.png" />
+    <Content Include="SyncfusionLib\css\web\gradient-lime\images\slider-tick.png" />
+    <Content Include="SyncfusionLib\css\web\gradient-lime\images\waitingpopup.gif" />
+    <Content Include="SyncfusionLib\css\web\gradient-saffron-dark\ej.reports.core.css" />
+    <Content Include="SyncfusionLib\css\web\gradient-saffron-dark\ej.theme.css" />
+    <Content Include="SyncfusionLib\css\web\gradient-saffron-dark\ej.theme.less" />
+    <Content Include="SyncfusionLib\css\web\gradient-saffron-dark\ej.theme.min.css" />
+    <Content Include="SyncfusionLib\css\web\gradient-saffron-dark\ej.web.all.min.css" />
+    <Content Include="SyncfusionLib\css\web\gradient-saffron-dark\images\ajax-loader.gif" />
+    <Content Include="SyncfusionLib\css\web\gradient-saffron-dark\images\checkedtick.png" />
+    <Content Include="SyncfusionLib\css\web\gradient-saffron-dark\images\drop-sibling.png" />
+    <Content Include="SyncfusionLib\css\web\gradient-saffron-dark\images\rating-star.png" />
+    <Content Include="SyncfusionLib\css\web\gradient-saffron-dark\images\rotator-icon.png" />
+    <Content Include="SyncfusionLib\css\web\gradient-saffron-dark\images\slider-tick.png" />
+    <Content Include="SyncfusionLib\css\web\gradient-saffron-dark\images\waitingpopup.gif" />
+    <Content Include="SyncfusionLib\css\web\gradient-saffron\ej.reports.core.css" />
+    <Content Include="SyncfusionLib\css\web\gradient-saffron\ej.theme.css" />
+    <Content Include="SyncfusionLib\css\web\gradient-saffron\ej.theme.less" />
+    <Content Include="SyncfusionLib\css\web\gradient-saffron\ej.theme.min.css" />
+    <Content Include="SyncfusionLib\css\web\gradient-saffron\ej.web.all.min.css" />
+    <Content Include="SyncfusionLib\css\web\gradient-saffron\images\ajax-loader.gif" />
+    <Content Include="SyncfusionLib\css\web\gradient-saffron\images\checkedtick.png" />
+    <Content Include="SyncfusionLib\css\web\gradient-saffron\images\drop-sibling.png" />
+    <Content Include="SyncfusionLib\css\web\gradient-saffron\images\rating-star.png" />
+    <Content Include="SyncfusionLib\css\web\gradient-saffron\images\rotator-icon.png" />
+    <Content Include="SyncfusionLib\css\web\gradient-saffron\images\slider-tick.png" />
+    <Content Include="SyncfusionLib\css\web\gradient-saffron\images\waitingpopup.gif" />
+    <Content Include="SyncfusionLib\css\web\high-contrast-01\ej.reports.core.css" />
+    <Content Include="SyncfusionLib\css\web\high-contrast-01\ej.theme.css" />
+    <Content Include="SyncfusionLib\css\web\high-contrast-01\ej.theme.less" />
+    <Content Include="SyncfusionLib\css\web\high-contrast-01\ej.theme.min.css" />
+    <Content Include="SyncfusionLib\css\web\high-contrast-01\ej.web.all.min.css" />
+    <Content Include="SyncfusionLib\css\web\high-contrast-01\images\ajax-loader.gif" />
+    <Content Include="SyncfusionLib\css\web\high-contrast-01\images\checkedtick.png" />
+    <Content Include="SyncfusionLib\css\web\high-contrast-01\images\drop-sibling.png" />
+    <Content Include="SyncfusionLib\css\web\high-contrast-01\images\rating-star.png" />
+    <Content Include="SyncfusionLib\css\web\high-contrast-01\images\rotator-icon.png" />
+    <Content Include="SyncfusionLib\css\web\high-contrast-01\images\slider-tick.png" />
+    <Content Include="SyncfusionLib\css\web\high-contrast-01\images\waitingpopup.gif" />
+    <Content Include="SyncfusionLib\css\web\high-contrast-02\ej.reports.core.css" />
+    <Content Include="SyncfusionLib\css\web\high-contrast-02\ej.theme.css" />
+    <Content Include="SyncfusionLib\css\web\high-contrast-02\ej.theme.less" />
+    <Content Include="SyncfusionLib\css\web\high-contrast-02\ej.theme.min.css" />
+    <Content Include="SyncfusionLib\css\web\high-contrast-02\ej.web.all.min.css" />
+    <Content Include="SyncfusionLib\css\web\high-contrast-02\images\ajax-loader.gif" />
+    <Content Include="SyncfusionLib\css\web\high-contrast-02\images\checkedtick.png" />
+    <Content Include="SyncfusionLib\css\web\high-contrast-02\images\drop-sibling.png" />
+    <Content Include="SyncfusionLib\css\web\high-contrast-02\images\rating-star.png" />
+    <Content Include="SyncfusionLib\css\web\high-contrast-02\images\rotator-icon.png" />
+    <Content Include="SyncfusionLib\css\web\high-contrast-02\images\slider-tick.png" />
+    <Content Include="SyncfusionLib\css\web\high-contrast-02\images\waitingpopup.gif" />
+    <Content Include="SyncfusionLib\css\web\material\ej.reports.core.css" />
+    <Content Include="SyncfusionLib\css\web\material\ej.theme.css" />
+    <Content Include="SyncfusionLib\css\web\material\ej.theme.less" />
+    <Content Include="SyncfusionLib\css\web\material\ej.theme.min.css" />
+    <Content Include="SyncfusionLib\css\web\material\ej.web.all.min.css" />
+    <Content Include="SyncfusionLib\css\web\material\icons\ejicons.eot" />
+    <Content Include="SyncfusionLib\css\web\material\icons\ejicons.svg" />
+    <Content Include="SyncfusionLib\css\web\material\icons\ejicons.ttf" />
+    <Content Include="SyncfusionLib\css\web\material\icons\ejicons.woff" />
+    <Content Include="SyncfusionLib\css\web\material\images\ajax-loader.gif" />
+    <Content Include="SyncfusionLib\css\web\material\images\checkedtick.png" />
+    <Content Include="SyncfusionLib\css\web\material\images\drop-sibling.png" />
+    <Content Include="SyncfusionLib\css\web\material\images\rating-star.png" />
+    <Content Include="SyncfusionLib\css\web\material\images\rotator-icon.png" />
+    <Content Include="SyncfusionLib\css\web\material\images\slider-tick.png" />
+    <Content Include="SyncfusionLib\css\web\material\images\waitingpopup.gif" />
+    <Content Include="SyncfusionLib\css\web\office-365\ej.reports.core.css" />
+    <Content Include="SyncfusionLib\css\web\office-365\ej.theme.css" />
+    <Content Include="SyncfusionLib\css\web\office-365\ej.theme.less" />
+    <Content Include="SyncfusionLib\css\web\office-365\ej.theme.min.css" />
+    <Content Include="SyncfusionLib\css\web\office-365\ej.web.all.min.css" />
+    <Content Include="SyncfusionLib\css\web\office-365\icons\ejicons.eot" />
+    <Content Include="SyncfusionLib\css\web\office-365\icons\ejicons.svg" />
+    <Content Include="SyncfusionLib\css\web\office-365\icons\ejicons.ttf" />
+    <Content Include="SyncfusionLib\css\web\office-365\icons\ejicons.woff" />
+    <Content Include="SyncfusionLib\css\web\office-365\images\ajax-loader.gif" />
+    <Content Include="SyncfusionLib\css\web\office-365\images\checkedtick.png" />
+    <Content Include="SyncfusionLib\css\web\office-365\images\drop-sibling.png" />
+    <Content Include="SyncfusionLib\css\web\office-365\images\Rating_Active.png" />
+    <Content Include="SyncfusionLib\css\web\office-365\images\Rating_Clear.png" />
+    <Content Include="SyncfusionLib\css\web\office-365\images\Rating_Default.png" />
+    <Content Include="SyncfusionLib\css\web\office-365\images\rotator-icon.png" />
+    <Content Include="SyncfusionLib\css\web\office-365\images\slider-tick.png" />
+    <Content Include="SyncfusionLib\css\web\office-365\images\waitingpopup.gif" />
+    <Content Include="SyncfusionLib\css\web\responsive-css\ej.responsive.css" />
+    <Content Include="SyncfusionLib\css\web\responsive-css\ejgrid.responsive.css" />
+    <Content Include="SyncfusionLib\css\web\ribbon-css\ej.icons.css" />
+    <Content Include="SyncfusionLib\external\angular-1.2.16.min.js" />
+    <Content Include="SyncfusionLib\external\angular-route.min.js" />
+    <Content Include="SyncfusionLib\external\angular.min.js" />
+    <Content Include="SyncfusionLib\external\create-react-class.min.js" />
+    <Content Include="SyncfusionLib\external\excanvas.min.js" />
+    <Content Include="SyncfusionLib\external\jquery-1.11.3.min.js" />
+    <Content Include="SyncfusionLib\external\jquery-2.1.4.min.js" />
+    <Content Include="SyncfusionLib\external\jquery-3.1.1.min.js" />
+    <Content Include="SyncfusionLib\external\jquery-3.2.1.min.js" />
+    <Content Include="SyncfusionLib\external\jquery.signalR-1.1.4.min.js" />
+    <Content Include="SyncfusionLib\external\jquery.validate.min.js" />
+    <Content Include="SyncfusionLib\external\jquery.validate.unobtrusive.min.js" />
+    <Content Include="SyncfusionLib\external\jsrender.min.js" />
+    <Content Include="SyncfusionLib\external\knockout.min.js" />
+    <Content Include="SyncfusionLib\external\react-dom.min.js" />
+    <Content Include="SyncfusionLib\external\react.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\common\ej.core.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\common\ej.data.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\common\ej.draggable.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\common\ej.globalize.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\common\ej.scroller.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\common\ej.touch.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\common\ej.unobtrusive.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\common\ej.web.react.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\common\ej.webform.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\common\ej.widget.angular.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\common\ej.widget.ko.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\datavisualization\ej.barcode.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\datavisualization\ej.bulletgraph.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\datavisualization\ej.chart.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\datavisualization\ej.circulargauge.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\datavisualization\ej.diagram.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\datavisualization\ej.digitalgauge.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\datavisualization\ej.gauge.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\datavisualization\ej.heatmap.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\datavisualization\ej.lineargauge.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\datavisualization\ej.map.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\datavisualization\ej.rangenavigator.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\datavisualization\ej.sparkline.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\datavisualization\ej.sunburstchart.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\datavisualization\ej.treemap.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\angular-1.2.16.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\angular-route.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\angular.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\bootstrap-notify.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\bootstrap.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\CopyToClipBoard.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\Country_LatLongPoints.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\create-react-class.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\data.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\ej.reportdesigner.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\ej.unobtrusive.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\ej.web.all.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\ej.widget.angular.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\ej.widget.ko.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\excanvas.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\healthtracker.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\jquery-1.11.3.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\jquery-2.1.4.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\jquery-3.1.1.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\jquery-3.2.1.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\jquery-3.4.1.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\jquery.easing-1.3.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\jquery.easing-1.3.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\jquery.globalize.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\jquery.globalize.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\jquery.signalR-1.1.4.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\jquery.unobtrusive-ajax.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\jquery.unobtrusive-ajax.min.js" />
+    <Content Include="Scripts\moment.min.js.map" />
+    <Content Include="Scripts\moment-with-locales.min.js.map" />
+    <None Include="SyncfusionLib\JSP\Scripts\external\jquery.validate-vsdoc.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\jquery.validate.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\jquery.validate.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\jquery.validate.unobtrusive.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\jquery.validate.unobtrusive.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\jsondata.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\jsondata.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\jsondatachart.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\jsonspark.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\jsonTabWiz.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\jsrender.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\jsrender.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\jsviews.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\knockout-2.1.0.debug.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\knockout-2.1.0.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\knockout-min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\knockout.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\messages_ar.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\modernizr-2.5.3.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\onlinedata.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\outlook.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\pivotgrid.datasource.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\properties.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\rangeNavigatorSource.fr-FR.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\react-dom.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\react.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\respond.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\rgbcolor.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\salesCountry.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\SalesDashboard.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\sampleBrowserSite.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\sampleslist.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\StackBlur.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\WorldMap.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\WorldSalesData.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\external\ZeroClipboard.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\angular-1.2.16.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\angular.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\bootstrap-notify.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\bootstrap.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\CopyToClipBoard.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\Country_LatLongPoints.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\data.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.accordion.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.autocomplete.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.button.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.calculate.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.captcha.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.checkbox.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.colorpicker.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.combobox.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.datepicker.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.daterangepicker.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.datetimepicker.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.dialog.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.documenteditor.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.dropdownlist.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.editor.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.excelfilter.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.fileexplorer.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.gantt.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.grid.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.groupbutton.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.kanban.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.listbox.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.listview.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.maskedit.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.mediaplayer.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.menu.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.navigationdrawer.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.olap.base.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.pager.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.pdfviewer.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.pivot.common.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.pivotanalysis.base.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.pivotchart.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.pivotclient.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.pivotgauge.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.pivotgrid.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.pivotpager.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.pivotschemadesigner.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.pivottreemap.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.print.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.progressbar.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.radialmenu.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.radialslider.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.radiobutton.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.rating.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.recurrenceeditor.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.reportdesigner.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.reportviewer.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.ribbon.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.rotator.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.rte.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.schedule.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.signature.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.slider.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.spellcheck.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.splitbutton.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.splitter.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.spreadsheet.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.tab.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.tagcloud.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.tile.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.timepicker.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.togglebutton.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.toolbar.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.tooltip.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.treegrid.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.treeview.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.unobtrusive.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.uploadbox.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.waitingpopup.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.web.all.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.widget.angular.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ej.widget.ko.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\excanvas.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\healthtracker.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\jquery-1.11.3.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\jquery-3.4.1.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\jquery.easing-1.3.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\jquery.easing-1.3.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\jquery.globalize.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\jquery.globalize.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\jquery.signalR-1.1.4.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\jquery.unobtrusive-ajax.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\jquery.unobtrusive-ajax.min.js" />
+    <None Include="SyncfusionLib\JSP\Scripts\web\jquery.validate-vsdoc.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\jquery.validate.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\jquery.validate.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\jquery.validate.unobtrusive.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\jquery.validate.unobtrusive.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\jsondata.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\jsondata.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\jsondatachart.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\jsonspark.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\jsonTabWiz.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\jsrender.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\jsrender.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\jsviews.min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\knockout-2.1.0.debug.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\knockout-2.1.0.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\knockout-min.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\messages_ar.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\modernizr-2.5.3.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\onlinedata.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\outlook.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\pivotgrid.datasource.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\properties.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\rangeNavigatorSource.fr-FR.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\respond.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\rgbcolor.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\salesCountry.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\SalesDashboard.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\sampleBrowserSite.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\sampleslist.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\StackBlur.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\WorldMap.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\WorldSalesData.js" />
+    <Content Include="SyncfusionLib\JSP\Scripts\web\ZeroClipboard.js" />
+    <Content Include="SyncfusionLib\JSP\Src\syncfusion-taglib-15.4.0.17.jar" />
+    <Content Include="SyncfusionLib\JSP\Themes\bootstrap-theme\ej.navigationdrawer.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\bootstrap-theme\ej.reportdesigner.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\bootstrap-theme\ej.reportdesigner.theme.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\bootstrap-theme\ej.reportdesigner.theme.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\bootstrap-theme\ej.reports.core.compatibility.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\bootstrap-theme\ej.reports.core.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\bootstrap-theme\ej.theme.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\bootstrap-theme\ej.theme.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\bootstrap-theme\ej.web.all.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\bootstrap-theme\ej.widgets.all.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\bootstrap-theme\images\ajax-loader.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\bootstrap-theme\images\checkedtick.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\bootstrap-theme\images\dot.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\bootstrap-theme\images\drop-sibling.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\bootstrap-theme\images\gradient.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\bootstrap-theme\images\palette-arrow.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\bootstrap-theme\images\rating-star.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\bootstrap-theme\images\rotator-icon.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\bootstrap-theme\images\slider-tick.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\bootstrap-theme\images\toggle-text.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\bootstrap-theme\images\toolbar_icons.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\bootstrap-theme\images\waitingpopup.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\colorpicker_dark.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\colorpicker_light.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\colorpicker_light_material.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\darktheme\colorpicker_dark.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\diagram\diagram_context.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\diagram\diagram_context1.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\diagram\Rotate.cur" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\diagram_context.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\diagram_context1.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\documenteditor\cellbottomalignment.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\documenteditor\cellcenteralignment.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\documenteditor\celltopalignment.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\documenteditor\tablecenteralignment.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\documenteditor\tableleftalignment.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\documenteditor\tablerightalignment.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\ejicons.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\fileexplorer\file_icons.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\grid\dropPointer.cur" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\icons-black.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\icons-gray.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\icons-halfwhite.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\icons-white.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\kanban\nouser.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\lighttheme\colorpicker_light.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\maps\Arrow_Bootom.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\maps\Arrow_Bootom_hover.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\maps\Arrow_Left.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\maps\Arrow_Left_hover.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\maps\Arrow_Right.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\maps\Arrow_Right_hover.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\maps\Arrow_Top.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\maps\Arrow_Top_hover.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\maps\Bar.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\maps\Home.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\maps\Home_hover.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\maps\Home_hover_lime.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\maps\Home_hover_saffron.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\maps\Home_lime.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\maps\Home_saffron.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\maps\Navicatior.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\maps\Zoom-In.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\maps\Zoom-In_hover.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\maps\Zoom-out.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\maps\Zoom-out_hover.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\materialtheme\colorpicker_light_material.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\mediaplayer\basic_view_toolbar_bg.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\mediaplayer\header_bg.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\mediaplayer\thumbnail.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\mediaplayer\waiting_popup.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\navigationdrawer\icons.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\olapkpi\circle.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\olapkpi\diamond.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\olapkpi\down-arrow.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\olapkpi\green.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\olapkpi\red.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\olapkpi\right-arrow.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\olapkpi\three-color.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\olapkpi\triangle.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\olapkpi\up-arrow.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\pdfviewer\preloader-pdfviewer.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\pivotgrid\circle.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\pivotgrid\diamond.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\pivotgrid\down-arrow.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\pivotgrid\green.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\pivotgrid\red.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\pivotgrid\right-arrow.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\pivotgrid\three-color.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\pivotgrid\triangle.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\pivotgrid\up-arrow.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\radialmenu\back.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\radialmenu\radial.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reportdesigner\Dataset.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reportdesigner\Datasource.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reportdesigner\DefaultImage.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reportdesigner\DragTable.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reportdesigner\ejreportdesigner.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reportdesigner\Image.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reportdesigner\MoveIcon.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reportdesigner\Nodata.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reportdesigner\Parameter.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reportdesigner\resizeicon.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reportdesigner\SettingIcon.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reports\down.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reports\minus.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reports\minus.jpg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reports\minus.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reports\plus.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reports\plus.jpg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reports\plus.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reports\up.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reports\updown.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reportviewer\alertIcon.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reportviewer\collapse.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reportviewer\down.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reportviewer\ej-reportviewericons.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reportviewer\errorIcon.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reportviewer\expand.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reportviewer\minus.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reportviewer\minus.jpg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reportviewer\minus.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reportviewer\plus.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reportviewer\plus.jpg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reportviewer\plus.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reportviewer\up.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reportviewer\updown.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\ribbon\Blank.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\ribbon\Browser.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\ribbon\Check.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\ribbon\Diet.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\ribbon\ejrbnicons.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\ribbon\gallery.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\ribbon\Gantt.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\ribbon\homegallery.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\ribbon\paste.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\ribbon\Project.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\ribbon\Protect.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\ribbon\Sales.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\ribbon\style.gallery.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\ribbon\User.jpg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\ribbon\Version.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\Rotate.cur" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\schedule\schedule_priority.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\schedule_priority.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spellcheck\highlight.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\blank.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\bluedatabar.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\bwrcolorscale.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\chart-sprites.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\charttab-sprites.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\charttype-sprites.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\cross.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\downarrow.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\downtriangle.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\down_arrow_dark.cur" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\down_arrow_light.cur" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\draw_border_dark.cur" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\draw_border_grid_dark.cur" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\draw_border_grid_light.cur" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\draw_border_light.cur" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\drystar.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\ejxlicons.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\exclam.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\format_painter_dark.cur" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\format_painter_light.cur" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\fullstar.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\greenarrow.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\greencircle.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\greencircleindi.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\greendatabar.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\greenflag.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\gwcolorscale.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\gwrcolorscale.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\gycolorscale.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\gyrcolorscale.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\halfstar.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\lightbluedatabar.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\midarrow.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\midtriangle.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\orangedatabar.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\purpledatabar.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\redarrow.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\redcircle.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\redcircleindi.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\reddatabar.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\redflag.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\redsquare.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\right_arrow_dark.cur" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\right_arrow_light.cur" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\rimgreencircle.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\rimredcircle.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\rimyellowcircle.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\rwbcolorscale.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\rwcolorscale.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\rwgcolorscale.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\rygcolorscale.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\sprites.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\tick.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\uparrow.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\uptriangle.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\wgcolorscale.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\wrcolorscale.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\yellowarrow.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\yellowcircle.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\yellowcircleindi.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\yellowflag.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\yellowtri.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\ygcolorscale.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\tools\drop-sibling-rtl.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\tools\file_icons.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\tools\icons.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\treeview\drop-sibling-rtl.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\default-theme\bootstrap.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\default-theme\bootstrap.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\default-theme\default-responsive.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\default-theme\default.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\default-theme\ej.reportdesigner.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\default-theme\ej.reportdesigner.theme.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\default-theme\ej.reportdesigner.theme.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\default-theme\ej.reports.core.compatibility.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\default-theme\ej.reports.core.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\default-theme\ej.theme.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\default-theme\ej.theme.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\default-theme\ej.web.all.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\default-theme\ej.widgets.all.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\default-theme\ej.widgets.core.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\default-theme\images\ajax-loader.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\default-theme\images\arrow-hover.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\default-theme\images\checkedtick.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\default-theme\images\dot.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\default-theme\images\drop-sibling.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\default-theme\images\gradient.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\default-theme\images\olap-gridbutton.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\default-theme\images\olap-kpi.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\default-theme\images\olap-toolbar.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\default-theme\images\olap-treeview.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\default-theme\images\palette-arrow.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\default-theme\images\rating-star.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\default-theme\images\rotator-icon.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\default-theme\images\slider-tick.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\default-theme\images\tgarrow.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\default-theme\images\toggle-text.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\default-theme\images\toolbar_icons.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\default-theme\images\waitingpopup.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\ej.reportdesigner.core.bootstrap.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\ej.reportdesigner.core.bootstrap.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\ej.reportdesigner.core.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\ej.reportdesigner.core.material.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\ej.reportdesigner.core.material.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\ej.reportdesigner.core.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\ej.reportdesigner.core.office-365.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\ej.reportdesigner.core.office-365.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\ej.widgets.core.bootstrap.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\ej.widgets.core.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\ej.widgets.core.material.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\ej.widgets.core.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\ej.widgets.core.office-365.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-azure-dark\ej.reportdesigner.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-azure-dark\ej.reportdesigner.theme.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-azure-dark\ej.reportdesigner.theme.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-azure-dark\ej.reports.core.compatibility.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-azure-dark\ej.reports.core.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-azure-dark\ej.theme.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-azure-dark\ej.theme.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-azure-dark\ej.web.all.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-azure-dark\ej.widgets.all.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-azure-dark\images\ajax-loader.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-azure-dark\images\arrow-hover.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-azure-dark\images\checkedtick.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-azure-dark\images\dot.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-azure-dark\images\drop-sibling.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-azure-dark\images\gradient.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-azure-dark\images\olap-gridbutton.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-azure-dark\images\olap-kpi.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-azure-dark\images\olap-toolbar.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-azure-dark\images\olap-treeview.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-azure-dark\images\palette-arrow.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-azure-dark\images\rating-star.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-azure-dark\images\rotator-icon.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-azure-dark\images\slider-tick.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-azure-dark\images\tgarrow.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-azure-dark\images\toggle-text.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-azure-dark\images\toolbar_icons.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-azure-dark\images\waitingpopup.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime-dark\ej.reportdesigner.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime-dark\ej.reportdesigner.theme.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime-dark\ej.reportdesigner.theme.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime-dark\ej.reports.core.compatibility.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime-dark\ej.reports.core.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime-dark\ej.theme.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime-dark\ej.theme.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime-dark\ej.web.all.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime-dark\ej.widgets.all.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime-dark\images\ajax-loader.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime-dark\images\arrow-hover.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime-dark\images\checkedtick.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime-dark\images\dot.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime-dark\images\drop-sibling.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime-dark\images\gradient.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime-dark\images\olap-gridbutton.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime-dark\images\olap-kpi.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime-dark\images\olap-toolbar.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime-dark\images\olap-treeview.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime-dark\images\palette-arrow.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime-dark\images\rating-star.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime-dark\images\rotator-icon.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime-dark\images\slider-tick.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime-dark\images\tgarrow.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime-dark\images\toggle-text.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime-dark\images\toolbar_icons.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime-dark\images\transparent.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime-dark\images\waitingpopup.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime\ej.reportdesigner.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime\ej.reportdesigner.theme.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime\ej.reportdesigner.theme.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime\ej.reports.core.compatibility.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime\ej.reports.core.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime\ej.theme.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime\ej.theme.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime\ej.web.all.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime\ej.widgets.all.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime\images\ajax-loader.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime\images\arrow-hover.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime\images\checkedtick.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime\images\dot.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime\images\drop-sibling.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime\images\gradient.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime\images\olap-gridbutton.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime\images\olap-kpi.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime\images\olap-toolbar.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime\images\olap-treeview.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime\images\palette-arrow.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime\images\rating-star.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime\images\rotator-icon.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime\images\slider-tick.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime\images\tgarrow.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime\images\toggle-text.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime\images\toolbar_icons.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime\images\transparent.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime\images\waitingpopup.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron-dark\ej.reportdesigner.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron-dark\ej.reportdesigner.theme.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron-dark\ej.reportdesigner.theme.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron-dark\ej.reports.core.compatibility.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron-dark\ej.reports.core.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron-dark\ej.theme.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron-dark\ej.theme.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron-dark\ej.web.all.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron-dark\ej.widgets.all.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron-dark\images\ajax-loader.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron-dark\images\arrow-hover.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron-dark\images\checkedtick.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron-dark\images\dot.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron-dark\images\drop-sibling.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron-dark\images\gradient.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron-dark\images\olap-gridbutton.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron-dark\images\olap-kpi.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron-dark\images\olap-toolbar.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron-dark\images\olap-treeview.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron-dark\images\palette-arrow.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron-dark\images\rating-star.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron-dark\images\rotator-icon.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron-dark\images\slider-tick.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron-dark\images\tgarrow.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron-dark\images\toggle-text.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron-dark\images\toolbar_icons.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron-dark\images\transparent.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron-dark\images\waitingpopup.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron\ej.reportdesigner.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron\ej.reportdesigner.theme.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron\ej.reportdesigner.theme.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron\ej.reports.core.compatibility.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron\ej.reports.core.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron\ej.theme.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron\ej.theme.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron\ej.web.all.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron\ej.widgets.all.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron\images\ajax-loader.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron\images\arrow-hover.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron\images\checkedtick.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron\images\dot.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron\images\drop-sibling.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron\images\gradient.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron\images\olap-gridbutton.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron\images\olap-kpi.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron\images\olap-toolbar.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron\images\olap-treeview.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron\images\palette-arrow.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron\images\rating-star.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron\images\rotator-icon.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron\images\slider-tick.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron\images\tgarrow.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron\images\toggle-text.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron\images\toolbar_icons.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron\images\transparent.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron\images\waitingpopup.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure-dark\ej.reportdesigner.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure-dark\ej.reportdesigner.theme.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure-dark\ej.reportdesigner.theme.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure-dark\ej.reports.core.compatibility.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure-dark\ej.reports.core.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure-dark\ej.theme.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure-dark\ej.theme.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure-dark\ej.web.all.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure-dark\ej.widgets.all.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure-dark\images\ajax-loader.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure-dark\images\arrow - Copy.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure-dark\images\arrow-hover.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure-dark\images\checkedtick.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure-dark\images\dot.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure-dark\images\drop-sibling.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure-dark\images\gradient.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure-dark\images\olap-gridbutton.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure-dark\images\olap-kpi.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure-dark\images\olap-toolbar.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure-dark\images\olap-treeview.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure-dark\images\palette-arrow.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure-dark\images\rating-star.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure-dark\images\rotator-icon.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure-dark\images\slider-tick.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure-dark\images\toggle-text.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure-dark\images\toolbar_icons.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure-dark\images\waitingpopup.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure\ej.reportdesigner.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure\ej.reportdesigner.theme.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure\ej.reportdesigner.theme.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure\ej.reports.core.compatibility.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure\ej.reports.core.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure\ej.theme.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure\ej.theme.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure\ej.web.all.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure\ej.widgets.all.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure\images\ajax-loader.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure\images\arrow-hover.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure\images\checkedtick.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure\images\dot.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure\images\drop-sibling.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure\images\gradient.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure\images\olap-gridbutton.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure\images\olap-kpi.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure\images\olap-toolbar.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure\images\olap-treeview.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure\images\palette-arrow.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure\images\rating-star.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure\images\rotator-icon.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure\images\slider-tick.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure\images\tgarrow.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure\images\toggle-text.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure\images\toolbar_icons.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure\images\waitingpopup.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime-dark\ej.reportdesigner.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime-dark\ej.reportdesigner.theme.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime-dark\ej.reportdesigner.theme.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime-dark\ej.reports.core.compatibility.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime-dark\ej.reports.core.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime-dark\ej.theme.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime-dark\ej.theme.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime-dark\ej.web.all.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime-dark\ej.widgets.all.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime-dark\images\ajax-loader.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime-dark\images\arrow-hover.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime-dark\images\checkedtick.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime-dark\images\drop-sibling.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime-dark\images\gradient.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime-dark\images\olap-gridbutton.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime-dark\images\olap-kpi.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime-dark\images\olap-toolbar.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime-dark\images\olap-treeview.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime-dark\images\palette-arrow.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime-dark\images\rating-star.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime-dark\images\rotator-icon.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime-dark\images\slider-tick.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime-dark\images\tgarrow.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime-dark\images\toggle-text.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime-dark\images\toolbar_icons.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime-dark\images\waitingpopup.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime\ej.reportdesigner.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime\ej.reportdesigner.theme.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime\ej.reportdesigner.theme.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime\ej.reports.core.compatibility.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime\ej.reports.core.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime\ej.theme.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime\ej.theme.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime\ej.web.all.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime\ej.widgets.all.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime\images\ajax-loader.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime\images\arrow-hover.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime\images\checkedtick.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime\images\dot.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime\images\drop-sibling.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime\images\gradient.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime\images\olap-gridbutton.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime\images\olap-kpi.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime\images\olap-toolbar.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime\images\olap-treeview.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime\images\palette-arrow.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime\images\rating-star.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime\images\rotator-icon.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime\images\slider-tick.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime\images\tgarrow.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime\images\toggle-text.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime\images\toolbar_icons.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime\images\waitingpopup.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron-dark\ej.reportdesigner.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron-dark\ej.reportdesigner.theme.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron-dark\ej.reportdesigner.theme.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron-dark\ej.reports.core.compatibility.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron-dark\ej.reports.core.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron-dark\ej.theme.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron-dark\ej.theme.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron-dark\ej.web.all.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron-dark\ej.widgets.all.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron-dark\images\ajax-loader.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron-dark\images\arrow-hover.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron-dark\images\checkedtick.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron-dark\images\dot.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron-dark\images\drop-sibling.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron-dark\images\gradient.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron-dark\images\olap-gridbutton.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron-dark\images\olap-kpi.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron-dark\images\olap-toolbar.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron-dark\images\olap-treeview.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron-dark\images\palette-arrow.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron-dark\images\rating-star.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron-dark\images\rotator-icon.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron-dark\images\slider-tick.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron-dark\images\tgarrow.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron-dark\images\toggle-text.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron-dark\images\toolbar_icons.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron-dark\images\waitingpopup.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron\ej.reportdesigner.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron\ej.reportdesigner.theme.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron\ej.reportdesigner.theme.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron\ej.reports.core.compatibility.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron\ej.reports.core.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron\ej.theme.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron\ej.theme.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron\ej.web.all.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron\ej.widgets.all.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron\images\ajax-loader.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron\images\arrow-hover.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron\images\checkedtick.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron\images\dot.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron\images\drop-sibling.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron\images\gradient.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron\images\olap-gridbutton.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron\images\olap-kpi.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron\images\olap-toolbar.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron\images\olap-treeview.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron\images\palette-arrow.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron\images\rating-star.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron\images\rotator-icon.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron\images\slider-tick.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron\images\tgarrow.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron\images\toggle-text.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron\images\toolbar_icons.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron\images\waitingpopup.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\high-contrast-01\ej.reportdesigner.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\high-contrast-01\ej.reportdesigner.theme.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\high-contrast-01\ej.reportdesigner.theme.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\high-contrast-01\ej.reports.core.compatibility.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\high-contrast-01\ej.reports.core.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\high-contrast-01\ej.theme.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\high-contrast-01\ej.theme.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\high-contrast-01\ej.web.all.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\high-contrast-01\images\ajax-loader.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\high-contrast-01\images\checkedtick.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\high-contrast-01\images\drop-sibling.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\high-contrast-01\images\rating-star.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\high-contrast-01\images\rotator-icon.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\high-contrast-01\images\slider-tick.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\high-contrast-01\images\waitingpopup.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\high-contrast-02\ej.reportdesigner.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\high-contrast-02\ej.reportdesigner.theme.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\high-contrast-02\ej.reportdesigner.theme.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\high-contrast-02\ej.reports.core.compatibility.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\high-contrast-02\ej.reports.core.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\high-contrast-02\ej.theme.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\high-contrast-02\ej.theme.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\high-contrast-02\ej.web.all.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\high-contrast-02\images\ajax-loader.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\high-contrast-02\images\checkedtick.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\high-contrast-02\images\drop-sibling.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\high-contrast-02\images\rating-star.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\high-contrast-02\images\rotator-icon.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\high-contrast-02\images\slider-tick.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\high-contrast-02\images\waitingpopup.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\material\ej.reportdesigner.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\material\ej.reportdesigner.theme.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\material\ej.reportdesigner.theme.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\material\ej.reports.core.compatibility.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\material\ej.reports.core.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\material\ej.theme.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\material\ej.theme.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\material\ej.web.all.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\material\icons\ejicons.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\material\images\ajax-loader.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\material\images\checkedtick.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\material\images\drop-sibling.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\material\images\rating-star.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\material\images\rotator-icon.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\material\images\slider-tick.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\material\images\waitingpopup.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\office-365\ej.reportdesigner.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\office-365\ej.reportdesigner.theme.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\office-365\ej.reportdesigner.theme.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\office-365\ej.reports.core.compatibility.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\office-365\ej.reports.core.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\office-365\ej.theme.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\office-365\ej.theme.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\office-365\ej.web.all.min.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\office-365\icons\ejicons.svg" />
+    <Content Include="SyncfusionLib\JSP\Themes\office-365\images\ajax-loader.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\office-365\images\checkedtick.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\office-365\images\drop-sibling.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\office-365\images\Rating_Active.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\office-365\images\Rating_Clear.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\office-365\images\Rating_Default.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\office-365\images\rotator-icon.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\office-365\images\slider-tick.png" />
+    <Content Include="SyncfusionLib\JSP\Themes\office-365\images\waitingpopup.gif" />
+    <Content Include="SyncfusionLib\JSP\Themes\responsive-css\ej.responsive.compatibility.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\responsive-css\ej.responsive.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\responsive-css\ejgrid.responsive.compatibility.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\responsive-css\ejgrid.responsive.css" />
+    <Content Include="SyncfusionLib\JSP\Themes\ribbon-css\ej.icons.css" />
+    <Content Include="SyncfusionLib\Scripts\bootstrap.js" />
+    <Content Include="SyncfusionLib\Scripts\bootstrap.min.js" />
+    <Content Include="SyncfusionLib\Scripts\jquery-3.3.1.js" />
+    <Content Include="SyncfusionLib\Scripts\jquery-3.3.1.min.js" />
+    <Content Include="SyncfusionLib\Scripts\jquery-3.3.1.slim.js" />
+    <Content Include="SyncfusionLib\Scripts\jquery-3.3.1.slim.min.js" />
+    <Content Include="SyncfusionLib\Scripts\jquery.validate.js" />
+    <Content Include="SyncfusionLib\Scripts\jquery.validate.min.js" />
+    <Content Include="SyncfusionLib\Scripts\jquery.validate.unobtrusive.js" />
+    <Content Include="SyncfusionLib\Scripts\jquery.validate.unobtrusive.min.js" />
+    <Content Include="SyncfusionLib\Scripts\modernizr-2.8.3.js" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Content\bootstrap.css.map" />
+    <Content Include="Content\bootstrap.min.css.map" />
+    <Content Include="Content\bootstrap-theme.css.map" />
+    <Content Include="Content\bootstrap-theme.min.css.map" />
+    <Content Include="Content\toaster.scss" />
+    <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
+    <Content Include="Areas\IE\Scripts\ieConfig.js" />
+    <Content Include="css\font-awesome.css" />
+    <Content Include="css\font-awesome.min.css" />
+    <Content Include="fonts\aplos.svg" />
+    <Content Include="fonts\detach.svg" />
+    <Content Include="images\group-alt.png" />
+    <Content Include="images\next-arrow.png" />
+    <Content Include="images\off.svg" />
+    <Content Include="images\on.svg" />
+    <Content Include="images\prev-arrow.png" />
+    <Content Include="POPResources\UserPictures\2017081.jpg" />
+    <Content Include="fonts\fontawesome-webfont.svg" />
+    <Content Include="fonts\OpenSans\BoldItalic\OpenSans-BoldItalic.svg" />
+    <Content Include="fonts\OpenSans\Bold\OpenSans-Bold.svg" />
+    <Content Include="fonts\OpenSans\ExtraBoldItalic\OpenSans-ExtraBoldItalic.svg" />
+    <Content Include="fonts\OpenSans\ExtraBold\OpenSans-ExtraBold.svg" />
+    <Content Include="fonts\OpenSans\Italic\OpenSans-Italic.svg" />
+    <Content Include="fonts\OpenSans\LightItalic\OpenSans-LightItalic.svg" />
+    <Content Include="fonts\OpenSans\Light\OpenSans-Light.svg" />
+    <Content Include="fonts\OpenSans\Regular\OpenSans-Regular.svg" />
+    <Content Include="fonts\OpenSans\SemiboldItalic\OpenSans-SemiboldItalic.svg" />
+    <Content Include="fonts\OpenSans\Semibold\OpenSans-Semibold.svg" />
+    <Content Include="Global.asax" />
+    <Content Include="images\date-icon.png" />
+    <Content Include="images\filter.png" />
+    <Content Include="images\form-checked.png" />
+    <Content Include="images\form-checker.png" />
+    <Content Include="images\aplos-logo.png" />
+    <Content Include="images\map.png" />
+    <Content Include="images\minus-icon.png" />
+    <Content Include="images\plus-icon.png" />
+    <Content Include="images\search-dropdown-wh.png" />
+    <Content Include="images\search-dropdown.png" />
+    <Content Include="images\title.gif" />
+    <Content Include="images\warning.png" />
+    <Content Include="Areas\IE\Views\web.config" />
+    <Content Include="fonts\FontAwesome.otf" />
+    <Content Include="fonts\fontawesome-webfont.woff2" />
+    <Content Include="fonts\fontawesome-webfont.woff" />
+    <Content Include="fonts\fontawesome-webfont.ttf" />
+    <Content Include="fonts\fontawesome-webfont.eot" />
+    <Content Include="fonts\OpenSans\Semibold\OpenSans-Semibold.woff" />
+    <Content Include="fonts\OpenSans\Semibold\OpenSans-Semibold.ttf" />
+    <Content Include="fonts\OpenSans\Semibold\OpenSans-Semibold.eot" />
+    <Content Include="fonts\OpenSans\SemiboldItalic\OpenSans-SemiboldItalic.woff" />
+    <Content Include="fonts\OpenSans\SemiboldItalic\OpenSans-SemiboldItalic.ttf" />
+    <Content Include="fonts\OpenSans\SemiboldItalic\OpenSans-SemiboldItalic.eot" />
+    <Content Include="fonts\OpenSans\Regular\OpenSans-Regular.woff" />
+    <Content Include="fonts\OpenSans\Regular\OpenSans-Regular.ttf" />
+    <Content Include="fonts\OpenSans\Regular\OpenSans-Regular.eot" />
+    <Content Include="fonts\OpenSans\Light\OpenSans-Light.woff" />
+    <Content Include="fonts\OpenSans\Light\OpenSans-Light.ttf" />
+    <Content Include="fonts\OpenSans\Light\OpenSans-Light.eot" />
+    <Content Include="fonts\OpenSans\LightItalic\OpenSans-LightItalic.woff" />
+    <Content Include="fonts\OpenSans\LightItalic\OpenSans-LightItalic.ttf" />
+    <Content Include="fonts\OpenSans\LightItalic\OpenSans-LightItalic.eot" />
+    <Content Include="fonts\OpenSans\Italic\OpenSans-Italic.woff" />
+    <Content Include="fonts\OpenSans\Italic\OpenSans-Italic.ttf" />
+    <Content Include="fonts\OpenSans\Italic\OpenSans-Italic.eot" />
+    <Content Include="fonts\OpenSans\ExtraBold\OpenSans-ExtraBold.woff" />
+    <Content Include="fonts\OpenSans\ExtraBold\OpenSans-ExtraBold.ttf" />
+    <Content Include="fonts\OpenSans\ExtraBold\OpenSans-ExtraBold.eot" />
+    <Content Include="fonts\OpenSans\ExtraBoldItalic\OpenSans-ExtraBoldItalic.woff" />
+    <Content Include="fonts\OpenSans\ExtraBoldItalic\OpenSans-ExtraBoldItalic.ttf" />
+    <Content Include="fonts\OpenSans\ExtraBoldItalic\OpenSans-ExtraBoldItalic.eot" />
+    <Content Include="fonts\OpenSans\Bold\OpenSans-Bold.woff" />
+    <Content Include="fonts\OpenSans\Bold\OpenSans-Bold.ttf" />
+    <Content Include="fonts\OpenSans\Bold\OpenSans-Bold.eot" />
+    <Content Include="fonts\OpenSans\BoldItalic\OpenSans-BoldItalic.woff" />
+    <Content Include="fonts\OpenSans\BoldItalic\OpenSans-BoldItalic.ttf" />
+    <Content Include="fonts\OpenSans\BoldItalic\OpenSans-BoldItalic.eot" />
+    <Content Include="fonts\aplos.eot" />
+    <Content Include="fonts\aplos.ttf" />
+    <Content Include="fonts\aplos.woff" />
+    <Content Include="Views\Home\Portal.cshtml" />
+    <Content Include="Views\Home\PortalExtended.cshtml" />
+    <Content Include="Views\Home\ExcelViewer.cshtml" />
+    <Content Include="Scripts\errors.json" />
+    <Content Include="Scripts\jquery-3.2.1.min.map" />
+    <Content Include="Scripts\jquery-3.3.1.min.map" />
+    <Content Include="Scripts\jquery-3.3.1.slim.min.map" />
+    <Content Include="SyncfusionLib\JSP\Themes\bootstrap-theme\ej.theme.less" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\ejicons.eot" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\ejicons.ttf" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\ejicons.woff" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\navigationdrawer\icons.eot" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\navigationdrawer\icons.ttf" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\navigationdrawer\icons.woff" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reportdesigner\ejreportdesigner.eot" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reportdesigner\ejreportdesigner.ttf" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reportdesigner\ejreportdesigner.woff" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reportviewer\ej-reportviewericons.eot" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reportviewer\ej-reportviewericons.ttf" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\reportviewer\ej-reportviewericons.woff" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\ribbon\ejrbnicons.eot" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\ribbon\ejrbnicons.ttf" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\ribbon\ejrbnicons.woff" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\ejxlicons.eot" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\ejxlicons.ttf" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\spreadsheet\ejxlicons.woff" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\tools\icons.eot" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\tools\icons.ttf" />
+    <Content Include="SyncfusionLib\JSP\Themes\common-images\tools\icons.woff" />
+    <Content Include="SyncfusionLib\JSP\Themes\default-theme\ej.theme.less" />
+    <Content Include="SyncfusionLib\JSP\Themes\ej.reportdesigner.core.bootstrap.less" />
+    <Content Include="SyncfusionLib\JSP\Themes\ej.reportdesigner.core.less" />
+    <Content Include="SyncfusionLib\JSP\Themes\ej.reportdesigner.core.material.less" />
+    <Content Include="SyncfusionLib\JSP\Themes\ej.reportdesigner.core.office-365.less" />
+    <Content Include="SyncfusionLib\JSP\Themes\ej.widgets.core.bootstrap.less" />
+    <Content Include="SyncfusionLib\JSP\Themes\ej.widgets.core.less" />
+    <Content Include="SyncfusionLib\JSP\Themes\ej.widgets.core.material.less" />
+    <Content Include="SyncfusionLib\JSP\Themes\ej.widgets.core.office-365.less" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-azure-dark\ej.theme.less" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime-dark\ej.theme.less" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-lime\ej.theme.less" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron-dark\ej.theme.less" />
+    <Content Include="SyncfusionLib\JSP\Themes\flat-saffron\ej.theme.less" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure-dark\ej.theme.less" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-azure\ej.theme.less" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime-dark\ej.theme.less" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-lime\ej.theme.less" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron-dark\ej.theme.less" />
+    <Content Include="SyncfusionLib\JSP\Themes\gradient-saffron\ej.theme.less" />
+    <Content Include="SyncfusionLib\JSP\Themes\high-contrast-01\ej.theme.less" />
+    <Content Include="SyncfusionLib\JSP\Themes\high-contrast-02\ej.theme.less" />
+    <Content Include="SyncfusionLib\JSP\Themes\material\ej.theme.less" />
+    <Content Include="SyncfusionLib\JSP\Themes\material\icons\ejicons.eot" />
+    <Content Include="SyncfusionLib\JSP\Themes\material\icons\ejicons.ttf" />
+    <Content Include="SyncfusionLib\JSP\Themes\material\icons\ejicons.woff" />
+    <Content Include="SyncfusionLib\JSP\Themes\office-365\ej.theme.less" />
+    <Content Include="SyncfusionLib\JSP\Themes\office-365\icons\ejicons.eot" />
+    <Content Include="SyncfusionLib\JSP\Themes\office-365\icons\ejicons.ttf" />
+    <Content Include="SyncfusionLib\JSP\Themes\office-365\icons\ejicons.woff" />
+    <None Include="SyncfusionLib\Scripts\jquery-3.3.1.intellisense.js" />
+    <Content Include="SyncfusionLib\Scripts\jquery-3.3.1.min.map" />
+    <Content Include="SyncfusionLib\Scripts\jquery-3.3.1.slim.min.map" />
+    <None Include="SyncfusionLib\Scripts\jquery.validate-vsdoc.js" />
+    <None Include="Views\Home\_ConfirmBox.cshtml" />
+    <Content Include="Views\Shared\modal.html" />
+    <Content Include="Views\Web.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Views\Home\Aplos.cshtml" />
+    <Content Include="Views\Shared\Error.cshtml" />
+    <Content Include="Views\Error\HttpError403.cshtml" />
+    <Content Include="Views\Home\Error.cshtml" />
+    <Content Include="Views\Download\AuthToken.cshtml" />
+    <Content Include="Views\Error\HttpError500.cshtml" />
+    <Content Include="Views\Error\HttpError404.cshtml" />
+    <Content Include="Views\Error\GeneralError.cshtml" />
+    <Content Include="Views\Shared\_FAMasterPopUp.cshtml" />
+    <Content Include="Views\Shared\_ConfirmModal.cshtml" />
+    <Content Include="Views\Shared\_FARegisterPopUp.cshtml" />
+    <Content Include="Views\Shared\_DynamicPopUp.cshtml" />
+    <Content Include="Views\UPanel\Aplos.cshtml" />
+    <Content Include="Views\UPanel\Dashboard.cshtml" />
+    <Content Include="Views\UPanel\ULayout.cshtml" />
+    <Content Include="Views\UPanel\PlantSelection.cshtml" />
+    <None Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="packages.config">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\AplosMessage.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>AplosMessage.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Reports\Products\PurchaseOrder.rdlc" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Aplos.Service.Extension\Aplos.Service.Extension.csproj">
+      <Project>{20086d6a-e384-4de1-8486-6eb0fdca39f9}</Project>
+      <Name>Aplos.Service.Extension</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\APLOS.Service\Aplos.Service.csproj">
+      <Project>{aa817a3e-2bf1-4f54-9008-2df78294c1c8}</Project>
+      <Name>Aplos.Service</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <Target Name="MvcBuildViews" AfterTargets="AfterBuild" Condition="'$(MvcBuildViews)'=='true'">
+    <AspNetCompiler VirtualPath="temp" PhysicalPath="$(WebProjectOutputDir)" />
+  </Target>
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>57418</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:8089/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>http://192.168.0.20:81</CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <Import Project="..\packages\NETStandard.Library.2.0.0\build\NETStandard.Library.targets" Condition="Exists('..\packages\NETStandard.Library.2.0.0\build\NETStandard.Library.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.3.3.1\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.3.3.1\build\Microsoft.Net.Compilers.props'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target> -->
+</Project>

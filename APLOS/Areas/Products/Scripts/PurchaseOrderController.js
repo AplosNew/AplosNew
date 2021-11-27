@@ -3407,12 +3407,13 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 
 		});
 	}
-	$scope.TermsAndCondition = {
+	$scope.TermsAndConditions = {
 		Id: null
 		, Description: null
+		, TermsAndConditions : null
 	};
 	$scope.TermsAndConditionsList = [];
-	$scope.TermsAndCondition = function () {
+	$scope.TermsAndConditions = function () {
 
 		$http({
 			method: 'GET',
@@ -3420,11 +3421,11 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 			url: 'Products/PurchaseOrder/TermsAndConditions'
 		}).then(function successCallback(response) {
 			$scope.TermsAndConditionsList = response.data;
-			$scope.TermsAndCondition.Description = response.data[0].Description;
+			//$scope.TermsAndCondition.TermsAndConditions = response.data[0].TermsAndConditions;
 
 		});
 	}
-	$scope.TermsAndCondition();
+	$scope.TermsAndConditions();
 	$scope.changeTermsAndCondition = function () {
 
 		if (!baseService.isUndefinedOrNull($scope.productNew.PaymentTermId)) {
@@ -4325,7 +4326,30 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
     };
     $scope.BOQItemsDetailsDataListHide = function () {
         angular.element(document.querySelector('#ListMaterial')).modal('hide');
-    };
+	};
+
+	$scope.TermsAndConditionGridList = [];
+	$scope.LoadTermsAndConditionGrid = function () {
+			$scope.TermsAndConditionGridList = [];
+			try {
+				$http({
+					method: 'POST',
+					url: $scope.path + "GetTermsAndConditionsList",
+					data: { 'TermsAndConditionMasterId': $scope.TermsAndConditions.Id },
+					dataType: 'JSON'
+
+				}).then(function successCallback(response) {
+					$scope.TermsAndConditionGridList = [];
+					$scope.TermsAndConditionGridList = response.data;
+				});
+			}
+			catch (e) {
+				ShowResult(e, 'failure');
+			
+
+		}
+	}
+/*	$scope.LoadTermsAndConditionGrid();*/
 
 }//End Of main
 
