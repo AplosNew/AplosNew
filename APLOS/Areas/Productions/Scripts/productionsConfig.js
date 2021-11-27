@@ -208,6 +208,10 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/MachineLayoutReport/Aplos',
             controller: 'MachineLayoutReportController'
         })
+        .when('/waste-master', {
+            templateUrl: 'Productions/WasteMaster/Aplos',
+            controller: 'WasteMasterController'
+        })
 
         ;
 }
