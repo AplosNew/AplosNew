@@ -83,12 +83,12 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label">Base UOM</label>
-                        <div class="col-sm-8">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Base UOM<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
                             <div class="select-style">
-                                <select submit-="true" ng-model="productMasterNew.BaseUOMId" class="form-control" name="BaseUOM"
-                                        id="baseUOMId"  ng-disabled="materialMasterAlternativeUOMs.length>0" ng-options="item.Value as item.Text for item in uOMList" ng-change="putValueInAltUom();createUomList();" tabindex="8">
+                                <select submit-="true" ng-model="productMasterNew.BaseUOMId" class="form-control" name="Base UOM"
+                                        ng-disabled="materialMasterAlternativeUOMs.length>0" ng-options="item.Value as item.Text for item in uOMList" ng-change="putValueInAltUom();createUomList();" tabindex="8" required>
                                     <option value=""></option>
                                 </select>
                             </div>

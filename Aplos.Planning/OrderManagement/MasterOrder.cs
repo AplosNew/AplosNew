@@ -807,14 +807,7 @@ namespace Library.Planning.OrderManagement
 
         public IEnumerable<object> GetUoMCboByProductMaster()
         {
-            string sql = @"Select P.Id ProductMasterId,BUoM.Id AS Value,BUoM.UserName AS Text from [MST].[ProductMaster] P
-                            LEFT JOIN SCS.UnitOfMeasurement BUoM ON BUoM.Id=P.BaseUOMId
-                            Where ISNULL(BUoM.Id,'')<>''
-                            UNION ALL
-                            Select AUom.ProductMasterId,BUoM.Id,BUoM.UserName from MST.ProductMasterAlternativeUoM AUoM 
-                            LEFT JOIN SCS.UnitOfMeasurement BUoM ON BUoM.Id=AUom.AlternativeUOMId
-                            Where ISNULL(BUoM.Id,'')<>''
-                            Order by ProductMasterId";
+            string sql = @"Select P.Id ProductMasterId,BUoM.Id AS Value,BUoM.UserName AS Text,CAST(1 as bit) ByDefault from [MST].[ProductMaster] P                            LEFT JOIN SCS.UnitOfMeasurement BUoM ON BUoM.Id=P.BaseUOMId                            Where ISNULL(BUoM.Id,'')<>''                            UNION ALL                            Select AUom.ProductMasterId,BUoM.Id,BUoM.UserName,CAST(0 as bit) ByDefault from MST.ProductMasterAlternativeUoM AUoM                             LEFT JOIN SCS.UnitOfMeasurement BUoM ON BUoM.Id=AUom.AlternativeUOMId                            Where ISNULL(BUoM.Id,'')<>''                            Order by ProductMasterId";
             return _sqlRepository.GetDataCollection(sql);
         }
 
