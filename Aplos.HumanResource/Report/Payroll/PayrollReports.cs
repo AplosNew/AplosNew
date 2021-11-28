@@ -198,7 +198,7 @@ namespace Library.HumanResource.Report.Payroll
                 throw;
             }
         }
-        public IEnumerable<object> GetEmpInfoYearlySalaryPorcessedFromYear(string companyGroupId, string plantId, string ToYear, bool sa, bool ca, string userId, bool isActive, bool isSeperated, bool isMaternity, string ToMonth, string FromYear, string FromMonth )
+        public IEnumerable<object> GetEmpInfoYearlySalaryPorcessedFromYear(string companyGroupId, string plantId, string ToYear, bool sa, bool ca, string userId, bool isActive, bool isSeperated, bool isMaternity, string ToMonth, string FromYear, string FromMonth)
         {
             try
             {
@@ -212,7 +212,7 @@ namespace Library.HumanResource.Report.Payroll
                 string wcEmpStatus = " Where (1=0 ";
                 //string salaryProcessID = "";
 
-                fromtoDateTaxYear(FromYear,FromMonth,ToYear, ToMonth,out fromDate, out toDate);
+                fromtoDateTaxYear(FromYear, FromMonth, ToYear, ToMonth, out fromDate, out toDate);
 
                 if (Convert.ToDateTime(fromDate) > Convert.ToDateTime(toDate))
                 {
@@ -1517,14 +1517,14 @@ namespace Library.HumanResource.Report.Payroll
             FromDate = Convert.ToDateTime(dtTaxYear.Rows[0]["StartDate"]).ToString("dd-MMM-yyyy");
             ToDate = Convert.ToDateTime(dtTaxYear.Rows[0]["EndDate"]).ToString("dd-MMM-yyyy");
         }
-        public void fromtoDateTaxYear(string FromYear, string FromMonth,string ToYear, string ToMonth, out string FromDate, out string ToDate)
+        public void fromtoDateTaxYear(string FromYear, string FromMonth, string ToYear, string ToMonth, out string FromDate, out string ToDate)
         {
             FromDate = "";
             ToDate = "";
             DataTable dtTaxFromYear = null;
             DataTable dtTaxToYear = null;
-            dtTaxFromYear = _sqlRepository.GetDataTable("select StartDate from scs.TaxYearPeriod where datename(month,enddate) = '"+ FromMonth + "' and datename(year,enddate)='"+ FromYear + "'");
-            dtTaxToYear = _sqlRepository.GetDataTable("select EndDate from scs.TaxYearPeriod where datename(month,enddate) = '" + ToMonth + "' and datename(year,enddate)='"+ ToYear + "'");
+            dtTaxFromYear = _sqlRepository.GetDataTable("select StartDate from scs.TaxYearPeriod where datename(month,enddate) = '" + FromMonth + "' and datename(year,enddate)='" + FromYear + "'");
+            dtTaxToYear = _sqlRepository.GetDataTable("select EndDate from scs.TaxYearPeriod where datename(month,enddate) = '" + ToMonth + "' and datename(year,enddate)='" + ToYear + "'");
 
             FromDate = Convert.ToDateTime(dtTaxFromYear.Rows[0]["StartDate"]).ToString("dd-MMM-yyyy");
             ToDate = Convert.ToDateTime(dtTaxToYear.Rows[0]["EndDate"]).ToString("dd-MMM-yyyy");
@@ -3139,7 +3139,7 @@ namespace Library.HumanResource.Report.Payroll
             Dictionary<string, List<DataRow>> dicBonus = new Dictionary<string, List<DataRow>>();
             distinctSalaryHead = new DataTable("Tmp");
             string strSql = @"SELECT SystemID FROM SalaryProcMaster
-                                      WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild where PlantID='"+ plantId + @"'
+                                      WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild where PlantID='" + plantId + @"'
                                                          )
                                         " + getMonthYear(fromDate, toDate, "MonthNo", "YearNo") + @"";
             DataTable dtSalPrcId = _sqlRepository.GetDataTable(strSql);
@@ -3212,7 +3212,7 @@ namespace Library.HumanResource.Report.Payroll
                 catch (Exception)
                 {
                 }
-                strSQL += "ORDER BY ISNULL(EEI.EmployeeCodePreFix,'') ,ISNULL(EEI.EmployeeCodeNumeric,0) ,YearNo,MonthNo ";
+                strSQL += "ORDER BY EEI.EmployeeCode ,YearNo,MonthNo ";
 
                 ConnectionManager.clsConnectionManager con = new ConnectionManager.clsConnectionManager(600);
                 con.getDataSet(strSQL, out dsRef);
@@ -3224,17 +3224,35 @@ namespace Library.HumanResource.Report.Payroll
                 DataTable dt = dsRef.Tables[0];
                 List<DataRow> _data = new List<DataRow>();
                 string empId = "";
+
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    if (empId != dt.Rows[i]["EmpSystemID"].ToString() + "-" + dt.Rows[i]["YearNo"].ToString() + "-" + dt.Rows[i]["MonthNo"].ToString())
+                    try
                     {
-                        _data = new List<DataRow>();
-                        dicBonus.Add(dt.Rows[i]["EmpSystemID"].ToString() + "-" + dt.Rows[i]["YearNo"].ToString() + "-" + dt.Rows[i]["MonthNo"].ToString(), _data);
-                    }
-                    _data.Add(dt.Rows[i]);
+                        if (i == 69735)
+                        {
 
-                    empId = dt.Rows[i]["EmpSystemID"].ToString() + "-" + dt.Rows[i]["YearNo"].ToString() + "-" + dt.Rows[i]["MonthNo"].ToString();
+                        }
+                        if (dt.Rows[i]["EmpSystemID"].ToString() == "205973")
+                        {
+
+                        }
+                        if (empId != dt.Rows[i]["EmpSystemID"].ToString() + "-" + dt.Rows[i]["YearNo"].ToString() + "-" + dt.Rows[i]["MonthNo"].ToString())
+                        {
+                            string x = dt.Rows[i]["EmpSystemID"].ToString() + "-" + dt.Rows[i]["YearNo"].ToString() + "-" + dt.Rows[i]["MonthNo"].ToString();
+                            _data = new List<DataRow>();
+                            dicBonus.Add(dt.Rows[i]["EmpSystemID"].ToString() + "-" + dt.Rows[i]["YearNo"].ToString() + "-" + dt.Rows[i]["MonthNo"].ToString(), _data);
+                        }
+                        _data.Add(dt.Rows[i]);
+                        empId = dt.Rows[i]["EmpSystemID"].ToString() + "-" + dt.Rows[i]["YearNo"].ToString() + "-" + dt.Rows[i]["MonthNo"].ToString();
+                    }
+                    catch (Exception)
+                    {
+
+                    }
                 }
+
+
 
                 return dicBonus;
 
