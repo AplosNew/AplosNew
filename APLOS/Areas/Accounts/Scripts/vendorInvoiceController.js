@@ -1714,6 +1714,9 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
                             , CurrencyCode: a.CurrencyCode
                             , VoucherNo: a.VoucherNo
                             , InvoiceType: 'InBound'
+                            , GLGeneralInfoId: $scope.voucherDetailList[0].GLGeneralInfoId
+                            , BudgetMasterId: $scope.voucherDetailList[0].BudgetMasterId
+                            , ActivityId: $scope.voucherDetailList[0].ActivityId
                         });
                     }
             });

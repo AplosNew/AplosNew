@@ -1,4 +1,5 @@
 ﻿using Aplos.Controllers;
+using ConnectionManager;
 using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data.Sql;
@@ -1873,7 +1874,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
 
 
-            ConnectionManager.DAL.ConManager objCon;
+            ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
             try
             {
                 strSQL = @"select ed.DocNumber UANNo
@@ -1965,8 +1966,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 																				
 																				)";
 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+                con.getDataSet(strSQL, out dsRef);
             }
             catch (Exception ex)
             {
@@ -1974,7 +1974,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
             finally
             {
-                objCon = null;
+                //objCon = null;
             }
         }//end function
 
