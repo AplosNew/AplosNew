@@ -149,11 +149,18 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
     }
 
     $scope.ProductUOM = [];
-    cboService.getUnitOfMeasurementCbo(function (response) {
-        $scope.ProductUOM = response;
+    //cboService.getUnitOfMeasurementCbo(function (response) {
+    //    $scope.ProductUOM = response;
 
-    });
-
+    //});
+    $scope.GetUoMOrderCostingByProductMaster = function () {
+        $http({
+            method: 'GET',
+            url: 'Costings/OrderCosting/GetProductUOMOrderCosting?ProductMasterId=' + $scope.ModelNew.ProductMasterId
+        }).then(function successCallback(response) {
+            $scope.ProductUOM = response.data;
+        });
+    };
 
 
     $scope.IsShowEntryForm = false;
@@ -800,6 +807,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
             $scope.getLatestVersion();
             $scope.SumCostingValue();
             $scope.CalculateProfit();
+            $scope.GetUoMOrderCostingByProductMaster();
             $scope.GetSOListForTemplate();
             //$scope.AssignSegmentByeDirectMaterial();
             $scope.closePopup('InquiryItemPopUp'); $scope.closePopup('MasterOrderItemPopUp'); $scope.closePopup('orderCostingUniqueFieldpopUp');

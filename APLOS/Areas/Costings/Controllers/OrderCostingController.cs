@@ -176,8 +176,8 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT convert(bit,0) AS isChecked, convert(bit,CASE WHEN isnull(ii.OrderCostingMasterTemplateId,'')='' THEN 0 ELSE 1 END) AS TakenForCosting,
                             ii.Id, ii.Id AS MasterOrderItemId,ii.BuyerReferenceNo,mm.UserName AS Material,mma.StandardName AS Article, ii.OwnReferenceNo, ii.TotalQty, 
-                            pd.ProductMasterId,p.UserName AS Product,
-                                       ii.[Type]
+                            pd.ProductMasterId,p.UserName AS Product,pm.Id as ProductMasterId
+                                       ,ii.[Type]
                                   FROM trn.MasterOrderItem AS ii
                                 LEFT JOIN mst.MaterialMaster AS mm ON mm.Id=ii.MaterialMasterId
                                 LEFT JOIN mst.MaterialMasterArticle AS mma ON mma.Id=ii.ArticleId
@@ -2664,6 +2664,20 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
 						left join mst.MaterialMaster mm on mm.Id = m.MaterialMasterId 
 						left join [MST].[MaterialMasterArticle] mma on mma.Id = m.ArticleId 
                         where m.OrderCostingMasterTemplateId = '" + OrderCostingMasterTemplateId + "' and ci.CostingComponentId = '" + costingComponentId + "' ";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetProductUOMOrderCosting(string ProductMasterId)
+        {
+            string sql = @"Select P.Id ProductMasterId,BUoM.Id AS Value,BUoM.UserName AS Text from [MST].[ProductMaster] P
+                            LEFT JOIN SCS.UnitOfMeasurement BUoM ON BUoM.Id=P.BaseUOMId
+                            Where ISNULL(BUoM.Id,'')<>'' and p.Id='" + ProductMasterId + @"'
+                            UNION ALL
+                            Select AUom.ProductMasterId,BUoM.Id,BUoM.UserName from MST.ProductMasterAlternativeUoM AUoM 
+                            LEFT JOIN SCS.UnitOfMeasurement BUoM ON BUoM.Id=AUom.AlternativeUOMId
+                            Where ISNULL(BUoM.Id,'')<>'' and AUom.ProductMasterId='" + ProductMasterId + @"'";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
