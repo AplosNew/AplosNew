@@ -876,6 +876,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
         #endregion
 
         #region ShiftProcess SourceData
+     
         void UnProcessedEmp(string Date, out DataSet ds, string PlantId)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -1294,7 +1295,34 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
+        public void LocalizingHeaderValue(string Date, out DataSet ds, string Plant)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"select p.EmpSystemID,dh.Id as HeaderId,dxc.LeavePolicyMasterId,
+		        format(p.WorkDate,'yyyy-MMM-dd')WorkDate from AttdnProcessData p
+                join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
+                left join mst.DesignationMasterLegalDesignation ddm on ddm.LegalDesignationId = 
+		        ei.LegalDesignationId
+				left join mst.DesignationMaster 
+				dm on dm.Id = ddm.DesignationMasterId
+				left join scs.DesignationMasterConfiguration dxc on dxc.DesignationMasterId=dm.Id
+				and dxc.PlantId=ei.PlantId
+				left join DayStatusPlantChild 
+				dc on dc.EmpTypeId=dm.EmployeeCategoryId
+				and dc.PlantId=ei.PlantId
+				left join DayStatusHeader dh on dh.Id=dc.headerId
+     			where WorkDate='"+Date+"' and ei.PlantId='"+Plant+"'";
 
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
 
         #endregion
 

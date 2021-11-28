@@ -6,6 +6,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 	$scope.index = -1;
 	$scope.products = [];
 	$scope.path = 'Products/PurchaseOrder/';
+	$scope.saveGridUrl = $scope.path + 'SaveData';
 	$scope.getListUrl = $scope.path + 'getlist';
 	$scope.saveUrl = $scope.path + 'create';
 	$scope.saveUrlFG = $scope.path + 'CreateFGMasterOrder';
@@ -4349,7 +4350,140 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 
 		}
 	}
-/*	$scope.LoadTermsAndConditionGrid();*/
+
+
+	$scope.TermsAndConditionDetailGridList = [];
+	$scope.LoadTermsAndConditionDetailGrid = function () {
+		$scope.TermsAndConditionDetailGridList = [];
+		try {
+			$http({
+				method: 'POST',
+				url: $scope.path + "GetTermsAndConditionsDetailList",
+				
+				dataType: 'JSON'
+
+			}).then(function successCallback(response) {
+				$scope.TermsAndConditionDetailGridList = [];
+				$scope.TermsAndConditionDetailGridList = response.data;
+			});
+		}
+		catch (e) {
+			ShowResult(e, 'failure');
+
+
+		}
+	}
+	$scope.LoadTermsAndConditionDetailGrid();
+
+	$scope.detailTempTitle = "#tabGridContentsTitle";
+	//$scope.detailgrid = "detailGridData(e)";
+	$scope.detailgridTitle = function detailGridData(e) {
+		//debugger;
+
+		var filteredData = e.data["Id"];
+		var data = ej.DataManager($scope.TermsAndConditionDetailGridList).executeLocal(ej.Query().where("TermsAndConditionChildId", "equal", parseInt(filteredData), true).take(100));
+		e.detailsElement.find("#detailGridTitle").ejGrid({
+			dataSource: data,
+			columns: ["HeaderCaption", "Description"]
+		});
+		e.detailsElement.find(".tabcontrol").ejTab();
+		//var filteredData1 = e.data["Id"];
+	}
+
+	$scope.showTermsAndConditionDetailPopUp = function (args) {
+		$scope.TitleId = args.TermsAndConditionChildId;
+		$scope.POPupList = [];
+		$scope.GetRemarksByMaster($scope.TitleId);
+		angular.element(document.querySelector('#GridPopUp')).modal('show');
+	}
+	$scope.closeRemarksPopUp = function () {
+
+		angular.element(document.querySelector('#GridPopUp')).modal('hide');
+	}
+
+	$scope.POPupList = [];
+
+	$scope.GetRemarksByMaster = function (id) {
+		$scope.POPupList = [];
+		$http.get('Products/PurchaseOrder/GetPopUp?TermsAndConditionsDetailId=' + id)
+			.then(function successCallback(response) {
+				$scope.POPupList = response.data;
+			}, function () {
+				ShowResult(commonMessage.NetworkError, 'failure');
+			})
+	}
+	$scope.DeleteRemarks = function (model) {
+		try {
+
+			$http({
+				method: 'POST',
+				data: { id: model.data.Id },
+				url: 'OrderManagements/TermsAndConditions/DeletePopup'
+			}).then(function successCallback(response) {
+				if (response.data.Error == false) {
+					ShowResult(response.data.Message, 'success');
+					$scope.GetRemarksByMaster($scope.TitleId);
+				}
+				else {
+					ShowResult(response.data.Message, 'failure');
+				}
+			});
+		} catch (e) {
+			ShowResult(e, 'failure');
+		}
+	}
+	$scope.SaveGrid = function (model) {
+		//$scope.TitleModel.TermsAndConditionsMasterId = $scope.ModelNew.Id;
+		$scope.$broadcast('show-errors-check-validity');
+		$http({
+			method: 'POST',
+			url: $scope.saveGridUrl,
+			data: { 'GridData': model.data, 'TitleId': $scope.TitleId },
+			dataType: 'JSON'
+		}).then(function successCallback(response) {
+			if (response.data.Error === true) {
+				ShowResult(response.data.Message, 'failure');
+			}
+			else {
+				ShowResult(response.data.Message, 'success');
+				$scope.GetRemarksByMaster($scope.TitleId);
+			}
+		}), function errorCallBack(response) {
+			ShowResult(response.data.Message, 'failure');
+		}
+
+	};
+	$window.onresize = function (event) {
+		$scope.actionComplete();
+	};
+
+	$scope.actionComplete = function (args) {
+		try {
+			if (args.requestType === "refresh") {
+				var gridObj = $("#gridTermsAndCondition").ejGrid("instance");
+				//var scrollerwidth = $("#GridPopUp").width();//Obtain the width of the container
+				//gridObj.option({ allowScrolling: true, scrollSettings: { width: scrollerwidth - 20, height: 300, width: 1080 } });//pass the obtainer width and height to gridmodel options
+				//gridObj.windowonresize();
+
+				if (args.action == "rowReordering") {
+					gridObj = $("#gridTermsAndCondition").data("ejGrid");
+					// Gets current view data of grid control
+					var data = gridObj.getCurrentViewData();
+					var sorteddata = ej.DataManager(data).executeLocal(ej.Query().select(["Id"]));
+					$http({
+						method: 'POST',
+						url: $scope.path + "UpdateMaterialSequence",
+						data: { data: sorteddata }
+					}).then(function successCallback(response) {
+
+					});
+				}
+			}
+		} catch (e) {
+			// $scope.ShowResultCustom(e, 'failure');
+		}
+	};
+
 
 }//End Of main
 

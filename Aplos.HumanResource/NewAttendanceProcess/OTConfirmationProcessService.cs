@@ -430,8 +430,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                         }
 
                     }
-                    //clsStaticInfo info = new clsStaticInfo();
-                    //info.SaveDataSets(dsRef);
+                    clsStaticInfo info = new clsStaticInfo();
+                    info.SaveDataSets(dsRef);
                 }
                    
                 #endregion
