@@ -57,6 +57,19 @@ namespace Aplos.Areas.Productions.Controllers
         #endregion
 
         #region -- Operations
+        [HttpGet,Authorize]
+        public JsonResult GetIsProductionHourOpen()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_productionSummaryData.GetIsProductionHourOpen(identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetProductionBookingPeriodCbo()
+        {
+            return Json(_productionSummaryData.GetProductionBookingPeriodCbo(), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpGet, Authorize]
         public JsonResult GetCharacteristicsValueCbo(string soid)
         {

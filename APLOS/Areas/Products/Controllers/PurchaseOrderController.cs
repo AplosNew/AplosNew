@@ -24,6 +24,7 @@ using System.Reflection;
 using System.Threading;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
+using Library.OrderManagement.ShipmentControl;
 
 namespace Aplos.Areas.Products.Controllers
 {
@@ -60,7 +61,7 @@ namespace Aplos.Areas.Products.Controllers
 		}
 
 		#endregion Constructor
-
+		ShipmentControl control = new ShipmentControl();
 		#region Aplos
 
 		public ActionResult Aplos()
@@ -3792,7 +3793,7 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			try
 			{
-				string _sql = "select Id,Description,UserName TermsAndConditions from HKP.TermsAndConditions";
+				string _sql = "select Id,Description,UserName TermsAndConditions from HKP.TermsAndConditions where Type='PO'";
 				//_sqlRepository.ExecuteSqlCommand(_sql);
 
 				return Json(_sqlRepository.GetDataCollection(_sql), JsonRequestBehavior.AllowGet);
@@ -3805,21 +3806,167 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
 				ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
 			}
 		}
+		[HttpGet, Authorize]
+		public JsonResult GetPopUp(string TermsAndConditionsDetailId)
+		{
+			try
+			{
+				return Json(control.GetTermsAndConditionPopUp(TermsAndConditionsDetailId), JsonRequestBehavior.AllowGet);
+			}
+			catch (Exception ex)
+			{
+				throw (ex);
+			}
 
+		}
 		[HttpPost, Authorize]
 		public ActionResult GetTermsAndConditionsList(string TermsAndConditionMasterId)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			string sql = @" select 
- TC.Id TermsAndConditionChildId,TD.Id TermsAndConditionDetailId, TC.Title , TD.HeaderCaption,TD.Description 
- from TermsAndConditionsChild TC
- left outer join TermsAndConditionsDetails Td on TD.TermsAndConditionsChildId=TC.Id
- where TC.TermsAndConditionsMasterId='" + TermsAndConditionMasterId + @"'";
+			string sql = @"select TCM.Id TermsAndConditionMasterId,TC.Id TermsAndConditionChildId,TC.Title,TCM.Description ,TCM.Code  from TermsAndConditionsChild TC 
+left outer join HKP.TermsAndConditions TCM on TCM.Id=TC.TermsAndConditionsMasterId 
+where TC.TermsAndConditionsMasterId='" + TermsAndConditionMasterId + @"'";
 
 			return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
 		}
 
+		[HttpPost, Authorize]
+		public ActionResult GetTermsAndConditionsDetailList()
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			string sql = @"select TCD.Id,TC.Id TermsAndConditionChildId,TCD.HeaderCaption ,TCD.Description  from TermsAndConditionsDetails TCD 
+left outer join TermsAndConditionsChild TC on TC.Id=TCD.TermsAndConditionsChildId";
 
+			return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+		}
+
+		[HttpPost, Authorize]
+		public ActionResult UpdateMaterialSequence(List<string> data)
+		{
+			try
+			{
+				if (data == null)
+					throw new Exception("No data changed!!!");
+
+				ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+				con.BeginTransaction();
+
+				for (int i = 0; i < data.Count; i++)
+				{
+					con.executeQuery("UPDATE TermsAndConditionsDetails SET Sequence=" + (i + 1) + " where id='" + data[i] + "'");
+				}
+
+				con.CommitTransaction();
+
+				return Json(new { Error = false, Message = "Sequence updated successfully" }, JsonRequestBehavior.AllowGet);
+
+			}
+			catch (Exception ex)
+			{
+
+				return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+			}
+		}
+
+		[HttpPost]
+		public JsonResult SaveData(Dictionary<string, object> GridData, string titleId)
+		{
+			try
+			{
+
+				DataSet dsGrid;
+
+				ConnectionManager.DAL.ConManager conBin = new ConnectionManager.DAL.ConManager("1");
+				conBin.OpenDataSetThroughAdapter("select top 1 Sequence from dbo.TermsAndConditionsDetails where TermsAndConditionsChildId='" + titleId + "' order by AddedDate desc", out DataSet dsGridSeq, false, "1");
+				conBin.OpenDataSetThroughAdapter("select * from dbo.TermsAndConditionsDetails where TermsAndConditionsChildId='" + titleId + "'", out dsGrid, false, "1");
+				string DetailId = "";
+				int count = 0;
+				DataView dv = new DataView(dsGrid.Tables[0]);
+				dv.RowFilter = "Id='" + GridData["Id"] + "'";
+
+				if (dv.Count == 0)
+				{
+					if (DetailId == "")
+					{
+						bplib.clsGenID genid = new bplib.clsGenID();
+						genid.GenID("dbo.TermsAndConditionsDetails", out DetailId);
+					}
+					if (string.IsNullOrEmpty(dsGridSeq.Tables[0].Rows[0]["Sequence"].ToString()))
+					{
+						count++;
+					}
+					else
+					{
+						count = (int)clsStaticInfo.dbl(dsGridSeq.Tables[0].Rows[0]["Sequence"].ToString()) + 1;
+					}
+					DataRow dr = dsGrid.Tables[0].NewRow();
+
+					GridData["Id"] = "TD-" + DetailId;
+					GridData["TermsAndConditionsChildId"] = titleId;
+					GridData["Sequence"] = count;
+
+					AddNewRow(dsGrid.Tables[0], GridData);
+				}
+				else
+				{
+					DataRow drmo = dv[0].Row;
+					EditRow(drmo, GridData);
+				}
+
+
+
+
+				clsStaticInfo _info = new clsStaticInfo();
+				_info.SaveDataSets(dsGrid);
+
+
+				return Json(new { Error = false, Message = AplosMessage.Insert });
+
+			}
+			catch (Exception ex)
+			{
+				return Json(new { Error = true, Message = ex.Message });
+
+			}
+		}
+		private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			DataRow dr = dt.NewRow();
+			foreach (var item in sourceData.Keys)
+			{
+				try
+				{
+					dr[item] = sourceData[item];
+				}
+				catch (Exception)
+				{
+				}
+			}
+			dr["AddedBy"] = identity.Name;
+			dr["AddedDate"] = System.DateTime.Now.ToString();
+			dr["AddedFromIP"] = identity.IPAddress;
+			dt.Rows.Add(dr);
+		}
+		private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			dr.BeginEdit();
+			foreach (var item in sourceData.Keys)
+			{
+				try
+				{
+					dr[item] = sourceData[item];
+				}
+				catch (Exception)
+				{
+				}
+			}
+			dr["UpdatedBy"] = identity.Name;
+			dr["UpdatedDate"] = System.DateTime.Now.ToString();
+			dr["UpdatedFromIP"] = identity.IPAddress;
+			dr.EndEdit();
+		}
 		[HttpGet, Authorize]
 		public JsonResult NotificationSetting()
 		{

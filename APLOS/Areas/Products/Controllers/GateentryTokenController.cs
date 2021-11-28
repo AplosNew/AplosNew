@@ -1034,7 +1034,7 @@ namespace Aplos.Areas.Products.Controllers
 			try
 			{
 				var sql = "";
-				if (ReqStatus == "1")//Created List
+				if (ReqStatus == "1")//Created List 
 				{
 					sql = @"
                         SELECT  GPM.[Id]

@@ -618,6 +618,7 @@ function ProductMasterController(cboService,commonMessage, $scope, $rootScope, b
                         $scope.productMasters = $filter('orderBy')($scope.productMasters, 'Sequence');
                         baseService.paginationAdd();
                         ClearFields(response.data.Sequence);
+                        $scope.getData();
                     }
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -643,6 +644,7 @@ function ProductMasterController(cboService,commonMessage, $scope, $rootScope, b
                             $scope.productMasters = $filter('orderBy')($scope.productMasters, 'Sequence');
                         }
                         ClearFields(response.data.Sequence);
+                        $scope.getData();
                     }
                 }, function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');

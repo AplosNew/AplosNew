@@ -10,6 +10,9 @@ namespace Library.Model.Configurations.Commercial
         {
             ToTable(nameof(InvoiceDetailCharges), DbSchema.Transaction);
             Ignore(r => r.ModelState);
+            Ignore(r => r.GLGeneralInfoId);
+            Ignore(r => r.BudgetMasterId);
+            Ignore(r => r.ActivityId);
         }
     }
 }
