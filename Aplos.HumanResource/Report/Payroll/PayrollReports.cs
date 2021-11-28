@@ -3229,14 +3229,6 @@ namespace Library.HumanResource.Report.Payroll
                 {
                     try
                     {
-                        if (i == 69735)
-                        {
-
-                        }
-                        if (dt.Rows[i]["EmpSystemID"].ToString() == "205973")
-                        {
-
-                        }
                         if (empId != dt.Rows[i]["EmpSystemID"].ToString() + "-" + dt.Rows[i]["YearNo"].ToString() + "-" + dt.Rows[i]["MonthNo"].ToString())
                         {
                             string x = dt.Rows[i]["EmpSystemID"].ToString() + "-" + dt.Rows[i]["YearNo"].ToString() + "-" + dt.Rows[i]["MonthNo"].ToString();
