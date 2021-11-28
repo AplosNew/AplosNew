@@ -2026,7 +2026,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
                             LEFT OUTER JOIN [TRN].[ProductMasterEfficency] EF ON ef.ProductMasterId=pm.Id AND ef.EfficencyName='Costing'
                             LEFT OUTER JOIN CostingTypes AS ct ON ct.CostingType=pm.CostingType
 							where pm.Id = '" + ProductMasterId + "'";
-        }
+        } 
         [HttpGet, Authorize]
         public ActionResult ProductMasterDetail(string ProductMasterId)
         {
