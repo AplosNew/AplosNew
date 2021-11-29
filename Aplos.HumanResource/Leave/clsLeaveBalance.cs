@@ -957,9 +957,14 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
             string sql = @"SELECT lt.Sequence, ELs.EmployeeId, els.LeaveTypeId,lt.LeaveType, lt.Code AS LeaveCode,
                                 els.CurrentYearAllocation,els.CarryForwardOpeningBalance,els.BroughtForward,
                                 SUM(ISNULL(CR.EarnedValue,0))CurrentPeriodEarned,SUM(ISNULL(cr.AvailedValue,0)) AS CurrentPeriodAvailed,
-                                ISNULL(els.CurrentYearAllocation,0)+ISNULL(els.CarryForwardOpeningBalance,0)+ISNULL(els.BroughtForward,0)+SUM(ISNULL(CR.EarnedValue,0)) AS UpToDateEarned,
+                                 CASE WHEN lt.LeaveType<>'Earn' THEN  ISNULL(els.CurrentYearAllocation,0)+ISNULL(els.CarryForwardOpeningBalance,0)+ISNULL(els.BroughtForward,0)+SUM(ISNULL(CR.EarnedValue,0)) 
+                                 ELSE ISNULL(els.CarryForwardOpeningBalance,0)+ISNULL(els.BroughtForward,0)+SUM(ISNULL(CR.EarnedValue,0))  END
+                                 AS UpToDateEarned,
 
-                                ISNULL(els.CurrentYearAllocation,0)+ISNULL(els.CarryForwardOpeningBalance,0)+ISNULL(els.BroughtForward,0)+SUM(ISNULL(CR.EarnedValue,0))-SUM(ISNULL(cr.AvailedValue,0)) AS ClosingBalance
+                                CASE WHEN lt.LeaveType<>'Earn' THEN ISNULL(els.CurrentYearAllocation,0)+ISNULL(els.CarryForwardOpeningBalance,0)+ISNULL(els.BroughtForward,0)+SUM(ISNULL(CR.EarnedValue,0))-SUM(ISNULL(cr.AvailedValue,0)) 
+                                ELSE ISNULL(els.CarryForwardOpeningBalance,0)+ISNULL(els.BroughtForward,0)+SUM(ISNULL(CR.EarnedValue,0))-SUM(ISNULL(cr.AvailedValue,0)) END
+								AS ClosingBalance
+
                                 FROM trn.EmployeeLeaveSummary AS els 
                                 LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=els.EmployeeId
                                 JOIN YearlyCalendar AS yc ON  yc.PlantId=ei.PlantId and yc.Id=els.CalanderYearId AND yc.YearNo=(SELECT TOP 1 y.YearNo FROM YearlyCalendar Y WHERE y.PlantId=ei.PlantId AND y.YearNo<=" + YearNo + @" ORDER BY y.YearNo DESC)
