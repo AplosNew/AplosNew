@@ -556,6 +556,7 @@
     <Compile Include="Areas\Farming\FarmingAreaRegistration.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\EntityFixedAssetsRegisterController.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\SubAssetTypeController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\LeavesChecklistReportNewController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FinalDeductionReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\PhysicalVerificationReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\JobCardReportNewController.cs" />
@@ -1081,6 +1082,7 @@
     <Compile Include="Controllers\DailyProductionsController.cs" />
     <Compile Include="Controllers\EmployeeDataController.cs" />
     <Compile Include="Controllers\AttdnRawDataAPIController.cs" />
+    <Compile Include="Controllers\WasteTransactionController.cs" />
     <Compile Include="Controllers\ManualAttndFromAppController.cs" />
     <Compile Include="Controllers\EmpUtilityController.cs" />
     <Compile Include="Controllers\ItemScanController.cs" />
@@ -1861,6 +1863,7 @@
     <Content Include="Areas\FixedAssets\Scripts\entityFixedAssetsRegisterController.js" />
     <Content Include="Areas\FixedAssets\Scripts\SubAssetTypeController.js" />
     <Content Include="Areas\FixedAssets\Scripts\expensesCapitalizedController.js" />
+    <Content Include="Areas\HumanResource\Scripts\LeavesChecklistReportNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\leaveWithWagesRegistersFrom18Controller.js" />
     <Content Include="Areas\HumanResource\Scripts\manpowerAttendanceSummaryControllerNew.js" />
     <Content Include="Areas\HumanResource\Scripts\PhysicalVerificationReportController.js" />
@@ -2282,6 +2285,7 @@
     <Content Include="Areas\Productions\Scripts\recipeGlobalMasterController.js" />
     <Content Include="Areas\Productions\Scripts\recipeMaterialController.js" />
     <Content Include="Areas\Products\Scripts\assetInventoryIssueController.js" />
+    <Content Include="Areas\Products\Scripts\GatePassPotalController.js" />
     <Content Include="Areas\Products\Scripts\GatePassRegisterController.js" />
     <Content Include="Areas\Products\Scripts\GRNRequisitionSOAllocationController.js" />
     <Content Include="Areas\Products\Scripts\InGatePassEntryController.js" />
@@ -3867,6 +3871,11 @@
     <Content Include="Areas\Attendances\Views\MonthlyLeaveBalance\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\ManpowerAttendanceSummary\AplosNew.cshtml" />
     <Content Include="Areas\Productions\Views\WasteMaster\Aplos.cshtml" />
+    <Content Include="Areas\JobWork\Views\JWReceipt\Aplos.cshtml" />
+    <Content Include="Areas\Accounts\Views\_ExpenseDistributePopUp.cshtml" />
+    <Content Include="Areas\Accounts\Views\_InboundInvoicePopUp.cshtml" />
+    <Content Include="Areas\Accounts\Views\_OutBoundInvoicePopUp.cshtml" />
+    <Content Include="Areas\HumanResource\Views\LeavesChecklistReportNew\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -3958,6 +3967,8 @@
     <Content Include="POPResources\Templates\JobWorkValAddedPurchaseOrder20202.docx" />
     <Content Include="POPResources\Templates\InOutGatePassSales20171.docx" />
     <Content Include="POPResources\Templates\InOutGatePassScrap20171.docx" />
+    <Content Include="POPResources\Templates\JobWorkGRNReceiptReport20202.docx" />
+    <Content Include="POPResources\Templates\JobWorkValAddedGRNReceiptReport20202.docx" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />

@@ -121,8 +121,8 @@ namespace Library.Service.Products
                     }
                 }
 
-                if (materialMasterAlternativeUOM!=null)
-                {
+                //if (materialMasterAlternativeUOM!=null)
+                //{
                     var dbList = _materialMasterAlternativeUOM.Query(t => t.ProductMasterId == entity.Id).Select().ToList();
                     if (materialMasterAlternativeUOM != null)
                     {
@@ -163,7 +163,7 @@ namespace Library.Service.Products
                             }
                         }
                     }
-                }
+                //}
 
                 _unitOfWork.SaveChanges();
                 flag = false;
@@ -413,14 +413,13 @@ namespace Library.Service.Products
             }
         }
 
-        public GridModel GetCbo()
+        public GridModel GetCbo(string companyGroupId)
         {
             try
             {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var sql = "SELECT PM.Id AS Value, PM.UserName AS Text " +
-                            $"FROM {DbSchema.Masters}.[{DbTable.ProductMaster}] AS PM " +
-                            $"WHERE PM.CompanyGroupId='{identity.CompanyGroupId}' AND PM.Archive=0 AND PM.Active=1";
+                var sql = @"SELECT PM.Id AS Value, PM.UserName AS Text,PM.BaseUOMId
+                            FROM MST.ProductMaster AS PM
+                            WHERE PM.CompanyGroupId = '"+ companyGroupId + "' AND PM.Archive = 0 AND PM.Active = 1";
 
                 return _sqlRepository.GetGridData(new GridParameter { CmdText = sql });
             }

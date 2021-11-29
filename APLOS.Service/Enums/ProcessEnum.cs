@@ -81,11 +81,13 @@
 
     public enum ProductionBookingLevel
     {
+        MasterOrderItem,
         ProductionOrder,
-        SalesOrder,
-        UptoSKU1,
-        UptoSKU2,
-        UptoSKU3
+        ProductCode,
+        SalesOrder
+        //UptoSKU1,
+        //UptoSKU2,
+        //UptoSKU3
     }
 }
 

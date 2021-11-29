@@ -375,3 +375,233 @@ E:\AplosNew\APLOS.Display\obj\Debug\APLOS.Display.csproj.CoreCompileInputs.cache
 E:\AplosNew\APLOS.Display\obj\Debug\APLOS.Display.csproj.CopyComplete
 E:\AplosNew\APLOS.Display\obj\Debug\AplosWebDisplay.dll
 E:\AplosNew\APLOS.Display\obj\Debug\AplosWebDisplay.pdb
+D:\DevOps\Aplos.New\APLOS.Display\bin\SqlServerTypes\x64\msvcr120.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\SqlServerTypes\x64\SqlServerSpatial140.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\SqlServerTypes\x86\msvcr120.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\SqlServerTypes\x86\SqlServerSpatial140.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\AplosWebDisplay.dll.config
+D:\DevOps\Aplos.New\APLOS.Display\bin\AplosWebDisplay.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\AplosWebDisplay.pdb
+D:\DevOps\Aplos.New\APLOS.Display\bin\Aplos.Service.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Aplos.Service.Extension.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\AplosAttendance.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\AplosShiftProcess.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\CommonServiceLocator.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\ConnectionManager.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\EntityFramework.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\EntityFramework.SqlServer.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\ExcelDataReader.DataSet.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\ExcelDataReader.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\GenericLeaveProcess.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\HtmlAgilityPack.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Library.Core.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Library.Crosscutting.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Library.Data.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Library.Model.Core.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Library.Security.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Library.Service.Core.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Library.ViewModel.Core.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\LinqKit.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Microsoft.AspNet.SignalR.Client.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Microsoft.ReportViewer.Common.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Microsoft.ReportViewer.DataVisualization.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Microsoft.ReportViewer.Design.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Microsoft.ReportViewer.ProcessingObjectModel.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Microsoft.ReportViewer.WebDesign.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Microsoft.ReportViewer.WebForms.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Microsoft.SqlServer.Types.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Microsoft.Web.Administration.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Microsoft.Web.Infrastructure.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Newtonsoft.Json.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Syncfusion.Compression.Base.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Syncfusion.DocIO.Base.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Syncfusion.DocToPdfConverter.Base.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Syncfusion.ExcelToPdfConverter.Base.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Syncfusion.Pdf.Base.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Syncfusion.Presentation.Base.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Syncfusion.PresentationToPdfConverter.Base.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Syncfusion.XlsIO.Base.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\System.Configuration.ConfigurationManager.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\System.Net.Http.Formatting.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\System.Runtime.CompilerServices.Unsafe.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\System.Threading.Thread.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\System.ValueTuple.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\System.Web.Helpers.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\System.Web.Http.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\System.Web.Http.WebHost.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\System.Web.Mvc.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\System.Web.Optimization.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\System.Web.Razor.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\System.Web.WebPages.Deployment.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\System.Web.WebPages.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\System.Web.WebPages.Razor.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Unity.Abstractions.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Unity.Container.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Unity.Mvc.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\WebActivatorEx.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\WebGrease.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Zen.Barcode.Core.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Aplos.ViewModel.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Aplos.Model.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Microsoft.ReportViewer.WinForms.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\EnvDTE.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Microsoft.VisualStudio.Shell.Interop.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Microsoft.VisualStudio.Shell.Interop.8.0.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Microsoft.Build.Framework.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Syncfusion.OfficeChart.Base.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\stdole.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Microsoft.VisualStudio.OLE.Interop.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Microsoft.VisualStudio.TextManager.Interop.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Microsoft.VisualStudio.TextManager.Interop.8.0.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Microsoft.MSXML.dll
+D:\DevOps\Aplos.New\APLOS.Display\bin\Aplos.Service.Extension.pdb
+D:\DevOps\Aplos.New\APLOS.Display\bin\Aplos.Service.pdb
+D:\DevOps\Aplos.New\APLOS.Display\bin\Aplos.Service.dll.config
+D:\DevOps\Aplos.New\APLOS.Display\bin\AplosAttendance.pdb
+D:\DevOps\Aplos.New\APLOS.Display\bin\AplosShiftProcess.pdb
+D:\DevOps\Aplos.New\APLOS.Display\bin\ConnectionManager.pdb
+D:\DevOps\Aplos.New\APLOS.Display\bin\EntityFramework.xml
+D:\DevOps\Aplos.New\APLOS.Display\bin\EntityFramework.SqlServer.xml
+D:\DevOps\Aplos.New\APLOS.Display\bin\ExcelDataReader.xml
+D:\DevOps\Aplos.New\APLOS.Display\bin\ExcelDataReader.DataSet.xml
+D:\DevOps\Aplos.New\APLOS.Display\bin\Library.Core.pdb
+D:\DevOps\Aplos.New\APLOS.Display\bin\Library.Model.Core.pdb
+D:\DevOps\Aplos.New\APLOS.Display\bin\Library.Model.Core.dll.config
+D:\DevOps\Aplos.New\APLOS.Display\bin\LinqKit.xml
+D:\DevOps\Aplos.New\APLOS.Display\bin\Microsoft.AspNet.SignalR.Client.xml
+D:\DevOps\Aplos.New\APLOS.Display\bin\Newtonsoft.Json.xml
+D:\DevOps\Aplos.New\APLOS.Display\bin\System.Net.Http.Formatting.xml
+D:\DevOps\Aplos.New\APLOS.Display\bin\System.Runtime.CompilerServices.Unsafe.xml
+D:\DevOps\Aplos.New\APLOS.Display\bin\System.ValueTuple.xml
+D:\DevOps\Aplos.New\APLOS.Display\bin\System.Web.Helpers.xml
+D:\DevOps\Aplos.New\APLOS.Display\bin\System.Web.Http.xml
+D:\DevOps\Aplos.New\APLOS.Display\bin\System.Web.Http.WebHost.xml
+D:\DevOps\Aplos.New\APLOS.Display\bin\System.Web.Mvc.xml
+D:\DevOps\Aplos.New\APLOS.Display\bin\System.Web.Optimization.xml
+D:\DevOps\Aplos.New\APLOS.Display\bin\System.Web.Razor.xml
+D:\DevOps\Aplos.New\APLOS.Display\bin\System.Web.WebPages.xml
+D:\DevOps\Aplos.New\APLOS.Display\bin\System.Web.WebPages.Deployment.xml
+D:\DevOps\Aplos.New\APLOS.Display\bin\System.Web.WebPages.Razor.xml
+D:\DevOps\Aplos.New\APLOS.Display\obj\Debug\APLOS.Display.csprojAssemblyReference.cache
+D:\DevOps\Aplos.New\APLOS.Display\obj\Debug\Aplos.Properties.AplosMessage.resources
+D:\DevOps\Aplos.New\APLOS.Display\obj\Debug\Aplos.Properties.Resources.resources
+D:\DevOps\Aplos.New\APLOS.Display\obj\Debug\APLOS.Display.csproj.GenerateResource.cache
+D:\DevOps\Aplos.New\APLOS.Display\obj\Debug\APLOS.Display.csproj.CoreCompileInputs.cache
+D:\DevOps\Aplos.New\APLOS.Display\obj\Debug\APLOS.Display.csproj.CopyComplete
+D:\DevOps\Aplos.New\APLOS.Display\obj\Debug\AplosWebDisplay.dll
+D:\DevOps\Aplos.New\APLOS.Display\obj\Debug\AplosWebDisplay.pdb
+D:\Dev Ops\APLOS.Display\bin\SqlServerTypes\x64\msvcr120.dll
+D:\Dev Ops\APLOS.Display\bin\SqlServerTypes\x64\SqlServerSpatial140.dll
+D:\Dev Ops\APLOS.Display\bin\SqlServerTypes\x86\msvcr120.dll
+D:\Dev Ops\APLOS.Display\bin\SqlServerTypes\x86\SqlServerSpatial140.dll
+D:\Dev Ops\APLOS.Display\bin\AplosWebDisplay.dll.config
+D:\Dev Ops\APLOS.Display\bin\AplosWebDisplay.dll
+D:\Dev Ops\APLOS.Display\bin\AplosWebDisplay.pdb
+D:\Dev Ops\APLOS.Display\bin\Aplos.Service.dll
+D:\Dev Ops\APLOS.Display\bin\Aplos.Service.Extension.dll
+D:\Dev Ops\APLOS.Display\bin\AplosAttendance.dll
+D:\Dev Ops\APLOS.Display\bin\AplosShiftProcess.dll
+D:\Dev Ops\APLOS.Display\bin\CommonServiceLocator.dll
+D:\Dev Ops\APLOS.Display\bin\ConnectionManager.dll
+D:\Dev Ops\APLOS.Display\bin\EntityFramework.dll
+D:\Dev Ops\APLOS.Display\bin\EntityFramework.SqlServer.dll
+D:\Dev Ops\APLOS.Display\bin\ExcelDataReader.DataSet.dll
+D:\Dev Ops\APLOS.Display\bin\ExcelDataReader.dll
+D:\Dev Ops\APLOS.Display\bin\GenericLeaveProcess.dll
+D:\Dev Ops\APLOS.Display\bin\HtmlAgilityPack.dll
+D:\Dev Ops\APLOS.Display\bin\Library.Core.dll
+D:\Dev Ops\APLOS.Display\bin\Library.Crosscutting.dll
+D:\Dev Ops\APLOS.Display\bin\Library.Data.dll
+D:\Dev Ops\APLOS.Display\bin\Library.Model.Core.dll
+D:\Dev Ops\APLOS.Display\bin\Library.Security.dll
+D:\Dev Ops\APLOS.Display\bin\Library.Service.Core.dll
+D:\Dev Ops\APLOS.Display\bin\Library.ViewModel.Core.dll
+D:\Dev Ops\APLOS.Display\bin\LinqKit.dll
+D:\Dev Ops\APLOS.Display\bin\Microsoft.AspNet.SignalR.Client.dll
+D:\Dev Ops\APLOS.Display\bin\Microsoft.ReportViewer.Common.dll
+D:\Dev Ops\APLOS.Display\bin\Microsoft.ReportViewer.DataVisualization.dll
+D:\Dev Ops\APLOS.Display\bin\Microsoft.ReportViewer.Design.dll
+D:\Dev Ops\APLOS.Display\bin\Microsoft.ReportViewer.ProcessingObjectModel.dll
+D:\Dev Ops\APLOS.Display\bin\Microsoft.ReportViewer.WebDesign.dll
+D:\Dev Ops\APLOS.Display\bin\Microsoft.ReportViewer.WebForms.dll
+D:\Dev Ops\APLOS.Display\bin\Microsoft.SqlServer.Types.dll
+D:\Dev Ops\APLOS.Display\bin\Microsoft.Web.Administration.dll
+D:\Dev Ops\APLOS.Display\bin\Microsoft.Web.Infrastructure.dll
+D:\Dev Ops\APLOS.Display\bin\Newtonsoft.Json.dll
+D:\Dev Ops\APLOS.Display\bin\Syncfusion.Compression.Base.dll
+D:\Dev Ops\APLOS.Display\bin\Syncfusion.DocIO.Base.dll
+D:\Dev Ops\APLOS.Display\bin\Syncfusion.DocToPdfConverter.Base.dll
+D:\Dev Ops\APLOS.Display\bin\Syncfusion.ExcelToPdfConverter.Base.dll
+D:\Dev Ops\APLOS.Display\bin\Syncfusion.Pdf.Base.dll
+D:\Dev Ops\APLOS.Display\bin\Syncfusion.Presentation.Base.dll
+D:\Dev Ops\APLOS.Display\bin\Syncfusion.PresentationToPdfConverter.Base.dll
+D:\Dev Ops\APLOS.Display\bin\Syncfusion.XlsIO.Base.dll
+D:\Dev Ops\APLOS.Display\bin\System.Configuration.ConfigurationManager.dll
+D:\Dev Ops\APLOS.Display\bin\System.Net.Http.Formatting.dll
+D:\Dev Ops\APLOS.Display\bin\System.Runtime.CompilerServices.Unsafe.dll
+D:\Dev Ops\APLOS.Display\bin\System.Threading.Thread.dll
+D:\Dev Ops\APLOS.Display\bin\System.ValueTuple.dll
+D:\Dev Ops\APLOS.Display\bin\System.Web.Helpers.dll
+D:\Dev Ops\APLOS.Display\bin\System.Web.Http.dll
+D:\Dev Ops\APLOS.Display\bin\System.Web.Http.WebHost.dll
+D:\Dev Ops\APLOS.Display\bin\System.Web.Mvc.dll
+D:\Dev Ops\APLOS.Display\bin\System.Web.Optimization.dll
+D:\Dev Ops\APLOS.Display\bin\System.Web.Razor.dll
+D:\Dev Ops\APLOS.Display\bin\System.Web.WebPages.Deployment.dll
+D:\Dev Ops\APLOS.Display\bin\System.Web.WebPages.dll
+D:\Dev Ops\APLOS.Display\bin\System.Web.WebPages.Razor.dll
+D:\Dev Ops\APLOS.Display\bin\Unity.Abstractions.dll
+D:\Dev Ops\APLOS.Display\bin\Unity.Container.dll
+D:\Dev Ops\APLOS.Display\bin\Unity.Mvc.dll
+D:\Dev Ops\APLOS.Display\bin\WebActivatorEx.dll
+D:\Dev Ops\APLOS.Display\bin\WebGrease.dll
+D:\Dev Ops\APLOS.Display\bin\Zen.Barcode.Core.dll
+D:\Dev Ops\APLOS.Display\bin\Aplos.ViewModel.dll
+D:\Dev Ops\APLOS.Display\bin\Aplos.Model.dll
+D:\Dev Ops\APLOS.Display\bin\Microsoft.ReportViewer.WinForms.dll
+D:\Dev Ops\APLOS.Display\bin\EnvDTE.dll
+D:\Dev Ops\APLOS.Display\bin\Microsoft.VisualStudio.Shell.Interop.dll
+D:\Dev Ops\APLOS.Display\bin\Microsoft.VisualStudio.Shell.Interop.8.0.dll
+D:\Dev Ops\APLOS.Display\bin\Microsoft.Build.Framework.dll
+D:\Dev Ops\APLOS.Display\bin\Syncfusion.OfficeChart.Base.dll
+D:\Dev Ops\APLOS.Display\bin\stdole.dll
+D:\Dev Ops\APLOS.Display\bin\Microsoft.VisualStudio.OLE.Interop.dll
+D:\Dev Ops\APLOS.Display\bin\Microsoft.VisualStudio.TextManager.Interop.dll
+D:\Dev Ops\APLOS.Display\bin\Microsoft.VisualStudio.TextManager.Interop.8.0.dll
+D:\Dev Ops\APLOS.Display\bin\Microsoft.MSXML.dll
+D:\Dev Ops\APLOS.Display\bin\Aplos.Service.Extension.pdb
+D:\Dev Ops\APLOS.Display\bin\Aplos.Service.pdb
+D:\Dev Ops\APLOS.Display\bin\Aplos.Service.dll.config
+D:\Dev Ops\APLOS.Display\bin\AplosAttendance.pdb
+D:\Dev Ops\APLOS.Display\bin\AplosShiftProcess.pdb
+D:\Dev Ops\APLOS.Display\bin\ConnectionManager.pdb
+D:\Dev Ops\APLOS.Display\bin\EntityFramework.xml
+D:\Dev Ops\APLOS.Display\bin\EntityFramework.SqlServer.xml
+D:\Dev Ops\APLOS.Display\bin\ExcelDataReader.xml
+D:\Dev Ops\APLOS.Display\bin\ExcelDataReader.DataSet.xml
+D:\Dev Ops\APLOS.Display\bin\Library.Core.pdb
+D:\Dev Ops\APLOS.Display\bin\Library.Model.Core.pdb
+D:\Dev Ops\APLOS.Display\bin\Library.Model.Core.dll.config
+D:\Dev Ops\APLOS.Display\bin\LinqKit.xml
+D:\Dev Ops\APLOS.Display\bin\Microsoft.AspNet.SignalR.Client.xml
+D:\Dev Ops\APLOS.Display\bin\Newtonsoft.Json.xml
+D:\Dev Ops\APLOS.Display\bin\System.Net.Http.Formatting.xml
+D:\Dev Ops\APLOS.Display\bin\System.Runtime.CompilerServices.Unsafe.xml
+D:\Dev Ops\APLOS.Display\bin\System.ValueTuple.xml
+D:\Dev Ops\APLOS.Display\bin\System.Web.Helpers.xml
+D:\Dev Ops\APLOS.Display\bin\System.Web.Http.xml
+D:\Dev Ops\APLOS.Display\bin\System.Web.Http.WebHost.xml
+D:\Dev Ops\APLOS.Display\bin\System.Web.Mvc.xml
+D:\Dev Ops\APLOS.Display\bin\System.Web.Optimization.xml
+D:\Dev Ops\APLOS.Display\bin\System.Web.Razor.xml
+D:\Dev Ops\APLOS.Display\bin\System.Web.WebPages.xml
+D:\Dev Ops\APLOS.Display\bin\System.Web.WebPages.Deployment.xml
+D:\Dev Ops\APLOS.Display\bin\System.Web.WebPages.Razor.xml
+D:\Dev Ops\APLOS.Display\obj\Debug\APLOS.Display.csproj.AssemblyReference.cache
+D:\Dev Ops\APLOS.Display\obj\Debug\Aplos.Properties.AplosMessage.resources
+D:\Dev Ops\APLOS.Display\obj\Debug\Aplos.Properties.Resources.resources
+D:\Dev Ops\APLOS.Display\obj\Debug\APLOS.Display.csproj.GenerateResource.cache
+D:\Dev Ops\APLOS.Display\obj\Debug\APLOS.Display.csproj.CoreCompileInputs.cache
+D:\Dev Ops\APLOS.Display\obj\Debug\APLOS.Display.csproj.CopyComplete
+D:\Dev Ops\APLOS.Display\obj\Debug\AplosWebDisplay.dll
+D:\Dev Ops\APLOS.Display\obj\Debug\AplosWebDisplay.pdb

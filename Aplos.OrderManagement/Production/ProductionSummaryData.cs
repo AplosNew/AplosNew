@@ -1358,7 +1358,7 @@ namespace Library.OrderManagement.Production
                 }
                 else
                 {
-                    var sql = @"SELECT  PlannedQty=CASE WHEN S.Qty=0 THEN CEILING(SUM(PO.PlannedQty)) ELSE S.Qty END
+                    var sql = @"SELECT PlannedQty=CASE WHEN S.Qty=0 THEN CEILING(SUM(PO.PlannedQty)) ELSE S.Qty END
                           ,ISNULL(CEILING((CASE WHEN S.Qty=0 THEN CEILING(SUM(PO.PlannedQty)) ELSE S.Qty END) - ISNULL(CEILING(PRS.TotalProductionQty),0)),0) RemainingQty, ISNULL(CEILING(PRS.TotalProductionQty),0)TotalProductionQty
                          FROM trn.ProductionOrder AS PO
 						 LEFT JOIN (Select Qty, ProductionOrderId from productionOrderSchedulingParametersType1  WHERE ProductionOrderId ='" + productionOrderId + @"') S ON S.ProductionOrderId = PO.Id
@@ -1512,6 +1512,25 @@ namespace Library.OrderManagement.Production
             {
                 throw ex;
             }
+        }
+
+        public IEnumerable<object> GetIsProductionHourOpen(string plantId)
+        {
+            try
+            {
+                string sql = @"Select IsProductionHourOpen from SCS.PlantConfig Where PlantId='"+ plantId + "'";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetProductionBookingPeriodCbo()
+        {
+            string sql = @"Select Id AS [Value], (UserName+'( '+format(StartTime, 'hh:mm tt')+' - '+format(StartTime, 'hh:mm tt')+')') AS [Text] from HKP.ProductionBookingPeriod";
+            return _sqlRepository.GetDataCollection(sql);
         }
 
         #region Packing Content & Dispatch

@@ -170,6 +170,32 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
         }
     };
 
+    $scope.IsProductionHourOpen = false;
+    $scope.GetIsProductionHourOpen = function () {
+        try {
+            $http.get('Productions/Productionsummary/GetIsProductionHourOpen')
+                .then(function (response) {
+                    $scope.IsProductionHourOpen = response.data[0].IsProductionHourOpen;
+                })
+        } catch (e) {
+            ShowResult(e, 'failure')
+        }
+    };
+    $scope.GetIsProductionHourOpen();
+
+    $scope.ProductionBookingPeriodList = [];
+    $scope.GetProductionBookingPeriodCbo = function () {
+        try {
+            $http.get('Productions/Productionsummary/GetProductionBookingPeriodCbo')
+                .then(function (response) {
+                    $scope.ProductionBookingPeriodList = response.data;
+                })
+        } catch (e) {
+            ShowResult(e, 'failure')
+        }
+    };
+    $scope.GetProductionBookingPeriodCbo();
+
     $scope.TotalSalesOrderQty = 0;
     $scope.TotalProductionBookingQty = 0;
     $scope.RemainQty = 0;
@@ -319,6 +345,7 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
         $scope.TotalProductionBookingQty = 0;
         $scope.TotalSalesOrderQty = 0;
         $scope.RemainQty = 0;
+        $scope.GetIsProductionHourOpen();
     };
 
     $scope.ToEntitydisable = true;
@@ -1453,6 +1480,7 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
         $scope.TotalProductionBookingQty = 0;
         $scope.TotalSalesOrderQty = 0;
         $scope.RemainQty = 0;
+        $scope.GetIsProductionHourOpen();
     }
 
     //#region WIP Location

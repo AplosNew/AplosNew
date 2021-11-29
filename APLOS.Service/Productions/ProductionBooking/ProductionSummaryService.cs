@@ -626,11 +626,14 @@ namespace Library.Service.Productions
                 {
                     ps.Id = "PS" + GetPK();
                     ps.AddedDate = DateTime.Now;
-                    var pp = GetProductionPeriodData(ps.AddedDate);
-
-                    if (pp.Tables[0].Rows.Count > 0)
+                    if (string.IsNullOrEmpty(ps.ProductionBookingPeriodId))
                     {
-                        ps.ProductionBookingPeriodId = pp.Tables[0].Rows[0]["Id"].ToString();
+                        var pp = GetProductionPeriodData(ps.AddedDate);
+
+                        if (pp.Tables[0].Rows.Count > 0)
+                        {
+                            ps.ProductionBookingPeriodId = pp.Tables[0].Rows[0]["Id"].ToString();
+                        } 
                     }
 
                     ps.ModelState = ModelState.Added;

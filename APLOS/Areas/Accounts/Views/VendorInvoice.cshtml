@@ -45,7 +45,7 @@
         <div class="form-group" show-errors>
             <label class="col-sm-3 control-label">No Of Days</label>
             <div class="col-sm-3 show-message">
-                <input id="baseNoOfday" type="number"  name="No Of Days" ng-model="voucher.BaseNoOfDays" ng-change="getMatureDate(voucher.BaseOnDueDate, voucher.BaseNoOfDays)" class="form-control" tabindex="12" required>
+                <input id="baseNoOfday" type="number" name="No Of Days" ng-model="voucher.BaseNoOfDays" ng-change="getMatureDate(voucher.BaseOnDueDate, voucher.BaseNoOfDays)" class="form-control" tabindex="12" required>
             </div>
             <label class="col-sm-3 control-label">Mature Date</label>
             <div class="col-sm-3 show-message">
@@ -229,7 +229,7 @@
                     </td>
                     <td id="td_CrAmount_{{$index}}">
                         <div class="show-message">
-                            <input type="text" n-decimals="3" class="form-control text-right" ng-model="x.Amount" ng-keyup="calculatebackTax($index);calculateTax(x.Id,$index);checkRowValidation(x, $index)">
+                            <input type="text" n-decimals="3" class="form-control text-right" ng-model="x.Amount" ng-keyup="calculatebackTax($index);calculateTax(x.Id,$index);checkRowValidation(x, $index);calDistributedAmount();calOutBoundDistributedAmount();">
                         </div>
                     </td>
                     <td>
@@ -244,6 +244,9 @@
                         </div>
                     </td>
                     <td class="text-right">
+                        <button ng-click="getExpenseDistribute($index,x)" ng-show="x.IsOrderSpecific" ng-disabled="x.TotalAmount == 0 || TotalChargesAmount == 0 " class="btn btn-action tooltip-here" data-placement="top" title="Expense Distribute">
+                            <i>Distribute</i>
+                        </button>
                         <button ng-click="getTaxCode($index,x.Id)" class="btn btn-action tooltip-here" data-placement="top" title="Tax">
                             <i>Tax</i>
                         </button>
@@ -398,151 +401,156 @@
             </div>
         </div>
     </div>
-        <div class="common-btn">
-            <ul class="list-inline text-right">
-                <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                <li ng-hide="voucher.Id==null"><button ng-click="confirmPost(voucher.Id);" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Post</button></li>
-                <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-            </ul>
-        </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li ng-hide="voucher.Id==null"><button ng-click="confirmPost(voucher.Id);" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Post</button></li>
+            <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
     </div>
-    <div class="row text-right aplos-grid-toggle">
-        <div class="col-xs-12 col-sm-12 col-sm-12">
-            <div class="search-form">
-                <div class="row">
-                    <div class="col-xs-12 col-sm-3 col-md-3">
-                        <div class="select-style">
-                            <select ng-model="$root.parameters.searchBy">
-                                <option ng-repeat="option in searchInvoiceList" value="{{option.value}}">{{option.name}}</option>
-                            </select>
-                        </div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchInvoiceList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
                     </div>
-                    <div class="col-xs-12 col-sm-7 col-md-7">
-                        <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
-                    </div>
-                    <div class="col-xs-12 col-sm-2 col-md-2">
-                        <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
                 </div>
             </div>
         </div>
     </div>
-    <div class="table-responsive modal-table aplos-grid-toggle">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>VoucherNo</th>
-                    <th>Particulars</th>
-                    <th>Invoicing @Library.Model.Parties.PartyType.Vendor.ToString()</th>
-                    <th>Posting Date</th>
-                    <th>Currency</th>
-                    <th>Amount</th>
-                    <th>Written-off Amount</th>
-                    <th>Balance</th>
-                    <th>Beneficiary</th>
-                    <th>TDS Amount</th>
-                    <th>TDS VoucherNo</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr dir-paginate="x in invoiceList |itemsPerPage:$root.pageSize" total-items="$root.total_count" @*ng-dblclick="Get($index);"*@>
-                    <td>{{x.VoucherNo}}</td>
-                    <td>{{x.Particulars}}</td>
-                    <td>{{x.PartyPlantName}}</td>
-                    <td>{{x.PostingDate | dateFiltering}}</td>
-                    <td>{{x.CurrencyCode}}</td>
-                    <td class="text-right">{{x.Amount | number:3}}</td>
-                    <td class="text-right"><ul class="list-inline action-list"><li><a ng-click="getInvoiceSetOffDetailByInvoice(x.Id)" href="">{{x.WrittenOffAmount | number:3}}</a></li></ul></td>
-                    <td class="text-right">{{x.Amount-x.WrittenOffAmount | number:3}}</td>
-                    <td>{{x.BeneficiaryType}}</td>
-                    <td class="text-right">{{x.AdditionalTax | number:3}}</td>
-                    <td>{{x.TDSVoucherNo}}</td>
-                    <td>{{x.IsPark?'Parked':'Posted'}}</td>
-                    <td class="text-right">
-                        <ul class="list-inline action-list">
-                            <li ng-show="x.IsPark"><a ng-click="confirmPost(x.Id,x.BeneficiaryType,x.AdditionalTaxId,x);" href="" class="btn btn-action tooltip-here">Post</a></li>
-                            <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x.VoucherId,x.BeneficiaryType,x.TDSVoucherId,x.TDSVoucherNo);" href="" class="btn btn-action tooltip-here">Delete</a></li>
-                            <li ng-show="x.IsTDSTaxPost=='TDSParked'"><a ng-disabled="x.IsPark" ng-click="onClickadditionalTaxPop(x);" href="" class="btn btn-action tooltip-here">Post TDS</a></li>
-                            <li><a class="btn btn-action" ng-click="VendorInvoiceReport('Pdf',x.VoucherId,x.BeneficiaryType)"><i class="fa fa-file-pdf-o"></i></a></li>
-                            <li><a class="btn btn-action" ng-click="VendorInvoiceReport('Excel',x.VoucherId,x.BeneficiaryType)"><i class="fa fa-file-excel-o"></i></a></li>
-                            <li ng-show="x.IsTDSTaxPost=='TDSPosted'"><a ng-click="TDSVouchereReport('Pdf',x.TDSVoucherId);" href="" class="btn btn-action tooltip-here">TDS Report</a></li>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>VoucherNo</th>
+                <th>Particulars</th>
+                <th>Invoicing @Library.Model.Parties.PartyType.Vendor.ToString()</th>
+                <th>Posting Date</th>
+                <th>Currency</th>
+                <th>Amount</th>
+                <th>Written-off Amount</th>
+                <th>Balance</th>
+                <th>Beneficiary</th>
+                <th>TDS Amount</th>
+                <th>TDS VoucherNo</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in invoiceList |itemsPerPage:$root.pageSize" total-items="$root.total_count" @*ng-dblclick="Get($index);"*@>
+                <td>{{x.VoucherNo}}</td>
+                <td>{{x.Particulars}}</td>
+                <td>{{x.PartyPlantName}}</td>
+                <td>{{x.PostingDate | dateFiltering}}</td>
+                <td>{{x.CurrencyCode}}</td>
+                <td class="text-right">{{x.Amount | number:3}}</td>
+                <td class="text-right"><ul class="list-inline action-list"><li><a ng-click="getInvoiceSetOffDetailByInvoice(x.Id)" href="">{{x.WrittenOffAmount | number:3}}</a></li></ul></td>
+                <td class="text-right">{{x.Amount-x.WrittenOffAmount | number:3}}</td>
+                <td>{{x.BeneficiaryType}}</td>
+                <td class="text-right">{{x.AdditionalTax | number:3}}</td>
+                <td>{{x.TDSVoucherNo}}</td>
+                <td>{{x.IsPark?'Parked':'Posted'}}</td>
+                <td class="text-right">
+                    <ul class="list-inline action-list">
+                        <li ng-show="x.IsPark"><a ng-click="confirmPost(x.Id,x.BeneficiaryType,x.AdditionalTaxId,x);" href="" class="btn btn-action tooltip-here">Post</a></li>
+                        <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x.VoucherId,x.BeneficiaryType,x.TDSVoucherId,x.TDSVoucherNo);" href="" class="btn btn-action tooltip-here">Delete</a></li>
+                        <li ng-show="x.IsTDSTaxPost=='TDSParked'"><a ng-disabled="x.IsPark" ng-click="onClickadditionalTaxPop(x);" href="" class="btn btn-action tooltip-here">Post TDS</a></li>
+                        <li><a class="btn btn-action" ng-click="VendorInvoiceReport('Pdf',x.VoucherId,x.BeneficiaryType)"><i class="fa fa-file-pdf-o"></i></a></li>
+                        <li><a class="btn btn-action" ng-click="VendorInvoiceReport('Excel',x.VoucherId,x.BeneficiaryType)"><i class="fa fa-file-excel-o"></i></a></li>
+                        <li ng-show="x.IsTDSTaxPost=='TDSPosted'"><a ng-click="TDSVouchereReport('Pdf',x.TDSVoucherId);" href="" class="btn btn-action tooltip-here">TDS Report</a></li>
 
-                        </ul>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
-    </div>
-    @Html.Partial("~/Areas/Banks/Views/_BankPopUp.cshtml")
-    @*@Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")*@
-    @Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
-    @Html.Partial("~/Areas/Accounts/Views/_TaxCodePopUp.cshtml")
-    @Html.Partial("~/Areas/Accounts/Views/GLItem/_GLMappingPopUp.cshtml")
-    @Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
-    @Html.Partial("~/Areas/Accounts/Views/_AdditionalTaxPopUp.cshtml")
-    @Html.Partial("~/Areas/Accounts/Views/_InvoiceSetOffDetailByInvoicePopUp.cshtml")
-    @Html.Partial("~/Areas/Accounts/Views/_PartyFiscalInvoiceAmountPopUp.cshtml")
+                    </ul>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
+</div>
+@Html.Partial("~/Areas/Banks/Views/_BankPopUp.cshtml")
+@*@Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")*@
+@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_TaxCodePopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/GLItem/_GLMappingPopUp.cshtml")
+@Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_AdditionalTaxPopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_InvoiceSetOffDetailByInvoicePopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_PartyFiscalInvoiceAmountPopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_ExpenseDistributePopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_InboundInvoicePopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_OutBoundInvoicePopUp.cshtml")
 
-    <div class="modal fade site-modal in" id="ChangeInvoiceGLPopUp" role="dialog" data-backdrop="static">
-        <div class="modal-dialog" style="width:1000px">
-            <div class="modal-content" ng-form name="materialgridCharacteristicsForm">
-                <div class="modal-header"> GL<button type="button" class="close" ng-click="ChangecloseGLPopUp()">&times;</button></div>
-                <div class="modal-body">
-                    <div class="row text-right">
-                        <div class="col-xs-12 col-sm-12 col-sm-12">
-                            <div class="search-form">
-                                <div class="row">
-                                    <div class="col-xs-12 col-sm-3 col-md-3">
-                                        <div class="select-style">
-                                            <select ng-model="ChangecustomerInvoiceGLParameters.searchBy">
-                                                <option ng-repeat="option in ChangecustomerInvoiceGLSearchList|orderBy:'name'" value="{{option.value}}">{{option.name}}</option>
-                                            </select>
-                                        </div>
+<div class="modal fade site-modal in" id="ChangeInvoiceGLPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:1000px">
+        <div class="modal-content" ng-form name="materialgridCharacteristicsForm">
+            <div class="modal-header"> GL<button type="button" class="close" ng-click="ChangecloseGLPopUp()">&times;</button></div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="ChangecustomerInvoiceGLParameters.searchBy">
+                                            <option ng-repeat="option in ChangecustomerInvoiceGLSearchList|orderBy:'name'" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
                                     </div>
-                                    <div class="col-xs-12 col-sm-7 col-md-7">
-                                        <input type="text" class="form-control" placeholder="Search" ng-model="ChangecustomerInvoiceGLParameters.search" ng-enter="customerInvoiceGLGLData();">
-                                    </div>
-                                    <div class="col-xs-12 col-sm-2 col-md-2">
-                                        <button type="button" ng-click="ChangecustomerInvoiceGLGLData();" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="ChangecustomerInvoiceGLParameters.search" ng-enter="customerInvoiceGLGLData();">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="ChangecustomerInvoiceGLGLData();" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="table-responsive modal-table">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Account Group</th>
-                                    <th>GL</th>
-                                    <th>Budget</th>
-                                    <th>Activity</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr dir-paginate="x in ChangecustomerInvoiceGLList |itemsPerPage:ChangecustomerInvoiceGLParameters.pageSize" pagination-id="metaData.name + 'ChangecustomerInvoiceGLList'"
-                                    total-items="ChangecustomerInvoiceGLParameters.total_count" ng-dblclick="ChangeglSelect(x)">
-                                    <td>{{x.AccountGroupName}}</td>
-                                    <td>{{x.GLGeneralInfoCode}} - {{x.GLGeneralInfoName}}</td>
-                                    <td>{{x.BudgetName}}</td>
-                                    <td>{{x.ActivityName}}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <dir-pagination-controls max-size="10" pagination-id="metaData.name + 'ChangecustomerInvoiceGLList'" direction-links="true" boundary-links="true" on-page-change="ChangecustomerInvoiceGLGLData(newPageNumber)"></dir-pagination-controls>
                 </div>
-                <div class="modal-footer common-btn">
-                    <button type="button" class="btn btn-default" ng-click="ChangecloseGLPopUp()">Close</button>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Account Group</th>
+                                <th>GL</th>
+                                <th>Budget</th>
+                                <th>Activity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in ChangecustomerInvoiceGLList |itemsPerPage:ChangecustomerInvoiceGLParameters.pageSize" pagination-id="metaData.name + 'ChangecustomerInvoiceGLList'"
+                                total-items="ChangecustomerInvoiceGLParameters.total_count" ng-dblclick="ChangeglSelect(x)">
+                                <td>{{x.AccountGroupName}}</td>
+                                <td>{{x.GLGeneralInfoCode}} - {{x.GLGeneralInfoName}}</td>
+                                <td>{{x.BudgetName}}</td>
+                                <td>{{x.ActivityName}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
+                <dir-pagination-controls max-size="10" pagination-id="metaData.name + 'ChangecustomerInvoiceGLList'" direction-links="true" boundary-links="true" on-page-change="ChangecustomerInvoiceGLGLData(newPageNumber)"></dir-pagination-controls>
+            </div>
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn btn-default" ng-click="ChangecloseGLPopUp()">Close</button>
             </div>
         </div>
     </div>
-    <confirm-archive-generic modalid="confirmTaxCodeDelPopUp" title="Confirmation" message={{Taxmessage_confirmation}} data-ng-click-right-button="removeTaxCodeRow()"></confirm-archive-generic>
-    <confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(invoiceId,type,tdsId,data)"></confirm-archive-generic>
-    <confirm-archive-generic modalid="confirmTDSPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="postAdditionalTax(AdditionalTaxId,additionalTaxdata)"></confirm-archive-generic>
-    <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(invoiceId,voucherId,type,tDSVoucherId,tDSVoucherNo)"></confirm-archive-generic>
-    <confirm-archive-generic modalid="confirmAutoTDSPostPopUp" title="Confirmation" message={{message_TDSAuto_confirmation}} data-ng-click-right-button="postAdditionalTax(AdditionalTaxId,additionalTaxdata)"></confirm-archive-generic>
+</div>
+<confirm-archive-generic modalid="confirmTaxCodeDelPopUp" title="Confirmation" message={{Taxmessage_confirmation}} data-ng-click-right-button="removeTaxCodeRow()"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(invoiceId,type,tdsId,data)"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmTDSPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="postAdditionalTax(AdditionalTaxId,additionalTaxdata)"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(invoiceId,voucherId,type,tDSVoucherId,tDSVoucherNo)"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmAutoTDSPostPopUp" title="Confirmation" message={{message_TDSAuto_confirmation}} data-ng-click-right-button="postAdditionalTax(AdditionalTaxId,additionalTaxdata)"></confirm-archive-generic>
+<confirm-archive-generic modalid="DeleteConfirmationPopUp" title="Confirmation" message={{message_conf}} data-ng-click-right-button="RemoveInvoice()"></confirm-archive-generic>
+<confirm-archive-generic modalid="DeleteOutBoundConfirmationPopUp" title="Confirmation" message={{message_conf}} data-ng-click-right-button="RemoveOutBoundInvoice()"></confirm-archive-generic>

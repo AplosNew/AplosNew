@@ -683,6 +683,17 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
             return jsondata;
         }
 
+        [HttpPost, Authorize]
+        public ActionResult GetEmpInfoYearlySalaryPorcessedbyFromYear(string ToYear, string ToMonth, bool isActive, bool isSeperated, bool isMaternity, string FromYear, string FromMonth)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            Library.HumanResource.Report.Payroll.PayrollReports prr = new Library.HumanResource.Report.Payroll.PayrollReports();
+            var jsondata = Json(prr.GetEmpInfoYearlySalaryPorcessedFromYear(identity.CompanyGroupId, identity.PlantId, ToYear, identity.IsSysAdmin, identity.IsControlAdmin, identity.UserId, isActive, isSeperated, isMaternity,ToMonth,FromYear,FromMonth), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetAllArrearProcessInfo()
         {
@@ -701,18 +712,18 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
 
 
         [HttpPost, Authorize]
-        public ActionResult GetEmployeeSalaryProcessedReportYearlySalary(string taxYearId, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, bool withGoodWork)
+        public ActionResult GetEmployeeSalaryProcessedReportYearlySalary(string FromYear, string FromMonth, string ToYear, string ToMonth, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, bool withGoodWork)
         {
             try
             {
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                var fileName = taxYearId + "- SalarySheet" + DateTime.Now.ToString("yyMMdd") + identity.Name + ".xls";
+                var fileName = FromYear+ FromMonth + " - "+ ToYear + ToMonth + "- SalarySheet" + DateTime.Now.ToString("yyMMdd") + identity.Name + ".xls";
                 string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
                 Library.HumanResource.Report.Payroll.PayrollReports prr = new Library.HumanResource.Report.Payroll.PayrollReports();
 
-                var workbook = prr.GetEmployeeSalaryProcessedReportSalaryYearly(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, taxYearId, parameters, isActive, isSeperated, isMaternity, withGoodWork);
+                var workbook = prr.GetEmployeeSalaryProcessedReportSalaryYearlyWise(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId,  parameters, isActive, isSeperated, isMaternity, withGoodWork, FromYear, FromMonth, ToYear, ToMonth);
                 workbook.Version = ExcelVersion.Excel97to2003;
                 workbook.SaveAs(fullPath);
 

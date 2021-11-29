@@ -1640,7 +1640,7 @@ LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
 			var sheet = workbook.Worksheets[0];
 
-			sheet.Name = "TransformationContractReceiptChalaan";
+			sheet.Name = "JWTransformationReceiptChalaan";
 
 
 			int ROW = 6;
@@ -2019,7 +2019,7 @@ LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 			for (int i = 0; i < TransformationWIPData.Rows.Count; i++)
 			{
 
-				if (WIPJWOutputId != TransformationWIPData.Rows[i]["OSTransformationPODetailId"].ToString())
+				if (WIPJWOutputId != TransformationWIPData.Rows[i]["JWTransformationPODetailId"].ToString())
 				{
 
 					if (WIPRowIndexNo < WIPROW)
@@ -2031,7 +2031,7 @@ LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 					WIPRowIndexNo = WIPROW;
 				}
 
-				sheet[WIPROW, ColJobWorkTransformationContractChildMasterId].Text = TransformationWIPData.Rows[i]["OSTransformationPODetailId"].ToString();
+				sheet[WIPROW, ColJobWorkTransformationContractChildMasterId].Text = TransformationWIPData.Rows[i]["JWTransformationPODetailId"].ToString();
 				sheet[WIPROW, ColWIPJWOutputItem].Text = TransformationWIPData.Rows[i]["JWOutputItem"].ToString();
 				sheet[WIPROW, ColWIPId].Text = TransformationWIPData.Rows[i]["Id"].ToString();
 				sheet[WIPROW, ColWIPJWInputItem].Text = TransformationWIPData.Rows[i]["JWInputItem"].ToString();
@@ -2045,7 +2045,7 @@ LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
 				sheet.Range[WIPROW, 1, WIPROW, WIPendCol].BorderInside(ExcelLineStyle.Hair);
 				sheet.Range[WIPROW, 1, WIPROW, WIPendCol].BorderAround(ExcelLineStyle.Hair);
-				WIPJWOutputId = TransformationWIPData.Rows[i]["OSTransformationPODetailId"].ToString();
+				WIPJWOutputId = TransformationWIPData.Rows[i]["JWTransformationPODetailId"].ToString();
 
 				WIPROW++;
 			}
@@ -2204,7 +2204,7 @@ LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
 			var sheet = workbook.Worksheets[0];
 
-			sheet.Name = "ValueAddedContractReceiptChalaan";
+			sheet.Name = "JWValueAddedReceiptChalaan";
 
 
 			int ROW = 6;
