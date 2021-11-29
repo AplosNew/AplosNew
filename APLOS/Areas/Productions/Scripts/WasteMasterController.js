@@ -10,10 +10,12 @@ function WasteMasterController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
-    $scope.searchBy = "UserName"; $scope.search = "";
-    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
+    $scope.searchBy = null; $scope.search = null;
+    //$scope.searchBy = "UserName"; $scope.search = "";
+    //$scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
 
-
+    $scope.CompanyId = null;
+    $scope.CompanyList = [];
     $scope.PlantId = null;
     $scope.PlantList = [];
     $scope.EntityList = [];
@@ -35,10 +37,10 @@ function WasteMasterController(cboService, commonMessage, $scope, $rootScope, ba
 
         $http({
             method: 'GET',
-            url: $scope.path + "getPlants",
+            url: $scope.path + "getCompany",
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.PlantList = response.data;
+            $scope.CompanyList = response.data;
         });
 
         $http({
@@ -50,6 +52,17 @@ function WasteMasterController(cboService, commonMessage, $scope, $rootScope, ba
         });
     }
     $scope.getData();
+
+    $scope.getPlant = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "getPlants",
+            data: { 'cmpId': $scope.CompanyId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.PlantList = response.data;
+        });
+    }
 
     $scope.getEntity = function () {
         $http({
@@ -112,7 +125,19 @@ function WasteMasterController(cboService, commonMessage, $scope, $rootScope, ba
 
     $scope.Get = function (args) {
 
-        $scope.ModelNew = Object.assign({}, args.data);
+        var AllData = [];
+        $http({
+            method: 'POST',
+            url: $scope.path + "Get",
+            data: {'Id':args.data.Id},
+            dataType: 'JSON'
+        }).then(function successCallback(resp) {
+            AllData = resp.data;
+        });
+
+        $scope.ModelNew = Object.assign({}, AllData);
+
+
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -124,6 +149,11 @@ function WasteMasterController(cboService, commonMessage, $scope, $rootScope, ba
 
         if (angular.isUndefinedOrNull($scope.ModelNew.BudgetId)) {
             ShowResult('No Budget Code Selected!!' , 'failure');
+            throw ("Invalid");
+        }
+
+        if (angular.isUndefinedOrNull($scope.ModelNew.UOMId)) {
+            ShowResult('No UOM Selected!!', 'failure');
             throw ("Invalid");
         }
 
@@ -179,6 +209,9 @@ function WasteMasterController(cboService, commonMessage, $scope, $rootScope, ba
 
     function ClearFields(seq) {
         $scope.Action = 'Save';
+        $scope.CompanyId = null;
+        $scope.PlantId = null;
+        $scope.Budget = null;
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ModelNew.Sequence = seq;
     }

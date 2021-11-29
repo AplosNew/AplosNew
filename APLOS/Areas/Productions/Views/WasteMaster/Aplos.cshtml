@@ -10,10 +10,22 @@
         </div>
 
         <div class="form-group">
+            <label class="col-sm-4 control-label">Plant</label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="PlantId" ng-change="getEntity()" name="Plant"
+                            ng-options="item.Value as item.Text for item in PlantList">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
             <label class="col-sm-4 control-label">Entity</label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
-                    <select class="form-control" ng-model="ModelNew.EntityId" ng-click="getBudgets()" name="entity"
+                    <select class="form-control" ng-model="ModelNew.EntityId" ng-change="getBudgets()" name="entity"
                             ng-options="item.Value as item.Text for item in EntityList">
                         <option value="">--Select--</option>
                     </select>
@@ -53,11 +65,11 @@
     </div>
     <div class="col-xs-12 col-sm-6 col-md-6">
         <div class="form-group">
-            <label class="col-sm-4 control-label">Plant</label>
+            <label class="col-sm-4 control-label">Company</label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
-                    <select class="form-control" ng-model="PlantId" ng-click="getEntity()" name="Plant"
-                            ng-options="item.Value as item.Text for item in PlantList">
+                    <select class="form-control" ng-model="CompanyId" ng-change="getPlant()" name="Company"
+                            ng-options="item.Value as item.Text for item in CompanyList">
                         <option value="">--Select--</option>
                     </select>
                 </div>
@@ -105,7 +117,7 @@
         </ul>
     </div>
 </div>
-<div class="row text-right aplos-grid-toggle">
+@*<div class="row text-right aplos-grid-toggle">
     <div class="col-xs-12 col-sm-12 col-sm-12">
         <div class="search-form">
             <div class="row">
@@ -125,7 +137,7 @@
             </div>
         </div>
     </div>
-</div>
+</div>*@
 <div class="table-responsive aplos-grid-toggle">
     <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
@@ -134,10 +146,14 @@
             <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
             <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
             <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
-            <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
-            <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
-            <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
-            <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
+            <div e-column e-field="Entity" e-headertext="Entity" e-width="3"></div>
+            <div e-column e-field="Plant" e-headertext="Plant" e-width="3"></div>
+            <div e-column e-field="BudgetCode" e-headertext="Budget Code" e-width="3"></div>
+            <div e-column e-field="ItemName" e-headertext="Item Name" e-width="3"></div>
+            <div e-column e-field="Category" e-headertext="Category" e-width="3"></div>
+            <div e-column e-field="SubCategory" e-headertext="Sub Category" e-width="3"></div>
+            <div e-column e-field="StandardRate" e-headertext="Standard Rate" e-type="number" e-width="3"></div>
+           
         </div>
     </div>
 </div>
