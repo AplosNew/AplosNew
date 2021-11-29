@@ -101,7 +101,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             AdminAttendanceControlService app = new AdminAttendanceControlService();
             string sql = app.stringAttendanceData(employeeid, fromdate, todate, PlantId);
 
-            string shiftSQL = @" SELECT * FROM ShiftDefination AS sd WHERE sd.PlantID='" + PlantId + @"'";
+            string shiftSQL = @" SELECT * FROM ShiftDefination AS sd WHERE sd.IsActive=1 and sd.PlantID='" + PlantId + @"'";
 
             var jsondata = Json(new { data = _sqlRepository.GetModelCollection<AttendanceProcessNewProcess>(sql), shift = _sqlRepository.GetDataCollection(shiftSQL) }, JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
