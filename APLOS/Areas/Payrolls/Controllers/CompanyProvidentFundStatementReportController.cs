@@ -1,4 +1,5 @@
 ﻿using Aplos.Controllers;
+using ConnectionManager;
 using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data.Sql;
@@ -900,12 +901,12 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                 objRpt = new clsReport();
                 //objRpt.GetPFEmpInfo(out dsEmpInfo, Convert.ToInt32(Month), Year); 
-                GetPFCSV(out dsEmpInfo, month, year, identity.PlantId);
+                GetPFCSV(out dsEmpInfo, month, year, identity.CompanyId);
                 var dataTable = dsEmpInfo.Tables[0];
 
                 //string[] collist = "EmployeeCode,EmployeeName,";
 
-                string attachment = "attachment; filename=" + DateTime.Now.ToString("yyMMdd") + "PFcsv.txt";
+                string attachment = "attachment; filename=" + DateTime.Now.ToString("yyMMdd") + "CompanyWisePFcsv.txt";
                 //string attachment = "attachment; filename=MyCsvLol.csv";
                 System.Web.HttpContext.Current.Response.Clear();
                 System.Web.HttpContext.Current.Response.ClearHeaders();
@@ -1849,7 +1850,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         /// <param name="pyear"></param>
         /// <param name="salProcId"></param>
         /// <param name="plantId"></param>
-        public void GetPFCSV(out DataSet dsRef, string pmonth, string pyear, string plantId)
+        public void GetPFCSV(out DataSet dsRef, string pmonth, string pyear, string CompanyId)
         {
             string _date = "01-" + CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(Convert.ToInt32(pmonth)) + "-" + pyear;
             DateTime _lastdate = Convert.ToDateTime(_date).AddMonths(1).AddDays(-1);
@@ -1860,7 +1861,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
 
 
-            ConnectionManager.DAL.ConManager objCon;
+            ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
             try
             {
                 strSQL = @"select ed.DocNumber UANNo
@@ -1886,6 +1887,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                                 ,floor(AbsentDays) AbsentDays
                                 ,0 Advance
                                  FROM EmployeeInformation e 
+                                     LEFT JOIN ORG.Plant AS p ON p.Id=e.PlantId
                                      LEFT JOIN EmployeeDocument ED ON ED.EmpSystemID = E.SystemId
                                      AND ComplianceDocumentId = 
 									 (
@@ -1925,7 +1927,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 								 INNER JOIN (SELECT * FROM SalaryProcMaster WHERE   YearNo='" + pyear + @"' and MonthNo=" + pmonth + @" ) SPMVPF on C.SlrProcMstSystemID = SPMVPF.SystemID
 								WHERE C.SalaryHeadID IN (SELECT SalaryHeadID from SalaryHead where HeadCategory in ('PF Voluntary'))
 		                                  ) VPF  ON VPF.EmpInfoSystemID=e.SystemId
-                                WHERE (E.EmployeeStatus = 'Active' OR (DOS IS NULL or CONVERT(DATE,DOS) >= CONVERT(DATE,'" + _date + @"') ))   AND e.PlantId='" + plantId + @"' AND e.SystemId in 
+                                WHERE (E.EmployeeStatus = 'Active' OR (DOS IS NULL or CONVERT(DATE,DOS) >= CONVERT(DATE,'" + _date + @"') ))   AND p.CompanyId='" + CompanyId + @"' AND e.SystemId in 
 			                                (SELECT EESHE.EmpSystemId FROM [EmployeeEligibleForSalaryHeadEnum] EESHE
 																			INNER JOIN  
 																			( -- Salary Structure Start
@@ -1952,8 +1954,9 @@ namespace Aplos.Areas.Payrolls.Controllers
 																				
 																				)";
 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+                con.getDataSet(strSQL, out dsRef);
             }
             catch (Exception ex)
             {
@@ -1961,7 +1964,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
             finally
             {
-                objCon = null;
+                //objCon = null;
             }
         }//end function
 

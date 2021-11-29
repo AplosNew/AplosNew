@@ -48,7 +48,8 @@ namespace Aplos.Areas.Products.Controllers
         [Authorize]
         public JsonResult GetCbo()
         {
-            return Json(_productMasterService.GetCbo(), JsonRequestBehavior.AllowGet);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_productMasterService.GetCbo(identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
