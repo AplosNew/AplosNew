@@ -3872,6 +3872,7 @@
     <Content Include="Areas\JobWork\Views\JWReceipt\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\_ExpenseDistributePopUp.cshtml" />
     <Content Include="Areas\Accounts\Views\_InboundInvoicePopUp.cshtml" />
+    <Content Include="Areas\Accounts\Views\_OutBoundInvoicePopUp.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

@@ -9,13 +9,13 @@
                 <div class="col-xs-12 col-sm-12 col-md-12" style="padding: 10px;">
                     <div class="site-tab">
                         <ul class="nav nav-tabs" role="tablist">
-                            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="Update" role="tab" data-toggle="tab2">In Bound Invoice</a></li>
-                            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="Update" role="tab" data-toggle="tab2">Out Bound Invoice</a></li>
+                            <li ng-show="activityOrderType=='InboundInvoice' || activityOrderType=='BothInOutboundInvoice'" role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="Update" role="tab" data-toggle="tab2">In Bound Invoice</a></li>
+                            <li ng-show="activityOrderType=='OutboundInvoice' || activityOrderType=='BothInOutboundInvoice'" role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="Update" role="tab" data-toggle="tab2">Out Bound Invoice</a></li>
                         </ul>
                     </div>
                 </div>
                 <div class="tab-content">
-                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                    <div ng-show="activityOrderType=='InboundInvoice' || activityOrderType=='BothInOutboundInvoice'" role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
                         <div class="col-xs-12 col-sm-12 col-md-12" style="padding-left:0px">
                             <div class="col-xs-12 col-sm-1 col-md-1">
                                 <button ng-click="showInvoicePopUp();" class="btn single-btn"><i class="glyphicon glyphicon-plus"></i> Select Invoice </button>
@@ -63,6 +63,62 @@
                                             <td></td>
                                             <td class="text-right"><strong>{{checkedInvoiceList | sumByKey : 'BooksAmount' | number:2 }}</strong></td>
                                             <td class="text-right"><strong>{{checkedInvoiceList | sumByKey : 'DistributedAmount'|  number:2 }}</strong></td>
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div ng-show="activityOrderType=='OutboundInvoice' || activityOrderType=='BothInOutboundInvoice'" role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                        <div class="col-xs-12 col-sm-12 col-md-12" style="padding-left:0px">
+                            <div class="col-xs-12 col-sm-1 col-md-1">
+                                <button ng-click="showOutBoundInvoicePopUp();"  class="btn single-btn"><i class="glyphicon glyphicon-plus"></i> Select Invoice </button>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="table-responsive modal-table">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Invoice NO</th>
+                                            <th>Invoice Date</th>
+                                            <th>Customer</th>
+                                            <th>Voucher No</th>
+                                            <th>TRN Amount</th>
+                                            <th>Currency</th>
+                                            <th>Books Amount</th>
+                                            <th>Total Distributed Amount</th>
+                                            <th class="col-sm-1">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="x in checkedOutBoundInvoiceList">
+                                            <td>{{x.InvoiceId}}</td>
+                                            <td>{{x.PostingDate}}</td>
+                                            <td>{{x.PartyPlantName}}</td>
+                                            <td>{{x.VoucherNo}}</td>
+                                            <td class="text-right">{{x.Amount|number:2}}</td>
+                                            <td>{{x.CurrencyCode}}</td>
+                                            <td class="text-right">{{x.BooksAmount}}</td>
+
+                                            <td class="text-right">{{x.DistributedAmount|number:2}}</td>
+                                            <td class="text-right">
+                                                <ul class="list-inline action-list">
+                                                    <li><button ng-click="DeleteOutBoutConfirmation(x.InvoiceId)" ng-disabled="x.Id" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+                                                </ul>
+                                            </td>
+
+                                        </tr>
+                                        <tr>
+                                            <td colspan="1" class="text-right"><strong>Total : </strong></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td class="text-right"><strong>{{checkedOutBoundInvoiceList | sumByKey : 'Amount'|  number:2 }}</strong></td>
+                                            <td></td>
+                                            <td class="text-right"><strong>{{checkedOutBoundInvoiceList | sumByKey : 'BooksAmount' | number:2 }}</strong></td>
+                                            <td class="text-right"><strong>{{checkedOutBoundInvoiceList | sumByKey : 'DistributedAmount'|  number:2 }}</strong></td>
                                             <td></td>
                                         </tr>
                                     </tbody>
