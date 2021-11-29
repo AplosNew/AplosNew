@@ -556,6 +556,7 @@
     <Compile Include="Areas\Farming\FarmingAreaRegistration.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\EntityFixedAssetsRegisterController.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\SubAssetTypeController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\LeavesChecklistReportNewController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FinalDeductionReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\PhysicalVerificationReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\JobCardReportNewController.cs" />
@@ -1862,6 +1863,7 @@
     <Content Include="Areas\FixedAssets\Scripts\entityFixedAssetsRegisterController.js" />
     <Content Include="Areas\FixedAssets\Scripts\SubAssetTypeController.js" />
     <Content Include="Areas\FixedAssets\Scripts\expensesCapitalizedController.js" />
+    <Content Include="Areas\HumanResource\Scripts\LeavesChecklistReportNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\leaveWithWagesRegistersFrom18Controller.js" />
     <Content Include="Areas\HumanResource\Scripts\manpowerAttendanceSummaryControllerNew.js" />
     <Content Include="Areas\HumanResource\Scripts\PhysicalVerificationReportController.js" />
@@ -3873,6 +3875,7 @@
     <Content Include="Areas\Accounts\Views\_ExpenseDistributePopUp.cshtml" />
     <Content Include="Areas\Accounts\Views\_InboundInvoicePopUp.cshtml" />
     <Content Include="Areas\Accounts\Views\_OutBoundInvoicePopUp.cshtml" />
+    <Content Include="Areas\HumanResource\Views\LeavesChecklistReportNew\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
