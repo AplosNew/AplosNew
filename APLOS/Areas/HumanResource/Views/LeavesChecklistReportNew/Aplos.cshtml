@@ -2,29 +2,47 @@
 
 <div class="row">
     <div class="col-sm-12">
-        <div class="col-sm-4">
+        <div class="col-sm-3">
             <div class="form-group">
-                <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
+                <label class="col-sm-6 control-label">From Date<sup>*</sup></label>
+                <div class="col-sm-6 show-message">
                     <input type="text" name="From Date" placeholder="dd-MM-yyyy" ng-model="LeavesCheckListReport.FromDate" datepicker class="form-control datepicker" tabindex="1">
                 </div>
             </div>
         </div>
-        <div class="col-sm-4">
+        <div class="col-sm-3">
             <div class="form-group">
-                <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
+                <label class="col-sm-6 control-label">To Date<sup>*</sup></label>
+                <div class="col-sm-6 show-message">
                     <input type="text" name="From Date" placeholder="dd-MM-yyyy" ng-model="LeavesCheckListReport.ToDate" datepicker class="form-control datepicker" tabindex="1">
                 </div>
             </div>
         </div>
-        <div class="col-sm-4" style="margin-top: -11px;">
+        <div class="col-sm-3">
             <div class="form-group">
-                <div class="common-btn">
-                    <ul class="list-inline text-left">
-                        <li><button ng-click="LeavesCheckListReportData();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
-                    </ul>
+                <label class="col-sm-4 control-label">Leave Type</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <input id="LeaveTypeList" ej-dropdownlist e-create="create" e-watermarktext="Select.." e-multiselectmode="visualmode" e-datasource="LeaveTypeList" e-fields-value="LeaveTypeId" e-fields-text="LeaveType" e-width="100%" e-showcheckbox="true" />
+                    </div>
                 </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                <div class="col-sm-12">
+                    <input id="CWPlant" />
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="col-sm-12">
+        <div class="form-group">
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li><button ng-click="LeavesCheckListReportData();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+                </ul>
             </div>
         </div>
     </div>
