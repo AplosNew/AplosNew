@@ -164,45 +164,28 @@ function CompanyProvidentFundStatementReportController(cboService, commonMessage
             ShowResult(e, 'failure');
         }
     };
-    //$scope.GetPFcsv = function (isPFEligible) {
-    //    try {
-    //        var DropDownListMonth = $("#ddlMonthList").data("ejDropDownList");
-    //        var DropDownListYear = $("#ddlYearList").data("ejDropDownList");
+    $scope.GetPFcsv = function (isPFEligible) {
+        try {
+            var DropDownListMonth = $("#ddlMonthList").data("ejDropDownList");
+            var DropDownListYear = $("#ddlYearList").data("ejDropDownList");
 
-    //        $scope.month = DropDownListMonth.getSelectedValue();
-    //        $scope.year = DropDownListYear.getSelectedValue();
-    //        if (angular.isUndefinedOrNull($scope.year)) {
-    //            ShowResult("Select Year", 'failure');
-    //        }
-    //        if (angular.isUndefinedOrNull($scope.month)) {
-    //            ShowResult("Select Month", 'failure');
-    //        }
-    //        else {
+            $scope.month = DropDownListMonth.getSelectedValue();
+            $scope.year = DropDownListYear.getSelectedValue();
+            if (angular.isUndefinedOrNull($scope.year)) {
+                ShowResult("Select Year", 'failure');
+            }
+            if (angular.isUndefinedOrNull($scope.month)) {
+                ShowResult("Select Month", 'failure');
+            }
+            else {
 
-    //            //$http({
-    //            //    method: 'POST',
-    //            //    url: $scope.path + 'GetPFcsv',
-    //            //    data: {
-    //            //        'month': $scope.month,
-    //            //        'year': $scope.year,
-    //            //        'isActive': $scope.isActive,
-    //            //        'isSeperated': $scope.isSeperated
-    //            //    }
-    //            //}).then(function successCallback(response) {
-    //            //    if (response.data.Error === true) {
-    //            //        ShowResult(response.data.Message, 'failure');
-    //            //    }
-    //            //    else {
-    //            //        $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-    //            //    }
-    //            //    });
-    //            $scope.parameters = 'month=' + $scope.month + '&year=' + $scope.year + '&isActive=' + $scope.isActive + '&isSeperated=' +$scope.isSeperated;
+                $scope.parameters = 'month=' + $scope.month + '&year=' + $scope.year + '&isActive=' + $scope.isActive + '&isSeperated=' +$scope.isSeperated;
 
-    //            location.href = $scope.path + 'GetPFcsv?' + $scope.parameters;
-    //        }
-    //    } catch (e) {
-    //        ShowResult(e, 'failure');
-    //    }
-    //};
+                location.href = $scope.path + 'GetPFcsv?' + $scope.parameters;
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
 
 }

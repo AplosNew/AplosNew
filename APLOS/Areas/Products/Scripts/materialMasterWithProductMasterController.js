@@ -268,6 +268,22 @@ function materialMasterWithProductMasterController(cboService, commonMessage, $s
         angular.element(document.querySelector('#fabricId')).modal('hide');
     };
 
+    $scope.ValidationForUoM = function () {
+        for (var i = 0; i < $scope.searchdata.length; i++) {
+            for (var j = 0; j < $scope.productMasterList.length; j++) {
+                if ($scope.searchdata[i].ProductMasterId == $scope.productMasterList[j].Value) {
+                    if ($scope.searchdata[i].BaseUOMId != $scope.productMasterList[j].BaseUOMId) {
+                       // throw "Material Master UoM and Product Master UoM should same.";
+                        ShowResult("Material Master UoM and Product Master UoM should same.", "failure");
+                    }
+                }
+            }
+            
+        }
+    }
+
+  
+
     function MakeDataForSave() {
 
         $scope.materialMasters = [];
@@ -282,11 +298,20 @@ function materialMasterWithProductMasterController(cboService, commonMessage, $s
         //    $scope.materialMasters[j].ProductMasterId = $scope.model.ProductMasterId;
         //}
     }
+
     $scope.Save = function () {
         try {
-            //if (baseService.isUndefinedOrNull($scope.model.ProductMasterId)) {
-            //    throw "Select Product Master.";
-            //}
+            for (var i = 0; i < $scope.searchdata.length; i++) {
+                for (var j = 0; j < $scope.productMasterList.length; j++) {
+                    if ($scope.searchdata[i].ProductMasterId == $scope.productMasterList[j].Value) {
+                        if ($scope.searchdata[i].BaseUOMId != $scope.productMasterList[j].BaseUOMId) {
+                             throw "Material Master UoM and Product Master UoM should same.";
+                        }
+                    }
+                }
+
+            }
+
             MakeDataForSave();
             if (baseService.arrayLength($scope.materialMasters)==0) {
                 throw "Select an Item.";

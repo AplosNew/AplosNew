@@ -572,6 +572,9 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                     if (!baseService.isUndefinedOrNull($scope.modelNew.Id)) {
                         $scope.itemList[i].ContractId = $scope.modelNew.Id;
                     }
+                    if (baseService.isUndefinedOrNull($scope.itemList[i].UOMId)) {
+                        return ShowResult('Item UoM is required.', 'failure');
+                    }
                 }
                 $http({
                     method: 'POST'

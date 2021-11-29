@@ -455,7 +455,8 @@ function ProductMasterController(cboService,commonMessage, $scope, $rootScope, b
         $scope.materialMasterAlternativeUOMNew.BaseUOMFactor = null;
         $scope.materialMasterAlternativeUOM = {};
     }
-    // #endregion
+    // #endregion
+
 
     // #region Start CRUD 
     $scope.Get = function (id, index) {
@@ -618,6 +619,7 @@ function ProductMasterController(cboService,commonMessage, $scope, $rootScope, b
                         $scope.productMasters = $filter('orderBy')($scope.productMasters, 'Sequence');
                         baseService.paginationAdd();
                         ClearFields(response.data.Sequence);
+                        $scope.getData();
                     }
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -643,6 +645,7 @@ function ProductMasterController(cboService,commonMessage, $scope, $rootScope, b
                             $scope.productMasters = $filter('orderBy')($scope.productMasters, 'Sequence');
                         }
                         ClearFields(response.data.Sequence);
+                        $scope.getData();
                     }
                 }, function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
