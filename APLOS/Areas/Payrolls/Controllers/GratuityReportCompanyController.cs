@@ -153,6 +153,10 @@ namespace Aplos.Areas.Payrolls.Controllers
                 {
                     try
                     {
+                        if (dtEmpGratuity.Rows[i]["EmployeeCode"].ToString() == "10006354")
+                        {
+
+                        }
                         double totalYear = 0.00;
                         //if (dtEmpGratuity.Rows[i]["EmployeeCode"].ToString() == "1088")
                         //{
@@ -166,7 +170,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                         //if(dtEmpGratuity.Rows[i]["totalYear"].ToString())
 
-                        dtGratuityPolicy.DefaultView.RowFilter = totalYear + ">=MaturityFromYear	AND " + totalYear + "<=MaturityToYear";
+                        dtGratuityPolicy.DefaultView.RowFilter = totalYear + ">=MaturityFromYear	AND " + totalYear + "<=MaturityToYear and plantId = '"+ dtEmpGratuity.Rows[i]["PlantID"].ToString() + "' ";
 
                         //dtGratuityPolicy.DefaultView.RowFilter =  "MaturityFromYear>=" + dtEmpGratuity.Rows[i]["totalYear"].ToString() + "	AND MaturityToYear <=" + dtEmpGratuity.Rows[i]["totalYear"].ToString();
 
@@ -234,7 +238,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                     try
                     {
 
-                        if (i == 158)
+                        if (dtEmpGratuity.Rows[i]["EmployeeCode"].ToString() == "10006354")
                         {
 
                         }
@@ -259,7 +263,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                                 totalYear += Convert.ToDouble(dtEmpGratuity.Rows[i]["totalYear"].ToString());
 
 
-                                dtGratuityPolicy.DefaultView.RowFilter = totalYear + ">=MaturityFromYear	AND " + totalYear + "<=MaturityToYear";
+                                dtGratuityPolicy.DefaultView.RowFilter = totalYear + ">=MaturityFromYear AND " + totalYear + "<=MaturityToYear and plantId = '" + dtEmpGratuity.Rows[i]["PlantID"].ToString() + "'";
 
                                 if (dtGratuityPolicy.DefaultView.Count > 0)
                                 {
@@ -383,7 +387,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                         sheet1.Range[xlsRow, colBasic].HorizontalAlignment = ExcelHAlign.HAlignRight;
                         sheet1.Range[xlsRow, colBasic].BorderAround(ExcelLineStyle.Hair);
 
-                        ru.SetNumberText(ref sheet1, xlsRow, colSalEliGratuity, Convert.ToDouble(eligibleGratuityAmount).ToString("#,##0.00;(#,##0.00)"));
+                        ru.SetNumberText(ref sheet1, xlsRow, colSalEliGratuity, Convert.ToDouble(eligibleGratuityAmount).ToString("#,##0.00;"));
 
                         xlsRow++;
                     }
@@ -552,7 +556,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                 if (reportType.ToUpper() == "EXCEL")
                 {
-                    fileName = "GratuityStatement.xlsx";
+                    fileName = "GratuityStatement.xls";
 
                     string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName);
                     workbook.Version = ExcelVersion.Excel2016;

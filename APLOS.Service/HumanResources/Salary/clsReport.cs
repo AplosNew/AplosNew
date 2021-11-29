@@ -19240,7 +19240,7 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
                            SELECT E.SystemID EmpSystemID, E.EmployeeCode, E.EmployeeName, REPLACE(Convert(VARCHAR(11), E.DOB, 106), ' ', '-') AS DOB,
 	                              E.FatherName, E.MotherName, E.EmpType EmployeeType, E.EmploymentType EmploymentNature, E.NationalID,
 	                              E.GenderID GenderName, REPLACE(Convert(VARCHAR(11), E.DOJ, 106), ' ', '-') AS DOJ,
-	                              REPLACE(Convert(VARCHAR(11), E.DOC, 106), ' ', '-') AS DOC, 
+	                              REPLACE(Convert(VARCHAR(11), E.DOC, 106), ' ', '-') AS DOC, eact.IsOutSider,
 							
 								 EC.UserName AS EmpCategory, Cm.UserName CompanyName,Cm.Id CompanyId, CAM.Address1,
 	                              CAM.Address2, E.EmployeeCategorySystemID, E.UnitID, E.DivisionID, E.DepartmentID, E.DesignationSystemID,
@@ -19321,8 +19321,8 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
 										
 										LEFT JOIN SalaryRuleMaster SRM ON SRM.SystemID = EmpSlr.SalaryRuleMasterSystemID
 										LEFT JOIN CurrencyRuleChild CRC ON CRC.MstSystemID = srm.CurrencyRuleSystemID AND CRC.SalaryHeadID = SH.SalaryHeadID
-
-                                                 ) A  WHERE EmployeeStatus = 'Active' and
+                                            left join [dbo].[EmployeeCodeType] eact on eact.Id=e.EmployeeCodeTypeId
+                                                 ) A  WHERE EmployeeStatus = 'Active' and a.IsOutSider=0 and
                             isnull(EmpInfoSystemID,'')<>''  AND GroupID = '" + companyGroupId + @"' AND  CompanyId ='" + comapnyId + @"' --AND PlantId ='" + plantId + @"'
 	                        AND HeadCategory = 'Basic'	
                     AND CAST(DATEDIFF(mm, A.DOJ, '" + gratuityCalcDate + @"') AS varchar(4))/12 between 
@@ -19362,12 +19362,12 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
                     }
 
                 }
-                else if (payGrp.ToUpper() != "NO GROUP")
+                else if (payGrp.ToUpper().Trim() != "NOGROUP")
                 {
                     strSql = strSql + @" AND EmpSystemID  IN (
 													 select employeeid from MST.PayrollGroupMaster where PayrollGroupId = '" + payGrp + @"')";
                 }
-                if (payGrp.ToUpper() == "NO GROUP")
+                if (payGrp.ToUpper().Trim() == "NOGROUP")
                 {
                     strSql = strSql + @" AND EmpSystemID NOT IN (
 													 select employeeid from MST.PayrollGroupMaster)";
