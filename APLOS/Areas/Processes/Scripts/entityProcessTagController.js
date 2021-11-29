@@ -25,6 +25,9 @@ function EntityProcessTagController(commonMessage, $scope, $rootScope, baseServi
                     $scope.entityProcess.DispatchUoM = $scope.entityProcessTagList[i].DispatchUoM;
                     $scope.entityProcess.LotNumberCapture = $scope.entityProcessTagList[i].LotNumberCapture;
                     $scope.entityProcess.LotNumberMandatory = $scope.entityProcessTagList[i].LotNumberMandatory;
+                    $scope.entityProcess.IsSKU1 = $scope.entityProcessTagList[i].IsSKU1;
+                    $scope.entityProcess.IsSKU2 = $scope.entityProcessTagList[i].IsSKU2;
+                    $scope.entityProcess.IsSKU3 = $scope.entityProcessTagList[i].IsSKU3;
                     
                 }
             });
@@ -45,6 +48,9 @@ function EntityProcessTagController(commonMessage, $scope, $rootScope, baseServi
         , PlantId: null
         , LotNumberCapture: false
         , LotNumberMandatory:false
+        , IsSKU1:false
+        , IsSKU2:false
+        , IsSKU3:false
     };
 
     $scope.entityProcess = {
