@@ -85,7 +85,7 @@
             controller: 'esicStatementsController'
         })
         .when('/providentfund-statements', {
-            templateUrl: 'payrolls/ProvidentFundStatementReportandCSV/',
+            templateUrl: 'payrolls/ProvidentFundStatementReportandCSV/Aplos',
             controller: 'providentFundStatementReportandCSVController'
         })
         //.when('/bonus-register', {

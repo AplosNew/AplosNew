@@ -848,7 +848,7 @@ function GatePassPotalController(accountService, addressService, $location, $win
 					}, function errorCallBack(response) {
 						ShowResult(response.data.Message, 'failure');
 					});
-				}
+				} 
 			}
 		} catch (e) {
 			throw e;
