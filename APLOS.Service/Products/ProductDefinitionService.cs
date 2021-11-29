@@ -145,7 +145,8 @@ namespace Library.Service.Products
                                       , Active=CASE WHEN MM.Active=1 THEN 'Yes' ELSE 'No' END
                                       --, B.Code AS AssetBudgetCode
                                       --, Revenue=CASE WHEN (MM.IsInventory=1 OR MM.IsExpenseOut=1) THEN 'Yes' ELSE 'No' END
-                                      ,0 Flag
+                                       ,MM.BaseUOMId
+                                      ,CAST(0 AS BIT) Flag
                 FROM [MST].[MaterialMaster] AS MM
                 LEFT OUTER JOIN [MST].[MaterialGroupMaster] AS MGP ON MM.MaterialGroupMasterId = MGP.Id
                 LEFT OUTER JOIN [HKP].[MaterialType] AS MT ON MGP.MaterialTypeId = MT.Id

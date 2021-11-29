@@ -229,7 +229,7 @@
                     </td>
                     <td id="td_CrAmount_{{$index}}">
                         <div class="show-message">
-                            <input type="text" n-decimals="3" class="form-control text-right" ng-model="x.Amount" ng-keyup="calculatebackTax($index);calculateTax(x.Id,$index);checkRowValidation(x, $index)">
+                            <input type="text" n-decimals="3" class="form-control text-right" ng-model="x.Amount" ng-keyup="calculatebackTax($index);calculateTax(x.Id,$index);checkRowValidation(x, $index);calDistributedAmount();calOutBoundDistributedAmount();">
                         </div>
                     </td>
                     <td>
@@ -244,8 +244,8 @@
                         </div>
                     </td>
                     <td class="text-right">
-                        <button ng-click="getExpenseDistribute($index,x.Id)" ng-show="x.IsOrderSpecific" ng-disabled="x.TotalAmount == 0 || TotalChargesAmount == 0 " class="btn btn-action tooltip-here" data-placement="top" title="Expense Distribute">
-                            <i>Distribute</i> 
+                        <button ng-click="getExpenseDistribute($index,x)" ng-show="x.IsOrderSpecific" ng-disabled="x.TotalAmount == 0 || TotalChargesAmount == 0 " class="btn btn-action tooltip-here" data-placement="top" title="Expense Distribute">
+                            <i>Distribute</i>
                         </button>
                         <button ng-click="getTaxCode($index,x.Id)" class="btn btn-action tooltip-here" data-placement="top" title="Tax">
                             <i>Tax</i>
@@ -490,6 +490,7 @@
 @Html.Partial("~/Areas/Accounts/Views/_PartyFiscalInvoiceAmountPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_ExpenseDistributePopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_InboundInvoicePopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_OutBoundInvoicePopUp.cshtml")
 
 <div class="modal fade site-modal in" id="ChangeInvoiceGLPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog" style="width:1000px">
@@ -552,3 +553,4 @@
 <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(invoiceId,voucherId,type,tDSVoucherId,tDSVoucherNo)"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmAutoTDSPostPopUp" title="Confirmation" message={{message_TDSAuto_confirmation}} data-ng-click-right-button="postAdditionalTax(AdditionalTaxId,additionalTaxdata)"></confirm-archive-generic>
 <confirm-archive-generic modalid="DeleteConfirmationPopUp" title="Confirmation" message={{message_conf}} data-ng-click-right-button="RemoveInvoice()"></confirm-archive-generic>
+<confirm-archive-generic modalid="DeleteOutBoundConfirmationPopUp" title="Confirmation" message={{message_conf}} data-ng-click-right-button="RemoveOutBoundInvoice()"></confirm-archive-generic>
