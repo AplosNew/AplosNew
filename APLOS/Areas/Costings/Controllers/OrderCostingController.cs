@@ -2012,7 +2012,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-        private string ProductParameters(string ProductMasterId)
+        private string ProductParameters(string ProductMasterId) 
         {
             return @"select  pm.UserName as ProductMaster 
 							,pc.UserName as ProductCategory
