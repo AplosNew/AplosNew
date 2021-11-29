@@ -18717,19 +18717,20 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
         private void GetLeaveBalances(string EmployeeId, string FromDate, string ToDate, out DataTable dtLeaveBalance)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"Select L.LeaveTypeId, ISNULL(l.CurrentYearAllocation,0) CurrentYearAllocation,ISNULL(l.BroughtForward,0)+ ISNULL(L.CarryForwardOpeningBalance,0) AS LeaveCount,'OB' AS TransactionType
+            string sql = @"Select L.LeaveTypeId,Lt.LeaveType, ISNULL(l.CurrentYearAllocation,0) CurrentYearAllocation,ISNULL(l.BroughtForward,0)+ ISNULL(L.CarryForwardOpeningBalance,0) AS LeaveCount,'OB' AS TransactionType
                                   from EmployeeInformation EI
                                 Join YearlyCalendar AS C ON C.PlantId=EI.PlantId
                                 JOIN trn.EmployeeLeaveSummary L ON l.CalanderYearId=c.Id and L.EmployeeId=EI.SystemId
+                                LEFT JOIN LeaveType AS lt ON lt.Id=l.LeaveTypeId
                                 WHERE L.EmployeeId='" + EmployeeId + @"' AND '" + FromDate + @"' BETWEEN c.FromDate AND c.ToDate AND l.LeaveTypeId IN (SELECT LeaveTypeId FROM LeaveWithWagesRegisterLeaveTypes where CompanyId='" + identity.CompanyId + @"') 
                                 
                                 UNION ALL
 
-                                SELECT l.LeaveTypeId,0 AS CurrentYearAllocation,
+                                SELECT l.LeaveTypeId,Lt.LeaveType,0 AS CurrentYearAllocation,
                                 CASE WHEN EncashWorkingDaysQty>0 THEN CONVERT(DECIMAL(18,4), EncashEarnLeaveQty)/CONVERT(DECIMAL(18,4),EncashWorkingDaysQty) ELSE 0 END * SUM(l.EarnValue) ActualEarnedLeave,
                                 'CUR' AS TransactionType
                                  FROM AttdnProcessData AS apd
-
+                                LEFT JOIN LeaveType AS lt ON lt.Id=apd.LTSystemID
                                 LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=apd.EmpSystemID
                                 --LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
                                 --LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
@@ -18742,7 +18743,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                                 WHERE apd.EmpSystemID='" + EmployeeId + @"' AND 
                                 apd.WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'
                                 AND L.LeaveTypeId IN (SELECT LeaveTypeId FROM LeaveWithWagesRegisterLeaveTypes where CompanyId='" + identity.CompanyId + @"') 
-                                GROUP BY l.LeaveTypeId,EncashWorkingDaysQty,EncashEarnLeaveQty
+                                GROUP BY l.LeaveTypeId,Lt.LeaveType,EncashWorkingDaysQty,EncashEarnLeaveQty
 
                                 ";
             dtLeaveBalance = _sqlRepository.GetDataTable(sql);
@@ -18995,6 +18996,9 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                         dtLeaveBalance.DefaultView.RowFilter = "LeaveTypeId='" + dtLeaveBalance.Rows[i]["LeaveTypeId"].ToString() + @"' AND TransactionType='OB'";
                         if (dtLeaveBalance.DefaultView.Count > 0)
                             CurrentYearAllocation = clsStaticInfo.dbl(dtLeaveBalance.DefaultView[0]["CurrentYearAllocation"].ToString());
+
+                        if (dtLeaveBalance.Rows[i]["LeaveType"].ToString().ToUpper() == "EARN")
+                            CurrentYearAllocation = 0;
 
                         sheet[startRow + 1, tempLeaveCol + 2].Number = CurrentYearAllocation + clsStaticInfo.dbl(dtLeaveBalance.Rows[i]["LeaveCount"].ToString());
                     }
