@@ -1861,7 +1861,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
 
 
-            ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
+            ConnectionManager.clsConnectionManager con = new clsConnectionManager(600);
             try
             {
                 strSQL = @"select ed.DocNumber UANNo
