@@ -2023,7 +2023,19 @@ namespace Aplos.Areas.Costings.Controllers
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
+        [HttpGet, Authorize]
+        public ActionResult GetProductUOMCbo(string ProductMasterId)
+        {
+            string sql = @"Select P.Id ProductMasterId,BUoM.Id AS Value,BUoM.UserName AS Text from [MST].[ProductMaster] P
+                            LEFT JOIN SCS.UnitOfMeasurement BUoM ON BUoM.Id=P.BaseUOMId
+                            Where ISNULL(BUoM.Id,'')<>'' and p.Id='"+ ProductMasterId + @"'
+                            UNION ALL
+                            Select AUom.ProductMasterId,BUoM.Id,BUoM.UserName from MST.ProductMasterAlternativeUoM AUoM 
+                            LEFT JOIN SCS.UnitOfMeasurement BUoM ON BUoM.Id=AUom.AlternativeUOMId
+                            Where ISNULL(BUoM.Id,'')<>'' and AUom.ProductMasterId='" + ProductMasterId + @"'";
 
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
         [HttpPost, Authorize]
         public ActionResult DeleteDirectMaterial(string DirectMaterialId)
         {

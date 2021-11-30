@@ -231,7 +231,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
                 try
                 {
-                    objRpt.GetLongAbsentisom(FromDate, ToDate, plantId, companyId, companyGroupId, out dsLongAbsentisom);
+                    Gen.GetLongAbsentisom(FromDate, ToDate, plantId, companyId, companyGroupId, out dsLongAbsentisom);
                     dtLongAbsentisom = dsLongAbsentisom.Tables[0];
 
                 }
@@ -10378,6 +10378,48 @@ namespace Library.HumanResource.NewAttendanceProcess
                         	EmployeeCodePreFix,EmployeeCodeNumeric
                                ,AP.WorkDate";
                 con.getDataSet(strSql, out dsRef);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                con = null;
+            }
+        }//End Function
+
+        public void GetLongAbsentisom(string FromDate, string ToDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        {
+            ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
+            string strSql = string.Empty;
+
+            try
+            {
+                strSql = @"SELECT ei.PlantId
+                        	";
+                strSql += columnName();
+                strSql += @"
+                            , FORMAT(AP.WorkDate,'dd-MMM-yyy')  WorkDate                         
+							,FORMAT(EI.EmployeeCurrentStatusEffectiveDate,'dd-MMM-yyyy') EmployeeCurrentStatusEffectiveDate
+                        	,DATEDIFF(DAY,EI.EmployeeCurrentStatusEffectiveDate,GETDATE()) NumberOfAbsentDays
+                            ,L.UserName AS Line
+
+                        FROM EmployeeInformation EI    
+                        left join (select * from AttdnProcessData where WorkDate between '" + FromDate + @"' and '" + ToDate + @"') AP ON AP.EmpSystemID = EI.SystemId
+                       ";
+                strSql += tableName();
+                strSql += @"
+                        
+                        WHERE 
+                         ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'
+                                 and ei.DOJ<='" + ToDate + @"' AND (ei.DOS is null OR ei.DOS>= '" + FromDate + @"')
+                            AND isnull(EI.EmployeeCurrentStatus,'')='LONG ABSENTEEISM' 
+                        
+                        ORDER BY
+                        	EmployeeCodePreFix,EmployeeCodeNumeric,ap.WorkDate";
+                con.getDataSet(strSql, out dsRef);
+
             }
             catch (Exception ex)
             {

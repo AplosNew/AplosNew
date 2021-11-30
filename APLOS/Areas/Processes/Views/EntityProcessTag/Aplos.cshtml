@@ -91,6 +91,9 @@
                 <th>Active</th>
                 <th>Process Nature</th>
                 <th>Production Booking Level</th>
+                <th>Is SKU1</th>
+                <th>Is SKU2</th>
+                <th>Is SKU3</th>                
                 <th>Lot No. Capture</th>
                 <th>Lot No. Mandatory</th>
                 <th>Remove</th>
@@ -120,6 +123,30 @@
                         <select class="form-control" ng-model="x.ProductionBookingLevel" ng-options="item.Value as item.Text for item in productionBookingLevelList">
                             <option value=""></option>
                         </select>
+                    </div>
+                </td>
+                <td>
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" ng-model="x.IsSKU1">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </td>
+                <td>
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" ng-model="x.IsSKU2">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </td>
+                <td>
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" ng-model="x.IsSKU3">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
                     </div>
                 </td>
                 <td>

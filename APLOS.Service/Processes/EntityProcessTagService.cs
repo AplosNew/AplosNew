@@ -100,6 +100,7 @@ namespace Library.Service.Processes
                                 item.DispatchForm = string.Empty;
                                 item.IsDispatchSKURequired = false;
                                 item.DispatchType = string.Empty;
+                                
                             }
                             InsertGraph(item);
                         }
@@ -178,7 +179,7 @@ namespace Library.Service.Processes
 								--, PP.UserName ProductionProcessGroup
                                 --, EPT.ProductionProcessGroupId
                                 , EPT.ProductionBookingLevel
-								, CAST(0 as BIT) AS Archive
+								, CAST(0 as BIT) AS Archive,EPT.IsSKU1,EPT.IsSKU2,EPT.IsSKU3
 					FROM [HKP].[EntityProcessTag] AS EPT
 					LEFT JOIN HKP.Process AS P ON EPT.ProcessId=P.Id
 					LEFT JOIN HKP.MaterialType AS MT ON P.MaterialTypeId=MT.Id
