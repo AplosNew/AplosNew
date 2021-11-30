@@ -687,7 +687,9 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
                 templateUrl: 'humanresource/OTConfirmationProcess/Aplos',
                 controller: 'OTConfirmationProcessController'
             })
-;
-    
-
+        .when('/leaves-check-list-report-new', {
+            templateUrl: 'humanresource/LeavesChecklistReportNew/Aplos',
+            controller: 'LeavesChecklistReportNewController'
+        })
+        ;
 }

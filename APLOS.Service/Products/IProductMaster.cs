@@ -13,7 +13,7 @@ namespace Library.Service.Products
         /// <returns>decimal</returns>
         decimal GetAutoSequence();
 
-        GridModel GetCbo();
+        GridModel GetCbo(string companyGroupId);
 
         void Insert(ProductMaster entity, IEnumerable<ProductMasterAttributeValue> productMasterAttributeValue, IEnumerable<ProductMasterEfficency> efficencyList, IEnumerable<ProductMasterAlternativeUOM> materialMasterAlternativeUOM);
 

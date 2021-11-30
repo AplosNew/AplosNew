@@ -156,10 +156,10 @@ namespace Aplos.Areas.Payrolls.Controllers
                     try
                     {
                         double totalYear = 0.00;
-                        //if (dtEmpGratuity.Rows[i]["EmployeeCode"].ToString() == "1088")
-                        //{
+                        if (dtEmpGratuity.Rows[i]["EmployeeCode"].ToString() == "10002799")
+                        {
 
-                        //}//totalMonthAfterYear
+                        }//totalMonthAfterYear
                         if (Convert.ToInt32(dtEmpGratuity.Rows[i]["totalMonthAfterYear"]) >= 6)
                         {
                             totalYear += 0.5;
@@ -554,7 +554,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                 if (reportType.ToUpper() == "EXCEL")
                 {
-                    fileName = "GratuityStatement.xlsx";
+                    fileName = "GratuityStatement.xls";
 
                     string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName);
                     workbook.Version = ExcelVersion.Excel2016;
@@ -609,7 +609,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                           (
                            SELECT E.SystemID EmpSystemID,  E.EmployeeCode EmployeeCode, E.EmployeeName, REPLACE(Convert(VARCHAR(11), E.DOB, 106), ' ', '-') AS DOB,
 	                              E.FatherName, E.MotherName, E.EmpType EmployeeType, E.EmploymentType EmploymentNature, E.NationalID,
-	                              E.GenderID GenderName, REPLACE(Convert(VARCHAR(11), E.DOJ, 106), ' ', '-') AS DOJ,
+	                              E.GenderID GenderName, REPLACE(Convert(VARCHAR(11), E.DOJ, 106), ' ', '-') AS DOJ,eact.IsOutSider,
                                   REPLACE(Convert(VARCHAR(11), E.DOS, 106), ' ', '-') AS DOS,
 	                              REPLACE(Convert(VARCHAR(11), E.DOC, 106), ' ', '-') AS DOC,ISNULL(LG.UserName,'') LegalDesignation
 								   , E.EmployeeStatus,
@@ -735,19 +735,19 @@ namespace Aplos.Areas.Payrolls.Controllers
 										LEFT JOIN SalaryRuleMaster SRM ON SRM.SystemID = EmpSlr.SalaryRuleMasterSystemID 
 										--LEFT JOIN SalaryRuleGeneral SRG ON SRG.SalaryRuleMasterSystemID = SRM.SystemID	AND SRG.SalaryHeadID = SH.SalaryHeadID									
                                         LEFT JOIN CurrencyRuleChild CRC ON CRC.MstSystemID = srm.CurrencyRuleSystemID AND CRC.SalaryHeadID = SH.SalaryHeadID
-
+                                        left join [dbo].[EmployeeCodeType] eact on eact.Id=e.EmployeeCodeTypeId
                                         
-                         ) A  where  ISNULL(EmpInfoSystemID,'')<>'' AND PlantID = '" + plantId + @"' AND
+                         ) A  where  ISNULL(EmpInfoSystemID,'')<>'' AND PlantID = '" + plantId + @"' AND A.IsOutSider=0 and
                             Convert(date ,DOJ) <='" + effectiveDate + @"' AND (DOS IS NULL OR DOS >='" + effectiveDate + @"') AND SalaryHeadID in (" + salaryHeadId + @") 
-                            AND CAST(DATEDIFF(mm, A.DOJ, '" + effectiveDate + @"') AS varchar(4))/12 between 
+                            AND  Convert(decimal(18,2),CAST(DATEDIFF(mm, A.DOJ, '" + effectiveDate + @"') AS varchar(4)))/12 between 
 							(
-							 SELECT Min(Convert(Int,Convert(decimal(18,2),GPD.MaturityFromYear))) FROM GratuityPolicyMaster GPM 
+							 SELECT Min(Convert(decimal(18,2),Convert(decimal(18,2),GPD.MaturityFromYear))) FROM GratuityPolicyMaster GPM 
 			                    LEFT JOIN GratuityPolicyDetails GPD ON GPM.Id = GPD.GratuityPolicyMasterId
 			                    WHERE GPM.plantId = '" + plantId + @"'
 							)
 							AND
 							(
-							 SELECT Max(Convert(Int,Convert(decimal(18,2),GPD.MaturityFromYear))) FROM GratuityPolicyMaster GPM 
+							 SELECT Max(Convert(decimal(18,2),Convert(decimal(18,2),GPD.MaturityToYear))) FROM GratuityPolicyMaster GPM 
 			                    LEFT JOIN GratuityPolicyDetails GPD ON GPM.Id = GPD.GratuityPolicyMasterId
 			                    WHERE GPM.plantId = '" + plantId + @"'
 							)

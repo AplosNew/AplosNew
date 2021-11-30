@@ -316,6 +316,7 @@ namespace Library.Service.OrderManagements
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
             }
         }
+       
         //public IEnumerable<object> GetDepartmentPersonList(string plantId, string partyAccountGroupId, string partyId, bool flag)
         //{
         //    try
@@ -494,7 +495,7 @@ namespace Library.Service.OrderManagements
                             ,MOI.ProductLibraryId,MOI.FileName,MOI.Remark,MOI.OrderStatusId,MOI.UOMId
                             ,BOQNo=(Select COUNT(Id) from [dbo].[QuickBOQ] Where MasterOrderItemId=MOI.Id)
                             ,SONo=(Select COUNT(Id) from TRN.SalesOrder Where MasterOrderItemId=MOI.Id)
-                            ,MOI.Consignment,MOI.OrderCostingMasterTemplateId,'' TempList,PM.Id ProductMasterId
+                            ,MOI.Consignment,MOI.OrderCostingMasterTemplateId,'' TempList,PM.Id ProductMasterId,CAST(1 as bit) ByDefault
                         FROM TRN.MasterOrderItem AS MOI
                         JOIN MST.MaterialMaster AS MM ON MOI.MaterialMasterId=MM.Id
                         LEFT JOIN MST.MaterialMasterArticle AS ART ON MOI.ArticleId=ART.Id
@@ -733,7 +734,7 @@ namespace Library.Service.OrderManagements
 
         public IEnumerable<object> GetCharacteristicsByMaterialMasterId(string materialMasterId)
         {
-            var _sql = @"SELECT NULL AS Id, MMC.Id AS MaterialMasterCharacteristicsId, MMC.CharacteristicsId AS [Value], c.UserName AS [Text], MMC.IsFreeField
+            var _sql = @"SELECT distinct  MMC.CharacteristicsId AS [Value],NULL AS Id, MMC.Id AS MaterialMasterCharacteristicsId, c.UserName AS [Text], MMC.IsFreeField
 	                            , MMC.IsPreDefinedField, MMC.IsMandatory, C.ValueAssignmentLevel, MMC.[Sequence]
 	                            , CharacteristicsValueId = CASE WHEN (C.ValueAssignmentLevel='General' AND CV.IsDefault=1) THEN CV.Id ELSE NULL END
 

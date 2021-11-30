@@ -13,11 +13,72 @@
                 </div>
             </div>
             <div class="col-xs-6 col-sm-6 col-md-6">
-                <div class="common-btn" >
+                @*<div class="common-btn">
                     <ul class="list-inline text-right">
                         <li><button ng-click="GetProvidentFundStatement(true);" class="btn"> <i class="glyphicon glyphicon-download"></i>Download</button></li>
                     </ul>
+                </div>*@
+            </div>
+        </div>
+        <hr />
+        <div class="form-horizontal form-elements">
+            <div id="Tab" ej-tab e-itemactive="onactivetab" e-create="oncreatetab">
+
+                <ul>
+                    <li><a href="#TabPFEligible">Provident Fund Statement</a></li>
+                    <li><a href="#TabPFCSV">Provident Fund CSV</a></li>
+                    @*<li><a href="#TabNOTPFEligible">PF Not Deducted</a></li>*@
+                </ul>
+
+                <div id="TabPFEligible">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="col-md-4">
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <button ng-click="GetProvidentFundStatement(true);" class="btn"> <i class="glyphicon glyphicon-download"></i>Download</button>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                            </div>
+                        </div>
+                    </div>
                 </div>
+                <div id="TabPFCSV">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="col-md-4">
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+
+                                    <button ng-click="GetPFcsv();" class="btn"> <i class="glyphicon glyphicon-download"></i> Download</button>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                @*<div id="TabNOTPFEligible">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="col-md-4">
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <button ng-click="GetProvidentFundStatement(false);" class="btn"> <i class="glyphicon glyphicon-download"></i>Download</button>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                            </div>
+
+                        </div>
+                    </div>
+                </div>*@
             </div>
         </div>
     </div>
