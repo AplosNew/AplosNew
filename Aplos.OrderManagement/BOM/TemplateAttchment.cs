@@ -1209,7 +1209,7 @@ namespace Library.OrderManagement.BOM
 
         }
 
-        public void CopyBOMTemplate(string BOMMasterId)
+        public void CopyBOMTemplateDetail(string BOMMasterId)
         {
             DataSet BOMAttachmentMaster;
             DataSet BOMAttachmentDetail;
