@@ -91,7 +91,7 @@ namespace Library.MaterialManagement.Inventory
         }
 
         #endregion Constructor
-
+        bplib.clsGenID objGenID = new bplib.clsGenID();
         #region InventoryReceive
         private string GetPK()
         {
@@ -143,7 +143,98 @@ namespace Library.MaterialManagement.Inventory
             objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(ServicePOAckDocumentMap), out sID);
             return sID;
         }
+        public void SaveTermsData(string TitleId, string POId)
+        {
+            DataSet dsToSalesOrder;
+            DataSet dsToFirstCharacteristics;
+            try
+            {
 
+                //if (TitleId == null)
+                //{
+                //	throw new Exception("Please select Terms and Condition..");
+                //}
+
+
+                string Id = "";
+                DataSet dsSOId;
+                //GetSOId(MasterId, out dsSOId);
+                //string NewId = dsSOId.Tables[0].Rows[0]["Id"].ToString();
+                string NewSoId = string.Empty;
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("SELECT * FROM TermsAndConditionsPOChild WHERE 1=2", out dsToSalesOrder, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM TermsAndConditionsPODetails WHERE 1=2", out dsToFirstCharacteristics, false, "1");
+
+                DataTable dtFromMaster = _sqlRepository.GetDataTable("SELECT * FROM  TermsAndConditionsChild WHERE TermsAndConditionsMasterId='" + TitleId + "'");
+                DataTable dtFromFirstCharacteristics = _sqlRepository.GetDataTable("SELECT * FROM TermsAndConditionsDetails Where TermsAndConditionsChildId IN(Select Id from TermsAndConditionsChild Where TermsAndConditionsMasterId='" + TitleId + "')");
+
+                int SCount = 0;
+                objGenID.GenerateIDAuto("dbo.TermsAndConditionsPOChild", out Id);
+
+                for (int m = 0; m < dtFromMaster.Rows.Count; m++)
+                {
+                    SCount++;
+                    DataRow drSalesOrder = dsToSalesOrder.Tables[0].NewRow();
+                    CopyRow(dtFromMaster.Rows[m], ref drSalesOrder);
+                    drSalesOrder["Id"] = TitleId + Convert.ToInt32(Id) + SCount;
+                    NewSoId = drSalesOrder["Id"].ToString();
+                    drSalesOrder["TermsAndConditionsMasterId"] = TitleId;
+                    drSalesOrder["POId"] = POId;
+                    dsToSalesOrder.Tables[0].Rows.Add(drSalesOrder);
+
+                    dtFromFirstCharacteristics.DefaultView.RowFilter = "TermsAndConditionsChildId='" + dtFromMaster.Rows[m]["Id"].ToString() + "'";
+                    for (int i = 0; i < dtFromFirstCharacteristics.DefaultView.Count; i++)
+                    {
+                        DataRow drFirstCharacteristics = dsToFirstCharacteristics.Tables[0].NewRow();
+                        CopyRow(dtFromFirstCharacteristics.DefaultView[i].Row, ref drFirstCharacteristics);
+                        drFirstCharacteristics["Id"] = NewSoId + (i + 1);
+                        drFirstCharacteristics["TermsAndConditionsPOChildId"] = NewSoId;
+
+                        dsToFirstCharacteristics.Tables[0].Rows.Add(drFirstCharacteristics);
+                    }
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsToSalesOrder, dsToFirstCharacteristics);
+                //return Json(new { Error = false, Message = AplosMessage.Insert });
+
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        private void CopyRow(DataRow drSource, ref DataRow drDestination)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            for (int COL = 0; COL < drSource.Table.Columns.Count; COL++)
+            {
+                try
+                {
+                    drDestination[drSource.Table.Columns[COL].ColumnName] = drSource[drSource.Table.Columns[COL].ColumnName];
+                }
+                catch (Exception ex)
+                {
+                }
+                try
+                {
+                    drDestination["AddedBy"] = identity.Name;
+                    drDestination["AddedDate"] = DateTime.Now;
+                    drDestination["AddedFromIP"] = identity.IPAddress;
+                    drDestination["UpdatedBy"] = identity.Name;
+                    drDestination["UpdatedFromIP"] = identity.IPAddress;
+                    drDestination["UpdatedDate"] = DateTime.Now;
+
+                }
+                catch (Exception ex)
+                {
+                }
+            }
+
+        }
         public override void Insert(PurchaseOrder entity)
         {
             try
@@ -151,6 +242,7 @@ namespace Library.MaterialManagement.Inventory
                 ResetCurrencyRate(entity);
                 entity.Id = GetPK();
                 base.Insert(entity);
+                SaveTermsData(entity.TermsAndConditionsId,entity.Id);
 
             }
             catch (Exception ex)

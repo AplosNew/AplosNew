@@ -441,6 +441,21 @@ namespace Library.OrderManagement.ShipmentControl
 
         }//End Function
 
+        public IEnumerable<object> GetTermsAndConditionPOPopUp(string TermsAndConditionsPODetailId)
+        {
+            try
+            {
+                string strSQL = string.Empty;
+                strSQL = @"select * from TermsAndConditionsPODetails where TermsAndConditionsPOChildId='" + TermsAndConditionsPODetailId + "' order by sequence";
+                return _sqlRepository.GetDataCollection(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }//End Function
+
 
         public IEnumerable<object> Title(string masterID)
         {

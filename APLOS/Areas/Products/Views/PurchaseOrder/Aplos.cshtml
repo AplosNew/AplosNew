@@ -553,63 +553,69 @@
     <div class="col-md-12">
         <fieldset class="scheduler-border">
             <legend class="scheduler-border">Terms And Instruction</legend>
-            <div class="col-xs-12 col-sm-6 col-md-6">
-                @*<div class="form-group" show-errors>
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Terms and Conditions<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="select-style">
+                                <select id="TypeId" class="form-control" name="Terms And Conditions" ng-model="productNew.TermsAndConditionsId" @*ng-change="LoadTermsAndConditionGrid();"*@ tabindex="12" @*required*@>
+                                    <option ng-repeat="option in TermsAndConditionsList" value="{{option.Id}}">{{option.TermsAndConditions}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label" ng-show="checkedByList.length">{{productNew.labelCheckAndApproved}}</label>
+                        <div class="col-sm-8 show-message">
+                            <div class="select-style" ng-show="checkedByList.length">
+                                <select id="CheckedBy" class="form-control" name="Checked By" ng-model="productNew.CheckedBy" tabindex="12">
+                                    <option ng-repeat="option in checkedByList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Delivery Instruction (If Any)<sup></sup></label>
                         <div class="col-sm-8 show-message">
                             <textarea class="form-control" rows="2" ng-model="productNew.DeliveryInstruction" tabindex="6"></textarea>
                         </div>
-                    </div>*@
-
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Terms and Conditions<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <div class="select-style">
-                            <select id="TypeId" class="form-control" name="Terms And Conditions" ng-model="TermsAndConditions.Id" ng-change="LoadTermsAndConditionGrid();" tabindex="12" @*required*@>
-                                <option ng-repeat="option in TermsAndConditionsList" value="{{option.Id}}">{{option.TermsAndConditions}}</option>
-                            </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Special Instruction (If Any)<sup></sup></label>
+                        <div class="col-sm-8 show-message">
+                            <textarea class="form-control" rows="2" ng-model="productNew.SpecialInstruction" tabindex="6"></textarea>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-xs-12 col-sm-6 col-md-6">
-                <div class="form-group" show-errors>
-                    <label class="col-sm-5 control-label">Special Instruction (If Any)<sup></sup></label>
-                    <div class="col-sm-7 show-message">
-                        <textarea class="form-control" rows="2" ng-model="productNew.SpecialInstruction" tabindex="6"></textarea>
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group" id="div_docNo">
+                        <label class="col-sm-5 control-label"><b>Discount Amount</b><sup>*</sup></label>
+                        <div class="col-sm-7 show-message">
+                            <input type="number" name="DiscountAmount" ng-model="productNew.DiscountAmount" class="form-control" maxlength="20" tabindex="" autocomplete="off" style="text-align:right;">
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="col-xs-12 col-sm-6 col-md-6">
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label" ng-show="checkedByList.length">{{productNew.labelCheckAndApproved}}</label>
-                    <div class="col-sm-8 show-message">
-                        <div class="select-style" ng-show="checkedByList.length">
-                            <select id="CheckedBy" class="form-control" name="Checked By" ng-model="productNew.CheckedBy" tabindex="12">
-                                <option ng-repeat="option in checkedByList" value="{{option.Value}}">{{option.Text}}</option>
-                            </select>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group" id="div_docNonos">
+                        <label class="col-sm-4 control-label">Tolerance(%)<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="number" name="Tolerance" ng-model="productNew.Tolerance" class="form-control" maxlength="20" tabindex="" autocomplete="off" style="text-align:right;">
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-xs-12 col-sm-6 col-md-6">
-                <div class="form-group" id="div_docNo">
-                    <label class="col-sm-5 control-label"><b>Discount Amount</b><sup>*</sup></label>
-                    <div class="col-sm-7 show-message">
-                        <input type="number" name="DiscountAmount" ng-model="productNew.DiscountAmount" class="form-control" maxlength="20" tabindex="" autocomplete="off" style="text-align:right;">
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12 col-sm-6 col-md-6">
-                <div class="form-group" id="div_docNonos">
-                    <label class="col-sm-4 control-label">Tolerance(%)<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="number" name="Tolerance" ng-model="productNew.Tolerance" class="form-control" maxlength="20" tabindex="" autocomplete="off" style="text-align:right;">
-                    </div>
-                </div>
-            </div>
         </fieldset>
     </div>
     <div class="clearfix"></div>
@@ -650,7 +656,7 @@
     </div>
     <div class="col-md-6 text-left" style="padding-top: 17px;">
         <ul class="common-btn list-inline text-right">
-            <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{productNew.Id.length>0?'Update':'Save'}}</button></li>
+            <li> <button ng-click="Save();LoadTermsAndConditionGrid();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{productNew.Id.length>0?'Update':'Save'}}</button></li>
             <li> <button ng-click="Delete();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
             <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
@@ -932,10 +938,10 @@
                  e-allowselection="false" e-detailstemplate="detailTempTitle" e-detailsdatabound="detailgridTitle">
                 <div e-columns>
                     <div e-column e-field="TermsAndConditionChildId" e-headertext="TermsAndConditionsChildId" e-visible="false"></div>
-                    <div e-column e-type="string" e-field="Title" e-headertext="Title" e-width="100"></div>
-                    <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="100"></div>
-                    <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="100"></div>
-                    <div e-column e-template="#ShowDetails" e-headertext="" e-width="16"></div>
+                    <div e-column e-type="string" e-field="Title" e-headertext="Title" e-width="200"></div>
+                    <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="150"></div>
+                    <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="200"></div>
+                    <div e-column e-template="#ShowDetails" e-headertext="" e-width="26"></div>
                     @*<div e-column e-headertext=" Action " e-template="#LCCloseTemplate" e-width="120"></div>*@
 
                 </div>
@@ -943,8 +949,8 @@
                     <div class="common-btn">
                         <ul class="list-inline ">
                             <li>
-                                <button ng-click="$parent.showTermsAndConditionDetailPopUp(data);" title="Details" class="btn small" @*style="height: 28px; width: 28px; padding: 0px; margin: 0px;"*@>
-                                    <i class="glyphicon glyphicon-list"></i>
+                                <button ng-click="$parent.showTermsAndConditionDetailPopUp(data);" title="Edit" class="btn small" @*style="height: 28px; width: 28px; padding: 0px; margin: 0px;"*@>
+                                    <i class="glyphicon glyphicon-edit"></i>
                                 </button>
                             </li>
                         </ul>
@@ -954,12 +960,12 @@
                     <div class="tabcontrol" id="Test">
                         <ul>
                             <li><a href="#gridTabTitle{{:Id}}">Details</a></li>
-                           
+
                         </ul>
                         <div id="gridTabTitle{{:Id}}">
                             <div id="detailGridTitle"></div>
                         </div>
-                       
+
                     </div>
                 </script>
             </div>
@@ -2496,13 +2502,13 @@
                         <div style="color:black;" id="gridTermsAndCondition" ej-grid e-datasource="POPupList" e-allowsorting="true" e-allowscrolling="true"
                              e-allowfiltering="true" e-gridlines="vertical" e-allowResizing="true" e-allowrowdraganddrop="true"
                              e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="actionComplete" e-allowselection="true"
-                             e-endadd="SaveGrid" e-endedit="SaveGrid" e-enddelete="DeleteRemarks" e-editsettings-allowediting="true" e-editsettings-allowadding="true" e-editsettings-allowdeleting="true"
+                             e-endadd="SaveGrid" e-endedit="SaveGrid" e-enddelete="DeletePODetailPOPUp" e-editsettings-allowediting="true" e-editsettings-allowadding="true" e-editsettings-allowdeleting="true"
                              e-toolbarsettings-showtoolbar="true" e-toolbarsettings-toolbaritems="[ej.Grid.ToolBarItems.Add, ej.Grid.ToolBarItems.Edit, ej.Grid.ToolBarItems.Delete, ej.Grid.ToolBarItems.Update, ej.Grid.ToolBarItems.Cancel]">
 
                             <div e-columns>
                                 <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-isprimarykey="true"></div>
                                 <div e-column e-field="Sequence" e-headertext="Sequence" e-visible="false"></div>
-                                <div e-column e-field="TermsAndConditionsChildId" e-headertext="TermsAndConditionsChildId" e-visible="false"></div>
+                                <div e-column e-field="TermsAndConditionsPOChildId" e-headertext="TermsAndConditionsPOChildId" e-visible="false"></div>
                                 <div e-column e-field="HeaderCaption" e-headertext="Header" e-width="5"></div>
                                 <div e-column e-field="Description" e-headertext="Description" e-width="5"></div>
                             </div>
@@ -2512,7 +2518,5 @@
             </div>
         </div>
     </div>
-
-
 </div>
 
