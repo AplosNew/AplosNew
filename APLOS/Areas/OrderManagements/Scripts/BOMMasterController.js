@@ -3131,7 +3131,24 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
         angular.element(document.querySelector('#TaggedDetailPopup')).modal('show');
     };
 
-
+    $scope.CopyBOMDetail = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'CopyBOM?Id=' + $scope.SelectedBOMRow.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getmasterData();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    }
 }
 
 
