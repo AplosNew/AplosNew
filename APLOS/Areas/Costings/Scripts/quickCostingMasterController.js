@@ -53,10 +53,20 @@ function quickCostingMasterController(cboService, commonMessage, $scope, $rootSc
 
 
     $scope.ProductUOM = [];
-    cboService.getUnitOfMeasurementCbo(function (response) {
-        $scope.ProductUOM = response;
+    //cboService.getUnitOfMeasurementCbo(function (response) {
+    //    $scope.ProductUOM = response;
 
-    });
+    //});
+   
+    $scope.GetUoMCboByProductMaster = function () {
+        $http({
+            method: 'GET',
+            url: 'Costings/QuickCostingMaster/GetProductUOMCbo?ProductMasterId=' + $scope.ModelNew.ProductMasterId
+        }).then(function successCallback(response) {
+            $scope.ProductUOM = response.data;
+        });
+    };
+
     $scope.GetDirectProcessRateValue = function (args) {
         if (args == null)
             return;
@@ -338,7 +348,7 @@ function quickCostingMasterController(cboService, commonMessage, $scope, $rootSc
             $scope.getLatestVersion();
             $scope.SumCostingValue();
             $scope.CalculateProfit();
-
+            $scope.GetUoMCboByProductMaster();
             //$scope.AssignSegmentByeDirectMaterial();
             $scope.Action = 'Update';
             if (!$rootScope.isCollapsed) {
