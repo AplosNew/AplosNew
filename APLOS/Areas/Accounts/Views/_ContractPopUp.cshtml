@@ -1,0 +1,38 @@
+﻿<style>
+    .modellgModify {
+        width: 1200px;
+    }
+</style>
+<div class="modal fade site-modal in" id="contractPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> Contract<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <label style="color:cornflowerblue">Select Contract</label>
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;">
+                        <div style="color:black;" id="GridOperation" ej-grid e-datasource="contractList" e-recorddoubleclick="AddContract"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowResizing="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-templaterefresh="refreshTemplateemployee"
+                             e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true">
+                            <div e-columns>
+                                <div e-column e-field="Id" e-headertext="Contract Id" e-width="80"></div>
+                                <div e-column e-field="ContractNo" e-headertext="Contract No" e-width="150"></div>
+                                <div e-column e-field="UDNo" e-headertext="UD No" e-width="150"></div>
+                                <div e-column e-field="CustomerName" e-headertext="Customer" e-width="150"></div>
+                                <div e-column e-field="Buyer" e-headertext="Buyer" e-width="150"></div>
+                                <div e-column e-field="MasterOrderId" e-headertext="MasterOrder No" e-width="150"></div>
+                                <div e-column e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="CloseContract();" class="btn">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
