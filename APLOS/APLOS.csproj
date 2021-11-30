@@ -3877,6 +3877,8 @@
     <Content Include="Areas\Accounts\Views\_ExpenseDistributePopUp.cshtml" />
     <Content Include="Areas\Accounts\Views\_InboundInvoicePopUp.cshtml" />
     <Content Include="Areas\Accounts\Views\_OutBoundInvoicePopUp.cshtml" />
+    <Content Include="Areas\Accounts\Views\_MasterOrderPopUp.cshtml" />
+    <Content Include="Areas\Accounts\Views\_ContractPopUp.cshtml" />
     <Content Include="Areas\HumanResource\Views\LeavesChecklistReportNew\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\WasteTransactionReport\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />

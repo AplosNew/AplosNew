@@ -669,6 +669,8 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         clearVoucherDetail();
         $scope.TotalInvoiceAmount = null;
         $scope.CustomerAvailableInvoiceList = [];
+        $scope.checkedMasterOrderList = [];
+        $scope.checkedContractList = [];
     };
 
 
@@ -739,16 +741,23 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         if ($scope.activityOrderType == "InboundInvoice") {
             $scope.isSet(1);
             $scope.checkedOutBoundInvoiceList = [];
-       
         }
         else if ($scope.activityOrderType == "OutboundInvoice") {
             $scope.isSet(2);
-            $scope.checkedInvoiceList = [];
-           
+            $scope.checkedInvoiceList = []; 
         }
         else if ($scope.activityOrderType == "BothInOutboundInvoice") {
             $scope.isSet(1);
-           
+        }
+        else if ($scope.activityOrderType == "Order") {
+            $scope.isSet(3);
+            $scope.checkedInvoiceList = [];
+            $scope.checkedOutBoundInvoiceList = [];
+        }
+        else if ($scope.activityOrderType == "Contract") {
+            $scope.isSet(4);
+            $scope.checkedInvoiceList = [];
+            $scope.checkedOutBoundInvoiceList = [];
         }
 
         angular.element(document.querySelector("#ExpenseDistributePopUp")).modal("show");
@@ -1085,7 +1094,8 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
     };
     $scope.invoiceDetailChargesList = [];
     $scope.InvoiceDetailChargesList = function myfunction() {
-        $scope.invoiceDetailChargesList = $scope.checkedInvoiceList.concat($scope.checkedOutBoundInvoiceList);
+        $scope.invoiceDetailChargesList = $scope.checkedInvoiceList.concat($scope.checkedOutBoundInvoiceList).concat($scope.checkedMasterOrderList).concat($scope.checkedContractList);
+        
     };
     $scope.popUpTDSMessage = false;
     $scope.Save = function () {
@@ -1692,6 +1702,44 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
     $scope.hideOutBoundInvoicePopUp = function () {
         angular.element(document.querySelector("#OutBoundInvoicePopUp")).modal("hide");
     };
+    $scope.ShowResultMasterOrderPopUp = function () {
+        $scope.GetMasterOrderList();
+        angular.element(document.querySelector('#masterOrderPopUp')).modal('show');
+    }
+    $scope.masterOrderList = [];
+    $scope.GetMasterOrderList = function () {
+        $scope.masterOrderList = [];
+        $http({
+            method: 'GET',
+            url: "accounts/CustomerInvoice/GetMasterOrderPopUp"
+        }).then(function (response) {
+            $scope.masterOrderList = response.data;
+        });
+    }
+    $scope.CloseMasterOrder = function () {
+        angular.element(document.querySelector('#masterOrderPopUp')).modal('hide');      
+    }
+    $scope.ShowResultContractPopUp = function () {
+        $scope.getcontractList();
+        angular.element(document.querySelector('#contractPopUp')).modal('show');
+    }
+    $scope.contractList = [];
+    $scope.getcontractList = function () {
+        $scope.contractList = [];
+        $http.get("Commercial/Contract/getlist")
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.contractList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    };
+    $scope.CloseContract = function () {
+        angular.element(document.querySelector('#contractPopUp')).modal('hide');
+    }
     $scope.TotalInvoiceAmount = 0;
     $scope.getTotalInvoiceAmount = function () {
         $scope.TotalInvoiceAmount = 0;
@@ -1767,6 +1815,32 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         }
        
     }
+    $scope.calMasterOrderDistributedAmount = function myfunction() {
+        $scope.TotalChargesAmount = 0;
+        $scope.TotalChargesAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "Amount"));
+
+        $scope.TotalTaxAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "TotalAmount"));
+       
+
+        for (var i = 0; i < $scope.checkedMasterOrderList.length; i++) {
+            $scope.checkedMasterOrderList[i].DistributedAmount = $scope.TotalChargesAmount;
+         
+        }
+
+    }
+    $scope.calContractDistributedAmount = function myfunction() {
+        $scope.TotalChargesAmount = 0;
+        $scope.TotalChargesAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "Amount"));
+
+        $scope.TotalTaxAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "TotalAmount"));
+
+        for (var i = 0; i < $scope.checkedContractList.length; i++) {
+            $scope.checkedContractList[i].DistributedAmount = $scope.TotalChargesAmount;
+
+        }
+
+    }
+
     $scope.totalBooksAmount = 0;
     $scope.totalDistributedAmount = 0;
     $scope.InBoundInvoiceAmount = 0; $scope.OutBoundInvoiceAmount = 0;
@@ -1811,6 +1885,7 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
 
         $scope.hideInvoicePopUp();
         $scope.calDistributedAmount();
+        $scope.calOutBoundDistributedAmount();
         $scope.totalBooksAmountCal();
     };
     $scope.checkedOutBoundInvoiceList = [];
@@ -1847,9 +1922,85 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
                     $scope.checkedOutBoundInvoiceList.splice(a, 1);
             });
         $scope.hideOutBoundInvoicePopUp();
-
+        $scope.calDistributedAmount();
         $scope.calOutBoundDistributedAmount();
         $scope.totalBooksAmountCal();
+    };
+    $scope.checkedMasterOrderList = [];
+    $scope.AddOrder = function (x) {
+        var a = x.rowData;
+        if (baseService.arrayLength($scope.masterOrderList) > 0) {
+            $scope.checkedMasterOrderList = [];
+                    $scope.checkedMasterOrderList.push({
+                        InvoiceId: ""
+                        , InvoiceDetailId: ""
+                        , Amount: 0
+                        , BooksAmount: 0
+                        , DistributedAmount: 0
+                        , ChargesAmount: 0
+                        , TaxAmount: 0
+                        , Active: true
+                        , PostingDate: ""
+                        , PartyPlantName: a.InvoicingPartyPlant
+                        , CurrencyCode: ""
+                        , VoucherNo: ""
+                        , InvoiceType: 'Order'
+                        , GLGeneralInfoId: $scope.voucherDetailList[0].GLGeneralInfoId
+                        , BudgetMasterId: $scope.voucherDetailList[0].BudgetMasterId
+                        , ActivityId: $scope.voucherDetailList[0].ActivityId
+                        , MasterOrderId: a.MasterOrderId
+                        , ContractId: null
+                        , CustomerName: a.CustomerName
+                        , InvoicingPartyPlant: a.InvoicingPartyPlant
+                        , DeliveryPartyPlant: a.DeliveryPartyPlant
+                        , Type: a.Type
+                    });
+                }
+            
+      
+
+        $scope.CloseMasterOrder();
+        $scope.calMasterOrderDistributedAmount();
+       
+    };
+    $scope.checkedContractList = [];
+    $scope.AddContract = function (x) {
+        var a = x.rowData;
+        if (baseService.arrayLength($scope.contractList) > 0) {
+            $scope.checkedContractList = [];
+            $scope.checkedContractList.push({
+                InvoiceId: ""
+                , InvoiceDetailId: ""
+                , Amount: 0
+                , BooksAmount: 0
+                , DistributedAmount: 0
+                , ChargesAmount: 0
+                , TaxAmount: 0
+                , Active: true
+                , PostingDate: ""
+                , PartyPlantName: ""
+                , CurrencyCode: ""
+                , VoucherNo: ""
+                , InvoiceType: 'Contract'
+                , GLGeneralInfoId: $scope.voucherDetailList[0].GLGeneralInfoId
+                , BudgetMasterId: $scope.voucherDetailList[0].BudgetMasterId
+                , ActivityId: $scope.voucherDetailList[0].ActivityId
+                , MasterOrderId: a.MasterOrderId
+                , ContractId: a.Id
+                , ContractNo: a.ContractNo
+                , UDNo: a.UDNo
+                , CustomerName: a.CustomerName
+                , Buyer: a.Buyer
+                , MasterOrderId: a.MasterOrderId
+                , Remarks: a.Remarks
+            });
+        }
+
+
+
+        $scope.CloseContract();
+        $scope.calContractDistributedAmount();
+
     };
 
     $scope.DeleteConfirmation = function (InvoiceId) {
@@ -1868,6 +2019,7 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
             $scope.checkedInvoiceList[i].DistributedAmount = 0;
         }
         $scope.calDistributedAmount();
+        $scope.calOutBoundDistributedAmount();
         $scope.totalBooksAmountCal();
 
     }
@@ -1885,8 +2037,35 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         for (var i = 0; i < $scope.checkedOutBoundInvoiceList.length; i++) {
             $scope.checkedOutBoundInvoiceList[i].DistributedAmount = 0;
         }
+        $scope.calDistributedAmount();
         $scope.calOutBoundDistributedAmount();
         $scope.totalBooksAmountCal();
+    }
+    $scope.DeleteMasterOrderConfirmation = function (InvoiceId) {
+        $scope.InvoiceId = InvoiceId;
+        $scope.message_conf = "Are you sure to Delete?";
+        angular.element(document.querySelector("#DeleteMasterOrderConfirmationPopUp")).modal("show");
+    };
+    $scope.RemoveMasterOrderInvoice = function () {
+        for (var i = 0; i < baseService.arrayLength($scope.checkedMasterOrderList); i++) {
+            if ($scope.checkedMasterOrderList[i].MasterOrderId == $scope.InvoiceId)
+                $scope.checkedMasterOrderList.splice(i, 1);
+        }
+       
+        $scope.calMasterOrderDistributedAmount();
+    }
+    $scope.DeleteContractConfirmation = function (InvoiceId) {
+        $scope.InvoiceId = InvoiceId;
+        $scope.message_conf = "Are you sure to Delete?";
+        angular.element(document.querySelector("#DeleteContractConfirmationPopUp")).modal("show");
+    };
+    $scope.RemoveContractInvoice = function () {
+        for (var i = 0; i < baseService.arrayLength($scope.checkedContractList); i++) {
+            if ($scope.checkedContractList[i].ContractId == $scope.InvoiceId)
+                $scope.checkedContractList.splice(i, 1);
+        }
+
+        $scope.calContractDistributedAmount();
     }
 
 }
