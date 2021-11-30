@@ -855,7 +855,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         dr.BeginEdit();
                                         // Data Found using Plant & Employee Category
                                         dr["DayStatusHeaderId"] = HeaderId;
-                                        dr["LeavePolicyMasterId"] = LeavePolicyId;
+                                        if (LeavePolicyId != "")
+                                        {
+                                            dr["LeavePolicyMasterId"] = LeavePolicyId;
+                                        }
                                         dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                         dr.EndEdit();
                                     }
@@ -6642,9 +6645,9 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     }
                     objCon.CloseConnection();
                 }
-                catch (Exception exp)
+                catch (Exception)
                 {
-                    throw exp;
+                    
                 }
                 throw ex;
             }

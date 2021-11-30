@@ -819,8 +819,8 @@ namespace Aplos.Areas.Payrolls.Controllers
             string strsql = "";
 
             strsql = @"SELECT GPD.*,GPM.IsRoudingSixMonth FROM GratuityPolicyMaster GPM 
-			                    LEFT JOIN ORG.Plant p on p.Id=GPM.plantId
 			                    LEFT JOIN GratuityPolicyDetails GPD ON GPM.Id = GPD.GratuityPolicyMasterId
+			                    LEFT JOIN ORG.Plant p on p.Id=GPD.plantId
 			                    WHERE p.CompanyId = '" + plantId + @"'";
             DataTable dtGratuity = _sqlRepository.GetDataTable(strsql);
             dtGratuityPolicy = dtGratuity;
