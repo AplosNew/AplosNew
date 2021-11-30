@@ -19233,8 +19233,8 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
             {
                 obs = new clsStaticInfo();
                 strSql = @"SELECT  A.EmployeeCode,A.EmployeeCode EmployeeCodeS ,DOJ,A.EmpSystemID
-	                       ,CAST(DATEDIFF(mm, A.DOJ, '" + gratuityCalcDate + @"') AS varchar(4))/12 totalYear
-	                       ,CAST(DATEDIFF(mm, A.DOJ, '" + gratuityCalcDate + @"') AS varchar(4))-(CAST(DATEDIFF(mm, A.DOJ, '" + gratuityCalcDate + @"') AS varchar(4))/12)*12 totalMonthAfterYear,* FROM
+	                       ,Convert(decimal(18,2),CAST(DATEDIFF(mm, A.DOJ, '" + gratuityCalcDate + @"') AS varchar(4)))/12 totalYear
+	                       ,Convert(decimal(18,2),CAST(DATEDIFF(mm, A.DOJ, '" + gratuityCalcDate + @"') AS varchar(4)))-(Convert(decimal(18,2),CAST(DATEDIFF(mm, A.DOJ, '" + gratuityCalcDate + @"') AS varchar(4)))/12)*12 totalMonthAfterYear,* FROM
                     
                        (
                            SELECT E.SystemID EmpSystemID, E.EmployeeCode, E.EmployeeName, REPLACE(Convert(VARCHAR(11), E.DOB, 106), ' ', '-') AS DOB,
@@ -19325,16 +19325,16 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
                                                  ) A  WHERE EmployeeStatus = 'Active' and a.IsOutSider=0 and
                             isnull(EmpInfoSystemID,'')<>''  AND GroupID = '" + companyGroupId + @"' AND  CompanyId ='" + comapnyId + @"' AND PlantId ='" + plantId + @"'
 	                        AND HeadCategory = 'Basic'	
-                    AND CAST(DATEDIFF(mm, A.DOJ, '" + gratuityCalcDate + @"') AS varchar(4))/12 between 
+                    AND Convert(decimal(18,2),CAST(DATEDIFF(mm, A.DOJ, '" + gratuityCalcDate + @"') AS varchar(4)))/12 between 
 							(
-							 SELECT Min(Convert(Int,Convert(decimal(18,2),GPD.MaturityFromYear))) FROM GratuityPolicyMaster GPM 
+							 SELECT Min(Convert(decimal(18,2),Convert(decimal(18,2),GPD.MaturityFromYear))) FROM GratuityPolicyMaster GPM 
                                 left join ORG.Plant pp on pp.Id=GPM.plantId
 			                    LEFT JOIN GratuityPolicyDetails GPD ON GPM.Id = GPD.GratuityPolicyMasterId
 			                    WHERE GPD.PlantId ='" + plantId + @"'
 							)
 							AND
 							(
-							 SELECT Max(Convert(Int,Convert(decimal(18,2),GPD.MaturityToYear))) FROM GratuityPolicyMaster GPM
+							 SELECT Max(Convert(decimal(18,2),Convert(decimal(18,2),GPD.MaturityToYear))) FROM GratuityPolicyMaster GPM
                                 left join ORG.Plant ppp on ppp.Id=GPM.plantId
 			                    LEFT JOIN GratuityPolicyDetails GPD ON GPM.Id = GPD.GratuityPolicyMasterId
 			                    WHERE GPD.PlantId ='" + plantId + @"'
@@ -19378,6 +19378,7 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+                int i = dsRef.Tables[0].Rows.Count;
             }
             catch (Exception ex)
             {
