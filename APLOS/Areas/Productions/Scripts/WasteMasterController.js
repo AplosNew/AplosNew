@@ -132,16 +132,15 @@ function WasteMasterController(cboService, commonMessage, $scope, $rootScope, ba
             data: {'Id':args.data.Id},
             dataType: 'JSON'
         }).then(function successCallback(resp) {
-            AllData = resp.data;
+            AllData = resp.data.master;
+            $scope.ModelNew = Object.assign({}, AllData[0]);
+            $scope.CompanyId = AllData[0].CompanyId;
+            $scope.PlantId = AllData[0].PlantId;
+            $scope.getPlant();
+            $scope.getEntity();
+            $scope.getBudgets();
+            $scope.Budget = AllData[0].BudgetCode;
         });
-
-        $scope.ModelNew = Object.assign({}, AllData);
-        $scope.CompanyId = AllData.CompanyId;
-        $scope.PlantId = AllData.PlantId;
-        $scope.getPlant();
-        $scope.getEntity();
-        $scope.getBudgets();
-        $scope.Budget = AllData.BudgetCode;
 
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
