@@ -1564,5 +1564,37 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
 			}
 		}
-	}
+        public IEnumerable<object> GetMasterOrderList(string companyId, string plantId)
+        {
+            try
+            {
+                var sql = @"SELECT A.Id AS  MasterOrderId, A.CompanyId, A.CommitmentId, A.PlantId, A.EntityId
+                            , A.PartyId, P.UserName AS CustomerName, A.CurrencyId,CO.BaseCurrencyId, A.TotalQty	
+                            , A.InvoicingPartyPlantId, InvPP.UserName AS InvoicingPartyPlant, A.InvoicingByAddress
+		                    , A.DeliveryPartyPlantId, DeliPP.UserName AS DeliveryPartyPlant, A.DeliveryByAddress								    
+							,A.TotalQtyUOMId,PL.UserName,A.IsReplacement,A.Type,C.Code Currency,0 Active
+							,B.UserName Buyer,ISNULL(A.BuyerReferenceNo,'')BuyerReferenceNo,ISNULL(A.OwnReferenceNo,'')OwnReferenceNo
+                            , CP.PaymentTermId, PT.Code AS PaymentTermCode, PT.UserName AS PaymentTermName  	
+                            FROM [TRN].[MasterOrder] AS A
+                            LEFT JOIN [ORG].[Company] AS CO ON CO.Id=A.CompanyId
+                            JOIN [HKP].[Party] AS P ON A.PartyId=P.Id
+                            LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=A.PartyId  AND CP.PlantId=A.PlantId AND CP.PartyType='Customer'
+                            LEFT JOIN [MST].[PaymentTerm] AS PT ON PT.Id=CP.PaymentTermId
+                            LEFT JOIN ORG.Plant AS PL ON A.PlantId=PL.Id
+                            LEFT JOIN [HKP].[PartyPlant] AS InvPP ON A.InvoicingPartyPlantId=InvPP.Id
+                            LEFT JOIN [HKP].[PartyPlant] AS DeliPP ON A.DeliveryPartyPlantId=DeliPP.Id
+                            LEFT JOIN EmployeeInformation AS EI ON A.ResponsiblePersonId=EI.SystemId
+                            LEFT JOIN HKP.Buyer AS B ON B.Id=A.BuyerId
+                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
+                            WHERE A.CompanyId='" + companyId + "' AND A.PlantId='" + plantId + "' ORDER BY A.Id";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
+            }
+        }
+    }
 }

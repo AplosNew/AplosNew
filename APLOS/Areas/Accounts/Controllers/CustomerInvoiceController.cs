@@ -73,9 +73,17 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(_accountsInvoiceService.GetCustomerAvailableInvoiceList(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetMasterOrderPopUp()
+        {
+            AccountsInvoiceService _accountsInvoiceService = new AccountsInvoiceService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            JsonResult json = Json(_accountsInvoiceService.GetMasterOrderList(identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
 
 
-      
         [HttpGet, Authorize]
         public JsonResult GetInvoiceSalesAvailable(string voucherId)
         {

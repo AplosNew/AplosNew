@@ -231,7 +231,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
                 try
                 {
-                    Gen.GetLongAbsentisom(FromDate, ToDate, plantId, companyId, companyGroupId, out dsLongAbsentisom);
+                    Gen.GetLongAbsentism(FromDate, ToDate, plantId, companyId, companyGroupId, out dsLongAbsentisom);
                     dtLongAbsentisom = dsLongAbsentisom.Tables[0];
 
                 }
@@ -9811,7 +9811,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 con = null;
             }
         }//End Function
-
+         
         public void GetAbsentReports(string FromDate, string ToDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
         {
             clsConnectionManager con = new clsConnectionManager(120);
@@ -9915,7 +9915,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 con = null;
             }
         }//End Function
-
+         
         public void GetLeaveWithPunchReports(string FromDate, string ToDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
         {
             clsConnectionManager con = new clsConnectionManager(120);
@@ -10389,7 +10389,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }//End Function
 
-        public void GetLongAbsentisom(string FromDate, string ToDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        public void GetLongAbsentism(string FromDate, string ToDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
         {
             ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
             string strSql = string.Empty;
@@ -10402,12 +10402,25 @@ namespace Library.HumanResource.NewAttendanceProcess
                 strSql += @"
                             , FORMAT(AP.WorkDate,'dd-MMM-yyy')  WorkDate                         
 							,FORMAT(EI.EmployeeCurrentStatusEffectiveDate,'dd-MMM-yyyy') EmployeeCurrentStatusEffectiveDate
-                        	,DATEDIFF(DAY,EI.EmployeeCurrentStatusEffectiveDate,GETDATE()) NumberOfAbsentDays
-                            ,L.UserName AS Line
+                        	--,DATEDIFF(DAY,EI.EmployeeCurrentStatusEffectiveDate,GETDATE()) NumberOfAbsentDays
+                            ,L.UserName AS Line,
+                            DATEDIFF(DAY,EI.EmployeeCurrentStatusEffectiveDate,GETDATE())-
+							(select count(WorkDate) 
+							from attdnprocessdata
+							LEFT join DayType d on d.DayType=DayStatus
+							where PlantId='"+plantId+@"' and
+							workdate between
+							EI.EmployeeCurrentStatusEffectiveDate and getdate()
+							and DayStatus IN 
+										(select distinct DayType from DayType 
+										where Category in ('Holiday','Weekend'))
+										and EmpSystemID=ei.SystemId )NumberOfAbsentDays										
+
 
                         FROM EmployeeInformation EI    
-                        left join (select * from AttdnProcessData where WorkDate between '" + FromDate + @"' and '" + ToDate + @"') AP ON AP.EmpSystemID = EI.SystemId
-                       ";
+                        left join (select * from AttdnProcessData where WorkDate
+                        between '" + FromDate + @"' and '" + ToDate + @"') AP ON AP.EmpSystemID = EI.SystemId";
+
                 strSql += tableName();
                 strSql += @"
                         

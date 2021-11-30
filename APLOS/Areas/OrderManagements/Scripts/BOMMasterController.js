@@ -1551,6 +1551,14 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
         return $scope.tab2 === tabNum;
     };
 
+    $scope.tab3 = 1;
+    $scope.setTab3 = function (newTab) {
+        $scope.tab3 = newTab;
+    };
+    $scope.isSet3 = function (tabNum) {
+        return $scope.tab3 === tabNum;
+    };
+
     $scope.GetMatrixDetail = function (obj) {
         $scope.bomDetailId = obj.data.Id;
         $scope.getBOMSKUMappingDataData($scope.bomDetailId);

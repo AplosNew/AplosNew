@@ -1,0 +1,108 @@
+﻿<h3 class="site-heading">{{title}}</h3>
+
+<div class="row">
+    <div class="col-sm-6 col-md-6 col-lg-6">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Entity</label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="EntityId" name="entity"
+                            ng-options="item.Value as item.Text for item in EntityList">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-6 col-lg-6">
+        <div class="row">
+            <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input id="datepicker" e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="FromDate" e-width="100%" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="ToDate" e-width="100%" />
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="getData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> View </button></li>
+            @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
+        </ul>
+    </div>
+</div>
+<div class="row">
+    <div class="table-responsive">
+        <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+            <div e-columns>
+                <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
+                <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
+                <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
+                <div e-column e-field="Entity" e-headertext="Entity" e-width="3"></div>
+                <div e-column e-field="Plant" e-headertext="Plant" e-width="3"></div>
+                <div e-column e-field="BudgetCode" e-headertext="Budget Code" e-width="3"></div>
+                <div e-column e-field="ItemName" e-headertext="Item Name" e-width="3"></div>
+                <div e-column e-field="Category" e-headertext="Category" e-width="3"></div>
+                <div e-column e-field="SubCategory" e-headertext="Sub Category" e-width="3"></div>
+                <div e-column e-field="StandardRate" e-headertext="Standard Rate" e-type="number" e-width="3"></div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<confirm-modal></confirm-modal>
+
+
+<div class="modal fade site-modal in" id="Budget" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close" data-dismiss="modal">&times;</button>
+                <h1 class="modal-title" style="font-size:20px; text-align:center; margin:-10px;">Budget</h1>
+            </div>
+            <div class="modal-body" style="min-height:300px; min-width:100%;">
+                <div class="row" style="margin: 20px; font-style:italic"> </div>
+                <p style="margin:10px;">
+                    Select The Budget by Double Clicking the Choice.
+                <p>
+
+                    <div id="getBudgets" ej-grid e-datasource="BudgetList" e-templaterefresh="refreshTemplate"
+                         e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                         e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true"
+                         e-recorddoubleclick="doubleBudget">
+                        <div e-columns>
+                            <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>
+                            <div e-column e-field="Code" e-headertext="Budget Code" e-width="120"></div>
+                            <div e-column e-field="Position" e-headertext="Position" e-width="120"></div>
+                            <div e-column e-field="Company" e-headertext="Company" e-width="120"></div>
+                            <div e-column e-field="Entity" e-headertext="Entity" e-width="120"></div>
+
+                        </div>
+                    </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
