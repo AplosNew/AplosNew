@@ -3115,6 +3115,22 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
 
     //#endregion 
 
+    $scope.AttahedBoMIList = [];
+    $scope.GetAttahedBoMInfo = function (obj) {
+        $scope.SOItemList = [];
+        $http.get('OrderManagements/BOMMaster/GetAttahedBoMInfo?Id=' + obj.Id)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.AttahedBoMIList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+        angular.element(document.querySelector('#TaggedDetailPopup')).modal('show');
+    };
+
 
 }
 
