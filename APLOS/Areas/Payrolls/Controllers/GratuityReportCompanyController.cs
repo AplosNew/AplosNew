@@ -137,7 +137,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 Dictionary<string, DataRow> dicGRTpolicy = GetGratuityPolicy(identity.CompanyId);
                 var _systemAdmin = identity.IsSysAdmin.ToString().Trim();
                 var _controlAdmin = identity.IsControlAdmin.ToString().Trim();
-                objRpt.GetEmpGratuityInfo(calculationDate, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, payrollGroup, employeeSystemId, _systemAdmin, _controlAdmin, out dsEmpGratuity);
+                GetCompanyEmpGratuityInfo(calculationDate, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, payrollGroup, employeeSystemId, _systemAdmin, _controlAdmin, out dsEmpGratuity);
                 double eligibleYear = 0.00;
                 dtEmpGratuity = dsEmpGratuity.Tables[0];
                 dtEmpGratuity.Columns.Add("EligibleYear", typeof(double));
@@ -212,6 +212,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 SetHeaderValue("EmpCode", sheet1, xlsRow, ref xlsCol, out colEmpCode, 9);
                 SetHeaderValue("Name", sheet1, xlsRow, ref xlsCol, out colEmpName, 25);
                 SetHeaderValue("Father Name", sheet1, xlsRow, ref xlsCol, out colEmpFatherName, 25);
+                SetHeaderValue("Plant", sheet1, xlsRow, ref xlsCol, out var colPlantName, 25);
                 SetHeaderValue("Gratuity No", sheet1, xlsRow, ref xlsCol, out int colGratuityNo, 25);
                 SetHeaderValue("Policy No", sheet1, xlsRow, ref xlsCol, out int colPolicyNo, 25);
 
@@ -323,6 +324,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                         ru.SetText(ref sheet1, xlsRow, colEmpCode, dtEmpGratuity.Rows[i]["EmployeeCode"].ToString());
                         ru.SetText(ref sheet1, xlsRow, colEmpName, dtEmpGratuity.Rows[i]["EmployeeName"].ToString());
                         ru.SetText(ref sheet1, xlsRow, colEmpFatherName, dtEmpGratuity.Rows[i]["FatherName"].ToString()); //colInsuranceNo = xlsCol; xlsCol++;
+                        ru.SetText(ref sheet1, xlsRow, colPlantName, dtEmpGratuity.Rows[i]["PlantName"].ToString()); //colInsuranceNo = xlsCol; xlsCol++;
                         ru.SetText(ref sheet1, xlsRow, colDOB, dtEmpGratuity.Rows[i]["DOB"].ToString());//dtEmpInfo.Tables[0].Rows[i][""].ToString()
                         ru.SetText(ref sheet1, xlsRow, colDOJ, dtEmpGratuity.Rows[i]["DOJ"].ToString());
 
@@ -523,37 +525,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 #endregion
 
                 workbook.Version = ExcelVersion.Excel2016;
-                //workbook.SaveAs(strFileName + ".xls", ExcelSaveType.SaveAsXLS, Response, ExcelDownloadType.PromptDialog);
-                //if (reportType.ToUpper() == "EXCEL")// For XL File
-                //{
-                //    workbook.SaveAs(strFileName + ".xls", ExcelSaveType.SaveAsXLS);
-                //}
-                //if (reportType.ToUpper() == "PDF") // For PDF File
-                //{
-                //    var converter = new ExcelToPdfConverter(sheet1);
-                //    var pdfDoc = converter.Convert();
-                //    var savepath = ResourcesPathReader.SavePdfDocUrl();
-                //    var fileName = string.Empty;
-                //    fileName = calculationDate + "_GratuityStatement_L.pdf";
-                //    if (System.IO.File.Exists(savepath + fileName))
-                //    {
-                //        try
-                //        {
-                //            System.IO.File.Delete(savepath + fileName);
-                //        }
-                //        catch (Exception)
-                //        {
-                //        }
-                //    }
-                //    fileName = calculationDate +"_GratuityStatement_L.pdf";
-                //    pdfDoc.Save(savepath + fileName);
-                //    workbook.Close();
-                //    excelEngine.Dispose();
-                //    return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
-
-                //}
-
-
+                
                 if (reportType.ToUpper() == "EXCEL")
                 {
                     fileName = "GratuityStatement.xls";
@@ -572,13 +544,6 @@ namespace Aplos.Areas.Payrolls.Controllers
                     pdfDoc.Save(fullPathPDF);
                 }
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
-
-
-
-
-
-
-
             }
 
             catch (Exception ex)
@@ -595,7 +560,227 @@ namespace Aplos.Areas.Payrolls.Controllers
                 sheet1 = null;
             }
         }//End Function
+        public void GetCompanyEmpGratuityInfo(string gratuityCalcDate, string companyGroupId, string comapnyId, string plantId, string payGrp, string employeeId, string SystemAdmin, string ControlAdmin, out DataSet dsRef)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            var strSql = string.Empty;
+            clsStaticInfo obs = null;
+            try
+            {
+                obs = new clsStaticInfo();
+                strSql = @"SELECT *
+                                    FROM (
+                                    	SELECT Convert(DECIMAL(18, 2), CAST(DATEDIFF(mm, A.DOJ, '" + gratuityCalcDate + @"') AS VARCHAR(4))) / 12 CompareDate
+                                    		,A.EmployeeCode EmployeeCodeS
+                                    		,Convert(DECIMAL(18, 2), CAST(DATEDIFF(mm, A.DOJ, '" + gratuityCalcDate + @"') AS VARCHAR(4))) / 12 totalYear
+                                    		,Convert(DECIMAL(18, 2), CAST(DATEDIFF(mm, A.DOJ, '" + gratuityCalcDate + @"') AS VARCHAR(4))) - (Convert(DECIMAL(18, 2), CAST(DATEDIFF(mm, A.DOJ, '" + gratuityCalcDate + @"') AS VARCHAR(4))) / 12) * 12 totalMonthAfterYear
+                                    		,*
+                                    	FROM (
+                                    		SELECT E.SystemID EmpSystemID
+                                    			,E.EmployeeCode
+                                    			,E.EmployeeName
+                                    			,REPLACE(Convert(VARCHAR(11), E.DOB, 106), ' ', '-') AS DOB
+                                    			,E.FatherName
+                                    			,E.MotherName
+                                    			,E.EmpType EmployeeType
+                                    			,E.EmploymentType EmploymentNature
+                                    			,E.NationalID
+                                    			,E.GenderID GenderName
+                                    			,REPLACE(Convert(VARCHAR(11), E.DOJ, 106), ' ', '-') AS DOJ
+                                    			,REPLACE(Convert(VARCHAR(11), E.DOC, 106), ' ', '-') AS DOC
+                                    			,eact.IsOutSider
+                                    			,EC.UserName AS EmpCategory
+                                    			,Cm.UserName CompanyName
+                                    			,Cm.Id CompanyId
+                                    			,CAM.Address1
+                                    			,CAM.Address2
+                                    			,E.EmployeeCategorySystemID
+                                    			,E.UnitID
+                                    			,E.DivisionID
+                                    			,E.DepartmentID
+                                    			,E.DesignationSystemID
+                                    			,E.SectionID
+                                    			,E.SubSectionID
+                                    			,E.LineID
+                                    			,E.DesignationGroupID
+                                    			,E.SubSecStrucSystemID
+                                    			,E.EmployeeStatus
+                                    			,P.UserName PlantName
+                                    			,(PAM.[Address1] + ', ' + PAM.[Address2] + ', ' + PAMC.UserName + ' - ' + PAM.Postcode) FactoryAddress
+                                    			,GC.Id GroupID
+                                    			,GC.UserName GroupName
+                                    			,(CGAM.[Address1] + ', ' + CGAM.[Address2] + ', ' + CT.UserName + ' - ' + CGAM.Postcode + ', Contact: ' + CGAM.Phone) GroupAddress
+                                    			,E.PlantID
+                                    			,BK.UserName BankNameShort
+                                    			,E.BankAccNo
+                                    			,EmpSlr.SalaryHeadID
+                                    			,SH.SalaryHead
+                                    			,--SNULL(pSH.Sequence, 99) Sequence,
+                                    			SH.HeadType
+                                    			,SH.HeadCategory
+                                    			,EmpSlr.EntryCurrencyID
+                                    			,EmpSlr.EntryAmount
+                                    			,EmpSlr.DefineCurrencyID
+                                    			,EmpSlr.DefineAmount
+                                    			,EmpSlr.AmtDefinationCurrencyID
+                                    			,EmpSlr.AmtDefinationRate
+                                    			,SH.IsCTCComponent
+                                    			,SH.IsGrossComponent
+                                    			,EmpSlr.EmpInfoSystemID
+                                    			,MW.SalaryHeadValue
+                                    			,ISNULL(CRC.IntegerInDisb, 1) IntegerInDisb
+                                    			,ISNULL(CRC.DecimalNo, 0) DecimalNo
+                                    			,MW.Grade
+                                    			,gpd.MaturityFromYear
+                                    			,gpd.MaturityToYear
+                                    		FROM EmployeeInformation AS E
+                                    		LEFT JOIN GratuityPolicyDetails AS gpd ON gpd.plantId = e.PlantId
+                                    		LEFT JOIN ORG.Plant AS p ON E.PlantId = p.Id
+                                    		LEFT JOIN ORG.Company AS Cm ON E.CompanyID = Cm.Id
+                                    		LEFT JOIN ORG.CompanyGroup AS GC ON E.GroupID = GC.Id
+                                    		LEFT JOIN HKP.Bank AS BK ON E.BankSystemID = BK.Id
+                                    		LEFT JOIN MST.AddressMaster AS CAM ON Cm.AddressMasterId = CAM.Id
+                                    		LEFT JOIN MST.AddressMaster AS PAM ON P.AddressMasterId = PAM.Id
+                                    		LEFT JOIN MST.AddressMaster AS CGAM ON GC.AddressMasterId = CGAM.Id
+                                    		LEFT JOIN SCS.City AS PAMC ON PAM.CityId = PAMC.Id
+                                    		LEFT JOIN SCS.City AS CT ON CGAM.CityId = CT.Id
+                                    		LEFT JOIN (
+                                    			SELECT ECT.Id
+                                    				,ECT.UserName
+                                    				,DM.DesignationId
+                                    			FROM [HKP].[EmployeeCategory] ECT
+                                    			LEFT JOIN MST.DesignationMaster DM ON ECT.Id = DM.EmployeeCategoryId
+                                    			) EC ON EC.DesignationId = E.GivenDesignationId
+                                    		LEFT JOIN (
+                                    			SELECT E.SystemID
+                                    				,SUM(SV.SalaryHeadValue) SalaryHeadValue
+                                    				,LSG.UserName Grade
+                                    			FROM EmployeeInformation E
+                                    			LEFT JOIN MST.ManpowerBudget b ON e.BudgetCode = b.Id
+                                    			LEFT JOIN MST.LegalSalaryGradeDesignation GD ON GD.LegalDesignationId = E.LegalDesignationId
+                                    				AND E.PlantId = gd.PlantId
+                                    			LEFT JOIN (
+                                    				SELECT MAX(EffectiveDate) EffectiveDate
+                                    					,LegalSalaryGradeId
+                                    					,EmployeeLocationId
+                                    				FROM MST.LegalSalaryStructure
+                                    				WHERE EffectiveDate <= '" + gratuityCalcDate + @"'
+                                    				GROUP BY LegalSalaryGradeId
+                                    					,EmployeeLocationId
+                                    				) S ON S.LegalSalaryGradeId = GD.LegalSalaryGradeId
+                                    				AND S.EmployeeLocationId = B.EmployeeLocationId
+                                    			LEFT JOIN MST.LegalSalaryStructure SS ON SS.LegalSalaryGradeId = S.LegalSalaryGradeId
+                                    				AND SS.EmployeeLocationId = S.EmployeeLocationId
+                                    				AND SS.EffectiveDate = S.EffectiveDate
+                                    			LEFT JOIN MST.LegalSalaryStructureValue SV ON SV.LegalSalaryStructureId = SS.Id
+                                    			LEFT JOIN [SCS].[LegalSalaryGrade] LSG ON LSG.Id = S.LegalSalaryGradeId
+                                    			GROUP BY E.SystemId
+                                    				,LSG.UserName
+                                    			) MW ON MW.SystemId = E.SystemId
+                                    		LEFT JOIN (
+                                    			SELECT *
+                                    			FROM (
+                                    				SELECT MST.EmpInfoSystemID
+                                    					,EmpSlr.SalaryHeadID
+                                    					,EmpSlr.EntryCurrencyID
+                                    					,EmpSlr.EntryAmount
+                                    					,EmpSlr.DefineCurrencyID
+                                    					,EmpSlr.DefineAmount
+                                    					,EmpSlr.AmtDefinitionCurrencyID AmtDefinationCurrencyID
+                                    					,EmpSlr.AmtDefinitionRate AmtDefinationRate
+                                    					,MST.SalaryRuleMasterSystemID
+                                    				FROM SalaryInfoDefine EmpSlr
+                                    				INNER JOIN SalaryInfoDefineMaster MST ON EmpSlr.SalaryID = MST.SystemID
+                                    					AND MST.IsApproved = 1
+                                    				) A
+                                    			
+                                    			UNION
+                                    			
+                                    			(
+                                    				SELECT M.EmpSystemID EmpInfoSystemID
+                                    					,D.SalaryHeadID
+                                    					,CRC.AmtEntryCurrency EntryCurrencyID
+                                    					,D.Value EntryAmount
+                                    					,CRC.AmtDefinitionCurrency DefineCurrencyID
+                                    					,D.Value DefineAmount
+                                    					,CRC.AmtDefinitionCurrency AmtDefinationCurrencyID
+                                    					,1 AmtDefinationRate
+                                    					,MST.SalaryRuleMasterSystemID
+                                    				FROM [BonusPolicyMonthlyRetainStrcEmpWiseCalculation] M
+                                    				INNER JOIN [BonusPolicyMonthlyRetainDistributionStrcPmt] D ON M.ID = D.BnsPlyMntRetainID
+                                    				INNER JOIN SalaryInfoDefineMaster MST ON M.EmpSystemID = MST.EmpInfoSystemID
+                                    					AND MST.IsApproved = 1
+                                    				LEFT JOIN SalaryRuleMaster SRM ON SRM.SystemID = MST.SalaryRuleMasterSystemID
+                                    				LEFT JOIN CurrencyRuleChild CRC ON CRC.MstSystemID = SRM.CurrencyRuleSystemID
+                                    					AND CRC.SalaryHeadID = D.SalaryHeadID
+                                    				WHERE M.MonthNo = DATEPART(MONTH, '" + gratuityCalcDate + @"')
+                                    					AND M.YearNo = DATEPART(YEAR, '" + gratuityCalcDate + @"') 
+                                    				)
+                                    			) EmpSlr ON E.SystemID = EmpSlr.EmpInfoSystemID
+                                    		LEFT JOIN SalaryHead SH ON SH.SalaryHeadID = EmpSlr.SalaryHeadID
+                                    		LEFT JOIN SalaryRuleMaster SRM ON SRM.SystemID = EmpSlr.SalaryRuleMasterSystemID
+                                    		LEFT JOIN CurrencyRuleChild CRC ON CRC.MstSystemID = srm.CurrencyRuleSystemID
+                                    			AND CRC.SalaryHeadID = SH.SalaryHeadID
+                                    		LEFT JOIN [dbo].[EmployeeCodeType] eact ON eact.Id = e.EmployeeCodeTypeId
+                                    		) A
+                                    	WHERE EmployeeStatus = 'Active'
+                                    		AND a.IsOutSider = 0
+                                    		AND isnull(EmpInfoSystemID, '') <> ''
+                                    		AND GroupID = '" + companyGroupId + @"'
+                                    		AND CompanyId = '" + comapnyId + @"' 
+                                    		AND HeadCategory = 'Basic'
+                                    	) xx
+                                    WHERE xx.CompareDate BETWEEN xx.MaturityFromYear
+                                    		AND xx.MaturityToYear
+                                    ";
 
+                if (!string.IsNullOrEmpty(employeeId))
+                {
+                    strSql = strSql + @" AND EmpSystemID IN (" + employeeId + ")";
+                }
+                #region--Pay Group--
+
+                if (payGrp.ToUpper() == "ALL".ToUpper())
+                {
+
+                    if (SystemAdmin.ToUpper() == "TRUE" || ControlAdmin.ToUpper() == "TRUE")
+                    {
+                        strSql = strSql + "";
+                    }
+                    else
+                    {
+                        strSql = strSql + @" AND EmpSystemID  =''";
+                        throw new Exception("Please Select a Pay Group");
+
+                    }
+
+                }
+                else if (payGrp.ToUpper().Trim() != "NOGROUP")
+                {
+                    strSql = strSql + @" AND EmpSystemID  IN (
+													 select employeeid from MST.PayrollGroupMaster where PayrollGroupId = '" + payGrp + @"')";
+                }
+                if (payGrp.ToUpper().Trim() == "NOGROUP")
+                {
+                    strSql = strSql + @" AND EmpSystemID NOT IN (
+													 select employeeid from MST.PayrollGroupMaster)";
+                }
+                #endregion--Pay Group--
+                strSql = strSql + @"
+                        ORDER BY EmployeeCodeS";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
         public Dictionary<string, List<DataRow>> GetEmpSalaryInformationRpt(string plantId, string effectiveDate, string payRollGroup, string salaryHeadId, out DataSet dsRef)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -607,161 +792,398 @@ namespace Aplos.Areas.Payrolls.Controllers
             {
 
                 obs = new clsStaticInfo();
-                strSql = @"SELECT * FROM
-                          (
-                           SELECT E.SystemID EmpSystemID,  E.EmployeeCode EmployeeCode, E.EmployeeName, REPLACE(Convert(VARCHAR(11), E.DOB, 106), ' ', '-') AS DOB,
-	                              E.FatherName, E.MotherName, E.EmpType EmployeeType, E.EmploymentType EmploymentNature, E.NationalID,
-	                              E.GenderID GenderName, REPLACE(Convert(VARCHAR(11), E.DOJ, 106), ' ', '-') AS DOJ,
-                                  REPLACE(Convert(VARCHAR(11), E.DOS, 106), ' ', '-') AS DOS,
-	                              REPLACE(Convert(VARCHAR(11), E.DOC, 106), ' ', '-') AS DOC,ISNULL(LG.UserName,'') LegalDesignation
-								   , E.EmployeeStatus,
-	                              P.UserName PlantName, (PAM.[Address1] + ', ' + PAM.[Address2] + ', ' + PAMC.UserName + ' - ' + PAM.Postcode) FactoryAddress,
-	                              GC.UserName GroupName, (CGAM.[Address1] + ', ' + CGAM.[Address2] + ', ' + CT.UserName + ' - ' + CGAM.Postcode + ', Contact: ' + CGAM.Phone) GroupAddress,
-	                              E.PlantID, BK.UserName BankNameShort, E.BankAccNo, 
-								  EmpSlr.SalaryHeadID, SH.SalaryHead --, ISNULL(PSH.Sequence, 99) Sequence
-                                , SH.HeadType, ISNULL(SH.HeadCategory,'') HeadCategory, EmpSlr.EntryCurrencyID, EmpSlr.EntryAmount,
-	                              EmpSlr.DefineCurrencyID, EmpSlr.DefineAmount, EmpSlr.AmtDefinitionCurrencyID, EmpSlr.AmtDefinationRate
-	                              , EmpSlr.EmpInfoSystemID, MW.SalaryHeadValue                                
-	                            ,CRC.IntegerInDisb, CRC.DecimalNo, MW.Grade,CRC.IsDecimalInDisb IsDecimal
-                                ,ISNULL(E.GenderID,'') Gender,ISNULL(LSalGr.Code,'') GradeCode,E.CompanyId
+                //              strSql = @"SELECT * FROM
+                //                        (
+                //                         SELECT E.SystemID EmpSystemID,  E.EmployeeCode EmployeeCode, E.EmployeeName, REPLACE(Convert(VARCHAR(11), E.DOB, 106), ' ', '-') AS DOB,
+                //                             E.FatherName, E.MotherName, E.EmpType EmployeeType, E.EmploymentType EmploymentNature, E.NationalID,
+                //                             E.GenderID GenderName, REPLACE(Convert(VARCHAR(11), E.DOJ, 106), ' ', '-') AS DOJ,
+                //                                REPLACE(Convert(VARCHAR(11), E.DOS, 106), ' ', '-') AS DOS,
+                //                             REPLACE(Convert(VARCHAR(11), E.DOC, 106), ' ', '-') AS DOC,ISNULL(LG.UserName,'') LegalDesignation
+                //						   , E.EmployeeStatus,
+                //                             P.UserName PlantName, (PAM.[Address1] + ', ' + PAM.[Address2] + ', ' + PAMC.UserName + ' - ' + PAM.Postcode) FactoryAddress,
+                //                             GC.UserName GroupName, (CGAM.[Address1] + ', ' + CGAM.[Address2] + ', ' + CT.UserName + ' - ' + CGAM.Postcode + ', Contact: ' + CGAM.Phone) GroupAddress,
+                //                             E.PlantID, BK.UserName BankNameShort, E.BankAccNo, 
+                //						  EmpSlr.SalaryHeadID, SH.SalaryHead --, ISNULL(PSH.Sequence, 99) Sequence
+                //                              , SH.HeadType, ISNULL(SH.HeadCategory,'') HeadCategory, EmpSlr.EntryCurrencyID, EmpSlr.EntryAmount,
+                //                             EmpSlr.DefineCurrencyID, EmpSlr.DefineAmount, EmpSlr.AmtDefinitionCurrencyID, EmpSlr.AmtDefinationRate
+                //                             , EmpSlr.EmpInfoSystemID, MW.SalaryHeadValue                                
+                //                           ,CRC.IntegerInDisb, CRC.DecimalNo, MW.Grade,CRC.IsDecimalInDisb IsDecimal
+                //                              ,ISNULL(E.GenderID,'') Gender,ISNULL(LSalGr.Code,'') GradeCode,E.CompanyId
 
 
-											,ISNULL(PG.UserName,'') PayRollGroup
+                //									,ISNULL(PG.UserName,'') PayRollGroup
 
-                                    ,ISNULL(jl.JobLocation, '') JobLocation
-									,ISNULL(e.PaymentMode,'') PaymentMode
-									,ISNULL(bb.UserName,'') BankName
-				            FROM (SELECT * FROM EmployeeInformation  WHERE (EmployeeStatus != 'Separated' or DOS is null or DOS >='" + effectiveDate + @"')) AS E
+                //                                  ,ISNULL(jl.JobLocation, '') JobLocation
+                //							,ISNULL(e.PaymentMode,'') PaymentMode
+                //							,ISNULL(bb.UserName,'') BankName
+                //		            FROM (SELECT * FROM EmployeeInformation  WHERE (EmployeeStatus != 'Separated' or DOS is null or DOS >='" + effectiveDate + @"')) AS E
 
-                                           LEFT JOIN[MST].[ManpowerBudget] AS MB  on MB.Id = E.BudgetCode
+                //                                         LEFT JOIN[MST].[ManpowerBudget] AS MB  on MB.Id = E.BudgetCode
 
-                                            LEFT JOIN ORG.Line L ON MB.LineID = L.Id
-											LEFT JOIN [dbo].[JobLocation] jl on jl.SystemID = E.JobLocationID
-												  LEFT JOIN [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=e.SystemId
-									LEFT JOIN [HKP].[Bank] bb on bb.Id = ebi.BankSystemID
-                                    LEFT OUTER JOIN MST.PayrollGroupMaster PGM ON PGM.employeeid = E.SystemId
+                //                                          LEFT JOIN ORG.Line L ON MB.LineID = L.Id
+                //									LEFT JOIN [dbo].[JobLocation] jl on jl.SystemID = E.JobLocationID
+                //										  LEFT JOIN [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=e.SystemId
+                //							LEFT JOIN [HKP].[Bank] bb on bb.Id = ebi.BankSystemID
+                //                                  LEFT OUTER JOIN MST.PayrollGroupMaster PGM ON PGM.employeeid = E.SystemId
 
-									LEFT OUTER JOIN HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
-                                            
-                                            LEFT JOIN HKP.LegalDesignation LG ON E.LegalDesignationId = LG.Id
-                                            LEFT JOIN MST.LegalSalaryGradeDesignation LSGD ON LSGD.LegalDesignationId = LG.Id and E.PlantId = LSGD.PlantId
-                                            LEFT JOIN SCS.LegalSalaryGrade LSalGr ON LSalGr.Id = LSGD.LegalSalaryGradeId  and E.PlantId = LSalGr.PlantId
-												
-											LEFT JOIN ORG.Plant AS p ON E.PlantId = p.Id
-											LEFT JOIN ORG.Company AS Cm ON E.CompanyID = Cm.Id
-											LEFT JOIN ORG.CompanyGroup AS GC ON E.GroupID = GC.Id
-											LEFT JOIN HKP.Bank AS BK ON E.BankSystemID = BK.Id
-											LEFT JOIN MST.AddressMaster AS CAM ON Cm.AddressMasterId = CAM.Id
-											LEFT JOIN MST.AddressMaster AS PAM ON P.AddressMasterId = PAM.Id
-											LEFT JOIN MST.AddressMaster AS CGAM ON GC.AddressMasterId = CGAM.Id
-											LEFT JOIN SCS.City AS PAMC ON PAM.CityId = PAMC.Id
-											LEFT JOIN SCS.City AS CT ON CGAM.CityId = CT.Id
-                                            LEFT JOIN mst.DesignationMasterLegalDesignation m on m.LegalDesignationId=e.LegalDesignationId
-                                            LEFT JOIN mst.DesignationMaster dm on dm.id=m.DesignationMasterId
-                                            LEFT JOIN hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
-											LEFT JOIN 
-													(
-													 SELECT E.SystemID, SUM(SV.SalaryHeadValue) SalaryHeadValue,LSG.UserName Grade
-														FROM EmployeeInformation E   
-																LEFT JOIN MST.ManpowerBudget b ON e.BudgetCode = b.Id
-																LEFT JOIN MST.LegalSalaryGradeDesignation GD ON GD.LegalDesignationId = E.LegalDesignationId 
-                                                                                                AND E.PlantId = gd.PlantId
-																LEFT JOIN (
-																			SELECT MAX(EffectiveDate) EffectiveDate, LegalSalaryGradeId, EmployeeLocationId 
-																				FROM MST.LegalSalaryStructure 
-																				WHERE EffectiveDate <= '" + effectiveDate + @"'
-																			GROUP BY LegalSalaryGradeId, EmployeeLocationId 
-																		  ) S ON S.LegalSalaryGradeId = GD.LegalSalaryGradeId AND S.EmployeeLocationId = B.EmployeeLocationId
-																LEFT JOIN MST.LegalSalaryStructure SS ON SS.LegalSalaryGradeId = S.LegalSalaryGradeId 
-                                                                                            AND SS.EmployeeLocationId = S.EmployeeLocationId 
-                                                                                            AND SS.EffectiveDate = S.EffectiveDate
-																LEFT JOIN MST.LegalSalaryStructureValue SV ON SV.LegalSalaryStructureId = SS.Id 	
-                                                                left join  [SCS].[LegalSalaryGrade] LSG ON LSG.Id=S.LegalSalaryGradeId	
-														GROUP BY E.SystemId,LSG.UserName
-													) MW ON MW.SystemId = E.SystemId
+                //							LEFT OUTER JOIN HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
 
-										
-												INNER JOIN (
-													SELECT * FROM
-																(
-																 --SELECT MST.EmpInfoSystemID, EmpSlr.SalaryHeadID, EmpSlr.EntryCurrencyID, EmpSlr.EntryAmount, EmpSlr.DefineCurrencyID, EmpSlr.DefineAmount, 
-																	--	EmpSlr.AmtDefinitionCurrencyID AmtDefinationCurrencyID, EmpSlr.AmtDefinitionRate AmtDefinationRate, MST.SalaryRuleMasterSystemID
-																-- FROM SalaryInfoDefine EmpSlr
-																	--	INNER JOIN SalaryInfoDefineMaster MST ON EmpSlr.SalaryID = MST.SystemID 
-                                                                   Select SalaryDetails.* from  ( SELECT MAX(EffectiveDate) EffectiveDate,EmpInfoSystemID--,SalaryHead,SalaryHeadID,EntryCurrencyID
-	 FROM (
-	           SELECT MST.EmpInfoSystemID,SH.SalaryHead, EmpSlr.SalaryHeadID, EmpSlr.EntryCurrencyID, EmpSlr.EntryAmount, EmpSlr.DefineCurrencyID, EmpSlr.DefineAmount, 
-				EmpSlr.AmtDefinitionCurrencyID AmtDefinitionCurrencyID, EmpSlr.AmtDefinitionRate AmtDefinationRate, MST.SalaryRuleMasterSystemID,MST.EffectiveDate
-					FROM SalaryInfoDefine EmpSlr
-					INNER JOIN SalaryInfoDefineMaster MST ON EmpSlr.SalaryID = MST.SystemID AND MST.IsApproved = 1 
-					left outer join SalaryHead SH ON SH.SalaryHeadID = EmpSlr.SalaryHeadID 
-					--where EmpInfoSystemID = '1800118'
-					UNION
-					SELECT SBM.EmpInfoSystemID,SH.SalaryHead,SIB.SalaryHeadID,SIB.EntryCurrencyID,SIB.EntryAmount,SIB.DefineCurrencyID,SIB.DefineAmount
-					,SIB.AmtDefinitionCurrencyID AmtDefinitionCurrencyID, SIB.AmtDefinitionRate, SBM.SalaryRuleMasterSystemID,SBM.EffectiveDate from SalaryInfoBack SIB
-					INNER JOIN SalaryInfoBackMaster SBM ON SIB.SalaryID = SBM.SystemID 
-					left outer join SalaryHead SH ON SH.SalaryHeadID = SIB.SalaryHeadID  AND SH.SalaryHeadID in (" + salaryHeadId + @") 
-					--where EmpInfoSystemID = '1800118'
-                        )dd where EffectiveDate <= '" + effectiveDate + @"' 					
+                //                                          LEFT JOIN HKP.LegalDesignation LG ON E.LegalDesignationId = LG.Id
+                //                                          LEFT JOIN MST.LegalSalaryGradeDesignation LSGD ON LSGD.LegalDesignationId = LG.Id and E.PlantId = LSGD.PlantId
+                //                                          LEFT JOIN SCS.LegalSalaryGrade LSalGr ON LSalGr.Id = LSGD.LegalSalaryGradeId  and E.PlantId = LSalGr.PlantId
 
-					GROUP BY EmpInfoSystemID) effDateSalary
+                //									LEFT JOIN ORG.Plant AS p ON E.PlantId = p.Id
+                //									LEFT JOIN ORG.Company AS Cm ON E.CompanyID = Cm.Id
+                //									LEFT JOIN ORG.CompanyGroup AS GC ON E.GroupID = GC.Id
+                //									LEFT JOIN HKP.Bank AS BK ON E.BankSystemID = BK.Id
+                //									LEFT JOIN MST.AddressMaster AS CAM ON Cm.AddressMasterId = CAM.Id
+                //									LEFT JOIN MST.AddressMaster AS PAM ON P.AddressMasterId = PAM.Id
+                //									LEFT JOIN MST.AddressMaster AS CGAM ON GC.AddressMasterId = CGAM.Id
+                //									LEFT JOIN SCS.City AS PAMC ON PAM.CityId = PAMC.Id
+                //									LEFT JOIN SCS.City AS CT ON CGAM.CityId = CT.Id
+                //                                          LEFT JOIN mst.DesignationMasterLegalDesignation m on m.LegalDesignationId=e.LegalDesignationId
+                //                                          LEFT JOIN mst.DesignationMaster dm on dm.id=m.DesignationMasterId
+                //                                          LEFT JOIN hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
+                //									LEFT JOIN 
+                //											(
+                //											 SELECT E.SystemID, SUM(SV.SalaryHeadValue) SalaryHeadValue,LSG.UserName Grade
+                //												FROM EmployeeInformation E   
+                //														LEFT JOIN MST.ManpowerBudget b ON e.BudgetCode = b.Id
+                //														LEFT JOIN MST.LegalSalaryGradeDesignation GD ON GD.LegalDesignationId = E.LegalDesignationId 
+                //                                                                                              AND E.PlantId = gd.PlantId
+                //														LEFT JOIN (
+                //																	SELECT MAX(EffectiveDate) EffectiveDate, LegalSalaryGradeId, EmployeeLocationId 
+                //																		FROM MST.LegalSalaryStructure 
+                //																		WHERE EffectiveDate <= '" + effectiveDate + @"'
+                //																	GROUP BY LegalSalaryGradeId, EmployeeLocationId 
+                //																  ) S ON S.LegalSalaryGradeId = GD.LegalSalaryGradeId AND S.EmployeeLocationId = B.EmployeeLocationId
+                //														LEFT JOIN MST.LegalSalaryStructure SS ON SS.LegalSalaryGradeId = S.LegalSalaryGradeId 
+                //                                                                                          AND SS.EmployeeLocationId = S.EmployeeLocationId 
+                //                                                                                          AND SS.EffectiveDate = S.EffectiveDate
+                //														LEFT JOIN MST.LegalSalaryStructureValue SV ON SV.LegalSalaryStructureId = SS.Id 	
+                //                                                              left join  [SCS].[LegalSalaryGrade] LSG ON LSG.Id=S.LegalSalaryGradeId	
+                //												GROUP BY E.SystemId,LSG.UserName
+                //											) MW ON MW.SystemId = E.SystemId
 
 
-					Inner JOIN
-					
-            ( SELECT EmpInfoSystemID, SalaryHeadID, EntryCurrencyID, EntryAmount, DefineCurrencyID, DefineAmount 
-			,AmtDefinitionCurrencyID , AmtDefinationRate, SalaryRuleMasterSystemID,EffectiveDate
-	            FROM (
-	           SELECT MST.EmpInfoSystemID,SH.SalaryHead, EmpSlr.SalaryHeadID, EmpSlr.EntryCurrencyID, EmpSlr.EntryAmount, EmpSlr.DefineCurrencyID, EmpSlr.DefineAmount, 
-				EmpSlr.AmtDefinitionCurrencyID AmtDefinitionCurrencyID, EmpSlr.AmtDefinitionRate AmtDefinationRate, MST.SalaryRuleMasterSystemID,MST.EffectiveDate
-					FROM SalaryInfoDefine EmpSlr
-					INNER JOIN SalaryInfoDefineMaster MST ON EmpSlr.SalaryID = MST.SystemID AND MST.IsApproved = 1
-					LEFT OUTER JOIN SalaryHead SH ON SH.SalaryHeadID = EmpSlr.SalaryHeadID AND SH.SalaryHeadID in (" + salaryHeadId + @") 
-				--	WHERE EmpInfoSystemID = '1800118'
-					UNION
-					SELECT SBM.EmpInfoSystemID,SH.SalaryHead,SIB.SalaryHeadID,SIB.EntryCurrencyID,SIB.EntryAmount,SIB.DefineCurrencyID,SIB.DefineAmount
-					,SIB.AmtDefinitionCurrencyID AmtDefinitionCurrencyID, SIB.AmtDefinitionRate, SBM.SalaryRuleMasterSystemID,SBM.EffectiveDate from SalaryInfoBack SIB
-					INNER JOIN SalaryInfoBackMaster SBM ON SIB.SalaryID = SBM.SystemID 
-					left outer join SalaryHead SH ON SH.SalaryHeadID = SIB.SalaryHeadID AND SH.SalaryHeadID in (" + salaryHeadId + @") 
-				--	where EmpInfoSystemID = '1800118'
-                )dd where EffectiveDate <= '" + effectiveDate + @"'  ) SalaryDetails ON effDateSalary.EffectiveDate= SalaryDetails.EffectiveDate and effDateSalary.EmpInfoSystemID = SalaryDetails.EmpInfoSystemID
+                //										INNER JOIN (
+                //											SELECT * FROM
+                //														(
+                //														 --SELECT MST.EmpInfoSystemID, EmpSlr.SalaryHeadID, EmpSlr.EntryCurrencyID, EmpSlr.EntryAmount, EmpSlr.DefineCurrencyID, EmpSlr.DefineAmount, 
+                //															--	EmpSlr.AmtDefinitionCurrencyID AmtDefinationCurrencyID, EmpSlr.AmtDefinitionRate AmtDefinationRate, MST.SalaryRuleMasterSystemID
+                //														-- FROM SalaryInfoDefine EmpSlr
+                //															--	INNER JOIN SalaryInfoDefineMaster MST ON EmpSlr.SalaryID = MST.SystemID 
+                //                                                                 Select SalaryDetails.* from  ( SELECT MAX(EffectiveDate) EffectiveDate,EmpInfoSystemID--,SalaryHead,SalaryHeadID,EntryCurrencyID
+                //FROM (
+                //          SELECT MST.EmpInfoSystemID,SH.SalaryHead, EmpSlr.SalaryHeadID, EmpSlr.EntryCurrencyID, EmpSlr.EntryAmount, EmpSlr.DefineCurrencyID, EmpSlr.DefineAmount, 
+                //		EmpSlr.AmtDefinitionCurrencyID AmtDefinitionCurrencyID, EmpSlr.AmtDefinitionRate AmtDefinationRate, MST.SalaryRuleMasterSystemID,MST.EffectiveDate
+                //			FROM SalaryInfoDefine EmpSlr
+                //			INNER JOIN SalaryInfoDefineMaster MST ON EmpSlr.SalaryID = MST.SystemID AND MST.IsApproved = 1 
+                //			left outer join SalaryHead SH ON SH.SalaryHeadID = EmpSlr.SalaryHeadID 
+                //			--where EmpInfoSystemID = '1800118'
+                //			UNION
+                //			SELECT SBM.EmpInfoSystemID,SH.SalaryHead,SIB.SalaryHeadID,SIB.EntryCurrencyID,SIB.EntryAmount,SIB.DefineCurrencyID,SIB.DefineAmount
+                //			,SIB.AmtDefinitionCurrencyID AmtDefinitionCurrencyID, SIB.AmtDefinitionRate, SBM.SalaryRuleMasterSystemID,SBM.EffectiveDate from SalaryInfoBack SIB
+                //			INNER JOIN SalaryInfoBackMaster SBM ON SIB.SalaryID = SBM.SystemID 
+                //			left outer join SalaryHead SH ON SH.SalaryHeadID = SIB.SalaryHeadID  AND SH.SalaryHeadID in (" + salaryHeadId + @") 
+                //			--where EmpInfoSystemID = '1800118'
+                //                      )dd where EffectiveDate <= '" + effectiveDate + @"' 					
+
+                //			GROUP BY EmpInfoSystemID) effDateSalary
 
 
+                //			Inner JOIN
 
-                                                                  -----------------------AND MST.IsApproved = 1---------------------
-																) A
-																
-													) EmpSlr ON E.SystemID = EmpSlr.EmpInfoSystemID
-										LEFT JOIN SalaryHead SH ON SH.SalaryHeadID = EmpSlr.SalaryHeadID
-										--LEFT JOIN (SELECT * FROM [MST].[PlantSalaryHeadSequence] WHERE PlantId='" + plantId + @"') PSH ON PSH.SalaryHeadId = EmpSlr.SalaryHeadID
-										
-										LEFT JOIN SalaryRuleMaster SRM ON SRM.SystemID = EmpSlr.SalaryRuleMasterSystemID 
-										--LEFT JOIN SalaryRuleGeneral SRG ON SRG.SalaryRuleMasterSystemID = SRM.SystemID	AND SRG.SalaryHeadID = SH.SalaryHeadID									
-                                        LEFT JOIN CurrencyRuleChild CRC ON CRC.MstSystemID = srm.CurrencyRuleSystemID AND CRC.SalaryHeadID = SH.SalaryHeadID
-
-                                        
-                         ) A  where  ISNULL(EmpInfoSystemID,'')<>'' AND CompanyId = '" + plantId + @"' AND
-                            Convert(date ,DOJ) <='" + effectiveDate + @"' AND (DOS IS NULL OR DOS >='" + effectiveDate + @"') AND SalaryHeadID in (" + salaryHeadId + @") 
-                            AND CAST(DATEDIFF(mm, A.DOJ, '" + effectiveDate + @"') AS varchar(4))/12 between 
-							(
-							 SELECT Min(Convert(Int,Convert(decimal(18,2),GPD.MaturityFromYear))) FROM GratuityPolicyMaster GPM 
-                                left join org.Plant pp on pp.Id=GPM.plantId
-			                    LEFT JOIN GratuityPolicyDetails GPD ON GPM.Id = GPD.GratuityPolicyMasterId
-			                    WHERE pp.CompanyId = '" + plantId + @"'
-							)
-							AND
-							(
-							 SELECT Max(Convert(Int,Convert(decimal(18,2),GPD.MaturityFromYear))) FROM GratuityPolicyMaster GPM 
-                                        left join org.Plant ppp on ppp.Id=GPM.plantId
-			                    LEFT JOIN GratuityPolicyDetails GPD ON GPM.Id = GPD.GratuityPolicyMasterId
-			                    WHERE ppp.CompanyId = '" + plantId + @"'
-							)
-                        ";
+                //          ( SELECT EmpInfoSystemID, SalaryHeadID, EntryCurrencyID, EntryAmount, DefineCurrencyID, DefineAmount 
+                //	,AmtDefinitionCurrencyID , AmtDefinationRate, SalaryRuleMasterSystemID,EffectiveDate
+                //           FROM (
+                //          SELECT MST.EmpInfoSystemID,SH.SalaryHead, EmpSlr.SalaryHeadID, EmpSlr.EntryCurrencyID, EmpSlr.EntryAmount, EmpSlr.DefineCurrencyID, EmpSlr.DefineAmount, 
+                //		EmpSlr.AmtDefinitionCurrencyID AmtDefinitionCurrencyID, EmpSlr.AmtDefinitionRate AmtDefinationRate, MST.SalaryRuleMasterSystemID,MST.EffectiveDate
+                //			FROM SalaryInfoDefine EmpSlr
+                //			INNER JOIN SalaryInfoDefineMaster MST ON EmpSlr.SalaryID = MST.SystemID AND MST.IsApproved = 1
+                //			LEFT OUTER JOIN SalaryHead SH ON SH.SalaryHeadID = EmpSlr.SalaryHeadID AND SH.SalaryHeadID in (" + salaryHeadId + @") 
+                //		--	WHERE EmpInfoSystemID = '1800118'
+                //			UNION
+                //			SELECT SBM.EmpInfoSystemID,SH.SalaryHead,SIB.SalaryHeadID,SIB.EntryCurrencyID,SIB.EntryAmount,SIB.DefineCurrencyID,SIB.DefineAmount
+                //			,SIB.AmtDefinitionCurrencyID AmtDefinitionCurrencyID, SIB.AmtDefinitionRate, SBM.SalaryRuleMasterSystemID,SBM.EffectiveDate from SalaryInfoBack SIB
+                //			INNER JOIN SalaryInfoBackMaster SBM ON SIB.SalaryID = SBM.SystemID 
+                //			left outer join SalaryHead SH ON SH.SalaryHeadID = SIB.SalaryHeadID AND SH.SalaryHeadID in (" + salaryHeadId + @") 
+                //		--	where EmpInfoSystemID = '1800118'
+                //              )dd where EffectiveDate <= '" + effectiveDate + @"'  ) SalaryDetails ON effDateSalary.EffectiveDate= SalaryDetails.EffectiveDate and effDateSalary.EmpInfoSystemID = SalaryDetails.EmpInfoSystemID
 
 
 
+                //                                                                -----------------------AND MST.IsApproved = 1---------------------
+                //														) A
 
-                strSql = strSql + @" ORDER BY EmployeeCode";
+                //											) EmpSlr ON E.SystemID = EmpSlr.EmpInfoSystemID
+                //								LEFT JOIN SalaryHead SH ON SH.SalaryHeadID = EmpSlr.SalaryHeadID
+                //								--LEFT JOIN (SELECT * FROM [MST].[PlantSalaryHeadSequence] WHERE PlantId='" + plantId + @"') PSH ON PSH.SalaryHeadId = EmpSlr.SalaryHeadID
+
+                //								LEFT JOIN SalaryRuleMaster SRM ON SRM.SystemID = EmpSlr.SalaryRuleMasterSystemID 
+                //								--LEFT JOIN SalaryRuleGeneral SRG ON SRG.SalaryRuleMasterSystemID = SRM.SystemID	AND SRG.SalaryHeadID = SH.SalaryHeadID									
+                //                                      LEFT JOIN CurrencyRuleChild CRC ON CRC.MstSystemID = srm.CurrencyRuleSystemID AND CRC.SalaryHeadID = SH.SalaryHeadID
+
+
+                //                       ) A  where  ISNULL(EmpInfoSystemID,'')<>'' AND CompanyId = '" + plantId + @"' AND
+                //                          Convert(date ,DOJ) <='" + effectiveDate + @"' AND (DOS IS NULL OR DOS >='" + effectiveDate + @"') AND SalaryHeadID in (" + salaryHeadId + @") 
+                //                          AND CAST(DATEDIFF(mm, A.DOJ, '" + effectiveDate + @"') AS varchar(4))/12 between 
+                //					(
+                //					 SELECT Min(Convert(Int,Convert(decimal(18,2),GPD.MaturityFromYear))) FROM GratuityPolicyMaster GPM 
+                //                              left join org.Plant pp on pp.Id=GPM.plantId
+                //	                    LEFT JOIN GratuityPolicyDetails GPD ON GPM.Id = GPD.GratuityPolicyMasterId
+                //	                    WHERE pp.CompanyId = '" + plantId + @"'
+                //					)
+                //					AND
+                //					(
+                //					 SELECT Max(Convert(Int,Convert(decimal(18,2),GPD.MaturityFromYear))) FROM GratuityPolicyMaster GPM 
+                //                                      left join org.Plant ppp on ppp.Id=GPM.plantId
+                //	                    LEFT JOIN GratuityPolicyDetails GPD ON GPM.Id = GPD.GratuityPolicyMasterId
+                //	                    WHERE ppp.CompanyId = '" + plantId + @"'
+                //					)
+                //                      ";
+                //              strSql = strSql + @" ORDER BY EmployeeCode";
+
+                strSql = @"SELECT *
+                                FROM (
+                                	SELECT CONVERT(DECIMAL(18,2), CAST(DATEDIFF(mm, A.DOJ, '" + effectiveDate + @"') AS VARCHAR(4))) / 12 CompareDate
+                                		,*
+                                	FROM (
+                                		SELECT E.SystemID EmpSystemID
+                                			,E.EmployeeCode EmployeeCode
+                                			,E.EmployeeName
+                                			,REPLACE(Convert(VARCHAR(11), E.DOB, 106), ' ', '-') AS DOB
+                                			,E.FatherName
+                                			,E.MotherName
+                                			,E.EmpType EmployeeType
+                                			,E.EmploymentType EmploymentNature
+                                			,E.NationalID
+                                			,E.GenderID GenderName
+                                			,REPLACE(Convert(VARCHAR(11), E.DOJ, 106), ' ', '-') AS DOJ
+                                			,eact.IsOutSider
+                                			,REPLACE(Convert(VARCHAR(11), E.DOS, 106), ' ', '-') AS DOS
+                                			,REPLACE(Convert(VARCHAR(11), E.DOC, 106), ' ', '-') AS DOC
+                                			,ISNULL(LG.UserName, '') LegalDesignation
+                                			,E.EmployeeStatus
+                                			,P.UserName PlantName
+                                			,(PAM.[Address1] + ', ' + PAM.[Address2] + ', ' + PAMC.UserName + ' - ' + PAM.Postcode) FactoryAddress
+                                			,GC.UserName GroupName
+                                			,(CGAM.[Address1] + ', ' + CGAM.[Address2] + ', ' + CT.UserName + ' - ' + CGAM.Postcode + ', Contact: ' + CGAM.Phone) GroupAddress
+                                			,E.PlantID
+                                			,BK.UserName BankNameShort
+                                			,E.BankAccNo
+                                			,EmpSlr.SalaryHeadID
+                                			,SH.SalaryHead --, ISNULL(PSH.Sequence, 99) Sequence
+                                			,SH.HeadType
+                                			,ISNULL(SH.HeadCategory, '') HeadCategory
+                                			,EmpSlr.EntryCurrencyID
+                                			,EmpSlr.EntryAmount
+                                			,EmpSlr.DefineCurrencyID
+                                			,EmpSlr.DefineAmount
+                                			,EmpSlr.AmtDefinitionCurrencyID
+                                			,EmpSlr.AmtDefinationRate
+                                			,EmpSlr.EmpInfoSystemID
+                                			,MW.SalaryHeadValue
+                                			,CRC.IntegerInDisb
+                                			,CRC.DecimalNo
+                                			,MW.Grade
+                                			,CRC.IsDecimalInDisb IsDecimal
+                                			,ISNULL(E.GenderID, '') Gender
+                                			,ISNULL(LSalGr.Code, '') GradeCode
+                                			,E.CompanyId
+                                			,ISNULL(PG.UserName, '') PayRollGroup
+                                			,ISNULL(jl.JobLocation, '') JobLocation
+                                			,ISNULL(e.PaymentMode, '') PaymentMode
+                                			,ISNULL(bb.UserName, '') BankName
+                                			,gpd.MaturityFromYear
+                                			,gpd.MaturityToYear
+                                		FROM (
+                                			SELECT *
+                                			FROM EmployeeInformation
+                                			WHERE (
+                                					EmployeeStatus != 'Separated'
+                                					OR DOS IS NULL
+                                					OR DOS >= '" + effectiveDate + @"'
+                                					)
+                                			) AS E
+                                		LEFT JOIN GratuityPolicyDetails AS gpd ON gpd.plantId = e.PlantId
+                                		LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id = E.BudgetCode
+                                		LEFT JOIN ORG.Line L ON MB.LineID = L.Id
+                                		LEFT JOIN [dbo].[JobLocation] jl ON jl.SystemID = E.JobLocationID
+                                		LEFT JOIN [dbo].[EmployeeBankInfo] ebi ON ebi.EmpSystemID = e.SystemId
+                                		LEFT JOIN [HKP].[Bank] bb ON bb.Id = ebi.BankSystemID
+                                		LEFT OUTER JOIN MST.PayrollGroupMaster PGM ON PGM.employeeid = E.SystemId
+                                		LEFT OUTER JOIN HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
+                                		LEFT JOIN HKP.LegalDesignation LG ON E.LegalDesignationId = LG.Id
+                                		LEFT JOIN MST.LegalSalaryGradeDesignation LSGD ON LSGD.LegalDesignationId = LG.Id
+                                			AND E.PlantId = LSGD.PlantId
+                                		LEFT JOIN SCS.LegalSalaryGrade LSalGr ON LSalGr.Id = LSGD.LegalSalaryGradeId
+                                			AND E.PlantId = LSalGr.PlantId
+                                		LEFT JOIN ORG.Plant AS p ON E.PlantId = p.Id
+                                		LEFT JOIN ORG.Company AS Cm ON E.CompanyID = Cm.Id
+                                		LEFT JOIN ORG.CompanyGroup AS GC ON E.GroupID = GC.Id
+                                		LEFT JOIN HKP.Bank AS BK ON E.BankSystemID = BK.Id
+                                		LEFT JOIN MST.AddressMaster AS CAM ON Cm.AddressMasterId = CAM.Id
+                                		LEFT JOIN MST.AddressMaster AS PAM ON P.AddressMasterId = PAM.Id
+                                		LEFT JOIN MST.AddressMaster AS CGAM ON GC.AddressMasterId = CGAM.Id
+                                		LEFT JOIN SCS.City AS PAMC ON PAM.CityId = PAMC.Id
+                                		LEFT JOIN SCS.City AS CT ON CGAM.CityId = CT.Id
+                                		LEFT JOIN mst.DesignationMasterLegalDesignation m ON m.LegalDesignationId = e.LegalDesignationId
+                                		LEFT JOIN mst.DesignationMaster dm ON dm.id = m.DesignationMasterId
+                                		LEFT JOIN hkp.EmployeeCategory ec ON ec.Id = dm.EmployeeCategoryId
+                                		LEFT JOIN (
+                                			SELECT E.SystemID
+                                				,SUM(SV.SalaryHeadValue) SalaryHeadValue
+                                				,LSG.UserName Grade
+                                			FROM EmployeeInformation E
+                                			LEFT JOIN MST.ManpowerBudget b ON e.BudgetCode = b.Id
+                                			LEFT JOIN MST.LegalSalaryGradeDesignation GD ON GD.LegalDesignationId = E.LegalDesignationId
+                                				AND E.PlantId = gd.PlantId
+                                			LEFT JOIN (
+                                				SELECT MAX(EffectiveDate) EffectiveDate
+                                					,LegalSalaryGradeId
+                                					,EmployeeLocationId
+                                				FROM MST.LegalSalaryStructure
+                                				WHERE EffectiveDate <= '" + effectiveDate + @"'
+                                				GROUP BY LegalSalaryGradeId
+                                					,EmployeeLocationId
+                                				) S ON S.LegalSalaryGradeId = GD.LegalSalaryGradeId
+                                				AND S.EmployeeLocationId = B.EmployeeLocationId
+                                			LEFT JOIN MST.LegalSalaryStructure SS ON SS.LegalSalaryGradeId = S.LegalSalaryGradeId
+                                				AND SS.EmployeeLocationId = S.EmployeeLocationId
+                                				AND SS.EffectiveDate = S.EffectiveDate
+                                			LEFT JOIN MST.LegalSalaryStructureValue SV ON SV.LegalSalaryStructureId = SS.Id
+                                			LEFT JOIN [SCS].[LegalSalaryGrade] LSG ON LSG.Id = S.LegalSalaryGradeId
+                                			GROUP BY E.SystemId
+                                				,LSG.UserName
+                                			) MW ON MW.SystemId = E.SystemId
+                                		INNER JOIN (
+                                			SELECT *
+                                			FROM (
+                                				--SELECT MST.EmpInfoSystemID, EmpSlr.SalaryHeadID, EmpSlr.EntryCurrencyID, EmpSlr.EntryAmount, EmpSlr.DefineCurrencyID, EmpSlr.DefineAmount, 
+                                				--	EmpSlr.AmtDefinitionCurrencyID AmtDefinationCurrencyID, EmpSlr.AmtDefinitionRate AmtDefinationRate, MST.SalaryRuleMasterSystemID
+                                				-- FROM SalaryInfoDefine EmpSlr
+                                				--	INNER JOIN SalaryInfoDefineMaster MST ON EmpSlr.SalaryID = MST.SystemID 
+                                				SELECT SalaryDetails.*
+                                				FROM (
+                                					SELECT MAX(EffectiveDate) EffectiveDate
+                                						,EmpInfoSystemID --,SalaryHead,SalaryHeadID,EntryCurrencyID
+                                					FROM (
+                                						SELECT MST.EmpInfoSystemID
+                                							,SH.SalaryHead
+                                							,EmpSlr.SalaryHeadID
+                                							,EmpSlr.EntryCurrencyID
+                                							,EmpSlr.EntryAmount
+                                							,EmpSlr.DefineCurrencyID
+                                							,EmpSlr.DefineAmount
+                                							,EmpSlr.AmtDefinitionCurrencyID AmtDefinitionCurrencyID
+                                							,EmpSlr.AmtDefinitionRate AmtDefinationRate
+                                							,MST.SalaryRuleMasterSystemID
+                                							,MST.EffectiveDate
+                                						FROM SalaryInfoDefine EmpSlr
+                                						INNER JOIN SalaryInfoDefineMaster MST ON EmpSlr.SalaryID = MST.SystemID
+                                							AND MST.IsApproved = 1
+                                						LEFT OUTER JOIN SalaryHead SH ON SH.SalaryHeadID = EmpSlr.SalaryHeadID
+                                						--where EmpInfoSystemID = '1800118'
+                                						
+                                						UNION
+                                						
+                                						SELECT SBM.EmpInfoSystemID
+                                							,SH.SalaryHead
+                                							,SIB.SalaryHeadID
+                                							,SIB.EntryCurrencyID
+                                							,SIB.EntryAmount
+                                							,SIB.DefineCurrencyID
+                                							,SIB.DefineAmount
+                                							,SIB.AmtDefinitionCurrencyID AmtDefinitionCurrencyID
+                                							,SIB.AmtDefinitionRate
+                                							,SBM.SalaryRuleMasterSystemID
+                                							,SBM.EffectiveDate
+                                						FROM SalaryInfoBack SIB
+                                						INNER JOIN SalaryInfoBackMaster SBM ON SIB.SalaryID = SBM.SystemID
+                                						LEFT OUTER JOIN SalaryHead SH ON SH.SalaryHeadID = SIB.SalaryHeadID
+                                							AND SH.SalaryHeadID IN (" + salaryHeadId + @")
+                                							--where EmpInfoSystemID = '1800118'
+                                						) dd
+                                					WHERE EffectiveDate <= '" + effectiveDate + @"'
+                                					GROUP BY EmpInfoSystemID
+                                					) effDateSalary
+                                				INNER JOIN (
+                                					SELECT EmpInfoSystemID
+                                						,SalaryHeadID
+                                						,EntryCurrencyID
+                                						,EntryAmount
+                                						,DefineCurrencyID
+                                						,DefineAmount
+                                						,AmtDefinitionCurrencyID
+                                						,AmtDefinationRate
+                                						,SalaryRuleMasterSystemID
+                                						,EffectiveDate
+                                					FROM (
+                                						SELECT MST.EmpInfoSystemID
+                                							,SH.SalaryHead
+                                							,EmpSlr.SalaryHeadID
+                                							,EmpSlr.EntryCurrencyID
+                                							,EmpSlr.EntryAmount
+                                							,EmpSlr.DefineCurrencyID
+                                							,EmpSlr.DefineAmount
+                                							,EmpSlr.AmtDefinitionCurrencyID AmtDefinitionCurrencyID
+                                							,EmpSlr.AmtDefinitionRate AmtDefinationRate
+                                							,MST.SalaryRuleMasterSystemID
+                                							,MST.EffectiveDate
+                                						FROM SalaryInfoDefine EmpSlr
+                                						INNER JOIN SalaryInfoDefineMaster MST ON EmpSlr.SalaryID = MST.SystemID
+                                							AND MST.IsApproved = 1
+                                						LEFT OUTER JOIN SalaryHead SH ON SH.SalaryHeadID = EmpSlr.SalaryHeadID
+                                							AND SH.SalaryHeadID IN (" + salaryHeadId + @")
+                                						--	WHERE EmpInfoSystemID = '1800118'
+                                						
+                                						UNION
+                                						
+                                						SELECT SBM.EmpInfoSystemID
+                                							,SH.SalaryHead
+                                							,SIB.SalaryHeadID
+                                							,SIB.EntryCurrencyID
+                                							,SIB.EntryAmount
+                                							,SIB.DefineCurrencyID
+                                							,SIB.DefineAmount
+                                							,SIB.AmtDefinitionCurrencyID AmtDefinitionCurrencyID
+                                							,SIB.AmtDefinitionRate
+                                							,SBM.SalaryRuleMasterSystemID
+                                							,SBM.EffectiveDate
+                                						FROM SalaryInfoBack SIB
+                                						INNER JOIN SalaryInfoBackMaster SBM ON SIB.SalaryID = SBM.SystemID
+                                						LEFT OUTER JOIN SalaryHead SH ON SH.SalaryHeadID = SIB.SalaryHeadID
+                                							AND SH.SalaryHeadID IN (" + salaryHeadId + @")
+                                							--	where EmpInfoSystemID = '1800118'
+                                						) dd
+                                					WHERE EffectiveDate <= '" + effectiveDate + @"'
+                                					) SalaryDetails ON effDateSalary.EffectiveDate = SalaryDetails.EffectiveDate
+                                					AND effDateSalary.EmpInfoSystemID = SalaryDetails.EmpInfoSystemID
+                                					-----------------------AND MST.IsApproved = 1---------------------
+                                				) A
+                                			) EmpSlr ON E.SystemID = EmpSlr.EmpInfoSystemID
+                                		LEFT JOIN SalaryHead SH ON SH.SalaryHeadID = EmpSlr.SalaryHeadID
+                                		--LEFT JOIN (SELECT * FROM [MST].[PlantSalaryHeadSequence] WHERE PlantId='C20201') PSH ON PSH.SalaryHeadId = EmpSlr.SalaryHeadID
+                                		LEFT JOIN SalaryRuleMaster SRM ON SRM.SystemID = EmpSlr.SalaryRuleMasterSystemID
+                                		--LEFT JOIN SalaryRuleGeneral SRG ON SRG.SalaryRuleMasterSystemID = SRM.SystemID	AND SRG.SalaryHeadID = SH.SalaryHeadID									
+                                		LEFT JOIN CurrencyRuleChild CRC ON CRC.MstSystemID = srm.CurrencyRuleSystemID
+                                			AND CRC.SalaryHeadID = SH.SalaryHeadID
+                                		LEFT JOIN [dbo].[EmployeeCodeType] eact ON eact.Id = e.EmployeeCodeTypeId
+                                		) A
+                                	WHERE ISNULL(EmpInfoSystemID, '') <> ''
+                                		AND CompanyId = '" + plantId + @"'
+                                		AND A.IsOutSider = 0
+                                		AND Convert(DATE, DOJ) <= '" + effectiveDate + @"'
+                                		AND (
+                                			DOS IS NULL
+                                			OR DOS >= '" + effectiveDate + @"'
+                                			)
+                                		AND SalaryHeadID IN (" + salaryHeadId + @")
+                                	) xx
+                                WHERE xx.compareDate BETWEEN xx.MaturityFromYear
+                                		AND xx.MaturityToYear
+                                ORDER BY EmployeeCode";
 
                 ConnectionManager.clsConnectionManager con = new clsConnectionManager(600);
                 con.getDataSet(strSql, out dsRef);

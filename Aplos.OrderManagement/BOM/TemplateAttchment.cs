@@ -56,11 +56,18 @@ namespace Library.OrderManagement.BOM
        moi.MaterialMasterId, moi.ArticleId,pm.UserName AS Product,pc.UserName AS ProductCategory,mm.UserName AS Material,ma.StandardName AS Article,
        b.UserName AS Buyer,p.UserName AS Customer,c.ContractNo,ml.LCRef,MOI.AddedBy,Format(MOI.AddedDate,'dd-MMM-yyyy') AS AddedDate,
        convert(bit,CASE WHEN  ISNULL((SELECT COUNT(*) AS SalesOrderCount FROM trn.SalesOrder WHERE MasterOrderItemId=moi.Id),0)<>ISNULL((SELECT count(DISTINCT SalesOrderId) AS SalesOrderCount FROM BOQDetail WHERE MasterOrderItemId=moi.Id),0) THEN 0 ELSE 1 END) AS HasBOQ
-        ,MO.Type,isnull(moi.Consignment,0) AS Consignment,
-        CASE WHEN isnull(moi.Consignment,0)=1 THEN
-	        CASE WHEN ISNULL(eout.Id,'')<>'' THEN CONCAT(POUT.UserName,'(',EOUT.UserName,')') ELSE TOUT.UserName END
+        ,MOI.Type,isnull(moi.Consignment,0) AS Consignment,
+         CASE WHEN isnull(moi.Consignment,0)=1 THEN
+        	  CONCAT(POWN.UserName,'(',EOWN.UserName,')')	          
         ELSE
-	     CONCAT(POWN.UserName,'(',EOWN.UserName,')') END AS PurchaseAuthority
+			case when isnull(MOI.JobWorkType,'')<>'' THEN 
+                CASE WHEN ISNULL(eout.Id,'')<>'' THEN CONCAT(POUT.UserName,'(',EOUT.UserName,')') ELSE TOUT.UserName END
+           ELSE CONCAT(POWN.UserName,'(',EOWN.UserName,')') END
+           
+             END AS PurchaseAuthority,
+           case when isnull(MOI.JobWorkType,'')<>'' THEN 
+                CASE WHEN ISNULL(eout.Id,'')<>'' THEN CONCAT(POUT.UserName,'(',EOUT.UserName,')') ELSE TOUT.UserName END
+           ELSE CONCAT(POWN.UserName,'(',EOWN.UserName,')') END AS ProductionAuthority
         --convert(bit,case when isnull(BOQ.Id,'')='' then 0 else 1 end) AS HasBOQ
                               FROM trn.MasterOrder MO
                             join trn.MasterOrderItem MOI on moi.MasterOrderId=mo.Id
