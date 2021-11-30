@@ -196,13 +196,14 @@
                      e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                     <div e-columns>
                         <div e-column e-template="#ShowActionButtonsBOMGrid" e-allowfiltering="false" e-headertext="Copy" e-width="16px"></div>
-
                         <div e-column e-type="string" e-field="Id" e-headertext="Id" e-width="20"></div>
                         <div e-column e-type="string" e-field="MaterialGroup" e-headertext="Material Group" e-width="50"></div>
                         <div e-column e-type="string" e-field="FGMaterialMaster" e-headertext="FG Material" e-width="80"></div>
                         <div e-column e-type="string" e-field="FGArticle" e-headertext="FG Article" e-width="80"></div>
                         <div e-column e-type="string" e-field="ProductMasterName" e-headertext="Product Master" e-width="80"></div>
                         <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="100"></div>
+                        @*<div e-column e-field="AttachCount" e-headertext="Attached" e-width="30" e-textalign="center"></div>*@
+                        <div e-column e-template="#AttachCount" e-type="text" e-field="AttachCount" e-headertext="Attached" e-width="30" e-textalign="right" style="height: 20px;"></div>
                     </div>
                 </div>
                 <script type="text/ng-template" id="ShowActionButtonsBOMGrid">
@@ -217,7 +218,11 @@
                         </ul>
                     </div>
                 </script>
-
+                <script type="text/template" id="AttachCount">
+                    <div class="text-left" style="width:100%">
+                        <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.GetAttahedBoMInfo(data);">{{data.AttachCount}}</a>
+                    </div>
+                </script>
             </div>
         </div>
     </div>
@@ -1727,6 +1732,25 @@
                             <li><button ng-click="clearMasterCharacteristicsValue();" class="btn" tabindex="39"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                             <li><button ng-click="CloseCharacteristicsValuePopUp();" class="btn" tabindex="40"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
                         </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal site-modal in" id="TaggedDetailPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Detail list<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body text-center">
+                <div style="color:black;" id="POItemGrid" ej-grid e-datasource="AttahedBoMIList" e-allowscrolling="true" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                     e-allowResizing="true" e-allowselection="true" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-field="BOMMasterId" e-headertext="BOM Id" e-width="80"></div>
+                        <div e-column e-field="MasterOrderId" e-headertext="MasterOrderId" e-width="80"></div>
+                        <div e-column e-field="MasterOrderItemId" e-headertext="MasterOrderItemId" e-width="80"></div>
                     </div>
                 </div>
 

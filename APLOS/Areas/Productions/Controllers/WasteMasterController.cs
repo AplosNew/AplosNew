@@ -40,11 +40,17 @@ namespace Aplos.Areas.Productions.Controllers
         {
             return View();
         }
-
-        [Authorize, HttpGet]
-        public ActionResult getPlants()
+        
+        [Authorize , HttpGet]
+        public ActionResult getCompany()
         {
-            return Json(ws.getPlants(), JsonRequestBehavior.AllowGet);
+            return Json(ws.getCompany(), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult getPlants(string cmpId)
+        {
+            return Json(ws.getPlants(cmpId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpPost]
