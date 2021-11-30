@@ -18727,7 +18727,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                                 UNION ALL
 
                                 SELECT l.LeaveTypeId,Lt.LeaveType,0 AS CurrentYearAllocation,
-                                CASE WHEN EncashWorkingDaysQty>0 THEN CONVERT(DECIMAL(18,4), EncashEarnLeaveQty)/CONVERT(DECIMAL(18,4),EncashWorkingDaysQty) ELSE 0 END * SUM(l.EarnValue) ActualEarnedLeave,
+                                SUM(CASE WHEN EncashWorkingDaysQty>0 THEN CONVERT(DECIMAL(18,4), EncashEarnLeaveQty)/CONVERT(DECIMAL(18,4),EncashWorkingDaysQty) ELSE 0 END * l.EarnValue) ActualEarnedLeave,
                                 'CUR' AS TransactionType
                                  FROM AttdnProcessData AS apd
                                 LEFT JOIN LeaveType AS lt ON lt.Id=apd.LTSystemID
@@ -18743,7 +18743,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                                 WHERE apd.EmpSystemID='" + EmployeeId + @"' AND 
                                 apd.WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'
                                 AND L.LeaveTypeId IN (SELECT LeaveTypeId FROM LeaveWithWagesRegisterLeaveTypes where CompanyId='" + identity.CompanyId + @"') 
-                                GROUP BY l.LeaveTypeId,Lt.LeaveType,EncashWorkingDaysQty,EncashEarnLeaveQty
+                                GROUP BY l.LeaveTypeId,Lt.LeaveType--,EncashWorkingDaysQty,EncashEarnLeaveQty
 
                                 ";
             dtLeaveBalance = _sqlRepository.GetDataTable(sql);
