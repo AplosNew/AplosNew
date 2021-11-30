@@ -136,7 +136,12 @@ function WasteMasterController(cboService, commonMessage, $scope, $rootScope, ba
         });
 
         $scope.ModelNew = Object.assign({}, AllData);
-
+        $scope.CompanyId = AllData.CompanyId;
+        $scope.PlantId = AllData.PlantId;
+        $scope.getPlant();
+        $scope.getEntity();
+        $scope.getBudgets();
+        $scope.Budget = AllData.BudgetCode;
 
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
