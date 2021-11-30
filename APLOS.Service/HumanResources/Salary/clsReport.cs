@@ -19323,21 +19323,21 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
 										LEFT JOIN CurrencyRuleChild CRC ON CRC.MstSystemID = srm.CurrencyRuleSystemID AND CRC.SalaryHeadID = SH.SalaryHeadID
                                             left join [dbo].[EmployeeCodeType] eact on eact.Id=e.EmployeeCodeTypeId
                                                  ) A  WHERE EmployeeStatus = 'Active' and a.IsOutSider=0 and
-                            isnull(EmpInfoSystemID,'')<>''  AND GroupID = '" + companyGroupId + @"' AND  CompanyId ='" + comapnyId + @"' --AND PlantId ='" + plantId + @"'
+                            isnull(EmpInfoSystemID,'')<>''  AND GroupID = '" + companyGroupId + @"' AND  CompanyId ='" + comapnyId + @"' AND PlantId ='" + plantId + @"'
 	                        AND HeadCategory = 'Basic'	
                     AND CAST(DATEDIFF(mm, A.DOJ, '" + gratuityCalcDate + @"') AS varchar(4))/12 between 
 							(
 							 SELECT Min(Convert(Int,Convert(decimal(18,2),GPD.MaturityFromYear))) FROM GratuityPolicyMaster GPM 
                                 left join ORG.Plant pp on pp.Id=GPM.plantId
 			                    LEFT JOIN GratuityPolicyDetails GPD ON GPM.Id = GPD.GratuityPolicyMasterId
-			                    WHERE pp.CompanyId = '" + comapnyId + @"'
+			                    WHERE GPD.PlantId ='" + plantId + @"'
 							)
 							AND
 							(
-							 SELECT Max(Convert(Int,Convert(decimal(18,2),GPD.MaturityFromYear))) FROM GratuityPolicyMaster GPM
+							 SELECT Max(Convert(Int,Convert(decimal(18,2),GPD.MaturityToYear))) FROM GratuityPolicyMaster GPM
                                 left join ORG.Plant ppp on ppp.Id=GPM.plantId
 			                    LEFT JOIN GratuityPolicyDetails GPD ON GPM.Id = GPD.GratuityPolicyMasterId
-			                    WHERE ppp.CompanyId = '" + comapnyId + @"'
+			                    WHERE GPD.PlantId ='" + plantId + @"'
 							)
                             ";
 
