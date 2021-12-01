@@ -559,7 +559,7 @@
                         <label class="col-sm-4 control-label">Terms and Conditions<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <div class="select-style">
-                                <select id="TypeId" class="form-control" name="Terms And Conditions" ng-model="productNew.TermsAndConditionsId" @*ng-change="LoadTermsAndConditionGrid();"*@ tabindex="12" @*required*@>
+                                <select id="TypeId" class="form-control" name="Terms And Conditions" ng-model="productNew.TermsAndConditionsId" ng-change="LoadTermsAndConditionGrid();" tabindex="12" @*required*@>
                                     <option ng-repeat="option in TermsAndConditionsList" value="{{option.Id}}">{{option.TermsAndConditions}}</option>
                                 </select>
                             </div>
@@ -656,7 +656,7 @@
     </div>
     <div class="col-md-6 text-left" style="padding-top: 17px;">
         <ul class="common-btn list-inline text-right">
-            <li> <button ng-click="Save();LoadTermsAndConditionGrid();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{productNew.Id.length>0?'Update':'Save'}}</button></li>
+            <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{productNew.Id.length>0?'Update':'Save'}}</button></li>
             <li> <button ng-click="Delete();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
             <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
@@ -937,7 +937,7 @@
                  e-filtersettings-filterType="excel" e-enabletouch="false"
                  e-allowselection="false" e-detailstemplate="detailTempTitle" e-detailsdatabound="detailgridTitle">
                 <div e-columns>
-                    <div e-column e-field="TermsAndConditionChildId" e-headertext="TermsAndConditionsChildId" e-visible="false"></div>
+                    <div e-column e-field="TermsAndConditionPOChildId" e-headertext="TermsAndConditionsPOChildId" e-visible="false"></div>
                     <div e-column e-type="string" e-field="Title" e-headertext="Title" e-width="200"></div>
                     <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="150"></div>
                     <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="200"></div>
