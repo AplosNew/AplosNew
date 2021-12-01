@@ -1261,6 +1261,7 @@ namespace Library.OrderManagement.BOM
                 CopyRow(BOMDetail.Rows[0], ref drDetailDestination);
                 drDetailDestination["Id"] = NewId;
                 drDetailDestination["BOMMasterId"] = BOMMasterId;
+                drDetailDestination["Description"] = BOMDetail.Rows[0]["Description"].ToString() + "-Copy";
                 BOMAttachmentDetail.Tables[0].Rows.Add(drDetailDestination);
 
 
