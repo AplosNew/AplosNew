@@ -117,7 +117,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                             LEFT JOIN EmployeeInformation EI on EI.SystemId=IGP.EmployeeSystemId
                             LEFT JOIN EmployeeFinalSettlement FS ON FS.EmpSystemId=IGP.EmployeeSystemId
                             WHERE IGP.AgreementId='" + AgreementId + @"'  AND EI.PlantId='" + identity.PlantId + @"' ---AND ISNULL(FS.GratuityAmount,0)>0   
-                            AND EI.DOS BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'                           
+                            AND EI.DOS BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'  AND  ISNULL(FS.GratuityAmount,0) <> 0
                             ORDER BY EI.EmployeeCodePreFix,EI.EmployeeCodeNumeric";
                     objCon = new ConnectionManager.DAL.ConManager("1");
                     objCon.OpenDataSetThroughAdapter(strSQL, out dsData, false, "1");

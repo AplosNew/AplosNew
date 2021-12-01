@@ -160,7 +160,7 @@ namespace OTSBD
 
                 strSql = @"
                             SELECT  Ei.SystemID AS EmpSystemID, lt.Id AS LeaveTypeId,lt.Code, lt.Sequence,lt.LeaveType,
-                                CASE WHEN EncashWorkingDaysQty>0 THEN CONVERT(DECIMAL(18,4), EncashEarnLeaveQty)/CONVERT(DECIMAL(18,4),EncashWorkingDaysQty) ELSE 0 END * SUM(l.EarnValue) ActualEarnedLeave,
+                                 SUM(CASE WHEN EncashWorkingDaysQty>0 THEN CONVERT(DECIMAL(18,4), EncashEarnLeaveQty)/CONVERT(DECIMAL(18,4),EncashWorkingDaysQty) ELSE 0 END * l.EarnValue) ActualEarnedLeave,
                                SUM(L.AvailedValue) AS AvailedLeave,0 AS Balance,NULL AS BalanceId,
                                 'CUR' AS TransactionType
 						
@@ -172,17 +172,17 @@ namespace OTSBD
 								JOIN SalaryProcMaster AS spm ON spm.MonthNo=MONTH('" + leavePara.FromDate + @"') AND spm.YearNo=YEAR('" + leavePara.FromDate + @"')
 								JOIN SalaryProcessLogDetail AS spld ON spld.EmpSystemId=ei.SystemId AND spld.SalaryProcessId=spm.SystemID
 
-                                LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
-                                LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
-                                LEFT JOIN mst.DesignationMaster AS dm ON dm.Id=dmc.DesignationMasterId
-                                LEFT JOIN DayStatusPlantChild PC ON pc.PlantId=apd.PlantId AND pc.EmpTypeId=dm.EmployeeCategoryId
-                                left JOIN DayTypeWithValues AS ds ON ds.DayType=apd.DayStatus AND ds.HeaderId=pc.HeaderId
+                                --LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
+                                --LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
+                                --LEFT JOIN mst.DesignationMaster AS dm ON dm.Id=dmc.DesignationMasterId
+                                --LEFT JOIN DayStatusPlantChild PC ON pc.PlantId=apd.PlantId AND pc.EmpTypeId=dm.EmployeeCategoryId
+                                left JOIN DayTypeWithValues AS ds ON ds.DayType=apd.DayStatus AND ds.HeaderId=apd.DayStatusHeaderId
                                 LEFT JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id AND l.LeaveTypeId=apd.LTSystemID
 
-                                 LEFT JOIN LeavePolicyDetail AS lpd ON lpd.LPMSystemID=dmc.LeavePolicyMasterId AND lpd.LTSystemID=apd.LTSystemID
+                                 LEFT JOIN LeavePolicyDetail AS lpd ON lpd.LPMSystemID=apd.LeavePolicyMasterId AND lpd.LTSystemID=apd.LTSystemID
                                  
                                 WHERE Ei.SystemID IN (" + parameters["EmpSystemId"] + @")
-                                 GROUP BY lt.LeaveType,Ei.SystemID, lt.Sequence,lt.Id,lt.Code,EncashWorkingDaysQty,EncashEarnLeaveQty
+                                 GROUP BY lt.LeaveType,Ei.SystemID, lt.Sequence,lt.Id,lt.Code--,EncashWorkingDaysQty,EncashEarnLeaveQty
                                 ORDER BY Ei.SystemID,lt.Sequence";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -312,7 +312,7 @@ namespace OTSBD
 
                 strSql = @"
                             SELECT  Ei.SystemID AS EmpSystemID, lt.Id AS LeaveTypeId,lt.Code, lt.Sequence,lt.LeaveType,
-                                CASE WHEN EncashWorkingDaysQty>0 THEN CONVERT(DECIMAL(18,4), EncashEarnLeaveQty)/CONVERT(DECIMAL(18,4),EncashWorkingDaysQty) ELSE 0 END * SUM(l.EarnValue) ActualEarnedLeave,
+                                SUM(CASE WHEN EncashWorkingDaysQty>0 THEN CONVERT(DECIMAL(18,4), EncashEarnLeaveQty)/CONVERT(DECIMAL(18,4),EncashWorkingDaysQty) ELSE 0 END * l.EarnValue) ActualEarnedLeave,
                                SUM(L.AvailedValue) AS AvailedLeave,0 AS Balance,NULL AS BalanceId,
                                 'CUR' AS TransactionType
 						
@@ -324,17 +324,17 @@ namespace OTSBD
 								JOIN SalaryProcMaster AS spm ON spm.MonthNo=MONTH('" + leavePara.FromDate + @"') AND spm.YearNo=YEAR('" + leavePara.FromDate + @"')
 								JOIN SalaryProcessLogDetail AS spld ON spld.EmpSystemId=ei.SystemId AND spld.SalaryProcessId=spm.SystemID
 
-                                LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
-                                LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
-                                LEFT JOIN mst.DesignationMaster AS dm ON dm.Id=dmc.DesignationMasterId
-                                LEFT JOIN DayStatusPlantChild PC ON pc.PlantId=apd.PlantId AND pc.EmpTypeId=dm.EmployeeCategoryId
-                                left JOIN DayTypeWithValues AS ds ON ds.DayType=apd.DayStatus AND ds.HeaderId=pc.HeaderId
+                                --LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
+                                --LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
+                                --LEFT JOIN mst.DesignationMaster AS dm ON dm.Id=dmc.DesignationMasterId
+                                --LEFT JOIN DayStatusPlantChild PC ON pc.PlantId=apd.PlantId AND pc.EmpTypeId=dm.EmployeeCategoryId
+                                left JOIN DayTypeWithValues AS ds ON ds.DayType=apd.DayStatus AND ds.HeaderId=apd.DayStatusHeaderId
                                 LEFT JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id AND l.LeaveTypeId=apd.LTSystemID
 
-                                 LEFT JOIN LeavePolicyDetail AS lpd ON lpd.LPMSystemID=dmc.LeavePolicyMasterId AND lpd.LTSystemID=apd.LTSystemID
+                                 LEFT JOIN LeavePolicyDetail AS lpd ON lpd.LPMSystemID=apd.LeavePolicyMasterId AND lpd.LTSystemID=apd.LTSystemID
                                  
                                 WHERE Ei.SystemID IN (" + parameters["EmpSystemId"] + @")
-                                 GROUP BY lt.LeaveType,Ei.SystemID, lt.Sequence,lt.Id,lt.Code,EncashWorkingDaysQty,EncashEarnLeaveQty
+                                 GROUP BY lt.LeaveType,Ei.SystemID, lt.Sequence,lt.Id,lt.Code--,EncashWorkingDaysQty,EncashEarnLeaveQty
                                 ORDER BY Ei.SystemID,lt.Sequence";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -9598,7 +9598,7 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"')
         }//end function
         public void GetExtraAbsent(string plantid, Dictionary<string, string> empParameters, int smonth, int syear, out DataSet dsRef)
         {
-            string plantId = "'" + plantid.Replace(",", "','") + "'";
+            //string plantId = "'" + plantid.Replace(",", "','") + "'";
             ConnectionManager.DAL.ConManager objCon;
             string strSql = string.Empty;
 
@@ -9606,12 +9606,12 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"')
             {
                 strSql = @"SELECT WorkingDate,EmpSystemID
                               FROM [SCS].[WeeklyAbsentismAssignment]
-                              where month(WorkingDate)=" + smonth + " and YEAR(WorkingDate)=" + syear + " and plantid in (" + plantId + @") 
+                              where month(WorkingDate)=" + smonth + " and YEAR(WorkingDate)=" + syear + " and plantid in (" + plantid + @") 
                             union
 
                             SELECT WorkDate WorkingDate,EmpSystemID
                               FROM [trn].[HolidayAbsentismAssignment]
-                              where month(WorkDate)=" + smonth + " and YEAR(WorkDate)=" + syear + " and plantid in (" + plantId + @") 
+                              where month(WorkDate)=" + smonth + " and YEAR(WorkDate)=" + syear + " and plantid in (" + plantid + @") 
                      ";
                 try
                 {
@@ -19233,14 +19233,14 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
             {
                 obs = new clsStaticInfo();
                 strSql = @"SELECT  A.EmployeeCode,A.EmployeeCode EmployeeCodeS ,DOJ,A.EmpSystemID
-	                       ,CAST(DATEDIFF(mm, A.DOJ, '" + gratuityCalcDate + @"') AS varchar(4))/12 totalYear
-	                       ,CAST(DATEDIFF(mm, A.DOJ, '" + gratuityCalcDate + @"') AS varchar(4))-(CAST(DATEDIFF(mm, A.DOJ, '" + gratuityCalcDate + @"') AS varchar(4))/12)*12 totalMonthAfterYear,* FROM
+	                       ,Convert(decimal(18,2),CAST(DATEDIFF(mm, A.DOJ, '" + gratuityCalcDate + @"') AS varchar(4)))/12 totalYear
+	                       ,Convert(decimal(18,2),CAST(DATEDIFF(mm, A.DOJ, '" + gratuityCalcDate + @"') AS varchar(4)))-(Convert(decimal(18,2),CAST(DATEDIFF(mm, A.DOJ, '" + gratuityCalcDate + @"') AS varchar(4)))/12)*12 totalMonthAfterYear,* FROM
                     
                        (
                            SELECT E.SystemID EmpSystemID, E.EmployeeCode, E.EmployeeName, REPLACE(Convert(VARCHAR(11), E.DOB, 106), ' ', '-') AS DOB,
 	                              E.FatherName, E.MotherName, E.EmpType EmployeeType, E.EmploymentType EmploymentNature, E.NationalID,
 	                              E.GenderID GenderName, REPLACE(Convert(VARCHAR(11), E.DOJ, 106), ' ', '-') AS DOJ,
-	                              REPLACE(Convert(VARCHAR(11), E.DOC, 106), ' ', '-') AS DOC, 
+	                              REPLACE(Convert(VARCHAR(11), E.DOC, 106), ' ', '-') AS DOC, eact.IsOutSider,
 							
 								 EC.UserName AS EmpCategory, Cm.UserName CompanyName,Cm.Id CompanyId, CAM.Address1,
 	                              CAM.Address2, E.EmployeeCategorySystemID, E.UnitID, E.DivisionID, E.DepartmentID, E.DesignationSystemID,
@@ -19321,23 +19321,23 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
 										
 										LEFT JOIN SalaryRuleMaster SRM ON SRM.SystemID = EmpSlr.SalaryRuleMasterSystemID
 										LEFT JOIN CurrencyRuleChild CRC ON CRC.MstSystemID = srm.CurrencyRuleSystemID AND CRC.SalaryHeadID = SH.SalaryHeadID
-
-                                                 ) A  WHERE EmployeeStatus = 'Active' and
-                            isnull(EmpInfoSystemID,'')<>''  AND GroupID = '" + companyGroupId + @"' AND  CompanyId ='" + comapnyId + @"' --AND PlantId ='" + plantId + @"'
+                                            left join [dbo].[EmployeeCodeType] eact on eact.Id=e.EmployeeCodeTypeId
+                                                 ) A  WHERE EmployeeStatus = 'Active' and a.IsOutSider=0 and
+                            isnull(EmpInfoSystemID,'')<>''  AND GroupID = '" + companyGroupId + @"' AND  CompanyId ='" + comapnyId + @"' AND PlantId ='" + plantId + @"'
 	                        AND HeadCategory = 'Basic'	
-                    AND CAST(DATEDIFF(mm, A.DOJ, '" + gratuityCalcDate + @"') AS varchar(4))/12 between 
+                    AND Convert(decimal(18,2),CAST(DATEDIFF(mm, A.DOJ, '" + gratuityCalcDate + @"') AS varchar(4)))/12 between 
 							(
-							 SELECT Min(Convert(Int,Convert(decimal(18,2),GPD.MaturityFromYear))) FROM GratuityPolicyMaster GPM 
+							 SELECT Min(Convert(decimal(18,2),Convert(decimal(18,2),GPD.MaturityFromYear))) FROM GratuityPolicyMaster GPM 
                                 left join ORG.Plant pp on pp.Id=GPM.plantId
 			                    LEFT JOIN GratuityPolicyDetails GPD ON GPM.Id = GPD.GratuityPolicyMasterId
-			                    WHERE pp.CompanyId = '" + comapnyId + @"'
+			                    WHERE GPD.PlantId ='" + plantId + @"'
 							)
 							AND
 							(
-							 SELECT Max(Convert(Int,Convert(decimal(18,2),GPD.MaturityFromYear))) FROM GratuityPolicyMaster GPM
+							 SELECT Max(Convert(decimal(18,2),Convert(decimal(18,2),GPD.MaturityToYear))) FROM GratuityPolicyMaster GPM
                                 left join ORG.Plant ppp on ppp.Id=GPM.plantId
 			                    LEFT JOIN GratuityPolicyDetails GPD ON GPM.Id = GPD.GratuityPolicyMasterId
-			                    WHERE ppp.CompanyId = '" + comapnyId + @"'
+			                    WHERE GPD.PlantId ='" + plantId + @"'
 							)
                             ";
 
@@ -19362,12 +19362,12 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
                     }
 
                 }
-                else if (payGrp.ToUpper() != "NO GROUP")
+                else if (payGrp.ToUpper().Trim() != "NOGROUP")
                 {
                     strSql = strSql + @" AND EmpSystemID  IN (
 													 select employeeid from MST.PayrollGroupMaster where PayrollGroupId = '" + payGrp + @"')";
                 }
-                if (payGrp.ToUpper() == "NO GROUP")
+                if (payGrp.ToUpper().Trim() == "NOGROUP")
                 {
                     strSql = strSql + @" AND EmpSystemID NOT IN (
 													 select employeeid from MST.PayrollGroupMaster)";
@@ -19378,6 +19378,7 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+                int i = dsRef.Tables[0].Rows.Count;
             }
             catch (Exception ex)
             {

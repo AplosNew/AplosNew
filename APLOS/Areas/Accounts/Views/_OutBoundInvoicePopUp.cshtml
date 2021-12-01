@@ -1,0 +1,38 @@
+﻿<div class="modal fade site-modal in" id="OutBoundInvoicePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Out Bound Invoice</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="table-responsive">
+                        <div id="OutBoundInvoiceGridPopUp" ng-init="chkinit()" ej-grid e-datasource="CustomerAvailableInvoiceList" e-load="loadGridEdit"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                <div e-column e-template="#checkboxTemplateMaster" e-textalign="center" e-width="1"></div>
+                                <div e-column e-field="InvoiceId" e-headertext="Invoice No" e-width="3"></div>
+                                <div e-column e-field="PostingDate" e-headertext="Invoice Date" e-width="3"></div>
+                                <div e-column e-field="PartyPlantName" e-headertext="Customer" e-width="3"></div>
+                                <div e-column e-field="Receivable" e-headertext="Amount" e-width="2"></div>
+                                <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="2"></div>
+                                <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="3"></div>
+                            </div>
+                        </div>
+                        <script type="text/template" id="checkboxTemplateMaster">
+                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
+                        </script>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="AddIOutBoundInvoice();" class="btn"><i></i> Apply</button></li>
+                        <li> <button ng-click="hideOutBoundInvoicePopUp();" class="btn"><i class="glyphicon glyphicon-remove"></i> Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

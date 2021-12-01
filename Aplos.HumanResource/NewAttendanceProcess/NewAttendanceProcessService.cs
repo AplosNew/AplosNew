@@ -38,6 +38,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 }
                 else
                 {
+
                     #region AssignedShift Process           
                     DataSet UnProcessed;
                     UnProcessedEmp(Date, out UnProcessed, PlantValue); //DataSet of Employees For Row Creation
@@ -789,17 +790,17 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                         var sql = @"";
                         // WeekNo Depending on the No Of Days In Month
-                        if (NoOfDaysInMonth == "28" && Pattern28 !="")
+                        if (NoOfDaysInMonth == "28" && Pattern28 != "")
                         {
-                            sql = "update AttdnProcessData set otmonth = '"+ Month+"', OTYear = '"+Year+"', OTWeek = '"+ Pattern28+"' " +
-                                "where WorkDate = '"+Date+"' and PlantID = '"+PlantValue+"'";
+                            sql = "update AttdnProcessData set otmonth = '" + Month + "', OTYear = '" + Year + "', OTWeek = '" + Pattern28 + "' " +
+                                "where WorkDate = '" + Date + "' and PlantID = '" + PlantValue + "'";
                         }
-                        else if (NoOfDaysInMonth == "29" && Pattern29 !="")
+                        else if (NoOfDaysInMonth == "29" && Pattern29 != "")
                         {
                             sql = "update AttdnProcessData set otmonth = '" + Month + "', OTYear = '" + Year + "', OTWeek = '" + Pattern29 + "' " +
                                "where WorkDate = '" + Date + "' and PlantID = '" + PlantValue + "'";
                         }
-                        else if(NoOfDaysInMonth == "30" && Pattern30!="")
+                        else if (NoOfDaysInMonth == "30" && Pattern30 != "")
                         {
                             sql = "update AttdnProcessData set otmonth = '" + Month + "', OTYear = '" + Year + "', OTWeek = '" + Pattern30 + "' " +
                                "where WorkDate = '" + Date + "' and PlantID = '" + PlantValue + "'";
@@ -810,7 +811,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                "where WorkDate = '" + Date + "' and PlantID = '" + PlantValue + "'";
                         }
 
-                        if(sql!="")
+                        if (sql != "")
                         {
                             #region Update Entire Plant Rows
                             OTUpdateinAPD(sql);
@@ -820,50 +821,98 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     }
                     #endregion
 
-                    #region CreditLimit Monthly Opening Creation
-                    DataSet CreditLimitOpening;
-                    CreditLimitOpeningSource(out CreditLimitOpening, PlantValue, Date);
-                    // DataSet Generation from Creditlimitopening
+                    #region DayStatusHeader & LeavePolicy MasterId Localization
+                    DataSet HeaderPolicy;
+                    LocalizingHeaderValue(Date, out HeaderPolicy, PlantValue);
+                    // DataSet Generation from Employee Category
 
-                    if (CreditLimitOpening.Tables[0].Rows.Count > 0)
-                    {                       
-                        var YearNo = CreditLimitOpening.Tables[0].Rows[0][@"YearNo"].ToString();
-                        var GpId = CreditLimitOpening.Tables[0].Rows[0][@"GroupID"].ToString();
-                        var MonthNo = CreditLimitOpening.Tables[0].Rows[0][@"MonthNo"].ToString();
+                    if (HeaderPolicy.Tables[0].Rows.Count > 0)
+                    {
+                        string WorkDate = HeaderPolicy.Tables[0].Rows[0][@"WorkDate"].ToString();
 
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                        objCon.OpenDataSetThroughAdapter("select * from EmployeeCreditLimit where YearNo='" + YearNo + "' and MonthNo='" + MonthNo + "' and GroupID='" + GpId + "'", out DataSet dsRef, false, false, "", "1");
+                        var sqlx = @"select * from AttdnProcessData where WorkDate='" + WorkDate + "' and PlantID='" + PlantValue + "'";
+
+                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
 
-                        for (int i = 0; i < CreditLimitOpening.Tables[0].Rows.Count; i++)
+                        for (int i = 0; i < HeaderPolicy.Tables[0].Rows.Count; i++)
                         {
-                            string EmpId = clsWebLib.RetValidLen(CreditLimitOpening.Tables[0].Rows[i][@"EmpId"]).ToString();
-                            string MonthlyLimit = clsWebLib.RetValidLen(CreditLimitOpening.Tables[0].Rows[i][@"MonthlyLimit"]).ToString();
-                           
-                            dsRef.Tables[0].DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' ";
-                            if (dsRef.Tables[0].DefaultView.Count == 0)
+                            string EmpId = clsWebLib.RetValidLen(HeaderPolicy.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
+                            string HeaderId = clsWebLib.RetValidLen(HeaderPolicy.Tables[0].Rows[i][@"HeaderId"]).ToString();
+                            string LeavePolicyId = clsWebLib.RetValidLen(HeaderPolicy.Tables[0].Rows[i][@"LeavePolicyMasterId"]).ToString();
+
+                            if (HeaderId != "")
                             {
-                                // Row Creation in EmployeeCreditLimit
-                                DataRow dr = dsRef.Tables[0].NewRow();
-                                clsGenID genid = new clsGenID();
-                                genid.GenID("EmployeeCreditLimit", out string _Id);
-
-                                dr["Id"] = "EC" + _Id;
-                                dr["EmpSystemId"] = EmpId;
-                                dr["CreditLimit"] = MonthlyLimit;
-                                dr["YearNo"] = YearNo;
-                                dr["MonthNo"] = MonthNo;
-                                dr["GroupId"] = GpId;
-                                dr["AddedBy"] = "Schedule";
-                                dr["DateAdded"] = Convert.ToDateTime(DateTime.Now);
-
-                                dsRef.Tables[0].Rows.Add(dr);
+                                // HeaderId & LeavePolicy MasterId Localizing in APD
+                                dsRef.Tables[0].DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' ";
+                                if (dsRef.Tables[0].DefaultView.Count > 0)
+                                {
+                                    string HeaderMaster = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"DayStatusHeaderId"]).ToString();
+                                    if (HeaderMaster == "")
+                                    {
+                                        DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                        dr.BeginEdit();
+                                        // Data Found using Plant & Employee Category
+                                        dr["DayStatusHeaderId"] = HeaderId;
+                                        if (LeavePolicyId != "")
+                                        {
+                                            dr["LeavePolicyMasterId"] = LeavePolicyId;
+                                        }
+                                        dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                        dr.EndEdit();
+                                    }
+                                }
                             }
-
-
                         }
                         SaveDataSets(dsRef);
                     }
+                    #endregion
+
+                    #region CreditLimit Monthly Opening Creation
+                    //DataSet CreditLimitOpening;
+                    //CreditLimitOpeningSource(out CreditLimitOpening, PlantValue, Date);
+                    //// DataSet Generation from Creditlimitopening
+
+                    //if (CreditLimitOpening.Tables[0].Rows.Count > 0)
+                    //{                       
+                    //    var YearNo = CreditLimitOpening.Tables[0].Rows[0][@"YearNo"].ToString();
+                    //    var GpId = CreditLimitOpening.Tables[0].Rows[0][@"GroupID"].ToString();
+                    //    var MonthNo = CreditLimitOpening.Tables[0].Rows[0][@"MonthNo"].ToString();
+
+                    //    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                    //    objCon.OpenDataSetThroughAdapter("select * from EmployeeCreditLimit where YearNo='" + YearNo + "' and MonthNo='" + MonthNo + "' and GroupID='" + GpId + "'", out DataSet dsRef, false, false, "", "1");
+
+
+                    //    for (int i = 0; i < CreditLimitOpening.Tables[0].Rows.Count; i++)
+                    //    {
+                    //        string EmpId = clsWebLib.RetValidLen(CreditLimitOpening.Tables[0].Rows[i][@"EmpId"]).ToString();
+                    //        string MonthlyLimit = clsWebLib.RetValidLen(CreditLimitOpening.Tables[0].Rows[i][@"MonthlyLimit"]).ToString();
+
+                    //        dsRef.Tables[0].DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' ";
+                    //        if (dsRef.Tables[0].DefaultView.Count == 0)
+                    //        {
+                    //            // Row Creation in EmployeeCreditLimit
+                    //            DataRow dr = dsRef.Tables[0].NewRow();
+                    //            clsGenID genid = new clsGenID();
+                    //            genid.GenID("EmployeeCreditLimit", out string _Id);
+
+                    //            dr["Id"] = "EC" + _Id;
+                    //            dr["EmpSystemId"] = EmpId;
+                    //            dr["CreditLimit"] = MonthlyLimit;
+                    //            dr["YearNo"] = YearNo;
+                    //            dr["MonthNo"] = MonthNo;
+                    //            dr["GroupId"] = GpId;
+                    //            dr["AddedBy"] = "Schedule";
+                    //            dr["DateAdded"] = Convert.ToDateTime(DateTime.Now);
+
+                    //            dsRef.Tables[0].Rows.Add(dr);
+                    //        }
+
+
+                    //    }
+                    //    SaveDataSets(dsRef);
+                    //}
                     #endregion
 
                 }
@@ -2976,31 +3025,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
-        public void OverStayRoundingOff(string PreDay, out DataSet ds, string Plant)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-                // Getting AllotedOT from Per Min Policy
-                var sql = @"select distinct p.EmpSystemID,
-                format(p.WorkDate,'yyyy-MMM-dd')WorkDate,Result=               
-                (select distinct ot.AllotedOT from OTPerMinutePolicy ot
-                where ot.PlantId=p.PlantID and ot.OverstayOrEarlyOut=p.OverStay) 
-                from AttdnProcessData p
-                left join org.Plant pl on pl.Id=p.PlantID
-                left join OTPerMinutePolicy ot on ot.PlantId=pl.Id
-                        where WorkDate='"+PreDay+@"' and p.IsOTEntitled='1'
-						and p.OverStay>0
-						and p.PlantId='"+Plant+"'";
-
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
         public void UpdateZeroProcessedOTEmp(string Date,string Plant)
         {
             try
@@ -3340,44 +3364,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     }
 
                     #endregion
-
-                    #region PrevDay OverStay Rounding Off 
-                    DataSet OverStayRounding;
-                    OverStayRoundingOff(PreviousDay, out OverStayRounding, PlantValue);
-                    if (OverStayRounding.Tables[0].Rows.Count > 0)
-                    {
-                        // OverStay DataSet Using OT Per Minute Policy
-                        var WkDate = OverStayRounding.Tables[0].Rows[0][@"WorkDate"].ToString();
-                        string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
-
-                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                        var sqlx = @"select * from AttdnProcessData where IsOTEntitled='1' and WorkDate='" + WkDate + "' and PlantID='" + PlantValue + "'";
-                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
-
-                        for (int i = 0; i < OverStayRounding.Tables[0].Rows.Count; i++)
-                        {
-
-                            string EmpId = clsWebLib.RetValidLen(OverStayRounding.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
-                            string Result = clsWebLib.RetValidLen(OverStayRounding.Tables[0].Rows[i][@"Result"]).ToString();
-
-                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
-                            if (dsRef.Tables[0].DefaultView.Count > 0)
-                            {
-                                // OverStay Value is rounded using OT Per Min Policy
-                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                                dr.BeginEdit();
-                                dr["OverStay"] = Result;
-                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                dr.EndEdit();
-                            }
-
-
-                        }
-                        SaveDataSets(dsRef);
-                    }
-
-                    #endregion
-
+                 
                     #region Previous Day DurationStatus Flagging
                     DataSet PrevDurationStat;
                     PrevDurationStatusCal(PreviousDay, out PrevDurationStat, PlantValue);
@@ -4488,32 +4475,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
-        public void ManualOverStayRoundingOff(out DataSet ds, string Plant)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-                // Getting AllotedOT from Per Min Policy
-                var sql = @"select distinct p.EmpSystemID,
-                format(p.WorkDate,'yyyy-MMM-dd')WorkDate,Result=               
-                (select distinct ot.AllotedOT from OTPerMinutePolicy ot
-                where ot.PlantId=p.PlantID and ot.OverstayOrEarlyOut=p.OverStay) 
-                from AttdnProcessData p
-                left join org.Plant pl on pl.Id=p.PlantID
-                left join OTPerMinutePolicy ot on ot.PlantId=pl.Id
-                        where ManualFlag=1 and p.IsOTEntitled='1'
-						and p.OverStay>0
-						and p.PlantId='"+Plant+@"'
-						order by WorkDate asc";
-
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
         public void ManualZeroProcessedOTEmployees(string Plant, string empMaster)
         {
             try
@@ -4829,48 +4790,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     SaveDataSets(dsRef);
 
                 }
-
-                #endregion
-
-                #region Manual OverStay Rounding Off 
-                DataSet ManualOverStayRounding;
-                ManualOverStayRoundingOff(out ManualOverStayRounding, PlantValue);
-                if (ManualOverStayRounding.Tables[0].Rows.Count > 0)
-                {
-                    // OverStay Rounding Off
-                    var sqlx = "";
-                    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                    if (empMaster == "")
-                    {
-                        sqlx = @"select * from AttdnProcessData where  IsLock=0 and ManualFlag=1 and OverStay >0 and PlantID='" + PlantValue + "'";
-                    }
-                    else
-                    {
-                        sqlx = @"select * from AttdnProcessData where  IsLock=0 and ManualFlag=1 and OverStay >0 and PlantID='" + PlantValue + "' and RowId in (" + empList + ")";
-                    }
-                    objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
-
-                    for (int i = 0; i < ManualOverStayRounding.Tables[0].Rows.Count; i++)
-                    {
-                        string WorkDate = ManualOverStayRounding.Tables[0].Rows[i][@"WorkDate"].ToString();
-                        string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
-
-                        string EmpId = clsWebLib.RetValidLen(ManualOverStayRounding.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
-                        string Result = clsWebLib.RetValidLen(ManualOverStayRounding.Tables[0].Rows[i][@"Result"]).ToString();
-
-                        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
-                        if (dsRef.Tables[0].DefaultView.Count > 0)
-                        {
-                            DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                            dr.BeginEdit();
-                            dr["OverStay"] = Result;
-                            dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                            dr.EndEdit();
-                        }
-                    }
-                    SaveDataSets(dsRef);
-                }
-
 
                 #endregion
 
@@ -6596,9 +6515,9 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     }
                     objCon.CloseConnection();
                 }
-                catch (Exception exp)
+                catch (Exception)
                 {
-                    throw exp;
+                    
                 }
                 throw ex;
             }

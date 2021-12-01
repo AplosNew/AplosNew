@@ -356,6 +356,33 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
         });
     };
 
+    $scope.copymessage_detailconfirmation = null;
+    $scope.copyBoMDetail = function (obj) {
+        $scope.bomDetailNew = obj.data;
+        if (!baseService.isUndefinedOrNull($scope.bomDetailNew.Id))
+            $scope.copymessage_detailconfirmation = 'Are you sure want to copy';
+        angular.element(document.querySelector('#confirmCopyBoMDetailPopUp')).modal('show');
+    }
+
+    $scope.CopyBomDetailData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'CopyBomDetailData?BOMMasterId=' + $scope.bomDetailNew.BOMMasterId + '&Id=' + $scope.bomDetailNew.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getDetailData();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
+
     $scope.Delete = function () {
         if (!baseService.isUndefinedOrNull($scope.bomNew.Id)) {
             $http({
@@ -1549,6 +1576,14 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
     };
     $scope.isSet1 = function (tabNum) {
         return $scope.tab2 === tabNum;
+    };
+
+    $scope.tab3 = 1;
+    $scope.setTab3 = function (newTab) {
+        $scope.tab3 = newTab;
+    };
+    $scope.isSet3 = function (tabNum) {
+        return $scope.tab3 === tabNum;
     };
 
     $scope.GetMatrixDetail = function (obj) {
@@ -3115,7 +3150,40 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
 
     //#endregion 
 
+    $scope.AttahedBoMIList = [];
+    $scope.GetAttahedBoMInfo = function (obj) {
+        $scope.SOItemList = [];
+        $http.get('OrderManagements/BOMMaster/GetAttahedBoMInfo?Id=' + obj.Id)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.AttahedBoMIList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+        angular.element(document.querySelector('#TaggedDetailPopup')).modal('show');
+    };
 
+    $scope.CopyBOMDetail = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'CopyBOM?Id=' + $scope.SelectedBOMRow.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getmasterData();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    }
 }
 
 

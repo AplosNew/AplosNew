@@ -24,7 +24,7 @@
                         <div class="col-sm-2 ">
                             Product Master
                             <div class="select-style">
-                                <select class="form-control" ng-disabled="ModelNew.Id" ng-change="ProductMasterDetail(ModelNew.ProductMasterId);GetCostingComponentByProductMasterId(ModelNew.ProductMasterId)" ng-model="ModelNew.ProductMasterId"
+                                <select class="form-control" ng-disabled="ModelNew.Id" ng-change="ProductMasterDetail(ModelNew.ProductMasterId);GetCostingComponentByProductMasterId(ModelNew.ProductMasterId);GetUoMCboByProductMaster();" ng-model="ModelNew.ProductMasterId"
                                         name="ProductMasterId" ng-options="item.Value as item.Text for item in ProductMasterList">
                                     <option value=""></option>
                                 </select>
@@ -508,7 +508,7 @@
                                                         <div class="show-message">
                                                             <div class="select-style">
                                                                 <select class="form-control" ng-change="CheckeSpecifyTo()" ng-model="ModelNew.UOM" name="UOM" ng-options="item.Value as item.Text for item in ProductUOM " required>
-                                                                    <option value=""></option>
+                                                                    @*<option value=""></option>*@
                                                                 </select>
                                                                 @*<select id="CurrencyId" class="form-control" name="Currency" ng-model="ModelNew.UOM" required>
                                                                         <option value="">--Select--</option>

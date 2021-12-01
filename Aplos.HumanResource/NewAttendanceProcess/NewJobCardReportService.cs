@@ -805,7 +805,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                             if (chkAdditionInfo == true)
                             {
-                                //xlsRow++;
+                                xlsRow++;
                                 //string overstay = string.Empty;
                                 //oru.GetOT(dsBioDvAC.Tables[0].Rows[0]["OTConsiderOn"].ToString(), OverStay.ToString(), out overstay);
                                 //string tost = overstay;

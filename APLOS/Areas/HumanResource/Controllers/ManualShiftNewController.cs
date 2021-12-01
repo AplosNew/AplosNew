@@ -98,7 +98,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             string sql = stringAttendanceData(employeeid, fromdate, todate);
 
 
-            string shiftSQL = @" SELECT * FROM ShiftDefination AS sd WHERE sd.PlantID='" + identity.PlantId + @"'";
+            string shiftSQL = @" SELECT * FROM ShiftDefination AS sd WHERE sd.IsActive=1 and sd.PlantID='" + identity.PlantId + @"'";
 
             var jsondata = Json(new { data = _sqlRepository.GetModelCollection<AttendanceProcessNewProcess>(sql), shift = _sqlRepository.GetDataCollection(shiftSQL) }, JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;

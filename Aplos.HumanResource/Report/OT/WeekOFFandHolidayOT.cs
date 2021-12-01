@@ -3279,8 +3279,16 @@ namespace Library.HumanResource.Report.OT
                             salaryHeadSequence.Sequence = ci;
                             salaryHeadSequence.XLColIndex = ColGrs + countCTCPosition;
 
-                            list.Add(dtSalaryHead.Rows[ci]["SalaryHeadID"].ToString(), salaryHeadSequence);
-                            countCTCPosition++;
+
+
+                            //var detailData = list.Where(xx => xx["SalaryHeadID"].ToString() == dtSalaryHead.Rows[ci]["SalaryHeadID"].ToString(),0)
+                            if (!list.ContainsKey(salaryHeadSequence.SalaryHeadId.ToString()))
+                            {
+                                list.Add(dtSalaryHead.Rows[ci]["SalaryHeadID"].ToString(), salaryHeadSequence);
+                                countCTCPosition++;
+                            }
+
+                            
                         }
 
 
@@ -3342,10 +3350,14 @@ namespace Library.HumanResource.Report.OT
 
                             salaryHeadSequence.HeadCategory = dtSalaryHead.Rows[ci]["HeadCategory"].ToString();
 
+                            if (!list.ContainsKey(salaryHeadSequence.SalaryHeadId.ToString()))
+                            {
 
-                            list.Add(dtSalaryHead.Rows[ci]["SalaryHeadID"].ToString(), salaryHeadSequence);
+                                list.Add(dtSalaryHead.Rows[ci]["SalaryHeadID"].ToString(), salaryHeadSequence);
 
-                            _count_deducting_head++;
+                                _count_deducting_head++;
+                            }
+
                         }
                         //}//CTC/Gross
                     }//SalaryHead 
@@ -3399,9 +3411,15 @@ namespace Library.HumanResource.Report.OT
                         salaryHeadSequence.HeadCategory = dtSalaryHead.Rows[ci]["HeadCategory"].ToString();
 
 
-                        list.Add(dtSalaryHead.Rows[ci]["SalaryHeadID"].ToString(), salaryHeadSequence);
+                        if (!list.ContainsKey(salaryHeadSequence.SalaryHeadId.ToString()))
+                        {
 
-                        _count_deducting_head++;
+                            list.Add(dtSalaryHead.Rows[ci]["SalaryHeadID"].ToString(), salaryHeadSequence);
+
+                            _count_deducting_head++;
+                        }
+
+                       
 
                         //}//CTC/Gross
                     }//SalaryHead 
@@ -3448,9 +3466,15 @@ namespace Library.HumanResource.Report.OT
                             salaryHeadSequence.Sequence = ci;
                             salaryHeadSequence.XLColIndex = ColGrs + countCTCNOTNETPosition;
 
-                            list.Add(dtSalaryHead.Rows[ci]["SalaryHeadID"].ToString(), salaryHeadSequence);
+                           
 
-                            _count_earning_notionalhead++;
+                            if (!list.ContainsKey(salaryHeadSequence.SalaryHeadId.ToString()))
+                            {
+
+                                list.Add(dtSalaryHead.Rows[ci]["SalaryHeadID"].ToString(), salaryHeadSequence);
+
+                                _count_earning_notionalhead++;
+                            }
 
                         }
 

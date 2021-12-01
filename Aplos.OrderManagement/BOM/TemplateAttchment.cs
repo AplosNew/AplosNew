@@ -56,11 +56,18 @@ namespace Library.OrderManagement.BOM
        moi.MaterialMasterId, moi.ArticleId,pm.UserName AS Product,pc.UserName AS ProductCategory,mm.UserName AS Material,ma.StandardName AS Article,
        b.UserName AS Buyer,p.UserName AS Customer,c.ContractNo,ml.LCRef,MOI.AddedBy,Format(MOI.AddedDate,'dd-MMM-yyyy') AS AddedDate,
        convert(bit,CASE WHEN  ISNULL((SELECT COUNT(*) AS SalesOrderCount FROM trn.SalesOrder WHERE MasterOrderItemId=moi.Id),0)<>ISNULL((SELECT count(DISTINCT SalesOrderId) AS SalesOrderCount FROM BOQDetail WHERE MasterOrderItemId=moi.Id),0) THEN 0 ELSE 1 END) AS HasBOQ
-        ,MO.Type,isnull(moi.Consignment,0) AS Consignment,
-        CASE WHEN isnull(moi.Consignment,0)=1 THEN
-	        CASE WHEN ISNULL(eout.Id,'')<>'' THEN CONCAT(POUT.UserName,'(',EOUT.UserName,')') ELSE TOUT.UserName END
+        ,MOI.Type,isnull(moi.Consignment,0) AS Consignment,
+         CASE WHEN isnull(moi.Consignment,0)=1 THEN
+        	  CONCAT(POWN.UserName,'(',EOWN.UserName,')')	          
         ELSE
-	     CONCAT(POWN.UserName,'(',EOWN.UserName,')') END AS PurchaseAuthority
+			case when isnull(MOI.JobWorkType,'')<>'' THEN 
+                CASE WHEN ISNULL(eout.Id,'')<>'' THEN CONCAT(POUT.UserName,'(',EOUT.UserName,')') ELSE TOUT.UserName END
+           ELSE CONCAT(POWN.UserName,'(',EOWN.UserName,')') END
+           
+             END AS PurchaseAuthority,
+           case when isnull(MOI.JobWorkType,'')<>'' THEN 
+                CASE WHEN ISNULL(eout.Id,'')<>'' THEN CONCAT(POUT.UserName,'(',EOUT.UserName,')') ELSE TOUT.UserName END
+           ELSE CONCAT(POWN.UserName,'(',EOWN.UserName,')') END AS ProductionAuthority
         --convert(bit,case when isnull(BOQ.Id,'')='' then 0 else 1 end) AS HasBOQ
                               FROM trn.MasterOrder MO
                             join trn.MasterOrderItem MOI on moi.MasterOrderId=mo.Id
@@ -1201,6 +1208,126 @@ namespace Library.OrderManagement.BOM
 
 
         }
+
+        public void GetMaxBOMDetailId(string BOMMasterId, out DataSet dsRef)
+        {
+            ConnectionManager.DAL.ConManager Obj;
+
+            try
+            {
+                string sql = @"Select COUNT(Id) Id from BOMDetail where BOMMasterId='" + BOMMasterId + "'";
+                Obj = new ConnectionManager.DAL.ConManager("1");
+                Obj.OpenDataSetThroughAdapter(sql, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public void CopyBOMTemplateDetail(string BOMMasterId, string Id)
+        {
+            DataSet BOMAttachmentDetail;
+            DataSet BOMAttachmentSKUMapping;
+            DataSet BOMAttachmentDestination;
+            DataSet BOMAttachmentDetailConsumption;
+            DataSet BOMAttachmentDetailConsumptionSKUMapping;
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string NewId = "";
+            try
+            {
+                DataSet dsMaxId;
+                GetMaxBOMDetailId(BOMMasterId, out dsMaxId);
+                int IdNo = Convert.ToInt32(dsMaxId.Tables[0].Rows[0]["Id"].ToString()) + 1;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from BOMDetail where 1=2", out BOMAttachmentDetail, false, "1");
+                con.OpenDataSetThroughAdapter("select * from BOMSKUMapping where 1=2", out BOMAttachmentSKUMapping, false, "1");
+                con.OpenDataSetThroughAdapter("select * from BOMDestination where 1=2", out BOMAttachmentDestination, false, "1");
+                con.OpenDataSetThroughAdapter("select * from DetailConsumption where 1=2", out BOMAttachmentDetailConsumption, false, "1");
+                con.OpenDataSetThroughAdapter("select * from DetailConsumptionSKUMapping where 1=2", out BOMAttachmentDetailConsumptionSKUMapping, false, "1");
+
+
+                DataTable BOMDetail = _sqlRepository.GetDataTable("select * from BOMDetail WHERE Id='" + Id + "'");
+                DataTable BOMSKUMapping = _sqlRepository.GetDataTable("select * from BOMSKUMapping WHERE BOMDetailId IN ('"+Id+"')");
+                DataTable BOMDestination = _sqlRepository.GetDataTable("select * from BOMDestination WHERE BOMDetailId IN ('" + Id + "')");
+                DataTable DetailConsumption = _sqlRepository.GetDataTable("select * from DetailConsumption WHERE BOMDetailId IN ('" + Id + "')");
+                DataTable DetailConsumptionSKUMapping = _sqlRepository.GetDataTable("select * from DetailConsumptionSKUMapping WHERE DetailConsumptionId IN (select Id from DetailConsumption WHERE BOMDetailId IN ('"+Id+"'))");
+
+
+
+                NewId = BOMMasterId+"-"+ IdNo;
+
+                DataRow drDetailDestination = BOMAttachmentDetail.Tables[0].NewRow();
+                CopyRow(BOMDetail.Rows[0], ref drDetailDestination);
+                drDetailDestination["Id"] = NewId;
+                drDetailDestination["BOMMasterId"] = BOMMasterId;
+                drDetailDestination["Description"] = BOMDetail.Rows[0]["Description"].ToString() + "-Copy";
+                BOMAttachmentDetail.Tables[0].Rows.Add(drDetailDestination);
+
+
+                BOMSKUMapping.DefaultView.RowFilter = "BOMDetailId='" + BOMDetail.Rows[0]["Id"].ToString() + "'";
+                for (int K = 0; K < BOMSKUMapping.DefaultView.Count; K++)
+                {
+
+                    DataRow drDetailSKUDestination = BOMAttachmentSKUMapping.Tables[0].NewRow();
+                    CopyRow(BOMSKUMapping.DefaultView[K].Row, ref drDetailSKUDestination);
+                    drDetailSKUDestination["Id"] = NewId +  "-" + (K + 1);
+                    drDetailSKUDestination["BOMDetailId"] = NewId ;
+
+                    BOMAttachmentSKUMapping.Tables[0].Rows.Add(drDetailSKUDestination);
+                }
+
+
+                BOMDestination.DefaultView.RowFilter = "BOMDetailId='" + BOMDetail.Rows[0]["Id"].ToString() + "'";
+                for (int K = 0; K < BOMDestination.DefaultView.Count; K++)
+                {
+
+                    DataRow drBOMDesDestination = BOMAttachmentDestination.Tables[0].NewRow();
+                    CopyRow(BOMDestination.DefaultView[K].Row, ref drBOMDesDestination);
+                    drBOMDesDestination["Id"] = NewId + "-" +  (K + 1);
+                    drBOMDesDestination["BOMDetailId"] = NewId;
+
+                    BOMAttachmentDestination.Tables[0].Rows.Add(drBOMDesDestination);
+                }
+
+                DetailConsumption.DefaultView.RowFilter = "BOMDetailId='" + BOMDetail.Rows[0]["Id"].ToString() + "'";
+                for (int K = 0; K < DetailConsumption.DefaultView.Count; K++)
+                {
+
+                    DataRow drDetailConsumptionDestination = BOMAttachmentDetailConsumption.Tables[0].NewRow();
+                    CopyRow(DetailConsumption.DefaultView[K].Row, ref drDetailConsumptionDestination);
+                    drDetailConsumptionDestination["Id"] = NewId + "-" + (K + 1);
+                    drDetailConsumptionDestination["BOMDetailId"] = NewId ;
+                    BOMAttachmentDetailConsumption.Tables[0].Rows.Add(drDetailConsumptionDestination);
+
+
+
+                    DetailConsumptionSKUMapping.DefaultView.RowFilter = "DetailConsumptionId='" + DetailConsumption.DefaultView[K]["Id"].ToString() + "'";
+                    for (int M = 0; M < DetailConsumptionSKUMapping.DefaultView.Count; M++)
+                    {
+                        DataRow drAttachmentDetailConsumptionSKUMappingDestination = BOMAttachmentDetailConsumptionSKUMapping.Tables[0].NewRow();
+                        CopyRow(DetailConsumptionSKUMapping.DefaultView[M].Row, ref drAttachmentDetailConsumptionSKUMappingDestination);
+                        drAttachmentDetailConsumptionSKUMappingDestination["Id"] = NewId + "-" + (K + 1) + "-" + (M + 1);
+                        drAttachmentDetailConsumptionSKUMappingDestination["DetailConsumptionId"] = drDetailConsumptionDestination["Id"];
+
+                        BOMAttachmentDetailConsumptionSKUMapping.Tables[0].Rows.Add(drAttachmentDetailConsumptionSKUMappingDestination);
+
+                    }
+
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(BOMAttachmentDetail, BOMAttachmentSKUMapping, BOMAttachmentDestination, BOMAttachmentDetailConsumption, BOMAttachmentDetailConsumptionSKUMapping);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+
+        }
+
         private string GetPK(string TableName)
         {
             string sID = string.Empty;
