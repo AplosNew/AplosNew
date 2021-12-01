@@ -12237,7 +12237,7 @@ ELSE CONVERT(BIT,0) END  ---No
                             salaryHeadSequence.XLColIndex = ColGrs + countCTCPosition;
 
                             salaryHeadSequence.IsInt = bplib.clsWebLib.GetBoolData(dtSalaryHead.Rows[ci]["IntegerInDisb"].ToString());
-                            salaryHeadSequence.DecimalNo = Convert.ToInt32(bplib.clsWebLib.GetNumData(dtSalaryHead.Rows[ci]["DecimalNo"].ToString()));
+                            //salaryHeadSequence.DecimalNo = Convert.ToInt32(bplib.clsWebLib.GetNumData(dtSalaryHead.Rows[ci]["DecimalNo"].ToString()));
                             salaryHeadSequence.SalaryHead = dtSalaryHead.Rows[ci]["SalaryHead"].ToString();
                             salaryHeadSequence.SalaryHeadId = dtSalaryHead.Rows[ci]["SalaryHeadID"].ToString();
                             salaryHeadSequence.HeadType = dtSalaryHead.Rows[ci]["HeadType"].ToString();
@@ -12302,7 +12302,7 @@ ELSE CONVERT(BIT,0) END  ---No
                             //countDeductionPosition++;
 
                             salaryHeadSequence.IsInt = bplib.clsWebLib.GetBoolData(dtSalaryHead.Rows[ci]["IntegerInDisb"].ToString());
-                            salaryHeadSequence.DecimalNo = Convert.ToInt32(bplib.clsWebLib.GetNumData(dtSalaryHead.Rows[ci]["DecimalNo"].ToString()));
+                            //salaryHeadSequence.DecimalNo = Convert.ToInt32(bplib.clsWebLib.GetNumData(dtSalaryHead.Rows[ci]["DecimalNo"].ToString()));
                             salaryHeadSequence.SalaryHead = dtSalaryHead.Rows[ci]["SalaryHead"].ToString();
                             salaryHeadSequence.SalaryHeadId = dtSalaryHead.Rows[ci]["SalaryHeadID"].ToString();
                             salaryHeadSequence.HeadType = dtSalaryHead.Rows[ci]["HeadType"].ToString();
@@ -16211,11 +16211,11 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                 ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
                 con.getDataSet(strSQL, out dsRef);
 
-                distinctSalaryHead = dsRef.Tables[0].DefaultView.ToTable(true, "SalaryHeadID", "SalaryHead", "HeadType", "Sequence", "HeadCategory", "IntegerInDisb", "DecimalNo", "PartOfNetPay", "IsCTCComponent", "IsGrossComponent");
+                distinctSalaryHead = dsRef.Tables[0].DefaultView.ToTable(true, "SalaryHeadID", "SalaryHead", "HeadType", "Sequence", "HeadCategory", "IntegerInDisb", /*"DecimalNo",*/ "PartOfNetPay", "IsCTCComponent", "IsGrossComponent");
                 distinctSalaryHead.DefaultView.Sort = "Sequence";
                 distinctSalaryHead = distinctSalaryHead.DefaultView.ToTable();
 
-                distinctSalaryHead = distinctSalaryHead.DefaultView.ToTable(true, "SalaryHeadID", "SalaryHead", "HeadType", "HeadCategory", "IntegerInDisb", "DecimalNo", "PartOfNetPay", "IsCTCComponent", "IsGrossComponent");
+                distinctSalaryHead = distinctSalaryHead.DefaultView.ToTable(true, "SalaryHeadID", "SalaryHead", "HeadType", "HeadCategory", "IntegerInDisb", /*"DecimalNo",*/ "PartOfNetPay", "IsCTCComponent", "IsGrossComponent");
                 distinctSalaryHead = distinctSalaryHead.DefaultView.ToTable();
                 distinctSalaryHead.Columns.Add("Sequence", typeof(int));
                 for (int i = 0; i < distinctSalaryHead.Rows.Count; i++)
@@ -18717,7 +18717,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
         private void GetLeaveBalances(string EmployeeId, string FromDate, string ToDate, out DataTable dtLeaveBalance)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"Select L.LeaveTypeId,Lt.LeaveType, ISNULL(l.CurrentYearAllocation,0) CurrentYearAllocation,ISNULL(l.BroughtForward,0)+ ISNULL(L.CarryForwardOpeningBalance,0) AS LeaveCount,'OB' AS TransactionType
+            string sql = @"Select L.LeaveTypeId,Lt.LeaveType, CASE WHEN lt.LeaveType='Earn' THEN 0 ELSE  ISNULL(l.CurrentYearAllocation,0) END CurrentYearAllocation,ISNULL(l.BroughtForward,0)+ ISNULL(L.CarryForwardOpeningBalance,0) AS LeaveCount,'OB' AS TransactionType
                                   from EmployeeInformation EI
                                 Join YearlyCalendar AS C ON C.PlantId=EI.PlantId
                                 JOIN trn.EmployeeLeaveSummary L ON l.CalanderYearId=c.Id and L.EmployeeId=EI.SystemId
@@ -18727,10 +18727,10 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                                 UNION ALL
 
                                 SELECT l.LeaveTypeId,Lt.LeaveType,0 AS CurrentYearAllocation,
-                                CASE WHEN EncashWorkingDaysQty>0 THEN CONVERT(DECIMAL(18,4), EncashEarnLeaveQty)/CONVERT(DECIMAL(18,4),EncashWorkingDaysQty) ELSE 0 END * SUM(l.EarnValue) ActualEarnedLeave,
+                                SUM(CASE WHEN EncashWorkingDaysQty>0 THEN CONVERT(DECIMAL(18,4), EncashEarnLeaveQty)/CONVERT(DECIMAL(18,4),EncashWorkingDaysQty) ELSE 0 END * l.EarnValue) ActualEarnedLeave,
                                 'CUR' AS TransactionType
                                  FROM AttdnProcessData AS apd
-                                LEFT JOIN LeaveType AS lt ON lt.Id=apd.LTSystemID
+                                --LEFT JOIN LeaveType AS lt ON lt.Id=apd.LTSystemID
                                 LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=apd.EmpSystemID
                                 --LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
                                 --LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
@@ -18738,12 +18738,12 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                                 --LEFT JOIN DayStatusPlantChild PC ON pc.PlantId=ei.PlantId AND pc.EmpTypeId=dm.EmployeeCategoryId
                                 JOIN DayTypeWithValues AS ds ON ds.code=apd.DayStatus AND ds.HeaderId=apd.DayStatusHeaderId
                                 JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id 
-
+                                LEFT JOIN LeaveType AS lt ON lt.Id=L.LeaveTypeId
                                  LEFT JOIN LeavePolicyDetail AS lpd ON lpd.LPMSystemID=apd.LeavePolicyMasterId AND lpd.LTSystemID=l.LeaveTypeId
                                 WHERE apd.EmpSystemID='" + EmployeeId + @"' AND 
                                 apd.WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'
                                 AND L.LeaveTypeId IN (SELECT LeaveTypeId FROM LeaveWithWagesRegisterLeaveTypes where CompanyId='" + identity.CompanyId + @"') 
-                                GROUP BY l.LeaveTypeId,Lt.LeaveType,EncashWorkingDaysQty,EncashEarnLeaveQty
+                                GROUP BY l.LeaveTypeId,Lt.LeaveType--,EncashWorkingDaysQty,EncashEarnLeaveQty
 
                                 ";
             dtLeaveBalance = _sqlRepository.GetDataTable(sql);

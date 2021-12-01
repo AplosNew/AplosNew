@@ -91,6 +91,7 @@ namespace Library.MaterialManagement.Inventory
             objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(GRNDocumentMap), out sID);
             return sID;
         }
+      
         public override void Insert(InventoryReceive entity)
         {
             try
@@ -101,6 +102,7 @@ namespace Library.MaterialManagement.Inventory
                 ResetCurrencyRate(entity);
                 entity.Id = _pkGeneratorService.GetAutoNumber(nameof(entity), PKGeneratorEnum.Yearly, null, DateTime.Now);
                 //entity.Id = GetPK();
+               
                 base.Insert(entity);
             }
             catch (Exception ex)

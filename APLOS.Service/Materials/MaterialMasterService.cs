@@ -1039,7 +1039,7 @@ namespace Library.Service.Materials
 
         public IEnumerable<object> GetCharacteristicsByMaterialMasterId(string materialMasterId)
         {
-            var _sql = @"SELECT MMC.CharacteristicsId AS [Value], C.UserName AS [Text], MMC.MaterialMasterId, MMC.IsFreeField, MMC.IsPreDefinedField, MMC.IsMandatory, C.ValueAssignmentLevel, MMC.[Sequence]
+            var _sql = @"SELECT distinct MMC.CharacteristicsId AS [Value], C.UserName AS [Text], MMC.MaterialMasterId, MMC.IsFreeField, MMC.IsPreDefinedField, MMC.IsMandatory, C.ValueAssignmentLevel, MMC.[Sequence]
 	                            , CharacteristicsValueId = CASE WHEN (CV.MaterialMasterId IS NULL AND CV.IsDefault=1) THEN CV.Id
 									WHEN (CV.MaterialMasterId<>'' AND MMCV.IsDefault=1) THEN MMCV.Id ELSE NULL END
 	                            , [FreeText] =CASE WHEN (CV.MaterialMasterId IS NULL AND CV.IsDefault=1) THEN CV.UserName

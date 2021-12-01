@@ -25,7 +25,7 @@ using System.Threading;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
 using Library.OrderManagement.ShipmentControl;
-
+using Library.OrderManagement.TermsAndConditions;
 namespace Aplos.Areas.Products.Controllers
 {
 	public class PurchaseOrderController : Controller
@@ -62,6 +62,9 @@ namespace Aplos.Areas.Products.Controllers
 
 		#endregion Constructor
 		ShipmentControl control = new ShipmentControl();
+		TermsAndConditionsService tg = new TermsAndConditionsService();
+
+		bplib.clsGenID objGenID = new bplib.clsGenID();
 		#region Aplos
 
 		public ActionResult Aplos()
@@ -3807,11 +3810,11 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
 			}
 		}
 		[HttpGet, Authorize]
-		public JsonResult GetPopUp(string TermsAndConditionsDetailId)
+		public JsonResult GetPopUp(string TermsAndConditionsPODetailId)
 		{
 			try
 			{
-				return Json(control.GetTermsAndConditionPopUp(TermsAndConditionsDetailId), JsonRequestBehavior.AllowGet);
+				return Json(control.GetTermsAndConditionPOPopUp(TermsAndConditionsPODetailId), JsonRequestBehavior.AllowGet);
 			}
 			catch (Exception ex)
 			{
@@ -3823,12 +3826,25 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
 		public ActionResult GetTermsAndConditionsList(string TermsAndConditionMasterId)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			string sql = @"select TCM.Id TermsAndConditionMasterId,TC.Id TermsAndConditionChildId,TC.Title,TCM.Description ,TCM.Code  from TermsAndConditionsChild TC 
+			string sql = @"select TCM.Id TermsAndConditionMasterId,TC.Id TermsAndConditionChildId,TC.Id,TC.Title,TCM.Description ,TCM.Code  from TermsAndConditionsChild TC 
 left outer join HKP.TermsAndConditions TCM on TCM.Id=TC.TermsAndConditionsMasterId 
 where TC.TermsAndConditionsMasterId='" + TermsAndConditionMasterId + @"'";
 
 			return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
 		}
+
+		[HttpPost, Authorize]
+		public ActionResult GetTermsAndConditionsPOList(string TermsAndConditionMasterId,string POId)
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			string sql = @"select TCM.Id TermsAndConditionMasterId,TC.Id TermsAndConditionPOChildId,TC.Id,TC.Title,TCM.Description ,TCM.Code 
+from TermsAndConditionsPOChild TC 
+left outer join HKP.TermsAndConditions TCM on TCM.Id=TC.TermsAndConditionsMasterId 
+where TC.TermsAndConditionsMasterId='" + TermsAndConditionMasterId + @"'AND TC.POId='"+ POId + @"' ";
+
+			return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+		}
+
 
 		[HttpPost, Authorize]
 		public ActionResult GetTermsAndConditionsDetailList()
@@ -3839,6 +3855,18 @@ left outer join TermsAndConditionsChild TC on TC.Id=TCD.TermsAndConditionsChildI
 
 			return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
 		}
+
+
+		[HttpPost, Authorize]
+		public ActionResult GetTermsAndConditionsPODetailList()
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			string sql = @"select TCD.Id,TC.Id TermsAndConditionPOChildId,TCD.HeaderCaption ,TCD.Description  from TermsAndConditionsPODetails TCD 
+left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOChildId";
+
+			return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+		}
+
 
 		[HttpPost, Authorize]
 		public ActionResult UpdateMaterialSequence(List<string> data)
@@ -3869,6 +3897,202 @@ left outer join TermsAndConditionsChild TC on TC.Id=TCD.TermsAndConditionsChildI
 		}
 
 		[HttpPost]
+		public JsonResult SaveTitle(Dictionary<string, object> TitleData, string TitleId, List< Dictionary<string, object>> TermsAndConditionGridList)
+		{
+			try
+			{
+				DataView dvGrid = null;
+				DataRow drGrid = null;
+				DataTable dtGrid = null;
+				ConnectionManager.DAL.ConManager conTitle = new ConnectionManager.DAL.ConManager("1");
+				conTitle.OpenDataSetThroughAdapter("select * from dbo.TermsAndConditionsPOChild where 1=2 ", out DataSet dsTitle, false, "1");
+				dtGrid = dsTitle.Tables[0];
+				string _Id = "";
+                foreach (var item in TermsAndConditionGridList)
+                {
+					dvGrid = new DataView(dsTitle.Tables[0]);
+					dvGrid.RowFilter = "TermsAndConditionChildId= '"+item["TermsAndConditionChildId"] +"'";
+                    if (dvGrid.Count == 0)
+                    {
+						bplib.clsGenID genid = new bplib.clsGenID();
+						genid.GenID("dbo.TermsAndConditionsPOChild", out _Id);
+						_Id = "TC" + _Id;
+
+						drGrid = dtGrid.NewRow();
+
+						drGrid["Id"] = _Id;
+						drGrid["Title"] = item[""].ToString(); ;
+						dtGrid.Rows.Add(drGrid);
+						//AddNewRow(dsTitle.Tables[0], TitleData);
+					}
+                    else
+                    {
+						drGrid = dvGrid[0].Row;
+						drGrid.BeginEdit();
+
+						drGrid["Title"] = item[""].ToString(); ;
+
+						drGrid.EndEdit();
+                    }
+                }
+				#region data update
+				//if (dsTitle.Tables[0].Rows.Count == 0)
+				//{
+
+				//	bplib.clsGenID genid = new bplib.clsGenID();
+				//	genid.GenID("dbo.TermsAndConditionsPOChild", out _Id);
+				//	_Id = "TC" + _Id;
+				//	TitleData["Id"] = _Id;
+				//	TitleData["Title"] = TermsAndConditionGridList[].ToString(); ;
+
+				//	AddNewRow(dsTitle.Tables[0], TitleData);
+				//}
+				//else
+				//{
+				//	_Id = TitleData["Id"].ToString();
+				//	EditRow(dsTitle.Tables[0].Rows[0], TitleData);
+				//}
+				#endregion data update
+				clsStaticInfo _info = new clsStaticInfo();
+				_info.SaveDataSets(dsTitle);
+				//_info.SaveDataSets(dsTitle);
+
+				return Json(new { Error = false, Data = TitleData, Message = AplosMessage.Insert });
+
+			}
+			catch (Exception ex)
+			{
+				return Json(new { Error = true, Message = ex.Message });
+			}
+		}
+
+
+		[HttpPost]
+		public ActionResult SaveTermsDetail(string TitleId,string POId)
+		{
+			DataSet dsToSalesOrder;
+			DataSet dsToFirstCharacteristics;
+			try
+			{
+
+				//if (TitleId == null)
+				//{
+				//	throw new Exception("Please select Terms and Condition..");
+				//}
+
+
+				string Id = "";
+				DataSet dsSOId;
+				//GetSOId(MasterId, out dsSOId);
+				//string NewId = dsSOId.Tables[0].Rows[0]["Id"].ToString();
+				string NewSoId = string.Empty;
+
+				ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+				con.OpenDataSetThroughAdapter("SELECT * FROM TermsAndConditionsPOChild WHERE 1=2", out dsToSalesOrder, false, "1");
+				con.OpenDataSetThroughAdapter("SELECT * FROM TermsAndConditionsPODetails WHERE 1=2", out dsToFirstCharacteristics, false, "1");
+		
+				DataTable dtFromMaster = _sqlRepository.GetDataTable("SELECT * FROM  TermsAndConditionsChild WHERE TermsAndConditionsMasterId='" + TitleId + "'");
+				DataTable dtFromFirstCharacteristics = _sqlRepository.GetDataTable("SELECT * FROM TermsAndConditionsDetails Where TermsAndConditionsChildId IN(Select Id from TermsAndConditionsChild Where TermsAndConditionsMasterId='" + TitleId + "')");
+		
+				int SCount = 0;
+				objGenID.GenerateIDAuto("dbo.TermsAndConditionsPOChild", out Id);
+
+				for (int m = 0; m < dtFromMaster.Rows.Count; m++)
+				{
+					SCount++;
+					DataRow drSalesOrder = dsToSalesOrder.Tables[0].NewRow();
+					CopyRow(dtFromMaster.Rows[m], ref drSalesOrder);
+					drSalesOrder["Id"] = TitleId + Convert.ToInt32(Id) + SCount;
+					NewSoId = drSalesOrder["Id"].ToString();
+					drSalesOrder["TermsAndConditionsMasterId"] = TitleId;
+					drSalesOrder["POId"] = POId;
+					dsToSalesOrder.Tables[0].Rows.Add(drSalesOrder);
+
+					dtFromFirstCharacteristics.DefaultView.RowFilter = "TermsAndConditionsChildId='" + dtFromMaster.Rows[m]["Id"].ToString() + "'";
+					for (int i = 0; i < dtFromFirstCharacteristics.DefaultView.Count; i++)
+					{
+						DataRow drFirstCharacteristics = dsToFirstCharacteristics.Tables[0].NewRow();
+						CopyRow(dtFromFirstCharacteristics.DefaultView[i].Row, ref drFirstCharacteristics);
+						drFirstCharacteristics["Id"] = NewSoId + (i + 1);
+						drFirstCharacteristics["TermsAndConditionsPOChildId"] = NewSoId;
+
+						dsToFirstCharacteristics.Tables[0].Rows.Add(drFirstCharacteristics);
+					}
+				}
+			
+				clsStaticInfo _info = new clsStaticInfo();
+				_info.SaveDataSets(dsToSalesOrder, dsToFirstCharacteristics);
+				return Json(new { Error = false, Message = AplosMessage.Insert });
+
+
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
+	
+		public ActionResult DeletePODetailPOPup(string id)
+		{
+			try
+			{
+
+				string ret = tg.DeletePODetailPopUp(id);
+
+				if (ret == "Success")
+				{
+					return Json(new { Error = false/*, Sequence = GetSequence()*/, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+				}
+				else
+				{
+					return Json(new { Error = true, Message = ret }, JsonRequestBehavior.AllowGet);
+				}
+
+			}
+			catch (Exception ex)
+			{
+
+				return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+			}
+
+
+		}
+
+		private void CopyRow(DataRow drSource, ref DataRow drDestination)
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			for (int COL = 0; COL < drSource.Table.Columns.Count; COL++)
+			{
+				try
+				{
+					drDestination[drSource.Table.Columns[COL].ColumnName] = drSource[drSource.Table.Columns[COL].ColumnName];
+
+				}
+				catch (Exception ex)
+				{
+				}
+				try
+				{
+					drDestination["AddedBy"] = identity.Name;
+					drDestination["AddedDate"] = DateTime.Now;
+					drDestination["AddedFromIP"] = identity.IPAddress;
+					drDestination["UpdatedBy"] = identity.Name;
+					drDestination["UpdatedFromIP"] = identity.IPAddress;
+					drDestination["UpdatedDate"] = DateTime.Now;
+
+				}
+				catch (Exception ex)
+				{
+				}
+			}
+
+		}
+
+
+		[HttpPost]
 		public JsonResult SaveData(Dictionary<string, object> GridData, string titleId)
 		{
 			try
@@ -3877,8 +4101,8 @@ left outer join TermsAndConditionsChild TC on TC.Id=TCD.TermsAndConditionsChildI
 				DataSet dsGrid;
 
 				ConnectionManager.DAL.ConManager conBin = new ConnectionManager.DAL.ConManager("1");
-				conBin.OpenDataSetThroughAdapter("select top 1 Sequence from dbo.TermsAndConditionsDetails where TermsAndConditionsChildId='" + titleId + "' order by AddedDate desc", out DataSet dsGridSeq, false, "1");
-				conBin.OpenDataSetThroughAdapter("select * from dbo.TermsAndConditionsDetails where TermsAndConditionsChildId='" + titleId + "'", out dsGrid, false, "1");
+				conBin.OpenDataSetThroughAdapter("select top 1 Sequence from dbo.TermsAndConditionsPODetails where TermsAndConditionsPOChildId='" + titleId + "' order by AddedDate desc", out DataSet dsGridSeq, false, "1");
+				conBin.OpenDataSetThroughAdapter("select * from dbo.TermsAndConditionsPODetails where TermsAndConditionsPOChildId='" + titleId + "'", out dsGrid, false, "1");
 				string DetailId = "";
 				int count = 0;
 				DataView dv = new DataView(dsGrid.Tables[0]);
@@ -3889,9 +4113,9 @@ left outer join TermsAndConditionsChild TC on TC.Id=TCD.TermsAndConditionsChildI
 					if (DetailId == "")
 					{
 						bplib.clsGenID genid = new bplib.clsGenID();
-						genid.GenID("dbo.TermsAndConditionsDetails", out DetailId);
+						genid.GenID("dbo.TermsAndConditionsPODetails", out DetailId);
 					}
-					if (string.IsNullOrEmpty(dsGridSeq.Tables[0].Rows[0]["Sequence"].ToString()))
+					if (dsGridSeq.Tables[0].Rows.Count==0)
 					{
 						count++;
 					}
@@ -3902,7 +4126,7 @@ left outer join TermsAndConditionsChild TC on TC.Id=TCD.TermsAndConditionsChildI
 					DataRow dr = dsGrid.Tables[0].NewRow();
 
 					GridData["Id"] = "TD-" + DetailId;
-					GridData["TermsAndConditionsChildId"] = titleId;
+					GridData["TermsAndConditionsPOChildId"] = titleId;
 					GridData["Sequence"] = count;
 
 					AddNewRow(dsGrid.Tables[0], GridData);
