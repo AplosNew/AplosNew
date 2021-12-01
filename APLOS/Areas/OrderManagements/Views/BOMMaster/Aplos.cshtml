@@ -90,10 +90,11 @@
                              e-allowfiltering="true" e-gridlines="vertical" e-allowResizing="true" e-allowrowdraganddrop="true"
                              e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="actionComplete" e-allowselection="true">
                             <div e-columns>
-                                <div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="140"></div>
+                                <div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="160"></div>
 
                                 <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="60"></div>
                                 <div e-column e-field="Seq" e-headertext="Seq" e-width="30" e-visible="false"></div>
+                                <div e-column e-field="RMMaterialMasterId" e-headertext="RMMaterial Id" e-width="50""></div>
                                 <div e-column e-field="RMMaterialMaster" e-headertext="Raw Material" e-width="150"></div>
                                 <div e-column e-field="RMArticle" e-headertext="Raw Article" e-width="150"></div>
                                 <div e-column e-field="PartyName" e-headertext="Vendor" e-width="100"></div>
@@ -115,7 +116,7 @@
                     <script type="text/template" id="ShowActionButtonsBOM">
                         <button style="color: #f3f3ec;background-color: #1c1f32;" ng-disabled="data.IsConsumptionDetail==false" title="Consumption" class="btn"><i class="glyphicon glyphicon-list" ng-click="$parent.GetConsumption(this);" style="margin: -6px;"></i></button>
                         <button style="color: #f3f3ec;background-color: #1c1f32;" title="Edit" class="btn"><i class="glyphicon glyphicon-pencil" ng-click="$parent.GetRawMaterialDetail(this);" style="margin: -6px;"></i></button>
-                        <button style="color: #f3f3ec;background-color: #1c1f32;" title="Copy" class="btn"><i class="glyphicon glyphicon-copy" ng-click="$parent.GetRawMaterialDetail(this);" style="margin: -6px;"></i></button>
+                        <button style="color: #f3f3ec;background-color: #1c1f32;" title="Copy" class="btn"><i class="glyphicon glyphicon-copy" ng-click="$parent.copyBoMDetail(this);" style="margin: -6px;"></i></button>
                         <button style="color: #f3f3ec;background-color: #1c1f32;" title="Detail" class="btn"><i class="glyphicon glyphicon-eye-open" ng-click="$parent.GetMatrixDetail(this);" style="margin: -6px;"></i></button>
                         <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeBoMDetail(this);" style="margin: -6px;"></i></button>
                     </script>
@@ -317,8 +318,6 @@
                                     <input id="destinationList" ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-enabled="bomDetailNew.IsDestinationSpecific == true" e-multiselectmode="visualmode" e-datasource="destinationList" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-showcheckbox="true" />
                                 </div>
                             </div>
-
-
                         </div>
                         <div class="col-xs-12 col-sm-6 col-md-6">
                             <div class="form-group">
@@ -1650,6 +1649,7 @@
 @*<confirm-archive-generic modalid="confirmBOMCopy" title="Confirmation" message="Selected BOM template will be copied. Do you proceed?" data-ng-click-right-button="CopyBOM();"></confirm-archive-generic>*@
 <confirm-archive-generic modalid="confirmDetailPopUp" title="Confirmation" message={{message_Detailconfirmation}} data-ng-click-right-button="DeleteDetailConsumptionMatrix();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmBoMDetailPopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="DeleteBomDetail();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmCopyBoMDetailPopUp" title="Confirmation" message={{copymessage_detailconfirmation}} data-ng-click-right-button="CopyBomDetailData();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmBoMDetailConsumptionPopUp" title="Confirmation" message={{message_detailConsumptionconfirmation}} data-ng-click-right-button="DeleteBomDetailConsumption();"></confirm-archive-generic>
 <confirm-archive-generic data-modalid="confirmQualificationDelete" title="Confirmation" message={{message_confirmation_doc}} data-ng-click-right-button="DeleteDocument()"></confirm-archive-generic>
 

@@ -233,6 +233,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 conBin.OpenDataSetThroughAdapter("select * from dbo.TermsAndConditionsDetails where TermsAndConditionsChildId='" + titleId + "'", out dsGrid, false, "1");
                 string DetailId = "";
                 int count = 0;
+                int seq=0;
                 DataView dv = new DataView(dsGrid.Tables[0]);
                 dv.RowFilter = "Id='" + GridData["Id"] + "'";
 
@@ -243,7 +244,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID("dbo.TermsAndConditionsDetails", out DetailId);
                     }
-                    if (string.IsNullOrEmpty(dsGridSeq.Tables[0].Rows[0]["Sequence"].ToString()))
+                    if (dsGridSeq.Tables[0].Rows.Count==0)
                     {
                         count++;
                     }
