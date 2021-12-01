@@ -132,7 +132,9 @@
                             <div e-column e-type="string" e-field="BomDesc" e-headertext="Description" e-width="120"></div>
                             <div e-column e-type="string" e-field="BOMMaterial" e-headertext="Material" e-width="100"></div>
                             <div e-column e-type="string" e-field="BOMArticle" e-headertext="Article" e-width="100"></div>
-                            <div e-column e-type="string" e-field="MasterOrderId" e-headertext="Mst.Order ID" e-width="50"></div>
+                            <div e-column e-template="#MasterOrderId" e-field="MasterOrderId" e-headertext="Mst.Order ID" e-width="50"></div>
+
+                            @*<div e-column e-type="string" e-field="MasterOrderId" e-headertext="Mst.Order ID" e-width="50"></div>*@
                             <div e-column e-type="string" e-field="MasterOrderItemId" e-headertext="Item ID" e-width="50"></div>
                             <div e-column e-type="boolean" e-field="Consignment" e-headertext="Consignment" e-width="30"></div>
                             <div e-column e-type="string" e-field="PurchaseAuthority" e-headertext="Purh. Authority" e-width="120"></div>
@@ -187,6 +189,11 @@
                                 </li>
 
                             </ul>
+                        </div>
+                    </script>
+                    <script type="text/template" id="MasterOrderId">
+                        <div class="text-right" style="width:100%">
+                            <a style="text-decoration:underline;color:blue; cursor:pointer;" ng-click="$parent.OrderLevelBOMReport(data);">{{data.MasterOrderId}}</a>
                         </div>
                     </script>
                     @*</div>*@
