@@ -3267,7 +3267,7 @@ namespace Library.HumanResource.Report.OT
                             salaryHeadSequence.XLColIndex = ColGrs + countCTCPosition;
 
                             salaryHeadSequence.IsInt = bplib.clsWebLib.GetBoolData(dtSalaryHead.Rows[ci]["IntegerInDisb"].ToString());
-                            salaryHeadSequence.DecimalNo = Convert.ToInt32(bplib.clsWebLib.GetNumData(dtSalaryHead.Rows[ci]["DecimalNo"].ToString()));
+                            //salaryHeadSequence.DecimalNo = Convert.ToInt32(bplib.clsWebLib.GetNumData(dtSalaryHead.Rows[ci]["DecimalNo"].ToString()));
                             salaryHeadSequence.SalaryHead = dtSalaryHead.Rows[ci]["SalaryHead"].ToString();
                             salaryHeadSequence.SalaryHeadId = dtSalaryHead.Rows[ci]["SalaryHeadID"].ToString();
                             salaryHeadSequence.HeadType = dtSalaryHead.Rows[ci]["HeadType"].ToString();
@@ -3340,7 +3340,7 @@ namespace Library.HumanResource.Report.OT
                             //countDeductionPosition++;
 
                             salaryHeadSequence.IsInt = bplib.clsWebLib.GetBoolData(dtSalaryHead.Rows[ci]["IntegerInDisb"].ToString());
-                            salaryHeadSequence.DecimalNo = Convert.ToInt32(bplib.clsWebLib.GetNumData(dtSalaryHead.Rows[ci]["DecimalNo"].ToString()));
+                            //salaryHeadSequence.DecimalNo = Convert.ToInt32(bplib.clsWebLib.GetNumData(dtSalaryHead.Rows[ci]["DecimalNo"].ToString()));
                             salaryHeadSequence.SalaryHead = dtSalaryHead.Rows[ci]["SalaryHead"].ToString();
                             salaryHeadSequence.SalaryHeadId = dtSalaryHead.Rows[ci]["SalaryHeadID"].ToString();
                             salaryHeadSequence.HeadType = dtSalaryHead.Rows[ci]["HeadType"].ToString();
@@ -3400,7 +3400,7 @@ namespace Library.HumanResource.Report.OT
                         //countDeductionPosition++;
 
                         salaryHeadSequence.IsInt = bplib.clsWebLib.GetBoolData(dtSalaryHead.Rows[ci]["IntegerInDisb"].ToString());
-                        salaryHeadSequence.DecimalNo = Convert.ToInt32(bplib.clsWebLib.GetNumData(dtSalaryHead.Rows[ci]["DecimalNo"].ToString()));
+                        //salaryHeadSequence.DecimalNo = Convert.ToInt32(bplib.clsWebLib.GetNumData(dtSalaryHead.Rows[ci]["DecimalNo"].ToString()));
                         salaryHeadSequence.SalaryHead = dtSalaryHead.Rows[ci]["SalaryHead"].ToString();
                         salaryHeadSequence.SalaryHeadId = dtSalaryHead.Rows[ci]["SalaryHeadID"].ToString();
                         salaryHeadSequence.HeadType = dtSalaryHead.Rows[ci]["HeadType"].ToString();
@@ -3454,7 +3454,7 @@ namespace Library.HumanResource.Report.OT
                             salaryHeadSequence.XLColIndex = ColGrs + countCTCNOTNETPosition;
 
                             salaryHeadSequence.IsInt = bplib.clsWebLib.GetBoolData(dtSalaryHead.Rows[ci]["IntegerInDisb"].ToString());
-                            salaryHeadSequence.DecimalNo = Convert.ToInt32(bplib.clsWebLib.GetNumData(dtSalaryHead.Rows[ci]["DecimalNo"].ToString()));
+                            //salaryHeadSequence.DecimalNo = Convert.ToInt32(bplib.clsWebLib.GetNumData(dtSalaryHead.Rows[ci]["DecimalNo"].ToString()));
                             salaryHeadSequence.SalaryHead = dtSalaryHead.Rows[ci]["SalaryHead"].ToString();
                             salaryHeadSequence.SalaryHeadId = dtSalaryHead.Rows[ci]["SalaryHeadID"].ToString();
                             salaryHeadSequence.HeadType = dtSalaryHead.Rows[ci]["HeadType"].ToString();
@@ -3573,7 +3573,7 @@ namespace Library.HumanResource.Report.OT
                 ConnectionManager.clsConnectionManager con = new clsConnectionManager(600);
                 con.getDataSet(strSQL, out dsRef);
 
-                distinctSalaryHead = dsRef.Tables[0].DefaultView.ToTable(true, "SalaryHeadID", "SalaryHead", "HeadType", "Sequence", "HeadCategory", "IntegerInDisb", "DecimalNo", "PartOfNetPay", "IsCTCComponent", "IsGrossComponent");
+                distinctSalaryHead = dsRef.Tables[0].DefaultView.ToTable(true, "SalaryHeadID", "SalaryHead", "HeadType", "Sequence", "HeadCategory", "IntegerInDisb", /*"DecimalNo",*/ "PartOfNetPay", "IsCTCComponent", "IsGrossComponent");
                 distinctSalaryHead.DefaultView.Sort = "Sequence";
                 distinctSalaryHead = distinctSalaryHead.DefaultView.ToTable();
 
