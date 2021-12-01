@@ -137,6 +137,8 @@ namespace Library.Model.Inventory
        // public string OpeningBalanceId { get; set; }
 
         public string EmployeeId { get; set; }
+        public string TermsAndConditionsId { get; set; }
+
         public bool IsClosed { get; set; }      
 
         

@@ -47,9 +47,9 @@ function CompensatoryOffController(cboService, commonMessage, $scope, $rootScope
             else {
                 $scope.compensatoryOff = {};
                 //if (response.data.length > 0) {
-                $scope.compensatoryOff = response.data.master[0];
-                $scope.selectedemployees = response.data.employee;
-
+                $scope.compensatoryOff = response.data[0];
+               
+                $scope.LoadCompensatoryOffEmployees();
                 $scope.searchEmployee();
                 //}
 
@@ -60,6 +60,13 @@ function CompensatoryOffController(cboService, commonMessage, $scope, $rootScope
         }
     }
     // $scope.loadCompensatoryOff();
+
+    $scope.LoadCompensatoryOffEmployees = function () {
+        $http.post('Employees/CompensatoryOff/LoadCompensatoryOffEmployees?ID=' + $scope.compensatoryOff.Id)
+            .then(function (response) {
+                $scope.selectedemployees = response.data;
+            });
+    };
 
     $scope.loadHolidayCategory = function () {
         $http({
