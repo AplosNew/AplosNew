@@ -125,7 +125,7 @@ LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string strkey = "1=1";
             if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-                strkey = column + " like '%" + value + "%'";
+                strkey = " temp." + column + " like '%" + value + "%'";
 
 
             string activeStatus = "";
