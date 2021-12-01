@@ -212,9 +212,7 @@ namespace Library.MaterialManagement.Inventory
 
         public void InsertGraphNew(IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string id, string AcceptanceId)
         {
-            //if (Convert.ToBoolean(_inventoryServiceRepository.SqlQuery<int>(@"IF EXISTS(SELECT 1 FROM(SELECT * FROM TRN.InventoryService WHERE InventoryReceiveId='" + id + "' AND ServiceMasterId='" + entity.ServiceMasterId + "') AS A) SELECT 1 ELSE SELECT 0 RETURN").First()))
-            //    throw new CustomException("This service already taken."); ;
-
+          
             var flag = false;
             try
             {
@@ -225,8 +223,7 @@ namespace Library.MaterialManagement.Inventory
                 {
                     foreach (var itemDetail in chargesListPO)
                     {
-                        //if (itemDetail.IsNotNull())
-                        //{
+                        
                         itemDetail.ToCurrencyRate = itemDetail.ToCurrencyRate == 0 ? 1 : itemDetail.ToCurrencyRate;
 
                         currentId++;
@@ -245,7 +242,7 @@ namespace Library.MaterialManagement.Inventory
                         AuditService.AddedLog(service);
 
                         InsertGraph(service);
-                        if (AcceptanceId == null)
+                        if (string.IsNullOrWhiteSpace(AcceptanceId))
                         {
                             var poDetail = _POServiceRepository.Query(r => r.Id == itemDetail.Id).Select().FirstOrDefault();
                             if (null == poDetail)
@@ -260,7 +257,7 @@ namespace Library.MaterialManagement.Inventory
                             AuditService.UpdatedLog(poDetail);
                             _POServiceRepository.Update(poDetail);
                         }
-                        if (AcceptanceId == null)
+                        if (string.IsNullOrWhiteSpace(AcceptanceId))
                         {
                             if (POServiceTaxList.IsNotNull())
                             {
@@ -767,38 +764,14 @@ namespace Library.MaterialManagement.Inventory
                             paramter += " AND A.InventoryReceiveId in(" + receiveId + ")";
                     }
 
-
-
-
-                    //var sql = @"SELECT A.Id, A.InventoryReceiveId, A.ServiceMasterId, B.UserName AS ServiceMasterName, A.Amount, A.TotalTaxAmount
-                    //            FROM [TRN].[POService] AS A JOIN [HKP].[ServiceMaster] AS B ON A.ServiceMasterId=B.Id WHERE A.InventoryReceiveId='" + receiveId + "'";
-                    //var sql = @"SELECT A.Id, A.InventoryReceiveId
-                    //            , A.ServiceMasterId
-                    //            , B.UserName AS ServiceMasterName
-                    //            , A.Amount As POAmount
-                    //            --,A.Amount
-                    //            --, A.TotalTaxAmount
-                    //            ,POT.TaxAmount As TotalTaxAmount
-                    //            --,TaxAmount
-                    //            ,null ChargeTaxList
-                    //            ,'True' enableid1
-                    //            ,GRNServiceAmount
-                    //            ,(A.Amount-GRNServiceAmount) AS Amount
-                    //            ,AmountStatus
-                    //            FROM
-                    //            [TRN].[POService]
-                    //            AS A
-                    //           INner JOIN[HKP].[ServiceGroup] AS B ON A.ServiceMasterId=B.Id
-                    //           left JOIN (select InventoryServiceId, Sum(TaxAmount) as TaxAmount from TRN.PurchaseOrderTax group by InventoryServiceId) AS POT on A.id=POT.InventoryServiceId
-                    //           WHERE A.AmountStatus=0 AND A.InventoryReceiveId= '" + receiveId + "'";
-                    //return _sqlRepository.GetDataCollection(sql);
                      sql = @"SELECT A.Id, A.InventoryReceiveId
                             , A.ServiceMasterId
                             , B.UserName AS ServiceMasterName
                             , A.Amount As POAmount
                             --,A.Amount
                             --, A.TotalTaxAmount
-                             ,POT.TaxAmount As TotalTaxAmount
+                             ,POT.TaxAmount As POTaxAmount
+                             ,0 TotalTaxAmount
                             --,TaxAmount
                             ,null ChargeTaxList
                             ,'True' enableid1
