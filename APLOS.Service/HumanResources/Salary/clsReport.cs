@@ -160,7 +160,7 @@ namespace OTSBD
 
                 strSql = @"
                             SELECT  Ei.SystemID AS EmpSystemID, lt.Id AS LeaveTypeId,lt.Code, lt.Sequence,lt.LeaveType,
-                                CASE WHEN EncashWorkingDaysQty>0 THEN CONVERT(DECIMAL(18,4), EncashEarnLeaveQty)/CONVERT(DECIMAL(18,4),EncashWorkingDaysQty) ELSE 0 END * SUM(l.EarnValue) ActualEarnedLeave,
+                                 SUM(CASE WHEN EncashWorkingDaysQty>0 THEN CONVERT(DECIMAL(18,4), EncashEarnLeaveQty)/CONVERT(DECIMAL(18,4),EncashWorkingDaysQty) ELSE 0 END * l.EarnValue) ActualEarnedLeave,
                                SUM(L.AvailedValue) AS AvailedLeave,0 AS Balance,NULL AS BalanceId,
                                 'CUR' AS TransactionType
 						
@@ -182,7 +182,7 @@ namespace OTSBD
                                  LEFT JOIN LeavePolicyDetail AS lpd ON lpd.LPMSystemID=apd.LeavePolicyMasterId AND lpd.LTSystemID=apd.LTSystemID
                                  
                                 WHERE Ei.SystemID IN (" + parameters["EmpSystemId"] + @")
-                                 GROUP BY lt.LeaveType,Ei.SystemID, lt.Sequence,lt.Id,lt.Code,EncashWorkingDaysQty,EncashEarnLeaveQty
+                                 GROUP BY lt.LeaveType,Ei.SystemID, lt.Sequence,lt.Id,lt.Code--,EncashWorkingDaysQty,EncashEarnLeaveQty
                                 ORDER BY Ei.SystemID,lt.Sequence";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -312,7 +312,7 @@ namespace OTSBD
 
                 strSql = @"
                             SELECT  Ei.SystemID AS EmpSystemID, lt.Id AS LeaveTypeId,lt.Code, lt.Sequence,lt.LeaveType,
-                                CASE WHEN EncashWorkingDaysQty>0 THEN CONVERT(DECIMAL(18,4), EncashEarnLeaveQty)/CONVERT(DECIMAL(18,4),EncashWorkingDaysQty) ELSE 0 END * SUM(l.EarnValue) ActualEarnedLeave,
+                                SUM(CASE WHEN EncashWorkingDaysQty>0 THEN CONVERT(DECIMAL(18,4), EncashEarnLeaveQty)/CONVERT(DECIMAL(18,4),EncashWorkingDaysQty) ELSE 0 END * l.EarnValue) ActualEarnedLeave,
                                SUM(L.AvailedValue) AS AvailedLeave,0 AS Balance,NULL AS BalanceId,
                                 'CUR' AS TransactionType
 						
@@ -334,7 +334,7 @@ namespace OTSBD
                                  LEFT JOIN LeavePolicyDetail AS lpd ON lpd.LPMSystemID=apd.LeavePolicyMasterId AND lpd.LTSystemID=apd.LTSystemID
                                  
                                 WHERE Ei.SystemID IN (" + parameters["EmpSystemId"] + @")
-                                 GROUP BY lt.LeaveType,Ei.SystemID, lt.Sequence,lt.Id,lt.Code,EncashWorkingDaysQty,EncashEarnLeaveQty
+                                 GROUP BY lt.LeaveType,Ei.SystemID, lt.Sequence,lt.Id,lt.Code--,EncashWorkingDaysQty,EncashEarnLeaveQty
                                 ORDER BY Ei.SystemID,lt.Sequence";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");

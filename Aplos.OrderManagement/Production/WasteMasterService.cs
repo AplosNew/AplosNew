@@ -368,4 +368,51 @@ namespace Library.OrderManagement.Production
       
     }
 
+
+
+    public class WasteTransactionReportService
+    {
+        SqlRepository _sqlRepository;
+
+        public WasteTransactionReportService()
+        {
+            _sqlRepository = new SqlRepository();
+        }
+
+        public IEnumerable<object> getEntity()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var str = "Select Id as Value , UserName as Text from Org.Entity where PlantId = '" + identity.PlantId + "'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> getData(string EntityId , string ToDate , string FromDate)
+        {
+            try
+            {
+                var str = @"Select wtd.Id as WTDId ,format(wtd.Date , 'dd-MMM-yyyy' ) as Dates, wm.ItemName,wm.Category,wm.SubCategory,wtd.Quantity , wtd.AddedBy
+                            from dbo.WasteTransactionData wtd
+                            left join dbo.WasteMaster wm on wm.Id = wtd.WasteMasterId
+                            where wtd.Date between '"+FromDate+"' and '"+ToDate+"' and wm.EntityId = '"+EntityId+"'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        //public IEnumerable<object> getClickedData(string Id)
+        //{
+
+        //}
+
+    }
 }
