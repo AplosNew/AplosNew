@@ -229,7 +229,7 @@
                     </td>
                     <td id="td_CrAmount_{{$index}}">
                         <div class="show-message">
-                            <input type="text" n-decimals="3" class="form-control text-right" ng-model="x.Amount" ng-keyup="calculatebackTax($index);calculateTax(x.Id,$index);checkRowValidation(x, $index);calDistributedAmount();calOutBoundDistributedAmount();">
+                            <input type="text" n-decimals="3" class="form-control text-right" ng-model="x.Amount" ng-keyup="calculatebackTax($index);calculateTax(x.Id,$index);checkRowValidation(x, $index);calDistributedAmount();calOutBoundDistributedAmount();calMasterOrderDistributedAmount();calContractDistributedAmount();">
                         </div>
                     </td>
                     <td>
@@ -491,6 +491,8 @@
 @Html.Partial("~/Areas/Accounts/Views/_ExpenseDistributePopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_InboundInvoicePopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_OutBoundInvoicePopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_MasterOrderPopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_ContractPopUp.cshtml")
 
 <div class="modal fade site-modal in" id="ChangeInvoiceGLPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog" style="width:1000px">
@@ -554,3 +556,5 @@
 <confirm-archive-generic modalid="confirmAutoTDSPostPopUp" title="Confirmation" message={{message_TDSAuto_confirmation}} data-ng-click-right-button="postAdditionalTax(AdditionalTaxId,additionalTaxdata)"></confirm-archive-generic>
 <confirm-archive-generic modalid="DeleteConfirmationPopUp" title="Confirmation" message={{message_conf}} data-ng-click-right-button="RemoveInvoice()"></confirm-archive-generic>
 <confirm-archive-generic modalid="DeleteOutBoundConfirmationPopUp" title="Confirmation" message={{message_conf}} data-ng-click-right-button="RemoveOutBoundInvoice()"></confirm-archive-generic>
+<confirm-archive-generic modalid="DeleteMasterOrderConfirmationPopUp" title="Confirmation" message={{message_conf}} data-ng-click-right-button="RemoveMasterOrderInvoice()"></confirm-archive-generic>
+<confirm-archive-generic modalid="DeleteContractConfirmationPopUp" title="Confirmation" message={{message_conf}} data-ng-click-right-button="RemoveContractInvoice()"></confirm-archive-generic>
