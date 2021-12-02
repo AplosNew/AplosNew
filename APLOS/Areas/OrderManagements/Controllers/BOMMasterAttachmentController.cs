@@ -218,6 +218,48 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
             return null;
         }
+
+        [HttpGet, Authorize]
+        public ActionResult OrderLevelBOMReport(string MasterOrderItemId, string MasterOrderId)// MasterOrderReport
+        {
+
+            try
+            {
+                // if (string.IsNullOrEmpty(MasterLCList))
+                //   throw new Exception("Please select at least one master Order");
+
+                Library.OrderManagement.BOM.BOMReports attchment = new Library.OrderManagement.BOM.BOMReports();
+
+
+                ExcelEngine excelEngine = new ExcelEngine();
+
+                IWorkbook workbook = attchment.OrderLevelBOMReport(MasterOrderItemId, MasterOrderId, Library.OrderManagement.BOM.BOMReports.BOMLevel.SO);
+                //IWorkbook workbookItem = attchment.GetMasterOrderReport(MasterOrderItemId, Library.OrderManagement.BOM.BOMReports.BOMLevel.Item);
+                //attchment.DrawBOMTemplateData(workbookItem.Worksheets[1], MasterOrderItemId);
+                //attchment.DrawBOMTemplateDataSubMaterial(workbookItem.Worksheets[2], MasterOrderItemId);
+
+
+                //workbook.Worksheets.AddCopy(workbookItem.Worksheets[0]);
+                //workbook.Worksheets.AddCopy(workbookItem.Worksheets[1]);
+                //workbook.Worksheets.AddCopy(workbookItem.Worksheets[2]);
+
+
+                string strFileName = "BOM-" + MasterOrderItemId + ".xlsx";
+                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                workbook.Close();
+                //workbookItem.Close();
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+            return null;
+        }
+
+
         [HttpGet, Authorize]
         public ActionResult LoadBomRequiredQty(string MasterOrderItemId)
         {
