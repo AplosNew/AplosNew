@@ -3550,7 +3550,7 @@ namespace Library.MaterialManagement.Inventory
 
                 DataTable dsOrderMaster, dsServiceItems, dsTermsAndCondition;
                 dsOrderMaster = loadOrderMaster(purchaseOrderId);//sql
-                //dsTermsAndCondition = TermsAndConditionSQL(purchaseOrderId);
+                dsTermsAndCondition = TermsAndConditionSQL(purchaseOrderId);
 
                 Dictionary<string, string> columns = new Dictionary<string, string>();
                 var poApprovedStatus = "";
@@ -3566,7 +3566,7 @@ namespace Library.MaterialManagement.Inventory
 
                 dsServiceItems = loadServicerMasterItems(purchaseOrderId);
                 var materialTotal = makeMaterialDetailsTable(document, dsOrderMaster, purchaseOrderId);//Material Details 
-                //var TermsAndCondition = makeTermsAndCondition(purchaseOrderId, document, dsTermsAndCondition);//Terms And Conditions
+                var TermsAndCondition = makeTermsAndCondition(purchaseOrderId, document, dsTermsAndCondition);//Terms And Conditions
 
 
                 var serviceTotal = 0.00;
@@ -4104,10 +4104,9 @@ namespace Library.MaterialManagement.Inventory
             WCharacterFormat FontBold = new WCharacterFormat(document);
             FontBold.Bold = true;
             string CmpTitile = "";
-            for (int i = 0; i < dsTermsAndCondition.Rows.Count; i++)
-            {
-                
 
+                IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Title :" + dsTermsAndCondition.Rows[0]["Title"].ToString() + ".");
+                //    range.ApplyCharacterFormat(FontBold);
                 int colTermsAndCondition = COL; COL++;
                 wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 250;
 
@@ -4115,13 +4114,12 @@ namespace Library.MaterialManagement.Inventory
                 double totalValue = 0;
                 int sl = 0;
                 int startRow = 0;
-                for (i = 0; i < dsTermsAndCondition.Rows.Count; i++)
+                for (int i = 0; i < dsTermsAndCondition.Rows.Count; i++)
                 {
-                    if (dsTermsAndCondition.Rows[i]["Title"].ToString() != CmpTitile)
-                    {
-                        IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Title :" + dsTermsAndCondition.Rows[i]["Title"].ToString() + ".");
-                        range.ApplyCharacterFormat(FontBold);
-                    }
+                    //if (dsTermsAndCondition.Rows[i]["Title"].ToString() != CmpTitile)
+                    //{
+                    //    
+                    //}
 
 
                     ROW++;
@@ -4139,11 +4137,11 @@ namespace Library.MaterialManagement.Inventory
                         TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
                     }
                     TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsTermsAndCondition.Rows[i]["RoWNo"].ToString() + "." + dsTermsAndCondition.Rows[i]["HeaderCaption"].ToString());
-                    CmpTitile = dsTermsAndCondition.Rows[i]["Title"].ToString();
+                    //CmpTitile = dsTermsAndCondition.Rows[i]["Title"].ToString();
                 }
                 ROW++;
                
-            }
+       
             #region Total
             //int TotalRow = ROW;
             //wTable.AddRow();
