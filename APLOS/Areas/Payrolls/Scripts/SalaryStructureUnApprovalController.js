@@ -44,7 +44,7 @@ function SalaryStructureUnApprovalController(cboService, commonMessage, $scope, 
 
     $scope.messageText = "";
 
-    $scope.ShowResultCustom = function () {
+    $scope.ShowResultCustom = function (message, type) {
         $("#dialogMessage").ejDialog("setTitle", "Success");
         $scope.messageText = message;
         $scope.messageTitle = "Message";

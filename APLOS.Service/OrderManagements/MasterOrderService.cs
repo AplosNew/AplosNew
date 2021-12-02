@@ -495,7 +495,7 @@ namespace Library.Service.OrderManagements
                             ,MOI.ProductLibraryId,MOI.FileName,MOI.Remark,MOI.OrderStatusId,MOI.UOMId
                             ,BOQNo=(Select COUNT(Id) from [dbo].[QuickBOQ] Where MasterOrderItemId=MOI.Id)
                             ,SONo=(Select COUNT(Id) from TRN.SalesOrder Where MasterOrderItemId=MOI.Id)
-                            ,MOI.Consignment,MOI.OrderCostingMasterTemplateId,'' TempList,PM.Id ProductMasterId,CAST(1 as bit) ByDefault
+                            ,MOI.Consignment,MOI.OrderCostingMasterTemplateId,'' TempList,PM.Id ProductMasterId,CAST(1 as bit) ByDefault,PL.UserName ProductLibrary
                         FROM TRN.MasterOrderItem AS MOI
                         JOIN MST.MaterialMaster AS MM ON MOI.MaterialMasterId=MM.Id
                         LEFT JOIN MST.MaterialMasterArticle AS ART ON MOI.ArticleId=ART.Id
@@ -509,6 +509,7 @@ namespace Library.Service.OrderManagements
 						LEFT JOIN ORG.Entity AS EWC ON MOI.EntityIdWithinCompany=EWC.Id
                         LEFT JOIN ORG.Entity AS EWG ON MOI.EntityIdWithinGroup=EWG.Id
                         LEFT JOIN HKP.Party AS PRT ON MOI.PartyId=PRT.Id
+                        LEFT JOIN dbo.ProductLibrary PL ON PL.Id=MOI.ProductLibraryId
                         WHERE MOI.MasterOrderId='" + masterOrderId + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }

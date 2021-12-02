@@ -55,12 +55,16 @@ namespace Aplos.Areas.HumanResource.Controllers
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
-        public ActionResult GetleavesChecklistReport(ReportFormat reportFormat, string FromDate, string ToDate)
+        public ActionResult GetleavesChecklistReport(ReportFormat reportFormat, string FromDate, string ToDate, string LeaveType, string Plant)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                IWorkbook workbook = GetleavesChecklistReport(identity.Name, identity.PlantId, identity.CompanyId, identity.CompanyGroupId, identity.PlantName, FromDate, ToDate);
+
+                string LeaveTypeId = "'" + LeaveType.Replace(",", "','") + "'";//replaced with ""
+                string PlantsId = "'" + Plant.Replace(",", "','") + "'";//replaced with ""
+
+                IWorkbook workbook = GetleavesChecklistReport(identity.Name, PlantsId, identity.CompanyId, identity.CompanyGroupId, identity.PlantName, FromDate, ToDate, LeaveTypeId);
                 var reportFileName = DateTime.Now.ToString("yyMMdd") + "leaves Checklist Report";
                 switch (reportFormat)
                 {
@@ -81,7 +85,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 //throw new Exception(ex.Message);
             }
         }
-        public IWorkbook GetleavesChecklistReport(string username, string plantId, string companyId, string companyGroupId, string plantName, string FromDate, string ToDate)
+        public IWorkbook GetleavesChecklistReport(string username, string plantId, string companyId, string companyGroupId, string plantName, string FromDate, string ToDate,string LeaveTypeId)
         {
 
             #region declare
@@ -99,7 +103,8 @@ namespace Aplos.Areas.HumanResource.Controllers
             #endregion
             try
             {
-                objStatic.GetPlantWiseHRMSSetting(companyGroupId, plantId, out dsLocalHRMSSetting);
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                objStatic.GetPlantWiseHRMSSetting(companyGroupId, identity.PlantId, out dsLocalHRMSSetting);
                 if (dsLocalHRMSSetting.Tables[0].Rows.Count > 0)
                 {
                     OTConsiderOn = dsLocalHRMSSetting.Tables[0].Rows[0]["OTConsiderOn"].ToString().Trim();
@@ -118,7 +123,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 objRpt = new clsReport();
                 string toDay = DateTime.Now.ToString("dd-MMM-yyyy");
 
-                objRpt.GetLeaveschecklistReport(FromDate, ToDate, plantId, companyId, companyGroupId, out dsLeavesCheckList);
+                GetLeaveschecklistReport(FromDate, ToDate, plantId, companyId, companyGroupId, LeaveTypeId, out dsLeavesCheckList);
                 dtLeavesCheckList = dsLeavesCheckList.Tables[0];
 
                 objRpt.SelectedPlantWiseCompany(plantId, out dsCmp);
@@ -383,6 +388,45 @@ namespace Aplos.Areas.HumanResource.Controllers
                 throw ex;
             }
         }
+        public void GetLeaveschecklistReport(string FromDate, string ToDate, string plantId, string companyId, string companyGroupId, string LeaveTypeId, out DataSet dsRef)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+
+            try
+            {
+                strSql = @"select 
+                            e.SystemId EmpSystemId,e.EmployeeCode,e.EmployeeName,e.FatherName,e.SpouseName,dg.UserName designation, dp.UserName Department
+                            ,format(e.doj,'dd-MMM-yyyy') DOJ, tt.Code
+                            ,format(t.FromDate,'dd-MMM-yyyy') FromDate
+                            ,format(t.ToDate,'dd-MMM-yyyy') ToDate
+                            ,t.LeaveDays,Format(t.DateAdded,'dd-MMM-yyyy')DateAdded
+                            from EmployeeInformation e
+                            left join LeaveTransaction t on e.systemid=t.EmpSystemID
+                            --left join LeaveTransactionDetails d on t.SystemID=d.LvTrnsSystemID
+                            left join LeaveType tt on tt.id=t.LTSystemID
+                            left join hkp.LegalDesignation dg on dg.id=e.LegalDesignationId
+                            left join org.Department dp on dp.id=e.DepartmentId
+                            where t.SystemID in
+                            (
+                            select LvTrnsSystemID from LeaveTransactionDetails where WorkDate between '" + FromDate + @"' and '" + ToDate + @"'
+                            )
+                            and t.PlantID in (" + plantId + @")
+                            and t.IsApproved=1
+                            and tt.LeaveType<>'Maternity'
+                            order by EmployeeCodePreFix,EmployeeCodeNumeric,t.FromDate";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
         #endregion
     }
 }
