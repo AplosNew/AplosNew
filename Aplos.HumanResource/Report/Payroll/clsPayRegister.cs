@@ -772,8 +772,8 @@ EmpBasic.OfficeCopyLabel	  ,
 EmpBasic.EmployeeCopyLabel	  ,
 EmpBasic.DateLabel	  ,
 EmpBasic.PaySlipLabel,EmpBasic.LanguageName	,EmpBasic.PayableSalary,EmpSlr.LineId  
-,EmpSlr.DesignationSequence--,EmpSlr.PlantSequence,EmpSlr.UnitSequence--,EmpSlr.DivisionSequence,EmpSlr.SubDivisionSequence,EmpSlr.DepartmentSequence
-                                                                 -- ,EmpSlr.SectionSequence,EmpSlr.SubSectionSequence,EmpSlr.EntitySequence,EmpBasic.EmployeeCodePreFix,EmpBasic.EmployeeCodeNumeric
+,EmpSlr.DesignationSequence,EmpSlr.SubSectionSequence--,EmpSlr.PlantSequence,EmpSlr.UnitSequence--,EmpSlr.DivisionSequence,EmpSlr.SubDivisionSequence,EmpSlr.DepartmentSequence
+                                                                 -- ,EmpSlr.SectionSequence,EmpSlr.EntitySequence,EmpBasic.EmployeeCodePreFix,EmpBasic.EmployeeCodeNumeric
 
                             FROM
                                     (
@@ -920,7 +920,7 @@ LEFT JOIN  HKP.LocalLanguage AS PayableSalary ON PayableSalary.LabelName='Payabl
                                             ,ISNULL(Line.Sequence,0) LineSequence--,ISNULL(F.Sequence,0) PlantSequence
 											--,ISNULL(FU.Sequence,0) UnitSequence
                                            --ISNULL(DV.Sequence,0) DivisionSequence,ISNULL(subDV.Sequence,0) SubDivisionSequence
-											,ISNULL(S.Sequence,0) SectionSequence--,ISNULL(SS.Sequence,0) SubSectionSequence
+											,ISNULL(S.Sequence,0) SectionSequence,ISNULL(SS.Sequence,0) SubSectionSequence
                                             ,ISNULL(DP.Sequence,0) DepartmentSequence--,ISNULL(EN.UserName,'') EntitySequence
                                             , ISNULL(LSalGr.Code,'') GradeCode,ISNULL(spld.PaymentMode,'') PaymentMode,ISNULL(line.Id,'') LineId,SPLD.LegalDesignationId
 
@@ -931,11 +931,12 @@ LEFT JOIN  HKP.LocalLanguage AS PayableSalary ON PayableSalary.LabelName='Payabl
 											     LEFT  JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = SPLD.BudgetCode
 									LEFT OUTER JOIN ORG.Position PO ON MB.PositionId=PO.Id
                                     LEFT JOIN [ORG].[Department] DP ON DP.Id = PO.DepartmentId
-                                    LEFT JOIN [ORG].[Section] S ON S.Id = PO.SectionId     								
-	                                            LEFT JOIN ORG.line line ON line.Id=MB.LineId
-												LEFT JOIN HKP.EmployeeCategory EC ON SPLD.EmployeeCategoryId = EC.Id
-                                              LEFT JOIN SCS.LegalSalaryGrade LSalGr ON LSalGr.Id = SPLD.LegalSalaryGradeId
-                                              LEFT JOIN HKP.LegalDesignation LD ON LD.Id = SPLD.LegalDesignationId
+                                    LEFT JOIN [ORG].[Section] S ON S.Id = PO.SectionId     	
+                                    LEFT JOIN org.SubSection AS ss ON ss.Id=po.SubSectionId 
+	                                LEFT JOIN ORG.line line ON line.Id=MB.LineId
+									LEFT JOIN HKP.EmployeeCategory EC ON SPLD.EmployeeCategoryId = EC.Id
+                                    LEFT JOIN SCS.LegalSalaryGrade LSalGr ON LSalGr.Id = SPLD.LegalSalaryGradeId
+                                    LEFT JOIN HKP.LegalDesignation LD ON LD.Id = SPLD.LegalDesignationId
 
 
 LEFT JOIN SalaryProcChild B ON B.SystemID=(Select SystemID from SalaryProcChild C
