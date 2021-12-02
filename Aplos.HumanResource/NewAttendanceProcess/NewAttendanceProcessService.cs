@@ -2882,12 +2882,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 var sql = @"select distinct p.EmpSystemID,p.DayStatusCode,dt.DayType,
                         format(p.WorkDate,'yyyy-MMM-dd')WorkDate from AttdnProcessData p
                         join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
-                                  left join mst.DesignationMasterLegalDesignation ddm on 
-                        ddm.LegalDesignationId = ei.LegalDesignationId
-                                            left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
-									        left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
-											and dc.PlantId=ei.PlantId
-						                    left join DayStatusHeader dh on dh.Id=dc.headerId
+                     	                    left join DayStatusHeader dh on dh.Id=p.DayStatusHeaderId
 									        left join DayStatus ds on ds.headerId=dh.Id
 											left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId
 									        where WorkDate='" + PreDay + @"' and ds.Code=p.DayStatusCode
@@ -2915,15 +2910,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
 				isnull(dt.ActualWorkingDay,'0')ActualWorkingDay,isnull(dt.PayDay,'0')TotalPayDay,isnull(dt.NonPayDay,'0')TotalNonPayDay                 
 				from AttdnProcessData p
                         join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
-                        left join mst.DesignationMasterLegalDesignation ddm on 
-                        ddm.LegalDesignationId = ei.LegalDesignationId
-                        left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
-						left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
-						and dc.PlantId=ei.PlantId
-						left join DayStatusHeader dh on dh.Id=dc.headerId
+                     	left join DayStatusHeader dh on dh.Id=p.DayStatusHeaderId
 						left join DayStatus ds on ds.headerId=dh.Id
 						left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId									       
-						where WorkDate='"+PreDay+ @"' 
+						where WorkDate='" + PreDay+ @"' 
 						and dt.DayType=ISNULL(ISNULL(p.ManualDayStatus,p.SandwichStatus),p.ProcessDayStatus)
 						and ei.PlantId='" + Plant+"'";
 
