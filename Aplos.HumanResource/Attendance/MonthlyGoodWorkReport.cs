@@ -213,8 +213,14 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"' ) " + filters + 
 		                            A.Section, A.SubSection, A.Line, A.WorkDate, A.TotalOTHr,A.GivenDesignation,OTConsiderOn,A.EmployeeCodeNumeric, A.PlantId , A.Plant
                         ORDER BY A.Unit, A.EmployeeCodeNumeric, A.Section, A.SubSection";
 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+
+
+                ConnectionManager.clsConnectionManager con = new ConnectionManager.clsConnectionManager(600);
+                con.BeginTransaction();
+                con.getDataSet(strSql, out dsRef);
+                con.CommitTransaction();
             }
             catch (Exception ex)
             {
