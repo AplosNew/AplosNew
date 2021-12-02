@@ -518,6 +518,8 @@ namespace Library.OrderManagement.BOM
 
             //Get the first worksheet in the workbook into IWorksheet
             IWorksheet worksheet = workbook.Worksheets[0];
+
+
             try
             {
                 DataTable dtOrderMaster = _sqlRepository.GetDataTable(@"select mo.Id, mo.type, b.UserName as Buyer, p.UserName as Customer
@@ -533,60 +535,8 @@ namespace Library.OrderManagement.BOM
                     left join HKP.buyerdivision BDev on BDev.id = mo.BuyerDivisionId where mo.Id=(SELECT MasterOrderId from trn.MasterOrderItem where Id='" + MasterOrderItemId + "')");
                 if (dtOrderMaster.Rows.Count == 0)
                     throw new Exception("No data found");
-
-                DataTable dtMasterOrderItem = _sqlRepository.GetDataTable(@"select moi.id as MasterOrderItemNo,moi.BuyerReferenceNo
-                 ,moi.OwnReferenceNo,moi.TotalQty as TotalMOIQuantity, moi.MasterOrderId,c.ContractNo,ml.LCRef
-                 ,moi.OrderWastagePercentage, moi.ExtraOrderPercentage ,mm.UserName as Material ,mma.StandardName as Article, moi.Type
-                 from trn.MasterOrderItem MOI
-                 left join TRN.MasterOrder mo  on mo.id=moi.MasterOrderId
-                 left join MST.MaterialMaster MM on mm.id = moi.MaterialMasterId
-                 left join MST.MaterialMasterArticle mma on mma.id= moi.ArticleId
-                 left join scs.TestingStandard ts on ts.id=moi.TestingStandardId
-
-                 LEFT JOIN [Contract] AS c ON c.Id=moi.ContractId
-                 LEFT JOIN MasterLC AS ml ON ml.Id=c.MasterLCId
-                 where moi.Id='" + MasterOrderItemId + "'");
-
-
-                DataTable dtSalesOrderItem = _sqlRepository.GetDataTable(@"select so.MasterOrderItemId, so.id as SalesOrderNo,cpo.PONumber,os.UserName as OrderStatus,d.UserName as Destination
-                ,so.Qty as Quantity, so.UpCharge, so.MainRawMaterialInhouseDate, so.Description
-                ,so.SOType, oc.username as OrderCategory
-                ,so.DeliveryDate, sm.UserName as ShipmentMode
-                ,so.Rate, so.Discount,so.CM,so.LSD, so.OtherRawMaterialInhouseDate , so.Reason , so.CommitmentDate
-
-                ,c1.username as FirstCharacteristics, isnull(fcs.ValueFreeText,CV1.UserName) as FirstCharacteristicsValue
-                ,c2.username as SecondCharacteristics ,isnull(SCS.ValueFreeText, CV2.UserName) as SecondCharacteristicsValue
-                ,c3.username as ThirdCharacteristics , isnull(ThirdCS.ValueFreeText,CV3.UserName) as ThirdCharacteristicsValue
-                ,case when isnull(thirdCs.Id,'')<>'' THEN ThirdCs.Qty
-                ELSE case when isnull(scs.id,'')<>'' THEN scs.Qty
-                ELSE case when isnull(fcs.Id,'')<>'' THEN fcs.Qty
-                ELSE 0 END END END AS Qty
-                from trn.SalesOrder SO
-                left join trn.masterorderitem moi on moi.id= so.masterorderitemid
-                left join HKP.OrderCategory OC on oc.id = so.OrderCategoryId
-                left join hkp.OrderStatus OS on os.id = so.OrderStatusId
-                left join mst.shipMode SM on sm.id = so.shipmentModeId
-                left join mst.Destination d on d.id =so.DestinationId
-                left join trn.CustomerPO CPO on cpo.id =so.CustomerPOId
-
-                left join TRN.FirstCharacteristics FCS on fcs.SalesOrderId = so.id
-                left join hkp.Characteristics C1 on c1.id = fcs.CharacteristicsId
-                left join HKP.CharacteristicsValue CV1 on cv1.id= fcs.CharacteristicsValueId
-
-                left join TRN.SecondCharacteristics SCS on scs.SalesOrderId=so.id and scs.FirstCharacteristicsId=fcs.Id
-                left join hkp.Characteristics C2 on c2.id = scs.CharacteristicsId
-                left join HKP.CharacteristicsValue CV2 on cv2.id= scs.CharacteristicsValueId
-
-                left join TRN.ThirdCharacteristics ThirdCS on ThirdCS.SalesOrderId=so.id and scs.id=ThirdCS.SecondCharacteristicsId
-                left join hkp.Characteristics C3 on c3.id = ThirdCS.CharacteristicsId
-                left join HKP.CharacteristicsValue CV3 on CV3.id= ThirdCS.CharacteristicsValueId
-
-                     where moi.Id='" + MasterOrderItemId + "'");
-                DataTable dtBOMData = new DataTable();
-                if (Level == BOMLevel.SO)
-                {
-                    worksheet.Name = "BOM-SO Level";
-                    string strsql = @"SELECT K.OwnReferenceNo,k.BuyerReferenceNo,k.VendorId,k.Material,
+                worksheet.Name = "BOM-MO Level";
+                string strsql = @"SELECT K.OwnReferenceNo,k.BuyerReferenceNo,k.VendorId,k.Material,
 k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChild,k.Process,k.RequiredQtyApproved,k.IncompleteMaterial,
 SUM(k.OrderQty) OrderQty,SUM(k.PlanOrderQty) PlanOrderQty,AVG(k.Consumption) Consumption,AVG(k.WastagePer) WastagePer,
 SUM(k.BOMQty) BOMQty,SUM(k.RequiredQty) RequiredQty,SUM(k.RequiredQtyPO) RequiredQtyPO,k.UOM,k.ParentUOM,k.POUOM,k.RMDescription,k.RMCustomerSpec
@@ -650,93 +600,16 @@ SUM(k.BOMQty) BOMQty,SUM(k.RequiredQty) RequiredQty,SUM(k.RequiredQtyPO) Require
 								
 								) GRN On GRN.BOQDetailId = b.Id
 
-                                WHERE moi.MasterOrderId='"+MasterOrderId+@"' and isnull(B.Id,'') NOT IN (select ParentId from BOQ where isnull(ParentId,'')<>'' AND MasterOrderItemId='"+MasterOrderItemId+@"'
+                                WHERE moi.MasterOrderId='" + MasterOrderId + @"' and isnull(B.Id,'') NOT IN (select ParentId from BOQ 
+								JOIn TRN.MasterOrderItem MOI ON MOI.Id=BOQ.MasterOrderItemId
+								where isnull(ParentId,'')<>'' AND MOI.MasterOrderId='" + MasterOrderId + @"'
                             
                                 )) AS K GROUP BY K.OwnReferenceNo,k.BuyerReferenceNo,k.VendorId,k.Material,
 k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChild,k.Process,k.RequiredQtyApproved,k.IncompleteMaterial
 ,k.UOM,k.ParentUOM,k.POUOM,k.RMDescription,k.RMCustomerSpec
 ,k.RMVendorSpec,k.SO1,k.SO2,k.SO3,k.POIds,k.GRNIds";
-                    dtBOMData = _sqlRepository.GetDataTable(strsql);
-                }
-                else if (Level == BOMLevel.Item)
-                {
-                    worksheet.Name = "BOM-Item Level";
-                    string strsql = @"select B.Sequence, B.MasterOrderItemId, B.MasterOrderId, B.OwnReferenceNo,
-       B.BuyerReferenceNo, B.VendorId, B.Material, B.Article, B.Vendor, B.SKUDesc,B.POIds, B.GRNIds,
-       B.CharVal1, B.CharVal2, B.CharVal3, B.isParent, B.isChild, B.Process,
-       B.Consumption, B.WastagePer, B.UOM, B.ParentUOM, B.POUOM, B.RMDescription,
-       B.RMCustomerSpec, B.RMVendorSpec, B.SO1, B.SO2, B.SO3,
-       sum(b.BOMQty) AS BOMQty,sum(b.RequiredQty) AS RequiredQty, SUM(b.RequiredQtyPO) AS RequiredQtyPO, sum(b.OrderQty) AS OrderQty,sum(b.PlanOrderQty) AS PlanOrderQty
-       ,SUM(ISNULL(b.POQTY,0)) POQTY,SUM(ISNULL(b.GRNQty,0)) GRNQty
-  from (SELECT  b.Sequence,b.MasterOrderItemId,moi.MasterOrderId,moi.OwnReferenceNo,moi.BuyerReferenceNo, b.VendorId,
-                                 mm.UserName AS Material,mma.StandardName AS Article,p.UserName AS Vendor,b.SKUDesc,
-                                v1.UserName AS CharVal1,v2.UserName AS CharVal2,v3.UserName AS CharVal3,convert(bit,isnull(b.isParent,0)) AS isParent,
-                                convert(bit,isnull(b.isChild,0)) AS isChild,PR.UserName AS Process,
-                               b.Consumption,b.WastagePer,
-                                uom.UserName AS UOM,uomm.UserName AS ParentUOM, POUOM.UserName AS POUOM,
-                                b.RMDescription,	b.RMCustomerSpec,	b.RMVendorSpec,
-								b.BOMQty,b.RequiredQty,b.RequiredQtyPO, b.OrderQty,PlanOrderQty,
-                                ISNULL(po.POQTY,0) POQTY,ISNULL(grn.GRNQty,0) GRNQty,
-								 SO1 =STUFF((select distinct ','+xv1.UserName
-								          from BOQFGMapping AS XM	
-										  JOIN BOQDetail AS XB2 ON xb2.Id=xm.BOQDetailId
-								          JOIN [HKP].[CharacteristicsValue] XV1 ON xv1.Id=XM.FirstCharacteristicsValueId
-								          WHERE XB2.BOQId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-								SO2 =STUFF((select distinct ','+xv1.UserName
-										from BOQFGMapping AS XM	 
-										JOIN BOQDetail AS XB2 ON xb2.Id=xm.BOQDetailId
-										JOIN [HKP].[CharacteristicsValue] XV1 ON xv1.Id=XM.SecondCharacteristicsValueId
-										WHERE XB2.BOQId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-								SO3 =STUFF((select distinct ','+xv1.UserName
-										from BOQFGMapping AS XM	 
-										JOIN BOQDetail AS XB2 ON xb2.Id=xm.BOQDetailId
-										JOIN [HKP].[CharacteristicsValue] XV1 ON xv1.Id=XM.ThirdCharacteristicsValueId
-										WHERE XB2.BOQId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-								POIds =STUFF((select distinct ','+XB2.InventoryReceiveId
-										from trn.POBOQMAP a	 
-										JOIN trn.PurchaseOrderDetail AS XB2 ON xb2.Id=a.PODetailId
-										WHERE a.BOQDetailId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-								GRNIds =STUFF((select distinct ','+XB2.InventoryReceiveId
-										from trn.POBOQMAP a	 
-										JOIN trn.InventoryReceiveDetail AS XB2 ON xb2.PODetailsId=a.PODetailId
-										WHERE a.BOQDetailId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                                  FROM BOQ AS b
-                                LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
-                                LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
-                                LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=b.UoMId
-                                LEFT OUTER JOIN scs.UnitOfMeasurement AS POuom ON POuom.Id=b.POUoMId
-
-                                LEFT OUTER JOIN HKP.Party P ON p.Id=b.VendorId
-                                LEFT OUTER JOIN trn.SalesOrder AS so ON so.Id=b.SalesOrderId
-                                LEFT OUTER JOIN trn.MasterOrderItem AS moi ON moi.Id=b.MasterOrderItemId
-                                LEFT OUTER JOIN trn.masterorder MO ON MO.Id=moi.MasterOrderId
-                                LEFT OUTER JOIN scs.UnitOfMeasurement AS uomm ON uomm.Id=mo.TotalQtyUOMId
-                                LEFT JOIN hkp.Process AS pr ON pr.Id=b.ProcessId
-
-                                LEFT OUTER JOIN [HKP].[CharacteristicsValue] V1 ON v1.Id=b.FirstCharacteristicsValueId
-                                LEFT OUTER JOIN [HKP].[CharacteristicsValue] V2 ON v2.Id=b.SecondCharacteristicsValueId
-                                LEFT OUTER JOIN [HKP].[CharacteristicsValue] V3 ON v3.Id=b.ThirdCharacteristicsValueId
-                                LEFT OUTER JOIN (	select BOQDetailId,sum(POBOQQty) as POQTY from trn.POBOQMAP  GRoup by BOQDetailId) PO On PO.BOQDetailId = b.Id
-								LEFT OUTER JOIN (	
-								SELECT a.BOQDetailId , sum(b.TransactionQty) GRNQty 
-				                    FROM trn.POBOQMAP a
-				                    INNER JOIN trn.InventoryReceiveDetail b ON a.PODetailId=b.PODetailsId GRoup by BOQDetailId
-								
-								) GRN On GRN.BOQDetailId = b.Id
-
-                                WHERE b.MasterOrderItemId='" + MasterOrderItemId + @"' and isnull(B.Id,'') NOT IN (select ParentId from BOQ where isnull(ParentId,'')<>'' AND MasterOrderItemId='" + MasterOrderItemId + @"')
-                        ) AS B
-                                GROUP BY B.Sequence,B.POIds, B.GRNIds, B.MasterOrderItemId, B.MasterOrderId, B.OwnReferenceNo,
-       B.BuyerReferenceNo, B.VendorId, B.Material, B.Article, B.Vendor, B.SKUDesc,
-       B.CharVal1, B.CharVal2, B.CharVal3, B.isParent, B.isChild, B.Process,
-       B.Consumption, B.WastagePer, B.UOM, B.ParentUOM, B.POUOM, B.RMDescription,
-       B.RMCustomerSpec, B.RMVendorSpec, B.SO1, B.SO2, B.SO3
-                                
-                                ORDER BY isnull(b.Sequence,0)";
-                    dtBOMData = _sqlRepository.GetDataTable(strsql);
-
-
-                }
+                DataTable dtBOMData = new DataTable();
+                dtBOMData = _sqlRepository.GetDataTable(strsql);
                 int ROW = 6; int COL = 1;
 
                 //foreach (ExcelKnownColors val in Enum.GetValues(typeof(ExcelKnownColors)))
@@ -826,12 +699,8 @@ k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChi
                 //Master Order Item....................................................................................................
                 StringCollection strColSO = new StringCollection();
 
-                for (int i = 0; i < dtMasterOrderItem.Rows.Count; i++)
-                {
-                    OrderLevelBOMData(dtBOMData, worksheet, ref ROW);
-                    ROW += 2; // Gap for Material
-                }
-
+                OrderLevelBOMData(dtBOMData, worksheet, ref ROW);
+                ROW += 2; // Gap for Material
                 int endCol = RightColumnValue;
 
 
