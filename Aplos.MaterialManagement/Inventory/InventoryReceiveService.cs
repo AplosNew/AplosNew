@@ -5485,7 +5485,7 @@ namespace Library.MaterialManagement.Inventory
             }
             try
             {
-                var sql = @"SELECT A.Id,A.InventoryReceiveDetailId,A.InventoryReceiveId, A.TaxCategoryId, TC.UserName AS TaxCategory, A.HSNCodeId, HN.Code AS HSNCode, A.[Percentage], A.TaxAmount,d.id As PODetailId
+                var sql = @"SELECT A.Id,A.InventoryReceiveDetailId,A.InventoryReceiveId, A.TaxCategoryId, TC.UserName AS TaxCategory, A.HSNCodeId, HN.Code AS HSNCode, A.[Percentage], 0 TaxAmount,d.id As PODetailId
                             FROM [TRN].[PurchaseOrderTax] AS A JOIN [MST].[TaxCategory] AS TC ON A.TaxCategoryId=TC.Id
                             LEFT JOIN [HKP].[HSNCode] AS HN ON A.HSNCodeId=HN.Id
 							left join TRN.PurchaseOrderDetail d on d.id= A.InventoryReceiveDetailId
@@ -5577,7 +5577,7 @@ namespace Library.MaterialManagement.Inventory
 
             try
             {
-                var sql = @"SELECT A.Id,A.InventoryServiceId, A.TaxCategoryId, TC.UserName AS TaxCategory, A.HSNCodeId, HN.Code AS HSNCode, A.[Percentage], A.TaxAmount
+                var sql = @"SELECT A.Id,A.InventoryServiceId, A.TaxCategoryId, TC.UserName AS TaxCategory, A.HSNCodeId, HN.Code AS HSNCode, A.[Percentage], 0 TaxAmount
                             FROM [TRN].[PurchaseOrderTax] AS A JOIN [MST].[TaxCategory] AS TC ON A.TaxCategoryId=TC.Id
                             LEFT JOIN [HKP].[HSNCode] AS HN ON A.HSNCodeId=HN.Id
                             WHERE  A.InventoryReceiveDetailId IS NULL AND  " + paramter + " ORDER BY TC.[Sequence]";

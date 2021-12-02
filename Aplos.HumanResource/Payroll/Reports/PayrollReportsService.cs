@@ -12237,7 +12237,7 @@ ELSE CONVERT(BIT,0) END  ---No
                             salaryHeadSequence.XLColIndex = ColGrs + countCTCPosition;
 
                             salaryHeadSequence.IsInt = bplib.clsWebLib.GetBoolData(dtSalaryHead.Rows[ci]["IntegerInDisb"].ToString());
-                            salaryHeadSequence.DecimalNo = Convert.ToInt32(bplib.clsWebLib.GetNumData(dtSalaryHead.Rows[ci]["DecimalNo"].ToString()));
+                            //salaryHeadSequence.DecimalNo = Convert.ToInt32(bplib.clsWebLib.GetNumData(dtSalaryHead.Rows[ci]["DecimalNo"].ToString()));
                             salaryHeadSequence.SalaryHead = dtSalaryHead.Rows[ci]["SalaryHead"].ToString();
                             salaryHeadSequence.SalaryHeadId = dtSalaryHead.Rows[ci]["SalaryHeadID"].ToString();
                             salaryHeadSequence.HeadType = dtSalaryHead.Rows[ci]["HeadType"].ToString();
@@ -12302,7 +12302,7 @@ ELSE CONVERT(BIT,0) END  ---No
                             //countDeductionPosition++;
 
                             salaryHeadSequence.IsInt = bplib.clsWebLib.GetBoolData(dtSalaryHead.Rows[ci]["IntegerInDisb"].ToString());
-                            salaryHeadSequence.DecimalNo = Convert.ToInt32(bplib.clsWebLib.GetNumData(dtSalaryHead.Rows[ci]["DecimalNo"].ToString()));
+                            //salaryHeadSequence.DecimalNo = Convert.ToInt32(bplib.clsWebLib.GetNumData(dtSalaryHead.Rows[ci]["DecimalNo"].ToString()));
                             salaryHeadSequence.SalaryHead = dtSalaryHead.Rows[ci]["SalaryHead"].ToString();
                             salaryHeadSequence.SalaryHeadId = dtSalaryHead.Rows[ci]["SalaryHeadID"].ToString();
                             salaryHeadSequence.HeadType = dtSalaryHead.Rows[ci]["HeadType"].ToString();
@@ -16211,11 +16211,11 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                 ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
                 con.getDataSet(strSQL, out dsRef);
 
-                distinctSalaryHead = dsRef.Tables[0].DefaultView.ToTable(true, "SalaryHeadID", "SalaryHead", "HeadType", "Sequence", "HeadCategory", "IntegerInDisb", "DecimalNo", "PartOfNetPay", "IsCTCComponent", "IsGrossComponent");
+                distinctSalaryHead = dsRef.Tables[0].DefaultView.ToTable(true, "SalaryHeadID", "SalaryHead", "HeadType", "Sequence", "HeadCategory", "IntegerInDisb", /*"DecimalNo",*/ "PartOfNetPay", "IsCTCComponent", "IsGrossComponent");
                 distinctSalaryHead.DefaultView.Sort = "Sequence";
                 distinctSalaryHead = distinctSalaryHead.DefaultView.ToTable();
 
-                distinctSalaryHead = distinctSalaryHead.DefaultView.ToTable(true, "SalaryHeadID", "SalaryHead", "HeadType", "HeadCategory", "IntegerInDisb", "DecimalNo", "PartOfNetPay", "IsCTCComponent", "IsGrossComponent");
+                distinctSalaryHead = distinctSalaryHead.DefaultView.ToTable(true, "SalaryHeadID", "SalaryHead", "HeadType", "HeadCategory", "IntegerInDisb", /*"DecimalNo",*/ "PartOfNetPay", "IsCTCComponent", "IsGrossComponent");
                 distinctSalaryHead = distinctSalaryHead.DefaultView.ToTable();
                 distinctSalaryHead.Columns.Add("Sequence", typeof(int));
                 for (int i = 0; i < distinctSalaryHead.Rows.Count; i++)

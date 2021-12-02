@@ -46,7 +46,7 @@ namespace Aplos.Areas.Products.Controllers
         private readonly IIssueRequestService _issueRequestService;
         private readonly IIssueRequestMasterService _issueRequestMasterService;
         private readonly ISqlRepository _sqlRepository;
-        private readonly IRepositoryAsync<InventoryReceiveDetail> _receiveDetailRepository;
+       // private readonly IRepositoryAsync<InventoryReceiveDetail> _receiveDetailRepository;
         private readonly IRepositoryAsync<PurchaseReturnDetail> _PurchaseReturnDetailRepository;
 
         public GoodsReceiveNoteController(IInventoryReceiveService inventoryReveiveService
@@ -59,7 +59,7 @@ namespace Aplos.Areas.Products.Controllers
             , IIssueRequestMasterService issueRequestMasterService
             , IInventoryIssueService inventoryIssueService
             , ISqlRepository sqlRepository
-            , IRepositoryAsync<InventoryReceiveDetail> receiveDetailRepository
+            //, IRepositoryAsync<InventoryReceiveDetail> receiveDetailRepository
             , IRepositoryAsync<PurchaseReturnDetail> PurchaseReturnDetailRepository
             )
 
@@ -74,7 +74,7 @@ namespace Aplos.Areas.Products.Controllers
             _issueRequestMasterService = issueRequestMasterService;
             _inventoryIssueService = inventoryIssueService;
             _sqlRepository = sqlRepository;
-            _receiveDetailRepository = _receiveDetailRepository;
+            //_receiveDetailRepository = receiveDetailRepository;
             _PurchaseReturnDetailRepository = PurchaseReturnDetailRepository;
 
         }
