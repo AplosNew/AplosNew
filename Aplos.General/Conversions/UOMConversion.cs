@@ -132,7 +132,7 @@ namespace Library.General.Conversions
             }
             else
             {
-                throw new Exception("No UOM found during conversion. Please check for material mater (Id: " + MaterialMasterId + @")");
+                throw new Exception("No UOM found during conversion. Please check for material master (Id: " + MaterialMasterId + @")");
             }
 
             return 0;

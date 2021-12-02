@@ -2882,12 +2882,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 var sql = @"select distinct p.EmpSystemID,p.DayStatusCode,dt.DayType,
                         format(p.WorkDate,'yyyy-MMM-dd')WorkDate from AttdnProcessData p
                         join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
-                                  left join mst.DesignationMasterLegalDesignation ddm on 
-                        ddm.LegalDesignationId = ei.LegalDesignationId
-                                            left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
-									        left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
-											and dc.PlantId=ei.PlantId
-						                    left join DayStatusHeader dh on dh.Id=dc.headerId
+                     	                    left join DayStatusHeader dh on dh.Id=p.DayStatusHeaderId
 									        left join DayStatus ds on ds.headerId=dh.Id
 											left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId
 									        where WorkDate='" + PreDay + @"' and ds.Code=p.DayStatusCode
@@ -2915,15 +2910,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
 				isnull(dt.ActualWorkingDay,'0')ActualWorkingDay,isnull(dt.PayDay,'0')TotalPayDay,isnull(dt.NonPayDay,'0')TotalNonPayDay                 
 				from AttdnProcessData p
                         join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
-                        left join mst.DesignationMasterLegalDesignation ddm on 
-                        ddm.LegalDesignationId = ei.LegalDesignationId
-                        left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
-						left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
-						and dc.PlantId=ei.PlantId
-						left join DayStatusHeader dh on dh.Id=dc.headerId
+                     	left join DayStatusHeader dh on dh.Id=p.DayStatusHeaderId
 						left join DayStatus ds on ds.headerId=dh.Id
 						left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId									       
-						where WorkDate='"+PreDay+ @"' 
+						where WorkDate='" + PreDay+ @"' 
 						and dt.DayType=ISNULL(ISNULL(p.ManualDayStatus,p.SandwichStatus),p.ProcessDayStatus)
 						and ei.PlantId='" + Plant+"'";
 
@@ -3017,31 +3007,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     from dbo.otfromapp ot 
                     LEFT JOIN EmployeeInformation E ON E.SystemId=ot.EmpSystemId
                     where e.PlantId='" + Plant + "' and ot.WorkDate='" + Date + "'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
-        public void OverStayRoundingOff(string PreDay, out DataSet ds, string Plant)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-                // Getting AllotedOT from Per Min Policy
-                var sql = @"select distinct p.EmpSystemID,
-                format(p.WorkDate,'yyyy-MMM-dd')WorkDate,Result=               
-                (select distinct ot.AllotedOT from OTPerMinutePolicy ot
-                where ot.PlantId=p.PlantID and ot.OverstayOrEarlyOut=p.OverStay) 
-                from AttdnProcessData p
-                left join org.Plant pl on pl.Id=p.PlantID
-                left join OTPerMinutePolicy ot on ot.PlantId=pl.Id
-                        where WorkDate='"+PreDay+@"' and p.IsOTEntitled='1'
-						and p.OverStay>0
-						and p.PlantId='"+Plant+"'";
-
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
@@ -3389,44 +3354,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     }
 
                     #endregion
-
-                    #region PrevDay OverStay Rounding Off 
-                    DataSet OverStayRounding;
-                    OverStayRoundingOff(PreviousDay, out OverStayRounding, PlantValue);
-                    if (OverStayRounding.Tables[0].Rows.Count > 0)
-                    {
-                        // OverStay DataSet Using OT Per Minute Policy
-                        var WkDate = OverStayRounding.Tables[0].Rows[0][@"WorkDate"].ToString();
-                        string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
-
-                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                        var sqlx = @"select * from AttdnProcessData where IsOTEntitled='1' and WorkDate='" + WkDate + "' and PlantID='" + PlantValue + "'";
-                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
-
-                        for (int i = 0; i < OverStayRounding.Tables[0].Rows.Count; i++)
-                        {
-
-                            string EmpId = clsWebLib.RetValidLen(OverStayRounding.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
-                            string Result = clsWebLib.RetValidLen(OverStayRounding.Tables[0].Rows[i][@"Result"]).ToString();
-
-                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
-                            if (dsRef.Tables[0].DefaultView.Count > 0)
-                            {
-                                // OverStay Value is rounded using OT Per Min Policy
-                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                                dr.BeginEdit();
-                                dr["OverStay"] = Result;
-                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                dr.EndEdit();
-                            }
-
-
-                        }
-                        SaveDataSets(dsRef);
-                    }
-
-                    #endregion
-
+                 
                     #region Previous Day DurationStatus Flagging
                     DataSet PrevDurationStat;
                     PrevDurationStatusCal(PreviousDay, out PrevDurationStat, PlantValue);
@@ -4288,12 +4216,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 var sql = @"select distinct p.EmpSystemID,p.DayStatusCode,dt.DayType,
                         format(p.WorkDate,'yyyy-MMM-dd')WorkDate from AttdnProcessData p
                         join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
-                                  left join mst.DesignationMasterLegalDesignation ddm on 
-                        ddm.LegalDesignationId = ei.LegalDesignationId
-                                            left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
-									        left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
-											and dc.PlantId=ei.PlantId
-						                    left join DayStatusHeader dh on dh.Id=dc.headerId
+   					                    left join DayStatusHeader dh on dh.Id=p.DayStatusHeaderId
 									        left join DayStatus ds on ds.headerId=dh.Id
 											left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId
 									        where ManualFlag=1 and ds.Code=p.DayStatusCode
@@ -4322,12 +4245,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 				isnull(dt.ActualWorkingDay,'0')ActualWorkingDay,isnull(dt.PayDay,'0')TotalPayDay,isnull(dt.NonPayDay,'0')TotalNonPayDay                
 	            from AttdnProcessData p
                         join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
-                        left join mst.DesignationMasterLegalDesignation ddm on 
-                        ddm.LegalDesignationId = ei.LegalDesignationId
-                        left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
-						left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
-						and dc.PlantId=ei.PlantId
-						left join DayStatusHeader dh on dh.Id=dc.headerId
+                        left join DayStatusHeader dh on dh.Id=p.DayStatusHeaderId
 						left join DayStatus ds on ds.headerId=dh.Id
 						left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId									       
 						where ManualFlag=1 						
@@ -4531,32 +4449,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     objCone.CommitTransaction();
                 }
                
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
-        public void ManualOverStayRoundingOff(out DataSet ds, string Plant)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-                // Getting AllotedOT from Per Min Policy
-                var sql = @"select distinct p.EmpSystemID,
-                format(p.WorkDate,'yyyy-MMM-dd')WorkDate,Result=               
-                (select distinct ot.AllotedOT from OTPerMinutePolicy ot
-                where ot.PlantId=p.PlantID and ot.OverstayOrEarlyOut=p.OverStay) 
-                from AttdnProcessData p
-                left join org.Plant pl on pl.Id=p.PlantID
-                left join OTPerMinutePolicy ot on ot.PlantId=pl.Id
-                        where ManualFlag=1 and p.IsOTEntitled='1'
-						and p.OverStay>0
-						and p.PlantId='"+Plant+@"'
-						order by WorkDate asc";
-
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
             catch (Exception ex)
             {
@@ -4878,48 +4770,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     SaveDataSets(dsRef);
 
                 }
-
-                #endregion
-
-                #region Manual OverStay Rounding Off 
-                DataSet ManualOverStayRounding;
-                ManualOverStayRoundingOff(out ManualOverStayRounding, PlantValue);
-                if (ManualOverStayRounding.Tables[0].Rows.Count > 0)
-                {
-                    // OverStay Rounding Off
-                    var sqlx = "";
-                    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                    if (empMaster == "")
-                    {
-                        sqlx = @"select * from AttdnProcessData where  IsLock=0 and ManualFlag=1 and OverStay >0 and PlantID='" + PlantValue + "'";
-                    }
-                    else
-                    {
-                        sqlx = @"select * from AttdnProcessData where  IsLock=0 and ManualFlag=1 and OverStay >0 and PlantID='" + PlantValue + "' and RowId in (" + empList + ")";
-                    }
-                    objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
-
-                    for (int i = 0; i < ManualOverStayRounding.Tables[0].Rows.Count; i++)
-                    {
-                        string WorkDate = ManualOverStayRounding.Tables[0].Rows[i][@"WorkDate"].ToString();
-                        string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
-
-                        string EmpId = clsWebLib.RetValidLen(ManualOverStayRounding.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
-                        string Result = clsWebLib.RetValidLen(ManualOverStayRounding.Tables[0].Rows[i][@"Result"]).ToString();
-
-                        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
-                        if (dsRef.Tables[0].DefaultView.Count > 0)
-                        {
-                            DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                            dr.BeginEdit();
-                            dr["OverStay"] = Result;
-                            dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                            dr.EndEdit();
-                        }
-                    }
-                    SaveDataSets(dsRef);
-                }
-
 
                 #endregion
 

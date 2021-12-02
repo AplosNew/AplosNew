@@ -135,7 +135,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 var fileName = monthName + "-" + year + "PayRegister" + DateTime.Now.ToString("yyMMdd") + identity.Name + ".xls";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName);
 
-                var workbook = _payRegisterBDReportService.EmployeeSalaryRegister(PayRegisterParam, paymentDate, sqlInStatement, withStructure,  isActive,  isSeperated,  isMaternity);
+                var workbook = _payRegisterBDReportService.EmployeeSalaryRegister(PayRegisterParam, paymentDate, sqlInStatement, withStructure, isActive, isSeperated, isMaternity);
                 workbook.Version = ExcelVersion.Excel97to2003;
                 workbook.SaveAs(fullPath);
 
@@ -149,7 +149,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
         [HttpPost, Authorize]
-        public ActionResult GetPayRegisterReportNew(string month, string year, string salaryProcessId, string paymentDate, string printDate, string languageId, string withStructure, string groupBy, Dictionary<string, string> parameters, string sheetBasedOn, bool withAttendance, string paperSize, string reportType, string docGrouping, bool isActive, bool isSeperated, bool isMaternity,bool onlyEarning)
+        public ActionResult GetPayRegisterReportNew(string month, string year, string salaryProcessId, string paymentDate, string printDate, string languageId, string withStructure, string groupBy, Dictionary<string, string> parameters, string sheetBasedOn, bool withAttendance, string paperSize, string reportType, string docGrouping, bool isActive, bool isSeperated, bool isMaternity, bool onlyEarning)
         {
             try
             {
@@ -191,7 +191,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
                 // throw ex;
             }
-        
+
         }
 
         [HttpPost, Authorize]
@@ -241,7 +241,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
 
         [HttpPost, Authorize]
-        public ActionResult GetPayRegisterReportContractor(string month, string year, string salaryProcessId, string paymentDate, string printDate, string languageId, string withStructure, string groupBy, Dictionary<string, string> parameters, string sheetBasedOn, bool withAttendance, string paperSize, string reportType, string docGrouping, bool isActive, bool isSeperated, bool isMaternity, bool onlyEarning,string ContracotrId)
+        public ActionResult GetPayRegisterReportContractor(string month, string year, string salaryProcessId, string paymentDate, string printDate, string languageId, string withStructure, string groupBy, Dictionary<string, string> parameters, string sheetBasedOn, bool withAttendance, string paperSize, string reportType, string docGrouping, bool isActive, bool isSeperated, bool isMaternity, bool onlyEarning, string ContracotrId)
         {
             try
             {
@@ -253,7 +253,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 var fileName = "";
                 string fromDate = 1 + "-" + monthName + "-" + year;
                 string toDate = daysInMonth + "-" + monthName + "-" + year;
-                var workbook = _payRegisterBDReportService.ContractorEmployeeSalaryRegisterWithStructure(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, year, month, languageId, paymentDate, printDate, fromDate, toDate, groupBy, parameters, salaryProcessId, sheetBasedOn, withAttendance, paperSize, docGrouping, identity.IsSysAdmin, identity.IsControlAdmin, identity.UserId, isActive, isSeperated, isMaternity, onlyEarning,ContracotrId);
+                var workbook = _payRegisterBDReportService.ContractorEmployeeSalaryRegisterWithStructure(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, year, month, languageId, paymentDate, printDate, fromDate, toDate, groupBy, parameters, salaryProcessId, sheetBasedOn, withAttendance, paperSize, docGrouping, identity.IsSysAdmin, identity.IsControlAdmin, identity.UserId, isActive, isSeperated, isMaternity, onlyEarning, ContracotrId);
 
                 if (reportType.ToUpper() == "EXCEL")
                 {
@@ -369,7 +369,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
                 LocalReport localReport = new LocalReport();
                 localReport.ReportPath = System.Web.Hosting.HostingEnvironment.MapPath("~/Reports/HumanResource/Payrolls/PayslipReport.rdlc");
-             
+
 
 
                 //switch (dsSlrProc.Tables[0].Rows[0]["LanguageName"].ToString())
@@ -433,8 +433,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
                 };
                 localReport.SetParameters(parameter);
-                //reportDataSource.Value = db.OnlineApplications.Where(x => x.StudentCode == "2019-Three-001").FirstOrDefault();
-
+     
                 localReport.DataSources.Add(reportDataSource);
 
                 string ReportType = "pdf";
@@ -447,14 +446,8 @@ namespace Aplos.Areas.HumanResource.Controllers
                 Byte[] bytes = null;
 
                 bytes = localReport.Render(ReportType, "", out mimeType, out encoding, out extension, out streamids, out warnings);
-                //string PDFPath = new DirectoryInfo(System.Web.HttpContext.Current.Server.MapPath("~/")) + "Reports\\PDF\\";
                 fileName = DateTime.Now.ToString("dd-MMM-yyyy") + "_" + identity.Name + "_SalaryPaySlipRdlc.pdf";
-                //string fileName = "iDCard" + DateTime.Now.ToFileTime() + ".png";
-                //bool IsExitsPDF = System.IO.File.Exists(PDFPath + fileName);
                 string savepath = ResourcesPathReader.SavePdfDocUrl();
-                //ShowLog(savepath); 
-
-                //fileName = DateTime.Now.AddDays(-1).ToString("dd-MMM-yyyy") + "_" + (string)Session["USER"] + "_SalaryPaySlipRdlc.pdf";
                 if (System.IO.File.Exists(savepath + fileName))
                 {
                     try
@@ -474,36 +467,12 @@ namespace Aplos.Areas.HumanResource.Controllers
                 byte[] data = new byte[fs.Length];
                 fs.Write(bytes, 0, bytes.Length);
                 fs.Close();
-                //var keyname = System.Configuration.ConfigurationManager.AppSettings["APP_NAME"];
-                //PdfLocation =   keyname+"/PDF/" + fileName;
-                //PdfLocation = "/Reports/PDF/" + fileName;
-
-                //report.Attributes["src"] = PdfLocation;
-                //ViewBag.ReportPath = PdfLocation;
-                //string path = Server.MapPath("/Reports/PDF/");
-                //string fileName = string.Empty;
-                //fileName = "EmployeePayslipReport" + DateTime.Now.AddDays(-1).ToString("dd-MMM-yyyy")  + ".pdf"; ;
-
+                
                 string path = ResourcesPathReader.GetPdfDocUrl();
-
-                //fileName = DateTime.Now.AddDays(-1).ToString("dd-MMM-yyyy") + "_" + (string)Session["USER"] + "_SalaryPaySlipRdlc.pdf";
-                //if (File.Exists(path + fileName))
-                //{
-                //    try
-                //    {
-                //        File.Delete(path + fileName);
-                //    }
-                //    catch (Exception ex)
-                //    {
-                //        //Do something
-                //    }
-                //}
-                //ShowLog(path.ToString() + "and" + savepath.ToString());
+     
                 string[] x = Library.Service.Helpers.ResourcesPathReader.SavePdfDocUrl().Split('\\');
 
-                //string RelativePath = Library.Service.Helpers.ResourcesPathReader.GetROOT_FOLDER_Without_APP_Name() + "/" + x[x.Length - 1] + "/" + fileName;
                 string RelativePath = Library.Service.Helpers.ResourcesPathReader.GetROOT_FOLDER_Without_APP_Name() + "/Output/" + fileName;
-                //report.Attributes.Add("src", path + fileName);
                 return Json(new { FileName = RelativePath, Error = false }, JsonRequestBehavior.AllowGet);
 
             }
@@ -620,7 +589,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 dtCheckConfig.DefaultView.RowFilter = "Setting='" + item.ToString() + "'";
                 if (dtCheckConfig.DefaultView.Count == 0)
                 {
-                    
+
                     DataRow dr = dtCheckConfig.NewRow();
                     dr["Setting"] = item.ToString();
                     if (item.ToString() == PayRegisterSettingsPerPage.EarningExceptAttendance.ToString())
@@ -838,9 +807,9 @@ namespace Aplos.Areas.HumanResource.Controllers
                 throw new Exception("Sequence can't be duplicate.");
 
             var duplicatedFieldName = from p in PayRegisterSignatoryField
-                                group p by p.FieldName.ToString().Trim() into g
-                                where g.Count() > 1
-                                select g.Key;
+                                      group p by p.FieldName.ToString().Trim() into g
+                                      where g.Count() > 1
+                                      select g.Key;
             var duplicatedFieldList = PayRegisterSignatoryField.FindAll(p => duplicatedFieldName.Contains(p.FieldName));
             if (duplicatedFieldList.Count > 1)
                 throw new Exception("Sequence can't be duplicate.");
@@ -854,7 +823,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
                 dsSignatoryConfig.Tables[0].DefaultView.RowFilter = "Id=" + PayRegisterSignatoryField[i].Id + "";
                 if (dsSignatoryConfig.Tables[0].DefaultView.Count == 0)
-                {                    
+                {
                     DataRow dr = dsSignatoryConfig.Tables[0].NewRow();
 
                     dr["PlantId"] = identity.PlantId;
@@ -875,7 +844,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 }
             }
             clsStaticInfo info = new clsStaticInfo();
-            info.SaveDataSets(dsSignatoryConfig);           
+            info.SaveDataSets(dsSignatoryConfig);
 
             return Json(new { PayRegisterSignatoryField, Message = AplosMessage.Insert });
         }
@@ -1622,7 +1591,7 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
     }
     public class PayRegisterSignatoryField
     {
-        public int Id {get; set; }
+        public int Id { get; set; }
         public string PlantId { get; set; }
         public string Sequence { get; set; }
         public string FieldName { get; set; }
