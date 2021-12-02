@@ -83,7 +83,11 @@
 
 
 <confirm-archive-generic modalid="confirmPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="Delete();"></confirm-archive-generic>
-
+<ej-dialog id="dialogMessage" title="{{messageTitle}}" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target=".site-heading" e-close="onDialogClose" e-minwidth="50%" e-minheight="50" e-open="enableBtn">
+    <div>
+        {{messageText}}
+    </div>
+</ej-dialog>
 
 
 <script>
