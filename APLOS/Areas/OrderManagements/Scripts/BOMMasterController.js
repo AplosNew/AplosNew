@@ -841,6 +841,7 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
         UomCboByMaterialMaster($scope.bomDetailNew.RMMaterialMasterId);
 
         $scope.bomDetailNew.Specific = true;
+        $scope.bomDetailNew.SKUMatrix = false;
     };
 
     $scope.rm1characteristicsList = [];
