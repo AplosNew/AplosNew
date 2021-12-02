@@ -610,6 +610,14 @@ namespace Library.Service.Attendances
                     //dvDaily.Table = dtDaily;
                     string attdnStatus = "";
                     string _day_status = "";
+
+
+                    bool HasOUTtime = true;
+                    bool IsHalfLeave = false;
+                    bool IsManual = false;
+                    bool IsExtraAbsent = false;
+                    bool IsShortLeave = false;
+                    List<DataRow> drData = null;
                     #region Attendance Data 
                     for (int i = 0; i <= dvMonthlyAttnSumm.Count - 1; i++)
                     {
@@ -646,15 +654,15 @@ namespace Library.Service.Attendances
                             {
 
 
-                                List<DataRow> drData = dicAttendance[_SystemId];
+                                drData = dicAttendance[_SystemId];
 
                                 foreach (DataRow item in drData)
                                 {
-                                    bool HasOUTtime = true;
-                                    bool IsHalfLeave = false;
-                                    bool IsManual = false;
-                                    bool IsExtraAbsent = false;
-                                    bool IsShortLeave = false;
+                                    HasOUTtime = true;
+                                    IsHalfLeave = false;
+                                    IsManual = false;
+                                    IsExtraAbsent = false;
+                                    IsShortLeave = false;
                                     try
                                     {
                                         attdnStatus = "";
@@ -695,7 +703,7 @@ namespace Library.Service.Attendances
                                         sheet1.Range[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString()), xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].CellStyle.Font.Size = 17;
 
                                         sheet1.Range[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString()), xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].BorderAround(ExcelLineStyle.Hair);
-                                    
+
                                         if (clsStaticInfo.dbl(item["LeaveDuration"].ToString()) == 0.5)
                                         {
 
