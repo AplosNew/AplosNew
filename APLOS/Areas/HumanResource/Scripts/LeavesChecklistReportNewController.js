@@ -16,6 +16,13 @@ function LeavesChecklistReportNewController(commonMessage, $scope, $rootScope, b
 
     $scope.LeavesCheckListReportData = function () {
         try {
+
+            var LeaveTypeList = $("#LeaveTypeList").data("ejDropDownList");
+            var LeaveType = LeaveTypeList.getSelectedValue();
+
+            var CWPlant = $("#CWPlant").data("ejDropDownList");
+            var Plant = CWPlant.getSelectedValue();
+
             if (baseService.isUndefinedOrNull($scope.LeavesCheckListReport.FromDate)) {
                 manualValidation('div_FromDate', true, "From Date is required.");
                 ShowResult("From Date is required.", 'failure');
@@ -33,7 +40,7 @@ function LeavesChecklistReportNewController(commonMessage, $scope, $rootScope, b
                 ShowResult("To date must be above or equal to From Date.", 'failure');
             }
             else {
-                var url = 'HumanResource/LeavesChecklistReportNew/GetleavesChecklistReport?reportFormat=Excel' + ' &FromDate=' + $scope.LeavesCheckListReport.FromDate + ' &ToDate=' + $scope.LeavesCheckListReport.ToDate;
+                var url = 'HumanResource/LeavesChecklistReportNew/GetleavesChecklistReport?reportFormat=Excel' + ' &FromDate=' + $scope.LeavesCheckListReport.FromDate + ' &ToDate=' + $scope.LeavesCheckListReport.ToDate + '&LeaveType=' + LeaveType + '&Plant=' + Plant;
                 $rootScope.report(url);
             }
         } catch (e) {

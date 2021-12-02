@@ -15,6 +15,7 @@ using System.Data;
 using System.Threading;
 using System.Web.Mvc;
 using Library.HumanResource.NewAttendanceProcess;
+using Library.HumanResource.Leave;
 
 namespace Aplos.Areas.HumanResource.Controllers
 {
@@ -133,15 +134,17 @@ namespace Aplos.Areas.HumanResource.Controllers
         public ActionResult GetLeaveBalance(string calanderYearId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-            return Json(_leaveTransactionService.LoadGrdAllocatedLvDetails(identity.CompanyGroupId, identity.PlantId, identity.EmployeeId, calanderYearId), JsonRequestBehavior.AllowGet);
+            clsLeaveBalanceToDate leave = new clsLeaveBalanceToDate();
+            return Json(leave.GetLeaveBalanceType(identity.EmployeeId, calanderYearId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
         public ActionResult GetEmpLeaveBalance(string EmpsystemId, string calanderYearId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_leaveTransactionService.LoadGrdAllocatedLvDetails(identity.CompanyGroupId, identity.PlantId, EmpsystemId, calanderYearId), JsonRequestBehavior.AllowGet);
+            clsLeaveBalanceToDate leave = new clsLeaveBalanceToDate();
+            return Json(leave.GetLeaveBalanceType(EmpsystemId, calanderYearId), JsonRequestBehavior.AllowGet);
+            // return Json(_leaveTransactionService.LoadGrdAllocatedLvDetails(identity.CompanyGroupId, identity.PlantId, EmpsystemId, calanderYearId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]
