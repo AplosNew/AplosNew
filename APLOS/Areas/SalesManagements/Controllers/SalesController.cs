@@ -702,10 +702,10 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 throw new CustomException("Dr Cr Amount not equal");
             if (PackingDetailVMList.Where(a => a.TrnType == "Dr").Sum(r => r.Amount) != PackingDetailVMList.Where(a => a.TrnType == "Cr").Sum(r => r.Amount))
                 throw new CustomException("Packing Dr Cr Amount not equal");
-            if (PackingDetailVMList.Where(a => a.TrnType == "Dr").Sum(r => r.Amount) == 0)
-                throw new CustomException("Packing Dr  Amount can not 0 !");
-            if (PackingDetailVMList.Where(a => a.TrnType == "Cr").Sum(r => r.Amount) == 0)
-                throw new CustomException("Packing Cr  Amount can not 0 !");
+            //if (PackingDetailVMList.Where(a => a.TrnType == "Dr").Sum(r => r.Amount) == 0)
+            //    throw new CustomException("Packing Dr  Amount can not 0 !");
+            //if (PackingDetailVMList.Where(a => a.TrnType == "Cr").Sum(r => r.Amount) == 0)
+            //    throw new CustomException("Packing Cr  Amount can not 0 !");
 
             foreach (var item in salesDetailVMList)
             {

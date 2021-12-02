@@ -1671,8 +1671,8 @@
 								<td>{{x.InventoryReceiveId}}</td>
 								<td>{{x.ServiceMasterName}}</td>
 								@*<td class="text-right">{{x.Amount|number}}</td>*@
-								<td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-keyup="calculateAmountForServiceCharge(x);" ng-model="x.POAmount" ng-disabled="true"></td>
-								<td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-keyup="calculateAmountForServiceCharge(x);" ng-model="x.GRNServiceAmount" ng-disabled="true"></td>
+								<td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20"  ng-model="x.POAmount" ng-disabled="true"></td>
+								<td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20"  ng-model="x.GRNServiceAmount" ng-disabled="true"></td>
 								<td class="text-right"><input ng-disabled="GriddataSelected.length === 0" type="text" n-decimals="2" class="form-control text-right" width="20" ng-keyup="calculateAmountForServiceCharge(x);" ng-model="x.Amount"></td> @*ng-disabled="x.enableid1"*@
 								@*<td class="text-right">{{x.TotalTaxAmount|number}}</td>*@
 								<td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TotalTaxAmount" ng-disabled="true"></td>
