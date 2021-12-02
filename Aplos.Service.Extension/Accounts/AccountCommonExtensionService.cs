@@ -16,6 +16,9 @@ using Library.Model.Currencies;
 using Library.Service.Properties;
 using Library.Core;
 using Library.Model.Finances;
+using Library.Service.Logs;
+using Library.Service.Enums;
+using Library.Model.Vouchers;
 
 namespace Library.Service.Extension.Accounts
 {
@@ -426,6 +429,320 @@ namespace Library.Service.Extension.Accounts
             if (null == sql || gainTemp.Count == 0)
                 throw new CustomException("Exchange Loss GL not found!.");
             return gainTemp;
+        }
+
+       
+        public GridModel VoucherTypeConfigQuery(GridParameter parameters, string companyGroupId, string companyId, string plantId)
+        {
+            try
+            {
+                parameters.CmdText = @"SELECT VTC.Id, VTC.CompanyGroupId, VTC.CompanyId, VTC.PlantId, VTC.VoucherTypeId, VT.Code AS VoucherTypeCode, VT.UserName AS VoucherTypeName, VTC.Prefix, VTC.[Period], VTC.PadLeftWidth
+                                    , VTC.PadLeftChar, VTC.IsBackDatePostingAllow
+                                    FROM [SCS].[VoucherTypeConfig] AS VTC
+                                    LEFT JOIN [SCS].[VoucherType] AS VT ON VT.Id=VTC.VoucherTypeId
+                                    WHERE VTC.CompanyGroupId='" + companyGroupId + "' AND VTC.CompanyId='" + companyId + "' AND VTC.PlantId='" + plantId + "'";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+        public Dictionary<string, object> VoucherTypeConfigFind(string companyGroupId, string companyId, string plantId, string voucherTypeId)
+        {
+            var voucherTypeConfig = _sqlRepository.GetData(@"SELECT * FROM SCS.VoucherTypeConfig WHERE CompanyGroupId='" + companyGroupId + "' AND CompanyId='" + companyId + @"' 
+                            AND PlantId='" + plantId + "' AND  VoucherTypeId='" + voucherTypeId + "'");
+            if (null == voucherTypeConfig["Id"])
+                throw new CustomException("Plant voucher type config not found!");
+            return voucherTypeConfig;
+        }
+       
+
+        private VoucherTypeNumber GetAuto(string voucherTypeConfigId, string registerName, string period)
+        {
+            List<VoucherTypeNumber> data = _sqlRepository.GetModelCollection<VoucherTypeNumber>(@"select * from scs.VoucherTypeNumber where VoucherTypeConfigId = '" + voucherTypeConfigId + "' and RegisterName = '" + registerName + "' and [Period] ='" + period + "'");
+            if (data.Count > 0)
+                return data[0];
+            return null;
+
+        }
+        public string GetNumber(string companyGroupId, string companyId, string plantId, string voucherTypeId, string registerName, string fiscalYearPrefix, DateTime date)
+        {
+            var voucherTypeConfig = VoucherTypeConfigFind(companyGroupId, companyId, plantId, voucherTypeId);
+
+            if (null == voucherTypeConfig["Id"])
+                throw new CustomException("Plant voucher type config not found!");
+            var pkgenerator = GetPeriod(voucherTypeConfig["Id"].ToString(), registerName, voucherTypeConfig["Period"].ToString(), fiscalYearPrefix, out string prefix, date);
+
+            DataSet dsVoucher;
+            if (pkgenerator == null)
+            {
+                pkgenerator = new VoucherTypeNumber
+                {
+                    VoucherTypeConfigId = voucherTypeConfig["Id"].ToString(),
+                    RegisterName = registerName,
+                    Period = prefix,
+                    MaxNumber = 1,
+                    UpdatedDate = date,
+                    ModelState = ModelState.Added
+                };
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.getDataSet("Select * from scs.VoucherTypeNumber where 1=2", out dsVoucher);
+                AddNewRow<VoucherTypeNumber>(dsVoucher.Tables[0], pkgenerator);
+            }
+            else
+            {
+                pkgenerator.MaxNumber += 1;
+                pkgenerator.UpdatedDate = DateTime.Now;
+                pkgenerator.ModelState = ModelState.Modified;
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.getDataSet("Select * from scs.VoucherTypeNumber where VoucherTypeConfigId='" + pkgenerator.VoucherTypeConfigId + "' AND RegisterName='" + pkgenerator.RegisterName + "' AND Period='" + pkgenerator.Period + "'", out dsVoucher);
+
+                VoucherTypeNumberEditRow<VoucherTypeNumber>(dsVoucher.Tables[0].Rows[0], pkgenerator);
+            }
+            clsStaticInfo _info = new clsStaticInfo();
+            _info.SaveDataSets(dsVoucher);
+
+            var voucherNumber = voucherTypeConfig["Prefix"].ToString();
+            if (voucherTypeConfig["Period"].ToString() != PKGeneratorEnum.Auto.ToString())
+                voucherNumber += "-" + prefix;
+            voucherNumber += "-" + pkgenerator.MaxNumber.ToString().PadLeft(int.Parse(voucherTypeConfig["PadLeftWidth"].ToString()), voucherTypeConfig["PadLeftChar"].ToString()[0]);
+            return voucherNumber;
+        }
+
+        private VoucherTypeNumber GetPeriod(string voucherTypeConfigId, string registerName, string period, string fiscalYearPrefix, out string prefix, DateTime date)
+        {
+            VoucherTypeNumber pkgenerator = null;
+            switch (period)
+            {
+                case "Auto":
+                    period = MakePeriodAuto();
+                    break;
+
+                case "FiscalYear":
+                    period = MakePeriodFiscalYear(fiscalYearPrefix);
+                    break;
+
+                case "Yearly":
+                    period = MakePeriodYearly(date);
+                    break;
+
+                case "Monthly":
+                    period = MakePeriodMonthly(date);
+                    break;
+
+                case "Daily":
+                    period = MakePeriodDaily(date);
+                    break;
+
+                default:
+                    throw new CustomException("VoucherType config period not found!");
+            }
+            pkgenerator = GetAuto(voucherTypeConfigId, registerName, period);
+            prefix = period;
+            return pkgenerator;
+        }
+
+        private DateTime? GetLastYearEndDate(Voucher voucher)
+        {
+            try
+            {
+                var cmdText = @"SELECT MAX(PostingDate) as PostingDate  FROM TRN.Voucher WHERE CompanyId='" + voucher.CompanyId + @"' 
+                        AND PlantId='" + voucher.PlantId + "' and VoucherTypeId='" + voucher.VoucherTypeId + "' and FiscalYearId='" + voucher.FiscalYearId + "'";
+                //return _voucherRepository.SqlQuery<DateTime?>(cmdText).FirstOrDefault();
+                List<Dictionary<string, object>> data = _sqlRepository.GetDataCollection(cmdText);
+                if (data.Count > 0)
+                {
+                    if (!string.IsNullOrEmpty(data[0]["PostingDate"].ToString()))
+                        return Convert.ToDateTime(data[0]["PostingDate"].ToString());
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+
+
+        private void CheckPostingDate(Voucher voucher)
+        {
+            var lastPostingDate = GetLastYearEndDate(voucher);
+            var voucherTypeConfig = VoucherTypeConfigFind(voucher.CompanyGroupId, voucher.CompanyId, voucher.PlantId, voucher.VoucherTypeId);
+            if (null != lastPostingDate && Convert.ToBoolean(voucherTypeConfig["IsBackDatePostingAllow"]) == false)
+            {
+                if (voucher.PostingDate.Date < lastPostingDate.Value.Date)
+                    throw new CustomException($"Posting date cannot be less than last ({lastPostingDate.Value.Date.ToString("dd-MMM-yyyy")}) posting date!");
+            }
+
+        }
+        private string GetVoucherNo(Voucher entity, string fiscalYearPrefix)
+        {
+            if (string.IsNullOrEmpty(fiscalYearPrefix))
+                throw new CustomException("Fiscal year prefix is null.");
+            return GetNumber(entity.CompanyGroupId, entity.CompanyId, entity.PlantId, entity.VoucherTypeId, nameof(Voucher), fiscalYearPrefix, entity.PostingDate);
+        }
+
+        
+        public string MakePK(string masterId, int currentId, int padLeft)
+        {
+            return masterId + currentId.ToString().PadLeft(padLeft, '0');
+        }
+        public Voucher InsertVoucher(Voucher voucher, string fiscalYearPrefix, out DataSet dsData)
+        {
+            return InsertVoucher(voucher, fiscalYearPrefix, true, out dsData);
+        }
+
+        public Voucher InsertVoucher(Voucher voucher, string fiscalYearPrefix, bool flag, out DataSet dsData)
+        {
+
+            if (flag)
+                CheckPostingDate(voucher);
+            voucher.VoucherDate = DateTime.Now;
+            voucher.VoucherNo = GetVoucherNo(voucher, fiscalYearPrefix);
+            if (!string.IsNullOrEmpty(voucher.VoucherNo))
+            {
+                DataTable Qry = _sqlRepository.GetDataTable("select * from TRN.Voucher where VoucherNo='" + voucher.VoucherNo + "' AND PlantId='" + voucher.PlantId + "' AND Id<>''");
+                if (Qry.Rows.Count > 0)
+                    throw new Exception("Same voucher no. already exists!!!");
+
+            }
+            voucher.Id = GetAutoNumber(nameof(Voucher), PKGeneratorEnum.Yearly, null, DateTime.Now);
+            if (string.IsNullOrEmpty(voucher.VoucherNo))
+            {
+                var fiscalYear = GetfiscalYearfind(voucher.FiscalYearId);
+                voucher.VoucherNo = GetVoucherNo(voucher, fiscalYear["YearPrefix"].ToString());
+            }
+            if (string.IsNullOrEmpty(voucher.TransactionRefNo))
+                voucher.TransactionRefNo = voucher.PostingDate.Year.ToString().Substring(2) + voucher.Id;
+            voucher.Narration = voucher.Narration?.ToUpper();
+            if (string.IsNullOrEmpty(voucher.AddedBy))
+                AuditService.AddedLog(voucher);
+
+            ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+            con.getDataSet("Select * from TRN.Voucher where 1=2", out dsData);
+
+            AddNewRow<Voucher>(dsData.Tables[0], voucher);
+
+            return voucher;
+        }
+
+       
+        private void VoucherTypeNumberEditRow<T>(DataRow dr, T Data)
+        {
+            Dictionary<string, object> sourceData = Data.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public).ToDictionary(prop => prop.Name, prop => prop.GetValue(Data, null));
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            dr.BeginEdit();
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    if (item.ToUpper() == "ID")
+                        continue;
+
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["UpdatedDate"] = DateTime.Now.ToString();
+            dr.EndEdit();
+        }
+        public Voucher InsertVoucher(VoucherViewModel voucherVM)
+        {
+            return InsertVoucher(new Voucher
+            {
+                CompanyGroupId = voucherVM.CompanyGroupId,
+                CompanyId = voucherVM.CompanyId,
+                PlantId = voucherVM.PlantId,
+                EntityId = voucherVM.EntityId,
+                FiscalYearId = voucherVM.FiscalYearId,
+                FiscalYearPeriodId = voucherVM.FiscalYearPeriodId,
+                TaxYearId = voucherVM.TaxYearId,
+                TaxYearPeriodId = voucherVM.TaxYearPeriodId,
+                VoucherTypeId = voucherVM.VoucherTypeId,
+                CurrencyId = voucherVM.CurrencyId,
+                AddedBy = voucherVM.AddedBy,
+                AddedDate = voucherVM.AddedDate,
+                AddedFromIP = voucherVM.AddedFromIP,
+                PostingDate = voucherVM.PostingDate,
+                DocDate = voucherVM.DocDate,
+                DocRefNo = voucherVM.DocRefNo,
+                Narration = voucherVM.Narration,
+                SourceType = voucherVM.SourceType,
+                ExchangeType = voucherVM.ExchangeType,
+                IsPark = voucherVM.IsPark,
+                Archive = false
+            }, voucherVM.FiscalYearPrefix, out DataSet _voucherdataset);
+        }
+        public VoucherDetail InsertVoucherDetail(Voucher voucher, VoucherDetail voucherDetail, int currentId, ref DataSet vDetailData)
+        {
+            voucherDetail.Id = MakePK(voucher.Id, currentId, 4);
+            voucherDetail.VoucherId = voucher.Id;
+            voucherDetail.EntityId = voucher.EntityId;
+            voucherDetail.FiscalYearId = voucher.FiscalYearId;
+            voucherDetail.FiscalYearPeriodId = voucher.FiscalYearPeriodId;
+            voucherDetail.CurrencyId = voucher.CurrencyId;
+            voucherDetail.Archive = voucher.Archive;
+            voucherDetail.IsPark = voucher.IsPark;
+            voucherDetail.AddedBy = voucher.AddedBy;
+            voucherDetail.AddedDate = voucher.AddedDate;
+            voucherDetail.AddedFromIP = voucher.AddedFromIP;
+            voucherDetail.DocDate = voucher.DocDate;
+            voucherDetail.DocRefNo = voucher.DocRefNo;
+            voucherDetail.Narration = string.IsNullOrEmpty(voucherDetail.Narration) ? voucher.Narration : voucherDetail.Narration;
+
+            if (vDetailData == null)
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.getDataSet("Select * from TRN.VoucherDetail where 1=2", out vDetailData);
+            }
+
+
+            AddNewRow<VoucherDetail>(vDetailData.Tables[0], voucherDetail);
+            return voucherDetail;
+        }
+
+        public VoucherDetailCurrency InsertVoucherDetailCompanyCurrency(VoucherDetail voucherDetail, VoucherDetailCurrency voucherDetailCurrency, ref DataSet vDetailCurrencyData)
+        {
+            voucherDetailCurrency.Id = MakePK(voucherDetail.Id, 1, 1);
+            voucherDetailCurrency.VoucherId = voucherDetail.VoucherId;
+            voucherDetailCurrency.VoucherDetailId = voucherDetail.Id;
+            voucherDetailCurrency.AddedBy = voucherDetail.AddedBy;
+            voucherDetailCurrency.AddedDate = voucherDetail.AddedDate;
+            voucherDetailCurrency.AddedFromIP = voucherDetail.AddedFromIP;
+            if (vDetailCurrencyData == null || vDetailCurrencyData.Tables.Count == 0)
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.getDataSet("Select * from TRN.VoucherDetailCurrency where 1=2", out vDetailCurrencyData);
+            }
+
+            AddNewRow<VoucherDetailCurrency>(vDetailCurrencyData.Tables[0], voucherDetailCurrency);
+            return voucherDetailCurrency;
+        }
+
+        public void InsertGLTransactionDetail(VoucherDetail voucherDetail, GLTransactionDetail glTransactionDetail, out DataSet glTransactionData)
+        {
+            glTransactionDetail.Id = voucherDetail.Id;
+            glTransactionDetail.VoucherDetailId = voucherDetail.Id;
+            glTransactionDetail.AddedBy = voucherDetail.AddedBy;
+            glTransactionDetail.AddedDate = voucherDetail.AddedDate;
+            glTransactionDetail.AddedFromIP = voucherDetail.AddedFromIP;
+            ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+            con.getDataSet("Select * from TRN.GLTransactionDetail where 1=2", out glTransactionData);
+            AddNewRow<GLTransactionDetail>(glTransactionData.Tables[0], glTransactionDetail);
+        }
+
+        public decimal GetCompanyCurrencyExchange(string transactionCurrencyId, string companyCurrencyId, decimal companyCurrencyRate)
+        {
+            return transactionCurrencyId == companyCurrencyId ? (decimal)1 : 1 / companyCurrencyRate;
         }
 
     }
