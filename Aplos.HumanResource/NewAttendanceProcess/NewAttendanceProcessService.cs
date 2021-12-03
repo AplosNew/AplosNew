@@ -4519,6 +4519,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 #region Manual Day Status Nullifying Localized Values              
                 ManualReprocessing(PlantValue, empList); // Reprocessing Manual Employees called from Screen
                 #endregion
+                
+                SaveLog("Nullified Columns Successfully ...", PlantValue, false);
 
                 #region Manual In Status Logic
                 DataSet ManualInStatus;
@@ -4598,6 +4600,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 }
                 #endregion
+              
+                SaveLog("Manual InStatus Logic Ran Successfully ...", PlantValue, false);
 
                 #region Manual Day Duration  
                 DataSet ManualDurn;
@@ -4707,7 +4711,9 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 }
 
-                #endregion 
+                #endregion
+
+                SaveLog("Manual Duration Logic Ran Successfully ...", PlantValue, false);
 
                 #region Manual OverStay UnderStay 
                 DataSet ManualOverUnderStay;
@@ -4773,6 +4779,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 #endregion
 
+                SaveLog("Manual OverStay Logic Ran Successfully ...", PlantValue, false);
+
                 #region Manual DurationStatus Flagging
                 DataSet ManualDurationStat;
                 ManualDurationStatusCal(out ManualDurationStat, PlantValue);
@@ -4782,13 +4790,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                     var sqlx = "";
-                    if(empMaster == "")
+                    if (empMaster == "")
                     {
                         sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "'";
                     }
                     else
                     {
-                        sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "' and RowId in ("+ empList + ")";
+                        sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "' and RowId in (" + empList + ")";
                     }
 
                     objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
@@ -4868,11 +4876,15 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 #endregion
 
+                SaveLog("Manual DurationStatus Logic Ran Successfully ...", PlantValue, false);
+
                 #region Manual Day Status Code              
                 ManualDayStatusCodeData(PlantValue, empList);
                 // DayStausCode Text Join 
                 //HolidayStatus + WeeklyStatus + DurationStatus + EarlyLateIn + EarlyLateOut + LeaveStatus
                 #endregion
+
+                SaveLog("Manual DayStatusCode Logic Ran Successfully ...", PlantValue, false);
 
                 #region Manual User Day Status 
                 DataSet ManualUserDayStat;
@@ -4882,13 +4894,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     // ProcessDayStatus Generation from DayStausCode using DaytypeWith Values
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                     var sqlx = "";
-                    if(empMaster == "")
+                    if (empMaster == "")
                     {
                         sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "'";
                     }
                     else
                     {
-                        sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "' and RowId in ("+ empList + ")";
+                        sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "' and RowId in (" + empList + ")";
                     }
 
                     objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
@@ -4919,6 +4931,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 }
                 #endregion
 
+                SaveLog("Manual UserDayStatus Logic Ran Successfully ...", PlantValue, false);
+
                 #region ProcessFinalDayStatus 
                 DataSet ManualFinalDayStat;  // Sandwich,Process DayStatus & Manual DayStatus Comparison
                 ManualFinalDayStatus(out ManualFinalDayStat, PlantValue);
@@ -4927,13 +4941,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                     var sqlx = "";
-                    if(empMaster == "")
+                    if (empMaster == "")
                     {
                         sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "'";
                     }
                     else
                     {
-                        sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "' and RowId in ("+ empList + ")";
+                        sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "' and RowId in (" + empList + ")";
                     }
 
                     objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
@@ -5044,6 +5058,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 }
                 #endregion
 
+                SaveLog("ProcessFinalDayStatus Logic Ran Successfully ...", PlantValue, false);
+
                 #region Sandwich Logic 
                 DataSet ManualSandwichData;
                 ManualsandwichLogic(out ManualSandwichData, PlantValue);
@@ -5052,17 +5068,17 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                     var sqlx = "";
-                    if(empMaster == "")
+                    if (empMaster == "")
                     {
                         sqlx = @"select * from AttdnProcessData where ManualFlag=1 and PlantID='" + PlantValue + "'";
                     }
                     else
                     {
-                        sqlx = @"select * from AttdnProcessData where ManualFlag=1 and PlantID='" + PlantValue + "' and RowId in ("+ empList + ")";
+                        sqlx = @"select * from AttdnProcessData where ManualFlag=1 and PlantID='" + PlantValue + "' and RowId in (" + empList + ")";
                     }
-                     
+
                     objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
-                   
+
                     // DataSet for Changing Previous Days Flags and DayStatuses
                     objCon.OpenDataSetThroughAdapter("select * from AttdnProcessData where 1=2", out DataSet SandwichDataSet, false, false, "", "1");
 
@@ -5137,7 +5153,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                                 SandwichDataSet.Tables[0].Rows.Add(drx);
                                             }
 
-                                        }                                        
+                                        }
                                     }
                                 }
                                 else if (TodaySandwich == "0" && PrevWkDate != "")
@@ -5159,8 +5175,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         {
                                             var RowxId = RowData.Rows[x]["RowId"].ToString();
                                             SandwichFlagRowId += ",'" + RowxId + "'";
-                                        }                                        
-                                    }                                  
+                                        }
+                                    }
                                 }
                             }
 
@@ -5259,9 +5275,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 }
                 #endregion
 
+                SaveLog("Sandwich Logic Ran Successfully ...", PlantValue, false);
+
                 #region Payroll DayStatus 
                 PayrollDayStatus(PlantValue, empList); // On the Priority Check of Sandwich and ProcessFinalDayStatus 
                 #endregion
+
+                SaveLog("Payroll DayStatus Logic Ran Successfully ...", PlantValue, false);
 
                 #region OT Calculation 
                 DataSet ProcessOTCalculate;
@@ -5390,6 +5410,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 }
                 #endregion
 
+                SaveLog("Processed OT Logic Ran Successfully ...", PlantValue, false);
+
                 #region OTEntitled But OT Not Applicable Employees
                 DataSet ManualOTNotApplicable;
                 AutoConfirmedManualTriggerData(out ManualOTNotApplicable, PlantValue);
@@ -5406,6 +5428,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 #endregion
 
+                SaveLog("OT Confirming Not Applicable DayStatus Logic Ran Successfully ...", PlantValue, false);
+
                 #region OT Entitled Employees whose ProcessedOT is 0
 
                 // Confirming the OT of Employees Whose Processed OT is 0
@@ -5413,9 +5437,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 #endregion
 
+                SaveLog("OT Entitled & 0 Processed OT Logic Ran Successfully ...", PlantValue, false);
+
                 #region Set Manual Flag ->0              
                 ProcessManualFlag(ManualFlagRowId); // Set ManualFlag to 0
                 #endregion
+
+                SaveLog("Set Manual Flag to 0 Ran Successfully ...", PlantValue, false);
 
 
             }
