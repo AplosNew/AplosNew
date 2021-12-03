@@ -44,6 +44,39 @@ function WasteTransactionReportController(cboService, commonMessage, $scope, $ro
 
     }
 
+    $scope.ClickDetail = {};
+
+    $scope.GetDet = function (e) {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getClickedData',
+            data: { 'Id': e.data.WTDId },
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.ClickDetail = {};
+            $scope.ClickDetail = resp.data[0];
+            angular.element(document.querySelector('#Detail')).modal('show');
+        });
+    }
+
+    $scope.SaveQnt = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'saveQuantity',
+            data: { 'data': $scope.ClickDetail },
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            if (resp.data.Error === true) {
+                ShowResult(resp.data.Message, 'failure');
+            }
+            else {
+                ShowResult(resp.data.Message, 'success');
+                $scope.getData();
+                angular.element(document.querySelector('#Detail')).modal('hide');
+
+            }
+        });
+    }
 
 
 
