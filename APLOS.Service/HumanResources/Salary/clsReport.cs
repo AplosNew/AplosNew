@@ -8332,7 +8332,7 @@ Dp.UserName Department, ad.seq,ad.ds,FORMAT(CAST(sd.InTime AS datetime2), N'hh:m
                                             AD.DayStatus, FORMAT(ad.InTime, 'hh.mm tt') InTime,  FORMAT(ad.OutTime, 'hh.mm tt') OutTime,
                                             CONVERT(VARCHAR(10),CONVERT(DECIMAL(18,2),FinalOT.TotalOTHr/60), 108) OTHr, LT.ShortName LvShortName
 											,AD.WorkDate, DATEPART(day,ad.WorkDate) AS D,DT.Category DayCategory,SD.UserName ShiftName,LT.Code LeaveCode
-											--, LTD.LeaveDuration
+											, LTD.LeaveDuration
                                             ,MANUALStatus = CASE WHEN  AD.IsManualDayStatus=1 THEN 'MANUAL'
                                             WHEN AD.IsManualInTime = 1 THEN 'MANUAL'
                                             WHEN AD.IsManualOutTime = 1 THEN 'MANUAL'
