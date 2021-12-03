@@ -3049,12 +3049,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             {
                 var sql = @"select distinct p.RowId from AttdnProcessData p
                         join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
-                                  left join mst.DesignationMasterLegalDesignation ddm on 
-                        ddm.LegalDesignationId = ei.LegalDesignationId
-                                            left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
-									        left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
-											and dc.PlantId=ei.PlantId
-						                    left join DayStatusHeader dh on dh.Id=dc.headerId
+                                            left join DayStatusHeader dh on dh.Id=p.DayStatusHeaderId
 									        left join DayStatus ds on ds.headerId=dh.Id
 											left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId
 									        where WorkDate='" + Date+@"' and	dt.DayType=p.DayStatus 
@@ -3077,12 +3072,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             {
                 var sql = @"select distinct p.RowId,p.WorkDate from AttdnProcessData p
                         join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
-                                  left join mst.DesignationMasterLegalDesignation ddm on 
-                        ddm.LegalDesignationId = ei.LegalDesignationId
-                                            left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
-									        left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
-											and dc.PlantId=ei.PlantId
-						                    left join DayStatusHeader dh on dh.Id=dc.headerId
+                                            left join DayStatusHeader dh on dh.Id=p.DayStatusHeaderId
 									        left join DayStatus ds on ds.headerId=dh.Id
 											left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId
 									        where p.ManualFlag=1 and dt.DayType=p.DayStatus 
@@ -4520,7 +4510,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 ManualReprocessing(PlantValue, empList); // Reprocessing Manual Employees called from Screen
                 #endregion
                 
-                SaveLog("Nullified Columns Successfully ...", PlantValue, false);
+                SaveLog("Nullified Columns Logic Ran Successfully ...", PlantValue, false);
 
                 #region Manual In Status Logic
                 DataSet ManualInStatus;
