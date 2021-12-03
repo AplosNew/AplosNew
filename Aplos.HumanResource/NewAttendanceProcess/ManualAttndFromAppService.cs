@@ -501,7 +501,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 {
                                     dr["InTime"] = DBNull.Value;
                                     dr["ManualInTime"] = DBNull.Value;
-                                    dr["OriginalManualInTime"] = DBNull.Value;                                   
+                                    dr["OriginalManualInTime"] = DBNull.Value;
+                                    dr["ProcessIntime"] = DBNull.Value;
                                     if (string.IsNullOrEmpty(data[i].InTime) == false)
                                     {
                                         dr["InTime"] = data[i].InDate + " " + data[i].InTime;
@@ -515,6 +516,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 if (data[i].OutDate + data[i].OutTime != data[i].OutDateOriginal + data[i].OutTimeOriginal)
                                 {
                                     dr["OutTime"] = DBNull.Value;
+                                    dr["ProcessOuttime"] = DBNull.Value;
                                     dr["ManualOutTime"] = DBNull.Value;
                                     dr["OriginalManualOutTime"] = DBNull.Value;
                                     if (string.IsNullOrEmpty(data[i].OutTime) == false)

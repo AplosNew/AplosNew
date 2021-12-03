@@ -370,6 +370,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                                     dr["InTime"] = DBNull.Value;
                                     dr["ManualInTime"] = DBNull.Value;
                                     dr["OriginalManualInTime"] = DBNull.Value;
+                                    dr["ProcessIntime"] = DBNull.Value;
                                     if (string.IsNullOrEmpty(data[i].InTime) == false)
                                     {
                                         dr["InTime"] = data[i].InDate + " " + data[i].InTime;
@@ -385,6 +386,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                                     dr["OutTime"] = DBNull.Value;
                                     dr["ManualOutTime"] = DBNull.Value;
                                     dr["OriginalManualOutTime"] = DBNull.Value;
+                                    dr["ProcessOuttime"] = DBNull.Value;
                                     if (string.IsNullOrEmpty(data[i].OutTime) == false)
                                     {
                                         dr["OutTime"] = data[i].OutDate + " " + data[i].OutTime;

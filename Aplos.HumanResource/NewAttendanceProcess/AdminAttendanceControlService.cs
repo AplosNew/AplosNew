@@ -416,6 +416,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     dr["InTime"] = DBNull.Value;
                                     dr["ManualInTime"] = DBNull.Value; 
                                     dr["OriginalManualInTime"] = DBNull.Value;
+                                    dr["ProcessIntime"] = DBNull.Value;
                                     if (string.IsNullOrEmpty(data[i].InTime) == false)
                                     {
                                         dr["InTime"] = data[i].InDate + " " + data[i].InTime;
@@ -431,6 +432,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     dr["OutTime"] = DBNull.Value;
                                     dr["ManualOutTime"] = DBNull.Value;
                                     dr["OriginalManualOutTime"] = DBNull.Value;
+                                    dr["ProcessOuttime"] = DBNull.Value;
                                     if (string.IsNullOrEmpty(data[i].OutTime) == false)
                                     {
                                         dr["OutTime"] = data[i].OutDate + " " + data[i].OutTime;
@@ -730,6 +732,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     dsMaster.Tables[0].DefaultView[0]["ManualInTime"] = Convert.ToDateTime(data[i]["InTime"].ToString());
                                     dsMaster.Tables[0].DefaultView[0]["IsManualInTime"] = true;
                                     dsMaster.Tables[0].DefaultView[0]["OriginalManualInTime"] = Convert.ToDateTime(data[i]["InTime"].ToString());
+                                    dsMaster.Tables[0].DefaultView[0]["ProcessIntime"] = Convert.ToDateTime(data[i]["InTime"].ToString());
 
                                     KI = 1;
 
@@ -742,6 +745,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     dsMaster.Tables[0].DefaultView[0]["ManualInTime"] = DBNull.Value;
                                     dsMaster.Tables[0].DefaultView[0]["OriginalManualInTime"] = DBNull.Value;
                                     dsMaster.Tables[0].DefaultView[0]["IsManualInTime"] = true;
+                                    dsMaster.Tables[0].DefaultView[0]["ProcessIntime"] = DBNull.Value;
+
                                 }
                                 // Fixed Values in Both If/Else Blocks
                                 dsMaster.Tables[0].DefaultView[0]["ManualEntryTime"] = DateTime.Now;
@@ -786,6 +791,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     dsMaster.Tables[0].DefaultView[0]["ManualOutTime"] = Convert.ToDateTime(data[i]["OutTime"].ToString());
                                     dsMaster.Tables[0].DefaultView[0]["IsManualOutTime"] = true;
                                     dsMaster.Tables[0].DefaultView[0]["OriginalManualOutTime"] = Convert.ToDateTime(data[i]["OutTime"].ToString());
+                                    dsMaster.Tables[0].DefaultView[0]["ProcessOuttime"] = Convert.ToDateTime(data[i]["OutTime"].ToString());
 
                                     KO = 1;
                                     //}
@@ -796,6 +802,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     dsMaster.Tables[0].DefaultView[0]["ManualOutTime"] = DBNull.Value;
                                     dsMaster.Tables[0].DefaultView[0]["IsManualOutTime"] = true;
                                     dsMaster.Tables[0].DefaultView[0]["OriginalManualOutTime"] = DBNull.Value;
+                                    dsMaster.Tables[0].DefaultView[0]["ProcessOuttime"] = DBNull.Value;
 
                                 }
 
