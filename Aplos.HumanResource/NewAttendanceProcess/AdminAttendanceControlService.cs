@@ -420,6 +420,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     {
                                         dr["InTime"] = data[i].InDate + " " + data[i].InTime;
                                         dr["ManualInTime"] = data[i].InDate + " " + data[i].InTime;
+                                        dr["ProcessIntime"] = data[i].InDate + " " + data[i].InTime;
                                         dr["OriginalManualInTime"] = data[i].InDate + " " + data[i].InTime;
                                         dr["IsManualInTime"] = true;
                                     }
@@ -434,6 +435,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     {
                                         dr["OutTime"] = data[i].OutDate + " " + data[i].OutTime;
                                         dr["ManualOutTime"] = data[i].OutDate + " " + data[i].OutTime;
+                                        dr["ProcessOuttime"] = data[i].OutDate + " " + data[i].OutTime;
                                         dr["OriginalManualOutTime"] = data[i].OutDate + " " + data[i].OutTime;
                                         dr["IsManualOutTime"] = true;
                                     }
