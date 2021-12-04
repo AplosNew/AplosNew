@@ -4100,48 +4100,45 @@ namespace Library.MaterialManagement.Inventory
 
             #region column headers
             document.EnsureMinimal();
-
+            int colTermsAndCondition = COL;
             WCharacterFormat FontBold = new WCharacterFormat(document);
             FontBold.Bold = true;
             string CmpTitile = "";
+            double totalValue = 0;
+            int sl = 0;
+            int startRow = 0;
 
-                IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Title :" + dsTermsAndCondition.Rows[0]["Title"].ToString() + ".");
-                //    range.ApplyCharacterFormat(FontBold);
-                int colTermsAndCondition = COL; COL++;
-                wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 250;
-
-                #endregion column headers
-                double totalValue = 0;
-                int sl = 0;
-                int startRow = 0;
-                for (int i = 0; i < dsTermsAndCondition.Rows.Count; i++)
+            for (int i = 0; i < dsTermsAndCondition.Rows.Count; i++)
+            {
+                if (dsTermsAndCondition.Rows[i]["TermsAndConditionChildId"].ToString() != CmpTitile)
                 {
-                    //if (dsTermsAndCondition.Rows[i]["Title"].ToString() != CmpTitile)
-                    //{
-                    //    
-                    //}
-
-
-                    ROW++;
-                    sl++;
-                    wTable.AddRow();
-                    WTableRow TROW = wTable.LastRow;
-
-                    // WTableRow TROW = wTable.Rows[1].Clone();
-                    for (int CE = 0; CE < TROW.Cells.Count; CE++)
-                    {
-                        foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
-                        {
-                            item.Text = "";
-                        }
-                        TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
-                    }
-                    TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsTermsAndCondition.Rows[i]["RoWNo"].ToString() + "." + dsTermsAndCondition.Rows[i]["HeaderCaption"].ToString());
-                    //CmpTitile = dsTermsAndCondition.Rows[i]["Title"].ToString();
+                    IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Title :" + dsTermsAndCondition.Rows[i]["Title"].ToString() + ".");
+                    // range.ApplyCharacterFormat(FontBold);
+                    //COL++;
+                    wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 500;
+                    sl = 0;
                 }
+                #endregion column headers
                 ROW++;
-               
-       
+                sl++;
+                wTable.AddRow();
+                WTableRow TROW = wTable.LastRow;
+
+                // WTableRow TROW = wTable.Rows[1].Clone();
+                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+                {
+                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+                    {
+                        item.Text = "";
+                    }
+                    TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
+                }
+                TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(sl + "." + dsTermsAndCondition.Rows[i]["HeaderCaption"].ToString());
+                CmpTitile = dsTermsAndCondition.Rows[i]["TermsAndConditionChildId"].ToString();
+            }
+            ROW++;
+
+
             #region Total
             //int TotalRow = ROW;
             //wTable.AddRow();
@@ -5179,7 +5176,7 @@ FROM TRN.PurchaseOrder AS PO
 LEFT OUTER JOIN HKP.TermsAndConditions AS tac ON PO.TermsAndConditionsId=tac.Id
 LEFT OUTER JOIN TermsAndConditionsChild AS tacc ON tacc.TermsAndConditionsMasterId=tac.Id
 LEFT OUTER JOIN TermsAndConditionsDetails AS tacd ON tacd.TermsAndConditionsChildId=tacc.Id
-WHERE PO.id='"+ purchaseOrderId + @"' Order By tac.Sequence ";
+WHERE PO.id='" + purchaseOrderId + @"' Order By tac.Sequence ";
 
                 return _sqlRepository.GetDataTable(strSQL);
             }
