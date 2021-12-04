@@ -3979,7 +3979,7 @@ namespace Aplos.Areas.Products.Controllers
 								Select                  
 								ROW_NUMBER() Over(Order by   IR.Id) As[S.N]
 								,'InventorySales' SourceType
-								,SM.Id
+								,ISs.Id
 								,IR.Id SalesId
 								,FORMAT(IR.SalesDate, 'dd-MMM-yyyy') SalesDate,'' InvoiceDate
 								,'' SalesOrderId
@@ -4647,7 +4647,7 @@ namespace Aplos.Areas.Products.Controllers
 						Select                  
 								ROW_NUMBER() Over(Order by   IR.Id) As[S.N]
 								,'InventorySales' SourceType
-								,SM.Id
+								,ISs.Id
 								,IR.Id SalesId
 								,FORMAT(IR.SalesDate, 'dd-MMM-yyyy') SalesDate,'' InvoiceDate
 								,'' SalesOrderId
@@ -5577,21 +5577,21 @@ namespace Aplos.Areas.Products.Controllers
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-					worksheet[ROW, COL].Text = "Material Group Master Name";
+					worksheet[ROW, COL].Text = "Material Group";
 					int colMaterialGroupMasterName = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-					worksheet[ROW, COL].Text = "Material Master Name";
+					worksheet[ROW, COL].Text = "Material Master";
 					int colMaterialMasterName = COL;
 					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-					worksheet[ROW, COL].Text = "Article Name";
+					worksheet[ROW, COL].Text = "Article";
 					int colArticleName = COL;
 					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
@@ -5633,13 +5633,13 @@ namespace Aplos.Areas.Products.Controllers
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-					worksheet[ROW, COL].Text = "SO No";
-					int colSONO = COL;
-					worksheet[ROW, COL].ColumnWidth = 20;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
+					//worksheet[ROW, COL].Text = "SO No";
+					//int colSONO = COL;
+					//worksheet[ROW, COL].ColumnWidth = 20;
+					//worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					//worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					//worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					//COL++;
 					worksheet[ROW, COL].Text = "Enrty Date";
 					int colSalesDate = COL;
 					worksheet[ROW, COL].ColumnWidth = 15;
@@ -5733,20 +5733,7 @@ namespace Aplos.Areas.Products.Controllers
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					
-					worksheet[ROW, COL].Text = "Gross Weight";
-					int colGrossWeight = COL;
-					worksheet[ROW, COL].ColumnWidth = 15;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
-					worksheet[ROW, COL].Text = "LOT No";
-					int colLOTNo = COL;
-					worksheet[ROW, COL].ColumnWidth = 10;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
+					
 
 					worksheet[ROW, COL].Text = "Transaction Qty";
 					int colTransactionQty = COL;
@@ -5990,6 +5977,20 @@ namespace Aplos.Areas.Products.Controllers
 					worksheet[ROW, COL].Text = "Insurance Y/N";
 					int colInsurance = COL;
 					worksheet[ROW, COL].ColumnWidth = 20;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "Gross Weight";
+					int colGrossWeight = COL;
+					worksheet[ROW, COL].ColumnWidth = 15;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "LOT No";
+					int colLOTNo = COL;
+					worksheet[ROW, COL].ColumnWidth = 10;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -6256,7 +6257,7 @@ namespace Aplos.Areas.Products.Controllers
 								
 								worksheet[ROW, colSalesOrderId].Text = dtInventorySalesReportList.Rows[i]["SalesOrderId"].ToString();
 								worksheet[ROW, colMasterOrderId].Text = dtInventorySalesReportList.Rows[i]["MasterOrderId"].ToString();
-								worksheet[ROW, colSONO].Text = dtInventorySalesReportList.Rows[i]["SONo"].ToString();
+								//worksheet[ROW, colSONO].Text = dtInventorySalesReportList.Rows[i]["SONo"].ToString();
 								worksheet[ROW, colPONo].Text = dtInventorySalesReportList.Rows[i]["PONumber"].ToString();
 								worksheet[ROW, colBillTo].Text = dtInventorySalesReportList.Rows[i]["BillTo"].ToString();
 								worksheet[ROW, colBillToAddress].Text = dtInventorySalesReportList.Rows[i]["BillToAddress"].ToString();
