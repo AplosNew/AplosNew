@@ -735,7 +735,22 @@ namespace Library.Service.OrderManagements
 
         public IEnumerable<object> GetCharacteristicsByMaterialMasterId(string materialMasterId)
         {
-            var _sql = @"SELECT distinct  MMC.CharacteristicsId AS [Value],NULL AS Id, MMC.Id AS MaterialMasterCharacteristicsId, c.UserName AS [Text], MMC.IsFreeField
+            //Query by Sir for Characteristics with Value
+            //            string _sql = @"SELECT MM.UserName MaterialMaster,MMC.MaterialMasterId ,C.ValueAssignmentLevel,MMC.CharacteristicsId,C.UserName Characteristics,cv.Id CVId,CV.UserName ValueName,MMC.Sequence,MMC.Id
+            //FROM MST.MaterialMasterCharacteristics MMC
+            //JOIN MST.MaterialMaster MM ON MM.Id=MMC.MaterialMasterId
+            //JOIN HKP.Characteristics C ON C.Id=MMC.CharacteristicsId AND ISNULL(C.ValueAssignmentLevel,'')='General'
+            //JOIN HKP.CharacteristicsValue CV ON CV.CharacteristicsId=C.Id AND ISNULL(CV.MaterialMasterId,'')=''
+            //WHERE MM.Id='2528'
+            //UNION ALL
+            //SELECT MM.UserName MaterialMaster,MMC.MaterialMasterId ,C.ValueAssignmentLevel,MMC.CharacteristicsId,C.UserName Characteristics,cv.Id CVId,CV.UserName ValueName,MMC.Sequence,MMC.Id
+            //FROM MST.MaterialMasterCharacteristics MMC
+            //JOIN MST.MaterialMaster MM ON MM.Id=MMC.MaterialMasterId
+            //JOIN HKP.Characteristics C ON C.Id=MMC.CharacteristicsId AND ISNULL(C.ValueAssignmentLevel,'')='Specific'
+            //JOIN HKP.CharacteristicsValue CV ON CV.CharacteristicsId=C.Id AND ISNULL(CV.MaterialMasterId,'')<>'' AND MM.Id=CV.MaterialMasterId
+            //WHERE MM.Id='2528'";
+
+            string _sql = @"SELECT  MMC.CharacteristicsId AS [Value],NULL AS Id, MMC.Id AS MaterialMasterCharacteristicsId, c.UserName AS [Text], MMC.IsFreeField
 	                            , MMC.IsPreDefinedField, MMC.IsMandatory, C.ValueAssignmentLevel, MMC.[Sequence]
 	                            , CharacteristicsValueId = CASE WHEN (C.ValueAssignmentLevel='General' AND CV.IsDefault=1) THEN CV.Id ELSE NULL END
 
@@ -745,8 +760,8 @@ namespace Library.Service.OrderManagements
 						        , MMC.MaterialMasterId, 0 AS FlagDisable
                             FROM MST.MaterialMasterCharacteristics AS MMC
                             JOIN HKP.Characteristics C ON MMC.CharacteristicsId=C.Id
-                            LEFT JOIN (SELECT * FROM HKP.CharacteristicsValue WHERE Active=1 AND IsDefault=1) AS CV ON CV.CharacteristicsId=MMC.CharacteristicsId AND CV.CharacteristicsId=C.Id
-                            LEFT JOIN (SELECT * FROM HKP.CharacteristicsValue WHERE Active=1 AND IsDefault=1) AS MMCV ON MMCV.MaterialMasterId=MMC.MaterialMasterId AND MMCV.CharacteristicsId=MMC.Id
+                            LEFT JOIN (SELECT * FROM HKP.CharacteristicsValue WHERE Active=1 AND IsDefault=1 AND MaterialMasterId='" + materialMasterId + @"') AS CV ON CV.CharacteristicsId=MMC.CharacteristicsId AND CV.CharacteristicsId=C.Id
+                            LEFT JOIN (SELECT * FROM HKP.CharacteristicsValue WHERE Active=1 AND IsDefault=1 AND MaterialMasterId='" + materialMasterId + @"') AS MMCV ON MMCV.MaterialMasterId=MMC.MaterialMasterId AND MMCV.CharacteristicsId=MMC.Id
                             WHERE MMC.MaterialMasterId='" + materialMasterId + "' ORDER BY MMC.[Sequence]";
             return _sqlRepository.GetDataCollection(_sql, null);
         }

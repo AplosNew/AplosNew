@@ -427,7 +427,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 DataView dvEmp = new DataView();
                 DataView dvEmpAdvTvs = new DataView();
                 dvEmp.Table = dsSlrProc.Tables[0];
-                DataTable dtEmployees = dvEmp.ToTable(true, "SystemId", "EmployeeName", "EmployeeCode", "HeadCategoryT", "HeadCategoryA", "HeadCategoryG", "TaxAmount", "AdvanceAmount", "GrossAmount", "DocNumber");
+                DataTable dtEmployees = dvEmp.ToTable(true, "EmpInfoSystemID", "EmployeeName", "EmployeeCode", "HeadCategoryT", "HeadCategoryA", "HeadCategoryG", "TaxAmount", "AdvanceAmount", "GrossAmount", "DocNumber");
 
                 objRpt.SelectedPlantWiseCompany(identity.PlantId, out dsCmp);
                 objRpt.SelectedPlant(identity.PlantId, out dsFactory);
@@ -624,7 +624,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                     SrNo += 1;
                     #endregion
-                    x = dtEmployees.Rows[i]["SystemId"].ToString().Trim().ToUpper();
+                    x = dtEmployees.Rows[i]["EmpInfoSystemID"].ToString().Trim().ToUpper();
 
                     xlsRow++;
                 }
