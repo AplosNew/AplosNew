@@ -5115,6 +5115,11 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr["SandwichFlag"] = "3"; //Today Change
                             }
 
+                            else if (PrevDaySandwich == "0" && TodaySandwich == "4")
+                            {
+                                dr["SandwichFlag"] = "0"; //Today Change
+                            }
+
 
                             dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                             dr.EndEdit();
