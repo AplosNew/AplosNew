@@ -3629,6 +3629,11 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     dr["SandwichFlag"] = "0"; //Today Change
                                 }
 
+                                else if (PrevDaySandwich == "0" && ToDaySandwich == "4")
+                                {
+                                    dr["SandwichFlag"] = "0"; //Today Change
+                                }
+
                                 else if (PrevDaySandwich == "1" && ToDaySandwich == "3")
                                 {
                                     dr["SandwichFlag"] = "3"; //Today Change
@@ -5108,6 +5113,11 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             else if (PrevDaySandwich == "1" && TodaySandwich == "3")
                             {
                                 dr["SandwichFlag"] = "3"; //Today Change
+                            }
+
+                            else if (PrevDaySandwich == "0" && TodaySandwich == "4")
+                            {
+                                dr["SandwichFlag"] = "0"; //Today Change
                             }
 
 
