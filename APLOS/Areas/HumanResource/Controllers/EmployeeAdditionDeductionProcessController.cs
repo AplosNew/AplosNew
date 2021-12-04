@@ -352,7 +352,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                             dc["DefineAmount"] = clsStaticInfo.dbl(dtAmtMaster.Rows[i]["Amount"].ToString());
                             dc["AmtDefinitionCurrencyID"] = 8;
                             dc["AmtDefinitionRate"] = 0;
-                            dc["ExtDataUploadApp"] = "Yes";
+                            dc["ExtDataUploadApp"] = "XL";
                             dc["AddedBy"] = "Sayanto";
                             dc["DateAdded"] = DateTime.Now;
                             dc["UpdatedBy"] = "Sayanto";
