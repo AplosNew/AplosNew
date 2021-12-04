@@ -1039,7 +1039,7 @@ namespace Library.Service.Materials
 
         public IEnumerable<object> GetCharacteristicsByMaterialMasterId(string materialMasterId)
         {
-            var _sql = @"SELECT distinct MMC.CharacteristicsId AS [Value], C.UserName AS [Text], MMC.MaterialMasterId, MMC.IsFreeField, MMC.IsPreDefinedField, MMC.IsMandatory, C.ValueAssignmentLevel, MMC.[Sequence]
+            var _sql = @"SELECT MMC.CharacteristicsId AS [Value], C.UserName AS [Text], MMC.MaterialMasterId, MMC.IsFreeField, MMC.IsPreDefinedField, MMC.IsMandatory, C.ValueAssignmentLevel, MMC.[Sequence]
 	                            , CharacteristicsValueId = CASE WHEN (CV.MaterialMasterId IS NULL AND CV.IsDefault=1) THEN CV.Id
 									WHEN (CV.MaterialMasterId<>'' AND MMCV.IsDefault=1) THEN MMCV.Id ELSE NULL END
 	                            , [FreeText] =CASE WHEN (CV.MaterialMasterId IS NULL AND CV.IsDefault=1) THEN CV.UserName
@@ -1047,8 +1047,8 @@ namespace Library.Service.Materials
 						                            , 0 AS FlagDisable
                             FROM MST.MaterialMasterCharacteristics AS MMC
                             JOIN HKP.Characteristics C ON MMC.CharacteristicsId=C.Id
-                            LEFT JOIN (SELECT * FROM HKP.CharacteristicsValue WHERE Active=1 AND IsDefault=1) AS CV ON CV.CharacteristicsId=MMC.CharacteristicsId AND CV.CharacteristicsId=C.Id
-                            LEFT JOIN (SELECT * FROM HKP.CharacteristicsValue WHERE Active=1 AND IsDefault=1) AS MMCV ON MMCV.MaterialMasterId=MMC.MaterialMasterId AND MMCV.CharacteristicsId=C.Id
+                            LEFT JOIN (SELECT * FROM HKP.CharacteristicsValue WHERE Active=1 AND IsDefault=1 AND MaterialMasterId='" + materialMasterId + @"') AS CV ON CV.CharacteristicsId=MMC.CharacteristicsId AND CV.CharacteristicsId=C.Id
+                            LEFT JOIN (SELECT * FROM HKP.CharacteristicsValue WHERE Active=1 AND IsDefault=1 AND MaterialMasterId='" + materialMasterId + @"') AS MMCV ON MMCV.MaterialMasterId=MMC.MaterialMasterId AND MMCV.CharacteristicsId=C.Id
                             WHERE MMC.MaterialMasterId='" + materialMasterId + "' ORDER BY MMC.[Sequence]";
             return _sqlRepository.GetDataCollection(_sql, null);
         }
