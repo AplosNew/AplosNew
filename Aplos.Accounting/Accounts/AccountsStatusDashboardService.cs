@@ -21321,7 +21321,7 @@ group by Id) O60 ON O60.Id=IV.Id
                     ,IR.IsApproved
                     --,IR.POId
                     -- IR.PurchaseDocumentAcceptanceId
-                    ,GAM.PurchaseDocumentAcceptanceId
+                    --,GAM.PurchaseDocumentAcceptanceId
                     ,IR.IsInvoice
 					,IR.GRNType
 					,isnull(format( IR.GRNDate,'dd-MMM-yyyy'),'')GRNDate
@@ -21471,7 +21471,7 @@ group by Id) O60 ON O60.Id=IV.Id
                     LEFT JOIN SCS.Currency C ON C.Id = IR.CurrencyId
                     left join trn.PurchaseOrder po on po.Id =IRD.POId
                     left join PurchaseLC plc on plc.Id = po.PurchaseLCId
-                    LEFT JOIN TRN.GRNAcceptanceMap GAM ON GAM.GRNId =IR.Id
+                    --LEFT JOIN TRN.GRNAcceptanceMap GAM ON GAM.GRNId =IR.Id
 					left join HKP.party p on p.Id = ir.PartyId
 					left join org.Company Com on Com.Id = IR.CompanyId
                     LEFT JOIN SCS.Currency CC ON CC.Id = Com.BaseCurrencyId
@@ -21481,7 +21481,7 @@ group by Id) O60 ON O60.Id=IV.Id
 					
                     where IR.CompanyGroupId = '" + companyGroupId + "' AND IR.CompanyId ='" + companyId + "' AND IR.PlantId='" + plantId + @"'
                     AND  IR.IsInvoice=0 
-					and GAM.PurchaseDocumentAcceptanceId is null
+					--and isnull(GAM.PurchaseDocumentAcceptanceId,'') is not null
 	                AND IR.Id not in (select InventoryReceiveId from trn.Invoice where InventoryReceiveId<>'')
 					AND IR.Id not in (select InventoryReceiveId from trn.EmployeePayable where InventoryReceiveId<>'')
 					and ir.VoucherId<>''
@@ -21499,7 +21499,7 @@ group by Id) O60 ON O60.Id=IV.Id
                     ,IR.GateEntryNo
 					,IR.EntryDate
                     ,IR.IsApproved
-                    ,GAM.PurchaseDocumentAcceptanceId
+                    --,GAM.PurchaseDocumentAcceptanceId
                     ,IR.IsInvoice
 					,IR.GRNType
 					,IR.GRNDate

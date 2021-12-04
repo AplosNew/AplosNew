@@ -109,15 +109,33 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     ];
 
     $scope.ProductLibraryList = [];
-    $scope.GetProductLibraryCbo = function () {
+    $scope.GetProductLibraryList = function (index) {
+        $scope.itemIndex = index;
         $http({
             method: 'GET',
             url: 'OrderManagements/MasterOrder/GetProductLibrary/'
         }).then(function successCallback(response) {
             $scope.ProductLibraryList = response.data;
+            angular.element(document.querySelector('#ProductLibraryPopUp')).modal('show');
         });
     };
-    $scope.GetProductLibraryCbo();
+
+    $scope.SetProductLibrary = function (obj) {
+        $scope.itemList[$scope.itemIndex].ProductLibraryId = obj.data.Id;
+        $scope.itemList[$scope.itemIndex].ProductLibrary = obj.data.UserName;
+        angular.element(document.querySelector('#ProductLibraryPopUp')).modal('hide');
+    }
+
+    $scope.clearProductLibrary = function (index) {
+        $scope.itemIndex = index;
+        $scope.itemList[$scope.itemIndex].ProductLibraryId = null;
+        $scope.itemList[$scope.itemIndex].ProductLibrary = null;
+    }
+
+
+    $scope.closeProductLibraryPopUp= function () {
+        angular.element(document.querySelector('#ProductLibraryPopUp')).modal('hide');
+    }
 
     $scope.ProductMasterUoMList = [];
     $scope.GetUoMCboByProductMaster = function () {

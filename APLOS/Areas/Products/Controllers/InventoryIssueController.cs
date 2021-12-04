@@ -3488,6 +3488,7 @@ namespace Aplos.Areas.Products.Controllers
 								,SM.TransactionAmount
 								,SM.TaxAmount
 								,SM.NetAmount
+								,SM.NetAmount * SA.ToCurrencyRate NetBookValue
 								,v.VoucherNo VoucherDetailId
 								,BUoM.UserName AS BaseUoM
 								,TUoM.UserName AS TransactionUoM
@@ -3676,6 +3677,7 @@ namespace Aplos.Areas.Products.Controllers
 								,ISs.Amount TransactionAmount
 								,ISs.TaxAmount
 								,0 NetAmount
+								,0 NetBookValue
 								,'' VoucherDetailId
 								,''  BaseUoM
 								,''  TransactionUoM
@@ -3840,7 +3842,8 @@ namespace Aplos.Areas.Products.Controllers
 								,IID.TransactionQty 
 								,IID.TransactionQty *IID.SalesRate TransactionAmount
 								,SCr1.TaxAmount TaxAmount
-								,0 NetAmount
+								,IID.[TotalSalesAmount] NetAmount
+								,IID.[BooksCurrencyTransactionAmount] NetBookValue
 								,II.VoucherId VoucherDetailId
 								,TUoM.UserName AS BaseUoM
 								,TUoM.UserName AS TransactionUoM
@@ -3893,7 +3896,7 @@ namespace Aplos.Areas.Products.Controllers
 
 								FROM[TRN].[InventorySalesDetail] AS IID
 								left outer join [TRN].[InventorySales] AS II on II.Id=IID.InventorySalesId
-
+								left JOIN [TRN].[InventorySalesHistory] AS ISH on ISH.InventorySalesDetailId=IID.ID
 								left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId=TUoM.Id	
 								left JOIN [HKP].[MaterialStorage] AS MS ON II.MaterialStorageId= MS.Id
 								left join dbo.EmployeeInformation AS EI ON EI.SystemId= II.EmployeeId
@@ -3976,7 +3979,7 @@ namespace Aplos.Areas.Products.Controllers
 								Select                  
 								ROW_NUMBER() Over(Order by   IR.Id) As[S.N]
 								,'InventorySales' SourceType
-								,SM.Id
+								,ISs.Id
 								,IR.Id SalesId
 								,FORMAT(IR.SalesDate, 'dd-MMM-yyyy') SalesDate,'' InvoiceDate
 								,'' SalesOrderId
@@ -4008,8 +4011,9 @@ namespace Aplos.Areas.Products.Controllers
 								,0 TransactionRate
 								,0 TransactionQty
 								,ISs.Amount TransactionAmount
-								,ISs.Amount TaxAmount
-								,0 NetAmount
+								,0 TaxAmount
+								,ISs.Amount NetAmount
+								,ISs.Amount NetBookValue
 								,'' VoucherDetailId
 								,'' AS BaseUoM
 								,'' AS TransactionUoM
@@ -4131,62 +4135,108 @@ namespace Aplos.Areas.Products.Controllers
 								,SO.Id SONo
 								,po.PONumber
 								,PPI.UserName AS BillTo
-								,AM.Address1 as BillToAddress
-								,ST.UserName as BillToState
+								,AM.Address1 as  BillToAddress
+								,ST.UserName as  BillToState
 								,PPI.GSTIN as BillToGSTNo
 								,PPD.UserName AS ShipTo
 								,AMD.Address1 as ShipToAddress
 								,STD.UserName as ShipToState
-								,PPD.GSTIN as ShipToGSTNo					
+		                        ,PPD.GSTIN as ShipToGSTNo
 								, SA.ToCurrencyRate
 								, SA.DocRefNo
-								,'' DocDate
-								, P.UserName AS PartyName
+								,FORMAT(SA.InvoiceDate,'dd-MMM-yyyy') DocDate
+								, P.UserName AS PartyName,p.Code
 								,MGM.UserName AS MaterialGroupMasterName
 								,MM.UserName MaterialMasterName
 								,ART.StandardName AS MaterialMasterArticleName
 								,FCV.UserName FirstCharacteristicsValue
 								,SCV.UserName SecondCharacteristicsValue
 								,TCV.UserName ThirdCharacteristicsValue
-								, TAxInfo.HSCode HSNCode
+								--,'' HSNCode
+								,SM.BaseRate
+								,SM.BaseUoMFactor
+								,SM.TransactionRate
+								,SM.TransactionQty
+								,SM.TransactionAmount
+								,SM.TaxAmount
+								,SM.NetAmount
+								,SM.NetAmount * SA.ToCurrencyRate NetBookValue
+								,v.VoucherNo VoucherDetailId
+								,BUoM.UserName AS BaseUoM
+								,TUoM.UserName AS TransactionUoM
+								,CU.Code AS Currency
+								,FORMAT(SO.DeliveryDate,'dd-MMM-yyyy') DeliveryDate
+								,DT.UserName DestinationName
+								,SO.SOType
+								,ServiceCharge=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesService] WHERE SalesId=SA.Id)/(Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id))*SM.TransactionAmount
+								,ServiceTax=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesTax] WHERE SalesId=SA.Id  AND SalesServiceId<>'')/(Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id))*SM.TransactionAmount
+								,E.UserName Entity
+								,'' CheckedByName
+								,'' CheckedBy
+								,'' ApprovedByName
+								,'' ApprovedBy
+								,Posted=CASE WHEN SA.VoucherId IS NULL THEN 'No' ELSE 'YES'  END
+								,ISNULL(SA.Narration,'') NoteForAccounts
+								,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
+								,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
+								,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
+								,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
+								,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
 
-						,SM.BaseRate
-						,SM.BaseUoMFactor
-						,SM.TransactionRate
-						,SM.TransactionQty
-						,SM.TransactionAmount
-						,SM.TaxAmount
-						,SM.NetAmount
-						,v.VoucherNo VoucherDetailId
-						,BUoM.UserName AS BaseUoM
-						,TUoM.UserName AS TransactionUoM
-						,CU.Code AS Currency
-						,FORMAT(SO.DeliveryDate,'dd-MMM-yyyy') DeliveryDate
-						,DT.UserName DestinationName
-						,SO.SOType
-						,ServiceCharge=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesService] WHERE SalesId=SA.Id)/(Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id))*SM.TransactionAmount
-						,ServiceTax=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesTax] WHERE SalesId=SA.Id  AND SalesServiceId<>'')/(Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id))*SM.TransactionAmount
-						,'' Entity
-						,'' CheckedByName
-						,'' CheckedBy
-						,'' ApprovedByName
-						,'' ApprovedBy
-						,Posted=CASE WHEN SA.VoucherId IS NULL THEN 'No' ELSE 'YES'  END
-						,'' 'NoteForAccounts'
-						,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
-						,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
-						,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
-						,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
-						,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
-,PSI.CNFContainerNo ContainerNo,PSI.TransportDriverName as TransporterName,PSI.TransportDocRefNo 
-						,FORMAT( PSI.TransportDocDate, 'dd-MMM-yyyy')TransportDocDate,Agent.UserName as AgentName
-						,''AgentCommission
-						,'' Insurance
-,PSI.CargoGrossWt GrossWeight,''LoTNo
-						FROM TRN.SalesMaterial AS SM 
-						LEFT JOIN TRN.Sales AS SA ON SA.Id=SM.SalesId
-						LEFT JOIN [TRN].[SalesOrder] AS SO ON SM.SalesOrderId=SO.Id
-						LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
+		                        ,PSI.CNFContainerNo ContainerNo,PSI.TransportDriverName as TransporterName,PSI.TransportDocRefNo 
+								,FORMAT( PSI.TransportDocDate, 'dd-MMM-yyyy')TransportDocDate,Agent.UserName as AgentName
+								,''AgentCommission
+								,'' Insurance
+								,PSI.CargoGrossWt GrossWeight,''LoTNo
+								,CON.ContractNo
+								,ML.LCRef MasterLcNo
+								,SA.ComercialInvoiceNo
+								,FORMAT(PSI.ExpDate,'dd-MMM-yyyy') ExpiryDate
+								,PSI.CNFBLAWB BLAWBNo,FORMAT(PSI.CNFBLAWBDate,'dd-MMM-yyyy') BLAWBDate
+								,PTM.UserName PaymentTerm,FORMAT(SA.BaseOnDueDate,'dd-MMM-yyyy') BaseOnDueDate
+								,SA.BaseNoOfDays NoOfDays
+							    ,FORMAT(SA.MatureDate,'dd-MMM-yyyy') MatureDate
+								,PL.Amount LCAmount
+								,FORMAT(PSI.ExFactoryDate,'dd-MMM-yyyy') ExFactoryDate
+								,TA.UserName TransportAgent	
+
+								,CNfA.UserName CNFAgent
+								,PSI.CNFContainerNo
+								,PSI.CNFVesselTrackingNo
+								, OwnReferenceNo=STUFF((select distinct ','+MO.OwnReferenceNo
+		                                         from trn.SalesMaterial SMX									 
+												 join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId   
+												  LEFT JOIN [TRN].[MasterOrderItem] MOI ON MOI.Id = XSO.MasterOrderItemId
+												  LEFT JOIN [TRN].[MasterOrder] MO ON MO.Id = MOI.MasterOrderId
+									                where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													, RealizeAmount=isnull(I.WrittenOffAmount,0)
+
+									, RealizeDate=STUFF((select distinct ','+FORMAT(IW.PostingDate,'dd-MMM-yyyy')
+		                                         from trn.InvoiceWriteOffDetail IWD									 
+												 join  trn.invoiceWriteOff IW 	 ON IW.Id=IWD.InvoiceWriteOffId   
+												  LEFT JOIN [TRN].[Invoice] XI ON XI.Id = IWD.InvoiceId
+								                where XI.VoucherId=SA.VoucherId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+									--, BalanceAmount=isnull(ISNULL(SM.TransactionAmount,0) - ISNULL(I.WrittenOffAmount,0),0)
+
+
+								FROM TRN.SalesMaterial AS SM 
+								LEFT JOIN TRN.Sales AS SA ON SA.Id=SM.SalesId
+
+									left outer join TRN.SalesOrder So on SO.Id=SM.SalesOrderId
+									left outer join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
+									left outer join [Contract] CON on CON.Id=MOI.ContractId
+									left outer join PurchaseLC PL on PL.ContractId=CON.Id
+									Left outer join MasterLC ML on ML.Id=CON.MasterLCId
+									left outer join PostSalesInvoice PSI on PSI.SalesId=SA.Id
+									left outer join MST.PaymentTerm PTM on PTM.Id=SA.PaymentTermId
+
+									left outer join HKP.Party CNfA on CNfA.Id=SA.PartyId
+									left outer join HKP.Party TA on TA.Id=SA.PartyId
+
+
+						--LEFT JOIN [TRN].[SalesOrder] AS SO ON SM.SalesOrderId=SO.Id
+						--LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
 						LEFT JOIN [TRN].[MasterOrder] AS MO ON MO.Id = MOI.MasterOrderId
 						LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
 						LEFT JOIN [MST].[Destination] AS DT ON DT.Id=SO.DestinationId
@@ -4214,92 +4264,82 @@ namespace Aplos.Areas.Products.Controllers
 						LEFT JOIN [SCS].[State] AS STD ON STD.Id=AMD.StateId
 						LEFT JOIN [SCS].[Currency] AS C ON C.Id=SA.CurrencyId
 						LEFT JOIN [ORG].[Plant] AS PT ON PT.Id=SA.PlantId
-						LEFT JOIN (SELECT A.SalesMaterialId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.Amount  TaxAmount,hs.Code HSCode 
+						Left JOIN [ORG].[Entity] E On E.id= SA.EntityId
+						LEFT JOIN (SELECT SUM(Amount) Amount,SUM(WrittenOffAmount) WrittenOffAmount,VoucherId 
+										FROM TRN.Invoice GROUP BY VoucherId) I ON I.VoucherId=SA.VoucherId
+						LEFT JOIN (SELECT A.SalesMaterialId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.Amount  TaxAmount--,hs.Code HSCode 
 								   FROM [TRN].[SalesTax] A
 									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 									WHERE B.Code='CGST' and A.SalesServiceId IS NULL
 									--Group By A.InventoryReceiveDetailId, B.UserName ,B.Code  ,A.Percentage 
 								   ) TAxInfo	ON TAxInfo.SalesMaterialId=SM.Id 
-						LEFT JOIN (SELECT A.SalesMaterialId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.Amount  TaxAmount,hs.Code HSCode 
+						LEFT JOIN (SELECT A.SalesMaterialId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.Amount  TaxAmount--,hs.Code HSCode 
 								   FROM [TRN].[SalesTax] A
 									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 									WHERE B.Code='IGST' and A.SalesServiceId IS NULL	
 									) TAxInfo1	ON TAxInfo1.SalesMaterialId=SM.Id 
 							  		 
-						LEFT JOIN (SELECT A.SalesMaterialId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.Amount  TaxAmount,hs.Code HSCode 
+						LEFT JOIN (SELECT A.SalesMaterialId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.Amount  TaxAmount--,hs.Code HSCode 
 								   FROM [TRN].[SalesTax] A
 									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 									WHERE B.Code='SGST' and A.SalesServiceId IS NULL	
 									) TAxInfo2	ON TAxInfo2.SalesMaterialId=SM.Id 
 
-						LEFT JOIN (SELECT A.SalesMaterialId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.Amount  TaxAmount,hs.Code HSCode 
+						LEFT JOIN (SELECT A.SalesMaterialId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.Amount  TaxAmount--,hs.Code HSCode 
 								   FROM [TRN].[SalesTax] A
 									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 									WHERE B.Code='TDS' and A.SalesServiceId IS NULL									
 									) TAxInfo3	ON TAxInfo3.SalesMaterialId=SM.Id 
 
 
 							
-						LEFT JOIN (SELECT A.SalesMaterialId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.Amount  TaxAmount,hs.Code HSCode 
+					
+						LEFT JOIN (SELECT A.SalesMaterialId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.Amount  TaxAmount--,hs.Code HSCode 
 								   FROM [TRN].[SalesTax] A
 									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='VAT' and A.SalesServiceId IS NULL		
-						) TAxInfo4 ON TAxInfo4.SalesMaterialId=SM.Id 
-
-						LEFT JOIN (SELECT A.SalesMaterialId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.Amount  TaxAmount,hs.Code HSCode 
-								   FROM [TRN].[SalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='AIT' and A.SalesServiceId IS NULL		
-						) TAxInfo5 ON TAxInfo5.SalesMaterialId=SM.Id 
-						LEFT JOIN (SELECT A.SalesMaterialId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.Amount  TaxAmount,hs.Code HSCode 
-								   FROM [TRN].[SalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 									WHERE B.Code='TCS' and A.SalesServiceId IS NULL		 
 								
 						) TAxInfo6 ON TAxInfo6.SalesMaterialId=SM.Id 
 						LEFT JOIN trn.Voucher V On V.Id=SA.VoucherId
- LEFT JOIN PostSalesInvoice PSI On PSI.SalesId=SA.Id
+                        --LEFT JOIN PostSalesInvoice PSI On PSI.SalesId=SA.Id
 						LEFT JOIN HKP.Party as Agent on Agent.Id=PSI.TransportAgentId
 						WHERE SA.PlantId='" + identity.PlantId + "' AND convert(Date,SA.InvoiceDate) <= '" + toDate + @"'
 						UNION ALL
 						
 						Select                  
-						ROW_NUMBER() Over(Order by   IR.Id) As[S.N]
-						,IR.SourceType
-						,ISs.Id
-						,IR.Id SalesId
-						,FORMAT(IR.EntryDate, 'dd-MMM-yyyy') SalesDate,'' InvoiceDate
-						,'' SalesOrderId
-						,'' MasterOrderId
-						,'' SONo
-						,'' PONumber
-						,'' AS BillTo							
-						,''BillToAddress
-						,'' BillToState
-						,'' BillToGSTNo
-						,'' ShipTo
-						,'' ShipToAddress
-						,''ShipToState
-						,''ShipToGSTNo						
-						, 0 ToCurrencyRate
-						, '' DocRefNo
-						,'' DocDate
-						, P.UserName AS PartyName
-						,'' AS MaterialGroupMasterName
-						,SM.UserName MaterialMasterName
-						,'' AS MaterialMasterArticleName
-						,''FirstCharacteristicsValue
-						,'' SecondCharacteristicsValue
-						,'' ThirdCharacteristicsValue
-						, '' HSNCode
-
+								ROW_NUMBER() Over(Order by   IR.Id) As[S.N]
+								,IR.SourceType
+								,ISs.Id
+								,IR.Id SalesId
+								,FORMAT(IR.EntryDate, 'dd-MMM-yyyy') SalesDate,'' InvoiceDate
+								,'' SalesOrderId
+								,'' MasterOrderId
+								,'' SONo
+								,'' PONumber
+								,'' AS BillTo
+								,'' as BillToAddress
+								,'' as BillToState
+								,'' as BillToGSTNo
+								,'' AS ShipTo
+								,'' AS ShipToAddress
+								,'' AS ShipToState
+								,'' as ShipToGSTNo
+								, 0 ToCurrencyRate
+								, '' DocRefNo
+								,FORMAT(IR.InvoiceDate,'dd-MMM-yyyy') DocDate
+								, P.UserName AS PartyName,p.Code
+								,'' AS MaterialGroupMasterName
+								,SM.UserName MaterialMasterName
+								,'' AS MaterialMasterArticleName
+								,''FirstCharacteristicsValue
+								,'' SecondCharacteristicsValue
+								,'' ThirdCharacteristicsValue
+								--, '' HSNCode
 								,0 BaseRate
 								,0 BaseUoMFactor
 								,0 TransactionRate
@@ -4307,6 +4347,7 @@ namespace Aplos.Areas.Products.Controllers
 								,ISs.Amount TransactionAmount
 								,ISs.TaxAmount
 								,0 NetAmount
+								,0 NetBookValue
 								,'' VoucherDetailId
 								,''  BaseUoM
 								,''  TransactionUoM
@@ -4316,7 +4357,7 @@ namespace Aplos.Areas.Products.Controllers
 								,'' SOType
 								,0 ServiceCharge
 								, 0 ServiceTax
-								,'' Entity
+								,E.UserName Entity
 								,'' CheckedByName
 								,'' CheckedBy
 								,'' ApprovedByName
@@ -4324,19 +4365,62 @@ namespace Aplos.Areas.Products.Controllers
 								,'' Posted
 								,'' 'NoteForAccounts'
 
-						,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
-						,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
-						,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
-						,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
-						,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
-,''ContainerNo,''TransporterName,''TransportDocRefNo 
-						,''TransportDocDate,''AgentName
-						,''AgentCommission
-						,'' Insurance
-,''GrossWeight,''LoTNo
-						from trn.SalesService AS ISs
-						LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
-						left jOIN [TRN].[Sales] AS IR ON IR.Id=ISs.SalesId
+								,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
+								,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
+								,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
+								,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
+								,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
+		,''ContainerNo ,''TransporterName,''TransportDocRefNo 
+								,FORMAT(PSI.TransportDocDate,'dd-MMM-yyyy') TransportDocDate,''AgentName
+								,''AgentCommission
+								,'' Insurance
+		,''GrossWeight,''LoTNo
+		,CON.ContractNo
+								,ML.LCRef MasterLcNo
+								,IR.ComercialInvoiceNo
+								,FORMAT(PSI.ExpDate,'dd-MMM-yyyy') ExpiryDate
+								,PSI.CNFBLAWB BLAWBNo,FORMAT(PSI.CNFBLAWBDate,'dd-MMM-yyyy') BLAWBDate
+								,PTM.UserName PaymentTerm,FORMAT(IR.BaseOnDueDate,'dd-MMM-yyyy') BaseOnDueDate
+								,IR.BaseNoOfDays NoOfDays
+							    ,FORMAT(IR.MatureDate,'dd-MMM-yyyy') MatureDate
+								,PL.Amount LCAmount
+								,FORMAT(PSI.ExFactoryDate,'dd-MMM-yyyy') ExFactoryDate
+								,TA.UserName TransportAgent	
+
+								,CNfA.UserName CNFAgent
+								,PSI.CNFContainerNo
+								,PSI.CNFVesselTrackingNo
+								, OwnReferenceNo=STUFF((select distinct ','+MO.OwnReferenceNo
+		                                         from trn.SalesMaterial SMX									 
+												 join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId   
+												  LEFT JOIN [TRN].[MasterOrderItem] MOI ON MOI.Id = XSO.MasterOrderItemId
+												  LEFT JOIN [TRN].[MasterOrder] MO ON MO.Id = MOI.MasterOrderId
+									                where smx.SalesId=IR.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													, RealizeAmount=isnull(I.WrittenOffAmount,0)
+
+									, RealizeDate=STUFF((select distinct ','+FORMAT(IW.PostingDate,'dd-MMM-yyyy')
+		                                         from trn.InvoiceWriteOffDetail IWD									 
+												 join  trn.invoiceWriteOff IW 	 ON IW.Id=IWD.InvoiceWriteOffId   
+												  LEFT JOIN [TRN].[Invoice] XI ON XI.Id = IWD.InvoiceId
+								                where XI.VoucherId=IR.VoucherId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+									--, BalanceAmount=isnull(ISNULL(ISs.Amount,0)- ISNULL(I.WrittenOffAmount,0),0)
+
+								from trn.SalesService AS ISs
+								LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
+								left jOIN [TRN].[Sales] AS IR ON IR.Id=ISs.SalesId
+								left outer join trn.SalesMaterial IRM on IRM.SalesId=IR.Id
+									left outer join TRN.SalesOrder So on SO.Id=IRM.SalesOrderId
+									left outer join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
+									left outer join [Contract] CON on CON.Id=MOI.ContractId
+									left outer join PurchaseLC PL on PL.ContractId=CON.Id
+									Left outer join MasterLC ML on ML.Id=CON.MasterLCId
+									left outer join PostSalesInvoice PSI on PSI.SalesId=IR.Id
+									left outer join MST.PaymentTerm PTM on PTM.Id=IR.PaymentTermId
+
+									left outer join HKP.Party CNfA on CNfA.Id=IR.PartyId
+									left outer join HKP.Party TA on TA.Id=IR.PartyId
+
 						LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId
 						LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.InvoicingPartyPlantId  
 						LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
@@ -4344,63 +4428,48 @@ namespace Aplos.Areas.Products.Controllers
 						left join trn.Voucher V on V.Id=I.VoucherId
 						left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=IR.Id					
 						left join trn.Voucher V1 on V1.Id=ep.VoucherId
+						Left JOIN [ORG].[Entity] E On E.id= IR.EntityId
 						LEFT JOIN (SELECT A.SalesServiceId,A.SalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
-									,A.Amount TaxAmount,HS.Code HSCode 
+									,A.Amount TaxAmount--,HS.Code HSCode 
 									FROM  [TRN].[SalesTax] A
 									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 									WHERE B.Code='CGST'  
 									
 									) TAxInfo	ON TAxInfo.SalesServiceId=ISs.Id AND TAxInfo.SalesServiceId IS NOT NULL
 
 						LEFT JOIN (SELECT A.SalesServiceId,A.SalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
-									,A.Amount TaxAmount,HS.Code HSCode 
+									,A.Amount TaxAmount--,HS.Code HSCode 
 									FROM  [TRN].[SalesTax] A
 									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 									WHERE B.Code='IGST'  
 									) TAxInfo1	ON TAxInfo1.SalesServiceId=ISs.Id AND TAxInfo1.SalesServiceId IS NOT NULL 
 							  		 
 						LEFT JOIN (SELECT A.SalesServiceId,A.SalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
-									,A.Amount TaxAmount,HS.Code HSCode 
+									,A.Amount TaxAmount--,HS.Code HSCode 
 									FROM  [TRN].[SalesTax] A
 									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 									WHERE B.Code='SGST'  
 
 											) TAxInfo2	ON TAxInfo2.SalesServiceId=ISs.Id AND TAxInfo2.SalesServiceId IS NOT NULL
 
 						LEFT JOIN (SELECT A.SalesServiceId,A.SalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
-									,A.Amount TaxAmount,HS.Code HSCode 
+									,A.Amount TaxAmount--,HS.Code HSCode 
 									FROM  [TRN].[SalesTax] A
 									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 									WHERE B.Code='TDS'  
 									) TAxInfo3	ON TAxInfo3.SalesServiceId=ISs.Id AND TAxInfo3.SalesServiceId IS NOT NULL
 
 
-							
+						
 						LEFT JOIN (SELECT A.SalesServiceId,A.SalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
-									,A.Amount TaxAmount,HS.Code HSCode 
+									,A.Amount TaxAmount--,HS.Code HSCode 
 									FROM  [TRN].[SalesTax] A
 									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='VAT'  
-								
-						) TAxInfo4 ON TAxInfo4.SalesServiceId=ISs.Id AND TAxInfo4.SalesServiceId IS NOT NULL
-
-						LEFT JOIN (SELECT A.SalesServiceId,A.SalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
-									,A.Amount TaxAmount,HS.Code HSCode 
-									FROM  [TRN].[SalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='AIT'  
-						) TAxInfo5 ON TAxInfo5.SalesServiceId=ISs.Id AND TAxInfo5.SalesServiceId IS NOT NULL
-						LEFT JOIN (SELECT A.SalesServiceId,A.SalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
-									,A.Amount TaxAmount,HS.Code HSCode 
-									FROM  [TRN].[SalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 									WHERE B.Code='TCS'
 						) TAxInfo6 ON TAxInfo6.SalesServiceId=ISs.Id AND TAxInfo6.SalesServiceId IS NOT NULL
 
@@ -4408,7 +4477,6 @@ namespace Aplos.Areas.Products.Controllers
 								UNION ALL
 
 								SELECT 
-
 								ROW_NUMBER() Over(Order by   II.Id) As[S.N]
 								,'InventorySales' SourceType
 								,IID.Id
@@ -4418,33 +4486,34 @@ namespace Aplos.Areas.Products.Controllers
 								,'' MasterOrderId
 								,'' SONo
 								,'' PONumber
-								,PPI.UserName AS BillTo							
-								,AM.Address1 as  BillToAddress
-								,ST.UserName as  BillToState
-								,PPI.GSTIN    as BillToGSTNo
-							    ,PPI1.UserName as ShipTo
-								,AM1.Address1 as ShipToAddress
-								,ST1.UserName as ShipToState
-								,PPI1.GSTIN as ShipToGSTNo						
+								,PPI.UserName AS BillTo
+								,AM.Address1 as BillToAddress
+								,ST.UserName as BillToState				
+								,PPI.GSTIN as BillToGSTNo
+								,PPI1.UserName ShipTo
+								,AM1.Address1 ShipToAddress
+								,ST1.UserName ShipToState
+								,PPI1.GSTIN ShipToGSTNo
 								,II.ToCurrencyRate
 								, II.DocRefNo
-								,FORMAT( II.DocDate,'dd-MMM-yyyy') DocDate
-								, P.UserName AS PartyName
+								,FORMAT(II.DocDate, 'dd-MMM-yyyy') DocDate
+								, P.UserName AS PartyName,p.Code
 								,MGM.UserName AS MaterialGroupMasterName
 								,MM.UserName MaterialMasterName
 								,ART.StandardName AS MaterialMasterArticleName
 								, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue							
 								, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue						
 								, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 
-								, TAxInfo.HSCode HSNCode
+								--, ISNULL(TAxInfo.HSCode,'') HSNCode
 
-								,Sum(IID.PolicyRate) BaseRate
+								,IID.SalesRate BaseRate
 								,0 BaseUoMFactor
-								,sum(IID.PolicyRate) TransactionRate
-								,Sum(IID.Qty) TransactionQty
-								,Sum(IID.Qty *IID.PolicyRate) TransactionAmount
-								,sum(SCr1.TaxAmount) TaxAmount
-								,0 NetAmount
+								,IID.SalesRate TransactionRate
+								,IID.TransactionQty 
+								,IID.TransactionQty *IID.SalesRate TransactionAmount
+								,SCr1.TaxAmount TaxAmount
+								,IID.[TotalSalesAmount] NetAmount
+								,IID.[BooksCurrencyTransactionAmount] NetBookValue
 								,II.VoucherId VoucherDetailId
 								,TUoM.UserName AS BaseUoM
 								,TUoM.UserName AS TransactionUoM
@@ -4452,8 +4521,8 @@ namespace Aplos.Areas.Products.Controllers
 								,'' DeliveryDate
 								,'' DestinationName
 								,'' SOType
-								,sum(SCr.Amount) ServiceCharge
-								,sum(SCr.TotalTaxAmount) ServiceTax
+								,SCr.Amount ServiceCharge
+								,SCr.TotalTaxAmount ServiceTax
 
 								,E.UserName AS Entity 
 								,EI2.EmployeeName CheckedByName
@@ -4463,34 +4532,53 @@ namespace Aplos.Areas.Products.Controllers
 								,Posted=CASE WHEN II.[Status]='Posting' then 'Yes' else 'No'  END
 								,CAST(II.NoteForAccounts AS NVARCHAR(MAX)) 'NoteForAccounts'
 
-								,sum(round(isnull(TAxInfo.TaxAmount,0),2)) CGST,sum(TAxInfo.Percentage) CGSTTaxPercentage--MaterialTaxPer						
-								,sum(round(isnull(TAxInfo2.TaxAmount,0),2)) SGST,sum(TAxInfo2.Percentage) SGSTTaxPercentage
-								,sum(round(isnull(TAxInfo1.TaxAmount,0),2)) IGST,sum(TAxInfo1.Percentage) IGSTTaxPercentage
-								,sum(round(isnull(TAxInfo3.TaxAmount,0),2)) TDS,sum(TAxInfo3.Percentage) TDSTaxPercentage
-								,sum(round(isnull(TAxInfo6.TaxAmount,0),2)) TCS,sum(TAxInfo6.Percentage) TCSTaxPercentage
-		,''ContainerNo,''TransporterName,''TransportDocRefNo 
+								,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
+								,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
+								,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
+								,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
+								,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
+		,''ContainerNo ,''TransporterName,''TransportDocRefNo 
 								,''TransportDocDate,''AgentName
 								,''AgentCommission
 								,'' Insurance
 		,''GrossWeight,''LoTNo
-								FROM[TRN].[InventorySales] AS II
-								left JOIN (select InventoryMaterialId,Id,InventorySalesId,sum(PolicyRate) PolicyRate, sum(TransactionQty) Qty ,IsAsset,BaseUOMId from  TRN.InventorySalesDetail group by InventoryMaterialId,InventorySalesId,IsAsset,BaseUOMId,Id) AS IID ON IID.InventorySalesId= II.Id AND IID.IsAsset= 0
+		,''ContractNo
+								,''MasterLcNo
+								,''ComercialInvoiceNo
+								,''ExpiryDate
+								,''BLAWBNo,''BLAWBDate
+								,''PaymentTerm,''BaseOnDueDate
+								,0NoOfDays
+							    ,''MatureDate
+								,0LCAmount
+								,''ExFactoryDate
+								,''TransportAgent	
+
+								,''CNFAgent
+								,''CNFContainerNo
+								,''CNFVesselTrackingNo
+								,''OwnReferenceNo
+													,0 RealizeAmount
+
+									,''RealizeDate
+
+									--,0BalanceAmount
+
+								FROM[TRN].[InventorySalesDetail] AS IID
+								left outer join [TRN].[InventorySales] AS II on II.Id=IID.InventorySalesId
+								left JOIN [TRN].[InventorySalesHistory] AS ISH on ISH.InventorySalesDetailId=IID.ID
 								left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId=TUoM.Id	
 								left JOIN [HKP].[MaterialStorage] AS MS ON II.MaterialStorageId= MS.Id
 								left join dbo.EmployeeInformation AS EI ON EI.SystemId= II.EmployeeId
 								Left JOIN [ORG].[Entity] E On E.id= II.EntityId
 
-								--left join trn.InventorySalesHistory IIH ON IIH.InventorySalesDetailId=IID.Id
-								--left join trn.IssueRequest IR On IR.Id=IIH.IssueRequestDetailId
-								--left JOIN SCS.Country c ON C.Id=IR.CountryId
+								LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=II.InvoicingPartyPlantId
+								LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id=PPI.AddressMasterId
+								LEFT JOIN [SCS].[State] as ST on ST.Id=AM.StateId
 
-						LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=II.InvoicingPartyPlantId
-						LEFT JOIN MST.AddressMaster as AM on AM.Id=PPI.AddressMasterId
-						LEFT JOIN SCS.[State] as ST on ST.Id=AM.StateId
-						
 						LEFT JOIN [HKP].[PartyPlant] AS PPI1 ON PPI1.Id=II.DeliveryPartyPlantId left Join hkp.Party P On p.id=II.CustomerId
-						LEFT JOIN MST.AddressMaster as AM1 on AM1.Id=PPI1.AddressMasterId
-						LEFT JOIN SCS.[State] as ST1 on ST1.Id=AM1.StateId
+						LEFT JOIN [MST].[AddressMaster] AS AM1 ON AM1.Id=PPI1.AddressMasterId
+						LEFT JOIN [SCS].[State] as ST1 on ST1.Id=AM1.StateId
 						Left Join employeeinformation EI2 On EI2.SystemId=II.CheckedBy
 						Left Join employeeinformation EI1 On EI1.SystemId=II.CheckedBy
 						Left Join [ORG].[Plant] Pnt On Pnt.Id=II.PlantId
@@ -4499,7 +4587,7 @@ namespace Aplos.Areas.Products.Controllers
 						--Left Join [HKP].[Party] Par As Par.Id=II.P
 						LEFT JOIN TRN.InventoryMaterial AS IM ON IM.Id=IID.InventoryMaterialId
 						left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
-						LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
+					--	LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
 						LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
 						LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id			
 						LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id
@@ -4511,98 +4599,89 @@ namespace Aplos.Areas.Products.Controllers
 						LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
 						LEFT JOIN(Select sum(Amount) Amount, sum(TotalTaxAmount) TotalTaxAmount, InventorySalesId from trn.InventorySalesService group by InventorySalesId)SCr ON SCr.InventorySalesId=II.Id
 						LEFT JOIN(Select distinct sum(TaxAmount) TaxAmount, InventorySalesId from trn.InventorySalesTax group by InventorySalesId)SCr1 ON SCr1.InventorySalesId=II.Id
-LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.TaxAmount TaxAmount,hs.Code HSCode 
-								   FROM [TRN].[InventorySalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='CGST' and A.InventorySalesServiceId IS NULL								
-								   ) TAxInfo	ON TAxInfo.InventorySalesId=IID.InventorySalesId 
-						LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.TaxAmount TaxAmount,hs.Code HSCode 
+			LEFT JOIN (SELECT A.InventorySalesDetailId, A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage,sum(A.TaxAmount) TaxAmount--,hs.Code HSCode 
 									FROM [TRN].[InventorySalesTax] A
 									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='IGST' and A.InventorySalesServiceId IS NULL									
-									) TAxInfo1	ON TAxInfo1.InventorySalesId=IID.InventorySalesId 
+									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+
+									WHERE B.Code='CGST' and A.InventorySalesServiceId IS NULL	
+									group by A.InventorySalesId, B.UserName ,B.Code,A.InventorySalesDetailId								
+								   ) TAxInfo	ON TAxInfo.InventorySalesId=IID.InventorySalesId and TAxInfo.InventorySalesDetailId=IID.Id
+						LEFT JOIN (SELECT A.InventorySalesDetailId, A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage,sum(A.TaxAmount) TaxAmount--,hs.Code HSCode 
+									FROM [TRN].[InventorySalesTax] A
+									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+
+									WHERE B.Code='IGST' and A.InventorySalesServiceId IS NULL	
+									group by A.InventorySalesId, B.UserName ,B.Code,A.InventorySalesDetailId									
+									) TAxInfo1	ON TAxInfo1.InventorySalesId=IID.InventorySalesId and TAxInfo1.InventorySalesDetailId=IID.Id 
 							  		 
-						LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.TaxAmount TaxAmount,hs.Code HSCode 
+						LEFT JOIN (SELECT A.InventorySalesDetailId, A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage,sum(A.TaxAmount) TaxAmount--,hs.Code HSCode 
 									FROM [TRN].[InventorySalesTax] A
 									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='SGST' and A.InventorySalesServiceId IS NULL 									
-									) TAxInfo2	ON TAxInfo2.InventorySalesId=IID.InventorySalesId 
+									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 
-						LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.TaxAmount TaxAmount 
+									WHERE B.Code='SGST' and A.InventorySalesServiceId IS NULL	
+									group by A.InventorySalesId, B.UserName ,B.Code,A.InventorySalesDetailId										
+									) TAxInfo2	ON TAxInfo2.InventorySalesId=IID.InventorySalesId and TAxInfo2.InventorySalesDetailId=IID.Id 
+
+						LEFT JOIN (SELECT A.InventorySalesDetailId, A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage,sum(A.TaxAmount) TaxAmount--,hs.Code HSCode 
 									FROM [TRN].[InventorySalesTax] A
 									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									WHERE B.Code='TDS' and A.InventorySalesServiceId IS NULL 					
-									) TAxInfo3	ON TAxInfo3.InventorySalesId=IID.InventorySalesId 							
-						LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount 
-									FROM [TRN].[InventorySalesTax] A
-									LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
-									WHERE B.Code='VAT' and A.InventorySalesServiceId IS NULL 
-								
-						) TAxInfo4 ON TAxInfo4.InventorySalesId=IID.InventorySalesId 
+									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 
-						LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount 
-									FROM [TRN].[InventorySalesTax] A
-									LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
-									WHERE B.Code='AIT' and A.InventorySalesServiceId IS NULL 
-							
-						) TAxInfo5 ON TAxInfo5.InventoryReceiveDetailId=IID.InventorySalesId 
-						LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM 
+									WHERE B.Code='TDS' and A.InventorySalesServiceId IS NULL	
+									group by A.InventorySalesId, B.UserName ,B.Code,A.InventorySalesDetailId						
+									) TAxInfo3	ON TAxInfo3.InventorySalesId=IID.InventorySalesId and TAxInfo3.InventorySalesDetailId=IID.Id 							
+					
+						LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code ,sum(A.Percentage) Percentage,sum(A.TaxAmount) TaxAmount FROM 
 									[TRN].InventorySalesAdditionalTax A
 									LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
-									WHERE B.Code='TCS' 								
+									WHERE B.Code='TCS' 	
+									Group by A.InventorySalesId, B.UserName ,B.Code 
 						) TAxInfo6 ON TAxInfo6.InventorySalesId=IID.InventorySalesId
 						
 						WHERE II.PlantId='" + identity.PlantId + "' AND convert(Date,II.SalesDate) <= '" + toDate + @"'
-						GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
-						,II.SalesDate, MS.UserName
-						,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo 
-						,PPI.UserName,AM.Address1,ST.UserName,PPI.GSTIN ,PPI1.UserName ,PPI1.GSTIN,ST1.UserName,AM1.Address1,II.ToCurrencyRate, II.DocRefNo, II.DocDate 
-						, II.CurrencyId,CAST(II.NoteForAccounts AS NVARCHAR(MAX)) ,p.UserName ,P.Id 
-						,EI2.EmployeeName ,II.CheckedBy,EI1.EmployeeName ,II.ApprovedBy
-						,MT.UserName ,MGM.UserName,IM.MaterialMasterId,MM.UserName, ART.StandardName 
-						, ISNULL(FCV.UserName,''), ISNULL(SCV.UserName,''), ISNULL(TCV.UserName,''),II.[Status]
-						,Pnt.UserName,HSNC.Code ,Com.UserName,TUoM.UserName	,ComG.UserName,II.VoucherId,IID.Id,TAxInfo.HSCode
+						
 						UNION ALL
 						Select                  
-						ROW_NUMBER() Over(Order by   IR.Id) As[S.N]
-						,'InventorySales' SourceType
-						,SM.Id
-						,IR.Id SalesId
-						,FORMAT(IR.SalesDate, 'dd-MMM-yyyy') SalesDate,'' InvoiceDate
-						,'' SalesOrderId
-						,'' MasterOrderId
-						,'' SONo
-						,'' PONumber
-						,''  BillTo							
-						,''BillToAddress
-						,'' BillToState
-						,'' BillToGSTNo
-						,'' ShipTo
-						,'' ShipToAddress
-						,''ShipToState
-						,''ShipToGSTNo		
-						, 0 ToCurrencyRate
-						, '' DocRefNo
-						,'' DocDate
-						, P.UserName AS PartyName
-						,'' AS MaterialGroupMasterName
-						,SM.UserName MaterialMasterName
-						,'' AS MaterialMasterArticleName
-						,''FirstCharacteristicsValue
-						,'' SecondCharacteristicsValue
-						,'' ThirdCharacteristicsValue
-						, '' HSNCode
+								ROW_NUMBER() Over(Order by   IR.Id) As[S.N]
+								,'InventorySales' SourceType
+								,ISs.Id
+								,IR.Id SalesId
+								,FORMAT(IR.SalesDate, 'dd-MMM-yyyy') SalesDate,'' InvoiceDate
+								,'' SalesOrderId
+								,'' MasterOrderId
+								,'' SONo
+								,'' PONumber
+								,'' AS BillTo
+								,'' AS BillToAddress
+								,'' AS BillToState
+								,'' as BillToGSTNo
+								,'' AS ShipTo
+								,'' AS ShipToAddress
+								,'' AS ShipToState	
+								,'' as ShipToGSTNo
+								, 0 ToCurrencyRate
+								, '' DocRefNo
+								,FORMAT(IR.DocDate,'') DocDate
+								, P.UserName AS PartyName,p.Code
+								,'' AS MaterialGroupMasterName
+								,SM.UserName MaterialMasterName
+								,'' AS MaterialMasterArticleName
+								,''FirstCharacteristicsValue
+								,'' SecondCharacteristicsValue
+								,'' ThirdCharacteristicsValue
+								--, '' HSNCode
 
 								,0 BaseRate
 								,0 BaseUoMFactor
 								,0 TransactionRate
 								,0 TransactionQty
 								,ISs.Amount TransactionAmount
-								,ISs.Amount TaxAmount
-								,0 NetAmount
+								,0 TaxAmount
+								,ISs.Amount NetAmount
+								,ISs.Amount NetBookValue
 								,'' VoucherDetailId
 								,'' AS BaseUoM
 								,'' AS TransactionUoM
@@ -4612,7 +4691,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 								,'' SOType
 								,0 ServiceCharge
 								,0 ServiceTax
-								,'' Entity
+								,E.UserName Entity
 								,'' CheckedByName
 								,'' CheckedBy
 								,'' ApprovedByName
@@ -4620,16 +4699,36 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 								,'' Posted
 								,'' 'NoteForAccounts'
 
-						,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
+						,round(isnull(TAxInfo.TaxAmount,0),2)  CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
 						,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
 						,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
 						,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
 						,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
-,''ContainerNo,''TransporterName,''TransportDocRefNo 
+,''ContainerNo ,''TransporterName,''TransportDocRefNo 
 						,''TransportDocDate,''AgentName
 						,''AgentCommission
 						,'' Insurance
 ,''GrossWeight,''LoTNo
+,''ContractNo
+						,''MasterLcNo
+						,''ComercialInvoiceNo
+						,''ExpiryDate
+						,''BLAWBNo,''BLAWBDate
+						,''PaymentTerm,''BaseOnDueDate
+						,0 NoOfDays
+					    ,''MatureDate
+						,0 LCAmount
+						,''ExFactoryDate
+						,''TransportAgent	
+						
+						,''CNFAgent
+						,''CNFContainerNo
+						,''CNFVesselTrackingNo
+						,''OwnReferenceNo
+						,0 RealizeAmount
+					    ,''RealizeDate
+
+							--,0BalanceAmount
 						from trn.InventoryService AS ISS
 						LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 						left jOIN [TRN].[InventorySales] AS IR ON IR.Id=ISs.InventoryReceiveId
@@ -4640,65 +4739,52 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 						left join trn.Voucher V on V.Id=I.VoucherId
 						left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=IR.Id					
 						left join trn.Voucher V1 on V1.Id=ep.VoucherId
-						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
-									,A.TaxAmount TaxAmount,HS.Code HSCode 
+						Left JOIN [ORG].[Entity] E On E.id= IR.EntityId
+						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage
+									,sum(A.TaxAmount) TaxAmount--,HS.Code HSCode 
 									FROM  [TRN].[InventorySalesTax] A
 									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 									WHERE B.Code='CGST'  
+									Group By A.InventorySalesServiceId,A.InventorySalesId, B.UserName ,B.Code 
 									--Group By A.InventoryReceiveId, B.UserName ,B.Code  ,A.Percentage 
 									) TAxInfo	ON TAxInfo.InventorySalesServiceId=ISs.Id AND TAxInfo.InventorySalesServiceId IS NOT NULL
 
-						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
-									,A.TaxAmount TaxAmount,HS.Code HSCode 
+						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage
+									,sum(A.TaxAmount) TaxAmount--,HS.Code HSCode 
 									FROM  [TRN].[InventorySalesTax] A
 									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 									WHERE B.Code='IGST'  
-
+									Group By A.InventorySalesServiceId,A.InventorySalesId, B.UserName ,B.Code 
 									) TAxInfo1	ON TAxInfo1.InventorySalesServiceId=ISs.Id AND TAxInfo1.InventorySalesServiceId IS NOT NULL 
 							  		 
-						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
-									,A.TaxAmount TaxAmount,HS.Code HSCode 
+						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage
+									,sum(A.TaxAmount) TaxAmount--,HS.Code HSCode 
 									FROM  [TRN].[InventorySalesTax] A
 									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 									WHERE B.Code='SGST'  
-
+                                    Group By A.InventorySalesServiceId,A.InventorySalesId, B.UserName ,B.Code 
 											) TAxInfo2	ON TAxInfo2.InventorySalesServiceId=ISs.Id AND TAxInfo2.InventorySalesServiceId IS NOT NULL
 
-						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
-									,A.TaxAmount TaxAmount,HS.Code HSCode 
+						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage
+									,sum(A.TaxAmount) TaxAmount--,HS.Code HSCode 
 									FROM  [TRN].[InventorySalesTax] A
 									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 									WHERE B.Code='TDS' 
+                                    Group By A.InventorySalesServiceId,A.InventorySalesId, B.UserName ,B.Code 
 									) TAxInfo3	ON TAxInfo3.InventorySalesServiceId=ISs.Id AND TAxInfo3.InventorySalesServiceId IS NOT NULL
-
-
 							
-						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
-									,A.TaxAmount TaxAmount,HS.Code HSCode 
+					
+						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,Sum(A.Percentage) Percentage
+									,sum(A.TaxAmount) TaxAmount--,HS.Code HSCode 
 									FROM  [TRN].[InventorySalesTax] A
 									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='VAT' 
-								
-						) TAxInfo4 ON TAxInfo4.InventorySalesServiceId=ISs.Id AND TAxInfo4.InventorySalesServiceId IS NOT NULL
-
-						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
-									,A.TaxAmount TaxAmount,HS.Code HSCode 
-									FROM  [TRN].[InventorySalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='AIT' 
-						) TAxInfo5 ON TAxInfo5.InventorySalesServiceId=ISs.Id AND TAxInfo5.InventorySalesServiceId IS NOT NULL
-						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
-									,A.TaxAmount TaxAmount,HS.Code HSCode 
-									FROM  [TRN].[InventorySalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.TaxCategoryType='TCS' 
+									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+									WHERE B.Code='TCS' 
+                                    Group By A.InventorySalesServiceId,A.InventorySalesId, B.UserName ,B.Code 
 						) TAxInfo6 ON TAxInfo6.InventorySalesServiceId=ISs.Id AND TAxInfo6.InventorySalesServiceId IS NOT NULL
 						WHERE IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.SalesDate) <= '" + toDate + @"'";
 						return _sqlRepository.GetDataTable(sql);
@@ -5491,6 +5577,48 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
+					worksheet[ROW, COL].Text = "Material Group";
+					int colMaterialGroupMasterName = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "Material Master";
+					int colMaterialMasterName = COL;
+					worksheet[ROW, COL].ColumnWidth = 20;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "Article";
+					int colArticleName = COL;
+					worksheet[ROW, COL].ColumnWidth = 20;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "SKU1";
+					int colSKU1 = COL;
+					worksheet[ROW, COL].ColumnWidth = 10;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "SKU2";
+					int colSKU2 = COL;
+					worksheet[ROW, COL].ColumnWidth = 10;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "SKU3";
+					int colSKU3 = COL;
+					worksheet[ROW, COL].ColumnWidth = 12;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
 					worksheet[ROW, COL].Text = "SourceType";
 					int colSourceType = COL;
 					worksheet[ROW, COL].ColumnWidth = 15;
@@ -5505,7 +5633,13 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-
+					//worksheet[ROW, COL].Text = "SO No";
+					//int colSONO = COL;
+					//worksheet[ROW, COL].ColumnWidth = 20;
+					//worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					//worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					//worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					//COL++;
 					worksheet[ROW, COL].Text = "Enrty Date";
 					int colSalesDate = COL;
 					worksheet[ROW, COL].ColumnWidth = 15;
@@ -5537,136 +5671,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
-					worksheet[ROW, COL].Text = "SO No";
-					int colSONO = COL;
-					worksheet[ROW, COL].ColumnWidth = 20;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
-
-					worksheet[ROW, COL].Text = "Customer PONo";
-					int colPONo = COL;
-					worksheet[ROW, COL].ColumnWidth = 20;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
-
-					worksheet[ROW, COL].Text = "Bill To";
-					int colBillTo = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
-
-
-					worksheet[ROW, COL].Text = "Bill To Address";
-					int colBillToAddress = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
-
-
-					worksheet[ROW, COL].Text = "Bill To State";
-					int colBillToState = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
-
-					worksheet[ROW, COL].Text = "Bill To GST No.";
-					int colBillToGstNo = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
-
-					worksheet[ROW, COL].Text = "Ship To";
-					int colShipTo = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
-
-					worksheet[ROW, COL].Text = "Ship To Address";
-					int colShipToAddress = COL;
-					worksheet[ROW, COL].ColumnWidth = 20;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
-					worksheet[ROW, COL].Text = "Ship To State";
-					int colShipToState = COL;
-					worksheet[ROW, COL].ColumnWidth = 15;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
-					worksheet[ROW, COL].Text = "Ship To GST No.";
-					int colShipToGSTNo = COL;
-					worksheet[ROW, COL].ColumnWidth = 15;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
-
 					
-					worksheet[ROW, COL].Text = "Container No.";
-					int colContainer = COL;
-					worksheet[ROW, COL].ColumnWidth = 15;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
-					worksheet[ROW, COL].Text = "Transporter Name";
-					int colTransporterName = COL;
-					worksheet[ROW, COL].ColumnWidth = 20;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
-					worksheet[ROW, COL].Text = "Transpoter Doc Ref No.";
-					int colTranspoterDocRefNo = COL;
-					worksheet[ROW, COL].ColumnWidth = 25;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
-					worksheet[ROW, COL].Text = "Transporter Doc Ref No. Date";
-					int colTransporterDocRefDate = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
-					worksheet[ROW, COL].Text = "Insurance Y/N";
-					int colInsurance = COL;
-					worksheet[ROW, COL].ColumnWidth = 20;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
-					worksheet[ROW, COL].Text = "Agent Name";
-					int colAgentName = COL;
-					worksheet[ROW, COL].ColumnWidth = 20;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
-					worksheet[ROW, COL].Text = "Agent Commission %";
-					int colAgentCommission = COL;
-					worksheet[ROW, COL].ColumnWidth = 25;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
 					
 					worksheet[ROW, COL].Text = "Doc Ref No";
 					int colDocRefNo = COL;
@@ -5697,55 +5702,15 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-					worksheet[ROW, COL].Text = "Material Group Master Name";
-					int colMaterialGroupMasterName = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
-					worksheet[ROW, COL].Text = "Material Master Name";
-					int colMaterialMasterName = COL;
-					worksheet[ROW, COL].ColumnWidth = 20;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
-					worksheet[ROW, COL].Text = "Article Name";
-					int colArticleName = COL;
-					worksheet[ROW, COL].ColumnWidth = 20;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
-					worksheet[ROW, COL].Text = "SKU1";
-					int colSKU1 = COL;
-					worksheet[ROW, COL].ColumnWidth = 10;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
-					worksheet[ROW, COL].Text = "SKU2";
-					int colSKU2 = COL;
-					worksheet[ROW, COL].ColumnWidth = 10;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
-					worksheet[ROW, COL].Text = "SKU3";
-					int colSKU3 = COL;
-					worksheet[ROW, COL].ColumnWidth = 12;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					//COL++;
+					
+					
 					//worksheet[ROW, COL].Text = "HSN No";
 					//int colHSNCode = COL;
 					//worksheet[ROW, COL].ColumnWidth = 12;
 					//worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					//worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					//worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
+					//COL++;
 					worksheet[ROW, COL].Text = "Base Rate";
 					int colBaseRate = COL;
 					worksheet[ROW, COL].ColumnWidth = 12;
@@ -5760,31 +5725,39 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
+					worksheet[ROW, COL].Text = "Base UoM";
+					int colBaseUoM = COL;
+					worksheet[ROW, COL].ColumnWidth = 12;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					
+					
 
-					worksheet[ROW, COL].Text = "Transaction Rate";
-					int colTransactionRate = COL;
+					worksheet[ROW, COL].Text = "Transaction Qty";
+					int colTransactionQty = COL;
 					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-					worksheet[ROW, COL].Text = "Gross Weight";
-					int colGrossWeight = COL;
-					worksheet[ROW, COL].ColumnWidth = 15;
+					worksheet[ROW, COL].Text = "Transaction UoM";
+					int colTransactionUoM = COL;
+					worksheet[ROW, COL].ColumnWidth = 12;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-					worksheet[ROW, COL].Text = "LOT No";
-					int colLOTNo = COL;
-					worksheet[ROW, COL].ColumnWidth = 10;
+					worksheet[ROW, COL].Text = "Currency";
+					int colCurrency = COL;
+					worksheet[ROW, COL].ColumnWidth = 12;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-
-					worksheet[ROW, COL].Text = "Transaction Qty";
-					int colTransactionQty = COL;
+					worksheet[ROW, COL].Text = "Transaction Rate";
+					int colTransactionRate = COL;
 					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -5882,6 +5855,161 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
+
+					worksheet[ROW, COL].Text = "Exchange Rate";
+					int colToCurrencyRate = COL;
+					worksheet[ROW, COL].ColumnWidth = 20;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "Books Val.";
+					int colBooksVal = COL;
+					worksheet[ROW, COL].ColumnWidth = 20;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+
+					
+
+					worksheet[ROW, COL].Text = "Customer PONo";
+					int colPONo = COL;
+					worksheet[ROW, COL].ColumnWidth = 20;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+
+					worksheet[ROW, COL].Text = "Bill To";
+					int colBillTo = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+
+
+					worksheet[ROW, COL].Text = "Bill To Address";
+					int colBillToAddress = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+
+
+					worksheet[ROW, COL].Text = "Bill To State";
+					int colBillToState = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+
+					worksheet[ROW, COL].Text = "Bill To GST No.";
+					int colBillToGstNo = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+
+					worksheet[ROW, COL].Text = "Ship To";
+					int colShipTo = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+
+					worksheet[ROW, COL].Text = "Ship To Address";
+					int colShipToAddress = COL;
+					worksheet[ROW, COL].ColumnWidth = 20;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "Ship To State";
+					int colShipToState = COL;
+					worksheet[ROW, COL].ColumnWidth = 15;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "Ship To GST No.";
+					int colShipToGSTNo = COL;
+					worksheet[ROW, COL].ColumnWidth = 15;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+
+
+					worksheet[ROW, COL].Text = "Container No.";
+					int colContainer = COL;
+					worksheet[ROW, COL].ColumnWidth = 15;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "Transporter Name";
+					int colTransporterName = COL;
+					worksheet[ROW, COL].ColumnWidth = 20;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "Transpoter Doc Ref No.";
+					int colTranspoterDocRefNo = COL;
+					worksheet[ROW, COL].ColumnWidth = 25;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "Transporter Doc Ref No. Date";
+					int colTransporterDocRefDate = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "Insurance Y/N";
+					int colInsurance = COL;
+					worksheet[ROW, COL].ColumnWidth = 20;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "Gross Weight";
+					int colGrossWeight = COL;
+					worksheet[ROW, COL].ColumnWidth = 15;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "LOT No";
+					int colLOTNo = COL;
+					worksheet[ROW, COL].ColumnWidth = 10;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "Agent Name";
+					int colAgentName = COL;
+					worksheet[ROW, COL].ColumnWidth = 20;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "Agent Commission %";
+					int colAgentCommission = COL;
+					worksheet[ROW, COL].ColumnWidth = 25;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+
 					worksheet[ROW, COL].Text = "Voucher Detail Id";
 					int colVoucherDetailId = COL;
 					worksheet[ROW, COL].ColumnWidth = 12;
@@ -5889,34 +6017,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-					worksheet[ROW, COL].Text = "Base UoM";
-					int colBaseUoM = COL;
-					worksheet[ROW, COL].ColumnWidth = 12;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
-					worksheet[ROW, COL].Text = "Transaction UoM";
-					int colTransactionUoM = COL;
-					worksheet[ROW, COL].ColumnWidth = 12;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
-					worksheet[ROW, COL].Text = "Currency";
-					int colCurrency = COL;
-					worksheet[ROW, COL].ColumnWidth = 12;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
-					worksheet[ROW, COL].Text = "ToCurrency Rate";
-					int colToCurrencyRate = COL;
-					worksheet[ROW, COL].ColumnWidth = 20;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
+					
 					worksheet[ROW, COL].Text = "Delivery Date";
 					int colDeliveryDate = COL;
 					worksheet[ROW, COL].ColumnWidth = 12;
@@ -6156,7 +6257,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 								
 								worksheet[ROW, colSalesOrderId].Text = dtInventorySalesReportList.Rows[i]["SalesOrderId"].ToString();
 								worksheet[ROW, colMasterOrderId].Text = dtInventorySalesReportList.Rows[i]["MasterOrderId"].ToString();
-								worksheet[ROW, colSONO].Text = dtInventorySalesReportList.Rows[i]["SONo"].ToString();
+								//worksheet[ROW, colSONO].Text = dtInventorySalesReportList.Rows[i]["SONo"].ToString();
 								worksheet[ROW, colPONo].Text = dtInventorySalesReportList.Rows[i]["PONumber"].ToString();
 								worksheet[ROW, colBillTo].Text = dtInventorySalesReportList.Rows[i]["BillTo"].ToString();
 								worksheet[ROW, colBillToAddress].Text = dtInventorySalesReportList.Rows[i]["BillToAddress"].ToString();
@@ -6168,6 +6269,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 								worksheet[ROW, colShipToGSTNo].Text = dtInventorySalesReportList.Rows[i]["ShipToGSTNo"].ToString();
 								
 								worksheet[ROW, colToCurrencyRate].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["ToCurrencyRate"].ToString());
+								worksheet.Range[ROW, colToCurrencyRate].NumberFormat = NumberFormatFourDecimal;
 								worksheet[ROW, colDocRefNo].Text = dtInventorySalesReportList.Rows[i]["DocRefNo"].ToString();
 								worksheet[ROW, colDocDate].Text = dtInventorySalesReportList.Rows[i]["DocDate"].ToString();
 								worksheet[ROW, colPartyName].Text = dtInventorySalesReportList.Rows[i]["PartyName"].ToString();
@@ -6220,6 +6322,8 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 
 								worksheet[ROW, colNetAmount].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["NetAmount"].ToString());
 								worksheet.Range[ROW, colNetAmount].NumberFormat = NumberFormatTwoDecimal;
+								worksheet[ROW, colBooksVal].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["NetBookValue"].ToString());
+								worksheet.Range[ROW, colBooksVal].NumberFormat = NumberFormatTwoDecimal;
 								worksheet[ROW, colVoucherDetailId].Text = dtInventorySalesReportList.Rows[i]["VoucherDetailId"].ToString();
 								worksheet[ROW, colBaseUoM].Text = dtInventorySalesReportList.Rows[i]["BaseUoM"].ToString();
 								worksheet[ROW, colTransactionUoM].Text = dtInventorySalesReportList.Rows[i]["TransactionUoM"].ToString();

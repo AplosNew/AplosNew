@@ -4198,21 +4198,24 @@ namespace Library.Service.SalesManagements
                     ConnectionManager.DAL.ConManager objCon;
                     objCon = new ConnectionManager.DAL.ConManager("1");
                     DataSet dsBillMaster;
-                    objCon.OpenDataSetThroughAdapter("select * from dbo.SalesPacking Where Id='" + packing.Id + "'", out dsBillMaster, false, "1");
+                    objCon.OpenDataSetThroughAdapter("select * from dbo.SalesPacking Where SalesId='" + packing.SalesId + "'", out dsBillMaster, false, "1");
 
-                    DataView dv = new DataView(dsBillMaster.Tables[0]);
-                    dv.RowFilter = "Id='" + packing.Id + "'";
-
-                    if (dv.Count > 0)
+                    for (int i = 0; i < dsBillMaster.Tables.Count; i++)
                     {
-                        DataRow drmo = dv[0].Row;
-                        drmo.BeginEdit();
+                        DataView dv = new DataView(dsBillMaster.Tables[i]);
+                        dv.RowFilter = "Id='" + dsBillMaster.Tables[i].Rows[i]["Id"] + "'";
 
-                        drmo["VoucherId"] = packingvoucher.Id;
-                        drmo["UpdatedBy"] = packingvoucher.AddedBy;
-                        drmo["UpdatedDate"] = DateTime.Now.ToString();
-                        drmo["UpdatedFromIP"] = packingvoucher.AddedFromIP;
-                        drmo.EndEdit();
+                        if (dv.Count > 0)
+                        {
+                            DataRow drmo = dv[0].Row;
+                            drmo.BeginEdit();
+
+                            drmo["VoucherId"] = packingvoucher.Id;
+                            drmo["UpdatedBy"] = packingvoucher.AddedBy;
+                            drmo["UpdatedDate"] = DateTime.Now.ToString();
+                            drmo["UpdatedFromIP"] = packingvoucher.AddedFromIP;
+                            drmo.EndEdit();
+                        } 
                     }
 
                     if (totalPackingAmountDr != totalPackingAmountCr)
