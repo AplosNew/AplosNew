@@ -986,7 +986,7 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
                                 WHERE D.WorkDate>GETDATE() AND D.WorkDate<='" + _ToDate + @"'
                                 AND T.IsApproved=1 GROUP BY  T.EmpSystemID,T.LTSystemID
                     ) APL ON apl.EmpSystemID=B.EmployeeId AND apl.LTSystemID=B.LeaveTypeId
-
+                    where LT.UserName NOT LIKE '%Maternity%'
                     order by ei.EmployeeCode";
 
                 return _sqlRepository.GetDataCollection(_sql);
