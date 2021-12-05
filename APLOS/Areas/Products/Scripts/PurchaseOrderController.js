@@ -738,7 +738,8 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 	};
 
 	$scope.Clear = function () {
-		;
+		$scope.TermsAndConditionGridList = [];
+		$scope.POPupList = [];
 		ClearFields();
 		$scope.NotificationSettingStatus();
 		if (!$rootScope.isCollapsed) $rootScope.toggle();
@@ -2383,7 +2384,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 			$scope.productNew.CheckedBy = x.data.CheckedById;
 			$scope.productNew.labelCheckAndApproved = 'To be checked by';
 		}
-
+		$scope.LoadTermsAndConditionGrid($scope.productNew.TermsAndConditionsId, $scope.productNew.Id)
 		$scope.Action = 'Update';
 		//if (!baseService.isUndefinedOrNull($scope.productNew.PaymentTermId)) {
 		//	var paymentTerm = $.grep($scope.paymentTermList, function (item) { return item.Value === $scope.productNew.PaymentTermId; })[0];
@@ -2394,7 +2395,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 		//			$scope.IsBaseOnDueDateEnable = false;
 		//}
 		if (!$rootScope.isCollapsed) $rootScope.toggle();
-
+		
 
 	};
 	$scope.ContractWiseData = function (Id) {
@@ -4386,10 +4387,6 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 			//		data.push($scope.TermsAndConditionDetailGridList[i]);
 			//	}
 			//}
-
-
-		//var data = ej.DataManager($scope.TermsAndConditionDetailGridList).executeLocal(ej.Query().where("TermsAndConditionChildId", "equal", parseInt(filteredData), true).take(100));
-
 		e.detailsElement.find("#detailGridTitle").ejGrid({
 			dataSource: data,
 			columns: ["HeaderCaption", "Description"]
@@ -4556,7 +4553,8 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 						url: $scope.path + "UpdateMaterialSequence",
 						data: { data: sorteddata }
 					}).then(function successCallback(response) {
-
+						//$scope.LoadTermsAndConditionGrid($scope.productNew.TermsAndConditionsId, $scope.productNew.Id);
+						//$scope.detailgridTitle();
 					});
 				}
 			}
