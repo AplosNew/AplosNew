@@ -370,6 +370,13 @@ function InterCompanyPartyController(addressService, commonMessage, $scope, $roo
         angular.element(document.querySelector('#PlantPopUp')).modal('show');
     };
 
+    $scope.PartyPlantData = function (data, index) {
+        $scope.PartyPlantAction = 'Update';
+        $scope.partyPlantNew = Object.assign({}, data);
+        $scope.GetPartyPlantAddress($scope.partyPlantNew.AddressMasterId);
+        angular.element(document.querySelector('#PlantPopUp')).modal('show');
+    };
+
     function checkExistPlant(Code) {
         for (var i = 0; i < $scope.partyPlantList.length; i++) {
             if ($scope.partyPlantList[i].Code === Code) {
