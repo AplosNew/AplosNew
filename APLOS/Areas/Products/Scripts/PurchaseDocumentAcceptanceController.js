@@ -1095,7 +1095,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         });
 
     };
-    $scope.gridAcceptanceListDetail();
+    //$scope.gridAcceptanceListDetail();
 
     $scope.GridAcceptanceServiceList = [];
     $scope.gridAcceptanceServiceList = function () {
@@ -1111,7 +1111,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         });
 
     };
-    $scope.gridAcceptanceServiceList();
+    //$scope.gridAcceptanceServiceList();
 
     $scope.GetMaterialByIdList = [];
     $scope.GetMaterialById = function () {
@@ -1391,7 +1391,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         });
     }
 
-    $scope.GetMaterialById();
+   // $scope.GetMaterialById();
     $scope.GetServiceDetails = [];
     $scope.GetService = function (Id) {
 
