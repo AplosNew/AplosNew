@@ -43,15 +43,17 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 			$scope.NotificationSetting = response.data;
 			$scope.CheckedByStatusForNoti = $scope.NotificationSetting[0].RequiredChecking;
 			$scope.ApprovedByStatusForNoti = $scope.NotificationSetting[0].RequiredApproval;
-			$scope.GetCheckedByAndApprovedBy1();
 			if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === false) {
 				$scope.productNew.labelCheckAndApproved = 'To be checked by';
+				$scope.GetCheckedByAndApprovedBy1();
 			}
 			else if ($scope.CheckedByStatusForNoti === false && $scope.ApprovedByStatusForNoti === true) {
 				$scope.productNew.labelCheckAndApproved = 'To be approved by';
+				$scope.GetCheckedByAndApprovedBy1();
 			}
 			else if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === true) {
 				$scope.productNew.labelCheckAndApproved = 'To be checked by';
+				$scope.GetCheckedByAndApprovedBy1();
 			}
 			//else {
 			//    $scope.productNew.labelCheckAndApproved = 'To be checked/approved by';
@@ -61,8 +63,6 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 	};
 	$scope.NotificationSettingStatus();
 	$scope.GetCheckedByAndApprovedBy1 = function () {
-		
-
 		if (!baseService.isUndefinedOrNull($scope.CheckedByStatusForNoti) && !baseService.isUndefinedOrNull($scope.ApprovedByStatusForNoti)) {
 			$http({
 				method: 'GET',
@@ -587,11 +587,13 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 				ShowResult("Please select to be approved by", 'failure');
 				return false;
 			}
-			else if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === true && baseService.isUndefinedOrNull($scope.productNew.CheckedBy)) {
+			else
+				if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === true && baseService.isUndefinedOrNull($scope.productNew.CheckedBy)) {
 				ShowResult("Please select to be checked by", 'failure');
 				return false;
 			}
-			else if ($scope.inventoryMaterialList.length === 0) {
+				else
+					if ($scope.inventoryMaterialList.length === 0) {
 				angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
 			}
 			else if ($scope.dbval.length === 0) {
@@ -3131,7 +3133,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 			$scope.checkedByList = response.data;
 		});
 	}
-	$scope.GetSupervisorCboList();
+	//$scope.GetSupervisorCboList();
 	$window.onresize = function (event) {
 		$scope.actionCompleteSelected();
 	};
