@@ -149,21 +149,27 @@ namespace Library.MaterialManagement.Inventory
             DataSet dsToFirstCharacteristics;
             try
             {
-
-                //if (TitleId == null)
-                //{
-                //	throw new Exception("Please select Terms and Condition..");
-                //}
-
-
                 string Id = "";
                 DataSet dsSOId;
-                //GetSOId(MasterId, out dsSOId);
-                //string NewId = dsSOId.Tables[0].Rows[0]["Id"].ToString();
+
                 string NewSoId = string.Empty;
-
+                DataSet dsDetail;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-
+                con.OpenDataSetThroughAdapter("SELECT * FROM TermsAndConditionsPOChild WHERE POId='" + POId + "'", out dsDetail, false, "1");
+                if (dsDetail.Tables[0].Rows.Count > 0)
+                {
+                    if (dsDetail.Tables[0].Rows[0]["Id"].ToString() != TitleId)
+                    {
+                        string strSQLDetail = "DELETE FROM TermsAndConditionsPODetails Where TermsAndConditionsPOChildId IN(SELECT ID FROM TermsAndConditionsPOChild WHERE POId='" + POId + "')";
+                        string strSQLChild = "DELETE FROM TermsAndConditionsPOChild WHERE POId='" + POId + "')";
+                        con = new ConnectionManager.DAL.ConManager("1");
+                        con.OpenConnection("1");
+                        con.BeginTransaction();
+                        con.ExecuteNonQueryWrapper(strSQLDetail, true, "1");
+                        con.ExecuteNonQueryWrapper(strSQLChild, true, "1");
+                        con.CommitTransaction();
+                    }
+                }
                 con.OpenDataSetThroughAdapter("SELECT * FROM TermsAndConditionsPOChild WHERE 1=2", out dsToSalesOrder, false, "1");
                 con.OpenDataSetThroughAdapter("SELECT * FROM TermsAndConditionsPODetails WHERE 1=2", out dsToFirstCharacteristics, false, "1");
 
@@ -591,7 +597,7 @@ namespace Library.MaterialManagement.Inventory
 									,isnull(IR.OrderSpecific,'') OrderSpecific
 									,isnull(IR.PurchaseLCId,'') PurchaseLCId
 									,isnull(Par.UserName,'') CustomerName 
-                                    ,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END,IR.AddedDate,IR.Tolerance
+                                    ,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END,IR.AddedDate,IR.Tolerance,IR.TermsAndConditionsId
 						FROM [TRN].[PurchaseOrder] AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -660,7 +666,7 @@ namespace Library.MaterialManagement.Inventory
 									,isnull(IR.ContractId,'') ContractId
 									,isnull(IR.OrderSpecific,'') OrderSpecific
 									,isnull(IR.PurchaseLCId,'') PurchaseLCId
-									,isnull(Par.UserName,'') CustomerName ,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END,IR.AddedDate,IR.Tolerance
+									,isnull(Par.UserName,'') CustomerName ,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END,IR.AddedDate,IR.Tolerance,IR.TermsAndConditionsId
 						FROM [TRN].[PurchaseOrder] AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -731,7 +737,7 @@ namespace Library.MaterialManagement.Inventory
 									,isnull(IR.ContractId,'') ContractId
 									,isnull(IR.OrderSpecific,'') OrderSpecific
 									,isnull(IR.PurchaseLCId,'') PurchaseLCId
-									,isnull(Par.UserName,'') CustomerName ,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END,IR.AddedDate,IR.Tolerance
+									,isnull(Par.UserName,'') CustomerName ,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END,IR.AddedDate,IR.Tolerance,IR.TermsAndConditionsId
 						FROM [TRN].[PurchaseOrder] AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -798,6 +804,7 @@ namespace Library.MaterialManagement.Inventory
 									,isnull(IR.ContractId,'') ContractId
 									,isnull(IR.OrderSpecific,'') OrderSpecific
 									,isnull(IR.PurchaseLCId,'') PurchaseLCId,isnull(Par.UserName,'') CustomerName,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
+,IR.TermsAndConditionsId
                         FROM [TRN].[PurchaseOrder] AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                         LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -862,6 +869,7 @@ namespace Library.MaterialManagement.Inventory
 									,isnull(IR.ContractId,'') ContractId
 									,isnull(IR.OrderSpecific,'') OrderSpecific
 									,isnull(IR.PurchaseLCId,'') PurchaseLCId,isnull(Par.UserName,'') CustomerName,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
+,IR.TermsAndConditionsId
                         FROM [TRN].[PurchaseOrder] AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                         LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
