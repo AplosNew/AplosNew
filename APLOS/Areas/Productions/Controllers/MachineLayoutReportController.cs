@@ -60,17 +60,19 @@ namespace Aplos.Areas.Productions.Controllers
             DateTime dtFrmDt = DateTime.Now;
             DateTime dtEndDate = DateTime.Now;
             string MonthName = string.Empty;
-            DataTable dtEmp = null;
             #endregion Variable
 
             try
             {
                 #region DataSet
-
+                GetData(EntityId, ProcessId, ProductionDate, WorkCenterMasterId,out DataSet dsMasterData);
                 SelectedPlantWiseCompany(identity.PlantId, out dsCmp);
                 SelectedPlant(identity.PlantId, out dsFactory);
                 #endregion DataSet
-
+                if (dsMasterData.Tables[0].Rows.Count == 0)
+                {
+                    throw new Exception("No data found");
+                }
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
 
@@ -81,21 +83,15 @@ namespace Aplos.Areas.Productions.Controllers
                 xlsRow = 6;
                 #region Variables
                 int strCount = 0;
-                int iSrNo = 0;
-                int iEmpCode = 0;
-                int iEmpName = 0;
-                int iDOJ = 0;
+                int iTGT = 0;
+                int iOperation = 0;
+                int iSMV = 0;
+                int iTOMC = 0;
                 int iUnit = 0;
                 int iDepart = 0;
                 int iSec = 0;
                 int iDesig = 0;
                 int iEmployeeCategory = 0;
-                int iTotal = 0;
-                int iLine = 0;
-                int iValid = 0;
-                int iLO = 0;
-                int iNOO = 0;
-                int iMO = 0;
                 #endregion Variables
 
                 #region ------------------Column Header------------------
@@ -187,33 +183,35 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 3].Merge();
 
+                #endregion ------------------Column Header------------------
+
                 #region ------------------Details Header-----------------
 
                 xlsRow = 11;
                 xlsCol = 1;
-                iSrNo = xlsCol;
-                sheet1.Range[xlsRow, iSrNo].Text = "TGT";
-                sheet1.Range[xlsRow, iSrNo].ColumnWidth = 6;
-                sheet1.Range[xlsRow, iSrNo].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                sheet1.Range[xlsRow, iSrNo].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                iTGT = xlsCol;
+                sheet1.Range[xlsRow, iTGT].Text = "TGT";
+                sheet1.Range[xlsRow, iTGT].ColumnWidth = 6;
+                sheet1.Range[xlsRow, iTGT].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, iTGT].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 xlsCol += 1;
-                iEmpCode = xlsCol;
-                sheet1.Range[xlsRow, iEmpCode].Text = "Operation Name";
-                sheet1.Range[xlsRow, iEmpCode].ColumnWidth = 10;
-                sheet1.Range[xlsRow, iEmpCode].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                sheet1.Range[xlsRow, iEmpCode].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                iOperation = xlsCol;
+                sheet1.Range[xlsRow, iOperation].Text = "Operation Name";
+                sheet1.Range[xlsRow, iOperation].ColumnWidth = 25;
+                sheet1.Range[xlsRow, iOperation].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, iOperation].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 xlsCol += 1;
-                iEmpName = xlsCol;
-                sheet1.Range[xlsRow, iEmpName].Text = "SMV";
-                sheet1.Range[xlsRow, iEmpName].ColumnWidth = 22;
-                sheet1.Range[xlsRow, iEmpName].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                sheet1.Range[xlsRow, iEmpName].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                iSMV = xlsCol;
+                sheet1.Range[xlsRow, iSMV].Text = "SMV";
+                sheet1.Range[xlsRow, iSMV].ColumnWidth = 6;
+                sheet1.Range[xlsRow, iSMV].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, iSMV].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 xlsCol += 1;
-                iDOJ = xlsCol;
-                sheet1.Range[xlsRow, iDOJ].Text = "Type Of MC";
-                sheet1.Range[xlsRow, iDOJ].ColumnWidth = 9.20;
-                sheet1.Range[xlsRow, iDOJ].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                sheet1.Range[xlsRow, iDOJ].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                iTOMC = xlsCol;
+                sheet1.Range[xlsRow, iTOMC].Text = "Type Of MC";
+                sheet1.Range[xlsRow, iTOMC].ColumnWidth = 6;
+                sheet1.Range[xlsRow, iTOMC].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, iTOMC].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 xlsCol += 1;
                 iUnit = xlsCol;
                 sheet1.Range[xlsRow, iUnit].Text = "Unit";
@@ -223,27 +221,27 @@ namespace Aplos.Areas.Productions.Controllers
                 xlsCol += 1;
                 iDepart = xlsCol;
                 sheet1.Range[xlsRow, iDepart].Text = "Type Of MC";
-                sheet1.Range[xlsRow, iDepart].ColumnWidth = 15;
+                sheet1.Range[xlsRow, iDepart].ColumnWidth = 6;
                 sheet1.Range[xlsRow, iDepart].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[xlsRow, iDepart].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 xlsCol += 1;
                 iSec = xlsCol;
                 sheet1.Range[xlsRow, iSec].Text = "SMV";
-                sheet1.Range[xlsRow, iSec].ColumnWidth = 15;
+                sheet1.Range[xlsRow, iSec].ColumnWidth = 6;
                 sheet1.Range[xlsRow, iSec].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[xlsRow, iSec].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                 xlsCol += 1;
                 iDesig = xlsCol;
                 sheet1.Range[xlsRow, iDesig].Text = "Operation Name";
-                sheet1.Range[xlsRow, iDesig].ColumnWidth = 15;
+                sheet1.Range[xlsRow, iDesig].ColumnWidth = 25;
                 sheet1.Range[xlsRow, iDesig].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[xlsRow, iDesig].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                 xlsCol += 1;
                 iEmployeeCategory = xlsCol;
                 sheet1.Range[xlsRow, iEmployeeCategory].Text = "TGT";
-                sheet1.Range[xlsRow, iEmployeeCategory].ColumnWidth = 15;
+                sheet1.Range[xlsRow, iEmployeeCategory].ColumnWidth = 6;
                 sheet1.Range[xlsRow, iEmployeeCategory].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[xlsRow, iEmployeeCategory].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
@@ -257,64 +255,43 @@ namespace Aplos.Areas.Productions.Controllers
                 xlsCol = 1;
                 xlsRow += 1;
 
-                #endregion ------------------Column Header------------------
 
-                //for (int i = 0; i <= dtEmp.Rows.Count - 1; i++)
-                //{
-                //    xlsCol = 1;
+                for (int i = 0; i <= dsMasterData.Tables[0].Rows.Count; i++)
+                {
+                    xlsCol = 1;
 
-                //    #region ----------------------Data-----------------------                    
-                //    strCount += 1;
-                //    sheet1.Range[xlsRow, iSrNo].Number = strCount;
-                //    sheet1.Range[xlsRow, iSrNo].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                //    sheet1.Range[xlsRow, iSrNo].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    #region ----------------------Data-----------------------                    
+                    //strCount += 1;
+                    //sheet1.Range[xlsRow, iSrNo].Number = strCount;
+                    //sheet1.Range[xlsRow, iSrNo].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    //sheet1.Range[xlsRow, iSrNo].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                //    sheet1.Range[xlsRow, iEmpCode].Text = dtEmp.Rows[i]["EmployeeCode"].ToString().Trim();
-                //    sheet1.Range[xlsRow, iEmpCode].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                //    sheet1.Range[xlsRow, iEmpCode].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, iTGT].Text = dsMasterData.Tables[0].Rows[i]["WorkstationTargetPerHour"].ToString().Trim();
+                    sheet1.Range[xlsRow, iTGT].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, iTGT].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                //    sheet1.Range[xlsRow, iEmpName].Text = dtEmp.Rows[i]["EmployeeName"].ToString().Trim();
-                //    sheet1.Range[xlsRow, iEmpName].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                //    sheet1.Range[xlsRow, iEmpName].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, iOperation].Text = dsMasterData.Tables[0].Rows[i]["OperationVariationName"].ToString().Trim();
+                    sheet1.Range[xlsRow, iOperation].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, iOperation].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                //    sheet1.Range[xlsRow, iDOJ].Text = dtEmp.Rows[i]["DOJ"].ToString().Trim();
-                //    sheet1.Range[xlsRow, iDOJ].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                //    sheet1.Range[xlsRow, iDOJ].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, iSMV].Text = dsMasterData.Tables[0].Rows[i]["TotalSPT"].ToString().Trim();
+                    sheet1.Range[xlsRow, iSMV].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, iSMV].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                //    sheet1.Range[xlsRow, iUnit].Text = dtEmp.Rows[i]["Unit"].ToString().Trim();
-                //    sheet1.Range[xlsRow, iUnit].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                //    sheet1.Range[xlsRow, iUnit].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, iTOMC].Text = dsMasterData.Tables[0].Rows[i]["IsMachineRequired"].ToString().Trim();
+                    sheet1.Range[xlsRow, iTOMC].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, iTOMC].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                //    sheet1.Range[xlsRow, iDepart].Text = dtEmp.Rows[i]["Department"].ToString().Trim();
-                //    sheet1.Range[xlsRow, iDepart].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                //    sheet1.Range[xlsRow, iDepart].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    #endregion ----------------------Data-----------------------
 
-                //    sheet1.Range[xlsRow, iSec].Text = dtEmp.Rows[i]["Section"].ToString().Trim();
-                //    sheet1.Range[xlsRow, iSec].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                //    sheet1.Range[xlsRow, iSec].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    #region Line Setup
 
+                    sheet1.Range[xlsRow - 1, 1, xlsRow - 1, endXlsCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow - 1, 1, xlsRow - 1, endXlsCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow - 1, 1, xlsRow - 1, endXlsCol].WrapText = true;
 
-                //    sheet1.Range[xlsRow, iDesig].Text = dtEmp.Rows[i]["LegalDG"].ToString().Trim();
-                //    sheet1.Range[xlsRow, iDesig].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                //    sheet1.Range[xlsRow, iDesig].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                //    sheet1.Range[xlsRow, iEmployeeCategory].Text = dtEmp.Rows[i]["EmployeeCategory"].ToString().Trim();
-                //    sheet1.Range[xlsRow, iEmployeeCategory].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                //    sheet1.Range[xlsRow, iEmployeeCategory].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-
-
-
-                //    #endregion ----------------------Data-----------------------
-
-                //    #region Line Setup
-
-                //    sheet1.Range[xlsRow - 1, 1, xlsRow - 1, endXlsCol].BorderInside(ExcelLineStyle.Hair);
-                //    sheet1.Range[xlsRow - 1, 1, xlsRow - 1, endXlsCol].BorderAround(ExcelLineStyle.Hair);
-                //    sheet1.Range[xlsRow - 1, 1, xlsRow - 1, endXlsCol].WrapText = true;
-
-                //    #endregion Line Setup
-                //}
+                    #endregion Line Setup
+                }
                 int iLateBy = 9;
                 #region ******************Report Header******************
                 try
@@ -497,6 +474,36 @@ namespace Aplos.Areas.Productions.Controllers
                             LEFT OUTER JOIN MST.AddressMaster AM ON P.AddressMasterId=AM.Id
                              WHERE P.Id = '" + sPlantID + @"'";
                 //strSql = @"SELECT * FROM ORG.Plant WHERE Id = '" + sPlantID + @"'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//end of function
+        public void GetData(string EntityId, string ProcessId, string ProductionDate, string WorkCenterMasterId, out DataSet dsRef)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = "";
+
+            try
+            {
+                strSql = @"SELECT ov.UserName OperationVariationName  ,pbtd.OperationTargetPerHr,o.IsMachineRequired,pbtd.TotalSPT
+		                        ,CONVERT(INT,pbtd.OperationTargetPerHr/CASE WHEN pbtd.RequiredManPower>0 THEN pbtd.RequiredManPower ELSE 1 END) WorkstationTargetPerHour
+                                FROM LineLayoutDailyTargetData AS llbpbd
+                                LEFT JOIN MST.OperationVariation AS ov ON ov.Id=llbpbd.OperationVariationId
+                                LEFT JOIN TRN.ProductionBulletinTemplateDetail AS pbtd ON pbtd.OperationVariationId = ov.Id
+                                LEFT JOIN mst.Operation AS o ON o.Id=ov.OperationId
+                                LEFT JOIN LineLayoutDailyTarget AS lldt ON lldt.Id = llbpbd.LineLayoutDailyTargetId
+                                LEFT JOIN LineLayoutByProductionBulletin AS llbpb ON llbpb.ProductionBulletinTemplateMasterId = lldt.ProductionBulletinTemplateMasterId
+                                WHERE lldt.TargetDate ='" + ProductionDate + "' AND llbpb.ProductionOrderId='" + ProcessId + @"' AND llbpb.EntityId='" + EntityId + @"' --AND llbpb.ProductionBulletinTemplateMasterId=''
+                                ORDER BY llbpbd.Sequence";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, "1");
