@@ -540,7 +540,7 @@ namespace Library.OrderManagement.BOM
 k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChild,k.Process,k.RequiredQtyApproved,k.IncompleteMaterial,
 SUM(k.OrderQty) OrderQty,SUM(k.PlanOrderQty) PlanOrderQty,AVG(k.Consumption) Consumption,AVG(k.WastagePer) WastagePer,
 SUM(k.BOMQty) BOMQty,SUM(k.RequiredQty) RequiredQty,SUM(k.RequiredQtyPO) RequiredQtyPO,k.UOM,k.ParentUOM,k.POUOM,k.RMDescription,k.RMCustomerSpec
-,k.RMVendorSpec,SUM(k.POQTY) POQTY,SUM(k.GRNQty) GRNQty,k.SO1,k.SO2,k.SO3,k.POIds,k.GRNIds
+,k.RMVendorSpec,SUM(k.POQTY) POQTY,SUM(k.GRNQty) GRNQty,k.SO1,k.SO2,k.SO3,k.POIds,k.GRNIds,k.MOIIds
  From ( SELECT moi.OwnReferenceNo,moi.BuyerReferenceNo, b.VendorId,
                                  mm.UserName AS Material,mma.StandardName AS Article,p.UserName AS Vendor,b.SKUDesc,
 
@@ -576,7 +576,10 @@ SUM(k.BOMQty) BOMQty,SUM(k.RequiredQty) RequiredQty,SUM(k.RequiredQtyPO) Require
 								GRNIds =STUFF((select distinct ','+XB2.InventoryReceiveId
 										from trn.POBOQMAP a	 
 										JOIN trn.InventoryReceiveDetail AS XB2 ON xb2.PODetailsId=a.PODetailId
-										WHERE a.BOQDetailId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										WHERE a.BOQDetailId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+	  MOIIds=STUFF((select distinct ','+xMOI.Id
+							              FROM TRN.MasterOrderItem xMOI 
+                                        WHERE MO.Id=xMOI.MasterOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                                   FROM BOQ AS b
                                 LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
                                 LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
@@ -607,7 +610,7 @@ SUM(k.BOMQty) BOMQty,SUM(k.RequiredQty) RequiredQty,SUM(k.RequiredQtyPO) Require
                                 )) AS K GROUP BY K.OwnReferenceNo,k.BuyerReferenceNo,k.VendorId,k.Material,
 k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChild,k.Process,k.RequiredQtyApproved,k.IncompleteMaterial
 ,k.UOM,k.ParentUOM,k.POUOM,k.RMDescription,k.RMCustomerSpec
-,k.RMVendorSpec,k.SO1,k.SO2,k.SO3,k.POIds,k.GRNIds";
+,k.RMVendorSpec,k.SO1,k.SO2,k.SO3,k.POIds,k.GRNIds,k.MOIIds";
                 DataTable dtBOMData = new DataTable();
                 dtBOMData = _sqlRepository.GetDataTable(strsql);
                 int ROW = 6; int COL = 1;
@@ -1236,6 +1239,10 @@ k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChi
             sheet[ROW, COL].ColumnWidth = 10;
             int colRMCustomerSpec = COL;
             COL++;
+            sheet[ROW, COL].Text = "MOI No's";
+            sheet[ROW, COL].ColumnWidth = 12;
+            int colMOI = COL;
+            COL++;
             sheet[ROW, COL].Text = "Vendor Spec";
             sheet[ROW, COL].ColumnWidth = 10;
             int colRMVendorSpec = COL;
@@ -1334,7 +1341,7 @@ k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChi
                 sheet[ROW, colCharValSO1].Text = dtData.Rows[i]["SO1"].ToString();
                 sheet[ROW, colCharValSO2].Text = dtData.Rows[i]["SO2"].ToString();
                 sheet[ROW, colCharValSO3].Text = dtData.Rows[i]["SO3"].ToString();
-
+                sheet[ROW, colMOI].Text = dtData.Rows[i]["MOIIds"].ToString();
                 sheet[ROW, colRMCustomerSpec].Text = dtData.Rows[i]["RMCustomerSpec"].ToString();
                 sheet[ROW, colRMVendorSpec].Text = dtData.Rows[i]["RMVendorSpec"].ToString();
                 sheet[ROW, colSKUDesc].Text = dtData.Rows[i]["SKUDesc"].ToString();
