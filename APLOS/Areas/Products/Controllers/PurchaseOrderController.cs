@@ -193,12 +193,12 @@ namespace Aplos.Areas.Products.Controllers
 				}
 				else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "True")
 				{
-
 					entity.AuthorizedBy = entity.CheckedBy;
 					entity.AuthorizedByStatus = "For Approval";
 					entity.CheckedBy = null;
 					entity.CheckedByStatus = null;
 					entity.POType = "PO";
+					entity.IsApproved = false;
 				}
 				else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
 				{
@@ -207,6 +207,7 @@ namespace Aplos.Areas.Products.Controllers
 					entity.CheckedBy = null;
 					entity.AuthorizedBy = null;
 					entity.POType = "PO";
+					entity.IsApproved = true;
 				}
 				else
 				{
@@ -215,10 +216,9 @@ namespace Aplos.Areas.Products.Controllers
 					entity.AuthorizedBy = null;
 					entity.AuthorizedByStatus = null;
 					entity.POType = "PO";
-
+					entity.IsApproved = false;
 				}
 
-				entity.IsApproved = false;
 				entity.IsClosed = false;
 				entity.MasterOrderId = null;
 				//entity.CheckedBy = "";

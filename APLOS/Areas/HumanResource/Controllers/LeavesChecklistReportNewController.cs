@@ -59,6 +59,10 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             try
             {
+                if (string.IsNullOrEmpty(LeaveType))
+                {
+                    throw new Exception("Select Leave type..");
+                }
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
                 string LeaveTypeId = "'" + LeaveType.Replace(",", "','") + "'";//replaced with ""
