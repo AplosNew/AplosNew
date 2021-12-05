@@ -620,12 +620,21 @@
                                     <div e-column e-field="IsChargePark" e-headertext="Charges Park/Post" e-width="120"></div>
                                     <div e-column e-type="string" e-field="AcceptanceFirst" e-headertext="AcceptanceFirst" e-width="50"></div>
                                     @*<div e-column e-headertext="Actions" e-width="50">
-                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPrint('GridAcceptanceList');" style="margin: -6px;"></i></button>
-                                </div>*@
+                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPrint('GridAcceptanceList');" style="margin: -6px;"></i></button>
+                    </div>*@
                                 </div>
                             </div>
                         </div>
-
+                        <script id="tabGridContents" type="text/x-jsrender">
+                            <div class="tabcontrol" id="Test">
+                                <ul>
+                                    <li><a href="#gridTab{{:Id}}">Purchase Document Acceptence Details</a></li>
+                                </ul>
+                                <div id="gridTab{{:Id}}">
+                                    <div id="detailGrid"></div>
+                                </div>
+                            </div>
+                        </script>
 
                     </div>
 
