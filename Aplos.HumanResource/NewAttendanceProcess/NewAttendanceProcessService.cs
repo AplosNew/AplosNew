@@ -2901,13 +2901,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             try
             {
                 var sql = @"select distinct p.EmpSystemID,Result=dt.DayType, dt.AutoLock,format(p.WorkDate,'yyyy-MMM-dd')WorkDate, 
-                dt.SandwichStatusFlag,dt.OTApplicable,dt.GoodWorkApplicable,				
-				isnull(dt.PresentValuePD,'0')PresentValue,isnull(dt.LateValueLV,'0')LateValue,isnull(dt.AbsentValueAB,'0')AbsentValue,
-				isnull(dt.LeaveValueLP,'0')LvValue,isnull(dt.MaternityLeaveValueMLV,'0')MlvValue,isnull(dt.CompAssignLv,'0')CompAssignLvValue,
-                isnull(dt.WeeklyOffWO,'0')WeekOffValue,isnull(dt.HolidayH,'0')HoliDayValue,isnull(dt.WeekOffHoliDayWOH,'0')WeekOffHoliDayValue,
-				isnull(dt.LeaveValueLWP,'0')TotalLWP,isnull(dt.CasualLeaveValueCV,'0')TotalCasualLeave,
-				isnull(dt.PriviledgeLeavePL,'0')PriviledgeLeaveValue,isnull(dt.MedicalLeaveValueMV,'0')MedicalLeaveValue,isnull(dt.TotalWorkingDay,'0')WorkingDay,
-				isnull(dt.ActualWorkingDay,'0')ActualWorkingDay,isnull(dt.PayDay,'0')TotalPayDay,isnull(dt.NonPayDay,'0')TotalNonPayDay                 
+                dt.SandwichStatusFlag                 
 				from AttdnProcessData p
                         join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
                      	left join DayStatusHeader dh on dh.Id=p.DayStatusHeaderId
@@ -3038,8 +3032,39 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
-       
-        #endregion            
+        public void PreProcessPayrollDayStatusData(string PreDay, out DataSet ds, string Plant)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"select distinct p.EmpSystemID,Result=dt.DayType, dt.AutoLock,format(p.WorkDate,'yyyy-MMM-dd')WorkDate, 
+                dt.SandwichStatusFlag,dt.OTApplicable,dt.GoodWorkApplicable,				
+				isnull(dt.PresentValuePD,'0')PresentValue,isnull(dt.LateValueLV,'0')LateValue,isnull(dt.AbsentValueAB,'0')AbsentValue,
+				isnull(dt.LeaveValueLP,'0')LvValue,isnull(dt.MaternityLeaveValueMLV,'0')MlvValue,isnull(dt.CompAssignLv,'0')CompAssignLvValue,
+                isnull(dt.WeeklyOffWO,'0')WeekOffValue,isnull(dt.HolidayH,'0')HoliDayValue,isnull(dt.WeekOffHoliDayWOH,'0')WeekOffHoliDayValue,
+				isnull(dt.LeaveValueLWP,'0')TotalLWP,isnull(dt.CasualLeaveValueCV,'0')TotalCasualLeave,
+				isnull(dt.PriviledgeLeavePL,'0')PriviledgeLeaveValue,isnull(dt.MedicalLeaveValueMV,'0')MedicalLeaveValue,isnull(dt.TotalWorkingDay,'0')WorkingDay,
+				isnull(dt.ActualWorkingDay,'0')ActualWorkingDay,isnull(dt.PayDay,'0')TotalPayDay,isnull(dt.NonPayDay,'0')TotalNonPayDay                 
+				from AttdnProcessData p
+                        join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
+                     	left join DayStatusHeader dh on dh.Id=p.DayStatusHeaderId
+						left join DayStatus ds on ds.headerId=dh.Id
+						left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId									       
+						where WorkDate='" + PreDay + @"' 
+						and dt.DayType=p.DayStatus
+						and ei.PlantId='" + Plant + "'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+
+        #endregion
 
         #region OT Confirmation Process SourceData
         public void AutoConfirmedDataSet(string Date, out DataSet ds, string PlantId)
@@ -3487,93 +3512,20 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                         for (int i = 0; i < PrevFinalDayStat.Tables[0].Rows.Count; i++)
                         {
-                            // Localizing Diff Flags on the Basis of Processed FinalDayStatus 
+                            // Localizing Processed FinalDayStatus 
 
                             string EmpId = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
                             string Result = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"Result"]).ToString();
                             string SandwichFlag = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"SandwichStatusFlag"]).ToString();
-                            string OtApplicable = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"OTApplicable"]).ToString();
-                            string Goodwork = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"GoodWorkApplicable"]).ToString();
-                            string AutoLock = clsWebLib.GetBoolData(PrevFinalDayStat.Tables[0].Rows[i][@"AutoLock"]).ToString();
-
-                            #region For Using them to get the Summary
-                            string TotalPresent = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"PresentValue"]).ToString();
-                            string TotalLate = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"LateValue"]).ToString();
-                            string TotalAbsent = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"AbsentValue"]).ToString();
-                            string TotalLv = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"LvValue"]).ToString();
-                            string TotalMlv = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"MlvValue"]).ToString();
-                            string TotalCompAssignLv = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"CompAssignLvValue"]).ToString();
-                            string TotalWeekOff = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"WeekOffValue"]).ToString();
-                            string TotalHoliDay = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"HoliDayValue"]).ToString();
-                            string TotalWeekOffHoliDay = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"WeekOffHoliDayValue"]).ToString();
-                            string TotalLWP = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"TotalLWP"]).ToString();
-                            string TotalCasualLeave = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"TotalCasualLeave"]).ToString();
-                            string TotalPriviledgeLeave = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"PriviledgeLeaveValue"]).ToString();
-                            string TotalMedicalLeave = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"MedicalLeaveValue"]).ToString();
-                            string TotalPayDay = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"TotalPayDay"]).ToString();
-                            string TotalNonPayDay = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"TotalNonPayDay"]).ToString();
-                            string TotalWorkingDay = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"WorkingDay"]).ToString();
-                            string ActualWorkingDay = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"ActualWorkingDay"]).ToString();
-
-                            #endregion
-
+                                              
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
                                 // Updations in APD Table 
                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                 dr.BeginEdit();
-
-                                #region Null Flagging
-
-                                dr["PresentValue"] = DBNull.Value;
-                                dr["LateValue"] = DBNull.Value;
-                                dr["AbsentValue"] = DBNull.Value;
-                                dr["LvValue"] = DBNull.Value;
-                                dr["MLvValue"] = DBNull.Value;
-                                dr["CompAssignLvValue"] = DBNull.Value;
-                                dr["WeekOffValue"] = DBNull.Value;
-                                dr["HoliDayValue"] = DBNull.Value;
-                                dr["WeekOffHoliDayValue"] = DBNull.Value;
-                                dr["LWPValue"] = DBNull.Value;
-                                dr["CasualLeaveValue"] = DBNull.Value;
-                                dr["MedicalLeaveValue"] = DBNull.Value;
-                                dr["PriviledgeLeaveValue"] = DBNull.Value;
-                                dr["PayDayValue"] = DBNull.Value;
-                                dr["NonPayDayValue"] = DBNull.Value;
-                                dr["WorkingDayValue"] = DBNull.Value;
-                                dr["ActualWorkingDayValue"] = DBNull.Value;
-
-                                #endregion
-
                                 dr["ProcessFinalDayStatus"] = Result;
                                 dr["SandwichFlag"] = SandwichFlag;
-                                dr["DayTypeOTApplicable"] = OtApplicable;
-                                dr["DayTypeGoodWorkApplicable"] = Goodwork;
-                                if (AutoLock == "True")
-                                {
-                                    // Individual Lock
-                                    dr["IsLock"] = true;
-                                    dr["LockedDate"] = DateTime.Now;
-                                    dr["LockedBy"] = "AutoLock";
-                                }
-                                dr["PresentValue"] = TotalPresent;
-                                dr["LateValue"] = TotalLate;
-                                dr["AbsentValue"] = TotalAbsent;
-                                dr["LvValue"] = TotalLv;
-                                dr["MLvValue"] = TotalMlv;
-                                dr["CompAssignLvValue"] = TotalCompAssignLv;
-                                dr["WeekOffValue"] = TotalWeekOff;
-                                dr["HoliDayValue"] = TotalHoliDay;
-                                dr["WeekOffHoliDayValue"] = TotalWeekOffHoliDay;
-                                dr["LWPValue"] = TotalLWP;
-                                dr["CasualLeaveValue"] = TotalCasualLeave;
-                                dr["MedicalLeaveValue"] = TotalMedicalLeave;
-                                dr["PriviledgeLeaveValue"] = TotalPriviledgeLeave;
-                                dr["PayDayValue"] = TotalPayDay;
-                                dr["NonPayDayValue"] = TotalNonPayDay;
-                                dr["WorkingDayValue"] = TotalWorkingDay;
-                                dr["ActualWorkingDayValue"] = ActualWorkingDay;
                                 dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                 dr.EndEdit();
                             }
@@ -3776,6 +3728,114 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     #region Previous Payroll DayStatus 
                     PrePayrollDayStatus(PreviousDay, PlantValue); // On the Priority Check of Sandwich and ProcessFinalDayStatus 
+                    #endregion
+
+                    #region Prev Process Payroll DayStatus 
+                    DataSet PrevPayrollDayStat; 
+                    PreProcessPayrollDayStatusData(PreviousDay, out PrevPayrollDayStat, PlantValue);
+                    if (PrevPayrollDayStat.Tables[0].Rows.Count > 0)
+                    {
+                        var WkDate = PrevPayrollDayStat.Tables[0].Rows[0][@"WorkDate"].ToString();
+                        string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
+
+                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                        var sqlx = @"select * from AttdnProcessData where WorkDate='" + WkDate + "' and PlantID='" + PlantValue + "'";
+
+                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+
+
+                        for (int i = 0; i < PrevPayrollDayStat.Tables[0].Rows.Count; i++)
+                        {
+                            // Localizing Diff Flags on the Basis of Processed FinalDayStatus 
+
+                            string EmpId = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
+                            string OtApplicable = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"OTApplicable"]).ToString();
+                            string Goodwork = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"GoodWorkApplicable"]).ToString();
+                            string AutoLock = clsWebLib.GetBoolData(PrevPayrollDayStat.Tables[0].Rows[i][@"AutoLock"]).ToString();
+
+                            #region For Using them to get the Summary
+                            string TotalPresent = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"PresentValue"]).ToString();
+                            string TotalLate = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"LateValue"]).ToString();
+                            string TotalAbsent = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"AbsentValue"]).ToString();
+                            string TotalLv = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"LvValue"]).ToString();
+                            string TotalMlv = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"MlvValue"]).ToString();
+                            string TotalCompAssignLv = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"CompAssignLvValue"]).ToString();
+                            string TotalWeekOff = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"WeekOffValue"]).ToString();
+                            string TotalHoliDay = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"HoliDayValue"]).ToString();
+                            string TotalWeekOffHoliDay = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"WeekOffHoliDayValue"]).ToString();
+                            string TotalLWP = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"TotalLWP"]).ToString();
+                            string TotalCasualLeave = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"TotalCasualLeave"]).ToString();
+                            string TotalPriviledgeLeave = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"PriviledgeLeaveValue"]).ToString();
+                            string TotalMedicalLeave = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"MedicalLeaveValue"]).ToString();
+                            string TotalPayDay = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"TotalPayDay"]).ToString();
+                            string TotalNonPayDay = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"TotalNonPayDay"]).ToString();
+                            string TotalWorkingDay = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"WorkingDay"]).ToString();
+                            string ActualWorkingDay = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"ActualWorkingDay"]).ToString();
+
+                            #endregion
+
+                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                            if (dsRef.Tables[0].DefaultView.Count > 0)
+                            {
+                                // Updations in APD Table 
+                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                dr.BeginEdit();
+
+                                #region Null Flagging
+
+                                dr["PresentValue"] = DBNull.Value;
+                                dr["LateValue"] = DBNull.Value;
+                                dr["AbsentValue"] = DBNull.Value;
+                                dr["LvValue"] = DBNull.Value;
+                                dr["MLvValue"] = DBNull.Value;
+                                dr["CompAssignLvValue"] = DBNull.Value;
+                                dr["WeekOffValue"] = DBNull.Value;
+                                dr["HoliDayValue"] = DBNull.Value;
+                                dr["WeekOffHoliDayValue"] = DBNull.Value;
+                                dr["LWPValue"] = DBNull.Value;
+                                dr["CasualLeaveValue"] = DBNull.Value;
+                                dr["MedicalLeaveValue"] = DBNull.Value;
+                                dr["PriviledgeLeaveValue"] = DBNull.Value;
+                                dr["PayDayValue"] = DBNull.Value;
+                                dr["NonPayDayValue"] = DBNull.Value;
+                                dr["WorkingDayValue"] = DBNull.Value;
+                                dr["ActualWorkingDayValue"] = DBNull.Value;
+
+                                #endregion
+
+                                dr["DayTypeOTApplicable"] = OtApplicable;
+                                dr["DayTypeGoodWorkApplicable"] = Goodwork;
+                                if (AutoLock == "True")
+                                {
+                                    // Individual Lock
+                                    dr["IsLock"] = true;
+                                    dr["LockedDate"] = DateTime.Now;
+                                    dr["LockedBy"] = "AutoLock";
+                                }
+                                dr["PresentValue"] = TotalPresent;
+                                dr["LateValue"] = TotalLate;
+                                dr["AbsentValue"] = TotalAbsent;
+                                dr["LvValue"] = TotalLv;
+                                dr["MLvValue"] = TotalMlv;
+                                dr["CompAssignLvValue"] = TotalCompAssignLv;
+                                dr["WeekOffValue"] = TotalWeekOff;
+                                dr["HoliDayValue"] = TotalHoliDay;
+                                dr["WeekOffHoliDayValue"] = TotalWeekOffHoliDay;
+                                dr["LWPValue"] = TotalLWP;
+                                dr["CasualLeaveValue"] = TotalCasualLeave;
+                                dr["MedicalLeaveValue"] = TotalMedicalLeave;
+                                dr["PriviledgeLeaveValue"] = TotalPriviledgeLeave;
+                                dr["PayDayValue"] = TotalPayDay;
+                                dr["NonPayDayValue"] = TotalNonPayDay;
+                                dr["WorkingDayValue"] = TotalWorkingDay;
+                                dr["ActualWorkingDayValue"] = ActualWorkingDay;
+                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                dr.EndEdit();
+                            }
+                        }
+                        SaveDataSets(dsRef);
+
+                    }
                     #endregion
 
                     #region Prev DayOT Calculation 
@@ -4477,6 +4537,37 @@ namespace Library.HumanResource.NewAttendanceProcess {
             }
         }
 
+        public void ManualPayrollDayStatus(out DataSet ds, string Plant)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"select distinct p.EmpSystemID,Result=dt.DayType,
+                dt.SandwichStatusFlag,dt.OTApplicable,dt.AutoLock,dt.GoodWorkApplicable,
+				format(p.WorkDate,'yyyy-MMM-dd')WorkDate,
+				isnull(dt.PresentValuePD,'0')PresentValue,isnull(dt.LateValueLV,'0')LateValue,isnull(dt.AbsentValueAB,'0')AbsentValue,
+				isnull(dt.LeaveValueLP,'0')LvValue,isnull(dt.MaternityLeaveValueMLV,'0')MlvValue,isnull(dt.CompAssignLv,'0')CompAssignLvValue,
+                isnull(dt.WeeklyOffWO,'0')WeekOffValue,isnull(dt.HolidayH,'0')HoliDayValue,isnull(dt.WeekOffHoliDayWOH,'0')WeekOffHoliDayValue,
+				isnull(dt.LeaveValueLWP,'0')TotalLWP,isnull(dt.CasualLeaveValueCV,'0')TotalCasualLeave,
+				isnull(dt.PriviledgeLeavePL,'0')PriviledgeLeaveValue,isnull(dt.MedicalLeaveValueMV,'0')MedicalLeaveValue,isnull(dt.TotalWorkingDay,'0')WorkingDay,
+				isnull(dt.ActualWorkingDay,'0')ActualWorkingDay,isnull(dt.PayDay,'0')TotalPayDay,isnull(dt.NonPayDay,'0')TotalNonPayDay                
+	            from AttdnProcessData p
+                        join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
+                        left join DayStatusHeader dh on dh.Id=p.DayStatusHeaderId
+						left join DayStatus ds on ds.headerId=dh.Id
+						left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId									       
+						where ManualFlag=1 						
+						and dt.DayType=p.DayStatus
+						and ei.PlantId='" + Plant + "' order by WorkDate asc";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
         #endregion
 
         #region Manual Scheduler
