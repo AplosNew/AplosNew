@@ -928,7 +928,7 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 		$scope.productNew.PartyCode = party.Code;
 		$scope.productNew.PartyName = party.UserName;
 		$scope.productNew.PartyId = party.Id;
-		$scope.productNew.PaymentTermId = party.PaymentTermId;
+		//$scope.productNew.PaymentTermId = party.PaymentTermId;
 		$scope.productNew.CurrencyId = party.CurrencyId;
 		$scope.IsBaseOnDueDateEnable = false;
 		$scope.productNew.BaseOnDueDate = null;
