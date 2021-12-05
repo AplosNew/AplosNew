@@ -43,15 +43,17 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 			$scope.NotificationSetting = response.data;
 			$scope.CheckedByStatusForNoti = $scope.NotificationSetting[0].RequiredChecking;
 			$scope.ApprovedByStatusForNoti = $scope.NotificationSetting[0].RequiredApproval;
-			$scope.GetCheckedByAndApprovedBy1();
 			if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === false) {
 				$scope.productNew.labelCheckAndApproved = 'To be checked by';
+				$scope.GetCheckedByAndApprovedBy1();
 			}
 			else if ($scope.CheckedByStatusForNoti === false && $scope.ApprovedByStatusForNoti === true) {
 				$scope.productNew.labelCheckAndApproved = 'To be approved by';
+				$scope.GetCheckedByAndApprovedBy1();
 			}
 			else if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === true) {
 				$scope.productNew.labelCheckAndApproved = 'To be checked by';
+				$scope.GetCheckedByAndApprovedBy1();
 			}
 			//else {
 			//    $scope.productNew.labelCheckAndApproved = 'To be checked/approved by';
@@ -61,8 +63,6 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 	};
 	$scope.NotificationSettingStatus();
 	$scope.GetCheckedByAndApprovedBy1 = function () {
-		
-
 		if (!baseService.isUndefinedOrNull($scope.CheckedByStatusForNoti) && !baseService.isUndefinedOrNull($scope.ApprovedByStatusForNoti)) {
 			$http({
 				method: 'GET',
@@ -587,11 +587,13 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 				ShowResult("Please select to be approved by", 'failure');
 				return false;
 			}
-			else if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === true && baseService.isUndefinedOrNull($scope.productNew.CheckedBy)) {
+			else
+				if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === true && baseService.isUndefinedOrNull($scope.productNew.CheckedBy)) {
 				ShowResult("Please select to be checked by", 'failure');
 				return false;
 			}
-			else if ($scope.inventoryMaterialList.length === 0) {
+				else
+					if ($scope.inventoryMaterialList.length === 0) {
 				angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
 			}
 			else if ($scope.dbval.length === 0) {
@@ -738,7 +740,8 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 	};
 
 	$scope.Clear = function () {
-		;
+		$scope.TermsAndConditionGridList = [];
+		$scope.POPupList = [];
 		ClearFields();
 		$scope.NotificationSettingStatus();
 		if (!$rootScope.isCollapsed) $rootScope.toggle();
@@ -2383,7 +2386,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 			$scope.productNew.CheckedBy = x.data.CheckedById;
 			$scope.productNew.labelCheckAndApproved = 'To be checked by';
 		}
-
+		$scope.LoadTermsAndConditionGrid($scope.productNew.TermsAndConditionsId, $scope.productNew.Id)
 		$scope.Action = 'Update';
 		//if (!baseService.isUndefinedOrNull($scope.productNew.PaymentTermId)) {
 		//	var paymentTerm = $.grep($scope.paymentTermList, function (item) { return item.Value === $scope.productNew.PaymentTermId; })[0];
@@ -2394,7 +2397,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 		//			$scope.IsBaseOnDueDateEnable = false;
 		//}
 		if (!$rootScope.isCollapsed) $rootScope.toggle();
-
+		
 
 	};
 	$scope.ContractWiseData = function (Id) {
@@ -3130,7 +3133,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 			$scope.checkedByList = response.data;
 		});
 	}
-	$scope.GetSupervisorCboList();
+	//$scope.GetSupervisorCboList();
 	$window.onresize = function (event) {
 		$scope.actionCompleteSelected();
 	};
@@ -4386,10 +4389,6 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 			//		data.push($scope.TermsAndConditionDetailGridList[i]);
 			//	}
 			//}
-
-
-		//var data = ej.DataManager($scope.TermsAndConditionDetailGridList).executeLocal(ej.Query().where("TermsAndConditionChildId", "equal", parseInt(filteredData), true).take(100));
-
 		e.detailsElement.find("#detailGridTitle").ejGrid({
 			dataSource: data,
 			columns: ["HeaderCaption", "Description"]
@@ -4556,7 +4555,8 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 						url: $scope.path + "UpdateMaterialSequence",
 						data: { data: sorteddata }
 					}).then(function successCallback(response) {
-
+						//$scope.LoadTermsAndConditionGrid($scope.productNew.TermsAndConditionsId, $scope.productNew.Id);
+						//$scope.detailgridTitle();
 					});
 				}
 			}
