@@ -46,20 +46,17 @@
 </div>
 <div class="row">
     <div class="table-responsive">
-        <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+        <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="GetDet" e-load="loadGridEdit"
              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
             <div e-columns>
-                <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
-                <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
-                <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
-                <div e-column e-field="Entity" e-headertext="Entity" e-width="3"></div>
-                <div e-column e-field="Plant" e-headertext="Plant" e-width="3"></div>
-                <div e-column e-field="BudgetCode" e-headertext="Budget Code" e-width="3"></div>
+                @*<div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>*@
+                <div e-column e-field="Dates" e-headertext="Date" e-width="2"></div>
                 <div e-column e-field="ItemName" e-headertext="Item Name" e-width="3"></div>
                 <div e-column e-field="Category" e-headertext="Category" e-width="3"></div>
                 <div e-column e-field="SubCategory" e-headertext="Sub Category" e-width="3"></div>
-                <div e-column e-field="StandardRate" e-headertext="Standard Rate" e-type="number" e-width="3"></div>
+                <div e-column e-field="Quantity" e-headertext="Quantity" e-type="number" e-width="3"></div>
+                <div e-column e-field="AddedBy" e-headertext="Added By" e-width="3"></div>
 
             </div>
         </div>
@@ -69,7 +66,7 @@
 <confirm-modal></confirm-modal>
 
 
-<div class="modal fade site-modal in" id="Budget" tabindex="-1">
+<div class="modal fade site-modal in" id="Detail" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -77,23 +74,76 @@
                 <h1 class="modal-title" style="font-size:20px; text-align:center; margin:-10px;">Budget</h1>
             </div>
             <div class="modal-body" style="min-height:300px; min-width:100%;">
-                <div class="row" style="margin: 20px; font-style:italic"> </div>
-                <p style="margin:10px;">
-                    Select The Budget by Double Clicking the Choice.
-                <p>
+                <div class="row" style="margin: 20px; font-style:italic">
+                    <p style="margin:10px;">
+                        You can change the Quantity and then click save to upade the record.
+                    <p>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="row" style="margin-top:10px;">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Date</label>
+                                <div class="col-sm-8 show-message">
+                                    <span>{{ClickDetail.Dates}}</span>
+                                </div>
 
-                    <div id="getBudgets" ej-grid e-datasource="BudgetList" e-templaterefresh="refreshTemplate"
-                         e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-                         e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
-                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true"
-                         e-recorddoubleclick="doubleBudget">
-                        <div e-columns>
-                            <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>
-                            <div e-column e-field="Code" e-headertext="Budget Code" e-width="120"></div>
-                            <div e-column e-field="Position" e-headertext="Position" e-width="120"></div>
-                            <div e-column e-field="Company" e-headertext="Company" e-width="120"></div>
-                            <div e-column e-field="Entity" e-headertext="Entity" e-width="120"></div>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top:10px;">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Category<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <span>{{ClickDetail.Category}}</span>
+                                </div>
 
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top:10px;">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Sub Cateogry<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <span>{{ClickDetail.SubCategory}}</span>
+                                </div>
+
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="row" style="margin-top:10px;">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Item Name<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <span>{{ClickDetail.ItemName}}</span>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top:10px;">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Added By<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <span>{{ClickDetail.AddedBy}}</span>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top:10px;">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Quantity<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="number" name="Quantity" ng-model="ClickDetail.Quantity" class="form-control" maxlength="200" style="text-align:left;">
+                                </div>
+                            </div>
+                        </div>
+                            
+                        </div>
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="SaveQnt();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                                @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
+                            </ul>
                         </div>
                     </div>
 
