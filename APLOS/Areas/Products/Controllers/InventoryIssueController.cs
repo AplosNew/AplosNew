@@ -3454,7 +3454,9 @@ namespace Aplos.Areas.Products.Controllers
 					{
 						sql = @"SELECT 
 								ROW_NUMBER() Over(Order by   SM.Id) As[S.N]
-								,SA.SourceType
+								,CASE WHEN SA.SourceType='Sales' THEN 'MaterialSales'
+									WHEN SA.SourceType='Packing' THEN 'PackingwiseSales'
+									ELSE  SA.SourceType END SourceType
 								,SM.Id
 								,SM.SalesId
 								,FORMAT(SA.EntryDate, 'dd-MMM-yyyy') SalesDate,FORMAT(SA.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate
@@ -3811,7 +3813,7 @@ namespace Aplos.Areas.Products.Controllers
 								,'InventorySales' SourceType
 								,IID.Id
 								,II.Id SalesId
-								,FORMAT(II.SalesDate, 'dd-MMM-yyyy') SalesDate,'' InvoiceDate
+								,FORMAT(II.SalesDate, 'dd-MMM-yyyy') SalesDate,FORMAT(II.SalesDate, 'dd-MMM-yyyy') InvoiceDate
 								,'' SalesOrderId
 								,'' MasterOrderId
 								,'' SONo
@@ -3837,7 +3839,7 @@ namespace Aplos.Areas.Products.Controllers
 								--, ISNULL(TAxInfo.HSCode,'') HSNCode
 
 								,IID.SalesRate BaseRate
-								,0 BaseUoMFactor
+								,IRD.BaseUoMFactor 
 								,IID.SalesRate TransactionRate
 								,IID.TransactionQty 
 								,IID.TransactionQty *IID.SalesRate TransactionAmount
@@ -3847,7 +3849,7 @@ namespace Aplos.Areas.Products.Controllers
 								,II.VoucherId VoucherDetailId
 								,TUoM.UserName AS BaseUoM
 								,TUoM.UserName AS TransactionUoM
-								,'' AS Currency
+								,CU.Code AS Currency
 								,'' DeliveryDate
 								,'' DestinationName
 								,'' SOType
@@ -3897,11 +3899,12 @@ namespace Aplos.Areas.Products.Controllers
 								FROM[TRN].[InventorySalesDetail] AS IID
 								left outer join [TRN].[InventorySales] AS II on II.Id=IID.InventorySalesId
 								left JOIN [TRN].[InventorySalesHistory] AS ISH on ISH.InventorySalesDetailId=IID.ID
+								left JOIN [TRN].[InventoryReceiveDetail] AS IRD on ISH.InventoryReceiveDetailId=IRD.ID
 								left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId=TUoM.Id	
 								left JOIN [HKP].[MaterialStorage] AS MS ON II.MaterialStorageId= MS.Id
 								left join dbo.EmployeeInformation AS EI ON EI.SystemId= II.EmployeeId
 								Left JOIN [ORG].[Entity] E On E.id= II.EntityId
-
+								LEFT JOIN SCS.Currency AS CU ON CU.Id=II.CurrencyId
 								LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=II.InvoicingPartyPlantId
 								LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id=PPI.AddressMasterId
 								LEFT JOIN [SCS].[State] as ST on ST.Id=AM.StateId
@@ -4126,7 +4129,9 @@ namespace Aplos.Areas.Products.Controllers
 					{
 						sql = @" SELECT 
 								ROW_NUMBER() Over(Order by   SM.Id) As[S.N]
-								,SA.SourceType
+								,CASE WHEN SA.SourceType='Sales' THEN 'MaterialSales'
+									WHEN SA.SourceType='Packing' THEN 'PackingwiseSales'
+									ELSE  SA.SourceType END SourceType
 								,SM.Id
 								,SM.SalesId
 								,FORMAT(SA.EntryDate, 'dd-MMM-yyyy') SalesDate,FORMAT(SA.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate
@@ -4481,7 +4486,7 @@ namespace Aplos.Areas.Products.Controllers
 								,'InventorySales' SourceType
 								,IID.Id
 								,II.Id SalesId
-								,FORMAT(II.SalesDate, 'dd-MMM-yyyy') SalesDate,'' InvoiceDate
+								,FORMAT(II.SalesDate, 'dd-MMM-yyyy') SalesDate,FORMAT(II.SalesDate, 'dd-MMM-yyyy') InvoiceDate
 								,'' SalesOrderId
 								,'' MasterOrderId
 								,'' SONo
@@ -4507,7 +4512,7 @@ namespace Aplos.Areas.Products.Controllers
 								--, ISNULL(TAxInfo.HSCode,'') HSNCode
 
 								,IID.SalesRate BaseRate
-								,0 BaseUoMFactor
+								,IRD.BaseUoMFactor 
 								,IID.SalesRate TransactionRate
 								,IID.TransactionQty 
 								,IID.TransactionQty *IID.SalesRate TransactionAmount
@@ -4517,7 +4522,7 @@ namespace Aplos.Areas.Products.Controllers
 								,II.VoucherId VoucherDetailId
 								,TUoM.UserName AS BaseUoM
 								,TUoM.UserName AS TransactionUoM
-								,'' AS Currency
+								,CU.Code AS Currency
 								,'' DeliveryDate
 								,'' DestinationName
 								,'' SOType
@@ -4567,11 +4572,12 @@ namespace Aplos.Areas.Products.Controllers
 								FROM[TRN].[InventorySalesDetail] AS IID
 								left outer join [TRN].[InventorySales] AS II on II.Id=IID.InventorySalesId
 								left JOIN [TRN].[InventorySalesHistory] AS ISH on ISH.InventorySalesDetailId=IID.ID
+								left JOIN [TRN].[InventoryReceiveDetail] AS IRD on ISH.InventoryReceiveDetailId=IRD.ID
 								left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId=TUoM.Id	
 								left JOIN [HKP].[MaterialStorage] AS MS ON II.MaterialStorageId= MS.Id
 								left join dbo.EmployeeInformation AS EI ON EI.SystemId= II.EmployeeId
 								Left JOIN [ORG].[Entity] E On E.id= II.EntityId
-
+								LEFT JOIN SCS.Currency AS CU ON CU.Id=II.CurrencyId
 								LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=II.InvoicingPartyPlantId
 								LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id=PPI.AddressMasterId
 								LEFT JOIN [SCS].[State] as ST on ST.Id=AM.StateId
@@ -5647,7 +5653,7 @@ namespace Aplos.Areas.Products.Controllers
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-					worksheet[ROW, COL].Text = "Sales Invoice Date";
+					worksheet[ROW, COL].Text = "Invoice Date";
 					int colInvoiceDate = COL; 
 					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
