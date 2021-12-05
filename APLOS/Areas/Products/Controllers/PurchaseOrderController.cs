@@ -3862,7 +3862,7 @@ left outer join TermsAndConditionsChild TC on TC.Id=TCD.TermsAndConditionsChildI
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			string sql = @"select TCD.Id,TC.Id TermsAndConditionPOChildId,TCD.HeaderCaption ,TCD.Description  from TermsAndConditionsPODetails TCD 
-left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOChildId";
+left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOChildId ORDER BY TCD.Sequence";
 
 			return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
 		}
@@ -3881,7 +3881,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 
 				for (int i = 0; i < data.Count; i++)
 				{
-					con.executeQuery("UPDATE TermsAndConditionsDetails SET Sequence=" + (i + 1) + " where id='" + data[i] + "'");
+					con.executeQuery("UPDATE TermsAndConditionsPODetails SET Sequence=" + (i + 1) + " where id='" + data[i] + "'");
 				}
 
 				con.CommitTransaction();
