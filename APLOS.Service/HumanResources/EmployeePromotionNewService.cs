@@ -153,7 +153,6 @@ namespace Library.Service.HumanResources
                     {
                         o.IsFreshEntry = true;
                     }
-
                 }
                 else
                 {
