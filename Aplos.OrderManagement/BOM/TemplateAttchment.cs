@@ -67,7 +67,7 @@ namespace Library.OrderManagement.BOM
              END AS PurchaseAuthority,
            case when isnull(MOI.JobWorkType,'')<>'' THEN 
                 CASE WHEN ISNULL(eout.Id,'')<>'' THEN CONCAT(POUT.UserName,'(',EOUT.UserName,')') ELSE TOUT.UserName END
-           ELSE CONCAT(POWN.UserName,'(',EOWN.UserName,')') END AS ProductionAuthority
+           ELSE CONCAT(POWN.UserName,'(',EOWN.UserName,')') END AS ProductionAuthority,c.Id ContractId
         --convert(bit,case when isnull(BOQ.Id,'')='' then 0 else 1 end) AS HasBOQ
                               FROM trn.MasterOrder MO
                             join trn.MasterOrderItem MOI on moi.MasterOrderId=mo.Id
