@@ -98,7 +98,7 @@
         <div class="row">
             <div class="site-tab">
                 <ul class="nav nav-tabs" role="tablist">
-                    <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Vendor</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1);GetInvoiceList();" href="" data-toggle="tab">Vendor</a></li>
                     <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);GetCustomerReceiptMasterList();" href="" data-toggle="tab">Customer</a></li>
                     <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" data-toggle="tab">Employee</a></li>
                     @*<li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4);GetDateRangeWisePayableData();" href="" data-toggle="tab">Payable</a></li>*@
@@ -125,55 +125,84 @@
             <div class="tab-content">
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
                     <div class="row">
-                        <div class="table-responsive modal-table aplos-grid-toggle">
-                            <div class="content-container-fluid" style="color:black;overflow:scroll">
-                                <div style="color:black;" id="GridMasterVendorPayable" ej-grid e-datasource="MasterLCList" e-recorddoubleclick="getdata" e-templaterefresh="refreshTemplateemployee"
-                                     e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
-                                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowresizing="true" e-allowselection="false" e-allowsorting="true">
-                                    <div e-columns>
-                                        <div e-column e-headertext="All" e-headertemplateid="#headerTemplate" e-template="#checkMasterLC" e-textalign="center" e-width="30"></div>
-                                        <div e-column e-field="NoOfInvoice" e-template="#hLink" e-headertext="No Of Invoice" e-width="40"></div>
+                        <fieldset class="scheduler-border">
+                            <div class="col-xs-5 col-sm-5 col-md-5" id="div_FromDate">
+                                <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
+                                <div class="col-sm-9 show-message">
+                                    <input type="text" name="Form Date" ng-model="material.VendorFromDate" datepicker tabindex="2" class="form-control">
+                                </div>
+                            </div>
 
-                                        @*<td class="text-right">
+                            <div class="col-xs-5 col-sm-5 col-md-5" id="div_ToDate">
+                                <label class="col-sm-3 control-label">TO Date<sup>*</sup></label>
+                                <div class="col-sm-9  show-message">
+                                    <input type="text" name="To Date" ng-model="material.VendorToDate" datepicker tabindex="3" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 col-sm-2 col-md-2">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li><button ng-click="GetInvoiceListDateRange();" title="As On Date Range Wise values Change" class="btn"><i class="glyphicon glyphicon-refresh"></i>Go</button></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="row">
+
+                        <div class="row">
+                            <div class="table-responsive modal-table aplos-grid-toggle">
+                                <div class="content-container-fluid" style="color:black;overflow:scroll">
+                                    <div style="color:black;" id="GridMasterVendorPayable" ej-grid e-datasource="MasterLCList" e-recorddoubleclick="getdata" e-templaterefresh="refreshTemplateemployee"
+                                         e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
+                                         e-filtersettings-filterType="excel" e-enabletouch="false" e-allowresizing="true" e-allowselection="false" e-allowsorting="true">
+                                        <div e-columns>
+                                            <div e-column e-headertext="All" e-headertemplateid="#headerTemplate" e-template="#checkMasterLC" e-textalign="center" e-width="30"></div>
+                                            <div e-column e-field="NoOfInvoice" e-template="#hLink" e-headertext="No Of Invoice" e-width="40"></div>
+
+                                            @*<td class="text-right">
                                  <ul class="list-inline action-list">
                                      <li><a href="{{bootPoint}}expense-booking-approved/{{x.Id}}" class="btn btn-action">View & Post</a></li>
                                  </ul>
                                 </td>*@
 
-                                        <div e-column e-field="PartyCode" e-headertext="Party Code" e-width="60" e-textalign="right"></div>
-                                        <div e-column e-field="PartyName" e-headertext="Party" e-width="150"></div>
-                                        <div e-column e-field="PartyPlantName" e-headertext="Party Plant" e-width="150"></div>
-                                        @*<div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="30"></div>*@
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Advance" e-headertext=" Advance" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksGross" e-headertext="Books Gross" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksSetOff" e-headertext="Books SetOff" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksBalance" e-headertext="Books Balance" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="OverDueMoreThan30" e-headertext="OverDueMoreThan 30" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="OverDueMoreThan15" e-headertext="OverDueMoreThan 15" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="OverDueLessThan15" e-headertext="OverDueLessThan 15" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TodayBalance" e-headertext="Today Balance" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="OneToSevenBalance" e-headertext="OneToSeven Balance" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="EightToThirtyBalance" e-headertext="EightToThirty Balance" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="ThirtyToSixtyBalance" e-headertext="ThirtyToSixty Balance" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Onword60" e-headertext="Onword 60" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                            <div e-column e-field="PartyCode" e-headertext="Party Code" e-width="60" e-textalign="right"></div>
+                                            <div e-column e-field="PartyName" e-headertext="Party" e-width="150"></div>
+                                            <div e-column e-field="PartyPlantName" e-headertext="Party Plant" e-width="150"></div>
+                                            @*<div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="30"></div>*@
+                                            <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Advance" e-headertext=" Advance" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                            <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksGross" e-headertext="Books Gross" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                            <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksSetOff" e-headertext="Books SetOff" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                            <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksBalance" e-headertext="Books Balance" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                            <div e-column e-type="numeric" e-format="{0:0.00}" e-field="OverDueMoreThan30" e-headertext="OverDueMoreThan 30" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                            <div e-column e-type="numeric" e-format="{0:0.00}" e-field="OverDueMoreThan15" e-headertext="OverDueMoreThan 15" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                            <div e-column e-type="numeric" e-format="{0:0.00}" e-field="OverDueLessThan15" e-headertext="OverDueLessThan 15" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                            <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TodayBalance" e-headertext="Today Balance" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                            <div e-column e-type="numeric" e-format="{0:0.00}" e-field="OneToSevenBalance" e-headertext="OneToSeven Balance" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                            <div e-column e-type="numeric" e-format="{0:0.00}" e-field="EightToThirtyBalance" e-headertext="EightToThirty Balance" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                            <div e-column e-type="numeric" e-format="{0:0.00}" e-field="ThirtyToSixtyBalance" e-headertext="ThirtyToSixty Balance" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                            <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Onword60" e-headertext="Onword 60" e-width="60" e-textalign="right" style="height: 20px;"></div>
 
+                                        </div>
                                     </div>
+
+                                    <script type="text/template" id="hLink">
+                                        <a href="{{$parent.bootPoint}}party-payment-status-detail/{{data.PartyId}}" class="btn btn-action">{{data.NoOfInvoice}} </a>
+                                    </script>
+
+                                    <script type="text/template" id="checkMasterLC">
+                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
+                                    </script>
+                                    <script type="text/x-jsrender" id="headerTemplate">
+                                        <input type="checkbox" id="headchk" />
+                                    </script>
+
+
                                 </div>
-
-                                <script type="text/template" id="hLink">
-                                    <a href="{{$parent.bootPoint}}party-payment-status-detail/{{data.PartyId}}" class="btn btn-action">{{data.NoOfInvoice}} </a>
-                                </script>
-
-                                <script type="text/template" id="checkMasterLC">
-                                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
-                                </script>
-                                <script type="text/x-jsrender" id="headerTemplate">
-                                    <input type="checkbox" id="headchk" />
-                                </script>
-
-
                             </div>
                         </div>
+
 
                         <div class="common-btn">
                             <ul class="list-inline text-left">
