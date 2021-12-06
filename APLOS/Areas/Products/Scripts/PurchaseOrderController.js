@@ -1783,11 +1783,11 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 	$scope.calculateTaxCategory = function () {
 		$scope.detailModel.TotalTaxAmount = 0;
 		var tQty = baseService.isUndefinedOrNull($scope.detailModel.TransactionQty) ? 0 : parseFloat($scope.detailModel.TransactionQty);
-		var tAmount = baseService.isUndefinedOrNull($scope.detailModel.TransactionAmount) ? 0 : parseFloat($scope.detailModel.TransactionAmount);
-		if (tQty > 0 && tAmount > 0)
-			$scope.detailModel.TransactionRate = tAmount / tQty;
+		var trate = baseService.isUndefinedOrNull($scope.detailModel.TransactionRate) ? 0 : parseFloat($scope.detailModel.TransactionRate);
+		if (tQty > 0 && trate > 0)
+			$scope.detailModel.TransactionAmount = Math.round((tQty * trate) * 100 + Number.EPSILON) / 100;
 		else
-			$scope.detailModel.TransactionRate = 0;
+			$scope.detailModel.TransactionAmount = 0;
 		for (var i = 0; i < baseService.arrayLength($scope.taxCategoryList); i++) {
 			$scope.taxCategoryList[i].TaxAmount = ((parseFloat($scope.taxCategoryList[i].Percentage) * $scope.detailModel.TransactionAmount) / 100).toFixed($rootScope.currencyPrecision);
 			$scope.detailModel.TotalTaxAmount = (parseFloat($scope.detailModel.TotalTaxAmount) + parseFloat($scope.taxCategoryList[i].TaxAmount)).toFixed($rootScope.currencyPrecision);
@@ -1798,12 +1798,10 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 
 		$scope.detailModel.TotalTaxAmount = 0;
 		var tQty = baseService.isUndefinedOrNull($scope.detailModel.TransactionQty) ? 0 : parseFloat($scope.detailModel.TransactionQty);
-		var tAmount = baseService.isUndefinedOrNull($scope.detailModel.TransactionRate) ? 0 : parseFloat($scope.detailModel.TransactionRate);
+		var trate = baseService.isUndefinedOrNull($scope.detailModel.TransactionRate) ? 0 : parseFloat($scope.detailModel.TransactionRate);
 		if (tQty > 0)
-			//$scope.detailModel.TransactionRate = tAmount / tQty;
-			$scope.detailModel.TransactionAmount = tAmount * tQty;
+			$scope.detailModel.TransactionAmount = Math.round((tQty * trate) * 100 + Number.EPSILON) / 100;
 		else
-			//$scope.detailModel.TransactionRate = 0;
 			$scope.detailModel.TransactionAmount = 0;
 		for (var i = 0; i < baseService.arrayLength($scope.taxCategoryList); i++) {
 			$scope.taxCategoryList[i].TaxAmount = ((parseFloat($scope.taxCategoryList[i].Percentage) * $scope.detailModel.TransactionAmount) / 100).toFixed($rootScope.currencyPrecision);
