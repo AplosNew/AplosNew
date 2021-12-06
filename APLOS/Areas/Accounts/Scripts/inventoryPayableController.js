@@ -805,7 +805,7 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
         }
     }
     $scope.Post = function () {
-        $scope.ispostDisable = true;
+        
         if (baseService.isUndefinedOrNull($scope.modelNew.EntityId)) return ShowResult('Please Select Entity', 'failure');
         if (!baseService.isUndefinedOrNull($scope.modelNew.EmployeeId)) {
             var data = $filter('filter')($scope.newList, { OtherName: 'Vendor' }, true);
@@ -833,6 +833,7 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
         for (var i = 0; i < $scope.newList.length; i++) {
             $scope.newList[i].Amount = parseFloat($scope.newList[i].Amount).toFixed(4);
         }
+        $scope.ispostDisable = true;
         $http({
             method: 'POST',
             url: $scope.saveUrl,
@@ -848,8 +849,10 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
             },
             dataType: 'JSON'
         }).then(function (response) {
-            if (response.data.Error === true)
+            if (response.data.Error === true) {
+                $scope.ispostDisable = true;
                 ShowResult(response.data.Message, 'failure');
+            }
             else {
                 ShowResult(response.data.Message, 'success');
 
