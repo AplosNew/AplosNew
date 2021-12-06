@@ -171,13 +171,22 @@ function salaryProcessedReportExtraOTCTCController(commonMessage, $scope, $rootS
             if (angular.isUndefinedOrNull($scope.year)) {
                 ShowResult("Select Year", 'failure');
             }
+
+            //New Type Id
+            var TypeDropDownListObj = $("#typeList").data("ejDropDownList");
+            $scope.EmployeeCodeTypeIdList = TypeDropDownListObj.getSelectedValue();
+
+            if (angular.isUndefinedOrNull($scope.EmployeeCodeTypeIdList)) {
+                throw "Select Type";
+            }
+
             else {
 
                 var parameters = {
                     'effectiveDate': $scope.effectiveDate, 'salaryProcessId': $scope.salaryProcessId, 'payRollGroup': $scope.payGroupListSelected, 'isActive': $scope.isActive,
                     'isSeperated': $scope.isSeperated,
                     'isMaternity': $scope.isMaternity
-                    , 'PlantId': PlantId
+                    , 'PlantId': PlantId, 'TypeId': $scope.EmployeeCodeTypeIdList
                 };
                 $http({
                     method: "POST",
@@ -284,6 +293,15 @@ function salaryProcessedReportExtraOTCTCController(commonMessage, $scope, $rootS
                 parameters.push({ "Key": "", "Value": "" });
 
             }
+
+            //New Type Id
+            var TypeDropDownListObj = $("#typeList").data("ejDropDownList");
+            $scope.EmployeeCodeTypeIdList = TypeDropDownListObj.getSelectedValue();
+
+            if (angular.isUndefinedOrNull($scope.EmployeeCodeTypeIdList)) {
+                throw "Select Type";
+            }
+
             var PlantList = parameter[0].Value;
             $http({
                 method: 'POST',
@@ -297,7 +315,7 @@ function salaryProcessedReportExtraOTCTCController(commonMessage, $scope, $rootS
                     'isActive': $scope.isActive,
                     'isSeperated': $scope.isSeperated,
                     'isMaternity': $scope.isMaternity,
-                    'PlantId': PlantList
+                    'PlantId': PlantList, 'TypeId': $scope.EmployeeCodeTypeIdList
                 }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -507,6 +525,16 @@ function salaryProcessedReportExtraOTCTCController(commonMessage, $scope, $rootS
         });
     }
     $scope.getPlant();
+
+    // Setting the Filter
+    $scope.EmployeeCodeTypeList = [];
+    $scope.EmployeeCodeTypeCbo = function () {
+        $http.get('employees/EmployeeCodeType/GetCbo')
+            .then(function (response) {
+                $scope.EmployeeCodeTypeList = response.data;
+            });
+    }
+    $scope.EmployeeCodeTypeCbo();
 
 }
 
