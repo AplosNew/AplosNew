@@ -153,13 +153,19 @@ namespace Library.Service.HumanResources
                     {
                         o.IsFreshEntry = true;
                     }
-
                 }
                 else
                 {
                     //o.SalaryRuleId = dsbasicInfo.Tables[0].Rows[0]["SalaryRuleMasterSystemID"].ToString().Trim();
                     DataSet dsSalaryRuleId = GivenDesignationChange(dsbasicInfo.Tables[0].Rows[0]["GivenDesignationId"].ToString().Trim(), identity.CompanyGroupId, identity.PlantId);
-                    o.SalaryRuleId = dsSalaryRuleId.Tables[0].Rows[0]["SalaryRuleMasterId"].ToString().Trim();
+                    if (dsSalaryRuleId.Tables[0].Rows.Count>0)
+                    {
+                        o.SalaryRuleId = dsSalaryRuleId.Tables[0].Rows[0]["SalaryRuleMasterId"].ToString().Trim();
+                    }
+                    else
+                    {
+                        throw new CustomException("Salary Rule doesn't define in Designation Master Configuration for this Designation.");
+                    }
 
                     if (dsIsFreshEntry.Tables[0].Rows.Count == 0)
                     {
