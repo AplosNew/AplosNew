@@ -48,11 +48,11 @@ namespace Aplos.Areas.Accounts.Controllers
         //MasterGride for party Payment Status
 
         [HttpPost, Authorize]
-        public ActionResult GetPartyPaymentStatusInvoiceList()
+        public ActionResult GetPartyPaymentStatusInvoiceList(string fromDate, string toDate)
         {
             AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(new { DATA = accountsStatusDashboardService.GetPartyPaymentStatusSummaryData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
+            return Json(new { DATA = accountsStatusDashboardService.GetPartyPaymentStatusSummaryData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate), Error = false }, JsonRequestBehavior.AllowGet);
         }
 
         //summary Report Downloard

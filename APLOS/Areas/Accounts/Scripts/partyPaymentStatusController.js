@@ -34,6 +34,8 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         ReportFormat: 'Pdf',
         FromDate: $filter('dateFiltering')(Date.now()),
         ToDate: $filter('dateFiltering')(Date.now()),
+        VendorFromDate: $filter('dateFiltering')(Date.now()),
+        VendorToDate: $filter('dateFiltering')(Date.now()),
         GRNandAccPType: 'GRNPosted',
         DateType: 'PostingDate',
         IsOrderSpecific: true,
@@ -141,48 +143,119 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     };
     //.............#regon Vendor Tab...................
     //get data for master gride for vendor Payable
-    $scope.GetInvoiceList = function () {
-        try {
-            $http({
-                method: 'POST',
-                url: $scope.path + "GetPartyPaymentStatusInvoiceList",
-                // data: { FromDate: $scope.reportParameters.FromDate, ToDate: $scope.reportParameters.ToDate },
-                dataType: 'JSON'
+    $scope.invalidDocDate = false;
+    $scope.ToDatevalidation = function () {
+        var msg = "";
 
-            }).then(function successCallback(response) {
-                if (response.data.Error == false) {
-                    for (var i = 0; i < response.data.DATA.length; i++) {
-                        // response.data.DATA[i].MasterLCDate = new Date(response.data.DATA[i].MasterLCDate);
-                    }
-                    $scope.MasterLCList = response.data.DATA;
-                }
-                else {
-                    ShowResult(response.data.Message, 'failure');
-                }
-
-            }),
-                function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-
-            //$http({
-            //    method: 'POST',
-            //    url: $scope.path + "GetInvoiceList",
-            //   // data: { column: $scope.searchBy, value: $scope.search },
-            //    dataType: 'JSON'
-            //}).then(function successCallback(response) {
-            //    $scope.MasterLCList = response.data;
-            //   // ClearFields(response.data.Sequence);
-            //   // $scope.GetSequence();
-            //});
-
+        if (baseService.isUndefinedOrNull($scope.material.VendorToDate)) {
+            $scope.invalidDocDate = true;
+            msg = "Please select To Date!";
         }
+        else if (new Date($scope.material.VendorToDate) > new Date()) {
+            $scope.invalidDocDate = true;
+            msg = "ToDate must be below or equal to current Date!";
+        }
+        else if (new Date($scope.material.FromDate) > new Date($scope.material.VendorToDate)) {
+            msg = "To Date must be greater or equal to FromDate!";
+            $scope.invalidDocDate = true;
+        }
+        else $scope.invalidDocDate = false;
+        return manualValidation("div_ToDate", $scope.invalidDocDate, msg);
+    }
 
-        catch (e) {
+    $scope.invalidFromDate = false;
+    $scope.FromDateValidation = function () {
+        var msg = "";
+        if (baseService.isUndefinedOrNull($scope.material.VendorFromDate)) {
+            $scope.invalidFromDate = true;
+            msg = "Please select From Date!";
+        }
+        else if (new Date($scope.material.VendorFromDate) > new Date()) {
+            $scope.invalidFromDate = true;
+            msg = "FromDate must be below or equal to current Date!";
+        }
+        else $scope.invalidFromDate = false;
+        return manualValidation("div_FromDate", $scope.invalidFromDate, msg);
+    }
 
+    $scope.GetInvoiceList = function () {
+        $scope.FromDateValidation();
+        $scope.ToDatevalidation();
+        if (!$scope.invalidFromDate && !$scope.invalidDocDate) {
+            try {
+                
+                $http({
+                    method: 'POST',
+                    url: $scope.path + "GetPartyPaymentStatusInvoiceList",
+                    data: {
+                        fromDate: "",
+                        toDate: ""
+                    },
+                    dataType: 'JSON'
+
+                }).then(function successCallback(response) {
+                    if (response.data.Error == false) {
+                        //for (var i = 0; i < response.data.DATA.length; i++) {
+                        //    // response.data.DATA[i].MasterLCDate = new Date(response.data.DATA[i].MasterLCDate);
+                        //}
+                        $scope.MasterLCList = response.data.DATA;
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+
+                }),
+                    function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+
+            }
+
+            catch (e) {
+
+            }
         }
     }
     $scope.GetInvoiceList();
+
+    $scope.GetInvoiceListDateRange = function () {
+        $scope.FromDateValidation();
+        $scope.ToDatevalidation();
+        if (!$scope.invalidFromDate && !$scope.invalidDocDate) {
+            try {
+
+                $http({
+                    method: 'POST',
+                    url: $scope.path + "GetPartyPaymentStatusInvoiceList",
+                    data: {
+                        fromDate: $scope.material.VendorFromDate,
+                        toDate: $scope.material.VendorToDate
+                    },
+                    dataType: 'JSON'
+
+                }).then(function successCallback(response) {
+                    if (response.data.Error == false) {
+                        //for (var i = 0; i < response.data.DATA.length; i++) {
+                        //    // response.data.DATA[i].MasterLCDate = new Date(response.data.DATA[i].MasterLCDate);
+                        //}
+                        $scope.MasterLCList = response.data.DATA;
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+
+                }),
+                    function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+
+            }
+
+            catch (e) {
+
+            }
+        }
+    }
 
     $scope.InvoiceSummaryReport = function () {
 

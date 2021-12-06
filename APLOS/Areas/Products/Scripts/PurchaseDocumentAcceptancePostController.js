@@ -436,7 +436,7 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
         e.detailsElement.find("#detailGrid").ejGrid({
 
             dataSource: data,
-            columns: ["MaterialMasterGroupName", "MaterialMasterName", "StandardName", "Article", "SKU1", "SKU2", "SKU3", "TransactionUoM", "Rate", "Amount"]
+            columns: ["MaterialMasterGroup", "MaterialMaster", "Article", "SKU1", "SKU2", "SKU3", "TransactionQty", "TransactionUoM", "Rate", "Amount"]
         });
         e.detailsElement.find(".tabcontrol").ejTab();
     }
