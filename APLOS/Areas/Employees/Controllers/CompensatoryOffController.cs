@@ -549,11 +549,30 @@ namespace Aplos.Areas.Employees.Controllers
                 string sql = @"SELECT Id, FORMAT( OriginalDate,'dd-MMM-yyyy') AS OriginalDate,FORMAT( CompensatoryDate,'dd-MMM-yyyy') AS CompensatoryDate, CompensatoryDateTreatmentType,
                                 HolidayCategoryId, IsOriginalDateOTApplicable, ForEntirePlant FROM [MST].[CompensatoryOff] where ID='" + ID + "'";
 
-                var masterData = _sqlRepository.GetModelCollection<CompensatoryOff>(sql);
+               // var masterData = _sqlRepository.GetModelCollection<CompensatoryOff>(sql);
+
+                var masterData = Json(_sqlRepository.GetModelCollection<CompensatoryOff>(sql), JsonRequestBehavior.AllowGet);
+                masterData.MaxJsonLength = int.MaxValue;
+                return masterData;
+
+                //return Json(new { master = masterData, employee = employeeData }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+        [HttpPost, Authorize]
+        public JsonResult LoadCompensatoryOffEmployees(string ID)
+        {
 
 
+            try
+            {
+               
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                sql = @"SELECT Emp.SystemID AS Id,
+              string  sql = @"SELECT Emp.SystemID AS Id,
                                         format(EMP.DOJ,'dd-MMM-yyyy') AS DOJ,
                                         CASE WHEN doj>(CASE WHEN co.OriginalDate<co.CompensatoryDate THEN co.OriginalDate ELSE co.CompensatoryDate END) THEN 'YES' ELSE '' END AS JoinedAfter,
 
@@ -578,10 +597,16 @@ namespace Aplos.Areas.Employees.Controllers
                                         WHERE emp.PlantID='" + identity.PlantId + @"' AND O.CompensatoryOffId='" + ID + "'";
 
 
-                var employeeData = _sqlRepository.GetDataCollection(sql);
+                //var employeeData = _sqlRepository.GetDataCollection(sql);
 
 
-                return Json(new { master = masterData, employee = employeeData }, JsonRequestBehavior.AllowGet);
+                //return Json(new { master = masterData, employee = employeeData }, JsonRequestBehavior.AllowGet);
+
+
+                var employeeData = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                employeeData.MaxJsonLength = int.MaxValue;
+                return employeeData;
+
             }
             catch (Exception ex)
             {
@@ -589,6 +614,7 @@ namespace Aplos.Areas.Employees.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
+
 
         [Authorize, HttpPost]
         public JsonResult HolidayCategory()

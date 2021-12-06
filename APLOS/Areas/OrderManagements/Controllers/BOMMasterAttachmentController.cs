@@ -218,6 +218,67 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
             return null;
         }
+
+        [HttpGet, Authorize]
+        public ActionResult OrderLevelBOMReport(string MasterOrderItemId, string MasterOrderId)// MasterOrderReport
+        {
+
+            try
+            {
+                // if (string.IsNullOrEmpty(MasterLCList))
+                //   throw new Exception("Please select at least one master Order");
+
+                Library.OrderManagement.BOM.BOMReports attchment = new Library.OrderManagement.BOM.BOMReports();
+
+
+                ExcelEngine excelEngine = new ExcelEngine();
+
+                IWorkbook workbook = attchment.OrderLevelBOMReport(MasterOrderItemId, MasterOrderId, Library.OrderManagement.BOM.BOMReports.BOMLevel.SO);
+                string strFileName = "BOM-" + MasterOrderItemId + ".xlsx";
+                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                workbook.Close();
+                //workbookItem.Close();
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+            return null;
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult ContractLevelBOMReport(string ContractId)// MasterOrderReport
+        {
+
+            try
+            {
+                Library.OrderManagement.BOM.BOMReports attchment = new Library.OrderManagement.BOM.BOMReports();
+
+
+                ExcelEngine excelEngine = new ExcelEngine();
+
+                IWorkbook workbook = attchment.ConevelBOMReport(ContractId);
+                string strFileName = "BOM-" + ContractId + ".xlsx";
+                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                workbook.Close();
+                //workbookItem.Close();
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+            return null;
+        }
+
+
+
+
         [HttpGet, Authorize]
         public ActionResult LoadBomRequiredQty(string MasterOrderItemId)
         {

@@ -91,6 +91,7 @@ namespace Library.MaterialManagement.Inventory
             objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(GRNDocumentMap), out sID);
             return sID;
         }
+      
         public override void Insert(InventoryReceive entity)
         {
             try
@@ -101,6 +102,7 @@ namespace Library.MaterialManagement.Inventory
                 ResetCurrencyRate(entity);
                 entity.Id = _pkGeneratorService.GetAutoNumber(nameof(entity), PKGeneratorEnum.Yearly, null, DateTime.Now);
                 //entity.Id = GetPK();
+               
                 base.Insert(entity);
             }
             catch (Exception ex)
@@ -4535,31 +4537,22 @@ namespace Library.MaterialManagement.Inventory
 											from  dbo.MasterLC PDAMAP 							 
 											 group by  PDAMAP.CustomerId
 										) POothers ON POothers.CustomerId = IR.PartyId
-                                        --LEFT JOIN (Select count(Id) as CtnId, POID from TRN.PurchaseOrderApprovalLog where Status= 'Approval' group by POID) as pgl on pgl.POID=IR.Id
                                          WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq')
                                 AND IR.IsClosed= 0 and IRD.QtyStatus= 0
-                                         --ANd IR.Id= '20248'
                                          AND IR.CheckedByStatus= 'Checked' AND IR.AuthorizedByStatus= 'Approved'
                                          AND isnull(PT.PaymentMode,'') <> 'LC'
-                                --AND pgl.CtnId is not null  
 								UNION All
 								SELECT ROW_NUMBER() OVER (ORDER BY  IR.Id) AS SiNo, IR.Id, REPLACE(CONVERT(CHAR(11), IR.PODate, 106), ' ', '-') AS PODate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
 	                                , CP.UserName AS PartyAccountGroupName,ISNULL(Pr.UserName,'') CustomerName,ISNULL(CON.ContractNo,'') ContractNo
 	                                , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106), ' ', '-') AS DocDate
-
-                                    --, IR.GateEntryNo
-                                    --, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106), ' ', '-') AS EntryDate
                                       , IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
 	                                , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106), ' ', '-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106), ' ', '-') AS MatureDate
                                         , IR.FixedAssetOrInventory, IR.PODepended,'' PurchaseDocAcceptanceDetailId
-                                        --, IR.AlongwithInvoice
-                                        --, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106), ' ', '-') AS InvoiceDate
                                           , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
 	                                , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
 	                                , S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
 	                                , IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
 	                                ,IPP.UserName As InvoicingByName
-                                    --,pgl.CtnId
 	                                ,0'Active',CU.Code Currency, IRD.CountryName,IRD.CountryId,IR.CheckedByStatus,IR.AuthorizedByStatus,IR.POType, ISNULL(PLC.LCRef,'') LCNo,IPP.GSTIN
 								 ,ISNULL(CON.UDNo,'') UDNo,ISNULL(POothers.OpeningBank,'') OpeningBank
                                  FROM[TRN].[PurchaseOrder] AS IR left JOIN[HKP].[Party] AS P ON IR.PartyId=P.Id
@@ -4591,33 +4584,25 @@ namespace Library.MaterialManagement.Inventory
 											from  dbo.MasterLC PDAMAP 							 
 											 group by  PDAMAP.CustomerId
 										) POothers ON POothers.CustomerId = IR.PartyId
-                                        --LEFT JOIN (Select count(Id) as CtnId, POID from TRN.PurchaseOrderApprovalLog where Status= 'Approval' group by POID) as pgl on pgl.POID=IR.Id
 								LEFT JOIN dbo.PurchaseLC PLC ON PLC.Id=IR.PurchaseLCId                                        
 								WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq')
                                 AND IR.IsClosed= 0 and IRD.QtyStatus= 0
-                                         --ANd IR.Id= '20248'
                                          AND IR.CheckedByStatus= 'Checked' AND IR.AuthorizedByStatus= 'Approved'
                                          AND isnull(PT.PaymentMode,'') = 'LC'  and isnull(PLC.IsAccepptanceFirst,0)=0
-                                --AND pgl.CtnId is not null  
 
 
 										UNION All
 										SELECT ROW_NUMBER() OVER (ORDER BY  IR.Id) AS SiNo, IR.Id, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
 											, CP.UserName AS PartyAccountGroupName,ISNULL(Pr.UserName ,'') CustomerName,ISNULL(CON.ContractNo,'') ContractNo
 											, IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-											--, IR.GateEntryNo
-											--, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
 											, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
 											, REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106), ' ', '-') AS MatureDate
 											  , IR.FixedAssetOrInventory, IR.PODepended,'' PurchaseDocAcceptanceDetailId
-											--, IR.AlongwithInvoice
-											--, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
 											, IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
 											, IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
 											, S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
 	                                , IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
 	                                ,IPP.UserName As InvoicingByName
-	                                --,pgl.CtnId
 	                                ,0'Active',CU.Code Currency, IRD.CountryName,IRD.CountryId,IR.CheckedByStatus,IR.AuthorizedByStatus,IR.POType, '' LCNo,IPP.GSTIN
 									,ISNULL(CON.UDNo,'') UDNo,ISNULL(POothers.OpeningBank,'') OpeningBank
                                  FROM[TRN].[PurchaseOrder] AS IR left JOIN[HKP].[Party] AS P ON IR.PartyId=P.Id
@@ -4649,30 +4634,22 @@ namespace Library.MaterialManagement.Inventory
 											from  dbo.MasterLC PDAMAP 							 
 											 group by  PDAMAP.CustomerId
 										) POothers ON POothers.CustomerId = IR.PartyId
-                                        --LEFT JOIN (Select count(Id) as CtnId, POID from TRN.PurchaseOrderApprovalLog where Status= 'Approval' group by POID) as pgl on pgl.POID=IR.Id
                                          WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq') 
                                 AND IR.IsClosed= 0 and IRD.QtyStatus= 0
-                                         --ANd IR.Id= '20248'
                                          AND IR.CheckedByStatus Is NULL AND IR.AuthorizedByStatus= 'Approved'
                                          AND isnull(PT.PaymentMode,'') <> 'LC'
-                                --AND pgl.CtnId is not null  
 								UNION All
 										SELECT ROW_NUMBER() OVER (ORDER BY  IR.Id) AS SiNo, IR.Id, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
 											, CP.UserName AS PartyAccountGroupName,ISNULL(Pr.UserName ,'') CustomerName,ISNULL(CON.ContractNo,'') ContractNo
 											, IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-											--, IR.GateEntryNo
-											--, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
 											, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
 											, REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106), ' ', '-') AS MatureDate
 											  , IR.FixedAssetOrInventory, IR.PODepended,'' PurchaseDocAcceptanceDetailId
-											--, IR.AlongwithInvoice
-											--, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
 											, IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
 											, IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
 											, S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
 	                                , IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
 	                                ,IPP.UserName As InvoicingByName
-	                                --,pgl.CtnId
 	                                ,0'Active',CU.Code Currency, IRD.CountryName,IRD.CountryId,IR.CheckedByStatus,IR.AuthorizedByStatus,IR.POType, ISNULL(PLC.LCRef,'') LCNo,IPP.GSTIN
 								,ISNULL(CON.UDNo,'') UDNo,ISNULL(POothers.OpeningBank,'') OpeningBank
                                  FROM[TRN].[PurchaseOrder] AS IR left JOIN[HKP].[Party] AS P ON IR.PartyId=P.Id
@@ -4696,7 +4673,6 @@ namespace Library.MaterialManagement.Inventory
                                        LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[PurchaseOrderDetail] AS A JOIN[TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId= B.Id
                                        WHERE B.PlantId= '" + plantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
                                         LEFT JOIN[SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId= UoM.Id
-                                        --LEFT JOIN (Select count(Id) as CtnId, POID from TRN.PurchaseOrderApprovalLog where Status= 'Approval' group by POID) as pgl on pgl.POID=IR.Id
                                          
 
 								LEFT JOIN dbo.PurchaseLC PLC ON PLC.Id=IR.PurchaseLCId	
@@ -4710,28 +4686,21 @@ namespace Library.MaterialManagement.Inventory
 										) POothers ON POothers.CustomerId = IR.PartyId
 								WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq') 
                                 AND IR.IsClosed= 0 and IRD.QtyStatus= 0
-                                         --ANd IR.Id= '20248'
                                          AND IR.CheckedByStatus Is NULL AND IR.AuthorizedByStatus= 'Approved'
                                          AND isnull(PT.PaymentMode,'') = 'LC' and isnull(PLC.IsAccepptanceFirst,0)=0
-                                --AND pgl.CtnId is not null  
                                 UNION All
 
                                 SELECT ROW_NUMBER() OVER (ORDER BY  IR.Id) AS SiNo, IR.Id, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
 	                                , CP.UserName AS PartyAccountGroupName,ISNULL(Pr.UserName ,'') CustomerName,ISNULL(CON.ContractNo,'') ContractNo
 	                                , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-	                                --, IR.GateEntryNo
-	                                --, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
                                     , IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
 	                                , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106), ' ', '-') AS MatureDate
                                       , IR.FixedAssetOrInventory, IR.PODepended,'' PurchaseDocAcceptanceDetailId
-	                                --, IR.AlongwithInvoice
-	                                --, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
                                     , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
 	                                , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
 	                                , S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
 	                                , IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
 	                                ,IPP.UserName As InvoicingByName
-	                                --,pgl.CtnId
 	                                ,0'Active',CU.Code Currency, IRD.CountryName,IRD.CountryId,IR.CheckedByStatus,IR.AuthorizedByStatus,IR.POType, '' LCNo,IPP.GSTIN
 								 ,ISNULL(CON.UDNo,'') UDNo,ISNULL(POothers.OpeningBank,'') OpeningBank
                                  FROM[TRN].[PurchaseOrder] AS IR left JOIN[HKP].[Party] AS P ON IR.PartyId=P.Id
@@ -4763,31 +4732,23 @@ namespace Library.MaterialManagement.Inventory
 											from  dbo.MasterLC PDAMAP 							 
 											 group by  PDAMAP.CustomerId
 										) POothers ON POothers.CustomerId = IR.PartyId
-                                        --LEFT JOIN (Select count(Id) as CtnId, POID from TRN.PurchaseOrderApprovalLog where Status= 'Approval' group by POID) as pgl on pgl.POID=IR.Id
                                          WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq')
                                 AND IR.IsClosed= 0 and IRD.QtyStatus= 0
-                                         --ANd IR.Id= '20248'
-                                         AND IR.CheckedByStatus Is NULL AND IR.AuthorizedByStatus IS NULL
+                                         AND IR.IsApproved=1 AND IR.CheckedByStatus Is NULL AND IR.AuthorizedByStatus IS NULL
                                          AND isnull(PT.PaymentMode,'') <> 'LC'
-                                --AND pgl.CtnId is not null 
 								UNION All
 
                                 SELECT ROW_NUMBER() OVER (ORDER BY  IR.Id) AS SiNo, IR.Id, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
 	                                , CP.UserName AS PartyAccountGroupName,ISNULL(Pr.UserName ,'') CustomerName,ISNULL(CON.ContractNo,'') ContractNo
 	                                , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-	                                --, IR.GateEntryNo
-	                                --, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
                                     , IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
 	                                , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106), ' ', '-') AS MatureDate
                                       , IR.FixedAssetOrInventory, IR.PODepended,'' PurchaseDocAcceptanceDetailId
-	                                --, IR.AlongwithInvoice
-	                                --, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
                                     , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
 	                                , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
 	                                , S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
 	                                , IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
 	                                ,IPP.UserName As InvoicingByName
-	                                --,pgl.CtnId
 	                                ,0'Active',CU.Code Currency, IRD.CountryName,IRD.CountryId,IR.CheckedByStatus,IR.AuthorizedByStatus,IR.POType, ISNULL(PLC.LCRef,'') LCNo,IPP.GSTIN
 								,ISNULL(CON.UDNo,'') UDNo,ISNULL(POothers.OpeningBank,'') OpeningBank
                                  FROM[TRN].[PurchaseOrder] AS IR left JOIN[HKP].[Party] AS P ON IR.PartyId=P.Id
@@ -4811,7 +4772,6 @@ namespace Library.MaterialManagement.Inventory
                                        LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[PurchaseOrderDetail] AS A JOIN[TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId= B.Id
                                        WHERE B.PlantId= '" + plantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
                                         LEFT JOIN[SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId= UoM.Id
-                                        --LEFT JOIN (Select count(Id) as CtnId, POID from TRN.PurchaseOrderApprovalLog where Status= 'Approval' group by POID) as pgl on pgl.POID=IR.Id
                                          
 										LEFT JOIN dbo.PurchaseLC PLC ON PLC.Id=IR.PurchaseLCId
 								LEFT JOIN(   SELECT distinct PDAMAP.CustomerId
@@ -4824,11 +4784,8 @@ namespace Library.MaterialManagement.Inventory
 										) POothers ON POothers.CustomerId = IR.PartyId
 										WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq')
                                 AND IR.IsClosed= 0 and IRD.QtyStatus= 0
-                                         --ANd IR.Id= '20248'
                                          AND isnull(PT.PaymentMode,'') = 'LC' and isnull(PLC.IsAccepptanceFirst,0)=0
                                          AND IR.CheckedByStatus Is NULL AND IR.AuthorizedByStatus IS NULL
-
-                                --AND pgl.CtnId is not null 
                                 )x
                                 Order by PODate ASC";
                 }
@@ -5483,7 +5440,7 @@ namespace Library.MaterialManagement.Inventory
             }
             try
             {
-                var sql = @"SELECT A.Id,A.InventoryReceiveDetailId,A.InventoryReceiveId, A.TaxCategoryId, TC.UserName AS TaxCategory, A.HSNCodeId, HN.Code AS HSNCode, A.[Percentage], A.TaxAmount,d.id As PODetailId
+                var sql = @"SELECT A.Id,A.InventoryReceiveDetailId,A.InventoryReceiveId, A.TaxCategoryId, TC.UserName AS TaxCategory, A.HSNCodeId, HN.Code AS HSNCode, A.[Percentage], 0 TaxAmount,d.id As PODetailId
                             FROM [TRN].[PurchaseOrderTax] AS A JOIN [MST].[TaxCategory] AS TC ON A.TaxCategoryId=TC.Id
                             LEFT JOIN [HKP].[HSNCode] AS HN ON A.HSNCodeId=HN.Id
 							left join TRN.PurchaseOrderDetail d on d.id= A.InventoryReceiveDetailId
@@ -5575,7 +5532,7 @@ namespace Library.MaterialManagement.Inventory
 
             try
             {
-                var sql = @"SELECT A.Id,A.InventoryServiceId, A.TaxCategoryId, TC.UserName AS TaxCategory, A.HSNCodeId, HN.Code AS HSNCode, A.[Percentage], A.TaxAmount
+                var sql = @"SELECT A.Id,A.InventoryServiceId, A.TaxCategoryId, TC.UserName AS TaxCategory, A.HSNCodeId, HN.Code AS HSNCode, A.[Percentage], 0 TaxAmount
                             FROM [TRN].[PurchaseOrderTax] AS A JOIN [MST].[TaxCategory] AS TC ON A.TaxCategoryId=TC.Id
                             LEFT JOIN [HKP].[HSNCode] AS HN ON A.HSNCodeId=HN.Id
                             WHERE  A.InventoryReceiveDetailId IS NULL AND  " + paramter + " ORDER BY TC.[Sequence]";

@@ -93,7 +93,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         public ActionResult GetDetailList(string masterId)
         {
             var sql = @"SELECT B.*
-                         ,MMD.UserName RMMaterialMaster, MMAD.StandardName RMArticle,V.UserName PartyName, P.UserName Process, U.UserName UnitOfMeasurement
+                         ,MMD.Id RMMaterialMasterId,MMD.UserName RMMaterialMaster, MMAD.StandardName RMArticle,V.UserName PartyName, P.UserName Process, U.UserName UnitOfMeasurement
                          ,C1.UserName SKU1Name,C2.UserName SKU2Name,C3.UserName SKU3Name,CV1.UserName SKU1,CV2.UserName SKU2,CV3.UserName SKU3, SKUCommon=CASE WHEN B.IsSKUCommon=1 THEN 'Common' ELSE 'SKU Matrix' END,MMD.WithSKU
                         -- ,ISNULL(C1.ValueAssignmentLevel,A.ValueAssignmentLevel) C1ValueAssignmentLevel,ISNULL(C2.ValueAssignmentLevel,A.ValueAssignmentLevel) C2ValueAssignmentLevel,ISNULL(C3.ValueAssignmentLevel,A.ValueAssignmentLevel) C3ValueAssignmentLevel
                          ,B.Sequence Seq,B.AddedBy CreatedBy, FORMAT(B.AddedDate,'dd-MMM-yyyy') CreationDate
@@ -238,6 +238,23 @@ namespace Aplos.Areas.OrderManagements.Controllers
             {
                 Library.OrderManagement.BOM.TemplateAttchment _attachment = new Library.OrderManagement.BOM.TemplateAttchment();
                 _attachment.CopyBOMTemplateWithoutSKU(Id);
+
+                return Json(new { Error = false, Message = "BOM copied successfully" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult CopyBomDetailData(string BOMMasterId,string Id)
+        {
+            try
+            {
+                Library.OrderManagement.BOM.TemplateAttchment _attachment = new Library.OrderManagement.BOM.TemplateAttchment();
+                _attachment.CopyBOMTemplateDetail(BOMMasterId,Id);
 
                 return Json(new { Error = false, Message = "BOM copied successfully" });
             }

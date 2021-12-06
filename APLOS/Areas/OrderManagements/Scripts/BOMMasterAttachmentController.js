@@ -470,7 +470,26 @@ function BOMMasterAttachmentController(commonMessage, $scope, $rootScope, baseSe
 
         }
     }
-   
+    $scope.OrderLevelBOMReport = function (args) {
+
+        try {
+            var file_src = $scope.Attachmentpath + 'OrderLevelBOMReport?MasterOrderItemId=' + args.MasterOrderItemId + '&MasterOrderId=' + args.MasterOrderId;
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
+    $scope.ContractLevelBOMReport = function (args) {
+
+        try {
+            var file_src = $scope.Attachmentpath + 'ContractLevelBOMReport?ContractId=' + args.ContractId;
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
     $scope.ItemList = [];
     $scope.MasterOrderBOMReportByMaterial = function (data) {
         $scope.AttachmentSelectedBOMRow = data;

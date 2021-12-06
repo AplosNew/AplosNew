@@ -400,21 +400,21 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
             $scope.GridAcceptanceListDetail = response.data;
         });
     };
-    $scope.gridAcceptanceListDetail();
+    //$scope.gridAcceptanceListDetail();
 
-
+  
     $scope.GridAcceptanceServiceList = [];
-    $scope.gridAcceptanceServiceList = function () {
-        $http({
-            method: "GET",
-            dataType: 'JSON',
-            url: 'Products/PurchaseDocumentsAcceptance/GetAcceptanceDetailList',
-        }).then(function successCallback(response) {
-            $scope.GridAcceptanceListDetail = response.data;
-        });
+    //$scope.gridAcceptanceServiceList = function () {
+    //    $http({
+    //        method: "GET",
+    //        dataType: 'JSON',
+    //        url: 'Products/PurchaseDocumentsAcceptance/GetMaterialById',
+    //    }).then(function successCallback(response) {
+    //        $scope.GridAcceptanceListDetail = response.data;
+    //    });
 
-    };
-    $scope.gridAcceptanceServiceList();
+    //};
+    //$scope.gridAcceptanceServiceList();
 
     $scope.GetMaterialByIdList = [];
     $scope.GetMaterialById = function () {
@@ -430,18 +430,18 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
 
     $scope.data1 = $scope.lst;
     $scope.detailTemp = "#tabGridContents";
-    //$scope.detailgrid = function detailGridData(e) {
-    //    //debugger;
+    $scope.detailgrid = function detailGridData(e) {
+        var filteredData = e.data["Id"];
+        var data = ej.DataManager($scope.GetMaterialByIdList).executeLocal(ej.Query().where("AcceptenceId", "equal", parseInt(filteredData), true).take(5));
+        e.detailsElement.find("#detailGrid").ejGrid({
 
-    //    var filteredData = e.data["Id"];
-    //    var data = ej.DataManager(window.GetMaterialByIdList).executeLocal(ej.Query().where("AcceptenceId", "equal", parseInt(filteredData), true).take(5));
-    //    e.detailsElement.find("#detailGrid").ejGrid({
+            dataSource: data,
+            columns: ["MaterialMasterGroup", "MaterialMaster", "Article", "SKU1", "SKU2", "SKU3", "TransactionQty", "TransactionUoM", "Rate", "Amount"]
+        });
+        e.detailsElement.find(".tabcontrol").ejTab();
+    }
 
-    //        dataSource: data,
-    //        columns: ["MaterialMasterGroupName", "MaterialMasterName", "StandardName", "Article", "SKU1", "SKU2", "SKU3", "TransactionUoM", "Rate", "Amount"]
-    //    });
-    //    e.detailsElement.find(".tabcontrol").ejTab();
-    //}
+
 
     $scope.GRN = "";
     $scope.tab = 1;

@@ -5,6 +5,7 @@ using Library.Data;
 using Library.Data.Repositories;
 using Library.Data.Sql;
 using Library.Data.UnitOfWorks;
+using Library.HumanResource.Leave;
 using Library.Model.Biometrics;
 using Library.Service.Biometrics;
 using Library.Service.Core;
@@ -203,7 +204,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 string _FromDate = string.Empty;
                 string _ToDate = string.Empty;
 
-               // var esic = GetESICEligibleEmployee(EmpSystemID);
+                // var esic = GetESICEligibleEmployee(EmpSystemID);
                 var dsCalYear = GetCalYearInfo(calYearId);
                 if (dsCalYear.Tables[0].Rows.Count > 0)
                 {
@@ -494,7 +495,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
         {
             var CompanyGroupId = _employeeinformationService.Query(t => t.SystemId == employeeId).Select(t => t.GroupID).FirstOrDefault();
 
-            var esic = GetESICEligibleEmployeeFromEnum(employeeId,DateTime.Now.ToString("dd-MMM-yyyy"));
+            var esic = GetESICEligibleEmployeeFromEnum(employeeId, DateTime.Now.ToString("dd-MMM-yyyy"));
             //var esic = GetESICEligibleEmployee(employeeId);
 
             string _sql;
@@ -762,7 +763,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
 
             return _sqlRepository.GetGridData(parameters).Source;
         }
-        public DataSet GetESICEligibleEmployeeFromEnum(string empSystemId,string FromDate)
+        public DataSet GetESICEligibleEmployeeFromEnum(string empSystemId, string FromDate)
         {
             GridParameter parameters = null;
             parameters = new GridParameter
@@ -785,7 +786,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                                   )m on mm.EffectiveDate=m.EffectiveDate and m.EmpInfoSystemID=mm.EmpInfoSystemID
                                   where SalaryHeadEnum='ESIC' and mm.EmpInfoSystemID='" + empSystemId + @"'  and IsEligible=1
                                  "
-                                };//and EffectiveDate<='" + FromDate + @"'
+            };//and EffectiveDate<='" + FromDate + @"'
             //var data = _sqlRepository.GetDataCollection(CmdText);
             return _sqlRepository.GetGridData(parameters).Source;
         }
@@ -961,7 +962,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                     throw new CustomException("This employee is on duty.");
                 }
 
-               
+
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
@@ -1023,7 +1024,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                     //    leaveDays = leaveDays - _offDayList.Count;
                     //}
                     clsEmpWiseLeavePolicyInfo _obj_POD = new clsEmpWiseLeavePolicyInfo(leaveTransaction.PlantID);
-                    _obj_POD.GetLeaveCount(leaveTransaction.EmpSystemID, leaveTransaction.LTSystemID, _list_H.Count, _list_W.Count, ref leaveDays,out _sandwichVM);
+                    _obj_POD.GetLeaveCount(leaveTransaction.EmpSystemID, leaveTransaction.LTSystemID, _list_H.Count, _list_W.Count, ref leaveDays, out _sandwichVM);
 
                     if (leaveDays <= 0)
                     {
@@ -1053,7 +1054,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                     {
                         throw new CustomException("Another leave has applied in this days.");
                     }
-                    
+
 
                     var pk = GetPK();
                     leaveTransaction.SystemID = "LT" + DateTime.Now.ToString("yy") + "-" + pk;
@@ -1087,7 +1088,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                     duration = 0.5m;
                     halfDay = false;
                 }
-                _leaveTransactionDetailsService.InsertGraph(_sandwichVM,_list_H,_list_W, details, leaveTransaction.FromDate, Convert.ToDateTime(leaveTransaction.ToDate), duration, halfDay);
+                _leaveTransactionDetailsService.InsertGraph(_sandwichVM, _list_H, _list_W, details, leaveTransaction.FromDate, Convert.ToDateTime(leaveTransaction.ToDate), duration, halfDay);
 
                 _unitOfWork.SaveChanges();
                 flag = false;
@@ -1117,7 +1118,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
             var halfDay = false;
             try
             {
-                
+
                 AttendanceProcessAplos ob = new AttendanceProcessAplos();
                 ob.LockValidation(leaveTransaction.PlantID, leaveTransaction.FromDate.ToString("dd-MMM-yyyy"), Convert.ToDateTime(leaveTransaction.ToDate).ToString("dd-MMM-yyyy"), leaveTransaction.EmpSystemID);
 
@@ -1153,7 +1154,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                     throw new CustomException("This employee is on duty.");
                 }
 
-                
+
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
@@ -1213,7 +1214,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                     //    leaveDays = leaveDays - _offDayList.Count;
                     //}
                     clsEmpWiseLeavePolicyInfo _obj_POD = new clsEmpWiseLeavePolicyInfo(leaveTransaction.PlantID);
-                    _obj_POD.GetLeaveCount(leaveTransaction.EmpSystemID, leaveTransaction.LTSystemID, _list_H.Count, _list_W.Count, ref leaveDays,out _sandwichVM);
+                    _obj_POD.GetLeaveCount(leaveTransaction.EmpSystemID, leaveTransaction.LTSystemID, _list_H.Count, _list_W.Count, ref leaveDays, out _sandwichVM);
 
                     if (leaveDays <= 0)
                     {
@@ -1243,7 +1244,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                     {
                         throw new CustomException("Another leave has been applied on this date.");
                     }
-                    
+
 
                     var pk = GetPK();
                     leaveTransaction.SystemID = "LT" + DateTime.Now.ToString("yy") + "-" + pk;
@@ -1278,7 +1279,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                 }
                 if (!string.IsNullOrEmpty(leaveTransaction.SystemID))
                 {
-                    _leaveTransactionDetailsService.InsertGraph(_sandwichVM,_list_H,_list_W, details, leaveTransaction.FromDate, Convert.ToDateTime(leaveTransaction.ToDate), duration, halfDay);
+                    _leaveTransactionDetailsService.InsertGraph(_sandwichVM, _list_H, _list_W, details, leaveTransaction.FromDate, Convert.ToDateTime(leaveTransaction.ToDate), duration, halfDay);
                 }
 
                 _unitOfWork.SaveChanges();
@@ -1300,7 +1301,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
 
         public void SaveAndUpdateData(LeaveTransaction leaveTransaction, string yearId)
         {
-            
+
             var flag = false;
             decimal duration = 0.0m;
             var halfDay = false;
@@ -1361,11 +1362,11 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                 var getOdData = GetEmpODData(leaveTransaction.EmpSystemID, leaveTransaction.FromDate.ToString("dd-MMM-yyyy"), leaveTransaction.ToDate.ToString());
                 if (getOdData.Tables[0].Rows.Count > 0)
                 {
-                    if(leaveTransaction.LeaveDays>=1)
+                    if (leaveTransaction.LeaveDays >= 1)
                     {
-                    throw new CustomException("This employee is on duty.");
+                        throw new CustomException("This employee is on duty.");
                     }
-                } 
+                }
                 #endregion
 
 
@@ -1391,8 +1392,8 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                 _obj.createOffDayList(identity.PlantId, leaveTransaction, _list_H, _list_W);
                 //for sandwich W/H
                 //get policy
-                
-               
+
+
 
 
                 leaveTransaction.LeaveStatus = LeaveStatus.Pending.ToString();
@@ -1408,7 +1409,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                 else
                 {
                     clsEmpWiseLeavePolicyInfo _obj_POD = new clsEmpWiseLeavePolicyInfo(identity.PlantId);
-                    _obj_POD.GetLeaveCount(leaveTransaction.EmpSystemID, leaveTransaction.LTSystemID, _list_H.Count, _list_W.Count, ref leaveDays,out _policyVM);
+                    _obj_POD.GetLeaveCount(leaveTransaction.EmpSystemID, leaveTransaction.LTSystemID, _list_H.Count, _list_W.Count, ref leaveDays, out _policyVM);
 
                     if (leaveDays <= 0)
                     {
@@ -1426,7 +1427,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                 else
                 {
                     leaveTransaction.LeaveDays = leaveDays;
-                } 
+                }
                 #endregion
 
 
@@ -1455,7 +1456,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                 {
                     leaveTransaction.DateUpdated = DateTime.Now;
                     Update(leaveTransaction);
-                } 
+                }
                 #endregion
 
                 #region LeaveDetail
@@ -1483,7 +1484,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                 }
                 if (!string.IsNullOrEmpty(leaveTransaction.SystemID))//77
                 {
-                    _leaveTransactionDetailsService.InsertGraph(_policyVM,_list_H,_list_W,details, leaveTransaction.FromDate, Convert.ToDateTime(leaveTransaction.ToDate), duration, halfDay);
+                    _leaveTransactionDetailsService.InsertGraph(_policyVM, _list_H, _list_W, details, leaveTransaction.FromDate, Convert.ToDateTime(leaveTransaction.ToDate), duration, halfDay);
                 }
                 //_leaveTransactionDetailsService.InsertGraph(details, leaveTransaction.FromDate, Convert.ToDateTime(leaveTransaction.ToDate), duration, halfDay); 
                 #endregion
@@ -1767,7 +1768,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
         //}//End Function 
         #endregion
 
-        
+
         public void CheckMaxLeaveataTime(LeaveTransaction leaveTransaction, string leavepolicymasterId, decimal leaveDays, string yearId = "")
         {
             DataSet dsLeavePolicyMaster = null;
@@ -1870,19 +1871,21 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                     //check balance
                     if (yearId.Length > 0)
                     {
-                        List<LeaveTransactionVM> list_balance = (List<LeaveTransactionVM>)LoadGrdAllocatedLvDetails(companyGroupId, plantId, EmpSystemID, yearId);
+                        // List<LeaveTransactionVM> list_balance = (List<LeaveTransactionVM>)LoadGrdAllocatedLvDetails(companyGroupId, plantId, EmpSystemID, yearId);
+                        clsLeaveBalanceToDate leave = new clsLeaveBalanceToDate();
+                        List<Dictionary<string, object>> list_balance = leave.GetLeaveBalanceType(EmpSystemID, yearId);
                         foreach (var item in list_balance)
                         {
-                            if (item.LTSystemID == leaveTypeId)
+                            if (item["LeaveTypeId"].ToString() == leaveTypeId)
                             {
                                 if (_IsAvailExceptionAllowedOnSpecialAppeal == false)
                                 {
-                                    if (string.IsNullOrEmpty(leaveTransaction.SystemID)==false)//edit
+                                    if (string.IsNullOrEmpty(leaveTransaction.SystemID) == false)//edit
                                     {
-                                        item.Balance += leaveTransaction.LeaveDays;
+                                        item["ClosingBalance"] = (decimal)clsStaticInfo.dbl(item["ClosingBalance"].ToString()) + leaveTransaction.LeaveDays;
                                     }
 
-                                    if (item.Balance < leaveDays)
+                                    if ((decimal)clsStaticInfo.dbl(item["ClosingBalance"].ToString()) < leaveDays)
                                     {
                                         throw new Exception("Can't apply more than Balance...");
                                     }
@@ -1922,9 +1925,9 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                 var toDate = string.Empty;
                 DataSet dsYear = null;
                 GetYearlyCalendarDetails(yearNo, out dsYear);
-                if (dsYear.Tables[0].Rows.Count>0)
+                if (dsYear.Tables[0].Rows.Count > 0)
                 {
-                    fromDate =  dsYear.Tables[0].Rows[0]["FromDate"].ToString();
+                    fromDate = dsYear.Tables[0].Rows[0]["FromDate"].ToString();
                     toDate = dsYear.Tables[0].Rows[0]["ToDate"].ToString();
                 }
                 //if (yearNo != "null")
@@ -2033,7 +2036,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                         drLocal["Availed"] = dsLvAllo.Tables[0].Rows[i]["Availed"].ToString().Trim();
                         drLocal["BroughtForward"] = Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["BroughtForward"].ToString().Trim());
                         decimal DaysCanBeSanctioned = 0;
-                       
+
                         decimal BroughtForward = Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["BroughtForward"].ToString().Trim());
                         DaysCanBeSanctioned = Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["DaysCanBeSanctioned"].ToString().Trim());
 
@@ -2044,7 +2047,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                         }
                         drLocal["EncashedInbetween"] = EncashedInbetween;
                         bool IsBroughtForwardAdd = true;
-                        IsBroughtForwardAdd= Convert.ToBoolean(dsLvAllo.Tables[0].Rows[i]["IsBroughtForwardAdd"].ToString());
+                        IsBroughtForwardAdd = Convert.ToBoolean(dsLvAllo.Tables[0].Rows[i]["IsBroughtForwardAdd"].ToString());
                         decimal TotalEarn = 0;
                         if (IsBroughtForwardAdd)
                         {
@@ -2052,9 +2055,9 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                         }
                         else
                         {
-                            TotalEarn =  DaysCanBeSanctioned;
-                        }   
-                           
+                            TotalEarn = DaysCanBeSanctioned;
+                        }
+
 
                         if (dsLvAllo.Tables[0].Rows[i]["LeaveType"].ToString().Trim().ToUpper() != "EARN")
                         {
@@ -2067,8 +2070,8 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                                 if (IsBroughtForwardAdd)
                                 {
 
-                                    drLocal["LeaveDays"] = Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["CurrentAllocationDCBS"].ToString().Trim())+ BroughtForward;
-                                    drLocal["Balance"] = Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["CurrentAllocationDCBS"].ToString().Trim())+ BroughtForward - Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["Applied"].ToString().Trim());
+                                    drLocal["LeaveDays"] = Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["CurrentAllocationDCBS"].ToString().Trim()) + BroughtForward;
+                                    drLocal["Balance"] = Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["CurrentAllocationDCBS"].ToString().Trim()) + BroughtForward - Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["Applied"].ToString().Trim());
                                     //TotalEarn = BroughtForward + DaysCanBeSanctioned;
                                 }
                                 else
@@ -2094,90 +2097,10 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                         else
                         {
                             drLocal["LeaveDays"] = TotalEarn;
-                            drLocal["Balance"] = TotalEarn - Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["Applied"].ToString().Trim())- EncashedInbetween;
+                            drLocal["Balance"] = TotalEarn - Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["Applied"].ToString().Trim()) - EncashedInbetween;
 
                         }
 
-
-
-                        drLocal.EndEdit();
-
-                    }
-                }
-
-                var list = new List<LeaveTransactionVM>();
-                list = ConvertDataTable<LeaveTransactionVM>(dsLvAllo.Tables[0]);
-                return list;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                //dsLvAllo = null;
-            }
-        }//End Function
-        public IEnumerable<object> X_LoadGrdAllocatedLvDetails(string companyGroupId, string plantId, string employeeId, string calanderYearId)
-        {
-            //DataSet dsLocal = null;
-            DataRow drLocal = null;
-            DataView dvLocal = null;
-            try
-            {
-                var dsLvAllo = GetLeaveBalanceType(companyGroupId, plantId, employeeId, calanderYearId);
-
-                dvLocal = new DataView();
-                dvLocal.Table = dsLvAllo.Tables[0];
-                //bool proDataPrevYear = false;
-                bool proDataCurrentYear = false;
-                bool isAvailExceptionAllowed = false;
-                List<object> ss = new List<object>();
-
-                object ob = new object { };
-
-                for (int i = 0; i < dsLvAllo.Tables[0].Rows.Count; i++)
-                {
-                    dvLocal.RowFilter = "LvPolDetailsSystemID = '" + dsLvAllo.Tables[0].Rows[i]["LvPolDetailsSystemID"].ToString().Trim() + "'";
-                    if (dvLocal.Count == 1)
-                    {
-                        drLocal = dvLocal[0].Row;
-                        drLocal.BeginEdit();
-                        //proDataPrevYear = Convert.ToBoolean(dsLvAllo.Tables[0].Rows[i]["IsProrataPreviousyear"].ToString());
-                        proDataCurrentYear = Convert.ToBoolean(dsLvAllo.Tables[0].Rows[i]["IsProratacurrentyear"].ToString());
-                        isAvailExceptionAllowed = Convert.ToBoolean(dsLvAllo.Tables[0].Rows[i]["IsAvailExceptionAllowedOnSpecialAppeal"].ToString());
-
-                        drLocal["Applied"] = dsLvAllo.Tables[0].Rows[i]["Applied"].ToString().Trim();
-                        drLocal["Availed"] = dsLvAllo.Tables[0].Rows[i]["Availed"].ToString().Trim();
-                        drLocal["BroughtForward"] = dsLvAllo.Tables[0].Rows[i]["BroughtForward"].ToString().Trim();
-
-                        if (dsLvAllo.Tables[0].Rows[i]["LeaveType"].ToString().Trim().ToUpper() != "EARN")
-                        {
-                            if (proDataCurrentYear == false)
-                            {
-                                #region 01
-
-                                drLocal["LeaveDays"] = Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["CurrentAllocation"].ToString().Trim());
-                                drLocal["Balance"] = Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["CurrentAllocation"].ToString().Trim()) - Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["Applied"].ToString().Trim());
-
-                                #endregion
-                            }
-                            else
-                            {
-                                #region 02
-
-                                drLocal["LeaveDays"] = Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["DaysCanBeSanctioned"].ToString().Trim());
-                                drLocal["Balance"] = Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["DaysCanBeSanctioned"].ToString().Trim()) - Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["Applied"].ToString().Trim());
-
-                                #endregion
-                            }
-                        }
-                        else
-                        {
-                            drLocal["LeaveDays"] = Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["DaysCanBeSanctioned"].ToString().Trim());
-                            drLocal["Balance"] = Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["DaysCanBeSanctioned"].ToString().Trim()) + Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["BroughtForward"].ToString().Trim()) - Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["Applied"].ToString().Trim());
-
-                        }
 
 
                         drLocal.EndEdit();
@@ -2270,7 +2193,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
             }
         }
 
-        public void DeleteApprovedLeaveGraph(string id,string EmpSystemid)
+        public void DeleteApprovedLeaveGraph(string id, string EmpSystemid)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var from_db = Find(id);
@@ -2301,7 +2224,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
 
                 DateTime FromDateV = Convert.ToDateTime(from_db.FromDate.ToString());
                 DateTime ToDateV = Convert.ToDateTime(from_db.ToDate.ToString());
-                
+
 
 
 
@@ -2323,18 +2246,18 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
 
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from AttdnProcessData where WorkDate between '" + FD + @"' and '" + TD + @"'AND PlantID='" + identity.PlantId + @"' and EmpSystemID='"+EmpSystemid+"'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from AttdnProcessData where WorkDate between '" + FD + @"' and '" + TD + @"'AND PlantID='" + identity.PlantId + @"' and EmpSystemID='" + EmpSystemid + "'", out dsMaster, false, "1");
                 string RowsEdit = "''";
 
-                while(FD <= TD)
+                while (FD <= TD)
                 {
                     string newformat = Convert.ToDateTime(FD).ToString("yyyyMMdd");
 
-                    if (FD <= DateTime.Now )
+                    if (FD <= DateTime.Now)
                     {
-                        dsMaster.Tables[0].DefaultView.RowFilter = "RowId='" + newformat + EmpSystemid+ "'";
+                        dsMaster.Tables[0].DefaultView.RowFilter = "RowId='" + newformat + EmpSystemid + "'";
                         int j = dsMaster.Tables[0].DefaultView.Count;
-                        if(j > 0)
+                        if (j > 0)
                         {
                             DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
                             dr.BeginEdit();
@@ -2342,7 +2265,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                             dr["LTSystemID"] = DBNull.Value;
                             dr["ManualFlag"] = true;
                             dr["IsLock"] = false;
-                            dr["LockedBy"] = DBNull.Value; 
+                            dr["LockedBy"] = DBNull.Value;
                             dr["LockedDate"] = DBNull.Value;
                             dr["OTComfirmBy"] = DBNull.Value;
                             dr["DateOTComfirm"] = DBNull.Value;
@@ -2371,7 +2294,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
 
                 NewAttendanceProcessService ap = new NewAttendanceProcessService();
                 ap.ManualScheduler(identity.PlantId, RowsEdit);
-                
+
                 //New Code Ends
 
             }
@@ -2384,7 +2307,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
 
 
 
-        public void GetYearlyCalendarDetails(string YearId,out DataSet dsYear)
+        public void GetYearlyCalendarDetails(string YearId, out DataSet dsYear)
         {
 
             try

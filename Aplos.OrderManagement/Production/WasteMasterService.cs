@@ -409,10 +409,41 @@ namespace Library.OrderManagement.Production
             }
         }
 
-        //public IEnumerable<object> getClickedData(string Id)
-        //{
+        public IEnumerable<object> getClickedData(string Id)
+        {
+            try
+            {
+                var str = @"Select wtd.Id as WTDId ,format(wtd.Date , 'dd-MMM-yyyy' ) as Dates, wm.ItemName,wm.Category,wm.SubCategory,wtd.Quantity , wtd.AddedBy
+                            from dbo.WasteTransactionData wtd
+                            left join dbo.WasteMaster wm on wm.Id = wtd.WasteMasterId
+                            where wtd.Id = '"+Id+"'";
 
-        //}
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
 
+        public Dictionary<string, object> saveQuantity(Dictionary<string, object> data)
+        {
+            try
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery(@"Update dbo.WasteTransactionData
+
+                            Set Quantity = "+clsStaticInfo.dbl(data["Quantity"].ToString())+@"
+
+                            where Id = '"+data["WTDId"]+"'");
+                con.CommitTransaction();
+                return data;
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

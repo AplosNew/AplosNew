@@ -5874,7 +5874,7 @@ namespace Library.MaterialManagement.InventoryManagements
                         And IR.IsApproved = 1 --And IR.POId Is not NULL 
                         and (IR.GRNType='GRNBYPO' OR IR.GRNType='GRNBYREQPO')
                         )x
-                        order by GRNDate DESC";
+                        ORDER BY 3,2 DESC";
 
 				}
 

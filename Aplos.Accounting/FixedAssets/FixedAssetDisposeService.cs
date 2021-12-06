@@ -391,7 +391,9 @@ namespace Library.Accounting.FixedAssets
                 if (totalAmountDr != totalAmountCr)
                     throw new CustomException("Dr and Cr amount is not equal.");
                 clsStaticInfo objApp = new clsStaticInfo();
-                objApp.SaveDataSets(_vdataset, _invoicedataSet, _invoiceDetailData, _crvDetailData, _drvDetailData, _drvDetailCurrencyData, _crvDetailData, _crvDetailCurrencyData, _frDisposeData, _fixedAssetRegisterData, _advanceReqScheData
+                //objApp.SaveDataSets(_vdataset, _invoicedataSet, _invoiceDetailData, _crvDetailData, _drvDetailData, _drvDetailCurrencyData, _crvDetailData, _crvDetailCurrencyData, _frDisposeData, _fixedAssetRegisterData, _advanceReqScheData
+                // need to test 
+                objApp.SaveDataSets(_vdataset, _invoicedataSet, _invoiceDetailData, _drvDetailData, _drvDetailCurrencyData, _crvDetailData, _crvDetailCurrencyData, _frDisposeData, _fixedAssetRegisterData, _advanceReqScheData
                     );
             }
             catch (Exception ex)

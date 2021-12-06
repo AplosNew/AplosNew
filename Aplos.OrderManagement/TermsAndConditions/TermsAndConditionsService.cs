@@ -166,6 +166,31 @@ namespace Library.OrderManagement.TermsAndConditions
 
             }
         }
+
+        public string DeletePODetailPopUp(string id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from TermsAndConditionsPODetails where Id='" + id + "'");
+
+                con.CommitTransaction();
+
+                return "Success";
+
+            }
+            catch (Exception ex)
+            {
+
+                return ex.Message;
+
+            }
+        }
+
         public string DeleteTitle(string id)
         {
             try

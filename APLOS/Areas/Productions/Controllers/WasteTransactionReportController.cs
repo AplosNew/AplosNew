@@ -52,7 +52,29 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(ws.getData( EntityId,  ToDate,  FromDate), JsonRequestBehavior.AllowGet);
         }
 
-        
-        
+        [HttpPost , Authorize]
+        public ActionResult getClickedData(string Id)
+        {
+            return Json(ws.getClickedData(Id), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpPost]
+        public JsonResult saveQuantity(Dictionary<string, object> data)
+        {
+            try
+            {
+                var datas = ws.saveQuantity(data);
+                return Json(new { Error = false, Data = datas, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
     }
 }

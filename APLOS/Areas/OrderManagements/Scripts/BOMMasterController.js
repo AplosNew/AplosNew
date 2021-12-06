@@ -356,6 +356,33 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
         });
     };
 
+    $scope.copymessage_detailconfirmation = null;
+    $scope.copyBoMDetail = function (obj) {
+        $scope.bomDetailNew = obj.data;
+        if (!baseService.isUndefinedOrNull($scope.bomDetailNew.Id))
+            $scope.copymessage_detailconfirmation = 'Are you sure want to copy';
+        angular.element(document.querySelector('#confirmCopyBoMDetailPopUp')).modal('show');
+    }
+
+    $scope.CopyBomDetailData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'CopyBomDetailData?BOMMasterId=' + $scope.bomDetailNew.BOMMasterId + '&Id=' + $scope.bomDetailNew.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getDetailData();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
+
     $scope.Delete = function () {
         if (!baseService.isUndefinedOrNull($scope.bomNew.Id)) {
             $http({
@@ -814,6 +841,7 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
         UomCboByMaterialMaster($scope.bomDetailNew.RMMaterialMasterId);
 
         $scope.bomDetailNew.Specific = true;
+        $scope.bomDetailNew.SKUMatrix = false;
     };
 
     $scope.rm1characteristicsList = [];

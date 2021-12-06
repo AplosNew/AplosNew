@@ -148,7 +148,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                                     dm.EmployeeCategoryId = '" + EmpType + @"' and
                                     " + DesgStr + @" and "+EmployTyStr+@" and
 									EmpSlr.SalaryHeadID = '"+dtEmpAddDedTab.Rows[i]["HeadValueId"].ToString()+ @"' and
-                                    ei.EmployeeStatus = 'Active'
+                                    ei.EmployeeStatus = 'Active' and ei.EmployeeCodeTypeId <> '213'
 									and EmpSlr.DefineAmount is not null and EmpSlr.DefineAmount>0
                                     ";
                         }
@@ -164,7 +164,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                                     where ei.PlantId = '" + plant + @"' and 
                                     dm.EmployeeCategoryId = '" + EmpType + @"' and 
                                     " + DesgStr + @" and " + EmployTyStr + @" and
-                                    ei.EmployeeStatus = 'Active' 
+                                    ei.EmployeeStatus = 'Active' and ei.EmployeeCodeTypeId <> '213'
                                     ";
                         }
                        
@@ -204,7 +204,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                                     int value = rr.Next(1000);
                                     string text = value.ToString("000");
                                     dr = dtTrial.NewRow();
-                                    dr["Id"] = "TR"+ dayNoId.ToString() + monthNo.ToString()+ yearNo.ToString() +i.ToString()+j.ToString();
+                                    dr["Id"] = "TR"+ dayNoId.ToString() + monthNo.ToString()+ yearNo.ToString()+ _Id +i.ToString()+j.ToString();
                                     dr["SystemId"] = dtActiveEmps.Rows[j]["SystemId"].ToString();
                                     dr["LegalDesignationId"] = dtActiveEmps.Rows[j]["LegalDesignationId"].ToString();
                                     dr["LegalDesignation"] = dtActiveEmps.Rows[j]["LegalDesignation"].ToString();
@@ -327,7 +327,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                             else
                             {
                                 da = dsAmtMaster.Tables[0].NewRow();
-                                da["SystemId"] = "EADM-" + dtAmtMaster.Rows[i]["YearNo"].ToString().Substring(2, 2) + "-" + i;
+                                da["SystemId"] = "EADM-"  +dayNoId.ToString() + monthNo.ToString() + dtAmtMaster.Rows[i]["YearNo"].ToString().Substring(2, 2) + "-" + i;
                                 da["EmpInfoSystemID"] = dtAmtMaster.Rows[i]["SystemId"].ToString();
                                 da["PlantID"] = dtAmtMaster.Rows[i]["PlantId"].ToString();
                                 da["MonthNo"] = int.Parse(dtAmtMaster.Rows[i]["Month"].ToString());
@@ -342,7 +342,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                             }
 
                             dc = dsAmtChild.Tables[0].NewRow();
-                            dc["SystemId"] = "EADC-" + dtAmtMaster.Rows[i]["YearNo"].ToString().Substring(2, 2) + "-" + i;
+                            dc["SystemId"] = "EADC-" + dayNoId.ToString() + monthNo.ToString() + dtAmtMaster.Rows[i]["YearNo"].ToString().Substring(2, 2) + "-" + i;
                             dc["MWESAMasterSystemID"] = masterId;
                             dc["CurrencyRuleSystemID"] = "CR-202019";
                             dc["SalaryHeadID"] = dtAmtMaster.Rows[i]["AdditionDeductionHeadId"].ToString();
@@ -352,7 +352,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                             dc["DefineAmount"] = clsStaticInfo.dbl(dtAmtMaster.Rows[i]["Amount"].ToString());
                             dc["AmtDefinitionCurrencyID"] = 8;
                             dc["AmtDefinitionRate"] = 0;
-                            dc["ExtDataUploadApp"] = "Yes";
+                            dc["ExtDataUploadApp"] = "XL";
                             dc["AddedBy"] = "Sayanto";
                             dc["DateAdded"] = DateTime.Now;
                             dc["UpdatedBy"] = "Sayanto";

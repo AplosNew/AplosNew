@@ -24,6 +24,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             ConManager = new ConnectionManager.clsConnectionManager();
 
         }
+
         #region Shift Process
         public void ShiftProcess(string Date, string PlantValue)
         {
@@ -1584,13 +1585,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
-                            //foreach (DataRow drx in dsRef.Tables[0].Rows)
-                            //{
-                            //    drx.BeginEdit();
-                            //    drx["PunchOutTime"] = DBNull.Value;
-                            //    drx.EndEdit();
-
-                            //}
 
                             for (int i = 0; i < OutwithFlag.Tables[0].Rows.Count; i++)
                             {
@@ -1831,6 +1825,15 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         #region Exception Final PrevDay In/Out  (Wrong Entry Handling)                   
                         ExceptionFinalInOut(PreviousDay, PlantValue);
                         // Doing Final In Out Null if Invalid Data Entered from Manual
+                        #endregion
+
+                        #region Final PrevDay In/Out                  
+                        ProcessFinalInOut(PreviousDay, PlantValue); // Final In Out Stamping on the Basis of Original Manual & Punch
+                        #endregion
+
+                        #region Exception Final PrevDay In/Out  (Wrong Entry Handling)                   
+                        ExceptionProcessFinalInOut(PreviousDay, PlantValue);
+                        // Doing Process Final In Out Null if Invalid Data Entered from OriginalManual
                         #endregion
 
                         #region In Status Logic Previous Day
@@ -2088,6 +2091,15 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         #region Exception Final Day In/Out  (Wrong Entry Handling)                
                         ExceptionFinalInOut(Date, PlantValue);
                         // Doing Final In Out Null if Invalid Data Entered from Manual
+                        #endregion
+
+                        #region Final Day In/Out    
+                        ProcessFinalInOut(Date, PlantValue); // Final In Out Stamping on the Basis of OriginalManual & Punch
+                        #endregion
+
+                        #region Exception Process Final Day In/Out  (Wrong Entry Handling)                
+                        ExceptionProcessFinalInOut(Date, PlantValue);
+                        // Doing Process Final In Out Null if Invalid Data Entered from OriginalManual
                         #endregion
 
                         #region In Status Logic
@@ -2626,6 +2638,28 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
+        public void ProcessFinalInOut(string Date, string Plant)
+        {
+            try
+            {
+                var sql = @"update AttdnProcessData set ProcessIntime=ISNULL(OriginalManualInTime,PunchInTime),ProcessOuttime=
+				 ISNULL(OriginalManualOutTime,PunchOutTime),UpdatedBy='Schedule',DateUpdated=GETDATE()
+				 WHERE WorkDate='" + Date + @"' 
+				 and PlantID='" + Plant + "'";
+
+                ConnectionManager.DAL.ConManager objCone = null;
+                objCone = new ConnectionManager.DAL.ConManager("1");
+                objCone.OpenConnection("1");
+                objCone.BeginTransaction();
+
+                objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                objCone.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
         public void ExceptionFinalInOut(string Date, string Plant)
         {
             try
@@ -2635,6 +2669,29 @@ namespace Library.HumanResource.NewAttendanceProcess {
 				 WHERE WorkDate='"+Date+@"' 
 				 and PlantID='"+Plant+@"' and 
 				 ISNULL(ManualInTime,PunchInTime)> ISNULL(ManualOutTime,PunchOutTime)";
+
+                ConnectionManager.DAL.ConManager objCone = null;
+                objCone = new ConnectionManager.DAL.ConManager("1");
+                objCone.OpenConnection("1");
+                objCone.BeginTransaction();
+
+                objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                objCone.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public void ExceptionProcessFinalInOut(string Date, string Plant)
+        {
+            try
+            {
+                var sql = @"update AttdnProcessData	set ProcessIntime=null,ProcessOuttime=null				 
+				 from AttdnProcessData 
+				 WHERE WorkDate='" + Date + @"' 
+				 and PlantID='" + Plant + @"' and 
+				 ISNULL(OriginalManualInTime,PunchInTime) > ISNULL(OriginalManualOutTime,PunchOutTime)";
 
                 ConnectionManager.DAL.ConManager objCone = null;
                 objCone = new ConnectionManager.DAL.ConManager("1");
@@ -2882,12 +2939,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 var sql = @"select distinct p.EmpSystemID,p.DayStatusCode,dt.DayType,
                         format(p.WorkDate,'yyyy-MMM-dd')WorkDate from AttdnProcessData p
                         join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
-                                  left join mst.DesignationMasterLegalDesignation ddm on 
-                        ddm.LegalDesignationId = ei.LegalDesignationId
-                                            left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
-									        left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
-											and dc.PlantId=ei.PlantId
-						                    left join DayStatusHeader dh on dh.Id=dc.headerId
+                     	                    left join DayStatusHeader dh on dh.Id=p.DayStatusHeaderId
 									        left join DayStatus ds on ds.headerId=dh.Id
 											left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId
 									        where WorkDate='" + PreDay + @"' and ds.Code=p.DayStatusCode
@@ -2905,26 +2957,15 @@ namespace Library.HumanResource.NewAttendanceProcess {
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                var sql = @"select distinct p.EmpSystemID,Result=dt.DayType, dt.AutoLock,format(p.WorkDate,'yyyy-MMM-dd')WorkDate, 
-                dt.SandwichStatusFlag,dt.OTApplicable,dt.GoodWorkApplicable,				
-				isnull(dt.PresentValuePD,'0')PresentValue,isnull(dt.LateValueLV,'0')LateValue,isnull(dt.AbsentValueAB,'0')AbsentValue,
-				isnull(dt.LeaveValueLP,'0')LvValue,isnull(dt.MaternityLeaveValueMLV,'0')MlvValue,isnull(dt.CompAssignLv,'0')CompAssignLvValue,
-                isnull(dt.WeeklyOffWO,'0')WeekOffValue,isnull(dt.HolidayH,'0')HoliDayValue,isnull(dt.WeekOffHoliDayWOH,'0')WeekOffHoliDayValue,
-				isnull(dt.LeaveValueLWP,'0')TotalLWP,isnull(dt.CasualLeaveValueCV,'0')TotalCasualLeave,
-				isnull(dt.PriviledgeLeavePL,'0')PriviledgeLeaveValue,isnull(dt.MedicalLeaveValueMV,'0')MedicalLeaveValue,isnull(dt.TotalWorkingDay,'0')WorkingDay,
-				isnull(dt.ActualWorkingDay,'0')ActualWorkingDay,isnull(dt.PayDay,'0')TotalPayDay,isnull(dt.NonPayDay,'0')TotalNonPayDay                 
+                var sql = @"select distinct p.EmpSystemID,Result=dt.DayType,format(p.WorkDate,'yyyy-MMM-dd')WorkDate, 
+                dt.SandwichStatusFlag                 
 				from AttdnProcessData p
                         join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
-                        left join mst.DesignationMasterLegalDesignation ddm on 
-                        ddm.LegalDesignationId = ei.LegalDesignationId
-                        left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
-						left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
-						and dc.PlantId=ei.PlantId
-						left join DayStatusHeader dh on dh.Id=dc.headerId
+                     	left join DayStatusHeader dh on dh.Id=p.DayStatusHeaderId
 						left join DayStatus ds on ds.headerId=dh.Id
 						left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId									       
-						where WorkDate='"+PreDay+ @"' 
-						and dt.DayType=ISNULL(ISNULL(p.ManualDayStatus,p.SandwichStatus),p.ProcessDayStatus)
+						where WorkDate='" + PreDay+ @"' 
+						and dt.DayType=ISNULL(p.ManualDayStatus,p.ProcessDayStatus)
 						and ei.PlantId='" + Plant+"'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -3025,31 +3066,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
-        public void OverStayRoundingOff(string PreDay, out DataSet ds, string Plant)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-                // Getting AllotedOT from Per Min Policy
-                var sql = @"select distinct p.EmpSystemID,
-                format(p.WorkDate,'yyyy-MMM-dd')WorkDate,Result=               
-                (select distinct ot.AllotedOT from OTPerMinutePolicy ot
-                where ot.PlantId=p.PlantID and ot.OverstayOrEarlyOut=p.OverStay) 
-                from AttdnProcessData p
-                left join org.Plant pl on pl.Id=p.PlantID
-                left join OTPerMinutePolicy ot on ot.PlantId=pl.Id
-                        where WorkDate='"+PreDay+@"' and p.IsOTEntitled='1'
-						and p.OverStay>0
-						and p.PlantId='"+Plant+"'";
-
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
         public void UpdateZeroProcessedOTEmp(string Date,string Plant)
         {
             try
@@ -3073,8 +3089,39 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
-       
-        #endregion            
+        public void PreProcessPayrollDayStatusData(string PreDay, out DataSet ds, string Plant)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"select distinct p.EmpSystemID,Result=dt.DayType, dt.AutoLock,format(p.WorkDate,'yyyy-MMM-dd')WorkDate, 
+                dt.SandwichStatusFlag,dt.OTApplicable,dt.GoodWorkApplicable,				
+				isnull(dt.PresentValuePD,'0')PresentValue,isnull(dt.LateValueLV,'0')LateValue,isnull(dt.AbsentValueAB,'0')AbsentValue,
+				isnull(dt.LeaveValueLP,'0')LvValue,isnull(dt.MaternityLeaveValueMLV,'0')MlvValue,isnull(dt.CompAssignLv,'0')CompAssignLvValue,
+                isnull(dt.WeeklyOffWO,'0')WeekOffValue,isnull(dt.HolidayH,'0')HoliDayValue,isnull(dt.WeekOffHoliDayWOH,'0')WeekOffHoliDayValue,
+				isnull(dt.LeaveValueLWP,'0')TotalLWP,isnull(dt.CasualLeaveValueCV,'0')TotalCasualLeave,
+				isnull(dt.PriviledgeLeavePL,'0')PriviledgeLeaveValue,isnull(dt.MedicalLeaveValueMV,'0')MedicalLeaveValue,isnull(dt.TotalWorkingDay,'0')WorkingDay,
+				isnull(dt.ActualWorkingDay,'0')ActualWorkingDay,isnull(dt.PayDay,'0')TotalPayDay,isnull(dt.NonPayDay,'0')TotalNonPayDay                 
+				from AttdnProcessData p
+                        join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
+                     	left join DayStatusHeader dh on dh.Id=p.DayStatusHeaderId
+						left join DayStatus ds on ds.headerId=dh.Id
+						left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId									       
+						where WorkDate='" + PreDay + @"' 
+						and dt.DayType=p.DayStatus
+						and ei.PlantId='" + Plant + "'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+
+        #endregion
 
         #region OT Confirmation Process SourceData
         public void AutoConfirmedDataSet(string Date, out DataSet ds, string PlantId)
@@ -3084,12 +3131,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             {
                 var sql = @"select distinct p.RowId from AttdnProcessData p
                         join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
-                                  left join mst.DesignationMasterLegalDesignation ddm on 
-                        ddm.LegalDesignationId = ei.LegalDesignationId
-                                            left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
-									        left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
-											and dc.PlantId=ei.PlantId
-						                    left join DayStatusHeader dh on dh.Id=dc.headerId
+                                            left join DayStatusHeader dh on dh.Id=p.DayStatusHeaderId
 									        left join DayStatus ds on ds.headerId=dh.Id
 											left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId
 									        where WorkDate='" + Date+@"' and	dt.DayType=p.DayStatus 
@@ -3112,12 +3154,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             {
                 var sql = @"select distinct p.RowId,p.WorkDate from AttdnProcessData p
                         join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
-                                  left join mst.DesignationMasterLegalDesignation ddm on 
-                        ddm.LegalDesignationId = ei.LegalDesignationId
-                                            left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
-									        left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
-											and dc.PlantId=ei.PlantId
-						                    left join DayStatusHeader dh on dh.Id=dc.headerId
+                                            left join DayStatusHeader dh on dh.Id=p.DayStatusHeaderId
 									        left join DayStatus ds on ds.headerId=dh.Id
 											left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId
 									        where p.ManualFlag=1 and dt.DayType=p.DayStatus 
@@ -3188,7 +3225,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
             }
 
         }
-
         public void CreditLimitOpeningSource(out DataSet ds, string Plant, string Date)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -3219,8 +3255,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 Date = Convert.ToDateTime(Date).ToString("dd-MMM-yyyy");
                 string PreviousDay = Convert.ToDateTime(Date).AddDays(-1).ToString("dd-MMM-yyyy");
                 string SandwichPrevDay = Convert.ToDateTime(Date).AddDays(-2).ToString("dd-MMM-yyyy");
-                string SandwichFlagRowId = "''";
-
+                
                 DataSet PlantLock; // Previous Day Plant Lock Checking
                 PlantLockCheck(PreviousDay, out PlantLock, PlantValue);
                 if (PlantLock.Tables[0].Rows.Count > 0)
@@ -3389,44 +3424,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     }
 
                     #endregion
-
-                    #region PrevDay OverStay Rounding Off 
-                    DataSet OverStayRounding;
-                    OverStayRoundingOff(PreviousDay, out OverStayRounding, PlantValue);
-                    if (OverStayRounding.Tables[0].Rows.Count > 0)
-                    {
-                        // OverStay DataSet Using OT Per Minute Policy
-                        var WkDate = OverStayRounding.Tables[0].Rows[0][@"WorkDate"].ToString();
-                        string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
-
-                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                        var sqlx = @"select * from AttdnProcessData where IsOTEntitled='1' and WorkDate='" + WkDate + "' and PlantID='" + PlantValue + "'";
-                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
-
-                        for (int i = 0; i < OverStayRounding.Tables[0].Rows.Count; i++)
-                        {
-
-                            string EmpId = clsWebLib.RetValidLen(OverStayRounding.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
-                            string Result = clsWebLib.RetValidLen(OverStayRounding.Tables[0].Rows[i][@"Result"]).ToString();
-
-                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
-                            if (dsRef.Tables[0].DefaultView.Count > 0)
-                            {
-                                // OverStay Value is rounded using OT Per Min Policy
-                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                                dr.BeginEdit();
-                                dr["OverStay"] = Result;
-                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                dr.EndEdit();
-                            }
-
-
-                        }
-                        SaveDataSets(dsRef);
-                    }
-
-                    #endregion
-
+                 
                     #region Previous Day DurationStatus Flagging
                     DataSet PrevDurationStat;
                     PrevDurationStatusCal(PreviousDay, out PrevDurationStat, PlantValue);
@@ -3570,98 +3568,91 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                         for (int i = 0; i < PrevFinalDayStat.Tables[0].Rows.Count; i++)
                         {
-                            // Localizing Diff Flags on the Basis of Processed FinalDayStatus 
+                            // Localizing Processed FinalDayStatus 
 
                             string EmpId = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
                             string Result = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"Result"]).ToString();
                             string SandwichFlag = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"SandwichStatusFlag"]).ToString();
-                            string OtApplicable = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"OTApplicable"]).ToString();
-                            string Goodwork = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"GoodWorkApplicable"]).ToString();
-                            string AutoLock = clsWebLib.GetBoolData(PrevFinalDayStat.Tables[0].Rows[i][@"AutoLock"]).ToString();
-
-                            #region For Using them to get the Summary
-                            string TotalPresent = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"PresentValue"]).ToString();
-                            string TotalLate = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"LateValue"]).ToString();
-                            string TotalAbsent = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"AbsentValue"]).ToString();
-                            string TotalLv = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"LvValue"]).ToString();
-                            string TotalMlv = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"MlvValue"]).ToString();
-                            string TotalCompAssignLv = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"CompAssignLvValue"]).ToString();
-                            string TotalWeekOff = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"WeekOffValue"]).ToString();
-                            string TotalHoliDay = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"HoliDayValue"]).ToString();
-                            string TotalWeekOffHoliDay = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"WeekOffHoliDayValue"]).ToString();
-                            string TotalLWP = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"TotalLWP"]).ToString();
-                            string TotalCasualLeave = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"TotalCasualLeave"]).ToString();
-                            string TotalPriviledgeLeave = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"PriviledgeLeaveValue"]).ToString();
-                            string TotalMedicalLeave = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"MedicalLeaveValue"]).ToString();
-                            string TotalPayDay = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"TotalPayDay"]).ToString();
-                            string TotalNonPayDay = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"TotalNonPayDay"]).ToString();
-                            string TotalWorkingDay = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"WorkingDay"]).ToString();
-                            string ActualWorkingDay = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"ActualWorkingDay"]).ToString();
-
-                            #endregion
-
+                                              
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
                                 // Updations in APD Table 
                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                 dr.BeginEdit();
-
-                                #region Null Flagging
-
-                                dr["PresentValue"] = DBNull.Value;
-                                dr["LateValue"] = DBNull.Value;
-                                dr["AbsentValue"] = DBNull.Value;
-                                dr["LvValue"] = DBNull.Value;
-                                dr["MLvValue"] = DBNull.Value;
-                                dr["CompAssignLvValue"] = DBNull.Value;
-                                dr["WeekOffValue"] = DBNull.Value;
-                                dr["HoliDayValue"] = DBNull.Value;
-                                dr["WeekOffHoliDayValue"] = DBNull.Value;
-                                dr["LWPValue"] = DBNull.Value;
-                                dr["CasualLeaveValue"] = DBNull.Value;
-                                dr["MedicalLeaveValue"] = DBNull.Value;
-                                dr["PriviledgeLeaveValue"] = DBNull.Value;
-                                dr["PayDayValue"] = DBNull.Value;
-                                dr["NonPayDayValue"] = DBNull.Value;
-                                dr["WorkingDayValue"] = DBNull.Value;
-                                dr["ActualWorkingDayValue"] = DBNull.Value;
-
-                                #endregion
-
                                 dr["ProcessFinalDayStatus"] = Result;
                                 dr["SandwichFlag"] = SandwichFlag;
-                                dr["DayTypeOTApplicable"] = OtApplicable;
-                                dr["DayTypeGoodWorkApplicable"] = Goodwork;
-                                if (AutoLock == "True")
-                                {
-                                    // Individual Lock
-                                    dr["IsLock"] = true;
-                                    dr["LockedDate"] = DateTime.Now;
-                                    dr["LockedBy"] = "AutoLock";
-                                }
-                                dr["PresentValue"] = TotalPresent;
-                                dr["LateValue"] = TotalLate;
-                                dr["AbsentValue"] = TotalAbsent;
-                                dr["LvValue"] = TotalLv;
-                                dr["MLvValue"] = TotalMlv;
-                                dr["CompAssignLvValue"] = TotalCompAssignLv;
-                                dr["WeekOffValue"] = TotalWeekOff;
-                                dr["HoliDayValue"] = TotalHoliDay;
-                                dr["WeekOffHoliDayValue"] = TotalWeekOffHoliDay;
-                                dr["LWPValue"] = TotalLWP;
-                                dr["CasualLeaveValue"] = TotalCasualLeave;
-                                dr["MedicalLeaveValue"] = TotalMedicalLeave;
-                                dr["PriviledgeLeaveValue"] = TotalPriviledgeLeave;
-                                dr["PayDayValue"] = TotalPayDay;
-                                dr["NonPayDayValue"] = TotalNonPayDay;
-                                dr["WorkingDayValue"] = TotalWorkingDay;
-                                dr["ActualWorkingDayValue"] = ActualWorkingDay;
                                 dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                 dr.EndEdit();
                             }
                         }
                         SaveDataSets(dsRef);
+
+                    }
+                    #endregion
+
+                    #region Sandwich Saving  
+                    DataSet SandwichSavingData;
+                    SandwichLogic(SandwichPrevDay, out SandwichSavingData, PlantValue);
+                    if (SandwichSavingData.Tables[0].Rows.Count > 0)
+                    {
+
+                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                        var sqlx = @"select * from AttdnProcessData where WorkDate='" + PreviousDay + "' and PlantID='" + PlantValue + "'";
+
+                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+                        objCon.OpenDataSetThroughAdapter("select * from AttdnProcessData where 1=2", out DataSet SandwichDataSet, false, false, "", "1");
+                        // DataSet for Changing Previous Days Flags and DayStatuses
+                        string newformat = Convert.ToDateTime(PreviousDay).ToString("yyyyMMdd");
+
+
+                        for (int i = 0; i < SandwichSavingData.Tables[0].Rows.Count; i++)
+                        {
+
+                            string EmpId = clsWebLib.RetValidLen(SandwichSavingData.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
+                            string PrevDaySandwich = clsWebLib.RetValidLen(SandwichSavingData.Tables[0].Rows[i][@"SandwichFlag"]).ToString();
+
+                            // Updation in AttdnProcessData
+                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                            if (dsRef.Tables[0].DefaultView.Count > 0)
+                            {
+                                string ToDaySandwich = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"SandwichFlag"]).ToString();
+                                string FinalStatus = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"ProcessFinalDayStatus"]).ToString();
+
+                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                dr.BeginEdit();
+                                if (PrevDaySandwich == "0" && ToDaySandwich == "2")
+                                {
+                                    dr["SandwichFlag"] = "0"; //Today Change
+                                }
+
+                                else if (PrevDaySandwich == "1" && ToDaySandwich == "2")
+                                {
+                                    dr["SandwichFlag"] = "2"; //Today Change
+                                }
+
+                                else if (PrevDaySandwich == "0" && ToDaySandwich == "3")
+                                {
+                                    dr["SandwichFlag"] = "0"; //Today Change
+                                }
+
+                                else if (PrevDaySandwich == "0" && ToDaySandwich == "4")
+                                {
+                                    dr["SandwichFlag"] = "0"; //Today Change
+                                }
+
+                                else if (PrevDaySandwich == "1" && ToDaySandwich == "3")
+                                {
+                                    dr["SandwichFlag"] = "3"; //Today Change
+                                }
+                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                dr.EndEdit();
+                            }                     
+                                
+                        }
+
+                        SaveDataSets(dsRef); // Saving Main DataSet                      
+
 
                     }
                     #endregion
@@ -3694,32 +3685,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 string ToDaySandwich = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"SandwichFlag"]).ToString();
                                 string FinalStatus = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"ProcessFinalDayStatus"]).ToString();
 
-                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                                dr.BeginEdit();
-                                if (PrevDaySandwich == "0" && ToDaySandwich == "2")
-                                {
-                                    dr["SandwichFlag"] = "0"; //Today Change
-                                }
-
-                                else if (PrevDaySandwich == "1" && ToDaySandwich == "2")
-                                {
-                                    dr["SandwichFlag"] = "2"; //Today Change
-                                }
-
-                                else if (PrevDaySandwich == "0" && ToDaySandwich == "3")
-                                {
-                                    dr["SandwichFlag"] = "0"; //Today Change
-                                }
-
-                                else if (PrevDaySandwich == "1" && ToDaySandwich == "3")
-                                {
-                                    dr["SandwichFlag"] = "3"; //Today Change
-                                }
-                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                dr.EndEdit();
-
-
-                                if (PrevDaySandwich == "2" || PrevDaySandwich == "4")
+                                if (PrevDaySandwich == "2" || PrevDaySandwich == "4" || PrevDaySandwich == "3")
                                 {
                                     if (ToDaySandwich == "1")
                                     {
@@ -3727,10 +3693,18 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         {
                                             // RowId Fetching for In Range b/w previous sandwichflags 2 _ _ _ _ _ _ _ 2
 
-                                            var sqly = @"SELECT * FROM (select RowId,EmpSystemID,SandwichFlag,WorkDate,
-                                            DENSE_RANK() OVER (PARTITION BY EmpSystemID,SandwichFlag ORDER BY WorkDate DESC,SandwichFlag) AS RNKFlag,
-                                            DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) AS RNKEmp
-                                            from AttdnProcessData where WorkDate <= '" + SandwichPrevDay + @"'--considering this date has flag=2 (starting point)
+                                            var sqly = @"SELECT * FROM (
+
+                                            select RowId,EmpSystemID,sandwichflag as SandwichMaster,
+                                            CASE WHEN SandwichFlag IN (2,3) THEN 2 ELSE 
+                                            SandwichFlag END SandwichFlag,WorkDate,
+                                            DENSE_RANK() OVER (PARTITION BY EmpSystemID,CASE WHEN 
+                                            SandwichFlag IN (2,3) THEN 2 ELSE 
+                                            SandwichFlag END ORDER BY WorkDate DESC,CASE WHEN SandwichFlag IN 
+                                            (2,3) THEN 2 ELSE SandwichFlag END) AS RNKFlag,
+                                            DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) 
+                                            AS RNKEmp
+                                            from AttdnProcessData where WorkDate <= '" + SandwichPrevDay + @"'
                                             and EmpSystemID='" + EmpId + @"' and SandwichFlag !='4'
                                             ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1,3)";
 
@@ -3741,94 +3715,32 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                                 {
                                                     // Changing DayStatus
                                                     var RowxId = RowData.Rows[x]["RowId"].ToString();
-                                                    DataRow drx = SandwichDataSet.Tables[0].NewRow();
-                                                    drx["DayStatus"] = FinalStatus;
-                                                    drx["RowId"] = RowxId;
-                                                    SandwichDataSet.Tables[0].Rows.Add(drx);
+                                                    var SandwichMaster = RowData.Rows[x]["SandwichMaster"].ToString();
+                                                    if (SandwichMaster == "3")
+                                                    {
+                                                        DataRow drx = SandwichDataSet.Tables[0].NewRow();
+                                                        drx["DayStatus"] = "W";
+                                                        drx["RowId"] = RowxId;
+                                                        SandwichDataSet.Tables[0].Rows.Add(drx);
+                                                    }
+                                                    else if (SandwichMaster == "2")
+                                                    {
+                                                        if (FinalStatus != "")
+                                                        {
+                                                            DataRow drx = SandwichDataSet.Tables[0].NewRow();
+                                                            drx["DayStatus"] = FinalStatus;
+                                                            drx["RowId"] = RowxId;
+                                                            SandwichDataSet.Tables[0].Rows.Add(drx);
+                                                        }
+                                                    }
                                                 }
 
                                             }
                                         }
                                     }
-                                    else if (ToDaySandwich == "0")
-                                    {
-                                        var sqly = @"SELECT * FROM (select RowId,EmpSystemID,SandwichFlag,WorkDate,
-                                            DENSE_RANK() OVER (PARTITION BY EmpSystemID,SandwichFlag ORDER BY WorkDate DESC,SandwichFlag) AS RNKFlag,
-                                            DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) AS RNKEmp
-                                             from AttdnProcessData where WorkDate <= '" + SandwichPrevDay + @"'--considering this date has flag=2 (starting point)
-                                            and EmpSystemID='" + EmpId + @"' and SandwichFlag !='4'
-                                            ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1,3)";
-
-                                        var RowData = _sqlRepository.GetDataTable(sqly);
-                                        if (RowData.Rows.Count > 0)
-                                        {
-                                            for (int x = 0; x < RowData.Rows.Count; x++)
-                                            {
-                                                // Changing SandwichFlag
-                                                var RowxId = RowData.Rows[x]["RowId"].ToString();
-                                                SandwichFlagRowId += ",'" + RowxId + "'";
-                                            }
-                                        }
-                                    }
                                 }
-
-                                else if (PrevDaySandwich == "3" || PrevDaySandwich == "4")
-                                {
-                                    if (ToDaySandwich == "1")
-                                    {
-                                        if (FinalStatus != "")
-                                        {
-                                            // RowId Fetching for In Range b/w previous sandwichflags 2 _ _ _ _ _ _ _ 2
-
-                                            var sqly = @"SELECT * FROM (select RowId,EmpSystemID,SandwichFlag,WorkDate,
-                                            DENSE_RANK() OVER (PARTITION BY EmpSystemID,SandwichFlag ORDER BY WorkDate DESC,SandwichFlag) AS RNKFlag,
-                                            DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) AS RNKEmp
-                                            from AttdnProcessData where WorkDate <= '" + SandwichPrevDay + @"'--considering this date has flag=3 (starting point)
-                                            and EmpSystemID='" + EmpId + @"' and SandwichFlag !='4'
-                                            ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1,2)";
-
-                                            var RowData = _sqlRepository.GetDataTable(sqly);
-                                            if (RowData.Rows.Count > 0)
-                                            {
-                                                for (int x = 0; x < RowData.Rows.Count; x++)
-                                                {
-                                                    // Changing DayStatus
-                                                    var RowxId = RowData.Rows[x]["RowId"].ToString();
-                                                    DataRow drx = SandwichDataSet.Tables[0].NewRow();
-                                                    drx["DayStatus"] = "W"; // Set HardCoded W in Case of WeekOff Holiday
-                                                    drx["RowId"] = RowxId;
-                                                    SandwichDataSet.Tables[0].Rows.Add(drx);
-                                                }
-
-                                            }
-                                        }
-                                    }
-                                    else if (ToDaySandwich == "0")
-                                    {
-                                        var sqly = @"SELECT * FROM (select RowId,EmpSystemID,SandwichFlag,WorkDate,
-                                            DENSE_RANK() OVER (PARTITION BY EmpSystemID,SandwichFlag ORDER BY WorkDate DESC,SandwichFlag) AS RNKFlag,
-                                            DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) AS RNKEmp
-                                             from AttdnProcessData where WorkDate <= '" + SandwichPrevDay + @"'--considering this date has flag=3 (starting point)
-                                            and EmpSystemID='" + EmpId + @"' and SandwichFlag !='4'
-                                            ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1,2)";
-
-                                        var RowData = _sqlRepository.GetDataTable(sqly);
-                                        if (RowData.Rows.Count > 0)
-                                        {
-                                            for (int x = 0; x < RowData.Rows.Count; x++)
-                                            {
-                                                // Changing SandwichFlag
-                                                var RowxId = RowData.Rows[x]["RowId"].ToString();
-                                                SandwichFlagRowId += ",'" + RowxId + "'";
-                                            }
-                                        }
-                                    }
-                                }
-
                             }
                         }
-
-                        SaveDataSets(dsRef); // Saving Main DataSet 
 
                         ConnectionManager.DAL.ConManager NewConection = new ConnectionManager.DAL.ConManager("1");
 
@@ -3867,13 +3779,119 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                         }
 
-                        ProcessSandwichFlag(SandwichFlagRowId);  // Saving Else Part of Sandwich Logic                       
-
                     }
                     #endregion
 
                     #region Previous Payroll DayStatus 
                     PrePayrollDayStatus(PreviousDay, PlantValue); // On the Priority Check of Sandwich and ProcessFinalDayStatus 
+                    #endregion
+
+                    #region Prev Process Payroll DayStatus 
+                    DataSet PrevPayrollDayStat; 
+                    PreProcessPayrollDayStatusData(PreviousDay, out PrevPayrollDayStat, PlantValue);
+                    if (PrevPayrollDayStat.Tables[0].Rows.Count > 0)
+                    {
+                        var WkDate = PrevPayrollDayStat.Tables[0].Rows[0][@"WorkDate"].ToString();
+                        string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
+
+                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                        var sqlx = @"select * from AttdnProcessData where WorkDate='" + WkDate + "' and PlantID='" + PlantValue + "'";
+
+                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+
+
+                        for (int i = 0; i < PrevPayrollDayStat.Tables[0].Rows.Count; i++)
+                        {
+                            // Localizing Diff Flags on the Basis of Processed FinalDayStatus 
+
+                            string EmpId = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
+                            string OtApplicable = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"OTApplicable"]).ToString();
+                            string Goodwork = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"GoodWorkApplicable"]).ToString();
+                            string AutoLock = clsWebLib.GetBoolData(PrevPayrollDayStat.Tables[0].Rows[i][@"AutoLock"]).ToString();
+
+                            #region For Using them to get the Summary
+                            string TotalPresent = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"PresentValue"]).ToString();
+                            string TotalLate = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"LateValue"]).ToString();
+                            string TotalAbsent = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"AbsentValue"]).ToString();
+                            string TotalLv = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"LvValue"]).ToString();
+                            string TotalMlv = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"MlvValue"]).ToString();
+                            string TotalCompAssignLv = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"CompAssignLvValue"]).ToString();
+                            string TotalWeekOff = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"WeekOffValue"]).ToString();
+                            string TotalHoliDay = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"HoliDayValue"]).ToString();
+                            string TotalWeekOffHoliDay = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"WeekOffHoliDayValue"]).ToString();
+                            string TotalLWP = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"TotalLWP"]).ToString();
+                            string TotalCasualLeave = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"TotalCasualLeave"]).ToString();
+                            string TotalPriviledgeLeave = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"PriviledgeLeaveValue"]).ToString();
+                            string TotalMedicalLeave = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"MedicalLeaveValue"]).ToString();
+                            string TotalPayDay = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"TotalPayDay"]).ToString();
+                            string TotalNonPayDay = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"TotalNonPayDay"]).ToString();
+                            string TotalWorkingDay = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"WorkingDay"]).ToString();
+                            string ActualWorkingDay = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"ActualWorkingDay"]).ToString();
+
+                            #endregion
+
+                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                            if (dsRef.Tables[0].DefaultView.Count > 0)
+                            {
+                                // Updations in APD Table 
+                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                dr.BeginEdit();
+
+                                #region Null Flagging
+
+                                dr["PresentValue"] = DBNull.Value;
+                                dr["LateValue"] = DBNull.Value;
+                                dr["AbsentValue"] = DBNull.Value;
+                                dr["LvValue"] = DBNull.Value;
+                                dr["MLvValue"] = DBNull.Value;
+                                dr["CompAssignLvValue"] = DBNull.Value;
+                                dr["WeekOffValue"] = DBNull.Value;
+                                dr["HoliDayValue"] = DBNull.Value;
+                                dr["WeekOffHoliDayValue"] = DBNull.Value;
+                                dr["LWPValue"] = DBNull.Value;
+                                dr["CasualLeaveValue"] = DBNull.Value;
+                                dr["MedicalLeaveValue"] = DBNull.Value;
+                                dr["PriviledgeLeaveValue"] = DBNull.Value;
+                                dr["PayDayValue"] = DBNull.Value;
+                                dr["NonPayDayValue"] = DBNull.Value;
+                                dr["WorkingDayValue"] = DBNull.Value;
+                                dr["ActualWorkingDayValue"] = DBNull.Value;
+
+                                #endregion
+
+                                dr["DayTypeOTApplicable"] = OtApplicable;
+                                dr["DayTypeGoodWorkApplicable"] = Goodwork;
+                                if (AutoLock == "True")
+                                {
+                                    // Individual Lock
+                                    dr["IsLock"] = true;
+                                    dr["LockedDate"] = DateTime.Now;
+                                    dr["LockedBy"] = "AutoLock";
+                                }
+                                dr["PresentValue"] = TotalPresent;
+                                dr["LateValue"] = TotalLate;
+                                dr["AbsentValue"] = TotalAbsent;
+                                dr["LvValue"] = TotalLv;
+                                dr["MLvValue"] = TotalMlv;
+                                dr["CompAssignLvValue"] = TotalCompAssignLv;
+                                dr["WeekOffValue"] = TotalWeekOff;
+                                dr["HoliDayValue"] = TotalHoliDay;
+                                dr["WeekOffHoliDayValue"] = TotalWeekOffHoliDay;
+                                dr["LWPValue"] = TotalLWP;
+                                dr["CasualLeaveValue"] = TotalCasualLeave;
+                                dr["MedicalLeaveValue"] = TotalMedicalLeave;
+                                dr["PriviledgeLeaveValue"] = TotalPriviledgeLeave;
+                                dr["PayDayValue"] = TotalPayDay;
+                                dr["NonPayDayValue"] = TotalNonPayDay;
+                                dr["WorkingDayValue"] = TotalWorkingDay;
+                                dr["ActualWorkingDayValue"] = ActualWorkingDay;
+                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                dr.EndEdit();
+                            }
+                        }
+                        SaveDataSets(dsRef);
+
+                    }
                     #endregion
 
                     #region Prev DayOT Calculation 
@@ -4288,12 +4306,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 var sql = @"select distinct p.EmpSystemID,p.DayStatusCode,dt.DayType,
                         format(p.WorkDate,'yyyy-MMM-dd')WorkDate from AttdnProcessData p
                         join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
-                                  left join mst.DesignationMasterLegalDesignation ddm on 
-                        ddm.LegalDesignationId = ei.LegalDesignationId
-                                            left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
-									        left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
-											and dc.PlantId=ei.PlantId
-						                    left join DayStatusHeader dh on dh.Id=dc.headerId
+   					                    left join DayStatusHeader dh on dh.Id=p.DayStatusHeaderId
 									        left join DayStatus ds on ds.headerId=dh.Id
 											left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId
 									        where ManualFlag=1 and ds.Code=p.DayStatusCode
@@ -4311,27 +4324,15 @@ namespace Library.HumanResource.NewAttendanceProcess {
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                var sql = @"select distinct p.EmpSystemID,Result=dt.DayType,p.ManualDayStatus,p.ProcessDayStatus, 
-                dt.SandwichStatusFlag,dt.OTApplicable,dt.AutoLock,dt.GoodWorkApplicable,
-				format(p.WorkDate,'yyyy-MMM-dd')WorkDate,
-				isnull(dt.PresentValuePD,'0')PresentValue,isnull(dt.LateValueLV,'0')LateValue,isnull(dt.AbsentValueAB,'0')AbsentValue,
-				isnull(dt.LeaveValueLP,'0')LvValue,isnull(dt.MaternityLeaveValueMLV,'0')MlvValue,isnull(dt.CompAssignLv,'0')CompAssignLvValue,
-                isnull(dt.WeeklyOffWO,'0')WeekOffValue,isnull(dt.HolidayH,'0')HoliDayValue,isnull(dt.WeekOffHoliDayWOH,'0')WeekOffHoliDayValue,
-				isnull(dt.LeaveValueLWP,'0')TotalLWP,isnull(dt.CasualLeaveValueCV,'0')TotalCasualLeave,
-				isnull(dt.PriviledgeLeavePL,'0')PriviledgeLeaveValue,isnull(dt.MedicalLeaveValueMV,'0')MedicalLeaveValue,isnull(dt.TotalWorkingDay,'0')WorkingDay,
-				isnull(dt.ActualWorkingDay,'0')ActualWorkingDay,isnull(dt.PayDay,'0')TotalPayDay,isnull(dt.NonPayDay,'0')TotalNonPayDay                
+                var sql = @"select distinct p.EmpSystemID,Result=dt.DayType,dt.SandwichStatusFlag,
+				format(p.WorkDate,'yyyy-MMM-dd')WorkDate				                
 	            from AttdnProcessData p
                         join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
-                        left join mst.DesignationMasterLegalDesignation ddm on 
-                        ddm.LegalDesignationId = ei.LegalDesignationId
-                        left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
-						left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
-						and dc.PlantId=ei.PlantId
-						left join DayStatusHeader dh on dh.Id=dc.headerId
+                        left join DayStatusHeader dh on dh.Id=p.DayStatusHeaderId
 						left join DayStatus ds on ds.headerId=dh.Id
 						left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId									       
 						where ManualFlag=1 						
-						and dt.DayType=ISNULL(ISNULL(p.ManualDayStatus,p.SandwichStatus),p.ProcessDayStatus)
+						and dt.DayType=ISNULL(p.ManualDayStatus,p.ProcessDayStatus)
 						and ei.PlantId='" + Plant+ "' order by WorkDate asc";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -4537,32 +4538,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
-        public void ManualOverStayRoundingOff(out DataSet ds, string Plant)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-                // Getting AllotedOT from Per Min Policy
-                var sql = @"select distinct p.EmpSystemID,
-                format(p.WorkDate,'yyyy-MMM-dd')WorkDate,Result=               
-                (select distinct ot.AllotedOT from OTPerMinutePolicy ot
-                where ot.PlantId=p.PlantID and ot.OverstayOrEarlyOut=p.OverStay) 
-                from AttdnProcessData p
-                left join org.Plant pl on pl.Id=p.PlantID
-                left join OTPerMinutePolicy ot on ot.PlantId=pl.Id
-                        where ManualFlag=1 and p.IsOTEntitled='1'
-						and p.OverStay>0
-						and p.PlantId='"+Plant+@"'
-						order by WorkDate asc";
-
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
         public void ManualZeroProcessedOTEmployees(string Plant, string empMaster)
         {
             try
@@ -4610,7 +4585,37 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
+        public void ManualPayrollDayStatus(out DataSet ds, string Plant)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"select distinct p.EmpSystemID,Result=dt.DayType,
+                dt.OTApplicable,dt.AutoLock,dt.GoodWorkApplicable,
+				format(p.WorkDate,'yyyy-MMM-dd')WorkDate,
+				isnull(dt.PresentValuePD,'0')PresentValue,isnull(dt.LateValueLV,'0')LateValue,isnull(dt.AbsentValueAB,'0')AbsentValue,
+				isnull(dt.LeaveValueLP,'0')LvValue,isnull(dt.MaternityLeaveValueMLV,'0')MlvValue,isnull(dt.CompAssignLv,'0')CompAssignLvValue,
+                isnull(dt.WeeklyOffWO,'0')WeekOffValue,isnull(dt.HolidayH,'0')HoliDayValue,isnull(dt.WeekOffHoliDayWOH,'0')WeekOffHoliDayValue,
+				isnull(dt.LeaveValueLWP,'0')TotalLWP,isnull(dt.CasualLeaveValueCV,'0')TotalCasualLeave,
+				isnull(dt.PriviledgeLeavePL,'0')PriviledgeLeaveValue,isnull(dt.MedicalLeaveValueMV,'0')MedicalLeaveValue,isnull(dt.TotalWorkingDay,'0')WorkingDay,
+				isnull(dt.ActualWorkingDay,'0')ActualWorkingDay,isnull(dt.PayDay,'0')TotalPayDay,isnull(dt.NonPayDay,'0')TotalNonPayDay                
+	            from AttdnProcessData p
+                        join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
+                        left join DayStatusHeader dh on dh.Id=p.DayStatusHeaderId
+						left join DayStatus ds on ds.headerId=dh.Id
+						left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId									       
+						where ManualFlag=1 						
+						and dt.DayType=p.DayStatus
+						and ei.PlantId='" + Plant + "' order by WorkDate asc";
 
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
         #endregion
 
         #region Manual Scheduler
@@ -4618,7 +4623,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
         {
             try
             {
-                string ManualFlagRowId = "''", SandwichFlagRowId = "''";
+                string ManualFlagRowId = "''";
 
                 string empMaster = clsWebLib.RetValidLen(manualempidfromscreens).ToString();
                 string empList = manualempidfromscreens;
@@ -4627,6 +4632,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 #region Manual Day Status Nullifying Localized Values              
                 ManualReprocessing(PlantValue, empList); // Reprocessing Manual Employees called from Screen
                 #endregion
+                
+                SaveLog("Nullified Columns Logic Ran Successfully ...", PlantValue, false);
 
                 #region Manual In Status Logic
                 DataSet ManualInStatus;
@@ -4706,6 +4713,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 }
                 #endregion
+              
+                SaveLog("Manual InStatus Logic Ran Successfully ...", PlantValue, false);
 
                 #region Manual Day Duration  
                 DataSet ManualDurn;
@@ -4815,7 +4824,9 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 }
 
-                #endregion 
+                #endregion
+
+                SaveLog("Manual Duration Logic Ran Successfully ...", PlantValue, false);
 
                 #region Manual OverStay UnderStay 
                 DataSet ManualOverUnderStay;
@@ -4881,47 +4892,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 #endregion
 
-                #region Manual OverStay Rounding Off 
-                DataSet ManualOverStayRounding;
-                ManualOverStayRoundingOff(out ManualOverStayRounding, PlantValue);
-                if (ManualOverStayRounding.Tables[0].Rows.Count > 0)
-                {
-                    // OverStay Rounding Off
-                    var sqlx = "";
-                    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                    if (empMaster == "")
-                    {
-                        sqlx = @"select * from AttdnProcessData where  IsLock=0 and ManualFlag=1 and OverStay >0 and PlantID='" + PlantValue + "'";
-                    }
-                    else
-                    {
-                        sqlx = @"select * from AttdnProcessData where  IsLock=0 and ManualFlag=1 and OverStay >0 and PlantID='" + PlantValue + "' and RowId in (" + empList + ")";
-                    }
-                    objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
-
-                    for (int i = 0; i < ManualOverStayRounding.Tables[0].Rows.Count; i++)
-                    {
-                        string WorkDate = ManualOverStayRounding.Tables[0].Rows[i][@"WorkDate"].ToString();
-                        string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
-
-                        string EmpId = clsWebLib.RetValidLen(ManualOverStayRounding.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
-                        string Result = clsWebLib.RetValidLen(ManualOverStayRounding.Tables[0].Rows[i][@"Result"]).ToString();
-
-                        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
-                        if (dsRef.Tables[0].DefaultView.Count > 0)
-                        {
-                            DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                            dr.BeginEdit();
-                            dr["OverStay"] = Result;
-                            dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                            dr.EndEdit();
-                        }
-                    }
-                    SaveDataSets(dsRef);
-                }
-
-
-                #endregion
+                SaveLog("Manual OverStay Logic Ran Successfully ...", PlantValue, false);
 
                 #region Manual DurationStatus Flagging
                 DataSet ManualDurationStat;
@@ -4932,13 +4903,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                     var sqlx = "";
-                    if(empMaster == "")
+                    if (empMaster == "")
                     {
                         sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "'";
                     }
                     else
                     {
-                        sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "' and RowId in ("+ empList + ")";
+                        sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "' and RowId in (" + empList + ")";
                     }
 
                     objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
@@ -5018,11 +4989,15 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 #endregion
 
+                SaveLog("Manual DurationStatus Logic Ran Successfully ...", PlantValue, false);
+
                 #region Manual Day Status Code              
                 ManualDayStatusCodeData(PlantValue, empList);
                 // DayStausCode Text Join 
                 //HolidayStatus + WeeklyStatus + DurationStatus + EarlyLateIn + EarlyLateOut + LeaveStatus
                 #endregion
+
+                SaveLog("Manual DayStatusCode Logic Ran Successfully ...", PlantValue, false);
 
                 #region Manual User Day Status 
                 DataSet ManualUserDayStat;
@@ -5032,13 +5007,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     // ProcessDayStatus Generation from DayStausCode using DaytypeWith Values
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                     var sqlx = "";
-                    if(empMaster == "")
+                    if (empMaster == "")
                     {
                         sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "'";
                     }
                     else
                     {
-                        sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "' and RowId in ("+ empList + ")";
+                        sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "' and RowId in (" + empList + ")";
                     }
 
                     objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
@@ -5069,21 +5044,23 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 }
                 #endregion
 
+                SaveLog("Manual UserDayStatus Logic Ran Successfully ...", PlantValue, false);
+
                 #region ProcessFinalDayStatus 
-                DataSet ManualFinalDayStat;  // Sandwich,Process DayStatus & Manual DayStatus Comparison
+                DataSet ManualFinalDayStat;  // Process DayStatus & Manual DayStatus Comparison
                 ManualFinalDayStatus(out ManualFinalDayStat, PlantValue);
                 if (ManualFinalDayStat.Tables[0].Rows.Count > 0)
                 {
 
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                     var sqlx = "";
-                    if(empMaster == "")
+                    if (empMaster == "")
                     {
                         sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "'";
                     }
                     else
                     {
-                        sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "' and RowId in ("+ empList + ")";
+                        sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "' and RowId in (" + empList + ")";
                     }
 
                     objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
@@ -5098,28 +5075,289 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         string EmpId = clsWebLib.RetValidLen(ManualFinalDayStat.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
                         string Result = clsWebLib.RetValidLen(ManualFinalDayStat.Tables[0].Rows[i][@"Result"]).ToString();
                         string SandwichFlag = clsWebLib.RetValidLen(ManualFinalDayStat.Tables[0].Rows[i][@"SandwichStatusFlag"]).ToString();
-                        string OtApplicable = clsWebLib.RetValidLen(ManualFinalDayStat.Tables[0].Rows[i][@"OTApplicable"]).ToString();
-                        string Goodwork = clsWebLib.RetValidLen(ManualFinalDayStat.Tables[0].Rows[i][@"GoodWorkApplicable"]).ToString();
-                        string AutoLock = clsWebLib.GetBoolData(ManualFinalDayStat.Tables[0].Rows[i][@"AutoLock"]).ToString();
+                      
+                   
+                        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                        if (dsRef.Tables[0].DefaultView.Count > 0)
+                        {
+                            // Updations in APD Table 
+                            DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();                       
+                            dr["ProcessFinalDayStatus"] = Result;
+                            dr["SandwichFlag"] = SandwichFlag;
+                            dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                            dr.EndEdit();
+                            CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
+                        }
+                    }
+                    SaveDataSets(dsRef);
+
+                }
+                #endregion
+
+                SaveLog("ProcessFinalDayStatus Logic Ran Successfully ...", PlantValue, false);
+
+                #region Sandwich Saving 
+                DataSet ManualSandwichSavingData;
+                ManualsandwichLogic(out ManualSandwichSavingData, PlantValue);
+                if (ManualSandwichSavingData.Tables[0].Rows.Count > 0)
+                {
+
+                    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                    var sqlx = "";
+                    if (empMaster == "")
+                    {
+                        sqlx = @"select * from AttdnProcessData where ManualFlag=1 and PlantID='" + PlantValue + "'";
+                    }
+                    else
+                    {
+                        sqlx = @"select * from AttdnProcessData where ManualFlag=1 and PlantID='" + PlantValue + "' and RowId in (" + empList + ")";
+                    }
+
+                    objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+
+                    // DataSet for Changing Previous Days Flags and DayStatuses
+                    objCon.OpenDataSetThroughAdapter("select * from AttdnProcessData where 1=2", out DataSet SandwichDataSet, false, false, "", "1");
+
+
+                    for (int i = 0; i < ManualSandwichSavingData.Tables[0].Rows.Count; i++)
+                    {
+                        var WkDate = ManualSandwichSavingData.Tables[0].Rows[i][@"WorkDate"].ToString();
+                        string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
+                        string EmpId = clsWebLib.RetValidLen(ManualSandwichSavingData.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
+                        string PrevDaySandwich = clsWebLib.RetValidLen(ManualSandwichSavingData.Tables[0].Rows[i][@"PrevDayFlag"]).ToString();
+                        var PrevWkDate = clsWebLib.RetValidLen(ManualSandwichSavingData.Tables[0].Rows[i][@"PrevWorkDate"]).ToString();
+
+                        // Updation in AttdnProcessData
+                        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                        if (dsRef.Tables[0].DefaultView.Count > 0)
+                        {
+                            string TodaySandwich = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"SandwichFlag"]).ToString();
+                            string FinalStatus = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"ProcessFinalDayStatus"]).ToString();
+
+                            DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();
+                            if (PrevDaySandwich == "0" && TodaySandwich == "2")
+                            {
+                                dr["SandwichFlag"] = "0"; //Today
+                            }
+
+                            else if (PrevDaySandwich == "1" && TodaySandwich == "2")
+                            {
+                                dr["SandwichFlag"] = "2"; //Today
+                            }
+
+                            else if (PrevDaySandwich == "0" && TodaySandwich == "3")
+                            {
+                                dr["SandwichFlag"] = "0"; //Today Change
+                            }
+
+                            else if (PrevDaySandwich == "1" && TodaySandwich == "3")
+                            {
+                                dr["SandwichFlag"] = "3"; //Today Change
+                            }
+
+                            else if (PrevDaySandwich == "0" && TodaySandwich == "4")
+                            {
+                                dr["SandwichFlag"] = "0"; //Today Change
+                            }
+
+
+                            dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                            dr.EndEdit();
+                            CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
+                        }
+                    }                          
+                    
+                    SaveDataSets(dsRef); // Saving Main DataSet 
+
+                }
+                #endregion
+
+                #region Sandwich Logic 
+                DataSet ManualSandwichData;
+                ManualsandwichLogic(out ManualSandwichData, PlantValue);
+                if (ManualSandwichData.Tables[0].Rows.Count > 0)
+                {
+
+                    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                    var sqlx = "";
+                    if (empMaster == "")
+                    {
+                        sqlx = @"select * from AttdnProcessData where ManualFlag=1 and PlantID='" + PlantValue + "'";
+                    }
+                    else
+                    {
+                        sqlx = @"select * from AttdnProcessData where ManualFlag=1 and PlantID='" + PlantValue + "' and RowId in (" + empList + ")";
+                    }
+
+                    objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+
+                    // DataSet for Changing Previous Days Flags and DayStatuses
+                    objCon.OpenDataSetThroughAdapter("select * from AttdnProcessData where 1=2", out DataSet SandwichDataSet, false, false, "", "1");
+
+
+                    for (int i = 0; i < ManualSandwichData.Tables[0].Rows.Count; i++)
+                    {
+                        var WkDate = ManualSandwichData.Tables[0].Rows[i][@"WorkDate"].ToString();
+                        string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
+                        string EmpId = clsWebLib.RetValidLen(ManualSandwichData.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
+                        string PrevDaySandwich = clsWebLib.RetValidLen(ManualSandwichData.Tables[0].Rows[i][@"PrevDayFlag"]).ToString();
+                        var PrevWkDate = clsWebLib.RetValidLen(ManualSandwichData.Tables[0].Rows[i][@"PrevWorkDate"]).ToString();
+
+                        // Updation in AttdnProcessData
+                        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                        if (dsRef.Tables[0].DefaultView.Count > 0)
+                        {
+                            string TodaySandwich = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"SandwichFlag"]).ToString();
+                            string FinalStatus = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"ProcessFinalDayStatus"]).ToString();
+
+                            if (PrevDaySandwich == "2" || PrevDaySandwich == "4" || PrevDaySandwich == "3")
+                            {
+                                if (TodaySandwich == "1" && PrevWkDate != "")
+                                {
+
+                                    // RowId Fetching for In Range b/w previous sandwichflags 1 _ _ _ _ _ _ _ 1
+
+                                    var sqly = @"SELECT * FROM (
+                                        select RowId,EmpSystemID,sandwichflag as SandwichMaster,CASE WHEN SandwichFlag IN (2,3) THEN 2 ELSE 
+                                        SandwichFlag END SandwichFlag,WorkDate,
+                                        DENSE_RANK() OVER (PARTITION BY EmpSystemID,CASE WHEN SandwichFlag IN (2,3) THEN 2 ELSE 
+                                        SandwichFlag END ORDER BY WorkDate DESC,CASE WHEN
+                                        SandwichFlag IN (2,3) THEN 2 ELSE SandwichFlag END) AS RNKFlag,
+                                        DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) AS RNKEmp
+                                        from AttdnProcessData where WorkDate <= '"+PrevWkDate+@"'
+                                        and EmpSystemID='"+EmpId+@"' and SandwichFlag !='4'
+                                        ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1,3)";
+
+                                    var RowData = _sqlRepository.GetDataTable(sqly);
+                                    if (RowData.Rows.Count > 0)
+                                    {
+                                        for (int x = 0; x < RowData.Rows.Count; x++)
+                                        {
+                                            // Changing DayStatus
+                                            var RowxId = RowData.Rows[x]["RowId"].ToString();
+                                            var SandwichMaster = RowData.Rows[x]["SandwichMaster"].ToString();
+                                            if (SandwichMaster == "3")
+                                            {
+                                                DataRow drx = SandwichDataSet.Tables[0].NewRow();
+                                                drx["DayStatus"] = "W";
+                                                drx["RowId"] = RowxId;
+                                                SandwichDataSet.Tables[0].Rows.Add(drx);
+                                            }
+
+                                            else if (SandwichMaster == "2")
+                                            {
+                                                if (FinalStatus != "")
+                                                {
+                                                    DataRow drx = SandwichDataSet.Tables[0].NewRow();
+                                                    drx["DayStatus"] = FinalStatus;
+                                                    drx["RowId"] = RowxId;
+                                                    SandwichDataSet.Tables[0].Rows.Add(drx);
+                                                }
+
+                                            }
+                                        }
+                                    }
+
+
+                                }
+                            }                              
+                           
+                        }
+
+                    }
+
+                    ConnectionManager.DAL.ConManager NewConection = new ConnectionManager.DAL.ConManager("1");
+
+                    if (SandwichDataSet.Tables[0].Rows.Count > 0)
+                    {
+                        string RowMaster = "''";
+                        for (int k = 0; k < SandwichDataSet.Tables[0].Rows.Count; k++)
+                        {
+                            string IndvRow = clsWebLib.RetValidLen(SandwichDataSet.Tables[0].Rows[k][@"RowId"]).ToString();
+                            RowMaster += ",'" + IndvRow + "'";
+                        }
+                        NewConection.OpenDataSetThroughAdapter("select * from AttdnProcessData where RowId IN(" + RowMaster + @")", out DataSet dsMaster, false, false, "", "1");
+                        for (int j = 0; j < SandwichDataSet.Tables[0].Rows.Count; j++)
+                        {
+                            string IndvRow = clsWebLib.RetValidLen(SandwichDataSet.Tables[0].Rows[j][@"RowId"]).ToString();
+                            string DayType = clsWebLib.RetValidLen(SandwichDataSet.Tables[0].Rows[j][@"DayStatus"]).ToString();
+                            dsMaster.Tables[0].DefaultView.RowFilter = @"RowId='" + IndvRow + "'";
+
+                            if (dsMaster.Tables[0].DefaultView.Count > 0)
+                            {
+                                // DayStatus Change of Range
+                                DataRow dry = dsMaster.Tables[0].DefaultView[0].Row;
+                                dry.BeginEdit();
+                                dry["DayStatus"] = DayType;
+                                dry["Sandwichstatus"] = DayType;
+                                dry["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                dry["UpdatedBy"] = "Sandwich";
+                                dry.EndEdit();
+                            }
+                        }
+                        SaveDataSets(dsMaster); // Saving If Part of Sandwich Logic     
+
+                    }                
+                }
+                #endregion
+
+                SaveLog("Sandwich Logic Ran Successfully ...", PlantValue, false);
+
+                #region Payroll DayStatus 
+                PayrollDayStatus(PlantValue, empList); // On the Priority Check of Sandwich and ProcessFinalDayStatus 
+                #endregion
+
+                #region Process PayrollDayStatus 
+                DataSet ManualPayrollDayStat;  
+                ManualPayrollDayStatus(out ManualPayrollDayStat, PlantValue);
+                if (ManualPayrollDayStat.Tables[0].Rows.Count > 0)
+                {
+
+                    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                    var sqlx = "";
+                    if (empMaster == "")
+                    {
+                        sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "'";
+                    }
+                    else
+                    {
+                        sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "' and RowId in (" + empList + ")";
+                    }
+
+                    objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+
+
+                    for (int i = 0; i < ManualPayrollDayStat.Tables[0].Rows.Count; i++)
+                    {
+                        // Localizing Diff Flags on the Basis of Processed FinalDayStatus 
+
+                        var WkDate = ManualPayrollDayStat.Tables[0].Rows[i][@"WorkDate"].ToString();
+                        string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
+                        string EmpId = clsWebLib.RetValidLen(ManualPayrollDayStat.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
+                        string OtApplicable = clsWebLib.RetValidLen(ManualPayrollDayStat.Tables[0].Rows[i][@"OTApplicable"]).ToString();
+                        string Goodwork = clsWebLib.RetValidLen(ManualPayrollDayStat.Tables[0].Rows[i][@"GoodWorkApplicable"]).ToString();
+                        string AutoLock = clsWebLib.GetBoolData(ManualPayrollDayStat.Tables[0].Rows[i][@"AutoLock"]).ToString();
 
                         #region For Using them to get the Summary
-                        string TotalPresent = clsWebLib.RetValidLen(ManualFinalDayStat.Tables[0].Rows[i][@"PresentValue"]).ToString();
-                        string TotalLate = clsWebLib.RetValidLen(ManualFinalDayStat.Tables[0].Rows[i][@"LateValue"]).ToString();
-                        string TotalAbsent = clsWebLib.RetValidLen(ManualFinalDayStat.Tables[0].Rows[i][@"AbsentValue"]).ToString();
-                        string TotalLv = clsWebLib.RetValidLen(ManualFinalDayStat.Tables[0].Rows[i][@"LvValue"]).ToString();
-                        string TotalMlv = clsWebLib.RetValidLen(ManualFinalDayStat.Tables[0].Rows[i][@"MlvValue"]).ToString();
-                        string TotalCompAssignLv = clsWebLib.RetValidLen(ManualFinalDayStat.Tables[0].Rows[i][@"CompAssignLvValue"]).ToString();
-                        string TotalWeekOff = clsWebLib.RetValidLen(ManualFinalDayStat.Tables[0].Rows[i][@"WeekOffValue"]).ToString();
-                        string TotalHoliDay = clsWebLib.RetValidLen(ManualFinalDayStat.Tables[0].Rows[i][@"HoliDayValue"]).ToString();
-                        string TotalWeekOffHoliDay = clsWebLib.RetValidLen(ManualFinalDayStat.Tables[0].Rows[i][@"WeekOffHoliDayValue"]).ToString();
-                        string TotalLWP = clsWebLib.RetValidLen(ManualFinalDayStat.Tables[0].Rows[i][@"TotalLWP"]).ToString();
-                        string TotalCasualLeave = clsWebLib.RetValidLen(ManualFinalDayStat.Tables[0].Rows[i][@"TotalCasualLeave"]).ToString();
-                        string TotalPriviledgeLeave = clsWebLib.RetValidLen(ManualFinalDayStat.Tables[0].Rows[i][@"PriviledgeLeaveValue"]).ToString();
-                        string TotalMedicalLeave = clsWebLib.RetValidLen(ManualFinalDayStat.Tables[0].Rows[i][@"MedicalLeaveValue"]).ToString();
-                        string TotalPayDay = clsWebLib.RetValidLen(ManualFinalDayStat.Tables[0].Rows[i][@"TotalPayDay"]).ToString();
-                        string TotalNonPayDay = clsWebLib.RetValidLen(ManualFinalDayStat.Tables[0].Rows[i][@"TotalNonPayDay"]).ToString();
-                        string TotalWorkingDay = clsWebLib.RetValidLen(ManualFinalDayStat.Tables[0].Rows[i][@"WorkingDay"]).ToString();
-                        string ActualWorkingDay = clsWebLib.RetValidLen(ManualFinalDayStat.Tables[0].Rows[i][@"ActualWorkingDay"]).ToString();
+                        string TotalPresent = clsWebLib.RetValidLen(ManualPayrollDayStat.Tables[0].Rows[i][@"PresentValue"]).ToString();
+                        string TotalLate = clsWebLib.RetValidLen(ManualPayrollDayStat.Tables[0].Rows[i][@"LateValue"]).ToString();
+                        string TotalAbsent = clsWebLib.RetValidLen(ManualPayrollDayStat.Tables[0].Rows[i][@"AbsentValue"]).ToString();
+                        string TotalLv = clsWebLib.RetValidLen(ManualPayrollDayStat.Tables[0].Rows[i][@"LvValue"]).ToString();
+                        string TotalMlv = clsWebLib.RetValidLen(ManualPayrollDayStat.Tables[0].Rows[i][@"MlvValue"]).ToString();
+                        string TotalCompAssignLv = clsWebLib.RetValidLen(ManualPayrollDayStat.Tables[0].Rows[i][@"CompAssignLvValue"]).ToString();
+                        string TotalWeekOff = clsWebLib.RetValidLen(ManualPayrollDayStat.Tables[0].Rows[i][@"WeekOffValue"]).ToString();
+                        string TotalHoliDay = clsWebLib.RetValidLen(ManualPayrollDayStat.Tables[0].Rows[i][@"HoliDayValue"]).ToString();
+                        string TotalWeekOffHoliDay = clsWebLib.RetValidLen(ManualPayrollDayStat.Tables[0].Rows[i][@"WeekOffHoliDayValue"]).ToString();
+                        string TotalLWP = clsWebLib.RetValidLen(ManualPayrollDayStat.Tables[0].Rows[i][@"TotalLWP"]).ToString();
+                        string TotalCasualLeave = clsWebLib.RetValidLen(ManualPayrollDayStat.Tables[0].Rows[i][@"TotalCasualLeave"]).ToString();
+                        string TotalPriviledgeLeave = clsWebLib.RetValidLen(ManualPayrollDayStat.Tables[0].Rows[i][@"PriviledgeLeaveValue"]).ToString();
+                        string TotalMedicalLeave = clsWebLib.RetValidLen(ManualPayrollDayStat.Tables[0].Rows[i][@"MedicalLeaveValue"]).ToString();
+                        string TotalPayDay = clsWebLib.RetValidLen(ManualPayrollDayStat.Tables[0].Rows[i][@"TotalPayDay"]).ToString();
+                        string TotalNonPayDay = clsWebLib.RetValidLen(ManualPayrollDayStat.Tables[0].Rows[i][@"TotalNonPayDay"]).ToString();
+                        string TotalWorkingDay = clsWebLib.RetValidLen(ManualPayrollDayStat.Tables[0].Rows[i][@"WorkingDay"]).ToString();
+                        string ActualWorkingDay = clsWebLib.RetValidLen(ManualPayrollDayStat.Tables[0].Rows[i][@"ActualWorkingDay"]).ToString();
 
                         #endregion
 
@@ -5154,8 +5392,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             #endregion
 
-                            dr["ProcessFinalDayStatus"] = Result;
-                            dr["SandwichFlag"] = SandwichFlag;
                             dr["DayTypeOTApplicable"] = OtApplicable;
                             dr["DayTypeGoodWorkApplicable"] = Goodwork;
                             if (AutoLock == "True")
@@ -5194,224 +5430,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 }
                 #endregion
 
-                #region Sandwich Logic 
-                DataSet ManualSandwichData;
-                ManualsandwichLogic(out ManualSandwichData, PlantValue);
-                if (ManualSandwichData.Tables[0].Rows.Count > 0)
-                {
-
-                    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                    var sqlx = "";
-                    if(empMaster == "")
-                    {
-                        sqlx = @"select * from AttdnProcessData where ManualFlag=1 and PlantID='" + PlantValue + "'";
-                    }
-                    else
-                    {
-                        sqlx = @"select * from AttdnProcessData where ManualFlag=1 and PlantID='" + PlantValue + "' and RowId in ("+ empList + ")";
-                    }
-                     
-                    objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
-                   
-                    // DataSet for Changing Previous Days Flags and DayStatuses
-                    objCon.OpenDataSetThroughAdapter("select * from AttdnProcessData where 1=2", out DataSet SandwichDataSet, false, false, "", "1");
-
-
-                    for (int i = 0; i < ManualSandwichData.Tables[0].Rows.Count; i++)
-                    {
-                        var WkDate = ManualSandwichData.Tables[0].Rows[i][@"WorkDate"].ToString();
-                        string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
-                        string EmpId = clsWebLib.RetValidLen(ManualSandwichData.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
-                        string PrevDaySandwich = clsWebLib.RetValidLen(ManualSandwichData.Tables[0].Rows[i][@"PrevDayFlag"]).ToString();
-                        var PrevWkDate = clsWebLib.RetValidLen(ManualSandwichData.Tables[0].Rows[i][@"PrevWorkDate"]).ToString();
-
-                        // Updation in AttdnProcessData
-                        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
-                        if (dsRef.Tables[0].DefaultView.Count > 0)
-                        {
-                            string TodaySandwich = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"SandwichFlag"]).ToString();
-                            string FinalStatus = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"ProcessFinalDayStatus"]).ToString();
-
-                            DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                            dr.BeginEdit();
-                            if (PrevDaySandwich == "0" && TodaySandwich == "2")
-                            {
-                                dr["SandwichFlag"] = "0"; //Today
-                            }
-
-                            else if (PrevDaySandwich == "1" && TodaySandwich == "2")
-                            {
-                                dr["SandwichFlag"] = "2"; //Today
-                            }
-
-                            else if (PrevDaySandwich == "0" && TodaySandwich == "3")
-                            {
-                                dr["SandwichFlag"] = "0"; //Today Change
-                            }
-
-                            else if (PrevDaySandwich == "1" && TodaySandwich == "3")
-                            {
-                                dr["SandwichFlag"] = "3"; //Today Change
-                            }
-
-
-                            dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                            dr.EndEdit();
-                            CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
-
-                            if (PrevDaySandwich == "2" || PrevDaySandwich == "4")
-                            {
-                                if (TodaySandwich == "1" && PrevWkDate != "")
-                                {
-                                    if (FinalStatus != "")
-                                    {
-                                        // RowId Fetching for In Range b/w previous sandwichflags 2 _ _ _ _ _ _ _ 2
-
-                                        var sqly = @"SELECT * FROM (select RowId,EmpSystemID,SandwichFlag,WorkDate,
-                                            DENSE_RANK() OVER (PARTITION BY EmpSystemID,SandwichFlag ORDER BY WorkDate DESC,SandwichFlag) AS RNKFlag,
-                                            DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) AS RNKEmp
-                                            from AttdnProcessData where WorkDate <= '" + PrevWkDate + @"'--considering this date has flag=2 (starting point)
-                                            and EmpSystemID='" + EmpId + @"' and SandwichFlag !='4'
-                                            ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1,3)";
-
-                                        var RowData = _sqlRepository.GetDataTable(sqly);
-                                        if (RowData.Rows.Count > 0)
-                                        {
-                                            for (int x = 0; x < RowData.Rows.Count; x++)
-                                            {
-                                                // Changing DayStatus
-                                                var RowxId = RowData.Rows[x]["RowId"].ToString();
-                                                DataRow drx = SandwichDataSet.Tables[0].NewRow();
-                                                drx["DayStatus"] = FinalStatus;
-                                                drx["RowId"] = RowxId;
-                                                SandwichDataSet.Tables[0].Rows.Add(drx);
-                                            }
-
-                                        }                                        
-                                    }
-                                }
-                                else if (TodaySandwich == "0" && PrevWkDate != "")
-                                {
-                                    // RowId Fetching for In Range b/w previous sandwichflags 2 _ _ _ _ _ _ _ 2
-
-                                    var sqly = @"SELECT * FROM (select RowId,EmpSystemID,SandwichFlag,WorkDate,
-                                            DENSE_RANK() OVER (PARTITION BY EmpSystemID,SandwichFlag ORDER BY WorkDate DESC,SandwichFlag) AS RNKFlag,
-                                            DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) AS RNKEmp
-                                            from AttdnProcessData where WorkDate <= '" + PrevWkDate + @"'--considering this date has flag=2 (starting point)
-                                            and EmpSystemID='" + EmpId + @"' and SandwichFlag !='4'
-                                            ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1,3)";
-
-                                    var RowData = _sqlRepository.GetDataTable(sqly);
-                                    if (RowData.Rows.Count > 0)
-                                    {
-                                        // Changing SandwichFlag
-                                        for (int x = 0; x < RowData.Rows.Count; x++)
-                                        {
-                                            var RowxId = RowData.Rows[x]["RowId"].ToString();
-                                            SandwichFlagRowId += ",'" + RowxId + "'";
-                                        }                                        
-                                    }                                  
-                                }
-                            }
-
-                            else if (PrevDaySandwich == "3" || PrevDaySandwich == "4")
-                            {
-                                if (TodaySandwich == "1" && PrevWkDate != "")
-                                {
-                                    if (FinalStatus != "")
-                                    {
-                                        // RowId Fetching for In Range b/w previous sandwichflags 2 _ _ _ _ _ _ _ 2
-
-                                        var sqly = @"SELECT * FROM (select RowId,EmpSystemID,SandwichFlag,WorkDate,
-                                            DENSE_RANK() OVER (PARTITION BY EmpSystemID,SandwichFlag ORDER BY WorkDate DESC,SandwichFlag) AS RNKFlag,
-                                            DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) AS RNKEmp
-                                            from AttdnProcessData where WorkDate <= '" + PrevWkDate + @"'--considering this date has flag=3 (starting point)
-                                            and EmpSystemID='" + EmpId + @"' and SandwichFlag !='4'
-                                            ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1,2)";
-
-                                        var RowData = _sqlRepository.GetDataTable(sqly);
-                                        if (RowData.Rows.Count > 0)
-                                        {
-                                            for (int x = 0; x < RowData.Rows.Count; x++)
-                                            {
-                                                // Changing DayStatus
-                                                var RowxId = RowData.Rows[x]["RowId"].ToString();
-                                                DataRow drx = SandwichDataSet.Tables[0].NewRow();
-                                                drx["DayStatus"] = "W";
-                                                drx["RowId"] = RowxId;
-                                                SandwichDataSet.Tables[0].Rows.Add(drx);
-                                            }
-
-                                        }
-                                    }
-                                }
-                                else if (TodaySandwich == "0" && PrevWkDate != "")
-                                {
-                                    // RowId Fetching for In Range b/w previous sandwichflags 2 _ _ _ _ _ _ _ 2
-
-                                    var sqly = @"SELECT * FROM (select RowId,EmpSystemID,SandwichFlag,WorkDate,
-                                            DENSE_RANK() OVER (PARTITION BY EmpSystemID,SandwichFlag ORDER BY WorkDate DESC,SandwichFlag) AS RNKFlag,
-                                            DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) AS RNKEmp
-                                            from AttdnProcessData where WorkDate <= '" + PrevWkDate + @"'--considering this date has flag=3 (starting point)
-                                            and EmpSystemID='" + EmpId + @"' and SandwichFlag !='4'
-                                            ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1,2)";
-
-                                    var RowData = _sqlRepository.GetDataTable(sqly);
-                                    if (RowData.Rows.Count > 0)
-                                    {
-                                        // Changing SandwichFlag
-                                        for (int x = 0; x < RowData.Rows.Count; x++)
-                                        {
-                                            var RowxId = RowData.Rows[x]["RowId"].ToString();
-                                            SandwichFlagRowId += ",'" + RowxId + "'";
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    SaveDataSets(dsRef); // Saving Main DataSet 
-
-                    ConnectionManager.DAL.ConManager NewConection = new ConnectionManager.DAL.ConManager("1");
-
-                    if (SandwichDataSet.Tables[0].Rows.Count > 0)
-                    {
-                        string RowMaster = "''";
-                        for (int k = 0; k < SandwichDataSet.Tables[0].Rows.Count; k++)
-                        {
-                            string IndvRow = clsWebLib.RetValidLen(SandwichDataSet.Tables[0].Rows[k][@"RowId"]).ToString();
-                            RowMaster += ",'" + IndvRow + "'";
-                        }
-                        NewConection.OpenDataSetThroughAdapter("select * from AttdnProcessData where RowId IN(" + RowMaster + @")", out DataSet dsMaster, false, false, "", "1");
-                        for (int j = 0; j < SandwichDataSet.Tables[0].Rows.Count; j++)
-                        {
-                            string IndvRow = clsWebLib.RetValidLen(SandwichDataSet.Tables[0].Rows[j][@"RowId"]).ToString();
-                            string DayType = clsWebLib.RetValidLen(SandwichDataSet.Tables[0].Rows[j][@"DayStatus"]).ToString();
-                            dsMaster.Tables[0].DefaultView.RowFilter = @"RowId='" + IndvRow + "'";
-
-                            if (dsMaster.Tables[0].DefaultView.Count > 0)
-                            {
-                                // DayStatus Change of Range
-                                DataRow dry = dsMaster.Tables[0].DefaultView[0].Row;
-                                dry.BeginEdit();
-                                dry["DayStatus"] = DayType;
-                                dry["Sandwichstatus"] = DayType;
-                                dry["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                dry["UpdatedBy"] = "Sandwich";
-                                dry.EndEdit();
-                            }
-                        }
-                        SaveDataSets(dsMaster); // Saving If Part of Sandwich Logic     
-
-                    }
-
-                    ProcessSandwichFlag(SandwichFlagRowId);  // Saving Else Part of Sandwich Logic   
-                }
-                #endregion
-
-                #region Payroll DayStatus 
-                PayrollDayStatus(PlantValue, empList); // On the Priority Check of Sandwich and ProcessFinalDayStatus 
-                #endregion
+                SaveLog("Payroll DayStatus Logic Ran Successfully ...", PlantValue, false);
 
                 #region OT Calculation 
                 DataSet ProcessOTCalculate;
@@ -5540,6 +5559,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 }
                 #endregion
 
+                SaveLog("Processed OT Logic Ran Successfully ...", PlantValue, false);
+
                 #region OTEntitled But OT Not Applicable Employees
                 DataSet ManualOTNotApplicable;
                 AutoConfirmedManualTriggerData(out ManualOTNotApplicable, PlantValue);
@@ -5556,6 +5577,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 #endregion
 
+                SaveLog("OT Confirming Not Applicable DayStatus Logic Ran Successfully ...", PlantValue, false);
+
                 #region OT Entitled Employees whose ProcessedOT is 0
 
                 // Confirming the OT of Employees Whose Processed OT is 0
@@ -5563,9 +5586,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 #endregion
 
+                SaveLog("OT Entitled & 0 Processed OT Logic Ran Successfully ...", PlantValue, false);
+
                 #region Set Manual Flag ->0              
                 ProcessManualFlag(ManualFlagRowId); // Set ManualFlag to 0
                 #endregion
+
+                SaveLog("Set Manual Flag to 0 Ran Successfully ...", PlantValue, false);
 
 
             }
@@ -6875,7 +6902,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
     }
 
-
     public static class ExceptionLogging
     {
 
@@ -6931,8 +6957,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
         }
 
     }
-
-
 
 }
  

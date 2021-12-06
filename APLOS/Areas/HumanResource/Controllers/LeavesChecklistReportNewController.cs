@@ -33,7 +33,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         #endregion Constructor
 
         #region -- Pages
-        
+
         public ActionResult Aplos()
         {
             return View();
@@ -55,12 +55,20 @@ namespace Aplos.Areas.HumanResource.Controllers
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
-        public ActionResult GetleavesChecklistReport(ReportFormat reportFormat, string FromDate, string ToDate)
+        public ActionResult GetleavesChecklistReport(ReportFormat reportFormat, string FromDate, string ToDate, string LeaveType, string Plant)
         {
             try
             {
+                if (string.IsNullOrEmpty(LeaveType))
+                {
+                    throw new Exception("Select Leave type..");
+                }
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                IWorkbook workbook = GetleavesChecklistReport(identity.Name, identity.PlantId, identity.CompanyId, identity.CompanyGroupId, identity.PlantName, FromDate, ToDate);
+
+                string LeaveTypeId = "'" + LeaveType.Replace(",", "','") + "'";//replaced with ""
+                string PlantsId = "'" + Plant.Replace(",", "','") + "'";//replaced with ""
+
+                IWorkbook workbook = GetleavesChecklistReport(identity.Name, PlantsId, identity.CompanyId, identity.CompanyGroupId, identity.PlantName, FromDate, ToDate, LeaveTypeId);
                 var reportFileName = DateTime.Now.ToString("yyMMdd") + "leaves Checklist Report";
                 switch (reportFormat)
                 {
@@ -81,7 +89,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 //throw new Exception(ex.Message);
             }
         }
-        public IWorkbook GetleavesChecklistReport(string username, string plantId, string companyId, string companyGroupId, string plantName, string FromDate, string ToDate)
+        public IWorkbook GetleavesChecklistReport(string username, string plantId, string companyId, string companyGroupId, string plantName, string FromDate, string ToDate, string LeaveTypeId)
         {
 
             #region declare
@@ -91,19 +99,16 @@ namespace Aplos.Areas.HumanResource.Controllers
             DataTable dtLeavesCheckList = null;
             DataSet dsCmp = null;
             DataSet dsFactory = null;
-            DataSet dsLocalHRMSSetting = null;
+
             clsStaticInfo objStatic = null;
             objStatic = new clsStaticInfo();
             string FactoryAddress = string.Empty;
-            string OTConsiderOn = string.Empty;
+
             #endregion
             try
             {
-                objStatic.GetPlantWiseHRMSSetting(companyGroupId, plantId, out dsLocalHRMSSetting);
-                if (dsLocalHRMSSetting.Tables[0].Rows.Count > 0)
-                {
-                    OTConsiderOn = dsLocalHRMSSetting.Tables[0].Rows[0]["OTConsiderOn"].ToString().Trim();
-                }
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                
                 ExcelEngine excelEngine = null;
                 IApplication application = null;
                 var workbook = oru.GetWorkbook(ref excelEngine, 1);
@@ -118,11 +123,11 @@ namespace Aplos.Areas.HumanResource.Controllers
                 objRpt = new clsReport();
                 string toDay = DateTime.Now.ToString("dd-MMM-yyyy");
 
-                objRpt.GetLeaveschecklistReport(FromDate, ToDate, plantId, companyId, companyGroupId, out dsLeavesCheckList);
+                GetLeaveschecklistReport(FromDate, ToDate, plantId, companyId, companyGroupId, LeaveTypeId, out dsLeavesCheckList);
                 dtLeavesCheckList = dsLeavesCheckList.Tables[0];
 
-                objRpt.SelectedPlantWiseCompany(plantId, out dsCmp);
-                objRpt.SelectedPlant(plantId, out dsFactory);
+                objRpt.SelectedPlantWiseCompany(identity.PlantId, out dsCmp);
+                objRpt.SelectedPlant(identity.PlantId, out dsFactory);
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
 
@@ -172,11 +177,11 @@ namespace Aplos.Areas.HumanResource.Controllers
                     xlsCol += 1;
                     iName = xlsCol;
                     sheet1.Range[xlsRow, iName].Text = "Name";
-                    sheet1.Range[xlsRow, iName].ColumnWidth = 18;
+                    sheet1.Range[xlsRow, iName].ColumnWidth = 22;
 
                     xlsCol += 1;
                     iFatHusName = xlsCol;
-                    sheet1.Range[xlsRow, iFatHusName].Text = "Fat/Hus Name";
+                    sheet1.Range[xlsRow, iFatHusName].Text = "Plant";
                     sheet1.Range[xlsRow, iFatHusName].ColumnWidth = 20;
 
                     xlsCol += 1;
@@ -197,7 +202,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                     xlsCol += 1;
                     iLeave = xlsCol;
                     sheet1.Range[xlsRow, iLeave].Text = "Leave";
-                    sheet1.Range[xlsRow, iLeave].ColumnWidth = 10;
+                    sheet1.Range[xlsRow, iLeave].ColumnWidth = 15;
 
                     xlsCol += 1;
                     iFrom = xlsCol;
@@ -214,10 +219,10 @@ namespace Aplos.Areas.HumanResource.Controllers
                     sheet1.Range[xlsRow, iDays].Text = "Days";
                     sheet1.Range[xlsRow, iDays].ColumnWidth = 11;
 
-                    xlsCol += 1;
-                    iDateAdded = xlsCol;
-                    sheet1.Range[xlsRow, iDateAdded].Text = "Added Date";
-                    sheet1.Range[xlsRow, iDateAdded].ColumnWidth = 11;
+                    //xlsCol += 1;
+                    //iDateAdded = xlsCol;
+                    //sheet1.Range[xlsRow, iDateAdded].Text = "Added Date";
+                    //sheet1.Range[xlsRow, iDateAdded].ColumnWidth = 11;
 
                     endXlsCol = xlsCol;
 
@@ -249,21 +254,22 @@ namespace Aplos.Areas.HumanResource.Controllers
 
                             sheet1.Range[xlsRow, iEmployeeCode].Text = dtLeavesCheckList.Rows[i]["EmployeeCode"].ToString();
                             sheet1.Range[xlsRow, iName].Text = dtLeavesCheckList.Rows[i]["EmployeeName"].ToString();
-                            sheet1.Range[xlsRow, iFatHusName].Text = dtLeavesCheckList.Rows[i]["FatherName"].ToString();
-                            sheet1.Range[xlsRow, iDesignation].Text = dtLeavesCheckList.Rows[i]["designation"].ToString();
+                            sheet1.Range[xlsRow, iFatHusName].Text = dtLeavesCheckList.Rows[i]["Plant"].ToString();
+                            sheet1.Range[xlsRow, iDesignation].Text = dtLeavesCheckList.Rows[i]["Designation"].ToString();
                             sheet1.Range[xlsRow, iDepartment].Text = dtLeavesCheckList.Rows[i]["Department"].ToString();
                             sheet1.Range[xlsRow, iDOJ].Text = dtLeavesCheckList.Rows[i]["DOJ"].ToString();
+                            SLNo++;
                         }
                         employeeid = dtLeavesCheckList.Rows[i]["EmpSystemId"].ToString();
 
 
-                        sheet1.Range[xlsRow, iLeave].Text = dtLeavesCheckList.Rows[i]["Code"].ToString();
-                        sheet1.Range[xlsRow, iFrom].Text = dtLeavesCheckList.Rows[i]["FromDate"].ToString();
-                        sheet1.Range[xlsRow, iTO].Text = dtLeavesCheckList.Rows[i]["ToDate"].ToString();
+                        sheet1.Range[xlsRow, iLeave].Text = dtLeavesCheckList.Rows[i]["LeaveType"].ToString();
+                        sheet1.Range[xlsRow, iFrom].Text = dtLeavesCheckList.Rows[i]["LeaveStartDate"].ToString();
+                        sheet1.Range[xlsRow, iTO].Text = dtLeavesCheckList.Rows[i]["LeaveEndDate"].ToString();
                         sheet1.Range[xlsRow, iDays].Text = dtLeavesCheckList.Rows[i]["LeaveDays"].ToString();
-                        sheet1.Range[xlsRow, iDateAdded].Text = dtLeavesCheckList.Rows[i]["DateAdded"].ToString();
+                        //sheet1.Range[xlsRow, iDateAdded].Text = dtLeavesCheckList.Rows[i]["DateAdded"].ToString();
                         xlsRow++;
-                        SLNo++;
+                        
                     }
                     sheet1.Range[6, 1, xlsRow - 1, endXlsCol].BorderInside(ExcelLineStyle.Hair);
                     sheet1.Range[6, 1, xlsRow - 1, endXlsCol].BorderAround(ExcelLineStyle.Hair);
@@ -383,6 +389,61 @@ namespace Aplos.Areas.HumanResource.Controllers
                 throw ex;
             }
         }
+        public void GetLeaveschecklistReport(string FromDate, string ToDate, string plantId, string companyId, string companyGroupId, string LeaveTypeId, out DataSet dsRef)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+
+            try
+            {
+                strSql = @"SELECT DISTINCT ei.EmployeeCode
+                                            ,apd.EmpSystemID
+                                        	,ei.EmployeeName
+                                        	,p.UserName Plant
+                                        	,deg.UserName Designation
+                                        	,dp.UserName Department
+                                        	,FORMAT(ei.DOJ, 'dd-MMM-yyyy') DOJ
+                                        	,lt2.UserName AS LeaveType
+                                        	,FORMAT(lt.FromDate, 'dd-MMM-yyyy') LeaveStartDate
+                                        	,FORMAT(lt.ToDate, 'dd-MMM-yyyy') LeaveEndDate
+                                        	,lt.LeaveDays
+                                        FROM AttdnProcessData AS apd
+                                        JOIN LeaveTransaction AS lt ON apd.WorkDate BETWEEN lt.FromDate
+                                        		AND lt.ToDate
+                                        	AND apd.EmpSystemID = lt.EmpSystemID
+                                        JOIN LeaveType AS lt2 ON lt2.Id = lt.LTSystemID
+                                        LEFT JOIN EmployeeInformation AS ei ON ei.SystemId = apd.EmpSystemID
+                                        LEFT JOIN org.Plant AS p ON p.Id = apd.PlantID
+                                        LEFT JOIN MST.ManpowerBudget PMB ON ei.BudgetCode = PMB.Id
+                                        LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
+                                        LEFT JOIN ORG.Entity En ON PMB.EntityId = En.Id
+                                        LEFT JOIN ORG.Department DP ON DP.Id = PR.DepartmentId
+                                        LEFT JOIN HKP.LegalDesignation LGD ON LGD.Id = ei.LegalDesignationId
+                                        LEFT JOIN [MST].[DesignationMasterLegalDesignation] dmld ON dmld.LegalDesignationId = LGD.Id
+                                        LEFT JOIN [MST].[DesignationMaster] dm ON dm.Id = dmld.DesignationMasterId
+                                        LEFT JOIN HKP.Designation DeG ON DeG.Id = dm.DesignationId
+                                        LEFT JOIN HKP.EmployeeCategory EC ON EC.Id = dm.EmployeeCategoryId
+                                        LEFT JOIN ORG.Section SE ON SE.Id = PR.SectionId
+                                        LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID
+                                        LEFT JOIN ORG.Line AS L ON L.Id = PMB.LineId
+                                        WHERE apd.LvValue > 0
+                                        	AND apd.WorkDate BETWEEN ('" + FromDate + @"')
+                                            AND('" + ToDate + @"')
+                                            AND apd.LTSystemID IN(" + LeaveTypeId + @")
+                                        	AND apd.PlantID IN(" + plantId + @")
+                                        ORDER BY ei.EmployeeCode";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
         #endregion
     }
 }

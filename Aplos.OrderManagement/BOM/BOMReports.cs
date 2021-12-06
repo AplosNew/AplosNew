@@ -499,11 +499,437 @@ namespace Library.OrderManagement.BOM
                 throw (ex);
 
             }
-
-
-
-
         }
+
+
+
+        public IWorkbook OrderLevelBOMReport(string MasterOrderItemId,string MasterOrderId, BOMLevel Level, bool isMatrix = true)
+        {
+            ExcelEngine excelEngine = new ExcelEngine();
+            //Instantiate the Excel application object
+            IApplication application = excelEngine.Excel;
+
+            //Set the default application version
+            application.DefaultVersion = ExcelVersion.Excel2013;
+            IWorkbook workbook = application.Workbooks.Create(1);
+            //Load the existing Excel workbook into IWorkbook
+            if (Level == BOMLevel.Item)
+                workbook = application.Workbooks.Create(3);
+
+            //Get the first worksheet in the workbook into IWorksheet
+            IWorksheet worksheet = workbook.Worksheets[0];
+
+
+            try
+            {
+                DataTable dtOrderMaster = _sqlRepository.GetDataTable(@"select mo.Id, mo.type, b.UserName as Buyer, p.UserName as Customer
+                ,  mo.OrderYear as Year, mo.TotalQty as TotalQuantity
+                    , uom.UserName as UnitOfMeasurement, mo.NoOfLineItem, mo.OrderWastagePercentage
+                    , mo.ExtraOrderPercentage, mo.BuyerReferenceNo, mo.OwnReferenceNo, BDept.UserName as BuyerDepartment
+                    , BDev.UserName as BuyerDevision, MoCur.Code MasterOrderCurrency from trn.MasterOrder MO 
+                    left join scs.Currency MoCur on MoCur.id = mo.CurrencyId 
+                    left join scs.UnitOfMeasurement UOM on uom.id = mo.TotalQtyUOMId 
+                    left join hkp.buyer B on b.id = mo.buyerid 
+                    left join hkp.party p on p.id = mo.partyid 
+                    left join hkp.BuyerDepartment BDept on BDept.id = mo.buyerDepartmentid 
+                    left join HKP.buyerdivision BDev on BDev.id = mo.BuyerDivisionId where mo.Id=(SELECT MasterOrderId from trn.MasterOrderItem where Id='" + MasterOrderItemId + "')");
+                if (dtOrderMaster.Rows.Count == 0)
+                    throw new Exception("No data found");
+                worksheet.Name = "BOM-MO Level";
+                string strsql = @"SELECT K.OwnReferenceNo,k.BuyerReferenceNo,k.VendorId,k.Material,
+k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChild,k.Process,k.RequiredQtyApproved,k.IncompleteMaterial,
+SUM(k.OrderQty) OrderQty,SUM(k.PlanOrderQty) PlanOrderQty,AVG(k.Consumption) Consumption,AVG(k.WastagePer) WastagePer,
+SUM(k.BOMQty) BOMQty,SUM(k.RequiredQty) RequiredQty,SUM(k.RequiredQtyPO) RequiredQtyPO,k.UOM,k.ParentUOM,k.POUOM,k.RMDescription,k.RMCustomerSpec
+,k.RMVendorSpec,SUM(k.POQTY) POQTY,SUM(k.GRNQty) GRNQty,k.SO1,k.SO2,k.SO3,k.POIds,k.GRNIds,k.MOIIds
+ From ( SELECT moi.OwnReferenceNo,moi.BuyerReferenceNo, b.VendorId,
+                                 mm.UserName AS Material,mma.StandardName AS Article,p.UserName AS Vendor,b.SKUDesc,
+
+                                v1.UserName AS CharVal1,v2.UserName AS CharVal2,v3.UserName AS CharVal3,convert(bit,isnull(b.isParent,0)) AS isParent,
+                                convert(bit,isnull(b.isChild,0)) AS isChild,PR.UserName AS Process,
+                               CONVERT(BIT, isnull(b.RequiredQtyApproved,0)) AS RequiredQtyApproved
+                               ,CONVERT(BIT, isnull(b.IncompleteMaterial,0)) AS IncompleteMaterial
+                               ,b.OrderQty,b.PlanOrderQty,b.Consumption,b.WastagePer,
+                                b.BOMQty,b.RequiredQty,b.RequiredQtyPO,uom.UserName AS UOM,uomm.UserName AS ParentUOM,
+                                POUOM.UserName AS POUOM,
+                                b.RMDescription,	b.RMCustomerSpec,	b.RMVendorSpec
+								,ISNULL(po.POQTY,0) POQTY,ISNULL(grn.GRNQty,0) GRNQty,
+								
+								 SO1 =STUFF((select distinct ','+xv1.UserName
+								               from BOQFGMapping AS XM	 
+										       JOIN BOQDetail AS XB2 ON xb2.Id=xm.BOQDetailId
+								               JOIN [HKP].[CharacteristicsValue] XV1 ON xv1.Id=XM.FirstCharacteristicsValueId
+								             WHERE XB2.BOQId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+								SO2 =STUFF((select distinct ','+xv1.UserName
+										from BOQFGMapping AS XM	 
+										JOIN BOQDetail AS XB2 ON xb2.Id=xm.BOQDetailId
+										JOIN [HKP].[CharacteristicsValue] XV1 ON xv1.Id=XM.SecondCharacteristicsValueId
+										WHERE XB2.BOQId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+								SO3 =STUFF((select distinct ','+xv1.UserName
+										from BOQFGMapping AS XM	 
+										JOIN BOQDetail AS XB2 ON xb2.Id=xm.BOQDetailId
+										JOIN [HKP].[CharacteristicsValue] XV1 ON xv1.Id=XM.ThirdCharacteristicsValueId
+										WHERE XB2.BOQId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+								POIds =STUFF((select distinct ','+XB2.InventoryReceiveId
+										from trn.POBOQMAP a	 
+										JOIN trn.PurchaseOrderDetail AS XB2 ON xb2.Id=a.PODetailId
+										WHERE a.BOQDetailId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+								GRNIds =STUFF((select distinct ','+XB2.InventoryReceiveId
+										from trn.POBOQMAP a	 
+										JOIN trn.InventoryReceiveDetail AS XB2 ON xb2.PODetailsId=a.PODetailId
+										WHERE a.BOQDetailId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+	  MOIIds=STUFF((select distinct ','+xMOI.Id
+							              FROM TRN.MasterOrderItem xMOI 
+                                        WHERE MO.Id=xMOI.MasterOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                  FROM BOQ AS b
+                                LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
+                                LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
+                                LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=b.UoMId
+                                LEFT OUTER JOIN scs.UnitOfMeasurement AS POuom ON POuom.Id=b.POUoMId
+                                LEFT OUTER JOIN HKP.Party P ON p.Id=b.VendorId
+                                LEFT OUTER JOIN trn.SalesOrder AS so ON so.Id=b.SalesOrderId
+                                LEFT OUTER JOIN trn.MasterOrderItem AS moi ON moi.Id=b.MasterOrderItemId
+                                LEFT OUTER JOIN trn.masterorder MO ON MO.Id=moi.MasterOrderId
+                                LEFT OUTER JOIN scs.UnitOfMeasurement AS uomm ON uomm.Id=mo.TotalQtyUOMId
+                                LEFT JOIN hkp.Process AS pr ON pr.Id=b.ProcessId
+
+                                LEFT OUTER JOIN [HKP].[CharacteristicsValue] V1 ON v1.Id=b.FirstCharacteristicsValueId
+                                LEFT OUTER JOIN [HKP].[CharacteristicsValue] V2 ON v2.Id=b.SecondCharacteristicsValueId
+                                LEFT OUTER JOIN [HKP].[CharacteristicsValue] V3 ON v3.Id=b.ThirdCharacteristicsValueId
+								Left outer join (select BOQDetailId,sum(POBOQQty) as POQTY from trn.POBOQMAP  GRoup by BOQDetailId) PO On PO.BOQDetailId = b.Id
+								Left outer join (	
+								SELECT a.BOQDetailId , sum(b.TransactionQty) GRNQty 
+				FROM trn.POBOQMAP a
+				INNER JOIN trn.InventoryReceiveDetail b ON a.PODetailId=b.PODetailsId GRoup by BOQDetailId
+								
+								) GRN On GRN.BOQDetailId = b.Id
+
+                                WHERE moi.MasterOrderId='" + MasterOrderId + @"' and isnull(B.Id,'') NOT IN (select ParentId from BOQ 
+								JOIn TRN.MasterOrderItem MOI ON MOI.Id=BOQ.MasterOrderItemId
+								where isnull(ParentId,'')<>'' AND MOI.MasterOrderId='" + MasterOrderId + @"'
+                            
+                                )) AS K GROUP BY K.OwnReferenceNo,k.BuyerReferenceNo,k.VendorId,k.Material,
+k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChild,k.Process,k.RequiredQtyApproved,k.IncompleteMaterial
+,k.UOM,k.ParentUOM,k.POUOM,k.RMDescription,k.RMCustomerSpec
+,k.RMVendorSpec,k.SO1,k.SO2,k.SO3,k.POIds,k.GRNIds,k.MOIIds";
+                DataTable dtBOMData = new DataTable();
+                dtBOMData = _sqlRepository.GetDataTable(strsql);
+                int ROW = 6; int COL = 1;
+
+                //foreach (ExcelKnownColors val in Enum.GetValues(typeof(ExcelKnownColors)))
+                //{
+                //    worksheet[ROW, 1].CellStyle.Interior.ColorIndex = val;
+                //    worksheet[ROW, 1].Text = val.ToString();
+                //    ROW++;
+                //}
+
+                int MasterOrderDetailsStartRow = ROW;
+                worksheet[ROW, COL].Text = "Master Order Details:";
+                worksheet[ROW, COL].CellStyle.Font.Bold = true;
+                ROW++;
+
+                int leftColumnCaption = COL;
+                int leftColumnValue = leftColumnCaption + 1;
+
+                int MiddleColumnCaption = leftColumnValue + 2;
+                int MiddleColumnValue = MiddleColumnCaption + 1;
+
+                int RightColumnCaption = MiddleColumnValue + 2;
+                int RightColumnValue = RightColumnCaption + 1;
+
+                //Master Order.............................................................
+                //worksheet[ROW, leftColumnCaption].Text = "Master Order No";
+                //worksheet[ROW, leftColumnValue].Text = "MasterOrderNo";
+
+                worksheet[ROW, leftColumnCaption].Text = "Order#";
+                worksheet[ROW, leftColumnValue].Text = dtOrderMaster.Rows[0]["Id"].ToString();
+                // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                worksheet.Range[ROW, leftColumnValue, ROW, leftColumnValue].CellStyle.Font.Color = ExcelKnownColors.Blue;
+                worksheet.Range[ROW, leftColumnCaption, ROW, leftColumnValue].CellStyle.Font.Bold = true;
+
+                worksheet[ROW, MiddleColumnCaption].Text = "Buyer.Ref";
+                worksheet[ROW, MiddleColumnValue].Text = dtOrderMaster.Rows[0]["BuyerReferenceNo"].ToString();
+                worksheet.Range[ROW, MiddleColumnCaption, ROW, MiddleColumnCaption].CellStyle.Font.Bold = true;
+
+                worksheet[ROW, RightColumnCaption].Text = "Own.Ref";
+                worksheet[ROW, RightColumnValue].Text = dtOrderMaster.Rows[0]["OwnReferenceNo"].ToString();
+                worksheet[ROW, RightColumnCaption].CellStyle.Font.Bold = true;
+                ROW++;
+
+                worksheet[ROW, leftColumnCaption].Text = "Buyer";
+                worksheet[ROW, leftColumnValue].Text = dtOrderMaster.Rows[0]["Buyer"].ToString();
+                worksheet[ROW, leftColumnCaption].CellStyle.Font.Bold = true;
+
+                worksheet[ROW, MiddleColumnCaption].Text = "Buyer Dep.";
+                worksheet[ROW, MiddleColumnValue].Text = dtOrderMaster.Rows[0]["BuyerDepartment"].ToString();
+                worksheet[ROW, MiddleColumnCaption].CellStyle.Font.Bold = true;
+
+                worksheet[ROW, RightColumnCaption].Text = "Buyer Div";
+                worksheet[ROW, RightColumnValue].Text = dtOrderMaster.Rows[0]["BuyerDevision"].ToString();
+                worksheet[ROW, RightColumnCaption].CellStyle.Font.Bold = true;
+
+                ROW++;
+
+                worksheet[ROW, leftColumnCaption].Text = "Customer";
+                worksheet[ROW, leftColumnValue].Text = dtOrderMaster.Rows[0]["Customer"].ToString();
+                worksheet[ROW, leftColumnCaption].CellStyle.Font.Bold = true;
+
+                worksheet[ROW, MiddleColumnCaption].Text = "Currency";
+                worksheet[ROW, MiddleColumnValue].Text = dtOrderMaster.Rows[0]["MasterOrderCurrency"].ToString();
+                worksheet[ROW, MiddleColumnCaption].CellStyle.Font.Bold = true;
+                ROW++;
+
+
+                worksheet[ROW, leftColumnCaption].Text = "Total Order Quantity";
+                worksheet[ROW, leftColumnValue].Number = clsStaticInfo.dbl(dtOrderMaster.Rows[0]["TotalQuantity"].ToString());
+                worksheet[ROW, leftColumnValue].NumberFormat = clsStaticInfo.NumberFormat();
+                worksheet[ROW, leftColumnCaption].CellStyle.Font.Bold = true;
+                // worksheet[ROW, leftColumnValue, ROW , leftColumnValue].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                worksheet[ROW, leftColumnValue, ROW, leftColumnValue].NumberFormat = clsStaticInfo.NumberFormat();
+                //worksheet.Range[ROW, leftColumnValue, ROW, leftColumnValue].CellStyle.Font.Bold = true;
+                worksheet[ROW, leftColumnValue].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                worksheet[ROW, leftColumnValue + 1].Text = dtOrderMaster.Rows[0]["UnitOfMeasurement"].ToString();
+                //worksheet[ROW, MiddleColumnCaption].CellStyle.Font.Bold = true;
+
+                worksheet.Range[MasterOrderDetailsStartRow, leftColumnCaption, ROW, RightColumnValue].CellStyle.Interior.ColorIndex = ExcelKnownColors.Custom44;
+
+
+
+                ROW += 2;
+
+
+                //Master Order Item....................................................................................................
+                StringCollection strColSO = new StringCollection();
+
+                OrderLevelBOMData(dtBOMData, worksheet, ref ROW);
+                ROW += 2; // Gap for Material
+                int endCol = RightColumnValue;
+
+
+                worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                worksheet.UsedRange.CellStyle.Font.Size = 8f;
+                worksheet.UsedRange.WrapText = true;
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref worksheet, endCol, "Master Order#" + dtOrderMaster.Rows[0]["Id"].ToString(), identity.PlantId);
+                reportUtility.PageSetup(ref worksheet, 6, ExcelPageOrientation.Landscape);
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                worksheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+                worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                worksheet.IsGridLinesVisible = false;
+                return workbook;
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        public IWorkbook ConevelBOMReport(string ContractId)
+        {
+            ExcelEngine excelEngine = new ExcelEngine();
+            //Instantiate the Excel application object
+            IApplication application = excelEngine.Excel;
+
+            //Set the default application version
+            application.DefaultVersion = ExcelVersion.Excel2013;
+            IWorkbook workbook = application.Workbooks.Create(1);
+            //Load the existing Excel workbook into IWorkbook
+            //Get the first worksheet in the workbook into IWorksheet
+            IWorksheet worksheet = workbook.Worksheets[0];
+
+
+            try
+            {
+                DataTable dtOrderMaster = _sqlRepository.GetDataTable(@"select mo.Id, mo.type, b.UserName as Buyer, p.UserName as Customer,mo.PartyId
+				                , c.ContractNo,moi.ContractId,   c.MasterLCId, ml.LCRef As MasterLCNo, moi.id as MasterOrderItemNo
+                                ,  mo.OrderYear as Year, mo.TotalQty as TotalQuantity
+                                    , uom.UserName as UnitOfMeasurement, mo.NoOfLineItem, mo.OrderWastagePercentage
+                                    , mo.ExtraOrderPercentage, mo.BuyerReferenceNo, mo.OwnReferenceNo, BDept.UserName as BuyerDepartment
+                                    , BDev.UserName as BuyerDevision, MoCur.Code MasterOrderCurrency
+			    	
+					                 from trn.MasterOrder MO 
+                                    left join scs.Currency MoCur on MoCur.id = mo.CurrencyId 
+                                    left join scs.UnitOfMeasurement UOM on uom.id = mo.TotalQtyUOMId 
+                                    left join hkp.buyer B on b.id = mo.buyerid 
+                                    left join hkp.party p on p.id = mo.partyid 
+                                    left join hkp.BuyerDepartment BDept on BDept.id = mo.buyerDepartmentid 
+                                    left join HKP.buyerdivision BDev on BDev.id = mo.BuyerDivisionId 
+					                left join trn.MasterOrderItem moi on moi.MasterOrderId = mo.Id
+					                left join Contract C on c.id = moi.ContractId
+					                left join MasterLC ml on ml.Id = c.MasterLCId
+                                    where c.Id='" + ContractId + "'");
+
+                if (dtOrderMaster.Rows.Count == 0)
+                    throw new Exception("No data found");
+                worksheet.Name = "BOM-Contact Level";
+                string strsql = @"SELECT K.OwnReferenceNo,k.BuyerReferenceNo,k.VendorId,k.Material,
+k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChild,k.Process,k.RequiredQtyApproved,k.IncompleteMaterial,
+SUM(k.OrderQty) OrderQty,SUM(k.PlanOrderQty) PlanOrderQty,AVG(k.Consumption) Consumption,AVG(k.WastagePer) WastagePer,
+SUM(k.BOMQty) BOMQty,SUM(k.RequiredQty) RequiredQty,SUM(k.RequiredQtyPO) RequiredQtyPO,k.UOM,k.ParentUOM,k.POUOM,k.RMDescription,k.RMCustomerSpec
+,k.RMVendorSpec,SUM(k.POQTY) POQTY,SUM(k.GRNQty) GRNQty,k.SO1,k.SO2,k.SO3,k.POIds,k.GRNIds,k.MOIIds
+ From ( SELECT moi.OwnReferenceNo,moi.BuyerReferenceNo, b.VendorId,
+                                 mm.UserName AS Material,mma.StandardName AS Article,p.UserName AS Vendor,b.SKUDesc,
+
+                                v1.UserName AS CharVal1,v2.UserName AS CharVal2,v3.UserName AS CharVal3,convert(bit,isnull(b.isParent,0)) AS isParent,
+                                convert(bit,isnull(b.isChild,0)) AS isChild,PR.UserName AS Process,
+                               CONVERT(BIT, isnull(b.RequiredQtyApproved,0)) AS RequiredQtyApproved
+                               ,CONVERT(BIT, isnull(b.IncompleteMaterial,0)) AS IncompleteMaterial
+                               ,b.OrderQty,b.PlanOrderQty,b.Consumption,b.WastagePer,
+                                b.BOMQty,b.RequiredQty,b.RequiredQtyPO,uom.UserName AS UOM,uomm.UserName AS ParentUOM,
+                                POUOM.UserName AS POUOM,
+                                b.RMDescription,	b.RMCustomerSpec,	b.RMVendorSpec
+								,ISNULL(po.POQTY,0) POQTY,ISNULL(grn.GRNQty,0) GRNQty,
+								
+								 SO1 =STUFF((select distinct ','+xv1.UserName
+								               from BOQFGMapping AS XM	 
+										       JOIN BOQDetail AS XB2 ON xb2.Id=xm.BOQDetailId
+								               JOIN [HKP].[CharacteristicsValue] XV1 ON xv1.Id=XM.FirstCharacteristicsValueId
+								             WHERE XB2.BOQId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+								SO2 =STUFF((select distinct ','+xv1.UserName
+										from BOQFGMapping AS XM	 
+										JOIN BOQDetail AS XB2 ON xb2.Id=xm.BOQDetailId
+										JOIN [HKP].[CharacteristicsValue] XV1 ON xv1.Id=XM.SecondCharacteristicsValueId
+										WHERE XB2.BOQId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+								SO3 =STUFF((select distinct ','+xv1.UserName
+										from BOQFGMapping AS XM	 
+										JOIN BOQDetail AS XB2 ON xb2.Id=xm.BOQDetailId
+										JOIN [HKP].[CharacteristicsValue] XV1 ON xv1.Id=XM.ThirdCharacteristicsValueId
+										WHERE XB2.BOQId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+								POIds =STUFF((select distinct ','+XB2.InventoryReceiveId
+										from trn.POBOQMAP a	 
+										JOIN trn.PurchaseOrderDetail AS XB2 ON xb2.Id=a.PODetailId
+										WHERE a.BOQDetailId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+								GRNIds =STUFF((select distinct ','+XB2.InventoryReceiveId
+										from trn.POBOQMAP a	 
+										JOIN trn.InventoryReceiveDetail AS XB2 ON xb2.PODetailsId=a.PODetailId
+										WHERE a.BOQDetailId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+	  MOIIds=STUFF((select distinct ','+xMOI.Id
+							              FROM TRN.MasterOrderItem xMOI 
+                                        WHERE MO.Id=xMOI.MasterOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                  FROM BOQ AS b
+                                LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
+                                LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
+                                LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=b.UoMId
+                                LEFT OUTER JOIN scs.UnitOfMeasurement AS POuom ON POuom.Id=b.POUoMId
+                                LEFT OUTER JOIN HKP.Party P ON p.Id=b.VendorId
+                                LEFT OUTER JOIN trn.SalesOrder AS so ON so.Id=b.SalesOrderId
+                                LEFT OUTER JOIN trn.MasterOrderItem AS moi ON moi.Id=b.MasterOrderItemId
+                                LEFT OUTER JOIN trn.masterorder MO ON MO.Id=moi.MasterOrderId
+                                LEFT OUTER JOIN scs.UnitOfMeasurement AS uomm ON uomm.Id=mo.TotalQtyUOMId
+                                LEFT JOIN hkp.Process AS pr ON pr.Id=b.ProcessId
+
+                                LEFT OUTER JOIN [HKP].[CharacteristicsValue] V1 ON v1.Id=b.FirstCharacteristicsValueId
+                                LEFT OUTER JOIN [HKP].[CharacteristicsValue] V2 ON v2.Id=b.SecondCharacteristicsValueId
+                                LEFT OUTER JOIN [HKP].[CharacteristicsValue] V3 ON v3.Id=b.ThirdCharacteristicsValueId
+								Left outer join (select BOQDetailId,sum(POBOQQty) as POQTY from trn.POBOQMAP  GRoup by BOQDetailId) PO On PO.BOQDetailId = b.Id
+								Left outer join (	
+								SELECT a.BOQDetailId , sum(b.TransactionQty) GRNQty 
+				FROM trn.POBOQMAP a
+				INNER JOIN trn.InventoryReceiveDetail b ON a.PODetailId=b.PODetailsId GRoup by BOQDetailId
+								
+								) GRN On GRN.BOQDetailId = b.Id
+
+                                WHERE moi.ContractId ='"+ContractId+ @"'
+                                 and isnull(B.Id,'') NOT IN (select ParentId from BOQ 
+								JOIn TRN.MasterOrderItem MOI ON MOI.Id=BOQ.MasterOrderItemId
+								where isnull(ParentId,'')<>'' AND MOI.ContractId='" + ContractId + @"'
+                            
+                                )) AS K GROUP BY K.OwnReferenceNo,k.BuyerReferenceNo,k.VendorId,k.Material,
+k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChild,k.Process,k.RequiredQtyApproved,k.IncompleteMaterial
+,k.UOM,k.ParentUOM,k.POUOM,k.RMDescription,k.RMCustomerSpec
+,k.RMVendorSpec,k.SO1,k.SO2,k.SO3,k.POIds,k.GRNIds,k.MOIIds";
+                DataTable dtConData = new DataTable();
+                dtConData = _sqlRepository.GetDataTable(strsql);
+                int ROW = 6; int COL = 1;
+
+                //foreach (ExcelKnownColors val in Enum.GetValues(typeof(ExcelKnownColors)))
+                //{
+                //    worksheet[ROW, 1].CellStyle.Interior.ColorIndex = val;
+                //    worksheet[ROW, 1].Text = val.ToString();
+                //    ROW++;
+                //}
+                int MasterOrderDetailsStartRow = ROW;
+                worksheet[ROW, COL].Text = "Sales Contract Details:";
+                worksheet[ROW, COL].CellStyle.Font.Bold = true;
+                ROW++;
+
+                int leftColumnCaption = COL;
+                int leftColumnValue = leftColumnCaption + 1;
+
+                //int MiddleColumnCaption = leftColumnValue + 2;
+                int MiddleColumnCaption = leftColumnValue + 1;
+                int MiddleColumnValue = MiddleColumnCaption + 1;
+
+                int RightColumnCaption = MiddleColumnValue + 1;
+                int RightColumnValue = RightColumnCaption + 1;
+
+                //Contract.............................................................
+
+                worksheet[ROW, leftColumnCaption].Text = "ContractNo#";
+                worksheet[ROW, leftColumnValue].Text = dtOrderMaster.Rows[0]["ContractNo"].ToString();
+                worksheet.Range[ROW, leftColumnValue, ROW, leftColumnValue].CellStyle.Font.Color = ExcelKnownColors.Blue;
+                worksheet[ROW, leftColumnValue].ColumnWidth = 16;
+                worksheet.Range[ROW, leftColumnCaption, ROW, leftColumnValue].CellStyle.Font.Bold = true;
+                worksheet[ROW, leftColumnCaption].ColumnWidth = 16;
+
+                worksheet[ROW, MiddleColumnCaption].Text = "Customer";
+                worksheet[ROW, MiddleColumnValue].Text = dtOrderMaster.Rows[0]["Customer"].ToString();
+                worksheet.Range[ROW, MiddleColumnCaption, ROW, MiddleColumnCaption].CellStyle.Font.Bold = true;
+                worksheet[ROW, MiddleColumnCaption].ColumnWidth = 10;
+                worksheet[ROW, MiddleColumnValue].ColumnWidth = 14;
+
+                worksheet[ROW, RightColumnCaption].Text = "Master LC No.";
+                worksheet[ROW, RightColumnValue].Text = dtOrderMaster.Rows[0]["MasterLCNo"].ToString();
+                worksheet[ROW, RightColumnCaption].CellStyle.Font.Bold = true;
+                worksheet[ROW, RightColumnCaption].ColumnWidth = 10;
+                worksheet[ROW, RightColumnValue].ColumnWidth = 13;
+                ROW++;
+
+                worksheet.Range[MasterOrderDetailsStartRow, leftColumnCaption, ROW, RightColumnValue].CellStyle.Interior.ColorIndex = ExcelKnownColors.Custom44;
+
+
+
+                ROW += 2;
+
+
+                //Master Order Item....................................................................................................
+                StringCollection strColSO = new StringCollection();
+
+                //OrderLevelBOMData(dtConData, worksheet, ref ROW);
+              ContactLevelBOMData(dtConData, worksheet, ref ROW);
+                ROW += 2; // Gap for Material
+                int endCol = RightColumnValue;
+
+
+                worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                worksheet.UsedRange.CellStyle.Font.Size = 8f;
+                worksheet.UsedRange.WrapText = true;
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref worksheet, endCol, "Master Order#" + dtOrderMaster.Rows[0]["Id"].ToString(), identity.PlantId);
+                reportUtility.PageSetup(ref worksheet, 6, ExcelPageOrientation.Landscape);
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                worksheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+                worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                worksheet.IsGridLinesVisible = false;
+                return workbook;
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
 
         private void DrawSOBreakdownData(DataTable dtData, IWorksheet sheet, ref int ROW, bool Matrix = true)
         {
@@ -936,6 +1362,465 @@ namespace Library.OrderManagement.BOM
 
         }
 
+        private void OrderLevelBOMData(DataTable dtData, IWorksheet sheet, ref int ROW)
+        {
+
+            ROW++;
+            sheet[ROW, 1].Text = "BOM Items";
+            sheet[ROW, 1].CellStyle.Font.Bold = true;
+            ROW++;
+            int COL = 1;
+            sheet[ROW, COL].Text = "Sl. No";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 6;
+            int colSlNo = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Material";
+            sheet[ROW, COL].ColumnWidth = 16;
+            int colMaterial = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Article";
+            sheet[ROW, COL].ColumnWidth = 16;
+            int colArticle = COL;
+            COL++;
+            sheet[ROW, COL].Text = "RM Desc";
+            sheet[ROW, COL].ColumnWidth = 16;
+            int colRMDescription = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Process";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colProcess = COL;
+            COL++;
+            sheet[ROW, COL].Text = "SKU1";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colCharVal1 = COL;
+            COL++;
+            sheet[ROW, COL].Text = "SKU2";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colCharVal2 = COL;
+            COL++;
+            sheet[ROW, COL].Text = "SKU3";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colCharVal3 = COL;
+            sheet.Range[ROW - 1, colCharVal1].Text = "RM SKU";
+            sheet.Range[ROW - 1, colCharVal1, ROW - 1, COL].Merge();
+            sheet.Range[ROW - 1, colCharVal1, ROW - 1, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet.Range[ROW - 1, colCharVal1, ROW - 1, COL].CellStyle.Font.Bold = true;
+            sheet.Range[ROW - 1, colCharVal1, ROW - 1, COL].BorderAround(ExcelLineStyle.Hair);
+            sheet.Range[ROW - 1, colCharVal1, ROW - 1, COL].BorderInside(ExcelLineStyle.Hair);
+            sheet.Range[ROW - 1, colCharVal1, ROW - 1, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Green;
+            sheet.Range[ROW - 1, colCharVal1, ROW - 1, COL].CellStyle.Font.Color = ExcelKnownColors.White;
+
+
+
+            COL++;
+            sheet[ROW, COL].Text = "SKU1";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colCharValSO1 = COL;
+            COL++;
+            sheet[ROW, COL].Text = "SKU2";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colCharValSO2 = COL;
+            COL++;
+            sheet[ROW, COL].Text = "SKU3";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colCharValSO3 = COL;
+
+            sheet.Range[ROW - 1, colCharValSO1].Text = "FG SKU";
+            sheet.Range[ROW - 1, colCharValSO1, ROW - 1, COL].Merge();
+            sheet.Range[ROW - 1, colCharValSO1, ROW - 1, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet.Range[ROW - 1, colCharValSO1, ROW - 1, COL].CellStyle.Font.Bold = true;
+            sheet.Range[ROW - 1, colCharValSO1, ROW - 1, COL].BorderAround(ExcelLineStyle.Hair);
+            sheet.Range[ROW - 1, colCharValSO1, ROW - 1, COL].BorderInside(ExcelLineStyle.Hair);
+            sheet.Range[ROW - 1, colCharValSO1, ROW - 1, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
+            sheet.Range[ROW - 1, colCharValSO1, ROW - 1, COL].CellStyle.Font.Color = ExcelKnownColors.White;
+
+            COL++;
+            sheet[ROW, COL].Text = "Customer Spec";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colRMCustomerSpec = COL;
+            COL++;
+            sheet[ROW, COL].Text = "MOI No's";
+            sheet[ROW, COL].ColumnWidth = 12;
+            int colMOI = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Vendor Spec";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colRMVendorSpec = COL;
+            COL++;
+            sheet[ROW, COL].Text = "SKU Desc";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colSKUDesc = COL;
+            COL++;
+            sheet[ROW, COL].Text = "BOQ";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 8;
+            int colBOMQty = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Required Qty";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 9;
+            int colRequiredQty = COL;
+            COL++;
+            sheet[ROW, COL].Text = "UOM";
+            sheet[ROW, COL].ColumnWidth = 8;
+            int colUOM = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Required Qty (PO UOM)";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 9;
+            int colRequiredQtyInPOUOM = COL;
+            COL++;
+            sheet[ROW, COL].Text = "PO Qty";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 8;
+            int colPOQty = COL;
+            COL++;
+            sheet[ROW, COL].Text = "GRN Qty";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 8;
+            int colGRNQty = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Balance To Purchase";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 14;
+            int colBalTOProduce = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Balance To Recieve";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 14;
+            int colBalTORecieve = COL;
+            COL++;
+            sheet[ROW, COL].Text = "PO UOM";
+            sheet[ROW, COL].ColumnWidth = 8;
+            int colPOUOM = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Consumption";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 9;
+            int colConsumption = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Wastage Per";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 8;
+            int colWastagePer = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Vendor";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colVendor = COL;
+            COL++;
+            sheet[ROW, COL].Text = "PO NOs";
+            sheet[ROW, COL].ColumnWidth = 12;
+            int colPOIds = COL;
+            COL++;
+            sheet[ROW, COL].Text = "GRN Nos";
+            sheet[ROW, COL].ColumnWidth = 12;
+            int colGRNIds = COL;
+
+
+            sheet.Range[ROW, 1, ROW, COL].CellStyle.Font.Bold = true; //row 19 of heading 
+            sheet.Range[ROW, 1, ROW, COL].BorderAround(ExcelLineStyle.Hair);
+            sheet.Range[ROW, 1, ROW, COL].BorderInside(ExcelLineStyle.Hair);
+            sheet.Range[ROW, 1, ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
+            int endCol = COL;
+            ROW++;
+
+            int StartRow = ROW;
+            for (int i = 0; i < dtData.Rows.Count; i++)
+            {
+
+
+                sheet[ROW, colSlNo].Number = (i + 1);
+                sheet[ROW, colMaterial].Text = dtData.Rows[i]["Material"].ToString();
+                sheet[ROW, colArticle].Text = dtData.Rows[i]["Article"].ToString();
+                sheet[ROW, colRMDescription].Text = dtData.Rows[i]["RMDescription"].ToString();
+
+                sheet[ROW, colCharVal1].Text = dtData.Rows[i]["CharVal1"].ToString();
+                sheet[ROW, colCharVal2].Text = dtData.Rows[i]["CharVal2"].ToString();
+                sheet[ROW, colCharVal3].Text = dtData.Rows[i]["CharVal3"].ToString();
+
+                sheet[ROW, colCharValSO1].Text = dtData.Rows[i]["SO1"].ToString();
+                sheet[ROW, colCharValSO2].Text = dtData.Rows[i]["SO2"].ToString();
+                sheet[ROW, colCharValSO3].Text = dtData.Rows[i]["SO3"].ToString();
+                sheet[ROW, colMOI].Text = dtData.Rows[i]["MOIIds"].ToString();
+                sheet[ROW, colRMCustomerSpec].Text = dtData.Rows[i]["RMCustomerSpec"].ToString();
+                sheet[ROW, colRMVendorSpec].Text = dtData.Rows[i]["RMVendorSpec"].ToString();
+                sheet[ROW, colSKUDesc].Text = dtData.Rows[i]["SKUDesc"].ToString();
+                sheet[ROW, colVendor].Text = dtData.Rows[i]["Vendor"].ToString();
+                sheet[ROW, colUOM].Text = dtData.Rows[i]["UOM"].ToString();
+                sheet[ROW, colPOUOM].Text = dtData.Rows[i]["POUOM"].ToString();
+                sheet[ROW, colProcess].Text = dtData.Rows[i]["Process"].ToString();
+                sheet[ROW, colPOIds].Text = dtData.Rows[i]["POIds"].ToString();
+                sheet[ROW, colGRNIds].Text = dtData.Rows[i]["GRNIds"].ToString();
+
+
+                sheet[ROW, colBOMQty].Number = clsStaticInfo.dbl(dtData.Rows[i]["BOMQty"].ToString());
+                sheet[ROW, colRequiredQty].Number = clsStaticInfo.dbl(dtData.Rows[i]["RequiredQty"].ToString());
+                sheet[ROW, colPOQty].Number = clsStaticInfo.dbl(dtData.Rows[i]["POQTY"].ToString());
+                sheet[ROW, colGRNQty].Number = clsStaticInfo.dbl(dtData.Rows[i]["GRNQty"].ToString());
+                sheet[ROW, colRequiredQtyInPOUOM].Number = clsStaticInfo.dbl(dtData.Rows[i]["RequiredQtyPO"].ToString());
+                sheet[ROW, colBalTOProduce].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colRequiredQtyInPOUOM) + ROW.ToString() + " - " + clsStaticInfo.GetxlsCol(colPOQty) + ROW.ToString() + ")";
+                sheet[ROW, colBalTORecieve].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colPOQty) + ROW.ToString() + " - " + clsStaticInfo.GetxlsCol(colGRNQty) + ROW.ToString() + ")";
+
+                sheet[ROW, colConsumption].Number = clsStaticInfo.dbl(dtData.Rows[i]["Consumption"].ToString());
+                sheet[ROW, colWastagePer].Number = clsStaticInfo.dbl(dtData.Rows[i]["WastagePer"].ToString());
+
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                ROW++;
+
+            }
+
+            sheet.Range[StartRow, 1, ROW, endCol].WrapText = true;
+
+
+            sheet.AutoFilters.FilterRange = sheet.Range[StartRow - 1, 1, ROW, endCol];
+
+            for (int C = 0; C < endCol; C++)
+            {
+                IAutoFilter filter = sheet.AutoFilters[C];
+            }
+
+
+            sheet.Range[StartRow, colSlNo, ROW, colSlNo].NumberFormat = clsStaticInfo.NumberFormat();
+            sheet.Range[StartRow, colBOMQty, ROW, colBOMQty].NumberFormat = clsStaticInfo.NumberFormat(2);
+            sheet.Range[StartRow, colRequiredQty, ROW, colRequiredQty].NumberFormat = clsStaticInfo.NumberFormat(2);
+            sheet.Range[StartRow, colConsumption, ROW, colConsumption].NumberFormat = clsStaticInfo.NumberFormat(4);
+            sheet.Range[StartRow, colWastagePer, ROW, colWastagePer].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+        }
+
+        
+
+                private void ContactLevelBOMData(DataTable dtData, IWorksheet sheet, ref int ROW)
+        {
+
+            ROW++;
+            sheet[ROW, 1].Text = "BOM Items";
+            sheet[ROW, 1].CellStyle.Font.Bold = true;
+            ROW++;
+            int COL = 1;
+            sheet[ROW, COL].Text = "Sl. No";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 6;
+            int colSlNo = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Material";
+            sheet[ROW, COL].ColumnWidth = 16;
+            int colMaterial = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Article";
+            sheet[ROW, COL].ColumnWidth = 16;
+            int colArticle = COL;
+            COL++;
+            sheet[ROW, COL].Text = "RM Desc";
+            sheet[ROW, COL].ColumnWidth = 16;
+            int colRMDescription = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Process";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colProcess = COL;
+            COL++;
+            sheet[ROW, COL].Text = "SKU1";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colCharVal1 = COL;
+            COL++;
+            sheet[ROW, COL].Text = "SKU2";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colCharVal2 = COL;
+            COL++;
+            sheet[ROW, COL].Text = "SKU3";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colCharVal3 = COL;
+            sheet.Range[ROW - 1, colCharVal1].Text = "RM SKU";
+            sheet.Range[ROW - 1, colCharVal1, ROW - 1, COL].Merge();
+            sheet.Range[ROW - 1, colCharVal1, ROW - 1, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet.Range[ROW - 1, colCharVal1, ROW - 1, COL].CellStyle.Font.Bold = true;
+            sheet.Range[ROW - 1, colCharVal1, ROW - 1, COL].BorderAround(ExcelLineStyle.Hair);
+            sheet.Range[ROW - 1, colCharVal1, ROW - 1, COL].BorderInside(ExcelLineStyle.Hair);
+            sheet.Range[ROW - 1, colCharVal1, ROW - 1, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Green;
+            sheet.Range[ROW - 1, colCharVal1, ROW - 1, COL].CellStyle.Font.Color = ExcelKnownColors.White;
+
+
+
+            COL++;
+            sheet[ROW, COL].Text = "SKU1";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colCharValSO1 = COL;
+            COL++;
+            sheet[ROW, COL].Text = "SKU2";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colCharValSO2 = COL;
+            COL++;
+            sheet[ROW, COL].Text = "SKU3";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colCharValSO3 = COL;
+
+            sheet.Range[ROW - 1, colCharValSO1].Text = "FG SKU";
+            sheet.Range[ROW - 1, colCharValSO1, ROW - 1, COL].Merge();
+            sheet.Range[ROW - 1, colCharValSO1, ROW - 1, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet.Range[ROW - 1, colCharValSO1, ROW - 1, COL].CellStyle.Font.Bold = true;
+            sheet.Range[ROW - 1, colCharValSO1, ROW - 1, COL].BorderAround(ExcelLineStyle.Hair);
+            sheet.Range[ROW - 1, colCharValSO1, ROW - 1, COL].BorderInside(ExcelLineStyle.Hair);
+            sheet.Range[ROW - 1, colCharValSO1, ROW - 1, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
+            sheet.Range[ROW - 1, colCharValSO1, ROW - 1, COL].CellStyle.Font.Color = ExcelKnownColors.White;
+
+            COL++;
+            sheet[ROW, COL].Text = "Customer Spec";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colRMCustomerSpec = COL;
+            COL++;
+            sheet[ROW, COL].Text = "MOI No's";
+            sheet[ROW, COL].ColumnWidth = 12;
+            int colMOI = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Vendor Spec";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colRMVendorSpec = COL;
+            COL++;
+            sheet[ROW, COL].Text = "SKU Desc";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colSKUDesc = COL;
+            COL++;
+            sheet[ROW, COL].Text = "BOQ";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 8;
+            int colBOMQty = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Required Qty";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 9;
+            int colRequiredQty = COL;
+            COL++;
+            sheet[ROW, COL].Text = "UOM";
+            sheet[ROW, COL].ColumnWidth = 8;
+            int colUOM = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Required Qty (PO UOM)";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 9;
+            int colRequiredQtyInPOUOM = COL;
+            COL++;
+            sheet[ROW, COL].Text = "PO Qty";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 8;
+            int colPOQty = COL;
+            COL++;
+            sheet[ROW, COL].Text = "GRN Qty";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 8;
+            int colGRNQty = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Balance To Purchase";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 14;
+            int colBalTOProduce = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Balance To Recieve";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 14;
+            int colBalTORecieve = COL;
+            COL++;
+            sheet[ROW, COL].Text = "PO UOM";
+            sheet[ROW, COL].ColumnWidth = 8;
+            int colPOUOM = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Consumption";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 9;
+            int colConsumption = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Wastage Per";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 8;
+            int colWastagePer = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Vendor";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colVendor = COL;
+            COL++;
+            sheet[ROW, COL].Text = "PO NOs";
+            sheet[ROW, COL].ColumnWidth = 12;
+            int colPOIds = COL;
+            COL++;
+            sheet[ROW, COL].Text = "GRN Nos";
+            sheet[ROW, COL].ColumnWidth = 12;
+            int colGRNIds = COL;
+
+
+            sheet.Range[ROW, 1, ROW, COL].CellStyle.Font.Bold = true; //row 19 of heading 
+            sheet.Range[ROW, 1, ROW, COL].BorderAround(ExcelLineStyle.Hair);
+            sheet.Range[ROW, 1, ROW, COL].BorderInside(ExcelLineStyle.Hair);
+            sheet.Range[ROW, 1, ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
+            int endCol = COL;
+            ROW++;
+
+            int StartRow = ROW;
+            for (int i = 0; i < dtData.Rows.Count; i++)
+            {
+
+
+                sheet[ROW, colSlNo].Number = (i + 1);
+                sheet[ROW, colMaterial].Text = dtData.Rows[i]["Material"].ToString();
+                sheet[ROW, colArticle].Text = dtData.Rows[i]["Article"].ToString();
+                sheet[ROW, colRMDescription].Text = dtData.Rows[i]["RMDescription"].ToString();
+
+                sheet[ROW, colCharVal1].Text = dtData.Rows[i]["CharVal1"].ToString();
+                sheet[ROW, colCharVal2].Text = dtData.Rows[i]["CharVal2"].ToString();
+                sheet[ROW, colCharVal3].Text = dtData.Rows[i]["CharVal3"].ToString();
+
+                sheet[ROW, colCharValSO1].Text = dtData.Rows[i]["SO1"].ToString();
+                sheet[ROW, colCharValSO2].Text = dtData.Rows[i]["SO2"].ToString();
+                sheet[ROW, colCharValSO3].Text = dtData.Rows[i]["SO3"].ToString();
+                sheet[ROW, colMOI].Text = dtData.Rows[i]["MOIIds"].ToString();
+                sheet[ROW, colRMCustomerSpec].Text = dtData.Rows[i]["RMCustomerSpec"].ToString();
+                sheet[ROW, colRMVendorSpec].Text = dtData.Rows[i]["RMVendorSpec"].ToString();
+                sheet[ROW, colSKUDesc].Text = dtData.Rows[i]["SKUDesc"].ToString();
+                sheet[ROW, colVendor].Text = dtData.Rows[i]["Vendor"].ToString();
+                sheet[ROW, colUOM].Text = dtData.Rows[i]["UOM"].ToString();
+                sheet[ROW, colPOUOM].Text = dtData.Rows[i]["POUOM"].ToString();
+                sheet[ROW, colProcess].Text = dtData.Rows[i]["Process"].ToString();
+                sheet[ROW, colPOIds].Text = dtData.Rows[i]["POIds"].ToString();
+                sheet[ROW, colGRNIds].Text = dtData.Rows[i]["GRNIds"].ToString();
+
+
+                sheet[ROW, colBOMQty].Number = clsStaticInfo.dbl(dtData.Rows[i]["BOMQty"].ToString());
+                sheet[ROW, colRequiredQty].Number = clsStaticInfo.dbl(dtData.Rows[i]["RequiredQty"].ToString());
+                sheet[ROW, colPOQty].Number = clsStaticInfo.dbl(dtData.Rows[i]["POQTY"].ToString());
+                sheet[ROW, colGRNQty].Number = clsStaticInfo.dbl(dtData.Rows[i]["GRNQty"].ToString());
+                sheet[ROW, colRequiredQtyInPOUOM].Number = clsStaticInfo.dbl(dtData.Rows[i]["RequiredQtyPO"].ToString());
+                sheet[ROW, colBalTOProduce].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colRequiredQtyInPOUOM) + ROW.ToString() + " - " + clsStaticInfo.GetxlsCol(colPOQty) + ROW.ToString() + ")";
+                sheet[ROW, colBalTORecieve].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colPOQty) + ROW.ToString() + " - " + clsStaticInfo.GetxlsCol(colGRNQty) + ROW.ToString() + ")";
+
+                sheet[ROW, colConsumption].Number = clsStaticInfo.dbl(dtData.Rows[i]["Consumption"].ToString());
+                sheet[ROW, colWastagePer].Number = clsStaticInfo.dbl(dtData.Rows[i]["WastagePer"].ToString());
+
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                ROW++;
+
+            }
+
+            sheet.Range[StartRow, 1, ROW, endCol].WrapText = true;
+
+
+            sheet.AutoFilters.FilterRange = sheet.Range[StartRow - 1, 1, ROW, endCol];
+
+            for (int C = 0; C < endCol; C++)
+            {
+                IAutoFilter filter = sheet.AutoFilters[C];
+            }
+
+
+            sheet.Range[StartRow, colSlNo, ROW, colSlNo].NumberFormat = clsStaticInfo.NumberFormat();
+            sheet.Range[StartRow, colBOMQty, ROW, colBOMQty].NumberFormat = clsStaticInfo.NumberFormat(2);
+            sheet.Range[StartRow, colRequiredQty, ROW, colRequiredQty].NumberFormat = clsStaticInfo.NumberFormat(2);
+            sheet.Range[StartRow, colConsumption, ROW, colConsumption].NumberFormat = clsStaticInfo.NumberFormat(4);
+            sheet.Range[StartRow, colWastagePer, ROW, colWastagePer].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+        }
 
 
 
