@@ -189,7 +189,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                     url: $scope.path + "GetPartyPaymentStatusInvoiceList",
                     data: {
                         fromDate: "",
-                        toDate: $scope.material.VendorToDate
+                        toDate: ""
                     },
                     dataType: 'JSON'
 
