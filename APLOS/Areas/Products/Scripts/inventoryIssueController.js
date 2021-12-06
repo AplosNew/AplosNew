@@ -11,7 +11,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 	$scope.updateUrl = $scope.path + 'edit';
 	$scope.deleteUrl = $scope.path + 'delete/';
 	$scope.currentDate = new Date(Date.now());
-
+	$scope.ispostDisable = false;
 	$controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
 	$controller("employeeBaseController", { $scope: $scope, $http: $http });
 
@@ -190,6 +190,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 		
 		var UIStatus = $("#SlipAssetIssueUI").val();
 		$scope.productNew.IssueRequestMasterId = $scope.issueId;
+		$scope.ispostDisable = true;
 		if ($scope.Action === "Save") {
 			$http({
 				method: 'POST'
@@ -203,17 +204,18 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 				}				
 				, dataType: 'JSON'
 			}).then(function (response) {
-				if (response.data.Error === true)
+				if (response.data.Error === true) {
+					$scope.ispostDisable = false;
 					ShowResult(response.data.Message, 'failure');
+                }
 				else {
 					ShowResult(response.data.Message, 'success');
+					$scope.ispostDisable = true;
 					$scope.Clear();
 					$scope.getdataInventoryIssue();
 					$scope.productNew.Id = response.data.inventoryIssue.Id;
 					$scope.getData();
 					$scope.GetDataList();
-
-
 				}
 			}), function (response) {
 				ShowResult(response.data.Message, 'failure');

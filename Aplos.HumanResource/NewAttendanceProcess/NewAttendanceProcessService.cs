@@ -24,6 +24,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             ConManager = new ConnectionManager.clsConnectionManager();
 
         }
+
         #region Shift Process
         public void ShiftProcess(string Date, string PlantValue)
         {
@@ -1099,8 +1100,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 (DATEDIFF(DAY, (Select top 1 ed.EffectiveDate from
                 dbo.WeekOffHeader h 
                 left join dbo.WeekOffEffectiveDate ed on ed.WOHeaderId = h.Id               
-                --left join dbo.EmployeeWeeklyOff ed on ed.WOHeaderId = h.Id
-                --and ed.EmpSystemId = e.SystemId
                 where ed.EffectiveDate <= '" + Date + @"' and ed.WOHeaderId =  
 				(Select top 1 ex.WOHeaderId from dbo.EmployeeWeeklyOff ex
                 where EmpSystemId = e.SystemId and ex.EffectiveDate<='" + Date + @"'
@@ -1584,13 +1583,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
-                            //foreach (DataRow drx in dsRef.Tables[0].Rows)
-                            //{
-                            //    drx.BeginEdit();
-                            //    drx["PunchOutTime"] = DBNull.Value;
-                            //    drx.EndEdit();
-
-                            //}
 
                             for (int i = 0; i < OutwithFlag.Tables[0].Rows.Count; i++)
                             {
@@ -1833,6 +1825,15 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         // Doing Final In Out Null if Invalid Data Entered from Manual
                         #endregion
 
+                        #region Process Final PrevDay In/Out                  
+                        ProcessFinalInOut(PreviousDay, PlantValue); // Final In Out Stamping on the Basis of Original Manual & Punch
+                        #endregion
+
+                        #region Exception Process Final PrevDay In/Out  (Wrong Entry Handling)                   
+                        ExceptionProcessFinalInOut(PreviousDay, PlantValue);
+                        // Doing Process Final In Out Null if Invalid Data Entered from OriginalManual
+                        #endregion
+
                         #region In Status Logic Previous Day
                         DataSet InStatusPrev;
                         InStatusCalculate(PreviousDay, out InStatusPrev, PlantValue);
@@ -1852,7 +1853,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             {
                                 // Logic on the basis of Shift Early & Late Margin
                                 string EmpId = clsWebLib.RetValidLen(InStatusPrev.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
-                                string InTime = clsWebLib.RetValidLen(InStatusPrev.Tables[0].Rows[i][@"InTime"]).ToString();
+                                string ProcessIntime = clsWebLib.RetValidLen(InStatusPrev.Tables[0].Rows[i][@"ProcessIntime"]).ToString();
                                 string ShiftInTime = clsWebLib.RetValidLen(InStatusPrev.Tables[0].Rows[i][@"ShiftInTime"]).ToString();
                                 double ShiftEarlyInMargin = Convert.ToDouble(clsWebLib.RetValidLen(InStatusPrev.Tables[0].Rows[i][@"ShiftEarlyInMargin"]).ToString());
                                 double ShiftLateInMargin = Convert.ToDouble(clsWebLib.RetValidLen(InStatusPrev.Tables[0].Rows[i][@"ShiftLateInMargin"]).ToString());
@@ -1863,15 +1864,15 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                                     DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                     dr.BeginEdit();
-                                    if (InTime != "" && ShiftInTime != "")
+                                    if (ProcessIntime != "" && ShiftInTime != "")
                                     {
                                         // Intime + Margin < ShiftInTime :- EarlyIn
-                                        if (Convert.ToDateTime(InTime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
+                                        if (Convert.ToDateTime(ProcessIntime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
                                         {
                                             dr["InStatus"] = "EI";
                                         }
                                         // Intime - Margin > ShiftInTime :- LateIn
-                                        else if (Convert.ToDateTime(InTime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
+                                        else if (Convert.ToDateTime(ProcessIntime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
                                         {
                                             dr["InStatus"] = "LI";
                                         }
@@ -2090,6 +2091,15 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         // Doing Final In Out Null if Invalid Data Entered from Manual
                         #endregion
 
+                        #region Process Final Day In/Out    
+                        ProcessFinalInOut(Date, PlantValue); // Final In Out Stamping on the Basis of OriginalManual & Punch
+                        #endregion
+
+                        #region Exception Process Final Day In/Out  (Wrong Entry Handling)                
+                        ExceptionProcessFinalInOut(Date, PlantValue);
+                        // Doing Process Final In Out Null if Invalid Data Entered from OriginalManual
+                        #endregion
+
                         #region In Status Logic
                         DataSet InStatus;
                         InStatusCalculate(Date, out InStatus, PlantValue);
@@ -2109,7 +2119,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             {
                                 // Logic on the basis of Shift Early & Late Margin
                                 string EmpId = clsWebLib.RetValidLen(InStatus.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
-                                string InTime = clsWebLib.RetValidLen(InStatus.Tables[0].Rows[i][@"InTime"]).ToString();
+                                string ProcessIntime = clsWebLib.RetValidLen(InStatus.Tables[0].Rows[i][@"ProcessIntime"]).ToString();
                                 string ShiftInTime = clsWebLib.RetValidLen(InStatus.Tables[0].Rows[i][@"ShiftInTime"]).ToString();
                                 double ShiftEarlyInMargin = Convert.ToDouble(clsWebLib.RetValidLen(InStatus.Tables[0].Rows[i][@"ShiftEarlyInMargin"]).ToString());
                                 double ShiftLateInMargin = Convert.ToDouble(clsWebLib.RetValidLen(InStatus.Tables[0].Rows[i][@"ShiftLateInMargin"]).ToString());
@@ -2120,15 +2130,15 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                                     DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                     dr.BeginEdit();
-                                    if (InTime != "" && ShiftInTime != "")
+                                    if (ProcessIntime != "" && ShiftInTime != "")
                                     {
                                         // Intime + Margin < ShiftInTime :- EarlyIn
-                                        if (Convert.ToDateTime(InTime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
+                                        if (Convert.ToDateTime(ProcessIntime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
                                         {
                                             dr["InStatus"] = "EI";
                                         }
                                         // Intime - Margin > ShiftInTime :- LateIn
-                                        else if (Convert.ToDateTime(InTime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
+                                        else if (Convert.ToDateTime(ProcessIntime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
                                         {
                                             dr["InStatus"] = "LI";
                                         }
@@ -2626,6 +2636,28 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
+        public void ProcessFinalInOut(string Date, string Plant)
+        {
+            try
+            {
+                var sql = @"update AttdnProcessData set ProcessIntime=ISNULL(OriginalManualInTime,PunchInTime),ProcessOuttime=
+				 ISNULL(OriginalManualOutTime,PunchOutTime),UpdatedBy='Schedule',DateUpdated=GETDATE()
+				 WHERE WorkDate='" + Date + @"' 
+				 and PlantID='" + Plant + "'";
+
+                ConnectionManager.DAL.ConManager objCone = null;
+                objCone = new ConnectionManager.DAL.ConManager("1");
+                objCone.OpenConnection("1");
+                objCone.BeginTransaction();
+
+                objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                objCone.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
         public void ExceptionFinalInOut(string Date, string Plant)
         {
             try
@@ -2635,6 +2667,29 @@ namespace Library.HumanResource.NewAttendanceProcess {
 				 WHERE WorkDate='"+Date+@"' 
 				 and PlantID='"+Plant+@"' and 
 				 ISNULL(ManualInTime,PunchInTime)> ISNULL(ManualOutTime,PunchOutTime)";
+
+                ConnectionManager.DAL.ConManager objCone = null;
+                objCone = new ConnectionManager.DAL.ConManager("1");
+                objCone.OpenConnection("1");
+                objCone.BeginTransaction();
+
+                objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                objCone.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public void ExceptionProcessFinalInOut(string Date, string Plant)
+        {
+            try
+            {
+                var sql = @"update AttdnProcessData	set ProcessIntime=null,ProcessOuttime=null				 
+				 from AttdnProcessData 
+				 WHERE WorkDate='" + Date + @"' 
+				 and PlantID='" + Plant + @"' and 
+				 ISNULL(OriginalManualInTime,PunchInTime) > ISNULL(OriginalManualOutTime,PunchOutTime)";
 
                 ConnectionManager.DAL.ConManager objCone = null;
                 objCone = new ConnectionManager.DAL.ConManager("1");
@@ -2714,7 +2769,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             try
             {
                 var sql = @"select distinct Format(WorkDate,'yyyy-MMM-dd')WorkDate,EmpSystemID,
-               Format(ap.InTime,'yyyy-MMM-dd HH:mm:ss')InTime,				
+               Format(ap.ProcessIntime,'yyyy-MMM-dd HH:mm:ss')ProcessIntime,				
 				Format(ap.ShiftInTime,'yyyy-MMM-dd HH:mm:ss')ShiftInTime,  
                 sd.ShiftEarlyInMargin,sd.ShiftLateInMargin                
                 from Attdnprocessdata  ap
@@ -2742,7 +2797,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             {
                 var sql = @"update AttdnProcessData set Duration=null,earlyin=null,latein=null,LateOut=null,
                 earlyout=null,OverStay=null,UnderStay=null,DurationStatus=null,EarlyLateIn=null,EarlyLateOut=null,
-                SandwichFlag=NULL,DayTypeOtApplicable=null,SandwichStatus=null,ProcessFinalDayStatus=null,
+                SandwichFlag=NULL,DayTypeOtApplicable=null,SandwichStatus=null,ProcessFinalDayStatus=null,DayStatus=null,
                 DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0,DayTypeGoodWorkApplicable=null,IsLock=0,LockedBy=null,
                 LockedDate=null ,IsOTComfirm=0,OTComfirmBy=null,DateOTComfirm=null,StandardOT=null,PlanOT=null,AppliedOTLimit=null,
                 AllowedOTLimit=null,TargetOT=null,AdditionalOT=null
@@ -2900,7 +2955,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                var sql = @"select distinct p.EmpSystemID,Result=dt.DayType, dt.AutoLock,format(p.WorkDate,'yyyy-MMM-dd')WorkDate, 
+                var sql = @"select distinct p.EmpSystemID,Result=dt.DayType,format(p.WorkDate,'yyyy-MMM-dd')WorkDate, 
                 dt.SandwichStatusFlag                 
 				from AttdnProcessData p
                         join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
@@ -3168,7 +3223,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
             }
 
         }
-
         public void CreditLimitOpeningSource(out DataSet ds, string Plant, string Date)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -4099,13 +4153,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
             try
             {
                 var sql = @"select Format(WorkDate,'yyyy-MMM-dd')WorkDate,EmpSystemID,
-                Format(ap.InTime,'yyyy-MMM-dd HH:mm:ss')InTime,				
+                Format(ap.ProcessIntime,'yyyy-MMM-dd HH:mm:ss')ProcessIntime,				
 				Format(ap.ShiftInTime,'yyyy-MMM-dd HH:mm:ss')ShiftInTime,  
                 sd.ShiftEarlyInMargin,sd.ShiftLateInMargin                
                 from Attdnprocessdata  ap
                 left join ShiftDefination sd on sd.SystemID=ap.ShiftSystemID
                 where ManualFlag=1
-				and ap.PlantID='"+Plant+ "' order by ap.WorkDate asc";
+				and ap.PlantID='" + Plant+ "' order by ap.WorkDate asc";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -4445,7 +4499,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 {                   
                     var sql = @"update AttdnProcessData set Duration=null,earlyin=null,latein=null,LateOut=null,
                     earlyout=null,OverStay=null,UnderStay=null,DurationStatus=null,EarlyLateIn=null,EarlyLateOut=null,
-                    DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0,IsLock=0,ProcessFinalDayStatus=null,LockedBy=null,
+                    DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0,IsLock=0,ProcessFinalDayStatus=null,DayStatus=null,
+                    LockedBy=null,
                     LockedDate=null,IsOTComfirm=0,OTComfirmBy=null,DateOTComfirm=null 
                     where PlantID='" + Plant+@"'
                     and ManualFlag=1 and RowId IN(" + empMaster + @")";
@@ -4462,7 +4517,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 {
                     var sql = @"update AttdnProcessData set Duration=null,earlyin=null,latein=null,LateOut=null,
                     earlyout=null,OverStay=null,UnderStay=null,DurationStatus=null,EarlyLateIn=null,EarlyLateOut=null,
-                    DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0,IsLock=0,ProcessFinalDayStatus=null,LockedBy=null,
+                    DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0,IsLock=0,ProcessFinalDayStatus=null,DayStatus=null,
+                    LockedBy=null,
                     LockedDate=null
                     where PlantID='" + Plant + @"'
                     and ManualFlag=1";
@@ -4605,7 +4661,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     {
                         // Logic on the basis of Shift Early & Late Margin
                         string EmpId = clsWebLib.RetValidLen(ManualInStatus.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
-                        string InTime = clsWebLib.RetValidLen(ManualInStatus.Tables[0].Rows[i][@"InTime"]).ToString();
+                        string ProcessIntime = clsWebLib.RetValidLen(ManualInStatus.Tables[0].Rows[i][@"ProcessIntime"]).ToString();
                         string ShiftInTime = clsWebLib.RetValidLen(ManualInStatus.Tables[0].Rows[i][@"ShiftInTime"]).ToString();
                         double ShiftEarlyInMargin = Convert.ToDouble(clsWebLib.RetValidLen(ManualInStatus.Tables[0].Rows[i][@"ShiftEarlyInMargin"]).ToString());
                         double ShiftLateInMargin = Convert.ToDouble(clsWebLib.RetValidLen(ManualInStatus.Tables[0].Rows[i][@"ShiftLateInMargin"]).ToString());
@@ -4616,15 +4672,15 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                             dr.BeginEdit();
-                            if (InTime != "" && ShiftInTime != "")
+                            if (ProcessIntime != "" && ShiftInTime != "")
                             {
                                 // Intime + Margin < ShiftInTime :- EarlyIn
-                                if (Convert.ToDateTime(InTime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
+                                if (Convert.ToDateTime(ProcessIntime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
                                 {
                                     dr["InStatus"] = "EI";
                                 }
                                 // Intime - Margin > ShiftInTime :- LateIn
-                                else if (Convert.ToDateTime(InTime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
+                                else if (Convert.ToDateTime(ProcessIntime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
                                 {
                                     dr["InStatus"] = "LI";
                                 }
@@ -6846,7 +6902,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
     }
 
-
     public static class ExceptionLogging
     {
 
@@ -6902,8 +6957,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
         }
 
     }
-
-
 
 }
  

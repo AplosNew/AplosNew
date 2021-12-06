@@ -807,6 +807,8 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
     $scope.Post = function () {
         
         if (baseService.isUndefinedOrNull($scope.modelNew.EntityId)) return ShowResult('Please Select Entity', 'failure');
+        if ($scope.modelNew.IsInvoice && $scope.modelNew.EmployeeId == null && $scope.modelNew.PaymentTermId == null)
+            return ShowResult("Please select Payment Term");
         if (!baseService.isUndefinedOrNull($scope.modelNew.EmployeeId)) {
             var data = $filter('filter')($scope.newList, { OtherName: 'Vendor' }, true);
             if (baseService.isUndefinedOrNull(data[0].GLGeneralInfoId)) return ShowResult('Employee GL not found', 'failure');
@@ -850,12 +852,12 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
             dataType: 'JSON'
         }).then(function (response) {
             if (response.data.Error === true) {
-                $scope.ispostDisable = true;
+                $scope.ispostDisable = false;
                 ShowResult(response.data.Message, 'failure');
             }
             else {
                 ShowResult(response.data.Message, 'success');
-
+                $scope.ispostDisable = true;
                 $scope.getNewDataList($scope.modelNew.Id);
             }
         }), function (response) {
