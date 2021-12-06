@@ -1853,7 +1853,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             {
                                 // Logic on the basis of Shift Early & Late Margin
                                 string EmpId = clsWebLib.RetValidLen(InStatusPrev.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
-                                string InTime = clsWebLib.RetValidLen(InStatusPrev.Tables[0].Rows[i][@"InTime"]).ToString();
+                                string ProcessIntime = clsWebLib.RetValidLen(InStatusPrev.Tables[0].Rows[i][@"ProcessIntime"]).ToString();
                                 string ShiftInTime = clsWebLib.RetValidLen(InStatusPrev.Tables[0].Rows[i][@"ShiftInTime"]).ToString();
                                 double ShiftEarlyInMargin = Convert.ToDouble(clsWebLib.RetValidLen(InStatusPrev.Tables[0].Rows[i][@"ShiftEarlyInMargin"]).ToString());
                                 double ShiftLateInMargin = Convert.ToDouble(clsWebLib.RetValidLen(InStatusPrev.Tables[0].Rows[i][@"ShiftLateInMargin"]).ToString());
@@ -1864,15 +1864,15 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                                     DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                     dr.BeginEdit();
-                                    if (InTime != "" && ShiftInTime != "")
+                                    if (ProcessIntime != "" && ShiftInTime != "")
                                     {
                                         // Intime + Margin < ShiftInTime :- EarlyIn
-                                        if (Convert.ToDateTime(InTime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
+                                        if (Convert.ToDateTime(ProcessIntime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
                                         {
                                             dr["InStatus"] = "EI";
                                         }
                                         // Intime - Margin > ShiftInTime :- LateIn
-                                        else if (Convert.ToDateTime(InTime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
+                                        else if (Convert.ToDateTime(ProcessIntime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
                                         {
                                             dr["InStatus"] = "LI";
                                         }
@@ -2119,7 +2119,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             {
                                 // Logic on the basis of Shift Early & Late Margin
                                 string EmpId = clsWebLib.RetValidLen(InStatus.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
-                                string InTime = clsWebLib.RetValidLen(InStatus.Tables[0].Rows[i][@"InTime"]).ToString();
+                                string ProcessIntime = clsWebLib.RetValidLen(InStatus.Tables[0].Rows[i][@"ProcessIntime"]).ToString();
                                 string ShiftInTime = clsWebLib.RetValidLen(InStatus.Tables[0].Rows[i][@"ShiftInTime"]).ToString();
                                 double ShiftEarlyInMargin = Convert.ToDouble(clsWebLib.RetValidLen(InStatus.Tables[0].Rows[i][@"ShiftEarlyInMargin"]).ToString());
                                 double ShiftLateInMargin = Convert.ToDouble(clsWebLib.RetValidLen(InStatus.Tables[0].Rows[i][@"ShiftLateInMargin"]).ToString());
@@ -2130,15 +2130,15 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                                     DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                     dr.BeginEdit();
-                                    if (InTime != "" && ShiftInTime != "")
+                                    if (ProcessIntime != "" && ShiftInTime != "")
                                     {
                                         // Intime + Margin < ShiftInTime :- EarlyIn
-                                        if (Convert.ToDateTime(InTime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
+                                        if (Convert.ToDateTime(ProcessIntime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
                                         {
                                             dr["InStatus"] = "EI";
                                         }
                                         // Intime - Margin > ShiftInTime :- LateIn
-                                        else if (Convert.ToDateTime(InTime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
+                                        else if (Convert.ToDateTime(ProcessIntime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
                                         {
                                             dr["InStatus"] = "LI";
                                         }
@@ -2769,7 +2769,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             try
             {
                 var sql = @"select distinct Format(WorkDate,'yyyy-MMM-dd')WorkDate,EmpSystemID,
-               Format(ap.InTime,'yyyy-MMM-dd HH:mm:ss')InTime,				
+               Format(ap.ProcessIntime,'yyyy-MMM-dd HH:mm:ss')ProcessIntime,				
 				Format(ap.ShiftInTime,'yyyy-MMM-dd HH:mm:ss')ShiftInTime,  
                 sd.ShiftEarlyInMargin,sd.ShiftLateInMargin                
                 from Attdnprocessdata  ap
@@ -4153,13 +4153,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
             try
             {
                 var sql = @"select Format(WorkDate,'yyyy-MMM-dd')WorkDate,EmpSystemID,
-                Format(ap.InTime,'yyyy-MMM-dd HH:mm:ss')InTime,				
+                Format(ap.ProcessIntime,'yyyy-MMM-dd HH:mm:ss')ProcessIntime,				
 				Format(ap.ShiftInTime,'yyyy-MMM-dd HH:mm:ss')ShiftInTime,  
                 sd.ShiftEarlyInMargin,sd.ShiftLateInMargin                
                 from Attdnprocessdata  ap
                 left join ShiftDefination sd on sd.SystemID=ap.ShiftSystemID
                 where ManualFlag=1
-				and ap.PlantID='"+Plant+ "' order by ap.WorkDate asc";
+				and ap.PlantID='" + Plant+ "' order by ap.WorkDate asc";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -4659,7 +4659,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     {
                         // Logic on the basis of Shift Early & Late Margin
                         string EmpId = clsWebLib.RetValidLen(ManualInStatus.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
-                        string InTime = clsWebLib.RetValidLen(ManualInStatus.Tables[0].Rows[i][@"InTime"]).ToString();
+                        string ProcessIntime = clsWebLib.RetValidLen(ManualInStatus.Tables[0].Rows[i][@"ProcessIntime"]).ToString();
                         string ShiftInTime = clsWebLib.RetValidLen(ManualInStatus.Tables[0].Rows[i][@"ShiftInTime"]).ToString();
                         double ShiftEarlyInMargin = Convert.ToDouble(clsWebLib.RetValidLen(ManualInStatus.Tables[0].Rows[i][@"ShiftEarlyInMargin"]).ToString());
                         double ShiftLateInMargin = Convert.ToDouble(clsWebLib.RetValidLen(ManualInStatus.Tables[0].Rows[i][@"ShiftLateInMargin"]).ToString());
@@ -4670,15 +4670,15 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                             dr.BeginEdit();
-                            if (InTime != "" && ShiftInTime != "")
+                            if (ProcessIntime != "" && ShiftInTime != "")
                             {
                                 // Intime + Margin < ShiftInTime :- EarlyIn
-                                if (Convert.ToDateTime(InTime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
+                                if (Convert.ToDateTime(ProcessIntime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
                                 {
                                     dr["InStatus"] = "EI";
                                 }
                                 // Intime - Margin > ShiftInTime :- LateIn
-                                else if (Convert.ToDateTime(InTime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
+                                else if (Convert.ToDateTime(ProcessIntime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
                                 {
                                     dr["InStatus"] = "LI";
                                 }
