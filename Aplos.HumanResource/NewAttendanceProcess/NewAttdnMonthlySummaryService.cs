@@ -1417,9 +1417,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                 from LeaveType l join AttdnProcessData p  
                 on l.Id=p.LTSystemID left join EmployeeInformation e on e.SystemId=p.EmpSystemID
                 where isnull(DayStatus,'')!='' and isnull(LeaveStatus,'')!='' 
-                "+empStr+@" and (E.DOS IS NULL  OR E.DOS >= '"+objm.FDate+@"') 
-				AND E.DOJ <= '"+objm.TDate+@"' and 
-                WorkDate between '"+objm.FDate+@"' and '"+objm.TDate+@"'
+                "+empStr+@" 
+                --and (E.DOS IS NULL  OR E.DOS >= '"+objm.FDate+@"') 
+				--AND E.DOJ <= '"+objm.TDate+@"' and 
+                AND WorkDate between '"+objm.FDate+@"' and '"+objm.TDate+@"'
                 group by p.EmpSystemID,p.LeaveStatus,p.LTSystemID";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
