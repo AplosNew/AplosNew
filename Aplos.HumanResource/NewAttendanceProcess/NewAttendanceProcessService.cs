@@ -24,6 +24,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             ConManager = new ConnectionManager.clsConnectionManager();
 
         }
+
         #region Shift Process
         public void ShiftProcess(string Date, string PlantValue)
         {
@@ -1584,13 +1585,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
-                            //foreach (DataRow drx in dsRef.Tables[0].Rows)
-                            //{
-                            //    drx.BeginEdit();
-                            //    drx["PunchOutTime"] = DBNull.Value;
-                            //    drx.EndEdit();
-
-                            //}
 
                             for (int i = 0; i < OutwithFlag.Tables[0].Rows.Count; i++)
                             {
@@ -1831,6 +1825,15 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         #region Exception Final PrevDay In/Out  (Wrong Entry Handling)                   
                         ExceptionFinalInOut(PreviousDay, PlantValue);
                         // Doing Final In Out Null if Invalid Data Entered from Manual
+                        #endregion
+
+                        #region Final PrevDay In/Out                  
+                        ProcessFinalInOut(PreviousDay, PlantValue); // Final In Out Stamping on the Basis of Original Manual & Punch
+                        #endregion
+
+                        #region Exception Final PrevDay In/Out  (Wrong Entry Handling)                   
+                        ExceptionProcessFinalInOut(PreviousDay, PlantValue);
+                        // Doing Process Final In Out Null if Invalid Data Entered from OriginalManual
                         #endregion
 
                         #region In Status Logic Previous Day
@@ -2088,6 +2091,15 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         #region Exception Final Day In/Out  (Wrong Entry Handling)                
                         ExceptionFinalInOut(Date, PlantValue);
                         // Doing Final In Out Null if Invalid Data Entered from Manual
+                        #endregion
+
+                        #region Final Day In/Out    
+                        ProcessFinalInOut(Date, PlantValue); // Final In Out Stamping on the Basis of OriginalManual & Punch
+                        #endregion
+
+                        #region Exception Process Final Day In/Out  (Wrong Entry Handling)                
+                        ExceptionProcessFinalInOut(Date, PlantValue);
+                        // Doing Process Final In Out Null if Invalid Data Entered from OriginalManual
                         #endregion
 
                         #region In Status Logic
@@ -2626,6 +2638,28 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
+        public void ProcessFinalInOut(string Date, string Plant)
+        {
+            try
+            {
+                var sql = @"update AttdnProcessData set ProcessIntime=ISNULL(OriginalManualInTime,PunchInTime),ProcessOuttime=
+				 ISNULL(OriginalManualOutTime,PunchOutTime),UpdatedBy='Schedule',DateUpdated=GETDATE()
+				 WHERE WorkDate='" + Date + @"' 
+				 and PlantID='" + Plant + "'";
+
+                ConnectionManager.DAL.ConManager objCone = null;
+                objCone = new ConnectionManager.DAL.ConManager("1");
+                objCone.OpenConnection("1");
+                objCone.BeginTransaction();
+
+                objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                objCone.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
         public void ExceptionFinalInOut(string Date, string Plant)
         {
             try
@@ -2635,6 +2669,29 @@ namespace Library.HumanResource.NewAttendanceProcess {
 				 WHERE WorkDate='"+Date+@"' 
 				 and PlantID='"+Plant+@"' and 
 				 ISNULL(ManualInTime,PunchInTime)> ISNULL(ManualOutTime,PunchOutTime)";
+
+                ConnectionManager.DAL.ConManager objCone = null;
+                objCone = new ConnectionManager.DAL.ConManager("1");
+                objCone.OpenConnection("1");
+                objCone.BeginTransaction();
+
+                objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                objCone.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public void ExceptionProcessFinalInOut(string Date, string Plant)
+        {
+            try
+            {
+                var sql = @"update AttdnProcessData	set ProcessIntime=null,ProcessOuttime=null				 
+				 from AttdnProcessData 
+				 WHERE WorkDate='" + Date + @"' 
+				 and PlantID='" + Plant + @"' and 
+				 ISNULL(OriginalManualInTime,PunchInTime) > ISNULL(OriginalManualOutTime,PunchOutTime)";
 
                 ConnectionManager.DAL.ConManager objCone = null;
                 objCone = new ConnectionManager.DAL.ConManager("1");
@@ -2900,7 +2957,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                var sql = @"select distinct p.EmpSystemID,Result=dt.DayType, dt.AutoLock,format(p.WorkDate,'yyyy-MMM-dd')WorkDate, 
+                var sql = @"select distinct p.EmpSystemID,Result=dt.DayType,format(p.WorkDate,'yyyy-MMM-dd')WorkDate, 
                 dt.SandwichStatusFlag                 
 				from AttdnProcessData p
                         join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
@@ -3168,7 +3225,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
             }
 
         }
-
         public void CreditLimitOpeningSource(out DataSet ds, string Plant, string Date)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -6846,7 +6902,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
     }
 
-
     public static class ExceptionLogging
     {
 
@@ -6902,8 +6957,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
         }
 
     }
-
-
 
 }
  
