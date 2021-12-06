@@ -20,15 +20,29 @@ namespace Library.OrderManagement.Production
         }
         #endregion Constructor
 
-        public IEnumerable<object> getPlants()
+        public IEnumerable<object> getCompany ()
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var str = "Select Id as Value , UserName as Text from Org.Plant where CompanyGroupId = '" + identity.CompanyGroupId + "'";
+                var str = "Select Id as Value , UserName as Text from Org.Company where CompanyGroupId = '" + identity.CompanyGroupId + "'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> getPlants (string cmp)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var str = "Select Id as Value , UserName as Text from Org.Plant where CompanyId = '"+cmp+"'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch(Exception ex)
             {
                 throw ex;
             }
@@ -82,8 +96,15 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-                var str = @"select * from dbo.WasteMaster wher Id = '" + Id + "' ";
-                return _sqlRepository.GetDataCollection(str);
+				var str = @"select wm.* , mb.Code as BudgetCode,  e.UserName as Entity, p.UserName as Plant , c.UserName as Company,c.id as CompanyId , p.Id as PlantId 
+                            from
+                            dbo.WasteMaster wm
+                            left join org.Entity e on e.Id = wm.EntityId
+                            left join org.Plant p on p.Id = e.PlantId
+                            left join org.Company c on c.Id = p.CompanyId
+                            left join mst.ManpowerBudget mb on mb.Id = wm.BudgetId
+                            where wm.Id = '" + Id + "' ";
+				return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)
             {
@@ -95,10 +116,18 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-                string sql = @"select top 100 * from (SELECT * FROM dbo.WasteMaster) AS TEMP WHERE " + strkey + " order by sequence";
-                return _sqlRepository.GetDataCollection(sql);
-            }
-            catch (Exception e)
+				string sql = @"select wm.* , p.Id as PlantId , c.Id as CompanyId , e.UserName as Entity ,p.UserName as Plant , c.UserName as Company , mb.Code as BudgetCode , uom.UserName as UOM 
+                                from dbo.WasteMaster wm
+                                left join org.Entity e on e.Id = wm.EntityId
+                                left join org.Plant p on p.Id = e.PlantId
+                                left join org.Company c on c.Id = p.CompanyId
+                                left join mst.ManpowerBudget mb on mb.Id = wm.BudgetId
+                                left join scs.UnitOfMeasurement uom on uom.Id = wm.UOMId 
+                                order by wm.Sequence asc";
+
+				return _sqlRepository.GetDataCollection(sql);
+			}
+			catch(Exception e)
             {
                 throw e;
             }
@@ -126,7 +155,7 @@ namespace Library.OrderManagement.Production
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), TableName, out _Id);
 
-                    data["Id"] = "TG" + _Id;
+                    data["Id"] = "WM" + _Id;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -339,4 +368,51 @@ namespace Library.OrderManagement.Production
       
     }
 
+
+
+    public class WasteTransactionReportService
+    {
+        SqlRepository _sqlRepository;
+
+        public WasteTransactionReportService()
+        {
+            _sqlRepository = new SqlRepository();
+        }
+
+        public IEnumerable<object> getEntity()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var str = "Select Id as Value , UserName as Text from Org.Entity where PlantId = '" + identity.PlantId + "'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> getData(string EntityId , string ToDate , string FromDate)
+        {
+            try
+            {
+                var str = @"Select wtd.Id as WTDId ,format(wtd.Date , 'dd-MMM-yyyy' ) as Dates, wm.ItemName,wm.Category,wm.SubCategory,wtd.Quantity , wtd.AddedBy
+                            from dbo.WasteTransactionData wtd
+                            left join dbo.WasteMaster wm on wm.Id = wtd.WasteMasterId
+                            where wtd.Date between '"+FromDate+"' and '"+ToDate+"' and wm.EntityId = '"+EntityId+"'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        //public IEnumerable<object> getClickedData(string Id)
+        //{
+
+        //}
+
+    }
 }

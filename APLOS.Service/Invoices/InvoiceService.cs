@@ -1516,7 +1516,9 @@ namespace Library.Service.Invoices
                                         InvoiceServiceMasterChargesId = null,
                                         VoucherDetailId = voucherDetailDr.Id,
                                         Amount = item.Amount,
-                                        InvoiceType = item.InvoiceType
+                                        InvoiceType = item.InvoiceType,
+                                        MasterOrderId = item.MasterOrderId,
+                                        ContractId = item.ContractId
                                     };
                                     AuditService.AddedLog(invoiceCharges);
                                     _invoiceDetailChargesRepository.Insert(invoiceCharges);
@@ -2257,7 +2259,9 @@ namespace Library.Service.Invoices
                                                 InvoiceServiceMasterChargesId = null,
                                                 VoucherDetailId = voucherDetailDr.Id,
                                                 Amount = item.Amount,
-                                                InvoiceType = item.InvoiceType
+                                                InvoiceType = item.InvoiceType,
+                                                MasterOrderId = item.MasterOrderId,
+                                                ContractId = item.ContractId
                                             };
                                             AuditService.AddedLog(invoiceCharges);
                                             _invoiceDetailChargesRepository.Insert(invoiceCharges);

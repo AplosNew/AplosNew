@@ -1662,7 +1662,7 @@ namespace Aplos.Areas.Costings.Controllers
                                 dr["GrossConsumption"] = item.GrossConsumption;
                                 dr["GrossAmount"] = item.GrossAmount;
                                 dr["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
-                                dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
+                                dr["ResponsiblePersoinId"] = item.ResponsiblePersonId;
 
                                 dr["MinimumOfQuantity"] = item.MinimumOfQuantity;
                                 dr["POIssueDeadLine"] = item.POIssueDeadLine;
@@ -1705,7 +1705,7 @@ namespace Aplos.Areas.Costings.Controllers
 
                                 dr["GrossAmount"] = item.GrossAmount;
                                 dr["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
-                                dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
+                                dr["ResponsiblePersoinId"] = item.ResponsiblePersonId;
 
                                 dr["MinimumOfQuantity"] = item.MinimumOfQuantity;
                                 dr["POIssueDeadLine"] = item.POIssueDeadLine;
@@ -1873,7 +1873,7 @@ namespace Aplos.Areas.Costings.Controllers
                                 dr["Id"] = _id;
                                 dr["CostingItemId"] = item.CostingItemId;
                                 dr["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
-                                dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
+                                dr["ResponsiblePersoinId"] = item.ResponsiblePersonId;
 
                                 dr["Value"] = item.Value;
                                 dr["Description"] = item.Description;
@@ -1894,7 +1894,7 @@ namespace Aplos.Areas.Costings.Controllers
 
                                 dr["CostingItemId"] = item.CostingItemId;
                                 dr["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
-                                dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
+                                dr["ResponsiblePersoinId"] = item.ResponsiblePersonId;
                                 dr["Value"] = item.Value;
                                 dr["Description"] = item.Description;
 
@@ -2030,7 +2030,7 @@ namespace Aplos.Areas.Costings.Controllers
                                 dr["Id"] = _id;
                                 dr["CostingItemId"] = item.CostingItemId;
                                 dr["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
-                                dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
+                                dr["ResponsiblePersoinId"] = item.ResponsiblePersonId;
 
                                 dr["ExecutionType"] = item.ExecutionType;
                                 dr["Value"] = item.Value;
@@ -2053,7 +2053,7 @@ namespace Aplos.Areas.Costings.Controllers
 
                                 dr["CostingItemId"] = item.CostingItemId;
                                 dr["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
-                                dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
+                                dr["ResponsiblePersoinId"] = item.ResponsiblePersonId;
 
                                 dr["ExecutionType"] = item.ExecutionType;
                                 dr["Value"] = item.Value;
@@ -2198,7 +2198,7 @@ namespace Aplos.Areas.Costings.Controllers
                                 dr["Id"] = _id;
                                 dr["CostingItemId"] = item.CostingItemId;
                                 dr["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
-                                dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
+                                dr["ResponsiblePersoinId"] = item.ResponsiblePersonId;
 
                                 dr["Type"] = item.Type;
                                 dr["Value"] = item.Value;
@@ -2221,7 +2221,7 @@ namespace Aplos.Areas.Costings.Controllers
 
                                 dr["CostingItemId"] = item.CostingItemId;
                                 dr["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
-                                dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
+                                dr["ResponsiblePersoinId"] = item.ResponsiblePersonId;
 
                                 dr["Type"] = item.Type;
                                 dr["Value"] = item.Value;
@@ -2377,7 +2377,7 @@ namespace Aplos.Areas.Costings.Controllers
                                 dr["Id"] = _id;
                                 dr["CostingItemId"] = item.CostingItemId;
                                 dr["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
-                                dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
+                                dr["ResponsiblePersoinId"] = item.ResponsiblePersonId;
 
                                 dr["Type"] = item.Type;
                                 dr["Value"] = item.Value;
@@ -2400,7 +2400,7 @@ namespace Aplos.Areas.Costings.Controllers
 
                                 dr["CostingItemId"] = item.CostingItemId;
                                 dr["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
-                                dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
+                                dr["ResponsiblePersoinId"] = item.ResponsiblePersonId;
 
                                 dr["Type"] = item.Type;
                                 dr["Value"] = item.Value;
@@ -2478,7 +2478,7 @@ namespace Aplos.Areas.Costings.Controllers
                                 dr["Id"] = _id;
                                 dr["CostingItemId"] = item.CostingItemId;
                                 dr["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
-                                dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
+                                dr["ResponsiblePersoinId"] = item.ResponsiblePersonId;
 
                                 dr["Type"] = item.Type;
                                 dr["Value"] = item.Value;
@@ -2501,7 +2501,7 @@ namespace Aplos.Areas.Costings.Controllers
 
                                 dr["CostingItemId"] = item.CostingItemId;
                                 dr["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
-                                dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
+                                dr["ResponsiblePersoinId"] = item.ResponsiblePersonId;
 
                                 dr["Type"] = item.Type;
                                 dr["Value"] = item.Value;

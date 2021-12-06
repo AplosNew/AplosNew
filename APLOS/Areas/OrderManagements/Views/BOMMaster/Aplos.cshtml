@@ -115,6 +115,7 @@
                     <script type="text/template" id="ShowActionButtonsBOM">
                         <button style="color: #f3f3ec;background-color: #1c1f32;" ng-disabled="data.IsConsumptionDetail==false" title="Consumption" class="btn"><i class="glyphicon glyphicon-list" ng-click="$parent.GetConsumption(this);" style="margin: -6px;"></i></button>
                         <button style="color: #f3f3ec;background-color: #1c1f32;" title="Edit" class="btn"><i class="glyphicon glyphicon-pencil" ng-click="$parent.GetRawMaterialDetail(this);" style="margin: -6px;"></i></button>
+                        <button style="color: #f3f3ec;background-color: #1c1f32;" title="Copy" class="btn"><i class="glyphicon glyphicon-copy" ng-click="$parent.GetRawMaterialDetail(this);" style="margin: -6px;"></i></button>
                         <button style="color: #f3f3ec;background-color: #1c1f32;" title="Detail" class="btn"><i class="glyphicon glyphicon-eye-open" ng-click="$parent.GetMatrixDetail(this);" style="margin: -6px;"></i></button>
                         <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeBoMDetail(this);" style="margin: -6px;"></i></button>
                     </script>
@@ -190,35 +191,38 @@
 <div class="aplos-grid-toggle">
     <div class="row">
         <div class="col-md-12">
-            <div class="content-container-fluid" style="color: black;">
-                <div style="color:black;" id="Grid" ej-grid e-datasource="masterDataList" e-recorddoubleclick="Get"
-                     e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
-                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
-                    <div e-columns>
-                        <div e-column e-template="#ShowActionButtonsBOMGrid" e-allowfiltering="false" e-headertext="Copy" e-width="16px"></div>
-
-                        <div e-column e-type="string" e-field="Id" e-headertext="Id" e-width="20"></div>
-                        <div e-column e-type="string" e-field="MaterialGroup" e-headertext="Material Group" e-width="50"></div>
-                        <div e-column e-type="string" e-field="FGMaterialMaster" e-headertext="FG Material" e-width="80"></div>
-                        <div e-column e-type="string" e-field="FGArticle" e-headertext="FG Article" e-width="80"></div>
-                        <div e-column e-type="string" e-field="ProductMasterName" e-headertext="Product Master" e-width="80"></div>
-                        <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="100"></div>
-                    </div>
+            <div style="color:black;" id="Grid" ej-grid e-datasource="masterDataList" e-recorddoubleclick="Get"
+                 e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
+                 e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                <div e-columns>
+                    <div e-column e-template="#ShowActionButtonsBOMGrid" e-allowfiltering="false" e-headertext="Copy" e-width="16px"></div>
+                    <div e-column e-type="string" e-field="Id" e-headertext="Id" e-width="20"></div>
+                    <div e-column e-type="string" e-field="MaterialGroup" e-headertext="Material Group" e-width="50"></div>
+                    <div e-column e-type="string" e-field="FGMaterialMaster" e-headertext="FG Material" e-width="80"></div>
+                    <div e-column e-type="string" e-field="FGArticle" e-headertext="FG Article" e-width="80"></div>
+                    <div e-column e-type="string" e-field="ProductMasterName" e-headertext="Product Master" e-width="80"></div>
+                    <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="100"></div>
+                    @*<div e-column e-field="AttachCount" e-headertext="Attached" e-width="30" e-textalign="center"></div>*@
+                    <div e-column e-template="#AttachCount" e-type="text" e-field="AttachCount" e-headertext="Attached" e-width="30" e-textalign="right" style="height: 20px;"></div>
                 </div>
-                <script type="text/ng-template" id="ShowActionButtonsBOMGrid">
-                    <div class="common-btn">
-                        <ul class="list-inline text-left small">
-                            <li>
-                                <button ng-click="@*$parent.openPopupAngular('confirmBOMCopy');*@$parent.SelectedBOMRowForCopy(data);" title="Copy" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
-                                    <i class="glyphicon glyphicon-copy" style="color:white;"></i>
-                                </button>
-                            </li>
-
-                        </ul>
-                    </div>
-                </script>
-
             </div>
+            <script type="text/ng-template" id="ShowActionButtonsBOMGrid">
+                <div class="common-btn">
+                    <ul class="list-inline text-left small">
+                        <li>
+                            <button ng-click="@*$parent.openPopupAngular('confirmBOMCopy');*@$parent.SelectedBOMRowForCopy(data);" title="Copy" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                <i class="glyphicon glyphicon-copy" style="color:white;"></i>
+                            </button>
+                        </li>
+
+                    </ul>
+                </div>
+            </script>
+            <script type="text/template" id="AttachCount">
+                <div class="text-left" style="width:100%">
+                    <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.GetAttahedBoMInfo(data);">{{data.AttachCount}}</a>
+                </div>
+            </script>
         </div>
     </div>
 </div>
@@ -624,9 +628,9 @@
                 <div class="tab-design" id="tab_show">
                     <div class="site-tab">
                         <ul class="nav nav-tabs" role="tablist">
-                            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1);GetFGCharacteristicsValueCbo(bomNew.FGMaterialMasterId,BOMSKUMapping.FGFirstCharacteristicsId,BOMSKUMapping.ValueAssignmentLevel);get1RMCharacteristicsList(bomDetailNew.RMMaterialMasterId)" href="" aria-controls="FG SKU1" role="tab" data-toggle="tab">{{BOMSKUMapping.FGName1}}</a></li>
-                            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);Get2FGCharacteristicsValueCbo(bomNew.FGMaterialMasterId,BOMSKUMapping.FGSecondCharacteristicsId,BOMSKUMapping.ValueAssignmentLevel2);get2RMCharacteristicsList(bomDetailNew.RMMaterialMasterId)" href="" aria-controls="FG SKU2" role="tab" data-toggle="tab">{{BOMSKUMapping.FGName2}}</a></li>
-                            <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);GetFGCharacteristicsValueCbo(bomNew.FGMaterialMasterId,BOMSKUMapping.FGThirdCharacteristicsId,BOMSKUMapping.ValueAssignmentLevel3);" href="" aria-controls="FG SKU3" role="tab" data-toggle="tab">{{BOMSKUMapping.FGName3}}</a></li>
+                            <li role="presentation" ng-class="{ active: isSet3(1) }"><a ng-click="setTab3(1);GetFGCharacteristicsValueCbo(bomNew.FGMaterialMasterId,BOMSKUMapping.FGFirstCharacteristicsId,BOMSKUMapping.ValueAssignmentLevel);get1RMCharacteristicsList(bomDetailNew.RMMaterialMasterId)" href="" aria-controls="FG SKU1" role="tab" data-toggle="tab">{{BOMSKUMapping.FGName1}}</a></li>
+                            <li role="presentation" ng-class="{ active: isSet3(2) }"><a ng-click="setTab3(2);Get2FGCharacteristicsValueCbo(bomNew.FGMaterialMasterId,BOMSKUMapping.FGSecondCharacteristicsId,BOMSKUMapping.ValueAssignmentLevel2);get2RMCharacteristicsList(bomDetailNew.RMMaterialMasterId)" href="" aria-controls="FG SKU2" role="tab" data-toggle="tab">{{BOMSKUMapping.FGName2}}</a></li>
+                            <li role="presentation" ng-class="{ active: isSet3(3) }"><a ng-click="setTab3(3);GetFGCharacteristicsValueCbo(bomNew.FGMaterialMasterId,BOMSKUMapping.FGThirdCharacteristicsId,BOMSKUMapping.ValueAssignmentLevel3);" href="" aria-controls="FG SKU3" role="tab" data-toggle="tab">{{BOMSKUMapping.FGName3}}</a></li>
                         </ul>
                     </div>
                     <div class="tab-content">
@@ -636,7 +640,7 @@
                                 <label class="col-sm-8 control-label" style="font-size: 11px;margin-top: -18px;font-style: italic;">RM Article: <span style="color:blue;font-size: 11px;font-style: italic;"> {{bomDetailNew.RMArticle}}</span></label>
                             </div>
                         </div>
-                        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet3(1), active: isSet3(1) }">
                             <div ng-form="SKU1Form" ng-scroll="auto">
                                 <div class="row form-elements form-horizontal">
                                     <div class="col-xs-12">
@@ -751,7 +755,7 @@
                                 </table>
                             </div>
                         </div>
-                        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet3(2), active: isSet3(2) }">
                             <div ng-form="SKU2Form" ng-scroll="auto">
                                 <div class="row form-elements form-horizontal">
                                     <div class="col-xs-12">
@@ -886,7 +890,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet3(3), active: isSet3(3) }">
 
                         </div>
                     </div>
@@ -1421,79 +1425,79 @@
 @Html.Partial("~/Areas/Materials/Views/Shared/_CharacteristicsValuePopUp.cshtml")
 
 @*<div class="modal fade site-modal in" id="VpartyPopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content" ng-form="partyForm">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">{{partyType}} List</h4>
-            </div>
-            <div class="modal-body">
-                <div class="row text-right">
-                    <div class="col-xs-12 col-sm-12 col-sm-12">
-                        <div class="search-form">
-                            <div class="row">
-                                <div class="col-xs-12 col-sm-3 col-md-3">
-                                    <div class="select-style">
-                                        <select ng-model="partyParameters.searchBy">
-                                            <option value="PartyCode">{{partyType}} Code</option>
-                                            <option value="UserName">{{partyType}} Name</option>
-                                            <option ng-repeat="option in partySearchByList" value="{{option.value}}">{{option.name}}</option>
-                                        </select>
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" ng-form="partyForm">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">{{partyType}} List</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row text-right">
+                        <div class="col-xs-12 col-sm-12 col-sm-12">
+                            <div class="search-form">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="select-style">
+                                            <select ng-model="partyParameters.searchBy">
+                                                <option value="PartyCode">{{partyType}} Code</option>
+                                                <option value="UserName">{{partyType}} Name</option>
+                                                <option ng-repeat="option in partySearchByList" value="{{option.value}}">{{option.name}}</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-xs-12 col-sm-7 col-md-7">
-                                    <input type="text" class="form-control" placeholder="Search" ng-model="partyParameters.search" ng-enter="getPartyList()">
-                                </div>
-                                <div class="col-xs-12 col-sm-2 col-md-2">
-                                    <button type="button" ng-click="getPartyList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    <div class="col-xs-12 col-sm-7 col-md-7">
+                                        <input type="text" class="form-control" placeholder="Search" ng-model="partyParameters.search" ng-enter="getPartyList()">
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <button type="button" ng-click="getPartyList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>{{partyType}}</th>
+                                    <th>Account Group</th>
+                                    <th ng-show="partyGLType!=null">GL</th>
+                                    <th ng-show="partyGLType!=null && companyConfig.IsVoucherFromBudget">Budget</th>
+                                    <th ng-show="partyGLType!=null && companyConfig.IsVoucherFromBudget">Activity</th>
+                                    <th>Currency</th>
+                                    <th>Country</th>
+                                    <th>State</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr dir-paginate="x in partyList |itemsPerPage:partyParameters.pageSize" pagination-id="metaData.name + 'partyList'" total-items="partyParameters.total_count"
+                                    ng-click="selectPartyPopUpRow($index, x.Id);" ng-class="{selected : x.Id == partySelected}" ng-dblclick="closeVendorPartyPopUp()">
+                                    <td>{{x.Code}} - {{x.UserName}}</td>
+                                    <td>{{x.PartyAccountGroupName}}</td>
+                                    <td ng-show="partyGLType!=null && partyGLType=='Reconciliation'">{{x.ReconciliationGLCode}} - {{x.ReconciliationGLName}}</td>
+                                    <td ng-show="partyGLType!=null && partyGLType=='Reconciliation' && companyConfig.IsVoucherFromBudget">{{x.ReconciliationBudgetName}}</td>
+                                    <td ng-show="partyGLType!=null && partyGLType=='Reconciliation' && companyConfig.IsVoucherFromBudget">{{x.ReconciliationActivityName}}</td>
+                                    <td ng-show="partyGLType!=null && partyGLType=='DownPayment'">{{x.DownPaymentGLCode}} - {{x.DownPaymentGLName}}</td>
+                                    <td ng-show="partyGLType!=null && partyGLType=='DownPayment' && companyConfig.IsVoucherFromBudget">{{x.DownPaymentBudgetName}}</td>
+                                    <td ng-show="partyGLType!=null && partyGLType=='DownPayment' && companyConfig.IsVoucherFromBudget">{{x.DownPaymentActivityName}}</td>
+                                    <td ng-show="partyGLType!=null && partyGLType=='Suspense'">{{x.SuspenseGLCode}} - {{x.SuspenseGLName}}</td>
+                                    <td ng-show="partyGLType!=null && partyGLType=='Suspense' && companyConfig.IsVoucherFromBudget">{{x.SuspenseBudgetName}}</td>
+                                    <td ng-show="partyGLType!=null && partyGLType=='Suspense' && companyConfig.IsVoucherFromBudget">{{x.SuspenseActivityName}}</td>
+                                    <td>{{x.CurrencyCode? x.CurrencyCode : '-'}}</td>
+                                    <td>{{x.CountryName}}</td>
+                                    <td>{{x.StateCode}} - {{x.StateName}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <dir-pagination-controls max-size="5" pagination-id="metaData.name + 'partyList'" direction-links="true" boundary-links="true" on-page-change="getPartyList(newPageNumber)"></dir-pagination-controls>
+                    </div>
                 </div>
-                <div class="table-responsive modal-table">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>{{partyType}}</th>
-                                <th>Account Group</th>
-                                <th ng-show="partyGLType!=null">GL</th>
-                                <th ng-show="partyGLType!=null && companyConfig.IsVoucherFromBudget">Budget</th>
-                                <th ng-show="partyGLType!=null && companyConfig.IsVoucherFromBudget">Activity</th>
-                                <th>Currency</th>
-                                <th>Country</th>
-                                <th>State</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr dir-paginate="x in partyList |itemsPerPage:partyParameters.pageSize" pagination-id="metaData.name + 'partyList'" total-items="partyParameters.total_count"
-                                ng-click="selectPartyPopUpRow($index, x.Id);" ng-class="{selected : x.Id == partySelected}" ng-dblclick="closeVendorPartyPopUp()">
-                                <td>{{x.Code}} - {{x.UserName}}</td>
-                                <td>{{x.PartyAccountGroupName}}</td>
-                                <td ng-show="partyGLType!=null && partyGLType=='Reconciliation'">{{x.ReconciliationGLCode}} - {{x.ReconciliationGLName}}</td>
-                                <td ng-show="partyGLType!=null && partyGLType=='Reconciliation' && companyConfig.IsVoucherFromBudget">{{x.ReconciliationBudgetName}}</td>
-                                <td ng-show="partyGLType!=null && partyGLType=='Reconciliation' && companyConfig.IsVoucherFromBudget">{{x.ReconciliationActivityName}}</td>
-                                <td ng-show="partyGLType!=null && partyGLType=='DownPayment'">{{x.DownPaymentGLCode}} - {{x.DownPaymentGLName}}</td>
-                                <td ng-show="partyGLType!=null && partyGLType=='DownPayment' && companyConfig.IsVoucherFromBudget">{{x.DownPaymentBudgetName}}</td>
-                                <td ng-show="partyGLType!=null && partyGLType=='DownPayment' && companyConfig.IsVoucherFromBudget">{{x.DownPaymentActivityName}}</td>
-                                <td ng-show="partyGLType!=null && partyGLType=='Suspense'">{{x.SuspenseGLCode}} - {{x.SuspenseGLName}}</td>
-                                <td ng-show="partyGLType!=null && partyGLType=='Suspense' && companyConfig.IsVoucherFromBudget">{{x.SuspenseBudgetName}}</td>
-                                <td ng-show="partyGLType!=null && partyGLType=='Suspense' && companyConfig.IsVoucherFromBudget">{{x.SuspenseActivityName}}</td>
-                                <td>{{x.CurrencyCode? x.CurrencyCode : '-'}}</td>
-                                <td>{{x.CountryName}}</td>
-                                <td>{{x.StateCode}} - {{x.StateName}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <dir-pagination-controls max-size="5" pagination-id="metaData.name + 'partyList'" direction-links="true" boundary-links="true" on-page-change="getPartyList(newPageNumber)"></dir-pagination-controls>
+                <div class="modal-footer common-btn">
+                    <button type="button" class="btn btn-default" ng-click="closeVPartyPopUp()">Select</button>
                 </div>
-            </div>
-            <div class="modal-footer common-btn">
-                <button type="button" class="btn btn-default" ng-click="closeVPartyPopUp()">Select</button>
             </div>
         </div>
-    </div>
-</div>*@
+    </div>*@
 
 @Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
 
@@ -1727,6 +1731,25 @@
                             <li><button ng-click="clearMasterCharacteristicsValue();" class="btn" tabindex="39"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                             <li><button ng-click="CloseCharacteristicsValuePopUp();" class="btn" tabindex="40"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
                         </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal site-modal in" id="TaggedDetailPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Detail list<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body text-center">
+                <div style="color:black;" id="POItemGrid" ej-grid e-datasource="AttahedBoMIList" e-allowscrolling="true" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                     e-allowResizing="true" e-allowselection="true" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-field="BOMMasterId" e-headertext="BOM Id" e-width="80"></div>
+                        <div e-column e-field="MasterOrderId" e-headertext="MasterOrderId" e-width="80"></div>
+                        <div e-column e-field="MasterOrderItemId" e-headertext="MasterOrderItemId" e-width="80"></div>
                     </div>
                 </div>
 

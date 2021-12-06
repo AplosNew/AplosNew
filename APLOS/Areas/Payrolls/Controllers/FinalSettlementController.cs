@@ -250,6 +250,10 @@ namespace Aplos.Areas.Payrolls.Controllers
             //clsLeaveEncashment olv = new clsLeaveEncashment();
             try
             {
+                if (Convert.ToDateTime(FinalSettlementData.EmpDOS) < Convert.ToDateTime(FinalSettlementData.FinalSettlementDate))
+                {
+                    throw new Exception("Final Settlement Date cannot be less thab DOS");
+                }
 
                 if (EarningData != null)
                 {

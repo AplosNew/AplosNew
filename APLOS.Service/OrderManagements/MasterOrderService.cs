@@ -316,6 +316,7 @@ namespace Library.Service.OrderManagements
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
             }
         }
+       
         //public IEnumerable<object> GetDepartmentPersonList(string plantId, string partyAccountGroupId, string partyId, bool flag)
         //{
         //    try
@@ -733,7 +734,7 @@ namespace Library.Service.OrderManagements
 
         public IEnumerable<object> GetCharacteristicsByMaterialMasterId(string materialMasterId)
         {
-            var _sql = @"SELECT NULL AS Id, MMC.Id AS MaterialMasterCharacteristicsId, MMC.CharacteristicsId AS [Value], c.UserName AS [Text], MMC.IsFreeField
+            var _sql = @"SELECT distinct  MMC.CharacteristicsId AS [Value],NULL AS Id, MMC.Id AS MaterialMasterCharacteristicsId, c.UserName AS [Text], MMC.IsFreeField
 	                            , MMC.IsPreDefinedField, MMC.IsMandatory, C.ValueAssignmentLevel, MMC.[Sequence]
 	                            , CharacteristicsValueId = CASE WHEN (C.ValueAssignmentLevel='General' AND CV.IsDefault=1) THEN CV.Id ELSE NULL END
 

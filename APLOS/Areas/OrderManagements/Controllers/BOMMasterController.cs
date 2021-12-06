@@ -53,9 +53,24 @@ namespace Aplos.Areas.OrderManagements.Controllers
         #region -- Operations
 
         [HttpGet, Authorize]
+        public ActionResult GetAttahedBoMInfo(string Id)
+        {
+            try
+            {
+                string sql = @"Select * from BOMMasterAttachmentWithItem  where BOMMasterId='"+ Id + "'";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetBOMSKUMappingDataForValidation(string BOMMasterId)
         {
-            string sql = @"SELECT * FROM dbo.BOMSKUMapping WHERE BOMDetailId IN (SELECT Id FROM dbo.BOMDetail WHERE BOMMasterId='"+ BOMMasterId + "' AND IsSKUCommon=0)";
+            string sql = @"SELECT * FROM dbo.BOMSKUMapping WHERE BOMDetailId IN (SELECT Id FROM dbo.BOMDetail WHERE BOMMasterId='" + BOMMasterId + "' AND IsSKUCommon=0)";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
@@ -63,6 +78,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         public ActionResult GetList()
         {
             var sql = @"SELECT MM.UserName FGMaterialMaster, MMA.StandardName FGArticle,A.*,MGM.UserName MaterialGroup,MM.WithSKU, PM.UserName AS ProductMasterName
+                        ,AttachCount=(Select Count (Id) From BOMMasterAttachmentWithItem Where BOMMasterId=A.Id)		
                         FROM [dbo].[BOMMaster] A
                         LEFT JOIN MST.MaterialMaster MM ON MM.Id=A.FGMaterialMasterId
                         LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=A.FGArticleId
@@ -256,11 +272,11 @@ namespace Aplos.Areas.OrderManagements.Controllers
             try
             {
 
-                 bomDetailIds = GetBomDetailIds(id);
+                bomDetailIds = GetBomDetailIds(id);
 
                 if (!string.IsNullOrEmpty(bomDetailIds))
                 {
-                    detailConsumptionIds = GetDetailConsumptionIds(bomDetailIds); 
+                    detailConsumptionIds = GetDetailConsumptionIds(bomDetailIds);
                 }
 
                 strDCSSQL = "DELETE FROM [dbo].[DetailConsumptionSKUMapping] Where DetailConsumptionId IN (" + detailConsumptionIds + ")";
@@ -313,7 +329,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             DeleteBomDetailData(id);
             return Json(new { Message = AplosMessage.Deleted });
         }
-              
+
 
         public void DeleteBomDetailData(string id)
         {
@@ -556,14 +572,14 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpPost, Authorize]
-        public JsonResult CreateDetail(Dictionary<string, object> data,string Destination)
+        public JsonResult CreateDetail(Dictionary<string, object> data, string Destination)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-               
+
                 DataRow dr;
-               
+
                 DataSet dataSet = CheckCreateDetail(data);
                 if (dataSet.Tables[0].Rows.Count > 0)
                 {
@@ -581,7 +597,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     {
                         con.OpenDataSetThroughAdapter("SELECT * FROM dbo.BOMSKUMapping Where BOMDetailId='" + data["Id"] + "'", out dsBOMSKUMapping, false, "1");
 
-                        if (dsBOMSKUMapping.Tables[0].Rows.Count>0)
+                        if (dsBOMSKUMapping.Tables[0].Rows.Count > 0)
                         {
                             DeleteMatrixDataByDetailId(data["Id"].ToString());
                         }
@@ -734,7 +750,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             parameters = new GridParameter
             {
                 ExportType = "DATASET",
-                CmdText = @"SELECT * FROM dbo.BOMSKUMapping Where  Id<>'" + data["Id"] + "' AND BOMDetailId='" + data["BOMDetailId"] + "' AND ISNULL(FGSecondCharacteristicsId,'')='" + data["FGSecondCharacteristicsId"] + "' AND ISNULL(FGSecondCharacteristicsValueId,'')='" + data["FGSecondCharacteristicsValueId"] +"'"
+                CmdText = @"SELECT * FROM dbo.BOMSKUMapping Where  Id<>'" + data["Id"] + "' AND BOMDetailId='" + data["BOMDetailId"] + "' AND ISNULL(FGSecondCharacteristicsId,'')='" + data["FGSecondCharacteristicsId"] + "' AND ISNULL(FGSecondCharacteristicsValueId,'')='" + data["FGSecondCharacteristicsValueId"] + "'"
             };
             return _sqlRepository.GetGridData(parameters).Source;
         }
@@ -1346,7 +1362,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
         #endregion DetailConsumptionMatrix
 
-        
+
         [HttpPost]
         public JsonResult CreateCharacteristicsValue(CharacteristicsValue entity, string MaterialMasterId)
         {
@@ -1355,8 +1371,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 entity.CompanyGroupId = identity.CompanyGroupId;
                 _characteristicsValueService.InsertBOMSKU(entity);
-                
-                return Json(new { CharacteristicsValue=entity, Message = AplosMessage.Insert });
+
+                return Json(new { CharacteristicsValue = entity, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
             {
@@ -1770,7 +1786,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         #endregion Audit Properties
 
         #region Navigation Properties
-      
+
 
         #endregion Navigation Properties
     }
