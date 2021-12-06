@@ -189,7 +189,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                     url: $scope.path + "GetPartyPaymentStatusInvoiceList",
                     data: {
                         fromDate: "",
-                        toDate: $scope.material.VendorToDate
+                        toDate: ""
                     },
                     dataType: 'JSON'
 
@@ -4639,31 +4639,31 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     //**********************#endregion Asset WIP Status **************************
 
     $scope.InvoiceWithOutGRNList = [];
-    $scope.GetNonRegisterAssetData = function () {
-        try {
-            $http({
-                method: 'POST',
-                url: $scope.path + "GetInvoiceWithOutGRNDataList",
-                data: { /*FromDate: $scope.reportParameters.FromDate,*/ ToDate: $scope.report.ToDate },
-                dataType: 'JSON'
+    //$scope.GetNonRegisterAssetData = function () {
+    //    try {
+    //        $http({
+    //            method: 'POST',
+    //            url: $scope.path + "GetInvoiceWithOutGRNDataList",
+    //            data: { /*FromDate: $scope.reportParameters.FromDate,*/ ToDate: $scope.report.ToDate },
+    //            dataType: 'JSON'
 
-            }).then(function successCallback(response) {
-                $scope.InvoiceWithOutGRNList = response.data.DATA;
+    //        }).then(function successCallback(response) {
+    //            $scope.InvoiceWithOutGRNList = response.data.DATA;
 
-            }),
-                function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-        }
+    //        }),
+    //            function errorCallBack(response) {
+    //                ShowResult(response.data.Message, 'failure');
+    //            }
+    //    }
 
-        catch (e) {
+    //    catch (e) {
 
-        }
-    }
+    //    }
+    //}
 
 
     $scope.NonRegisterAssetList = [];
-    $scope.GetAssetWIPstatusList = function () {
+    $scope.GetNonRegisterAssetData = function () {
         $http({
             method: "GET",
             dataType: 'JSON',
@@ -4673,7 +4673,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             $scope.NonRegisterAssetList = response.data.DATA
         });
     }
-    $scope.GetAssetWIPstatusList();
+    $scope.GetNonRegisterAssetData();
 
 
     $scope.TotalNonRegisterAsset = [{
