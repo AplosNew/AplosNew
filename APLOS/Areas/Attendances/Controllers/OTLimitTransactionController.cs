@@ -299,15 +299,15 @@ namespace Aplos.Areas.Attendances.Controllers
             }
 
 
-            //rollback all riginal manual IN OUT data to manual IN/OUT columns
-            RollBackAllInOutData(FromDate, ToDate, EmpSytemId);
+            ////rollback all riginal manual IN OUT data to manual IN/OUT columns
+            //RollBackAllInOutData(FromDate, ToDate, EmpSytemId);
 
 
-            //Process data to generate final IN/OUT data (based on punch and manual data)
-            FinalInOut(FromDate, ToDate, EmpSytemId);
+            ////Process data to generate final IN/OUT data (based on punch and manual data)
+            //FinalInOut(FromDate, ToDate, EmpSytemId);
 
-            //process ProcessedOT based on Final IN/OUT
-            ProcessForProcessedOT(EmpSytemId);
+            ////process ProcessedOT based on Final IN/OUT
+            //ProcessForProcessedOT(EmpSytemId);
 
             //get OT data after rollback and IN/OUT Process
             DataSet dsOTDetails = null;
