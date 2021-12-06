@@ -1100,8 +1100,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 (DATEDIFF(DAY, (Select top 1 ed.EffectiveDate from
                 dbo.WeekOffHeader h 
                 left join dbo.WeekOffEffectiveDate ed on ed.WOHeaderId = h.Id               
-                --left join dbo.EmployeeWeeklyOff ed on ed.WOHeaderId = h.Id
-                --and ed.EmpSystemId = e.SystemId
                 where ed.EffectiveDate <= '" + Date + @"' and ed.WOHeaderId =  
 				(Select top 1 ex.WOHeaderId from dbo.EmployeeWeeklyOff ex
                 where EmpSystemId = e.SystemId and ex.EffectiveDate<='" + Date + @"'
@@ -1827,11 +1825,11 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         // Doing Final In Out Null if Invalid Data Entered from Manual
                         #endregion
 
-                        #region Final PrevDay In/Out                  
+                        #region Process Final PrevDay In/Out                  
                         ProcessFinalInOut(PreviousDay, PlantValue); // Final In Out Stamping on the Basis of Original Manual & Punch
                         #endregion
 
-                        #region Exception Final PrevDay In/Out  (Wrong Entry Handling)                   
+                        #region Exception Process Final PrevDay In/Out  (Wrong Entry Handling)                   
                         ExceptionProcessFinalInOut(PreviousDay, PlantValue);
                         // Doing Process Final In Out Null if Invalid Data Entered from OriginalManual
                         #endregion
@@ -2093,7 +2091,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         // Doing Final In Out Null if Invalid Data Entered from Manual
                         #endregion
 
-                        #region Final Day In/Out    
+                        #region Process Final Day In/Out    
                         ProcessFinalInOut(Date, PlantValue); // Final In Out Stamping on the Basis of OriginalManual & Punch
                         #endregion
 
