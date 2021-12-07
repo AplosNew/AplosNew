@@ -161,7 +161,7 @@ namespace Library.MaterialManagement.Inventory
                     if (dsDetail.Tables[0].Rows[0]["Id"].ToString() != TitleId)
                     {
                         string strSQLDetail = "DELETE FROM TermsAndConditionsPODetails Where TermsAndConditionsPOChildId IN(SELECT ID FROM TermsAndConditionsPOChild WHERE POId='" + POId + "')";
-                        string strSQLChild = "DELETE FROM TermsAndConditionsPOChild WHERE POId='" + POId + "')";
+                        string strSQLChild = "DELETE FROM TermsAndConditionsPOChild WHERE POId='" + POId + "'";
                         con = new ConnectionManager.DAL.ConManager("1");
                         con.OpenConnection("1");
                         con.BeginTransaction();
@@ -266,6 +266,7 @@ namespace Library.MaterialManagement.Inventory
 
                 ResetCurrencyRate(entity);
                 base.Update(entity);
+                 SaveTermsData(entity.TermsAndConditionsId, entity.Id);
             }
             catch (Exception ex)
             {

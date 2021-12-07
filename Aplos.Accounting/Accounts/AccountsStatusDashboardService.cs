@@ -21324,8 +21324,6 @@ group by Id) O60 ON O60.Id=IV.Id
 
                 var sql = @"select IR.Id InventoryReceiveId
                     --,IR.CurrencyId
-                    ,C.Code Currency
-					
                     ,IR.PartyId
 					,p.UserName Vendor
 					,IR.PartyType
@@ -21357,6 +21355,8 @@ group by Id) O60 ON O60.Id=IV.Id
 					,cc.Code ComCurrency
 					--,IRD.BaseQty
 				--	,SUM(IRD.BooksCurrencyBaseRate)BooksCurrencyBaseRate
+					,C.Code Currency
+				    ,IR.ToCurrencyRate
                     ,SUM(IRD.TotalMaterialBooksCurrencyAmount)TotalMaterialBooksCurrencyAmount
              
 				
@@ -21478,8 +21478,7 @@ group by Id) O60 ON O60.Id=IV.Id
 			--							left join TRN.POGGRNMap pg on pg.PoId= po.Id
 			--                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
-
-
+				,po.PurchaseLCId
 
 				   from trn.InventoryReceive IR  
                     left join trn.InventoryReceiveDetail IRD ON IRD.InventoryReceiveId = IR.Id
@@ -21523,6 +21522,8 @@ group by Id) O60 ON O60.Id=IV.Id
                    -- ,IRD.InventoryMaterialId
 					,IRD.IsAsset
 					,p.UserName
+					,IR.ToCurrencyRate
+					,po.PurchaseLCId
                    --  ,po.Id  
 					-- ,po.DocRefNo 
 					-- ,po.DocDate 
