@@ -3312,7 +3312,7 @@ namespace Library.MaterialManagement.Inventory
 									 Left join trn.PurchaseReturn II ON II.Id=IH.PurchaseReturnId
 									 Left join trn.InventoryReceiveDetail IRD ON IRD.Id=IH.InventoryReceiveDetailId
 									 	WHERE convert(Date,II.[POReturnDate]) <= CAST('" + issueDate + @"' AS DATE) AND II.PlantId='" + entity.PlantId + @"' and IH.InventoryMaterialId=1900 
-										GROUP BY IH.InventoryMaterialId,II.MaterialStorageId
+										GROUP BY IH.InventoryMaterialId,II.MaterialStorageId 
 								 )PurchaseReturnData ON PurchaseReturnData.InventoryMaterialId=IM.Id and PurchaseReturnData.MaterialStorageId=IRD.MaterialStorageId
 					Left join (select ISD.InventoryMaterialId,ins.MaterialStorageId,ISH.InventoryReceiveDetailId,sum(ISH.Qty) InvSalesQty,sum(ISH.BaseRate) Rate, (sum(ISH.Qty)*sum(ISH.BaseRate)) InventorySalesAmount 
 					                 from [TRN].[InventorySalesHistory] ISH
