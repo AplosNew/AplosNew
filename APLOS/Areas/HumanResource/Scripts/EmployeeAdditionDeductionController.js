@@ -358,6 +358,7 @@ function EmployeeAdditionDeductionController(commonMessage, $scope, $rootScope, 
             PlantId: null,
             EmpTypeId: null,
             DesignationId: null,
+            EmployeeCodeTypeId: null,
         };
         $scope.periodList = [];
         tabShow();
@@ -454,6 +455,7 @@ function EmployeeAdditionDeductionController(commonMessage, $scope, $rootScope, 
     //Filling of the Plant And Employee Type and Designation List
     $scope.PlantList = [];
     $scope.EmpTypeList = [];
+    $scope.EmpCodeTypeList = [];
     $scope.DesignationList = [];
     $scope.EmploymentTypeList = [];
     //Filling of the Plant And Employee Type List
@@ -466,6 +468,15 @@ function EmployeeAdditionDeductionController(commonMessage, $scope, $rootScope, 
         }).then(function success(response) {
             $scope.PlantList = [];
             $scope.PlantList = response.data;
+        })
+
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getEmpCodeType',
+
+        }).then(function success(response) {
+            $scope.EmpCodeTypeList = [];
+            $scope.EmpCodeTypeList = response.data;
         })
 
         $http({
@@ -509,6 +520,7 @@ function EmployeeAdditionDeductionController(commonMessage, $scope, $rootScope, 
         EmpTypeId: null,
         DesignationId: null,
         EmploymentType: null,
+        EmployeeCodeTypeId: null,
     };
     $scope.childDataList = [];
     //Saving the Period  Child
@@ -588,6 +600,12 @@ function EmployeeAdditionDeductionController(commonMessage, $scope, $rootScope, 
     // Saving the Plant Emp Child
     $scope.saveChild = function()
     {
+
+        if (angular.isUndefinedOrNull($scope.Child.EmployeeCodeTypeId)) {
+            ShowResult('Please Enter the Employee Code Type!!', 'failure');
+            throw ('Invalid Request!!');
+        }
+
         $scope.Child.MasterId = $scope.Master.Id;
         $http({
             method: 'POST',

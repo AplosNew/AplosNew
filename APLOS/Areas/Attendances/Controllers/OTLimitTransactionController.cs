@@ -1218,8 +1218,8 @@ namespace Aplos.Areas.Attendances.Controllers
                             drAttProc["OTComfirmBy"] = bplib.clsWebLib.RetValidLen(identity.Name);
                             drAttProc["DateOTComfirm"] = DateTime.Now;
 
-                            drAttProc["OriginalManualInTime"] = bplib.clsWebLib.RetValidLen(OTLimitTransactionData[i].ManualInTime);
-                            drAttProc["OriginalManualOutTime"] = bplib.clsWebLib.RetValidLen(OTLimitTransactionData[i].ManualOutTime);
+                            //drAttProc["OriginalManualInTime"] = bplib.clsWebLib.RetValidLen(OTLimitTransactionData[i].ManualInTime);
+                            //drAttProc["OriginalManualOutTime"] = bplib.clsWebLib.RetValidLen(OTLimitTransactionData[i].ManualOutTime);
 
                             drAttProc.EndEdit();
                         }
