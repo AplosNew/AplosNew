@@ -3839,6 +3839,7 @@ left outer join HKP.TermsAndConditions TCM on TCM.Id=TC.TermsAndConditionsMaster
 where TC.TermsAndConditionsMasterId='" + TermsAndConditionMasterId + @"'";
 
 			return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+
 		}
 
 		[HttpPost, Authorize]
