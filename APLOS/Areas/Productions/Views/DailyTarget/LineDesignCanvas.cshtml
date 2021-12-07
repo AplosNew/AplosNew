@@ -112,12 +112,22 @@
 
                 </div>
                 <div class="row">
-                    <div class="col-xs-12" style="font-size:6pt;color:{{this.items[0].fontColor}};">
+                    <div class="col-xs-12 col-sm-7 col-md-7" style="font-size:6pt;color:{{this.items[0].fontColor}};">
                         <span class="glyphicon glyphicon-wrench"></span>    <span title="{{this.items[0].addInfo.OperationVariationDesc?this.items[0].addInfo.OperationVariationDesc:'[select operation]'}}">
                             {{this.items[0].addInfo.OperationVariationDesc?this.items[0].addInfo.OperationVariationDesc:'[select operation]'}}
                         </span>
                     </div>
-
+                    <div class="col-xs-12 col-sm-5 col-md-5">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right small">
+                                <li>
+                                    <button ng-click="$parent.operationButtonClick(this);" class="btn small" style="height: 20px; width: 20px; padding: 0px; margin: 0px;">
+                                        <i class="glyphicon glyphicon-search"></i>
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                     <div class="col-xs-12" style="font-size:6pt;color:{{this.items[0].fontColor}};">
                         <span class="glyphicon glyphicon-cog"></span>  <span title=" {{this.items[0].addInfo.ArticleId?this.items[0].addInfo.ArticleShortName:'[select machine]'}}">
                             {{this.items[0].addInfo.ArticleId?this.items[0].addInfo.ArticleShortName:'[select machine]'}}

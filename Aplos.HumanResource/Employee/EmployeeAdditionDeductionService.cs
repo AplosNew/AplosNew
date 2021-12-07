@@ -62,6 +62,19 @@ namespace Library.HumanResource.Employee
             }
         }
 
+        public IEnumerable<object> getEmpCodeType()
+        {
+            try
+            {
+                var str = @"Select Username as Text , Id as Value from dbo.EmployeeCodeType";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         public IEnumerable<object> getDesignation(string empType)
         {
             try
@@ -139,7 +152,8 @@ namespace Library.HumanResource.Employee
         {
             try
             {
-                var sql = @"Select Id, MasterId,PlantId, EmpTypeId, isnull(DesignationId, 'All') as DesignationId , isnull(EmploymentType,'ALL') as EmploymentType from dbo.EmployeeAdditionDeductionPlantChild
+                var sql = @"Select ep.Id, ep.MasterId,ep.PlantId, ep.EmpTypeId, isnull(ep.DesignationId, 'All') as DesignationId, et.UserName as EmployeeCodeType ,ep.EmployeeCodeTypeId , isnull(ep.EmploymentType,'ALL') as EmploymentType from dbo.EmployeeAdditionDeductionPlantChild ep 
+left join dbo.EmployeeCodeType et on et.Id = ep.EmployeeCodeTypeId
                              where MasterId ='" + MasterId + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }

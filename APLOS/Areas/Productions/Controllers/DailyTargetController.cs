@@ -591,10 +591,21 @@ prs.username as ProcessName,resp.EmployeeName as ResponsiblePersonName,pbt.Id Pr
         }
 
         [HttpPost]
-        public ActionResult SaveDiagram(List<Html> Nodes, string Design, string WorkCenterMasterId, string ProductionOrderId, string TargetDate)
+        public JsonResult SaveDiagram(List<Html> Nodes, string Design, string WorkCenterMasterId, string ProductionOrderId, string TargetDate)
         {
-            DT.SaveData(Nodes, Design, WorkCenterMasterId, ProductionOrderId, TargetDate);
-            return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+            try
+            {
+                DataSet dsData;
+                DT.SaveData(Nodes, Design, WorkCenterMasterId, ProductionOrderId, TargetDate, out dsData);
+                return Json(new { Error = false, Data = Helpers.CustomJsonResult.DataTableToJson(dsData.Tables[0]), Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+            
+
+            //return Json(new { data=dsData ,Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpPost]
         public ActionResult SearchEmployee(string column, string value, string OperationId, string OperationVariationId, string TargetDate)
