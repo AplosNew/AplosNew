@@ -13317,7 +13317,7 @@ ELSE CONVERT(BIT,0) END  ---No
 									left join [HKP].[Bank] bb on bb.Id = SPLD.BankSystemID
 									left join [HKP].[BankBranch] bbranch on bbranch.Id = SPLD.BankBranchId
                                     left join [dbo].[EmployeeCodeType] ect on ect.Id=e.EmployeeCodeTypeId
-                                     WHERE 1=1 " + strDOJ + @" and ect.IsOutSider =0
+                                     WHERE 1=1 " + strDOJ + @"  and ISNULL(ect.IsOutSider,0) =0
                                             " + wcPayrollGroup + @"                                
                                      ) DD " + wcEmpStatus + @" ORDER BY ISNULL(EmployeeCodePreFix,''),ISNULL(EmployeeCodeNumeric,0)";
                 return _sqlRepository.GetDataCollection(cmdText);
@@ -14752,9 +14752,9 @@ INNER JOIN
             else
             {
                 string inPayrollGroup = "' '";
-                DataTable dtPayRollGrpEmpId = _sqlRepository.GetDataTable("SELECT employeeid FROM MST.PayrollGroupMaster WHERE PayrollGroupId IN (SELECT PayrollGroupId FROM SEC.UserPayrollGroup where UserId = '" + userId + @"') AND PlantID = '" + plantId + @"'");
+                DataTable dtPayRollGrpEmpId = _sqlRepository.GetDataTable("SELECT employeeid FROM MST.PayrollGroupMaster WHERE PayrollGroupId IN (SELECT PayrollGroupId FROM SEC.UserPayrollGroup where UserId = '" + userId + @"') AND PlantID in (" + plantId + @")");
                 DataTable dtNotPayRollGrpEmpId = _sqlRepository.GetDataTable(@"SELECT SystemId FROM EmployeeInformation E 
-                    WHERE SystemId NOT IN (SELECT employeeid from MST.PayrollGroupMaster where PlantID IN (" + plantId + @"))  AND E.PlantID = '" + plantId + @"'");
+                    WHERE SystemId NOT IN (SELECT employeeid from MST.PayrollGroupMaster where PlantID IN (" + plantId + @"))  AND E.PlantID in (" + plantId + @")");
 
                 if (dtPayRollGrpEmpId.Rows.Count > 0)
                 {

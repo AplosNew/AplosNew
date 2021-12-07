@@ -1095,7 +1095,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         });
 
     };
-    $scope.gridAcceptanceListDetail();
+    //$scope.gridAcceptanceListDetail();
 
     $scope.GridAcceptanceServiceList = [];
     $scope.gridAcceptanceServiceList = function () {
@@ -1111,7 +1111,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         });
 
     };
-    $scope.gridAcceptanceServiceList();
+    //$scope.gridAcceptanceServiceList();
 
     $scope.GetMaterialByIdList = [];
     $scope.GetMaterialById = function () {
@@ -1131,14 +1131,11 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
     $scope.data1 = $scope.lst;
     $scope.detailTemp = "#tabGridContents";
     $scope.detailgrid = function detailGridData(e) {
-
-
         var filteredData = e.data["Id"];
         var data = ej.DataManager(window.GetMaterialByIdList).executeLocal(ej.Query().where("AcceptenceId", "equal", parseInt(filteredData), true).take(5));
         e.detailsElement.find("#detailGrid").ejGrid({
-
             dataSource: data,
-            columns: ["MaterialMasterGroupName", "MaterialMasterName", "StandardName", "Article", "SKU1", "SKU2", "SKU3", "TransactionUoM", "Rate", "Amount"]
+            columns: ["MaterialMasterGroup", "MaterialMaster", "Article", "SKU1", "SKU2", "SKU3", "TransactionQty","TransactionUoM", "Rate", "Amount"]
         });
         e.detailsElement.find(".tabcontrol").ejTab();
     }
@@ -1391,7 +1388,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         });
     }
 
-    $scope.GetMaterialById();
+   // $scope.GetMaterialById();
     $scope.GetServiceDetails = [];
     $scope.GetService = function (Id) {
 

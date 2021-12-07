@@ -230,6 +230,13 @@ namespace Library.Service.Extension.Accounts
                     left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
                     left join HKP.PartyPlant XPP ON XPP.Id=XVD.PartyPlantId
                     where XVD.VoucherId=V.Id AND XVD.PartyPlantId<>'' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                    ,STUFF((select distinct ','+XEI.AccountTitle from
+                    TRN.VoucherDetail AS XVD
+                    left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
+                    left join mst.BankMaster XEI ON XEI.id=XVD.BankMasterId
+					LEFT JOIN HKP.Bank BX ON BX.Id=XEI.BankId
+                    where XVD.VoucherId=V.Id AND XVD.BankMasterId !=VD.BankMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                    
                     ,STUFF((select distinct ','+XEI.EmployeeName from
                     TRN.VoucherDetail AS XVD
                     left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
@@ -259,7 +266,7 @@ namespace Library.Service.Extension.Accounts
                     WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId=@companyGroupId AND V.CompanyId=@companyId AND V.PlantId=@plantId AND VD.BankMasterId=@bankMasterId AND V.SourceType!='OpeningBalance'
                     AND V.PostingDate BETWEEN '" + fromDate + "' AND '" + toDate + @"'
                     
-                    UNION
+                    UNION ALL
                     
                     SELECT V.VoucherNo, V.PostingDate, V.CurrencyId,
                     GLT.DrAmount AS DrAmount,
@@ -275,6 +282,13 @@ namespace Library.Service.Extension.Accounts
                     left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
                     left join dbo.EmployeeInformation XEI ON XEI.SystemId=XVD.EmployeeId
                     where XVD.VoucherId=V.Id AND XVD.EmployeeId<>'' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                    ,STUFF((select distinct ','+XEI.AccountTitle from
+                    TRN.VoucherDetail AS XVD
+                    left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
+                    left join mst.BankMaster XEI ON XEI.id=XVD.BankMasterId
+					LEFT JOIN HKP.Bank BX ON BX.Id=XEI.BankId
+                    where XVD.VoucherId=V.Id AND XVD.BankMasterId !=VD.BankMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                    
                     ,STUFF((select distinct ','+XCM.UserName from
                     TRN.VoucherDetail AS XVD
                     left join TRN.Voucher XV ON XV.Id=XVD.VoucherId

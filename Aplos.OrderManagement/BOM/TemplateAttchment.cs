@@ -67,7 +67,7 @@ namespace Library.OrderManagement.BOM
              END AS PurchaseAuthority,
            case when isnull(MOI.JobWorkType,'')<>'' THEN 
                 CASE WHEN ISNULL(eout.Id,'')<>'' THEN CONCAT(POUT.UserName,'(',EOUT.UserName,')') ELSE TOUT.UserName END
-           ELSE CONCAT(POWN.UserName,'(',EOWN.UserName,')') END AS ProductionAuthority
+           ELSE CONCAT(POWN.UserName,'(',EOWN.UserName,')') END AS ProductionAuthority,c.Id ContractId
         --convert(bit,case when isnull(BOQ.Id,'')='' then 0 else 1 end) AS HasBOQ
                               FROM trn.MasterOrder MO
                             join trn.MasterOrderItem MOI on moi.MasterOrderId=mo.Id
@@ -1209,21 +1209,7 @@ namespace Library.OrderManagement.BOM
 
         }
 
-        public void GetMaxBOMDetailId(string BOMMasterId, out DataSet dsRef)
-        {
-            ConnectionManager.DAL.ConManager Obj;
-
-            try
-            {
-                string sql = @"Select COUNT(Id) Id from BOMDetail where BOMMasterId='" + BOMMasterId + "'";
-                Obj = new ConnectionManager.DAL.ConManager("1");
-                Obj.OpenDataSetThroughAdapter(sql, out dsRef, false, "1");
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+        
         public void CopyBOMTemplateDetail(string BOMMasterId, string Id)
         {
             DataSet BOMAttachmentDetail;
@@ -1232,12 +1218,12 @@ namespace Library.OrderManagement.BOM
             DataSet BOMAttachmentDetailConsumption;
             DataSet BOMAttachmentDetailConsumptionSKUMapping;
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string NewId = "";
+            string NewId = ""; string IdNo = "";
             try
             {
-                DataSet dsMaxId;
-                GetMaxBOMDetailId(BOMMasterId, out dsMaxId);
-                int IdNo = Convert.ToInt32(dsMaxId.Tables[0].Rows[0]["Id"].ToString()) + 1;
+                bplib.clsGenID genid = new bplib.clsGenID();
+                genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "BOMDetail", out IdNo);
+
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
                 con.OpenDataSetThroughAdapter("select * from BOMDetail where 1=2", out BOMAttachmentDetail, false, "1");
@@ -1246,14 +1232,11 @@ namespace Library.OrderManagement.BOM
                 con.OpenDataSetThroughAdapter("select * from DetailConsumption where 1=2", out BOMAttachmentDetailConsumption, false, "1");
                 con.OpenDataSetThroughAdapter("select * from DetailConsumptionSKUMapping where 1=2", out BOMAttachmentDetailConsumptionSKUMapping, false, "1");
 
-
                 DataTable BOMDetail = _sqlRepository.GetDataTable("select * from BOMDetail WHERE Id='" + Id + "'");
                 DataTable BOMSKUMapping = _sqlRepository.GetDataTable("select * from BOMSKUMapping WHERE BOMDetailId IN ('"+Id+"')");
                 DataTable BOMDestination = _sqlRepository.GetDataTable("select * from BOMDestination WHERE BOMDetailId IN ('" + Id + "')");
                 DataTable DetailConsumption = _sqlRepository.GetDataTable("select * from DetailConsumption WHERE BOMDetailId IN ('" + Id + "')");
                 DataTable DetailConsumptionSKUMapping = _sqlRepository.GetDataTable("select * from DetailConsumptionSKUMapping WHERE DetailConsumptionId IN (select Id from DetailConsumption WHERE BOMDetailId IN ('"+Id+"'))");
-
-
 
                 NewId = BOMMasterId+"-"+ IdNo;
 
@@ -1264,11 +1247,9 @@ namespace Library.OrderManagement.BOM
                 drDetailDestination["Description"] = BOMDetail.Rows[0]["Description"].ToString() + "-Copy";
                 BOMAttachmentDetail.Tables[0].Rows.Add(drDetailDestination);
 
-
                 BOMSKUMapping.DefaultView.RowFilter = "BOMDetailId='" + BOMDetail.Rows[0]["Id"].ToString() + "'";
                 for (int K = 0; K < BOMSKUMapping.DefaultView.Count; K++)
                 {
-
                     DataRow drDetailSKUDestination = BOMAttachmentSKUMapping.Tables[0].NewRow();
                     CopyRow(BOMSKUMapping.DefaultView[K].Row, ref drDetailSKUDestination);
                     drDetailSKUDestination["Id"] = NewId +  "-" + (K + 1);
@@ -1277,11 +1258,9 @@ namespace Library.OrderManagement.BOM
                     BOMAttachmentSKUMapping.Tables[0].Rows.Add(drDetailSKUDestination);
                 }
 
-
                 BOMDestination.DefaultView.RowFilter = "BOMDetailId='" + BOMDetail.Rows[0]["Id"].ToString() + "'";
                 for (int K = 0; K < BOMDestination.DefaultView.Count; K++)
                 {
-
                     DataRow drBOMDesDestination = BOMAttachmentDestination.Tables[0].NewRow();
                     CopyRow(BOMDestination.DefaultView[K].Row, ref drBOMDesDestination);
                     drBOMDesDestination["Id"] = NewId + "-" +  (K + 1);
@@ -1293,14 +1272,11 @@ namespace Library.OrderManagement.BOM
                 DetailConsumption.DefaultView.RowFilter = "BOMDetailId='" + BOMDetail.Rows[0]["Id"].ToString() + "'";
                 for (int K = 0; K < DetailConsumption.DefaultView.Count; K++)
                 {
-
                     DataRow drDetailConsumptionDestination = BOMAttachmentDetailConsumption.Tables[0].NewRow();
                     CopyRow(DetailConsumption.DefaultView[K].Row, ref drDetailConsumptionDestination);
                     drDetailConsumptionDestination["Id"] = NewId + "-" + (K + 1);
                     drDetailConsumptionDestination["BOMDetailId"] = NewId ;
                     BOMAttachmentDetailConsumption.Tables[0].Rows.Add(drDetailConsumptionDestination);
-
-
 
                     DetailConsumptionSKUMapping.DefaultView.RowFilter = "DetailConsumptionId='" + DetailConsumption.DefaultView[K]["Id"].ToString() + "'";
                     for (int M = 0; M < DetailConsumptionSKUMapping.DefaultView.Count; M++)
@@ -1311,9 +1287,7 @@ namespace Library.OrderManagement.BOM
                         drAttachmentDetailConsumptionSKUMappingDestination["DetailConsumptionId"] = drDetailConsumptionDestination["Id"];
 
                         BOMAttachmentDetailConsumptionSKUMapping.Tables[0].Rows.Add(drAttachmentDetailConsumptionSKUMappingDestination);
-
                     }
-
                 }
 
                 clsStaticInfo _info = new clsStaticInfo();

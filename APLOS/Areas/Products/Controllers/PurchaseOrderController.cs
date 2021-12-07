@@ -193,12 +193,12 @@ namespace Aplos.Areas.Products.Controllers
 				}
 				else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "True")
 				{
-
 					entity.AuthorizedBy = entity.CheckedBy;
 					entity.AuthorizedByStatus = "For Approval";
 					entity.CheckedBy = null;
 					entity.CheckedByStatus = null;
 					entity.POType = "PO";
+					entity.IsApproved = false;
 				}
 				else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
 				{
@@ -207,6 +207,7 @@ namespace Aplos.Areas.Products.Controllers
 					entity.CheckedBy = null;
 					entity.AuthorizedBy = null;
 					entity.POType = "PO";
+					entity.IsApproved = true;
 				}
 				else
 				{
@@ -215,10 +216,9 @@ namespace Aplos.Areas.Products.Controllers
 					entity.AuthorizedBy = null;
 					entity.AuthorizedByStatus = null;
 					entity.POType = "PO";
-
+					entity.IsApproved = false;
 				}
 
-				entity.IsApproved = false;
 				entity.IsClosed = false;
 				entity.MasterOrderId = null;
 				//entity.CheckedBy = "";
@@ -803,6 +803,10 @@ namespace Aplos.Areas.Products.Controllers
 		[HttpPost, Authorize]
 		public JsonResult PoApproved(string PoId, string PoValue, string CheckedStataus, string AuthorizedBy, string CheckedRejectReason)
 		{
+			if (CheckedStataus == "" || CheckedStataus == null)
+			{
+				throw new CustomException("Please Select Checked By Status!");
+			}
 			_inventoryReveiveService.PoApproved(PoId, PoValue, CheckedStataus, AuthorizedBy, CheckedRejectReason);
 			return Json(new { Message = "PO Approved" + AplosMessage.Success });
 		}
@@ -816,6 +820,10 @@ namespace Aplos.Areas.Products.Controllers
 		[HttpPost, Authorize]
 		public JsonResult PoApprovedAuth(string PoId, string PoValue, string CheckedStataus, string AuthorizedBy, string ApproveRejectReason)
 		{
+			if (CheckedStataus == "" || CheckedStataus == null)
+			{
+				throw new CustomException("Please Select Checked By Status!");
+			}
 			_inventoryReveiveService.PoApprovedAuth(PoId, PoValue, CheckedStataus, AuthorizedBy, ApproveRejectReason);
 			return Json(new { Message = "PO Approved" + AplosMessage.Success });
 		}
@@ -3862,7 +3870,7 @@ left outer join TermsAndConditionsChild TC on TC.Id=TCD.TermsAndConditionsChildI
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			string sql = @"select TCD.Id,TC.Id TermsAndConditionPOChildId,TCD.HeaderCaption ,TCD.Description  from TermsAndConditionsPODetails TCD 
-left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOChildId";
+left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOChildId ORDER BY TCD.Sequence";
 
 			return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
 		}
@@ -3881,7 +3889,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 
 				for (int i = 0; i < data.Count; i++)
 				{
-					con.executeQuery("UPDATE TermsAndConditionsDetails SET Sequence=" + (i + 1) + " where id='" + data[i] + "'");
+					con.executeQuery("UPDATE TermsAndConditionsPODetails SET Sequence=" + (i + 1) + " where id='" + data[i] + "'");
 				}
 
 				con.CommitTransaction();

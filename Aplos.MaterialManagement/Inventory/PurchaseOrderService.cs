@@ -149,21 +149,27 @@ namespace Library.MaterialManagement.Inventory
             DataSet dsToFirstCharacteristics;
             try
             {
-
-                //if (TitleId == null)
-                //{
-                //	throw new Exception("Please select Terms and Condition..");
-                //}
-
-
                 string Id = "";
                 DataSet dsSOId;
-                //GetSOId(MasterId, out dsSOId);
-                //string NewId = dsSOId.Tables[0].Rows[0]["Id"].ToString();
+
                 string NewSoId = string.Empty;
-
+                DataSet dsDetail;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-
+                con.OpenDataSetThroughAdapter("SELECT * FROM TermsAndConditionsPOChild WHERE POId='" + POId + "'", out dsDetail, false, "1");
+                if (dsDetail.Tables[0].Rows.Count > 0)
+                {
+                    if (dsDetail.Tables[0].Rows[0]["Id"].ToString() != TitleId)
+                    {
+                        string strSQLDetail = "DELETE FROM TermsAndConditionsPODetails Where TermsAndConditionsPOChildId IN(SELECT ID FROM TermsAndConditionsPOChild WHERE POId='" + POId + "')";
+                        string strSQLChild = "DELETE FROM TermsAndConditionsPOChild WHERE POId='" + POId + "'";
+                        con = new ConnectionManager.DAL.ConManager("1");
+                        con.OpenConnection("1");
+                        con.BeginTransaction();
+                        con.ExecuteNonQueryWrapper(strSQLDetail, true, "1");
+                        con.ExecuteNonQueryWrapper(strSQLChild, true, "1");
+                        con.CommitTransaction();
+                    }
+                }
                 con.OpenDataSetThroughAdapter("SELECT * FROM TermsAndConditionsPOChild WHERE 1=2", out dsToSalesOrder, false, "1");
                 con.OpenDataSetThroughAdapter("SELECT * FROM TermsAndConditionsPODetails WHERE 1=2", out dsToFirstCharacteristics, false, "1");
 
@@ -260,6 +266,7 @@ namespace Library.MaterialManagement.Inventory
 
                 ResetCurrencyRate(entity);
                 base.Update(entity);
+                 SaveTermsData(entity.TermsAndConditionsId, entity.Id);
             }
             catch (Exception ex)
             {
@@ -591,7 +598,7 @@ namespace Library.MaterialManagement.Inventory
 									,isnull(IR.OrderSpecific,'') OrderSpecific
 									,isnull(IR.PurchaseLCId,'') PurchaseLCId
 									,isnull(Par.UserName,'') CustomerName 
-                                    ,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END,IR.AddedDate,IR.Tolerance
+                                    ,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END,IR.AddedDate,IR.Tolerance,IR.TermsAndConditionsId
 						FROM [TRN].[PurchaseOrder] AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -660,7 +667,7 @@ namespace Library.MaterialManagement.Inventory
 									,isnull(IR.ContractId,'') ContractId
 									,isnull(IR.OrderSpecific,'') OrderSpecific
 									,isnull(IR.PurchaseLCId,'') PurchaseLCId
-									,isnull(Par.UserName,'') CustomerName ,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END,IR.AddedDate,IR.Tolerance
+									,isnull(Par.UserName,'') CustomerName ,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END,IR.AddedDate,IR.Tolerance,IR.TermsAndConditionsId
 						FROM [TRN].[PurchaseOrder] AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -731,7 +738,7 @@ namespace Library.MaterialManagement.Inventory
 									,isnull(IR.ContractId,'') ContractId
 									,isnull(IR.OrderSpecific,'') OrderSpecific
 									,isnull(IR.PurchaseLCId,'') PurchaseLCId
-									,isnull(Par.UserName,'') CustomerName ,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END,IR.AddedDate,IR.Tolerance
+									,isnull(Par.UserName,'') CustomerName ,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END,IR.AddedDate,IR.Tolerance,IR.TermsAndConditionsId
 						FROM [TRN].[PurchaseOrder] AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -798,6 +805,7 @@ namespace Library.MaterialManagement.Inventory
 									,isnull(IR.ContractId,'') ContractId
 									,isnull(IR.OrderSpecific,'') OrderSpecific
 									,isnull(IR.PurchaseLCId,'') PurchaseLCId,isnull(Par.UserName,'') CustomerName,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
+,IR.TermsAndConditionsId
                         FROM [TRN].[PurchaseOrder] AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                         LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -862,6 +870,7 @@ namespace Library.MaterialManagement.Inventory
 									,isnull(IR.ContractId,'') ContractId
 									,isnull(IR.OrderSpecific,'') OrderSpecific
 									,isnull(IR.PurchaseLCId,'') PurchaseLCId,isnull(Par.UserName,'') CustomerName,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
+,IR.TermsAndConditionsId
                         FROM [TRN].[PurchaseOrder] AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                         LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -3550,7 +3559,7 @@ namespace Library.MaterialManagement.Inventory
 
                 DataTable dsOrderMaster, dsServiceItems, dsTermsAndCondition;
                 dsOrderMaster = loadOrderMaster(purchaseOrderId);//sql
-                //dsTermsAndCondition = TermsAndConditionSQL(purchaseOrderId);
+                dsTermsAndCondition = TermsAndConditionSQL(purchaseOrderId);
 
                 Dictionary<string, string> columns = new Dictionary<string, string>();
                 var poApprovedStatus = "";
@@ -3566,7 +3575,7 @@ namespace Library.MaterialManagement.Inventory
 
                 dsServiceItems = loadServicerMasterItems(purchaseOrderId);
                 var materialTotal = makeMaterialDetailsTable(document, dsOrderMaster, purchaseOrderId);//Material Details 
-                //var TermsAndCondition = makeTermsAndCondition(purchaseOrderId, document, dsTermsAndCondition);//Terms And Conditions
+                var TermsAndCondition = makeTermsAndCondition(purchaseOrderId, document, dsTermsAndCondition);//Terms And Conditions
 
 
                 var serviceTotal = 0.00;
@@ -4100,50 +4109,45 @@ namespace Library.MaterialManagement.Inventory
 
             #region column headers
             document.EnsureMinimal();
-
+            int colTermsAndCondition = COL;
             WCharacterFormat FontBold = new WCharacterFormat(document);
             FontBold.Bold = true;
             string CmpTitile = "";
+            double totalValue = 0;
+            int sl = 0;
+            int startRow = 0;
+
             for (int i = 0; i < dsTermsAndCondition.Rows.Count; i++)
             {
-                
-
-                int colTermsAndCondition = COL; COL++;
-                wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 250;
-
-                #endregion column headers
-                double totalValue = 0;
-                int sl = 0;
-                int startRow = 0;
-                for (i = 0; i < dsTermsAndCondition.Rows.Count; i++)
+                if (dsTermsAndCondition.Rows[i]["TermsAndConditionChildId"].ToString() != CmpTitile)
                 {
-                    if (dsTermsAndCondition.Rows[i]["Title"].ToString() != CmpTitile)
-                    {
-                        IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Title :" + dsTermsAndCondition.Rows[i]["Title"].ToString() + ".");
-                        range.ApplyCharacterFormat(FontBold);
-                    }
-
-
-                    ROW++;
-                    sl++;
-                    wTable.AddRow();
-                    WTableRow TROW = wTable.LastRow;
-
-                    // WTableRow TROW = wTable.Rows[1].Clone();
-                    for (int CE = 0; CE < TROW.Cells.Count; CE++)
-                    {
-                        foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
-                        {
-                            item.Text = "";
-                        }
-                        TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
-                    }
-                    TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsTermsAndCondition.Rows[i]["RoWNo"].ToString() + "." + dsTermsAndCondition.Rows[i]["HeaderCaption"].ToString());
-                    CmpTitile = dsTermsAndCondition.Rows[i]["Title"].ToString();
+                    IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Title :" + dsTermsAndCondition.Rows[i]["Title"].ToString() + ".");
+                    // range.ApplyCharacterFormat(FontBold);
+                    //COL++;
+                    wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 500;
+                    sl = 0;
                 }
+                #endregion column headers
                 ROW++;
-               
+                sl++;
+                wTable.AddRow();
+                WTableRow TROW = wTable.LastRow;
+
+                // WTableRow TROW = wTable.Rows[1].Clone();
+                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+                {
+                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+                    {
+                        item.Text = "";
+                    }
+                    TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
+                }
+                TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(sl + "." + dsTermsAndCondition.Rows[i]["HeaderCaption"].ToString());
+                CmpTitile = dsTermsAndCondition.Rows[i]["TermsAndConditionChildId"].ToString();
             }
+            ROW++;
+
+
             #region Total
             //int TotalRow = ROW;
             //wTable.AddRow();
@@ -5181,7 +5185,7 @@ FROM TRN.PurchaseOrder AS PO
 LEFT OUTER JOIN HKP.TermsAndConditions AS tac ON PO.TermsAndConditionsId=tac.Id
 LEFT OUTER JOIN TermsAndConditionsChild AS tacc ON tacc.TermsAndConditionsMasterId=tac.Id
 LEFT OUTER JOIN TermsAndConditionsDetails AS tacd ON tacd.TermsAndConditionsChildId=tacc.Id
-WHERE PO.id='"+ purchaseOrderId + @"' Order By tac.Sequence ";
+WHERE PO.id='" + purchaseOrderId + @"' Order By tac.Sequence ";
 
                 return _sqlRepository.GetDataTable(strSQL);
             }

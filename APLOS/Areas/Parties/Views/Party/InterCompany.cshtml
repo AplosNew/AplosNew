@@ -597,7 +597,7 @@
                     <div class="row" ng-form name="partyForm6">
                         <div class="col-xs-12 col-sm-6 col-md-6">
                             <ul class="common-btn list-inline text-left">
-                                <li><button class="btn" ng-click="GetPlantData();" ng-disabled="party.Id===null ||party.Id===undefined"><i class="glyphicon glyphicon-plus"></i> Add</button></li>
+                                <li><button class="btn" ng-click="GetPlantData();" disabled @*ng-disabled="party.Id===null ||party.Id===undefined"*@><i class="glyphicon glyphicon-plus"></i> Add</button></li>
                             </ul>
                         </div>
                         <div class="table-responsive modal-table col-md-12">
@@ -617,12 +617,27 @@
                                         <td>{{p.ShortName}}</td>
                                         <td>{{p.StandardName}}</td>
                                         <td>{{p.UserName}}</td>
-                                        <td class="text-right table-td">
+                                        @*<td class="text-right table-td">
                                             <ul class="list-inline action-list">
                                                 <li>
                                                     <button data-toggle="modal" data-target="#confirmPartyPlantDelete" ng-click="confirmPartyPlantDelete(p)"
                                                             class="btn btn-action tooltip-here" data-placement="top" title="Delete" tooltip>
                                                         <i class="glyphicon glyphicon-trash"></i>
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </td>*@
+                                        <td class="text-right table-td">
+                                            <ul class="list-inline action-list">
+                                                <li>
+                                                    <button ng-click="PartyPlantData(p, $index);" class="btn btn-action tooltip-here" data-placement="top" title="Edit">
+                                                        <i class="glyphicon glyphicon-pencil"></i>
+                                                    </button>
+                                                </li>
+                                                <li ng-hide="p.IsDefault">
+                                                    <button data-toggle="modal" data-target="#confirmPartyPlantDelete" ng-click="confirmPartyPlantDelete(p)"
+                                                            class="btn btn-action tooltip-here" data-placement="top" title="Delete" tooltip>
+                                                        <i class="glyphicon glyphicon-remove"></i>
                                                     </button>
                                                 </li>
                                             </ul>
