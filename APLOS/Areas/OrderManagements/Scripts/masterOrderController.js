@@ -1454,6 +1454,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.ReportPopUp = function (x) {
         try {
             $scope.OrderCostingId = x.OrderCostingMasterTemplateId;
+            $scope.MOIId = x.Id;
 
             //$scope.openPopup('CostingPopUp');
             angular.element(document.querySelector('#CostingPopUp')).modal('show');
@@ -1464,7 +1465,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.OrderPreCosting = function () {
         try {
             $scope.PreCosting = 1;
-            var file_src = $scope.CostingPath + 'GetOrderCostingReport?OrderCostingId=' + $scope.OrderCostingId + '&preCosting=' + $scope.PreCosting;
+            var file_src = $scope.CostingPath + 'GetOrderCostingReport?OrderCostingId=' + $scope.OrderCostingId + '&preCosting=' + $scope.PreCosting + '&MOIId=' +  $scope.MOIId;
             $rootScope.report(file_src);
 
         } catch (e) {
@@ -1473,7 +1474,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.OrderProcurementCosting = function () {
         try {
             $scope.ProcurementCosting = 1;
-            var file_src = $scope.CostingPath + 'GetOrderCostingReport?OrderCostingId=' + $scope.OrderCostingId + '&procurementCosting=' + $scope.ProcurementCosting;
+            var file_src = $scope.CostingPath + 'GetOrderCostingReport?OrderCostingId=' + $scope.OrderCostingId + '&procurementCosting=' + $scope.ProcurementCosting + '&MOIId=' + $scope.MOIId;
             $rootScope.report(file_src);
 
         } catch (e) {

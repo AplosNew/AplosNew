@@ -803,6 +803,10 @@ namespace Aplos.Areas.Products.Controllers
 		[HttpPost, Authorize]
 		public JsonResult PoApproved(string PoId, string PoValue, string CheckedStataus, string AuthorizedBy, string CheckedRejectReason)
 		{
+			if (CheckedStataus == "" || CheckedStataus == null)
+			{
+				throw new CustomException("Please Select Checked By Status!");
+			}
 			_inventoryReveiveService.PoApproved(PoId, PoValue, CheckedStataus, AuthorizedBy, CheckedRejectReason);
 			return Json(new { Message = "PO Approved" + AplosMessage.Success });
 		}
@@ -816,6 +820,10 @@ namespace Aplos.Areas.Products.Controllers
 		[HttpPost, Authorize]
 		public JsonResult PoApprovedAuth(string PoId, string PoValue, string CheckedStataus, string AuthorizedBy, string ApproveRejectReason)
 		{
+			if (CheckedStataus == "" || CheckedStataus == null)
+			{
+				throw new CustomException("Please Select Checked By Status!");
+			}
 			_inventoryReveiveService.PoApprovedAuth(PoId, PoValue, CheckedStataus, AuthorizedBy, ApproveRejectReason);
 			return Json(new { Message = "PO Approved" + AplosMessage.Success });
 		}
