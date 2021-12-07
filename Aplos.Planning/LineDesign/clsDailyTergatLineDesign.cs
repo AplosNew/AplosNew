@@ -173,7 +173,7 @@ namespace Library.Planning.LineDesign
         }
 
 
-        public void SaveData(List<Html> Nodes, string Design, string WorkCenterMasterId, string ProductionOrderId, string TargetDate)
+        public void SaveData(List<Html> Nodes, string Design, string WorkCenterMasterId, string ProductionOrderId, string TargetDate, out DataSet dsData)
         {
             bplib.clsGenID objGenID = null;
             string idFromDB = "";
@@ -256,10 +256,73 @@ namespace Library.Planning.LineDesign
                 dr["UpdatedFromIP"] = identity.IPAddress;
                 dsChild.Tables[0].Rows.Add(dr);
             }
-
             OTSBD.clsStaticInfo SaveInfo = new OTSBD.clsStaticInfo();
             SaveInfo.SaveDataSets(dsMaster, dsChild);
+
+            DataSet dsDailyProduction;
+
+            GetTotalHandOrMachineData(ProductionOrderId, TargetDate, WorkCenterMasterId, out dsData);
+            con.OpenDataSetThroughAdapter("SELECT * FROM trn.DailyProductionTarget AS dpt WHERE dpt.TargetDate='" + TargetDate + "' AND dpt.ProductionOrderId='" + ProductionOrderId + "' AND dpt.WorkCenterMasterID='" + WorkCenterMasterId + "'", out dsDailyProduction, false, "1");
+
+            if (dsData.Tables[0].Rows.Count > 0)
+            {
+                DataRow drx = dsDailyProduction.Tables[0].Rows[0];
+                drx.BeginEdit();
+                drx["ManPowerWithMachine"] = dsData.Tables[0].Rows[0]["TotalMachine"].ToString();
+                drx["ManPowerWithHand"] = dsData.Tables[0].Rows[0]["TotalHand"].ToString();
+                drx.EndEdit();
+            }
+            SaveInfo.SaveDataSets(dsDailyProduction);
         }
+        //void SaveDailyProduction(ref DataSet dsSaveBonusMaster, DataSet dsData)
+        //{
+        //    DataView _dvSave = null;
+        //    try
+        //    {
+        //        _dvSave = new DataView(dsSaveBonusMaster.Tables[0]);
+
+        //        DataRow drx = _dvSave[0].Row;
+        //        drx.BeginEdit();
+        //        drx["ManPowerWithMachineBulletin"] = dsData.Tables[0].Rows[0]["TotalMachine"].ToString();
+        //        drx["ManPowerWithHandBulletin"] = dsData.Tables[0].Rows[0]["TotalHand"].ToString();
+        //        drx.EndEdit();
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
+        public void GetTotalHandOrMachineData(string ProductionOrderId, string TargetDate, string WorkCenterMasterId, out System.Data.DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                strSQL = @"SELECT SUM( CASE WHEN ISNULL(o.IsMachineRequired,'')='M'  THEN 1 ELSE 0 END) AS TotalMachine,
+		                          SUM( CASE WHEN ISNULL(o.IsMachineRequired,'')!='M' THEN 1 ELSE 0 END) AS TotalHand
+                                        FROM [MST].[OperationVariation] OV
+                                        join LineLayoutDailyTargetData AS lldtd ON lldtd.OperationVariationId = OV.Id
+                                        JOIN  LineLayoutDailyTarget AS lldt ON lldt.Id = lldtd.LineLayoutDailyTargetId
+                                        LEFT JOIN [MST].[MaterialMasterArticle] M ON M.Id = OV.ArticleId
+                                        LEFT JOIN mst.MaterialMaster AS mm ON mm.Id=m.MaterialMasterId
+                                        LEFT JOIN [MST].[Operation] O ON O.Id = OV.OperationId
+                                        LEFT JOIN hkp.ProductionSystem AS ps ON ps.Id=o.ProductionSystemId
+                                        where lldt.ProductionOrderId='" + ProductionOrderId + "' " +
+                                        "AND lldt.TargetDate='" + TargetDate + "' AND lldt.WorkCenterMasterId='" + WorkCenterMasterId + "' ";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
         public void SaveProductionData(List<Dictionary<string, object>> HtmlsInfo, string WorkCenterMasterId, string ProductionOrderId, string TargetDate)
         {
             bplib.clsGenID objGenID = null;
