@@ -191,7 +191,7 @@ function salaryProcessedReportExtraOTCTCController(commonMessage, $scope, $rootS
                 $http({
                     method: "POST",
                     dataType: 'JSON',
-                    url: 'humanresource/PayrollReports/GetEmpInfoSalaryPorcessed',
+                    url: 'humanresource/PayrollReports/GetEmpInfoSalaryPorcessedWithType',
                     data: parameters
                 }).then(function successCallback(response) {                    
                     if (response.data.length > 0) {
