@@ -645,9 +645,9 @@ namespace Aplos.Areas.Attendances.Controllers
                 //            WHERE WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' AND EmpSystemID IN (" + EmpSystemId + @")";
 
 
-                strSql = @"UPDATE AttdnProcessData SET ManualInTime = isnull(OriginalManualInTime,ManualInTime),
+                strSql = @"UPDATE AttdnProcessData SET ManualInTime = OriginalManualInTime,
                             IsManualInTime = CASE WHEN ISNULL(OriginalManualInTime,'')<>'' OR IsManualInTime=1 THEN 1 ELSE 0 END,
-                            ManualOutTime = isnull(OriginalManualOutTime,ManualOutTime),
+                            ManualOutTime = OriginalManualOutTime,
                             IsManualOutTime = CASE WHEN ISNULL(OriginalManualOutTime,'')<>'' OR IsManualOutTime=1 THEN 1 ELSE 0 END,
                             ManualFlag=1
                             WHERE WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' AND EmpSystemID IN (" + EmpSystemId + @")";
@@ -1218,8 +1218,8 @@ namespace Aplos.Areas.Attendances.Controllers
                             drAttProc["OTComfirmBy"] = bplib.clsWebLib.RetValidLen(identity.Name);
                             drAttProc["DateOTComfirm"] = DateTime.Now;
 
-                            drAttProc["OriginalManualInTime"] = bplib.clsWebLib.RetValidLen(OTLimitTransactionData[i].ManualInTime);
-                            drAttProc["OriginalManualOutTime"] = bplib.clsWebLib.RetValidLen(OTLimitTransactionData[i].ManualOutTime);
+                            //drAttProc["OriginalManualInTime"] = bplib.clsWebLib.RetValidLen(OTLimitTransactionData[i].ManualInTime);
+                            //drAttProc["OriginalManualOutTime"] = bplib.clsWebLib.RetValidLen(OTLimitTransactionData[i].ManualOutTime);
 
                             drAttProc.EndEdit();
                         }

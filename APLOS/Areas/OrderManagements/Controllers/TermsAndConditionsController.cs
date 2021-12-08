@@ -70,9 +70,9 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetList(string column, string value)
+        public ActionResult GetList(string column, string value,string CompanyId)
         {
-            return Json(tg.GetList(column, value), JsonRequestBehavior.AllowGet);
+            return Json(tg.GetList(column, value, CompanyId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
