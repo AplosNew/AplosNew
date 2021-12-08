@@ -2822,9 +2822,9 @@ namespace Library.HumanResource.NewAttendanceProcess {
             try
             {
                 var sql = @"select * from (select Format(WorkDate,'yyyy-MMM-dd')WorkDate,EmpSystemID,
-                datediff(minute,ap.InTime,ap.OutTime) 
-                as CalDuration, Format(ap.InTime,'yyyy-MMM-dd HH:mm:ss')InTime,
-				Format(ap.OutTime,'yyyy-MMM-dd HH:mm:ss')OutTime,
+                datediff(minute,ap.ProcessIntime,ap.ProcessOuttime) 
+                as CalDuration, Format(ap.ProcessIntime,'yyyy-MMM-dd HH:mm:ss')ProcessIntime,
+				Format(ap.ProcessOuttime,'yyyy-MMM-dd HH:mm:ss')ProcessOuttime,
 				Format(ap.ShiftInTime,'yyyy-MMM-dd HH:mm:ss')ShiftInTime, 
                 Format(ap.ShiftOutTime,'yyyy-MMM-dd HH:mm:ss')ShiftOutTime, 
                 sd.ShiftEarlyInMargin,sd.ShiftEarlyOutMargin,sd.ShiftLateInMargin,
@@ -2832,7 +2832,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 from Attdnprocessdata  ap
                 left join ShiftDefination sd on sd.SystemID=ap.ShiftSystemID
                 where workdate='" + PreDay + @"' and ap.PlantID='" + Plant + @"' 
-                and isnull(ap.InTime,'')!='' and isnull(ap.OutTime,'')!='') as dd
+                and isnull(ap.ProcessIntime,'')!='' and isnull(ap.ProcessOuttime,'')!='') as dd
 				where dd.CalDuration>=0";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -2892,7 +2892,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             try
             {
                 var sql = @"select p.EmpSystemID,Format(p.WorkDate,'yyyy-MMM-dd')WorkDate,p.Duration
-                ,p.ShiftHalfDayDuration,p.ShiftFullDayDuration,p.InTime,p.OutTime,
+                ,p.ShiftHalfDayDuration,p.ShiftFullDayDuration,p.ProcessIntime,p.ProcessOuttime,
                 p.ShiftShortDuration from AttdnProcessData p 
                 where WorkDate='" + PreviousDay + @"' 
                 and p.PlantID='" + Plant + "'";
@@ -3277,15 +3277,15 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
 
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                        var sqlx = @"select * from AttdnProcessData where WorkDate='" + WorkDate + "'and isnull(InTime,'')!='' and isnull(OutTime,'')!='' and PlantID='" + PlantValue + "'";
+                        var sqlx = @"select * from AttdnProcessData where WorkDate='" + WorkDate + "'and isnull(ProcessIntime,'')!='' and isnull(ProcessOuttime,'')!='' and PlantID='" + PlantValue + "'";
 
                         objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
                         for (int i = 0; i < PrevDurn.Tables[0].Rows.Count; i++)
                         {
                             string EmpId = PrevDurn.Tables[0].Rows[i][@"EmpSystemID"].ToString();
-                            string ProcessInTime = clsWebLib.RetValidLen(PrevDurn.Tables[0].Rows[i][@"InTime"]).ToString();
-                            string ProcessOutTime = clsWebLib.RetValidLen(PrevDurn.Tables[0].Rows[i][@"OutTime"]).ToString();
+                            string ProcessInTime = clsWebLib.RetValidLen(PrevDurn.Tables[0].Rows[i][@"ProcessIntime"]).ToString();
+                            string ProcessOutTime = clsWebLib.RetValidLen(PrevDurn.Tables[0].Rows[i][@"ProcessOuttime"]).ToString();
                             string ShiftOutTime = clsWebLib.RetValidLen(PrevDurn.Tables[0].Rows[i][@"ShiftOutTime"]).ToString();
                             string ShiftInTime = clsWebLib.RetValidLen(PrevDurn.Tables[0].Rows[i][@"ShiftInTime"]).ToString();
                             string CalDuration = clsWebLib.RetValidLen(PrevDurn.Tables[0].Rows[i][@"CalDuration"]).ToString();
@@ -3444,8 +3444,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             string FullDayDuration = clsWebLib.RetValidLen(PrevDurationStat.Tables[0].Rows[i][@"ShiftFullDayDuration"]).ToString();
                             string HalfDayDuration = clsWebLib.RetValidLen(PrevDurationStat.Tables[0].Rows[i][@"ShiftHalfDayDuration"]).ToString();
                             string Duration = clsWebLib.RetValidLen(PrevDurationStat.Tables[0].Rows[i][@"Duration"]).ToString();
-                            string In = clsWebLib.RetValidLen(PrevDurationStat.Tables[0].Rows[i][@"InTime"]).ToString();
-                            string Out = clsWebLib.RetValidLen(PrevDurationStat.Tables[0].Rows[i][@"OutTime"]).ToString();
+                            string In = clsWebLib.RetValidLen(PrevDurationStat.Tables[0].Rows[i][@"ProcessIntime"]).ToString();
+                            string Out = clsWebLib.RetValidLen(PrevDurationStat.Tables[0].Rows[i][@"ProcessOutTime"]).ToString();
 
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
@@ -4168,43 +4168,24 @@ namespace Library.HumanResource.NewAttendanceProcess {
             {
                 throw (ex);
             }
-        }
-        public void ManualInOut(out DataSet ds, string Plant)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-                var sql = @"select EmpsystemId,Format(WorkDate,'yyyy-MMM-dd')WorkDate,
-				 InTime=ISNULL(ManualInTime,PunchInTime),OutTime=
-				 ISNULL(ManualOutTime,PunchOutTime) from  AttdnProcessData
-				 WHERE ManualFlag=1 and PlantID='" + Plant + "' order by WorkDate asc";
-
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
-
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
+        }  
         public void ManualDuration(out DataSet ds, string Plant)
         {
             ConnectionManager.DAL.ConManager objCon;
             try
             {
                 var sql = @"select * from (select Format(WorkDate,'yyyy-MMM-dd')WorkDate,EmpSystemID,
-                datediff(minute,ap.InTime,ap.OutTime) 
-                as CalDuration, Format(ap.InTime,'yyyy-MMM-dd HH:mm:ss')InTime,
-				Format(ap.OutTime,'yyyy-MMM-dd HH:mm:ss')OutTime,
+                datediff(minute,ap.ProcessInTime,ap.ProcessOutTime) 
+                as CalDuration, Format(ap.ProcessInTime,'yyyy-MMM-dd HH:mm:ss')ProcessInTime,
+				Format(ap.ProcessOutTime,'yyyy-MMM-dd HH:mm:ss')ProcessOutTime,
 				Format(ap.ShiftInTime,'yyyy-MMM-dd HH:mm:ss')ShiftInTime, 
                 Format(ap.ShiftOutTime,'yyyy-MMM-dd HH:mm:ss')ShiftOutTime, 
                 sd.ShiftEarlyInMargin,sd.ShiftEarlyOutMargin,sd.ShiftLateInMargin,
                 sd.ShiftLateOutMargin
                 from Attdnprocessdata  ap
                 left join ShiftDefination sd on sd.SystemID=ap.ShiftSystemID
-                where ap.ManualFlag=1 and ap.PlantID='" + Plant + @"' and isnull(ap.InTime,'')!='' 
-				and isnull(ap.OutTime,'')!='') as dd
+                where ap.ManualFlag=1 and ap.PlantID='" + Plant + @"' and isnull(ap.ProcessInTime,'')!='' 
+				and isnull(ap.ProcessOutTime,'')!='') as dd
 				where dd.CalDuration>=0 order by WorkDate asc";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -4244,7 +4225,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             try
             {
                 var sql = @"select p.EmpSystemID,Format(p.WorkDate,'yyyy-MMM-dd')WorkDate,p.Duration
-                ,p.ShiftHalfDayDuration,p.ShiftFullDayDuration,p.InTime,p.OutTime,
+                ,p.ShiftHalfDayDuration,p.ShiftFullDayDuration,p.ProcessInTime,p.ProcessOutTime,
                 p.ShiftShortDuration from AttdnProcessData p 
                 where ManualFlag=1 
                 and p.PlantID='" + Plant + "' order by WorkDate asc";
@@ -4726,11 +4707,11 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                     if (empMaster == "")
                     {
-                        sqlx = @"select * from AttdnProcessData where IsLock=0 and isnull(InTime,'')!='' and isnull(OutTime,'')!='' and PlantID='" + PlantValue + "' and ManualFlag=1";
+                        sqlx = @"select * from AttdnProcessData where IsLock=0 and isnull(ProcessInTime,'')!='' and isnull(ProcessOutTime,'')!='' and PlantID='" + PlantValue + "' and ManualFlag=1";
                     }
                     else
                     {
-                        sqlx = @"select * from AttdnProcessData where IsLock=0 and isnull(InTime,'')!='' and isnull(OutTime,'')!='' and PlantID='" + PlantValue + "' and ManualFlag=1 and RowId in(" + empList + ")";
+                        sqlx = @"select * from AttdnProcessData where IsLock=0 and isnull(ProcessInTime,'')!='' and isnull(ProcessOutTime,'')!='' and PlantID='" + PlantValue + "' and ManualFlag=1 and RowId in(" + empList + ")";
                     }
 
                     objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
@@ -4740,8 +4721,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         string EmpId = ManualDurn.Tables[0].Rows[i][@"EmpSystemID"].ToString();
                         string WorkDate = ManualDurn.Tables[0].Rows[i][@"WorkDate"].ToString();
                         string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
-                        string ProcessInTime = clsWebLib.RetValidLen(ManualDurn.Tables[0].Rows[i][@"InTime"]).ToString();
-                        string ProcessOutTime = clsWebLib.RetValidLen(ManualDurn.Tables[0].Rows[i][@"OutTime"]).ToString();
+                        string ProcessInTime = clsWebLib.RetValidLen(ManualDurn.Tables[0].Rows[i][@"ProcessInTime"]).ToString();
+                        string ProcessOutTime = clsWebLib.RetValidLen(ManualDurn.Tables[0].Rows[i][@"ProcessOutTime"]).ToString();
                         string ShiftOutTime = clsWebLib.RetValidLen(ManualDurn.Tables[0].Rows[i][@"ShiftOutTime"]).ToString();
                         string ShiftInTime = clsWebLib.RetValidLen(ManualDurn.Tables[0].Rows[i][@"ShiftInTime"]).ToString();
                         string CalDuration = clsWebLib.RetValidLen(ManualDurn.Tables[0].Rows[i][@"CalDuration"]).ToString();
@@ -4923,8 +4904,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         string FullDayDuration = clsWebLib.RetValidLen(ManualDurationStat.Tables[0].Rows[i][@"ShiftFullDayDuration"]).ToString();
                         string HalfDayDuration = clsWebLib.RetValidLen(ManualDurationStat.Tables[0].Rows[i][@"ShiftHalfDayDuration"]).ToString();
                         string Duration = clsWebLib.RetValidLen(ManualDurationStat.Tables[0].Rows[i][@"Duration"]).ToString();
-                        string In = clsWebLib.RetValidLen(ManualDurationStat.Tables[0].Rows[i][@"InTime"]).ToString();
-                        string Out = clsWebLib.RetValidLen(ManualDurationStat.Tables[0].Rows[i][@"OutTime"]).ToString();
+                        string In = clsWebLib.RetValidLen(ManualDurationStat.Tables[0].Rows[i][@"ProcessInTime"]).ToString();
+                        string Out = clsWebLib.RetValidLen(ManualDurationStat.Tables[0].Rows[i][@"ProcessOutTime"]).ToString();
 
                         dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                         if (dsRef.Tables[0].DefaultView.Count > 0)
@@ -6614,9 +6595,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             catch (Exception ex)
             {
                 throw ex;
-            }
-
-       
+            }       
         }
 
         #endregion
