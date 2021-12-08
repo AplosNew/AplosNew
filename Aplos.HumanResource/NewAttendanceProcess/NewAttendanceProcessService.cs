@@ -4530,7 +4530,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     var sql = @"UPDATE AttdnProcessData SET IsOTComfirm=1,OTComfirmBy='AutoConfirmation',
                     DateOTComfirm=GETDATE()
-                    where ProcessedOT=0 AND OverStay=0
+                    where ProcessedOT=0 AND OverStay=0 and DayTypeOtApplicable=1
                     and ManualFlag=1 and IsOTComfirm=0 AND IsOTEntitled=1
                     and PlantID='" + Plant + "' and RowId IN(" + empMaster + @")";
 
@@ -4548,7 +4548,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     var sql = @"UPDATE AttdnProcessData SET IsOTComfirm=1,OTComfirmBy='AutoConfirmation',
                         DateOTComfirm=GETDATE()
-                        where ProcessedOT=0 AND OverStay=0
+                        where ProcessedOT=0 AND OverStay=0 and DayTypeOtApplicable=1
                         and ManualFlag=1 and IsOTComfirm=0 AND IsOTEntitled=1
                         and PlantID='" + Plant + "'";
 
