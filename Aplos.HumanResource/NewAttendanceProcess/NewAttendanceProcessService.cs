@@ -4519,53 +4519,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
-        public void ManualZeroProcessedOTEmployees(string Plant, string empMaster)
-        {
-            try
-            {
-
-                string empMaster1 = (clsWebLib.RetValidLen(empMaster).ToString());
-                if (empMaster1 != "")
-                {
-
-                    var sql = @"UPDATE AttdnProcessData SET IsOTComfirm=1,OTComfirmBy='AutoConfirmation',
-                    DateOTComfirm=GETDATE()
-                    where ProcessedOT=0 AND OverStay=0 and DayTypeOtApplicable=1
-                    and ManualFlag=1 and IsOTComfirm=0 AND IsOTEntitled=1
-                    and PlantID='" + Plant + "' and RowId IN(" + empMaster + @")";
-
-                    ConnectionManager.DAL.ConManager objCone = null;
-                    objCone = new ConnectionManager.DAL.ConManager("1");
-                    objCone.OpenConnection("1");
-                    objCone.BeginTransaction();
-
-                    objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                    objCone.CommitTransaction();
-
-                }
-                else
-                {
-
-                    var sql = @"UPDATE AttdnProcessData SET IsOTComfirm=1,OTComfirmBy='AutoConfirmation',
-                        DateOTComfirm=GETDATE()
-                        where ProcessedOT=0 AND OverStay=0 and DayTypeOtApplicable=1
-                        and ManualFlag=1 and IsOTComfirm=0 AND IsOTEntitled=1
-                        and PlantID='" + Plant + "'";
-
-                    ConnectionManager.DAL.ConManager objCone = null;
-                    objCone = new ConnectionManager.DAL.ConManager("1");
-                    objCone.OpenConnection("1");
-                    objCone.BeginTransaction();
-
-                    objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                    objCone.CommitTransaction();
-                }
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
         public void ManualPayrollDayStatus(out DataSet ds, string Plant)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -5559,15 +5512,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 #endregion
 
                 SaveLog("OT Confirming Not Applicable DayStatus Logic Ran Successfully ...", PlantValue, false);
-
-                #region OT Entitled Employees whose ProcessedOT is 0
-
-                // Confirming the OT of Employees Whose Processed OT is 0
-                ManualZeroProcessedOTEmployees(PlantValue, empList);
-
-                #endregion
-
-                SaveLog("OT Entitled & 0 Processed OT Logic Ran Successfully ...", PlantValue, false);
 
                 #region Set Manual Flag ->0              
                 ProcessManualFlag(ManualFlagRowId); // Set ManualFlag to 0
