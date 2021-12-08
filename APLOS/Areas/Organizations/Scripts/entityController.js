@@ -186,7 +186,7 @@ function entityController(addressService, cboService, commonMessage, $rootScope,
     $scope.GetAddressMaster = function (id) {
         $http.get('addresses/addressmaster/get/' + id)
             .then(function (response) {
-                if (baseService.arrayLength(response.data)>0) {
+                if (!baseService.isUndefinedOrNull(response.data)) {
                     $scope.addressMaster = response.data;
                     $scope.onContinentChange($scope.addressMaster.ContinentId);
                     $scope.onCountryChange($scope.addressMaster.CountryId);

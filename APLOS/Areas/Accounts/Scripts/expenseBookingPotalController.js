@@ -283,14 +283,6 @@ function expenseBookingPotalController(cboService, commonMessage, $scope, $rootS
     }
     $scope.entityLoad();
 
-    baseService.getCompanyConfiguration(function (result) {
-        $scope.companyConfig = result;
-        cboService.getEntityCboByPlant(null, null, "", function (result) {
-            $scope.entityList = result;
-        });
-    });
-
-
     $scope.costCenterCboList = [];
     $scope.GetCboCostCenterIdByEntity = function (entityId) {
         $http({
