@@ -156,20 +156,20 @@ namespace Library.MaterialManagement.Inventory
                 DataSet dsDetail;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("SELECT * FROM TermsAndConditionsPOChild WHERE POId='" + POId + "'", out dsDetail, false, "1");
-                if (dsDetail.Tables[0].Rows.Count > 0)
-                {
-                    if (dsDetail.Tables[0].Rows[0]["Id"].ToString() != TitleId)
-                    {
-                        string strSQLDetail = "DELETE FROM TermsAndConditionsPODetails Where TermsAndConditionsPOChildId IN(SELECT ID FROM TermsAndConditionsPOChild WHERE POId='" + POId + "')";
-                        string strSQLChild = "DELETE FROM TermsAndConditionsPOChild WHERE POId='" + POId + "'";
-                        con = new ConnectionManager.DAL.ConManager("1");
-                        con.OpenConnection("1");
-                        con.BeginTransaction();
-                        con.ExecuteNonQueryWrapper(strSQLDetail, true, "1");
-                        con.ExecuteNonQueryWrapper(strSQLChild, true, "1");
-                        con.CommitTransaction();
-                    }
-                }
+                //if (dsDetail.Tables[0].Rows.Count > 0)
+                //{
+                //    if (dsDetail.Tables[0].Rows[0]["Id"].ToString() != TitleId)
+                //    {
+                //        string strSQLDetail = "DELETE FROM TermsAndConditionsPODetails Where TermsAndConditionsPOChildId IN(SELECT ID FROM TermsAndConditionsPOChild WHERE POId='" + POId + "')";
+                //        string strSQLChild = "DELETE FROM TermsAndConditionsPOChild WHERE POId='" + POId + "'";
+                //        con = new ConnectionManager.DAL.ConManager("1");
+                //        con.OpenConnection("1");
+                //        con.BeginTransaction();
+                //        con.ExecuteNonQueryWrapper(strSQLDetail, true, "1");
+                //        con.ExecuteNonQueryWrapper(strSQLChild, true, "1");
+                //        con.CommitTransaction();
+                //    }
+                //}
                 con.OpenDataSetThroughAdapter("SELECT * FROM TermsAndConditionsPOChild WHERE 1=2", out dsToSalesOrder, false, "1");
                 con.OpenDataSetThroughAdapter("SELECT * FROM TermsAndConditionsPODetails WHERE 1=2", out dsToFirstCharacteristics, false, "1");
 
