@@ -307,19 +307,14 @@ function expenseBookingController(cboService, commonMessage, $scope, $rootScope,
         });
     };
     $scope.entityList = [];
-    //baseService.getCompanyConfiguration(function (result) {
-    //    $scope.companyConfig = result;
-    //    cboService.getCboEntityByPlant(null, null, "", function (result) {
-    //        $scope.entityList = result;
-    //    });
-    //});
-
     baseService.getCompanyConfiguration(function (result) {
         $scope.companyConfig = result;
-        cboService.getEntityCboByPlant(null, null, "", function (result) {
+        cboService.getCboEntityByPlant(null, null, "", function (result) {
             $scope.entityList = result;
         });
     });
+
+   
 
 
     $scope.closeEmployeePopUp = function () {
