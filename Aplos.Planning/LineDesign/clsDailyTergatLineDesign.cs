@@ -202,8 +202,46 @@ namespace Library.Planning.LineDesign
                 }
             }
 
-            DataSet dsMaster, dsChild;
             ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+            con.OpenDataSetThroughAdapter("select L.EmployeeSystemId,E.EmployeeCode,E.EmployeeName,FixedAssetRegisterId from LineLayoutDailyTargetData L  " +
+                @" left join EmployeeInformation E on e.SystemId=L.EmployeeSystemId " +
+                @" WHERE L.LineLayoutDailyTargetId=(select top 1 Id from LineLayoutDailyTarget " +
+                "where WorkCenterMasterId <> '" + WorkCenterMasterId + @"' AND TargetDate='" + TargetDate + @"')", out DataSet dsVaidationChild, false, "1");
+
+            for (int j = 0; j < HtmlsInfo.Count; j++)
+            {
+                if (string.IsNullOrEmpty(HtmlsInfo[j].EmployeeId) == false)
+                {
+
+                    dsVaidationChild.Tables[0].DefaultView.RowFilter = "EmployeeSystemId='" + HtmlsInfo[j].EmployeeId + "'";
+                    if (dsVaidationChild.Tables[0].DefaultView.Count > 0)
+                        throw new Exception("employee has already tagged with other work center for the day [" + dsVaidationChild.Tables[0].DefaultView[0]["EmployeeCode"].ToString() + @"-" + dsVaidationChild.Tables[0].DefaultView[0]["EmployeeName"].ToString() + @"]");
+
+                    var xy = HtmlsInfo.Where(H => H.EmployeeId == HtmlsInfo[j].EmployeeId).ToList();
+                    if (xy.Count > 1)
+                    {
+                        throw new Exception("Duplicate employee found in layout " + xy[0].EmployeeCode + "-" + xy[0].EmployeeName);
+                    }
+                }
+
+                if (string.IsNullOrEmpty(HtmlsInfo[j].FixedAssetRegisterId) == false)
+                {
+
+                    dsVaidationChild.Tables[0].DefaultView.RowFilter = "FixedAssetRegisterId='" + HtmlsInfo[j].FixedAssetRegisterId + "'";
+                    if (dsVaidationChild.Tables[0].DefaultView.Count > 0)
+                        throw new Exception("Machine has already tagged with other work center for the day [" + dsVaidationChild.Tables[0].DefaultView[0]["FixedAssetRegisterId"].ToString() +"]");
+
+                    var xy = HtmlsInfo.Where(H => H.FixedAssetRegisterId == HtmlsInfo[j].FixedAssetRegisterId).ToList();
+                    if (xy.Count > 1)
+                    {
+                        throw new Exception("Duplicate machine found in layout " + xy[0].FixedAssetRegisterId);
+                    }
+                }
+            }
+            
+
+            DataSet dsMaster, dsChild;
+            con = new ConnectionManager.DAL.ConManager("1");
             con.OpenDataSetThroughAdapter("select * from LineLayoutDailyTarget where WorkCenterMasterId = '" + WorkCenterMasterId + @"' AND  ProductionOrderId='" + ProductionOrderId + @"' AND TargetDate='" + TargetDate + @"'", out dsMaster, false, "1");
             con.OpenDataSetThroughAdapter("select * from LineLayoutDailyTargetData where LineLayoutDailyTargetId=(select top 1 Id from LineLayoutDailyTarget where WorkCenterMasterId = '" + WorkCenterMasterId + @"' AND  ProductionOrderId='" + ProductionOrderId + @"' AND TargetDate='" + TargetDate + @"')", out dsChild, false, "1");
 
@@ -224,6 +262,8 @@ namespace Library.Planning.LineDesign
             //delete missing items from db
             while (dsChild.Tables[0].DefaultView.Count > 0)
                 dsChild.Tables[0].DefaultView[0].Delete();
+
+            
 
             string ChildPK = "";
             for (int i = 0; i < HtmlsInfo.Count; i++)

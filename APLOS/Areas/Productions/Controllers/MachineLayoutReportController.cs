@@ -327,7 +327,7 @@ namespace Aplos.Areas.Productions.Controllers
 
                     #region ----------------------Data-----------------------                    
 
-                    sheet1.Range[xlsRow, iTGT].Text = dsMasterData.Tables[0].Rows[i]["WorkstationTargetPerHour"].ToString().Trim();
+                    sheet1.Range[xlsRow, iTGT].Text = dsMasterData.Tables[0].Rows[i]["OperationTargetPerHr"].ToString().Trim();
                     sheet1.Range[xlsRow, iTGT].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[xlsRow, iTGT].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet1.Range[xlsRow, iTGT, xlsRow, iTGT].Merge();
@@ -356,7 +356,7 @@ namespace Aplos.Areas.Productions.Controllers
                         sheet1.Range[xlsRow - 1, 1, xlsRow , endXlsCol].WrapText = true;
                         continue;
                     }
-                    sheet1.Range[xlsRow, iTG2].Text = dsMasterData.Tables[0].Rows[i]["WorkstationTargetPerHour"].ToString().Trim();
+                    sheet1.Range[xlsRow, iTG2].Text = dsMasterData.Tables[0].Rows[i]["OperationTargetPerHr"].ToString().Trim();
                     sheet1.Range[xlsRow, iTG2].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[xlsRow, iTG2].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet1.Range[xlsRow, iTG2, xlsRow, iTG2].Merge();

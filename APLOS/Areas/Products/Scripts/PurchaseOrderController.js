@@ -4562,7 +4562,9 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 			// $scope.ShowResultCustom(e, 'failure');
 		}
 	};
-
+    $scope.calculateRequisitionData = function (data) {
+		$scope.totalCurrentQty = $filter('sumByKey')($filter('filter')($scope.GetListForMasterOrder), 'TransactionQty');
+    }
 
 }//End Of main
 

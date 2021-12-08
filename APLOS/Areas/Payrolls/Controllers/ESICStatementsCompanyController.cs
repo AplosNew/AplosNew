@@ -663,7 +663,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                                                 left join [dbo].[EmployeeCodeType] ect on ect.Id=e.EmployeeCodeTypeId
                                             where EESHE.SalaryStructureId = spc.SalaryId AND
                                                 EESHE.EmpSystemId = e.SystemId 
-												AND EESHE.SalaryHeadEnum IN('ESIC')   AND IsEligible = 1 and and ISNULL(ect.IsOutSider,0) =0
+												AND EESHE.SalaryHeadEnum IN('ESIC')   AND IsEligible = 1 and ISNULL(ect.IsOutSider,0) =0
 											 )          
                                                 and
                               E.CompanyId ='" + plantId + @"'

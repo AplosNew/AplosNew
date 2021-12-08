@@ -630,6 +630,16 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
             $scope.selectednode.items[0].addInfo.TotalSPT = args.data.TotalSPT;
             //$scope.selectednode.items[0].addInfo.WorkstationTargetPerHour = args.data.WorkstationTargetPerHour;
 
+            $scope.selectednode.items[0].addInfo.FixedAssetRegisterId = null;
+            $scope.selectednode.items[0].addInfo.FixedAssetRegisterDesc = null;
+            $scope.selectednode.items[0].addInfo.EmployeeId = null;
+            $scope.selectednode.items[0].addInfo.EmployeeName = null;
+            $scope.selectednode.items[0].addInfo.EmpPicPath = null;
+            $scope.selectednode.items[0].addInfo.Designation = null;
+            $scope.selectednode.items[0].addInfo.EmployeeCode = null;
+            $scope.selectednode.items[0].addInfo["DayStatus"] = null;
+            $scope.selectednode.items[0].addInfo["DayColor"] = null;
+
             angular.element(document.querySelector("#modalOperationList")).modal("hide");
         } catch (e) {
 
