@@ -16,6 +16,7 @@ using System.Drawing;
 using Syncfusion.XlsIO;
 using System.IO;
 using Library.Service.Helpers;
+using System.Linq;
 
 #endregion
 
@@ -157,16 +158,18 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet1.Range[xlsRow, xlsCol + 2, xlsRow, xlsCol + 4].Merge();
 
                 xlsRow += 1;
+                int StartCalRow = xlsRow;
+                int endCalCol = xlsCol + 2;
                 sheet1.Range[xlsRow, xlsCol].Text = "Operators";
                 sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
-                sheet1.Range[xlsRow, xlsCol + 1].Text = ": " /*+ Data["Operators"].ToString().Trim()*/;
+                sheet1.Range[xlsRow, xlsCol + 2].Text = Data["ManPowerWithMachine"].ToString().Trim();
                 sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                 xlsRow += 1;
                 sheet1.Range[xlsRow, xlsCol].Text = "Helpers";
                 sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
-                sheet1.Range[xlsRow, xlsCol + 1].Text = ": " /*+ Data["Helpers"].ToString().Trim()*/;
+                sheet1.Range[xlsRow, xlsCol + 2].Text = Data["ManPowerWithHand"].ToString().Trim();
                 sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
@@ -182,12 +185,13 @@ namespace Aplos.Areas.Productions.Controllers
                 xlsRow = 6;
 
                 sheet1.Range[xlsRow, xlsCol].Text = "M/C-SPT";
-                sheet1.Range[xlsRow, xlsCol + 1].Text = Data["SMV"].ToString().Trim();
+                sheet1.Range[xlsRow, xlsCol + 1].Text = "Manual-SMV";
                 sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 2].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 2].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                 xlsRow += 1;
-                sheet1.Range[xlsRow, xlsCol].Text = " 3.78";
+                int CalRow = xlsRow;int CalCol = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "3.78";
                 sheet1.Range[xlsRow, xlsCol + 1].Text = " 1.27 " /*+ Data["SPT"].ToString().Trim()*/;
                 sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -195,18 +199,20 @@ namespace Aplos.Areas.Productions.Controllers
 
                 xlsRow += 1;
                 sheet1.Range[xlsRow, xlsCol - 2].Text = "Line";
-                sheet1.Range[xlsRow, xlsCol - 1].Text = "tests " /*+ Data["Operators"].ToString().Trim()*/;
+                sheet1.Range[xlsRow, xlsCol - 1].Text = Data["Line"].ToString().Trim();
                 sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                 xlsRow += 1;
+                int rows = xlsRow;int cols = xlsCol - 1;
                 sheet1.Range[xlsRow, xlsCol - 2].Text = "TGT 100% :PCs";
-                sheet1.Range[xlsRow, xlsCol - 1].Text = "333" /*+ Data["Operators"].ToString().Trim()*/;
+                sheet1.Range[xlsRow, xlsCol - 1].Formula = "(" + 60 +"/"+  clsStaticInfo.GetxlsCol(CalCol) + CalRow + ") * " + clsStaticInfo.GetxlsCol(endCalCol) + (StartCalRow) + "";
                 sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                 sheet1.Range[xlsRow, xlsCol].Text = "TGT 85% :PCs";
                 sheet1.Range[xlsRow, xlsCol + 1].Text = "333" /*+ Data["Operators"].ToString().Trim()*/;
+                sheet1.Range[xlsRow, xlsCol + 1].Formula = "(" +clsStaticInfo.GetxlsCol(cols) + rows + ") * 0.85";
                 sheet1.Range[xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
@@ -337,12 +343,19 @@ namespace Aplos.Areas.Productions.Controllers
                     sheet1.Range[xlsRow, iSMV].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet1.Range[xlsRow, iSMV, xlsRow, iSMV].Merge();
 
-                    sheet1.Range[xlsRow, iTOMC].Text = dsMasterData.Tables[0].Rows[i]["IsMachineRequired"].ToString().Trim();
+                    sheet1.Range[xlsRow, iTOMC].Text = dsMasterData.Tables[0].Rows[i]["MACHINE"].ToString().Trim();
                     sheet1.Range[xlsRow, iTOMC].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[xlsRow, iTOMC].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet1.Range[xlsRow, iTOMC, xlsRow, iTOMC].Merge();
 
                     i++;
+                    if (i > dsMasterData.Tables[0].Rows.Count - 1)
+                    {
+                        sheet1.Range[xlsRow - 1, 1, xlsRow , endXlsCol].BorderInside(ExcelLineStyle.Thin);
+                        sheet1.Range[xlsRow - 1, 1, xlsRow , endXlsCol].BorderAround(ExcelLineStyle.Thin);
+                        sheet1.Range[xlsRow - 1, 1, xlsRow , endXlsCol].WrapText = true;
+                        continue;
+                    }
                     sheet1.Range[xlsRow, iTG2].Text = dsMasterData.Tables[0].Rows[i]["WorkstationTargetPerHour"].ToString().Trim();
                     sheet1.Range[xlsRow, iTG2].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[xlsRow, iTG2].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -358,7 +371,7 @@ namespace Aplos.Areas.Productions.Controllers
                     sheet1.Range[xlsRow, iSMV2].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet1.Range[xlsRow, iSMV2, xlsRow, iSMV2].Merge();
 
-                    sheet1.Range[xlsRow, iTOMC2].Text = dsMasterData.Tables[0].Rows[i]["IsMachineRequired"].ToString().Trim();
+                    sheet1.Range[xlsRow, iTOMC2].Text = dsMasterData.Tables[0].Rows[i]["MACHINE"].ToString().Trim();
                     sheet1.Range[xlsRow, iTOMC2].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[xlsRow, iTOMC2].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet1.Range[xlsRow, iTOMC2, xlsRow, iTOMC2].Merge();
@@ -368,13 +381,13 @@ namespace Aplos.Areas.Productions.Controllers
 
                     #region Line Setup
 
-                    sheet1.Range[xlsRow - 1, 1, xlsRow - 1, endXlsCol].BorderInside(ExcelLineStyle.Thin);
-                    sheet1.Range[xlsRow - 1, 1, xlsRow - 1, endXlsCol].BorderAround(ExcelLineStyle.Thin);
-                    sheet1.Range[xlsRow - 1, 1, xlsRow - 1, endXlsCol].WrapText = true;
+                    sheet1.Range[xlsRow - 1, 1, xlsRow -1, endXlsCol].BorderInside(ExcelLineStyle.Thin);
+                    sheet1.Range[xlsRow - 1, 1, xlsRow -1, endXlsCol].BorderAround(ExcelLineStyle.Thin);
+                    sheet1.Range[xlsRow - 1, 1, xlsRow -1, endXlsCol].WrapText = true;
 
                     #endregion Line Setup
                 }
-                int endrow = xlsRow - 1;
+                int endrow = xlsRow ;
                 sheet1.Range[startrow, iUnit, endrow, iUnit].Merge();
                 sheet1.Range[startrow, iUnit, endrow, iUnit].Text = "Center Table";
                 sheet1[startrow, iUnit, endrow, iUnit].CellStyle.Rotation = 90;
@@ -383,6 +396,18 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet1.Range[startrow, iUnit, endrow, iUnit].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[startrow, iUnit, endrow, iUnit].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet1.Range[startrow, iUnit, endrow, iUnit].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_50_percent;
+
+                xlsRow++;
+                sheet1.Range[xlsRow, 3].Text = "Left Side";
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 3, xlsRow, 4].Merge();
+                sheet1.Range[xlsRow, 3, xlsRow, 4].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, 3, xlsRow,4].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, 11].Text = "Right Side";
+                sheet1.Range[xlsRow, 11].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 11, xlsRow, 12].Merge();
+                sheet1.Range[xlsRow, 11, xlsRow, 12].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, 11, xlsRow, 12].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                 int MachineStartRow = endrow + 3;
                 int MachineStartCol = iTG2 - 2;
@@ -498,56 +523,63 @@ namespace Aplos.Areas.Productions.Controllers
                 xlsCol = MachineStartCol;
                 sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 2].Merge();
                 sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 2].Text = "Machine type";
-                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 2].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 2].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 2].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 2].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_yellow;
 
                 xlsRow++;
-                string SameMachine = string.Empty;
-                int count = 0;
 
                 int TotalCalculation = xlsRow;
 
-                for (int i = 0; i < dsMasterData.Tables[0].Rows.Count - 1; i++)
+              //DataTable dtMachineSummary=  dsMasterData.Tables[0].AsEnumerable().GroupBy(x => new
+              //  {
+              //      SalesOrderId = x["Machine"]
+              //  })
+              //                       .Select(x =>
+              //                       {
+              //                           DataRow row = dsMasterData.Tables[0].NewRow();
+              //                           row["Machine"] = x.Key.SalesOrderId;
+              //                           row["Rcount"] = x.Sum(r => (decimal)r["Rcount"]);
+              //                           return row;
+              //                       }
+              //                       ).CopyToDataTable();
+
+
+                DataTable dtDistinctMachine = dsMasterData.Tables[0].DefaultView.ToTable(true, "Machine");
+                int startFormulaRow = xlsRow;
+                int startFormulaCol = xlsCol+2;
+                for (int i = 0; i < dtDistinctMachine.Rows.Count; i++)
                 {
-                    
-                    if (SameMachine == string.Empty && count == 0)
-                    {
-                        if (count == 0)
-                        {
-                            sheet1.Range[xlsRow, xlsCol + 1].Text = dsMasterData.Tables[0].Rows[i]["IsMachineRequired"].ToString().Trim();
-                            sheet1.Range[xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            sheet1.Range[xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    dsMasterData.Tables[0].DefaultView.RowFilter = "Machine='"+ dtDistinctMachine.Rows[i]["MACHINE"].ToString() + "'";
 
-                            SameMachine = dsMasterData.Tables[0].Rows[i]["IsMachineRequired"].ToString().Trim();
-                            count++; xlsRow++;
-                        }
-                        
-                    }
-                    if (SameMachine == dsMasterData.Tables[0].Rows[i]["IsMachineRequired"].ToString().Trim() && count !=0 )
-                    {
-                        if (count == 1)
-                        {
+                    sheet1.Range[xlsRow, xlsCol].Text = dtDistinctMachine.Rows[i]["MACHINE"].ToString();
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
 
-                        }
-                        else
-                        {
-                            count++;
-                        }
-                    }
-                   
-                    if (SameMachine != dsMasterData.Tables[0].Rows[i]["IsMachineRequired"].ToString().Trim())
-                    {
-                        sheet1.Range[xlsRow, xlsCol + 1].Text = count.ToString();
-                        sheet1.Range[xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 2].Merge();
-                        count = 0;
-                        SameMachine = string.Empty;
-                    }
-
+                    sheet1.Range[xlsRow, xlsCol + 2].Number = dsMasterData.Tables[0].DefaultView.Count;
+                    sheet1.Range[xlsRow, xlsCol + 2].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol + 2].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    xlsRow++;
                 }
 
+                sheet1.Range[MachineStartRow , MachineStartCol, xlsRow, MachineStartCol+2].BorderInside(ExcelLineStyle.Thin);
+                sheet1.Range[MachineStartRow , MachineStartCol, xlsRow, MachineStartCol+2].BorderAround(ExcelLineStyle.Thin);
+                sheet1.Range[MachineStartRow , MachineStartCol, xlsRow, MachineStartCol+2].WrapText = true;
 
+                sheet1.Range[xlsRow, xlsCol].Text = "Total ManPower";
+                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, xlsCol].RowHeight = 13.2;
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_yellow;
+
+                sheet1.Range[xlsRow, xlsCol + 2].Formula= "SUM(" + clsStaticInfo.GetxlsCol(startFormulaCol) + startFormulaRow + ":" + clsStaticInfo.GetxlsCol(startFormulaCol) + (xlsRow - 1) + ")";
+                sheet1.Range[xlsRow, xlsCol + 2].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, xlsCol + 2].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, xlsCol + 2].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_yellow;
 
                 #region Page Setup
                 sheet1.PageSetup.TopMargin = 0.5;
@@ -644,15 +676,18 @@ namespace Aplos.Areas.Productions.Controllers
 
             try
             {
-                strSql = @"SELECT ov.UserName OperationVariationName  ,pbtd.OperationTargetPerHr,o.IsMachineRequired,pbtd.TotalSPT
+                strSql = @"SELECT ov.UserName OperationVariationName  ,pbtd.OperationTargetPerHr,o.IsMachineRequired,pbtd.TotalSPT,
+								CASE WHEN ISNULL(o.IsMachineRequired,'')='M' THEN 'Manual' ELSE ISNULL(mma.StandardName,'Missing Machcine') END AS MACHINE
 		                        ,CONVERT(INT,pbtd.OperationTargetPerHr/CASE WHEN pbtd.RequiredManPower>0 THEN pbtd.RequiredManPower ELSE 1 END) WorkstationTargetPerHour
                                 FROM LineLayoutDailyTargetData AS llbpbd
-                                LEFT JOIN MST.OperationVariation AS ov ON ov.Id=llbpbd.OperationVariationId
-                                LEFT JOIN TRN.ProductionBulletinTemplateDetail AS pbtd ON pbtd.OperationVariationId = ov.Id
-                                LEFT JOIN mst.Operation AS o ON o.Id=ov.OperationId
                                 LEFT JOIN LineLayoutDailyTarget AS lldt ON lldt.Id = llbpbd.LineLayoutDailyTargetId
-                                LEFT JOIN LineLayoutByProductionBulletin AS llbpb ON llbpb.ProductionBulletinTemplateMasterId = lldt.ProductionBulletinTemplateMasterId
-                                WHERE lldt.TargetDate ='" + ProductionDate + "' AND llbpb.ProcessId='" + ProcessId + @"' AND llbpb.EntityId='" + EntityId + @"' AND lldt.WorkCenterMasterId='" + WorkCenterMasterId + @"'
+                                LEFT JOIN MST.OperationVariation AS ov ON ov.Id=llbpbd.OperationVariationId
+                                JOIN TRN.ProductionBulletinTemplateDetail AS pbtd ON pbtd.OperationVariationId =llbpbd.OperationVariationId AND pbtd.ProductionBulletinTemplateMasterId=lldt.ProductionBulletinTemplateMasterId
+                                AND pbtd.OperationVariationId=(SELECT TOP 1 OperationVariationId FROM LineLayoutDailyTargetData Y WHERE y.LineLayoutDailyTargetId=lldt.Id AND y.OperationVariationId=llbpbd.OperationVariationId) 
+                                LEFT JOIN mst.Operation AS o ON o.Id=ov.OperationId   
+                                LEFT JOIN  trn.FixedAssetRegister AS far ON far.Id=llbpbd.FixedAssetRegisterId  
+                                LEFT JOIN mst.MaterialMasterArticle AS mma ON mma.Id=far.MaterialMasterArticleId       
+                                WHERE lldt.TargetDate ='" + ProductionDate + "' AND lldt.ProcessId='" + ProcessId + @"' AND lldt.EntityId='" + EntityId + @"' AND lldt.WorkCenterMasterId='" + WorkCenterMasterId + @"'
                                 ORDER BY llbpbd.Sequence";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");

@@ -1,6 +1,6 @@
 ﻿'use strict';
-entityController.$inject = ['addressService','cboService', 'commonMessage', '$rootScope', '$scope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$compile'];
-function entityController(addressService,cboService, commonMessage, $rootScope, $scope, baseService, $routeParams, $location, $http, $filter, $compile) {
+entityController.$inject = ['addressService', 'cboService', 'commonMessage', '$rootScope', '$scope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$compile'];
+function entityController(addressService, cboService, commonMessage, $rootScope, $scope, baseService, $routeParams, $location, $http, $filter, $compile) {
     $rootScope.title = 'Entity';
     $scope.Action = 'Save';
     var url = 'Organizations/entity/getlist';
@@ -37,7 +37,7 @@ function entityController(addressService,cboService, commonMessage, $rootScope, 
         IsProduction: false,
         FilePrefix: null,
         ThirdPartyBusinessArea: null,
-        ThirdPartyProfitCenter:null
+        ThirdPartyProfitCenter: null
     };
 
     $scope.addressMaster = {
@@ -167,7 +167,6 @@ function entityController(addressService,cboService, commonMessage, $rootScope, 
         });
     };
     // #endregion
-
     $scope.Get = function (id) {
         $http.get('Organizations/entity/GetById?companyId=' + $scope.companyStructureSetup.CompanyId + '&&id=' + id)
             .then(function (response) {
@@ -187,11 +186,13 @@ function entityController(addressService,cboService, commonMessage, $rootScope, 
     $scope.GetAddressMaster = function (id) {
         $http.get('addresses/addressmaster/get/' + id)
             .then(function (response) {
-                $scope.addressMaster = response.data;
-                $scope.onContinentChange($scope.addressMaster.ContinentId);
-                $scope.onCountryChange($scope.addressMaster.CountryId);
-                $scope.onStateChange($scope.addressMaster.CountryId);
-                $scope.onCityChange($scope.addressMaster.CityId);
+                if (baseService.arrayLength(response.data)>0) {
+                    $scope.addressMaster = response.data;
+                    $scope.onContinentChange($scope.addressMaster.ContinentId);
+                    $scope.onCountryChange($scope.addressMaster.CountryId);
+                    $scope.onStateChange($scope.addressMaster.CountryId);
+                    $scope.onCityChange($scope.addressMaster.CityId);
+                }
             });
     };
 
@@ -211,7 +212,7 @@ function entityController(addressService,cboService, commonMessage, $rootScope, 
                 $http({
                     method: 'POST',
                     url: 'Organizations/entity/Create',
-                    data: { 'entity':$scope.companyStructureSetup, 'addressMaster': $scope.addressMaster },
+                    data: { 'entity': $scope.companyStructureSetup, 'addressMaster': $scope.addressMaster },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {

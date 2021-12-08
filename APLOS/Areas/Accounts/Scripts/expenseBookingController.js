@@ -314,6 +314,9 @@ function expenseBookingController(cboService, commonMessage, $scope, $rootScope,
         });
     });
 
+   
+
+
     $scope.closeEmployeePopUp = function () {
         if ($scope.employeeIndex !== -1) {
             var employee = $scope.employeeList[$scope.employeeIndex];
