@@ -3070,7 +3070,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             {
                 var sql = @"UPDATE AttdnProcessData SET IsOTComfirm=1,OTComfirmBy='AutoConfirmation',
                 DateOTComfirm=GETDATE()
-                where ProcessedOT=0 AND OverStay IS NULL
+                where (ProcessedOT=0 AND OverStay IS NULL) and isnull(DayStatus,'')!=''
                 and WorkDate='"+Date+@"' and IsOTComfirm=0 AND IsOTEntitled=1
                 and PlantID='"+Plant+"'";
 
@@ -6074,6 +6074,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 }
                                 SaveDataSets(dsOt);
                             }
+                            #endregion
+
+                            #region DayStatusHeaderId Localization
+
                             #endregion
 
                         }
