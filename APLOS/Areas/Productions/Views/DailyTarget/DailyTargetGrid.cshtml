@@ -38,21 +38,21 @@
         <button ng-click="$parent.AddLineItemG(this);" ng-show="data.CanCopy||data.HasLayout" style="color: #f3f3ec; height: 28px; width: 28px; padding: 0px; margin: 0px; background-color:{{data.HasLayout?'#00ff00':'#ffd800'}}; " title="Actions" class="btn">
             <i class="glyphicon glyphicon-list"></i>
         </button>
-        <button ng-click="$parent.DownloadReport(data);" style="height: 28px; width: 28px; padding: 0px; margin: 0px; " title="Report" class="btn">
+        <button ng-click="$parent.DownloadReport(data);" ng-show="data.HasLayout" style="height: 28px; width: 28px; padding: 0px; margin: 0px; " title="Report" class="btn">
             <i class="glyphicon glyphicon-download"></i>
         </button>
     </div>
 </script>
 
-<script type="text/template" id="templateManPowerWithMachine">
-    <input type="text" class="form-control" ej-numerictextbox e-decimalplaces="2" e-minValue="0" e-enablertl="false" e-value="data.ManPowerWithMachine" e-width="100%" />
+<script type="text/template" id="templateManPowerWithMachine" >
+    <input type="text" class="form-control" e-enabled="{{data.HasLayout?'false':'true'}}" ej-numerictextbox e-decimalplaces="2" e-minValue="0" e-enablertl="false" e-value="data.ManPowerWithMachine" e-width="100%" />
 </script>
 <script type="text/template" id="templateManPowerWithHand">
-    <input type="text" class="form-control" ej-numerictextbox e-decimalplaces="2" e-minValue="0" e-enablertl="false" e-value="data.ManPowerWithHand" e-width="100%" />
+    <input type="text" class="form-control" e-enabled="{{data.HasLayout?'false':'true'}}" ej-numerictextbox e-decimalplaces="2" e-minValue="0" e-enablertl="false" e-value="data.ManPowerWithHand" e-width="100%" />
 
 </script>
 <script type="text/template" id="templateSMV">
-    <input type="text" class="form-control" ej-numerictextbox e-decimalplaces="2" e-minValue="0" e-enablertl="false" e-value="data.SMV" e-width="100%" />
+    <input type="text" class="form-control"  ej-numerictextbox e-decimalplaces="2" e-minValue="0" e-enablertl="false" e-value="data.SMV" e-width="100%" />
 
 </script>
 <script type="text/template" id="templateTotalHour">
