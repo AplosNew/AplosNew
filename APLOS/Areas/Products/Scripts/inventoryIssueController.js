@@ -364,7 +364,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 		$scope.specificStockList = [];
 		$scope.IssueType = 'Revenue';
 		$scope.productNew.OrderSpecific = 'No';
-		$scope.ispostDisable = true;
+		$scope.ispostDisable = false;
 	}
 
 	// #region Details

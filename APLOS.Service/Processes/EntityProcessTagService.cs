@@ -257,13 +257,13 @@ namespace Library.Service.Processes
         {
             if (cadmin || sadmin)
             {
-                string _sql = @"SELECT DISTINCT P.Id AS [Value], P.UserName AS [Text],EP.ProductionBookingLevel,EP.LotNumberMandatory,EP.LotNumberCapture FROM HKP.EntityProcessTag AS EP
+                string _sql = @"SELECT DISTINCT P.Id AS [Value], P.UserName AS [Text],EP.ProductionBookingLevel,EP.LotNumberMandatory,EP.LotNumberCapture,EP.IsSKU1,EP.IsSKU2,EP.IsSKU3  FROM HKP.EntityProcessTag AS EP
                             JOIN HKP.Process AS P ON EP.ProcessId=P.Id WHERE EP.EntityId='" + entityId + "' AND P.Active=1 ";
                 return _sqlRepository.GetGridData(new GridParameter { CmdText = _sql });
             }
             else
             {
-                string _sql = @"SELECT P.Id AS [Value], P.UserName AS [Text],EPT.ProductionBookingLevel,EPT.LotNumberMandatory,EPT.LotNumberCapture FROM HKP.EntityProcessTag EPT
+                string _sql = @"SELECT P.Id AS [Value], P.UserName AS [Text],EPT.ProductionBookingLevel,EPT.LotNumberMandatory,EPT.LotNumberCapture,EP.IsSKU1,EP.IsSKU2,EP.IsSKU3  FROM HKP.EntityProcessTag EPT
 						        INNER JOIN HKP.Process AS P ON P.Id=EPT.ProcessId
 						        INNER JOIN [SEC].[UserProcess] UP ON UP.ProcessId=P.Id
 						        WHERE EPT.EntityId='" + entityId + @"' AND UP.UserId='"+ userId + "' AND P.Active=1";

@@ -2934,8 +2934,8 @@ namespace Library.HumanResource.Payroll
                         if (string.IsNullOrEmpty(dtEmployees.Rows[i]["DOS"].ToString()) == false)
                             sheet1.Range[xlsRow, ColDOS].Text = dtEmployees.Rows[i]["DOS"].ToString();
                         sheet1.Range[xlsRow, ColDOS].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        sheet1.Range[xlsRow, ColDOS].VerticalAlignment = ExcelVAlign.VAlignCenter; 
-                        
+                        sheet1.Range[xlsRow, ColDOS].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
                         if (string.IsNullOrEmpty(dtEmployees.Rows[i]["PlantName"].ToString()) == false)
                             sheet1.Range[xlsRow, ColPlant].Text = dtEmployees.Rows[i]["PlantName"].ToString();
                         sheet1.Range[xlsRow, ColPlant].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -13133,7 +13133,7 @@ ELSE CONVERT(BIT,0) END  ---No
         }
 
 
-        public IEnumerable<object> GetEmpInfoSalaryPorcessed(string companyGroupId, string plantId, string effectiveDate, string salaryProcessId, bool sa, bool ca, string userId, bool isActive, bool isSeperated, bool isMaternity )
+        public IEnumerable<object> GetEmpInfoSalaryPorcessed(string companyGroupId, string plantId, string effectiveDate, string salaryProcessId, bool sa, bool ca, string userId, bool isActive, bool isSeperated, bool isMaternity)
         {
             try
             {
@@ -13329,7 +13329,7 @@ ELSE CONVERT(BIT,0) END  ---No
         }
 
         //For the Employee Code Type (Sayanto)
-        public IEnumerable<object> GetEmpInfoSalaryPorcessedWithType(string companyGroupId, string plantId, string effectiveDate, string salaryProcessId, bool sa, bool ca, string userId, bool isActive, bool isSeperated, bool isMaternity , string typeId)
+        public IEnumerable<object> GetEmpInfoSalaryPorcessedWithType(string companyGroupId, string plantId, string effectiveDate, string salaryProcessId, bool sa, bool ca, string userId, bool isActive, bool isSeperated, bool isMaternity, string typeId)
         {
             try
             {
@@ -13513,7 +13513,7 @@ ELSE CONVERT(BIT,0) END  ---No
 									left join [HKP].[Bank] bb on bb.Id = SPLD.BankSystemID
 									left join [HKP].[BankBranch] bbranch on bbranch.Id = SPLD.BankBranchId
                                     left join [dbo].[EmployeeCodeType] ect on ect.Id=e.EmployeeCodeTypeId
-                                     WHERE 1=1 " + strDOJ + @"  and  e.EmployeeCodeTypeId in ( "+typeId+@")
+                                     WHERE 1=1 " + strDOJ + @"  and  e.EmployeeCodeTypeId in ( " + typeId + @")
                                             " + wcPayrollGroup + @"                                
                                      ) DD " + wcEmpStatus + @" ORDER BY ISNULL(EmployeeCodePreFix,''),ISNULL(EmployeeCodeNumeric,0)";
                 return _sqlRepository.GetDataCollection(cmdText);
@@ -18885,31 +18885,32 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
         private void GetEmployeeSalaryStructureForPL(string EmployeeId, string FromDate, string ToDate, out DataTable dtEmployeeSalaryPL)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT E.SystemID EmpSystemID,FORMAT(apd.MonthDate,'MMM-yy') AS MonthDesc,SUM(SDM.DefineAmount) AS Amount
+            string sql = @"SELECT E.SystemID EmpSystemID,FORMAT(apd.MonthDate,'MMM-yy') AS MonthDesc
+                            ,(SELECT  SUM(SDM.DefineAmount) AS KK from
+			                            (  
+														                            SELECT  *, DENSE_RANK() OVER (PARTITION BY SDM.EmpInfoSystemID ORDER BY SDM.EffectiveDate DESC) AS RNK
+
+			                                                                            from (
+							                                                                            SELECT SD.SystemID,SDM.PlantID, EmpInfoSystemID, SalaryIncrementSystemID, SalaryRuleMasterSystemID, EffectiveDate,IsApproved, DateApproved,sd.SequenceNo,sd.SalaryCategory,
+								                                                                            SalaryID, SalaryHeadID, EntryCurrencyID, EntryAmount, DefineCurrencyID, DefineAmount, AmtDefinitionCurrencyID, AmtDefinitionRate  
+								                                                                            from SalaryInfoDefineMaster SDM
+								                                                                            JOIN SalaryInfoDefine AS SD ON sdm.SystemID=SD.SalaryID 
+                                                                                                            WHERE sdm.EmpInfoSystemID IN (" + EmployeeId + @") AND EffectiveDate <=APD.MonthDate AND SDM.IsApproved=1 AND SD.SalaryHeadID IN (SELECT  S.SalaryHeadID FROM LeaveWithWagesRegisterSalaryHeads AS S WHERE CompanyId='" + identity.CompanyId + @"')
+								                                                                            union ALL
+								                                                                            select SD.SystemID,SDM.PlantID,EmpInfoSystemID, SalaryIncrementSystemID, SalaryRuleMasterSystemID, EffectiveDate,IsApproved, DateApproved,sd.SequenceNo,sd.SalaryCategory,
+								                                                                            SalaryID, SalaryHeadID, EntryCurrencyID, EntryAmount, DefineCurrencyID, DefineAmount, AmtDefinitionCurrencyID, AmtDefinitionRate  
+								                                                                             from SalaryInfoBackMaster SDM
+								                                                                            JOIN SalaryInfoBack AS SD ON sdm.SystemID=SD.SalaryID 
+				                                                                                             WHERE sdm.EmpInfoSystemID IN (" + EmployeeId + @") AND EffectiveDate <=APD.MonthDate AND SDM.IsApproved=1 AND SD.SalaryHeadID IN (SELECT  S.SalaryHeadID FROM LeaveWithWagesRegisterSalaryHeads AS S WHERE CompanyId='" + identity.CompanyId + @"')
+			                                                                            ) AS SDM
+			
+			                                                                    ) AS SDM where SDM.EmpInfoSystemID=APD.EmpSystemID AND ISNULL(sdm.IsApproved,0)=1 AND EffectiveDate <=APD.MonthDate AND rnk=1 
+                            ) AS Amount
 									    FROM EmployeeInformation E
 										    INNER JOIN  (SELECT DISTINCT apd.EmpSystemID, EOMONTH(APD.WorkDate) AS MonthDate
 										                   FROM AttdnProcessData AS apd WHERE apd.EmpSystemID='" + EmployeeId + @"' AND apd.WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' ) 
 										                   AS APD ON apd.EmpSystemID=e.SystemId
-											LEFT JOIN  (  
-														SELECT  *, DENSE_RANK() OVER (PARTITION BY SDM.EmpInfoSystemID ORDER BY SDM.EffectiveDate DESC) AS RNK
-
-			                                                from (
-							                                                SELECT SD.SystemID,SDM.PlantID, EmpInfoSystemID, SalaryIncrementSystemID, SalaryRuleMasterSystemID, EffectiveDate,IsApproved, DateApproved,sd.SequenceNo,sd.SalaryCategory,
-								                                                SalaryID, SalaryHeadID, EntryCurrencyID, EntryAmount, DefineCurrencyID, DefineAmount, AmtDefinitionCurrencyID, AmtDefinitionRate  
-								                                                from SalaryInfoDefineMaster SDM
-								                                                JOIN SalaryInfoDefine AS SD ON sdm.SystemID=SD.SalaryID 
-                                                                                WHERE sdm.EmpInfoSystemID IN ('" + EmployeeId + @"') AND SDM.IsApproved=1 AND SD.SalaryHeadID IN (SELECT  S.SalaryHeadID FROM LeaveWithWagesRegisterSalaryHeads AS S WHERE CompanyId='" + identity.CompanyId + @"')
-								                                                union ALL
-								                                                select SD.SystemID,SDM.PlantID,EmpInfoSystemID, SalaryIncrementSystemID, SalaryRuleMasterSystemID, EffectiveDate,IsApproved, DateApproved,sd.SequenceNo,sd.SalaryCategory,
-								                                                SalaryID, SalaryHeadID, EntryCurrencyID, EntryAmount, DefineCurrencyID, DefineAmount, AmtDefinitionCurrencyID, AmtDefinitionRate  
-								                                                 from SalaryInfoBackMaster SDM
-								                                                JOIN SalaryInfoBack AS SD ON sdm.SystemID=SD.SalaryID 
-				                                                                 WHERE sdm.EmpInfoSystemID IN ('" + EmployeeId + @"') AND SDM.IsApproved=1 AND SD.SalaryHeadID IN (SELECT  S.SalaryHeadID FROM LeaveWithWagesRegisterSalaryHeads AS S WHERE CompanyId='" + identity.CompanyId + @"')
-			                                                ) AS SDM
-			
-			                                        ) AS SDM ON SDM.EmpInfoSystemID=APD.EmpSystemID AND ISNULL(sdm.IsApproved,'')=1 AND EffectiveDate <=APD.MonthDate AND rnk=1 
-			                                        
-									    GROUP BY E.SystemID,apd.MonthDate";
+											";
             dtEmployeeSalaryPL = _sqlRepository.GetDataTable(sql);
         }
         private void GetLeaveBalances(string EmployeeId, string FromDate, string ToDate, out DataTable dtLeaveBalance)
@@ -19164,7 +19165,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
 
                 int endCol = COL;
 
-                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex=ExcelKnownColors.Grey_25_percent;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.Black;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;

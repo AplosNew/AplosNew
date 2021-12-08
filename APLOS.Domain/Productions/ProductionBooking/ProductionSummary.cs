@@ -73,6 +73,8 @@ namespace Library.Model.Productions.ProductionBooking
         public string ProcessId { get; set; }
         public string SalesOrderId { get; set; }
         public string ProductionOrderId { get; set; }
+        public string MasterOrderItemId { get; set; }
+        public string ProductLibraryId { get; set; }
         public string MaterialMasterId { get; set; }
         public string ArticleId { get; set; }
         public string WorkCenterMasterId { get; set; }

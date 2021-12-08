@@ -137,7 +137,7 @@ namespace OTSBD
                 objCon = null;
             }
         }//End Function 
-        public void GetTaxGroupWisePolicyMaster(string sGroupID, string sPlantID,string Gender, string strTaxGroupID, string strTaxYear, out DataSet dsRef)
+        public void GetTaxGroupWisePolicyMaster(string sGroupID, string sPlantID, string Gender, string strTaxGroupID, string strTaxYear, out DataSet dsRef)
         {
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;
@@ -147,7 +147,7 @@ namespace OTSBD
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 string _sql = "select distinct IsGenderSpecific from TaxPolicyMaster where TaxYearID='" + strTaxYear + @"' and TaxGroupID='" + strTaxGroupID + @"' and IsGenderSpecific=1";
                 objCon.OpenDataSetThroughAdapter(_sql, out dsRef, false, "1");
-                if(dsRef.Tables[0].Rows.Count>0)
+                if (dsRef.Tables[0].Rows.Count > 0)
                 {//gender
                     _wc = " and GenderId='" + Gender + "'";
                 }
@@ -160,9 +160,9 @@ namespace OTSBD
                           WHERE TaxGroupID = '" + strTaxGroupID + @"'
                                 AND TaxYearID = '" + strTaxYear + @"' 
                                 AND GroupID = '" + sGroupID + @"' 
-                                AND PlantID = '" + sPlantID + @"' "+_wc+"";
+                                AND PlantID = '" + sPlantID + @"' " + _wc + "";
 
-              
+
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
             }
             catch (Exception ex)
@@ -267,7 +267,7 @@ namespace OTSBD
                 objCon = null;
             }
         }//End Function 
-        public void LoadTaxableIncomeSlrWiseDataOnGrid_Change(string MasterId,string sGroupID, string sPlantID, string sEmpSystemID, string sTAXGroup, string sTAXYear, out DataSet dsRef)
+        public void LoadTaxableIncomeSlrWiseDataOnGrid_Change(string MasterId, string sGroupID, string sPlantID, string sEmpSystemID, string sTAXGroup, string sTAXYear, out DataSet dsRef)
         {
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;
@@ -280,7 +280,7 @@ namespace OTSBD
                                   TAISH.DefinitionCurrencyRate, TAISH.TaxPayablePeriod, TAISH.LocalCurrencyID, LC.Code LocalCurrency,
                                   TAISH.ConvertionRate, TAISH.YearlyIncome
                            FROM TaxableIncomeSalaryHeadWise TAISH
-                                    INNER JOIN (select * from TaxDefineMaster where systemid='"+ MasterId + @"') TDM ON TAISH.TaxDefineMasterSystemID = TDM.SystemID AND TDM.TaxYearID = '" + sTAXYear + @"'
+                                    INNER JOIN (select * from TaxDefineMaster where systemid='" + MasterId + @"') TDM ON TAISH.TaxDefineMasterSystemID = TDM.SystemID AND TDM.TaxYearID = '" + sTAXYear + @"'
                                     INNER JOIN TaxGroup TG ON TAISH.TaxGroupID = TG.SystemID AND TG.SystemID = '" + sTAXGroup + @"'
                                     INNER JOIN TaxPolicyMaster TPM ON TAISH.TaxPolicyMstID = TPM.SystemID AND TPM.TaxYearID = '" + sTAXYear + @"'
                                     INNER JOIN SalaryHead SH ON TAISH.SalaryHeadID = SH.SalaryHeadID 
@@ -375,7 +375,7 @@ namespace OTSBD
                 objCon = null;
             }
         }//End Function 
-        public void GetPLrocessLastDate(string sGroupID, string sPlantID, string sEmpInfoSystemID, string sStartMonth, string strEndMonth,string EndOfTaxYear, out DataSet dsRef)
+        public void GetPLrocessLastDate(string sGroupID, string sPlantID, string sEmpInfoSystemID, string sStartMonth, string strEndMonth, string EndOfTaxYear, out DataSet dsRef)
         {
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;
@@ -389,7 +389,7 @@ namespace OTSBD
 				                                             , DATEDIFF(MM,
 															--deduct one day
 															 DATEADD(day, -1, (CASE WHEN LastDate>CutOffDate THEN LastDate	ELSE CutOffDate END ))				                                             
-				                                            , '"+EndOfTaxYear+@"') RemainingMonth
+				                                            , '" + EndOfTaxYear + @"') RemainingMonth
                                             from
                                             (
                                             select
@@ -399,13 +399,13 @@ namespace OTSBD
                                             SELECT CutOffDate FROM [SCS].[OpeningBalanceCutOffDate] AS OCD 
                                                                         WHERE OCD.CompanyGroupId='" + sGroupID + @"' 
                                                                        -- AND OCD.CompanyId = ''
-                                                                        AND OCD.PlantId = '"+sPlantID+@"'
-                                                                         AND OCD.ModuleName = '"+bplib.clsWebLib.MODULE+@"'
+                                                                        AND OCD.PlantId = '" + sPlantID + @"'
+                                                                         AND OCD.ModuleName = '" + bplib.clsWebLib.MODULE + @"'
                                             ) CutOffDate
                                             , LastDate = CASE WHEN d.SalaryProcessedToDate<>'' THEN d.SalaryProcessedToDate
 				                                            ELSE e.DOJ END 
                                              from
-                                             (select * from employeeInformation WHERE SystemID IN ('"+ sEmpInfoSystemID + @"')) e
+                                             (select * from employeeInformation WHERE SystemID IN ('" + sEmpInfoSystemID + @"')) e
                                              left outer join
                                             (
 
@@ -617,13 +617,13 @@ namespace OTSBD
                 objCon = null;
             }
         }//End Function 
-        public void GetTaxYearPeriodValidity(string taxyear,string taxEffDate, out DataSet dsRef)
+        public void GetTaxYearPeriodValidity(string taxyear, string taxEffDate, out DataSet dsRef)
         {
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                strSQL = @" SELECT TP.* FROM scs.TaxYearPeriod TP WHERE TP.TaxYearID = '"+ taxyear + @"'
+                strSQL = @" SELECT TP.* FROM scs.TaxYearPeriod TP WHERE TP.TaxYearID = '" + taxyear + @"'
 
                                                 AND  '" + taxEffDate + @"' between StartDate and EndDate";
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -647,13 +647,13 @@ namespace OTSBD
                 //by monir 170808
                 //strSQL = @"SELECT COUNT(*) TaxPeriod, MIN(StartDate) Startmonth, MAX(EndDate) Endmonth FROM
                 //                (SELECT TP.*
-		              //                  FROM dbo.TaxYearPeriod TP
-				            //                    INNER JOIN 
-						          //                      (SELECT PeriodSystemID FROM TaxYearPeriodAndCompanyAssignment A
-									       //                         INNER JOIN
-											     //                           (SELECT * FROM PlantAndCompanyAssignment 
-												    //                            WHERE PlantID = '" + sPlantID + @"' AND GroupID = '" + sGroupID + @"') B ON A.CompanyID = B.CompanyID
-							         //                       WHERE A.GroupID = '" + sGroupID + @"') TPC ON TP.SystemID = TPC.PeriodSystemID	
+                //                  FROM dbo.TaxYearPeriod TP
+                //                    INNER JOIN 
+                //                      (SELECT PeriodSystemID FROM TaxYearPeriodAndCompanyAssignment A
+                //                         INNER JOIN
+                //                           (SELECT * FROM PlantAndCompanyAssignment 
+                //                            WHERE PlantID = '" + sPlantID + @"' AND GroupID = '" + sGroupID + @"') B ON A.CompanyID = B.CompanyID
+                //                       WHERE A.GroupID = '" + sGroupID + @"') TPC ON TP.SystemID = TPC.PeriodSystemID	
                 //                WHERE TP.TaxYearID = '" + sTaxYear + @"' AND TP.EndDate >= '" + sEffectDate + @"' AND TP.GroupID = '" + sGroupID + @"') A";
 
                 strSQL = @"SELECT COUNT(*) TaxPeriod
@@ -703,16 +703,16 @@ namespace OTSBD
                 //strSQL = @"SELECT (CONVERT(DECIMAL, DATEDIFF(d, StartDate, '" + sEffectDate + @"')) / CONVERT(DECIMAL, DATEDIFF(d, StartDate, EndDate))) TaxPeriod FROM
                 //            (
                 //             SELECT TP.*
-		              //              FROM dbo.TaxYearPeriod TP
-				            //                INNER JOIN 
-						          //                  (
+                //              FROM dbo.TaxYearPeriod TP
+                //                INNER JOIN 
+                //                  (
                 //                                      SELECT PeriodSystemID FROM TaxYearPeriodAndCompanyAssignment A
-									       //                     INNER JOIN
-											     //                       (
+                //                     INNER JOIN
+                //                       (
                 //                                                         SELECT * FROM PlantAndCompanyAssignment 
-												    //                        WHERE PlantID = '" + sPlantID + @"' AND GroupID = '" + sGroupID + @"'
+                //                        WHERE PlantID = '" + sPlantID + @"' AND GroupID = '" + sGroupID + @"'
                 //                                                        ) B ON A.CompanyID = B.CompanyID
-							         //                   WHERE A.GroupID = '" + sGroupID + @"'
+                //                   WHERE A.GroupID = '" + sGroupID + @"'
                 //                                     ) TPC ON TP.SystemID = TPC.PeriodSystemID	
                 //            WHERE TP.TaxYearID = '" + sTaxYear + @"' AND TP.EndDate >= '" + sEffectDate + @"' AND TP.GroupID = '" + sGroupID + @"') A";
 
@@ -1000,7 +1000,7 @@ namespace OTSBD
             }
         }//End Function 
 
-        public void GetOpeningBalance(string sEmpInfoSystemID,string TaxYearId, out DataSet dsRef)
+        public void GetOpeningBalance(string sEmpInfoSystemID, string TaxYearId, out DataSet dsRef)
         {
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;
@@ -1009,7 +1009,7 @@ namespace OTSBD
                 strSQL = @"SELECT TOP 1000 [SystemID]
                           ,[EmpInfoSystemID]
                           ,[TaxYearID]
-                          ,[OpeningBalance] FROM [dbo].[TaxOpeningBalance] where EmpInfoSystemID='"+ sEmpInfoSystemID + "' and TaxYearID='"+TaxYearId+"'";
+                          ,[OpeningBalance] FROM [dbo].[TaxOpeningBalance] where EmpInfoSystemID='" + sEmpInfoSystemID + "' and TaxYearID='" + TaxYearId + "'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
@@ -1166,7 +1166,7 @@ namespace OTSBD
             {
                 strSQL = @"select EmpInfoSystemID,TaxYearID,sum(isnull(Amount,0)) Amount 
                                     from [MST].[EmpWiseDirectTaxPaymentHead]
-                                    where EmpInfoSystemID='"+ sEmpInfoSystemID + @"' and TaxYearID='"+ sTaxYear + @"'
+                                    where EmpInfoSystemID='" + sEmpInfoSystemID + @"' and TaxYearID='" + sTaxYear + @"'
                                     group by EmpInfoSystemID,TaxYearID";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
@@ -1212,11 +1212,11 @@ namespace OTSBD
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                strSQL = @"SELECT * FROM TaxDefineMaster WHERE EmpInfoSystemID='"+ sEmpInfoSystemID + @"' and  TaxYearID='"+ TaxYearID + @"' and EffectiveDate=
+                strSQL = @"SELECT * FROM TaxDefineMaster WHERE EmpInfoSystemID='" + sEmpInfoSystemID + @"' and  TaxYearID='" + TaxYearID + @"' and EffectiveDate=
                                         (
                                         SELECT max(EffectiveDate) FROM TaxDefineMaster WHERE EmpInfoSystemID='" + sEmpInfoSystemID + @"' and  TaxYearID='" + TaxYearID + @"'
                                         )";
-                
+
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
@@ -1374,7 +1374,7 @@ namespace OTSBD
                 //                AND TaxYearID = '" + sTaxYearID + @"')";
 
                 strSQL = @"SELECT * FROM TaxDeductionInfoMonthWise WHERE EmpInfoSystemID IN ('" + sEmpInfoSystemID + @"') AND 
-                            TaxPayablePeriod>"+ paidUptoMonth + " and IsPaid=0 and TaxDefineMasterSystemID='"+ TaxDefineMasterSystemID + "'";
+                            TaxPayablePeriod>" + paidUptoMonth + " and IsPaid=0 and TaxDefineMasterSystemID='" + TaxDefineMasterSystemID + "'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
@@ -1412,7 +1412,7 @@ namespace OTSBD
                 objCon = null;
             }
         }//End Function
-        public void GetTaxDeductionInfoMonthWiseForDelete(int PaidUpto,string TaxMasterId, out DataSet dsRef)
+        public void GetTaxDeductionInfoMonthWiseForDelete(int PaidUpto, string TaxMasterId, out DataSet dsRef)
         {
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;
@@ -1543,9 +1543,13 @@ namespace OTSBD
 
             try
             {
-                strSQL = @"SELECT * FROM EmployeeInformation
-                           WHERE (SystemID <> '" + sEmpSystemID + @"') AND (BankSystemID = '" + sBankSystemID + @"')
-                                 AND (BankAccNo = '" + sBankAccNo + @"') AND EmployeeStatus = 'Active'";
+                strSQL = @"SELECT B.* FROM EmployeeInformation E
+LEFT JOIN EmployeeBankInfo B ON B.EmpSystemID=E.SystemId
+                           WHERE (E.SystemID <> '" + sEmpSystemID + @"') AND (B.BankSystemID = '" + sBankSystemID + @"')
+                                 AND (B.BankAccNo = '" + sBankAccNo + @"') AND E.EmployeeStatus = 'Active'";
+                //strSQL = @"SELECT * FROM EmployeeInformation
+                //           WHERE (SystemID <> '" + sEmpSystemID + @"') AND (BankSystemID = '" + sBankSystemID + @"')
+                //                 AND (BankAccNo = '" + sBankAccNo + @"') AND EmployeeStatus = 'Active'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
@@ -1559,6 +1563,33 @@ namespace OTSBD
                     blnStatus = false;
                 }
                 return blnStatus;
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
+
+        public void CheckDuplicateEmployeeBankAccNo(string sEmpSystemID, string sBankSystemID, string sBankAccNo, out DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+
+            try
+            {
+                strSQL = @"SELECT B.*,P.UserName,E.EmployeeCode FROM EmployeeInformation E
+                            LEFT JOIN EmployeeBankInfo B ON B.EmpSystemID=E.SystemId
+                            LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
+                           WHERE (E.SystemID <> '" + sEmpSystemID + @"') AND (B.BankSystemID = '" + sBankSystemID + @"')
+                                 AND (B.BankAccNo = '" + sBankAccNo + @"') AND E.EmployeeStatus = 'Active'";
+               
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+               
             }
             catch (Exception ex)
             {
@@ -1652,7 +1683,7 @@ namespace OTSBD
                                 SalaryProcMaster m 
                                 left outer join SalaryProcChild c on c.SlrProcMstSystemID=m.SystemID
                                 where c.EmpInfoSystemID='" + sEmpSystemID + @"' 
-                                and m.FromDate >= '"+ sStartDate + @"'
+                                and m.FromDate >= '" + sStartDate + @"'
                                 and m.ToDate<'" + sEndDate + @"'
                                 group by c.EntryAmount,SalaryHeadID,EmpInfoSystemID,GroupID,PlantID,m.YearNo";
 
@@ -1679,7 +1710,7 @@ namespace OTSBD
 								from(
 								select distinct max(m.ToDate) ToDate,c.EmpInfoSystemID from SalaryProcMaster m
 								left outer join SalaryProcChild c on c.SlrProcMstSystemID=m.SystemID
-								where   m.FromDate >= '"+ sStartDate + @"'
+								where   m.FromDate >= '" + sStartDate + @"'
                                 and m.ToDate<'" + sEndDate + @"'
 								and c.EmpInfoSystemID='" + sEmpSystemID + @"' 
 								group by c.EntryAmount,EmpInfoSystemID,GroupID,PlantID,m.YearNo
@@ -1711,12 +1742,12 @@ namespace OTSBD
 
                 strSQL = @"SELECT 
                                 MonthPeriod = ISNULL((DATEDIFF(m, '" + sStartDate + "', '" + sEndDate + @"')), 0),
-                                c.DefineAmount*ISNULL((DATEDIFF(m, '" + sStartDate + "', '"+ sEndDate + @"')), 0) DefineAmount,
+                                c.DefineAmount*ISNULL((DATEDIFF(m, '" + sStartDate + "', '" + sEndDate + @"')), 0) DefineAmount,
                                 c.SalaryHeadID
 
                                  FROM SalaryInfoDefineMaster m
                                 left outer join SalaryInfoDefine c on c.SalaryID=m.SystemID
-                                where m.SystemID='"+ SalaryID + "'";
+                                where m.SystemID='" + SalaryID + "'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
@@ -1731,7 +1762,7 @@ namespace OTSBD
             }
         }//End Function 
 
-        public void GetDeductedMaxPeriod(string EmpId,string TaxYearId, out DataSet dsRef)
+        public void GetDeductedMaxPeriod(string EmpId, string TaxYearId, out DataSet dsRef)
         {
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;
@@ -1742,7 +1773,7 @@ namespace OTSBD
                                 ,Replace(CONVERT(VARCHAR(11), p.EndDate, 106), ' ', '-') EndDate
                                 from TaxDeductionInfoMonthWise d
                                 left outer join [SCS].[TaxYearPeriod] p on p.Id=d.TaxPeriodSystemID
-                                where d.IsPaid =1 and d.EmpInfoSystemID='" + EmpId+ @"'  and p.TaxYearId='"+ TaxYearId + @"' 
+                                where d.IsPaid =1 and d.EmpInfoSystemID='" + EmpId + @"'  and p.TaxYearId='" + TaxYearId + @"' 
                                 group by d.EmpInfoSystemID,d.TaxPeriodSystemID,p.EndDate";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -1860,7 +1891,7 @@ namespace OTSBD
                 //               LEFT JOIN [dbo].[Currency] DCR ON A.DefinationCurrencyID = DCR.CurrencyCode
                 //               LEFT JOIN [dbo].[Currency] LCR ON A.LocalCurrencyID = LCR.CurrencyCode";
 
-      
+
 
                 strSQL = @" SELECT A.systemid,
                                                A.empinfosystemid,
@@ -2014,12 +2045,12 @@ namespace OTSBD
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-       //         strSQL = @"SELECT TC.TaxYearID, TY.TaxYearName
-	      //                      FROM dbo.TaxYearPeriodAndCompanyAssignment TC
-					  //                          LEFT JOIN dbo.TaxYear TY ON TC.TaxYearID = TY.TaxYearID
-       //                     WHERE TC.CompanyID = '" + strCompanyID + @"'
-							//GROUP BY TC.TaxYearID, TY.TaxYearName 
-       //                     ORDER BY TY.TaxYearName";
+                //         strSQL = @"SELECT TC.TaxYearID, TY.TaxYearName
+                //                      FROM dbo.TaxYearPeriodAndCompanyAssignment TC
+                //                          LEFT JOIN dbo.TaxYear TY ON TC.TaxYearID = TY.TaxYearID
+                //                     WHERE TC.CompanyID = '" + strCompanyID + @"'
+                //GROUP BY TC.TaxYearID, TY.TaxYearName 
+                //                     ORDER BY TY.TaxYearName";
 
                 strSQL = @"SELECT CTY.TaxYearID, TY.TaxYearName
 	                            FROM scs.CompanyTaxYearPeriod TC
@@ -2048,11 +2079,11 @@ namespace OTSBD
             try
             {
                 ////strSQL = @"SELECT TC.TaxYearID, TY.TaxYearName, TYP.period  
-	               ////             FROM dbo.TaxYearPeriodAndCompanyAssignment TC
-					           ////                 LEFT JOIN dbo.TaxYear TY ON TC.TaxYearID = TY.TaxYearID
-					           ////                 INNER JOIN (SELECT * FROM dbo.TaxYearPeriod 
-										      ////                      WHERE '" + strDate + @"' BETWEEN StartDate AND EndDate
-											     ////                        AND GroupID = '" + sGroupID + @"') TYP ON TC.PeriodSystemID = TYP.SystemID
+                ////             FROM dbo.TaxYearPeriodAndCompanyAssignment TC
+                ////                 LEFT JOIN dbo.TaxYear TY ON TC.TaxYearID = TY.TaxYearID
+                ////                 INNER JOIN (SELECT * FROM dbo.TaxYearPeriod 
+                ////                      WHERE '" + strDate + @"' BETWEEN StartDate AND EndDate
+                ////                        AND GroupID = '" + sGroupID + @"') TYP ON TC.PeriodSystemID = TYP.SystemID
                 ////            WHERE TC.CompanyID = '" + strCompanyID + @"'
                 ////            ORDER BY TY.TaxYearName";
                 strSQL = @" SELECT TY.Id TaxYearID,
@@ -2162,7 +2193,7 @@ namespace OTSBD
                 objCon = null;
             }
         }//End Function 
-       
+
         #endregion Tax Year
 
         #region TAX Year Process
@@ -2349,7 +2380,7 @@ namespace OTSBD
             }
         }//End Function 
         #endregion TAX Year Process
-        
+
         #region Bonus
         public void GetTaxGroupWisePolicyMaster(string sTaxPolMatSysID, out DataSet dsRef)
         {
@@ -2409,7 +2440,7 @@ namespace OTSBD
             }
         }//End Function 
 
-        public void ApprovalRollback(string _SalarySystemId,string _EmployeeSystemId,string _TaxDefinedMasterSystemId,string _TaxYearId)
+        public void ApprovalRollback(string _SalarySystemId, string _EmployeeSystemId, string _TaxDefinedMasterSystemId, string _TaxYearId)
         {
             ConnectionManager.DAL.ConManager objCon = null;
             try
@@ -2454,7 +2485,7 @@ namespace OTSBD
                 catch (Exception)
                 {
                     throw;
-                }               
+                }
             }
             finally
             {
@@ -2464,7 +2495,7 @@ namespace OTSBD
         }//End Function 
 
         #endregion
-        
+
         #region SSA
         public void GetTaxableIncome(string sEmpInfoSystemID, string Taxyearid, int taxpaidtomonth, out DataSet dsRef)
         {
@@ -2499,7 +2530,7 @@ namespace OTSBD
 						                                    where EmpInfoSystemID='" + sEmpInfoSystemID + @"' 
 						                                    and IsPaid=1 
 						                                    and TaxPayablePeriod<=" + taxpaidtomonth + @"	
-						                                    and TaxPeriodSystemID in (select Id from scs.TaxYearPeriod where TaxYearId='"+ Taxyearid + @"')	
+						                                    and TaxPeriodSystemID in (select Id from scs.TaxYearPeriod where TaxYearId='" + Taxyearid + @"')	
 						                                    group by TaxDefineMasterSystemID 				
 				                                    ) d on h.TaxDefineMasterSystemID=d.TaxDefineMasterSystemID 
 
@@ -2539,7 +2570,7 @@ namespace OTSBD
 					                            from TaxDefineMaster m
 					                            where EmpInfoSystemID='" + sEmpInfoSystemID + @"'  and TaxYearID='" + Taxyearid + @"'
 					                            and EffectiveDate=(select max(EffectiveDate) from TaxDefineMaster 
-                                                where EmpInfoSystemID='" + sEmpInfoSystemID + @"' and TaxYearID='"+ Taxyearid + @"')
+                                                where EmpInfoSystemID='" + sEmpInfoSystemID + @"' and TaxYearID='" + Taxyearid + @"')
 					                            )";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -2567,7 +2598,7 @@ namespace OTSBD
                             left outer join (select TaxDefineMasterSystemID,count(systemid) c from TaxDeductionInfoMonthWise where EmpInfoSystemID= '" + sEmpInfoSystemID + @"' and IsPaid=0
                             group by TaxDefineMasterSystemID
                             ) npd on m.SystemID=npd.TaxDefineMasterSystemID
-                            where m.EmpInfoSystemID='" + sEmpInfoSystemID + "' and TaxYearID='"+ Taxyearid + "'";
+                            where m.EmpInfoSystemID='" + sEmpInfoSystemID + "' and TaxYearID='" + Taxyearid + "'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
