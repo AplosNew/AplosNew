@@ -42,7 +42,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 			}).finally(function () {
 			});
 	};
-	$scope.getData();
+	//$scope.getData();
 
 	$http({
 		method: 'GET',
@@ -91,7 +91,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 		$scope.productNew = Object.assign({}, $scope.product);
 		$scope.materialStockList = [];
 		$scope.specificStockList = [];
-
+		
 		getIssueDetailList();
 
 		if (!$rootScope.isCollapsed) $rootScope.toggle();
@@ -107,7 +107,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 		$scope.productNew = Object.assign({}, $scope.product);
 		$scope.materialStockList = [];
 		$scope.specificStockList = [];
-
+		$scope.ispostDisable = true;
 		getIssueDetailList();
 		if (!baseService.isUndefinedOrNull(a.data.OrderRefNo) || !baseService.isUndefinedOrNull(a.data.ContractId) || !baseService.isUndefinedOrNull(a.data.ProductionOrderId)) {
 			$scope.productNew.OrderSpecific = 'Yes';
@@ -364,6 +364,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 		$scope.specificStockList = [];
 		$scope.IssueType = 'Revenue';
 		$scope.productNew.OrderSpecific = 'No';
+		$scope.ispostDisable = true;
 	}
 
 	// #region Details

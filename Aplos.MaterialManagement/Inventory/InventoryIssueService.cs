@@ -2247,53 +2247,40 @@ namespace Library.MaterialManagement.Inventory
 
         public IEnumerable<object> GetDataByInventoryIssue(string plantId)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
-                //var sql = @"SELECT E.UserName AS Entity ,isnull(II.IssueType,'') issuetype, II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
-                //                              ,FORMAT(II.IssueDate, 'dd-MMM-yyyy') IssueDate, MS.UserName AS MaterialStorage
-                //					 ,EI.EmployeeCode + ' - ' + EI.EmployeeName EmployeeName,SUM(IID.TransactionQty) Qty,SUM(IID.PolicyAmount) Amount,II.Remarks,II.Id AS IssueId,II.OrderRefNo
-                //                                FROM[TRN].[InventoryIssue]
-                //    AS II
-                //                            JOIN TRN.InventoryIssueDetail AS IID ON IID.InventoryIssueId= II.Id AND IID.IsAsset= 0
-                //                            JOIN[HKP].[MaterialStorage] AS MS ON II.MaterialStorageId= MS.Id
-
-                //                            left join dbo.EmployeeInformation AS EI ON EI.SystemId= II.EmployeeId
-
-                //                            Left JOIN [ORG].[Entity] E On E.id= II.EntityId
-                //                            WHERE II.PlantId= '" + plantId + @"' AND ISNULL(II.[Status],'') <>'Posting' 
-                //                            GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
-                //                              ,II.IssueDate, MS.UserName
-                //					 ,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo  Order BY II.Id DESC";
-
-                var sql = @"SELECT E.UserName AS Entity 
+                
+                var sql = @"SELECT * FROM (
+                            SELECT II.Id,II.IssueDate IssueDate1,E.UserName AS Entity 
 							,isnull(II.IssueType,'') issuetype
-							, II.Id, II.CompanyGroupId
+							,  II.CompanyGroupId
 							, II.CompanyId, II.PlantId
 							, II.EntityId, II.MaterialStorageId
 							,FORMAT(II.IssueDate, 'dd-MMM-yyyy') IssueDate
+							
 							, MS.UserName AS MaterialStorage 
 							,EI.EmployeeCode + ' - ' + EI.EmployeeName EmployeeName
-							,SUM(IIH.qty) Qty
+							,IIH.Qty
 							,IIh.TotalAmount Amount
 							,II.Remarks,II.Id AS IssueId
 							,II.OrderRefNo
 							,C.Id CountryId,c.UserName CountryName,II.ContractId,II.ProductionOrderId,Con.ContractNo
 							FROM[TRN].[InventoryIssue] AS II
-							left JOIN TRN.InventoryIssueDetail AS IID ON IID.InventoryIssueId= II.Id AND IID.IsAsset= 0
+							left join (
+									SELECT IID.InventoryIssueId,IID.IsAsset,IIH.IssueRequestDetailId,SUM(IIH.Qty) Qty, SUM(IIH.TotalAmount) TotalAmount
+									FROM trn.InventoryIssueHistory IIH JOIN TRN.InventoryIssueDetail IID ON IID.Id=IIH.InventoryIssueDetailId
+									WHERE IID.IsAsset= 0
+									GROUP BY IID.InventoryIssueId,IIH.IssueRequestDetailId,IID.IsAsset
+									) IIH ON IIH.InventoryIssueId=II.Id
 							left JOIN[HKP].[MaterialStorage] AS MS ON II.MaterialStorageId= MS.Id
 							left join dbo.EmployeeInformation AS EI ON EI.SystemId= II.EmployeeId
 							Left JOIN [ORG].[Entity] E On E.id= II.EntityId
-							left join (Select InventoryIssueDetailId,IssueRequestDetailId,qty, Rate,TotalAmount from trn.InventoryIssueHistory ) IIH ON IIH.InventoryIssueDetailId=IID.Id
 							left join trn.IssueRequest IR On IR.Id=IIH.IssueRequestDetailId
 							left JOIN SCS.Country c ON C.Id=IR.CountryId
 							left join dbo.Contract Con On Con.Id=II.ContractId
-						WHERE II.PlantId= '" + plantId + @"' AND ISNULL(II.[Status],'') <>'Posting' AND IID.IsAsset= 0
-						GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
-						,II.IssueDate, MS.UserName
-						,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo  
-						,C.Id ,c.UserName ,II.ContractId ,II.ProductionOrderId,Con.ContractNo,IIH.TotalAmount
-						Order BY II.IssueDate DESC";
+						WHERE II.PlantId= '"+ plantId + @"'
+						AND IIH.IsAsset= 0)X
+						Order BY 2 DESC";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

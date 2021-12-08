@@ -604,14 +604,38 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.operationList = [];
     $scope.operationButtonClick = function (args) {
         $scope.selectednode = args;
+        //$scope.selectednode.items[0].addInfo;
         $http({
             method: 'GET',
-            url: 'IE/LineLayoutForProductionBulletin/GetOperationList'
+            url: 'IE/LineLayoutForProductionBulletin/GetOperationList?ProductionBulletinMasterId=' + $scope.SelectedLine.ProductionBulletinId + '&ProcessId=' + $scope.DailyProductionTargetNew.ProcessId,
         }).then(function successCallback(response) {
             $scope.operationList = response.data;
             angular.element(document.querySelector("#modalOperationList")).modal("toggle");
         });
     }
+
+    $scope.recordoperationdoubleclick = function (args) {
+
+        try {
+            $scope.selectednode.items[0].addInfo.MaterialMasterId = args.data.MaterialMasterId;
+            $scope.selectednode.items[0].addInfo.MaterialMasterDesc = args.data.MaterialMasterDesc;
+            $scope.selectednode.items[0].addInfo.ArticleId = args.data.ArticleId;
+            $scope.selectednode.items[0].addInfo.ArticleDesc = args.data.ArticleDesc;
+            $scope.selectednode.items[0].addInfo.ArticleShortName = args.data.ArticleShortName;
+            $scope.selectednode.items[0].addInfo.OperationId = args.data.OperationId;
+            $scope.selectednode.items[0].addInfo.OperationDesc = args.data.OperationDesc;
+            $scope.selectednode.items[0].addInfo.OperationVariationId = args.data.OperationVariationId;
+            $scope.selectednode.items[0].addInfo.OperationVariationDesc = args.data.OperationVariationDesc;
+            $scope.selectednode.items[0].addInfo.MachineOrHand = args.data.IsMachineRequired;
+            $scope.selectednode.items[0].addInfo.TotalSPT = args.data.TotalSPT;
+            //$scope.selectednode.items[0].addInfo.WorkstationTargetPerHour = args.data.WorkstationTargetPerHour;
+
+            angular.element(document.querySelector("#modalOperationList")).modal("hide");
+        } catch (e) {
+
+        }
+    }
+
     $scope.EmployeeSearchFrom = 'card';
     $scope.employeeButtonClick = function (args, source, nodename) {
         $scope.EmployeeSearchFrom = source;
@@ -658,8 +682,15 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-                    if (_explicitSave)
+                    //if (_explicitSave)
                         ShowResult(response.data.Message, 'success');
+
+                    //$scope.DailyProductionTargetNew.ManPowerWithMachine = response.data.Data[0].TotalMachine;
+                    //$scope.DailyProductionTargetNew.ManPowerWithHand = response.data.Data[0].TotalHand;
+
+                    //var gridObj = $("#GridDailyTargetList").data("ejGrid");
+                    //gridObj.refreshContent();
+                    $scope.getDailytarget();
 
                 }
             }), function errorCallBack(response) {

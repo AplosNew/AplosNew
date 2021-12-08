@@ -4290,7 +4290,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             $http({
                 method: 'POST',
                 url: $scope.path + "GetOthersLiabilityDataList",
-                data: { /*FromDate: $scope.reportParameters.FromDate,*/ ToDate: $scope.report.ToDate },
+                data: { ToDate: $scope.reportParameters.ToDate },
                 dataType: 'JSON'
 
             }).then(function successCallback(response) {
@@ -4553,6 +4553,10 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         var reportFormat = "Excel";
         if (baseService.isUndefinedOrNull(data.VoucherNo)) return ShowResult('No Id found', 'failure');
         $window.open('Accounts/InventoryPayable/PabyableJournal?' + '&reportFormat=' + reportFormat + '&inventoryReceiveId=' + data.GRNNo + '&employeeId=' + null + '&isReversCharge=' + false + '&isFoc=' + false);
+    };
+    $scope.onInvoiceVoucherPrint = function (data) {
+        var reportFormat = "Pdf";
+        $window.open('Products/PurchaseDocumentsAcceptance/DocumentAcceptanceVoucher?reportFormat=' + reportFormat + '&voucherId=' + data.VoucherId, '_blank');
     };
 
 
