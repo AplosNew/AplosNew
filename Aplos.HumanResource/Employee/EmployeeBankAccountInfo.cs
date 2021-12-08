@@ -63,12 +63,19 @@ namespace Library.HumanResource.Employee
                             throw (ex);
                         }
 
-                        if (objTaxPoli.DuplicateEmployeeBankAccNo(master.EmpSystemID, master.BankSystemID, master.BankAccNo.Trim()) == false)
+                        //if (objTaxPoli.DuplicateEmployeeBankAccNo(master.EmpSystemID, master.BankSystemID, master.BankAccNo.Trim()) == false)
+                        //{
+                        //    //txtBankAccNo.Focus();
+                        //    Exception ex = new Exception("Same Bank Account No define with other active Employee...");
+                        //    throw (ex);
+                        //}
+
+                        objTaxPoli.CheckDuplicateEmployeeBankAccNo(master.EmpSystemID, master.BankSystemID, master.BankAccNo.Trim(),out DataSet dsBank);
+                        if (dsBank.Tables[0].Rows.Count>0)
                         {
-                            //txtBankAccNo.Focus();
-                            Exception ex = new Exception("Same Bank Account No define with other active Employee...");
+                            Exception ex = new Exception("Same Bank Account No define with other active Employee Code "+ dsBank.Tables[0].Rows[0]["EmployeeCode"] + " and Plant is "+ dsBank.Tables[0].Rows[0]["UserName"] + "");
                             throw (ex);
-                        }                        
+                        }
                     }
 
                     #endregion Validation

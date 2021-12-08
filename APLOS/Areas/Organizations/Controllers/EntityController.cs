@@ -2,6 +2,7 @@
 using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
+using Library.Model.Addresses;
 using Library.Model.Organizations;
 using Library.Service.Organizations;
 using Library.Service.Setups;
@@ -184,11 +185,11 @@ namespace Aplos.Areas.Organizations.Controllers
         }
 
         [HttpPost]
-        public JsonResult Edit(Entity entity)
+        public JsonResult Edit(Entity entity, AddressMaster addressMaster)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             entity.CompanyGroupId = identity.CompanyGroupId;
-            _entityService.Update(entity);
+            _entityService.Update(entity, addressMaster);
             return Json(new { Message = AplosMessage.Updated });
         }
 
@@ -199,11 +200,11 @@ namespace Aplos.Areas.Organizations.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(Entity entity)
+        public JsonResult Create(Entity entity, AddressMaster addressMaster)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             entity.CompanyGroupId = identity.CompanyGroupId;
-            _entityService.Insert(entity);
+            _entityService.Insert(entity, addressMaster);
             return Json(new { Message = AplosMessage.Insert });
         }
 
